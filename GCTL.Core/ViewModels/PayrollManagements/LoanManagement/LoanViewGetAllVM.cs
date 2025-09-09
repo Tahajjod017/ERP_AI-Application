@@ -11,7 +11,6 @@ namespace GCTL.Core.ViewModels.PayrollManagements.LoanManagement
         public int LoanID { get; set; }
         public int ? EmployeeID { get; set; }
         public string? EmployeeName { get; set; }
-        public string? Department { get; set; }
         public decimal ? LoanAmount { get; set; }
         public decimal ? EmployeeEarlyPayment { get; set; }
         public string ? TenureMonth { get; set; }

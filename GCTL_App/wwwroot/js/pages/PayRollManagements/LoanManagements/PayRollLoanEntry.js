@@ -717,10 +717,10 @@
                       </td>
                       <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.employeeDepartment || 'HRM'}</td>
                       <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.loanAmount || 0}</td>
-                      <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.tenureMonthtytyt || 'Early Payment'}</td>
+                      <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.employeeEarlyPayment || 0}</td>
                       <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.tenureMonth || 'Month'}</td>
                       <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.monthlyEMI || 0}</td>
-                      <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.monthlyEMITT || 'Outstanding Balance'}</td>
+                      <td class="leaveFrom align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.outSatndingbalance || 0}</td>
                         <td class="dptStatus align-middle white-space-nowrap ps-5 fw-semibold text-body py-0">
                           <span class="badge ${getBadgeClass(getStatusText(item))}">${getStatusText(item)} </span>
                            ${shouldShowInfoIcon(item) ? `

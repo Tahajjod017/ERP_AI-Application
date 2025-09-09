@@ -1,143 +1,152 @@
-﻿
-    <div class="mb-9 mt-1">
+﻿@{
 
-        <div class="card p-4">
-            <div class="invoice-wrapper">
-                <div class="d-flex justify-content-center">
-                    <span class="h4">Payslip for the month of March 2025</span>
-                </div>
+    DateTime date = DateTime.Now;
+}
+<div class="mb-9 mt-1">
 
-                <div class="payment-info">
-                    <div class="row border-bottom">
-                        <div class="col-sm-6 mb-3">
-                            <span>Payslip No.</span><strong>859654</strong>
-                        </div>
-                        <div class="col-sm-6 text-end">
-                            <span>Payment Date</span>
-                            <strong>Feb 02, 2025 - 12:30 am</strong>
-                        </div>
-                    </div>
-                </div>
-                <div class="payment-details mt-3">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <img src="../../assets/img/logo.svg" class="mb-2">
-                            <strong> CSL Technology </strong>
-                            <p>
-                                52, GCTL software hub <br> Banani <br> Dhaka <br> Bangladesh <br><a href="#"> hr@einfosoft.com </a>
-                            </p>
-                        </div>
-                        <div class="col-sm-6 text-end">
-                            <span>Payment To</span>
-                            <strong> Sarah Smith </strong>
-                            <p>
-                                A 507 Parimal Hights <br> Hazi-Para <br> Cox's Bazar <br> Bangladesh <br>
-                                <a href="#"> sarah@einfosoft.com </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="line-items">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div>
-                                <p class="extra-notes"><strong>Earnings</strong></p>
-                                <table class="table table-bordered">
-                                    <tbody class="">
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">Basic</strong>
-                                                <span class=" me-2 float-end">80000</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">HRA</strong><span class="me-2 float-end">10000</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">DA</strong><span class="me-2 float-end">8000</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">Special Allowance</strong><span class="me-2 float-end">5000</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">Bonus</strong><span class="me-2 float-end">7500</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">Total Earnings</strong><span class="me-2 float-end"><strong>900000</strong></span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+    <div class="card p-4">
+        <div class="invoice-wrapper">
+            <div class="d-flex justify-content-center">
+                <span class="h4">Payslip for the month of @date.ToString("MMMM yyyy")</span>
+            </div>
 
-                        <div class="col-sm-6">
-                            <div>
-                                <p class="extra-notes"><strong>Deductions</strong></p>
-                                <table class="table table-bordered ">
-                                    <tbody class="me-2">
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">Provident Fund</strong><span class="me-2 float-end">1000</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">Professional Tax</strong><span class="me-2 float-end">2000</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">ESI</strong><span class="me-2 float-end">0</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">Home Loan</strong><span class="me-2 float-end">20000</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">TDS</strong><span class="me-2 float-end">10000</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong class="ms-2">Total Deductions</strong><span class="me-2 float-end"><strong>35000</strong></span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-12">
-                            <div class="col-sm-12">
-                                <span class="fw-bold">Net Pay : 8,552.00</span><br><br><span>Eight Thousand Five Hundred Fifty Two Only</span>
-                            </div>
-                        </div>
+            <div class="payment-info">
+                <div class="row border-bottom">
+                    <div class="col-sm-6 mb-3">
+                        <span>Payslip No.</span><strong>859654</strong>
                     </div>
-                    <div class="d-flex justify-content-end">
-                        <div class="d-flex flex-column mt-2">
-                            <span class="fw-bolder">For Priya Jain</span><span class="mt-4">Authorised Signatory</span>
-                        </div>
-                    </div>
-                    <div class="print">
-                        <a href="" onclick="return false;"><i class="fa fa-print"></i> Print this receipt </a>
+                    <div class="col-sm-6 text-end">
+                        <span>Payment Date</span>
+                        <strong>@date.ToString("MMM dd, yyyy - hh:mm tt")</strong>
                     </div>
                 </div>
             </div>
+            <div class="payment-details mt-3">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <img src="../../assets/img/logo.svg" class="mb-2">
+                        <strong> CSL Technology </strong>
+                        <p>
+                            52, GCTL software hub <br> Banani <br> Dhaka <br> Bangladesh <br><a href="#"> hr@einfosoft.com </a>
+                        </p>
+                    </div>
+                    <div class="col-sm-6 text-end">
+                        <span>Payment To</span>
+                        <strong> Sarah Smith </strong>
+                        <p>
+                            A 507 Parimal Hights <br> Hazi-Para <br> Cox's Bazar <br> Bangladesh <br>
+                            <a href="#"> sarah@einfosoft.com </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="line-items">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div>
+                            <p class="extra-notes"><strong>Earnings</strong></p>
+                            <table class="table table-bordered">
+                                <tbody class="">
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">Basic</strong>
+                                            <span class=" me-2 float-end">80000</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">HRA</strong><span class="me-2 float-end">10000</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">DA</strong><span class="me-2 float-end">8000</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">Special Allowance</strong><span class="me-2 float-end">5000</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">Bonus</strong><span class="me-2 float-end">7500</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">Total Earnings</strong><span class="me-2 float-end"><strong>900000</strong></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div>
+                            <p class="extra-notes"><strong>Deductions</strong></p>
+                            <table class="table table-bordered ">
+                                <tbody class="me-2">
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">Provident Fund</strong><span class="me-2 float-end">1000</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">Professional Tax</strong><span class="me-2 float-end">2000</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">ESI</strong><span class="me-2 float-end">0</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">Home Loan</strong><span class="me-2 float-end">20000</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">TDS</strong><span class="me-2 float-end">10000</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">Total Deductions</strong><span class="me-2 float-end"><strong>35000</strong></span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-12">
+                            <span class="fw-bold">Net Pay : 8,552.00</span><br><br><span>Eight Thousand Five Hundred Fifty Two Only</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <div class="d-flex flex-column mt-2">
+                        <span class="fw-bolder">For Priya Jain</span><span class="mt-4">Authorised Signatory</span>
+                    </div>
+                </div>
+                <div class="print">
+                    <a href="#" onclick="testPrintAlert(event)"><i class="fa fa-print"></i> Print this receipt</a>
+                </div>
+            </div>
         </div>
-
-
     </div>
+</div>
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/js/pages/payrollmanagements/PayRollPolicy/PaySlipForEmp.js"></script>
+    
+}

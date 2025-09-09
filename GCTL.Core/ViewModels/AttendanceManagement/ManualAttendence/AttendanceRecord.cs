@@ -21,7 +21,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ManualAttendence
         public string ActualOutTime { get; set; }
         public string BreakInTime { get; set; }
         public string BreakOutTime { get; set; }
-        public string Overtime { get; set; }
+        public TimeOnly? Overtime { get; set; }
         public int BiometricHits { get; set; }
         public string PossibleReason { get; set; }
         public List<PunchData> PunchData { get; set; }

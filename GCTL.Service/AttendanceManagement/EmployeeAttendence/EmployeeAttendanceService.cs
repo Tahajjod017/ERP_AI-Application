@@ -48,7 +48,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                                string sortColumn = "OrganizationID",
                                string sortOrder = "desc",
                                int? organizationID = null,
-                               int? employeeId =null)
+                               int? employeeId =null, int? statusID=null, string? sortId = "") 
         {
             var query = _genericRepository.All()
                 .AsNoTracking()
@@ -65,6 +65,44 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             if (employeeId.HasValue && employeeId.Value > 0)
             {
                 query = query.Where(x => x.EmployeeID == employeeId.Value);
+            }
+            if (statusID.HasValue && statusID.Value > 0)
+            {
+                query = query.Where(x => x.StatusID == statusID.Value);
+            }
+            // Handle sortId logic for time-based sorting
+            if (!string.IsNullOrEmpty(sortId))
+            {
+                switch (sortId)
+                {
+                    case "Ascending":
+                        // Sort by AttendanceDate in ascending order (earliest first)
+                        query = query.OrderBy(x => x.AttendanceDate);
+                        break;
+                    case "Descending":
+                        // Sort by AttendanceDate in descending order (latest first)
+                        query = query.OrderByDescending(x => x.AttendanceDate);
+                        break;
+                    case "LastMonth":
+                        // Filter records for the last month
+                        var lastMonth = DateTime.Now.AddMonths(-1);
+                        var dateOnlyLastMonth = DateOnly.FromDateTime(lastMonth);
+                        query = query.Where(x => x.AttendanceDate >= dateOnlyLastMonth);
+                        break;
+                    case "Last7days":
+                        // Filter records for the last 7 days
+                        var last7Days = DateTime.Now.AddDays(-7);
+                        var dateOnlyLast7Days = DateOnly.FromDateTime(last7Days);
+                        query = query.Where(x => x.AttendanceDate >= dateOnlyLast7Days);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                // If no sortId is specified, default to descending order by AttendanceDate
+                query = query.OrderByDescending(x => x.AttendanceDate);
             }
 
             var result = await PaginationService<Attendance, EmployeeAttendenceVM>.GetPaginatedData(
@@ -89,9 +127,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
                     CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
                     //LateHour = x.LateHour.HasValue ? x.LateHour.Value.ToString("F2") : "-",
-                    LateHour = x.LateHour.HasValue ? (x.LateHour.Value * 60).ToString("0") : "-",
+                    LateHour = x.LateHour.HasValue ? (x.LateHour.Value).ToString("H") : "-",
                     //EarlyHour = x.EarlyHour.HasValue ? x.EarlyHour.Value.ToString("F2") : "-",
-                    EarlyHour = x.EarlyHour.HasValue ? (x.EarlyHour.Value * 60).ToString("0") : "-",
+                    EarlyHour = x.EarlyHour.HasValue ? (x.EarlyHour.Value).ToString("H") : "-",
 
 
                     OvertimeHour = x.OvertimeHour.HasValue ? x.OvertimeHour.Value.ToString("F2") : "-",
@@ -178,8 +216,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             // Fix for CS1503: Correctly convert manualOvertime from string to TimeSpan before formatting  
             var manualOvertime = attendanceData.OvertimeHour.HasValue
-                ? TimeSpan.FromHours((double)attendanceData.OvertimeHour.Value)
-                : TimeSpan.Zero;
+                                ? TimeSpan.FromMinutes(attendanceData.OvertimeHour.Value.Hour * 60 + attendanceData.OvertimeHour.Value.Minute)
+                                : TimeSpan.Zero;
+
 
             return new EmployeeAttendenceVM
             {
@@ -231,10 +270,10 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             var punchTimes = await _genericAttendanceLog.All()
                 .Where(x => x.DeletedAt == null
                             && x.Attendance.EmployeeID == userId
-                            && x.PunchTime >= today
-                            && x.PunchTime < tomorrow)
-                .OrderBy(x => x.PunchTime)
-                .Select(x => x.PunchTime)
+                            && x.CHECKTIME_UTC >= today
+                            && x.CHECKTIME_UTC < tomorrow)
+                .OrderBy(x => x.CHECKTIME_UTC)
+                .Select(x => x.CHECKTIME_UTC)
                 
                 .ToListAsync();
 
@@ -242,12 +281,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                // consistent with your ViewBag logic
                 .Select((x, index) =>
                 {
-                    var localTime = x.ToOrgTime(_localizationContext);
-                   // var formatted = localTime;
-                   // ctx.TimePattern = "h:mm tt"; // e.g., "7:30 PM"
 
-
-
+                    var localTime = x.HasValue ? x.Value.ToOrgTime(_localizationContext) : DateTime.MinValue.ToOrgTime(_localizationContext);
+                
 
                     var type = index % 2 == 0 ? "Punch In" : "Punch Out";
 

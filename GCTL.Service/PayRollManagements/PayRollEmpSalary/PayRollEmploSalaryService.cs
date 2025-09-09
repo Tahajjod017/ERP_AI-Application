@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary;
 using GCTL.Data.Models;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,6 +34,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             _employeeBaseAllowancesRepository = employeeBaseAllowancesRepository;
         }
 
+        #region Get All Table 
         public async Task<PaginationService<EmployeeBaseBenefits, PayRollEmpSalaryGetAllVM>.PaginationResult<PayRollEmpSalaryGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null, string imgSrcThumb = null)
         {
             try
@@ -77,12 +80,12 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                       string.IsNullOrEmpty(term) ||
                       EF.Functions.Like(b.EmployeeBaseBenefitID.ToString(), $"%{term}%"),
                      b => new PayRollEmpSalaryGetAllVM
-                    {
-                        EmployeeId = b.EmployeeID,
-                        EmployeeName = $"{b.Employee?.FirstName} {b.Employee?.LastName}",
-                        EmployeeImage =!string.IsNullOrEmpty(b.Employee?.EmployeeImageFileName) ? imgSrcThumb + b.Employee.EmployeeImageFileName : "",
-                        EmpDepartment = _employeeOfficeInfoRepository.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
-                        Salary = employeeSalarySettingsRepository.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Select(x => x.Salary).FirstOrDefault(),
+                     {
+                         EmployeeId = b.EmployeeID,
+                         EmployeeName = $"{b.Employee?.FirstName} {b.Employee?.LastName}",
+                         EmployeeImage = !string.IsNullOrEmpty(b.Employee?.EmployeeImageFileName) ? imgSrcThumb + b.Employee.EmployeeImageFileName : "",
+                         EmpDepartment = _employeeOfficeInfoRepository.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
+                         Salary = employeeSalarySettingsRepository.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Select(x => x.Salary).FirstOrDefault(),
                          //Bonus = CalculateBonus(b.EmployeeID),
                          //Deduction = CalculateDeduction(b.EmployeeID),
                          //NetSalary = CalculateNetSalary(b.EmployeeID)
@@ -104,7 +107,73 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             }
         }
 
+
+
         //
+        #endregion
+
+        #region Get PaySlip 
+        public async Task<CommonReturnViewModel> GetPaySlip(int id)
+        {
+            try
+            {
+                // Fetch EmployeeOfficeInfo with related Organization data
+                var baseQuery = await _employeeOfficeInfoRepository.AllActive()
+                    .Where(x => x.EmployeeID == id)
+                    .Include(x => x.Organization) // Assuming a navigation property exists
+                    .FirstOrDefaultAsync();
+
+                if (baseQuery == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Employee not found."
+                    };
+                }
+
+                // Map to PayRollPaySlipEmpVM (you'll need to populate other fields)
+                var paySlipVM = new PayRollPaySlipEmpVM
+                {
+                    //EmployeeName = /* Fetch from Employees table or related entity */,
+                    OrganizationName = baseQuery.Organization?.OrganizationName ?? " ", 
+                    OrganizationAddress=baseQuery.Organization?.Address ?? " ",
+                    EmailAddress=baseQuery?.Organization?.Address ?? " ",
+                    //Basic = /* Calculate or fetch from payroll data */,
+                    //HRA = /* Calculate or fetch from payroll data */,
+                    // DA = /* Calculate or fetch from payroll data */,
+                    // SpecialAllowance = /* Calculate or fetch from payroll data */,
+                    // Bonus = /* Calculate or fetch from payroll data */,
+                    // TotalEarnings = /* Sum of earnings */,
+                    // ProvidentFund = /* Calculate or fetch from payroll data */,
+                    //ProfessionalTax = /* Calculate or fetch from payroll data */,
+                    // ESI = /* Calculate or fetch from payroll data */,
+                    // HomeLoan = /* Calculate or fetch from payroll data */,
+                    // TDS = /* Calculate or fetch from payroll data */,
+                    //TotalDeductions = /* Sum of deductions */,
+                    // NetPay = /* TotalEarnings - TotalDeductions */,
+                    //PayslipNo = /* Generate or fetch payslip number */,
+                    // PaymentDate = /* Set payment date */
+                };
+
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Data = paySlipVM,
+                    Message = "Payslip retrieved successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                // Log exception if logging is implemented
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = $"An error occurred: {ex.Message}"
+                };
+            }
+        }
+        #endregion
 
         //private decimal CalculateSalary(int? employeeId)
         //{

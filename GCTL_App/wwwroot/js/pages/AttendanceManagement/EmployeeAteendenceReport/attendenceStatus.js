@@ -184,13 +184,31 @@ const data = {
         ]
     }
 };
-//function updateAttendanceUI(data) {
-//    const sessionTimeline = data.value.sessionTimeline;
 
-//    // Call the functions to update the UI with the fetched data
-//    updateSessionHours(sessionTimeline);
-//    updateProgressBars(sessionTimeline);
+// Function to fetch data via AJAX and update the session details
+//function fetchSessionData() {
+//    $.ajax({
+//        url: '/your-endpoint',  // The URL of your backend endpoint
+//        type: 'GET',  // HTTP method (GET, POST, etc.)
+//        dataType: 'json',  // Expected response type
+//        success: function (response) {
+//            // Assuming the response has the same structure as your initial example
+//            if (response && response.value && response.value.sessionTimeline) {
+//                const data = response;  // Store the fetched data in a local `data` variable
+
+//                // Now call the functions to update session hours and progress bars
+//                updateSessionHours(data);
+//                updateProgressBars(data);
+//            } else {
+//                console.error("Invalid data structure received");
+//            }
+//        },
+//        error: function (xhr, status, error) {
+//            console.error("Error fetching session data: ", error);
+//        }
+//    });
 //}
+
 
 // Convert duration from string (e.g., "2h 0m") to total minutes
 function convertToMinutes(duration) {
@@ -292,7 +310,7 @@ function updateProgressBars() {
     // Update the timeline labels
     const timelineLabels = $('#timelineLabels');
     let currentTime = 0;
-    let currentHour = 6;  // Start at 6:00 AM
+    let currentHour = 7;  // Start at 6:00 AM
 
     data.value.sessionTimeline.forEach(session => {
         const durationInMinutes = convertToMinutes(session.duration);
@@ -776,7 +794,18 @@ $(document).ready(function () {
         currentPage = 1;
         loadTableData();
     });
+    $('#StatusID').on('change', function () {
+        var statusId = $(this).val();
 
+        // Reset to first page when changing file ID
+        loadTableData();
+    });
+    $('#sortingListId').on('change', function () {
+        var sortId = $(this).val();
+
+        // Reset to first page when changing file ID
+        loadTableData();
+    });
     $("#attendanceStatus-prevPageBtn").on('click', function () {
         if (currentPage > 1) {
             currentPage--;
@@ -826,6 +855,8 @@ function updateSortingIndicator() {
 
 function loadTableData(sortColumn, sortOrder) {
     var searchTerm = $("#attendanceStatus-searchInput").val();
+    var statusId = $("#StatusID").val();
+    var sortId = $("#sortingListId").val();
 
     $.ajax({
         url: '/EmployeesAttendance/GetAlls',
@@ -835,7 +866,9 @@ function loadTableData(sortColumn, sortOrder) {
             pageSize: pageSize,
             searchTerm: searchTerm,
             sortColumn: sortColumn,
-            sortOrder: sortOrder
+            sortOrder: sortOrder,
+            statusId: statusId,
+            sortId: sortId
         },
         success: function (response) {
             var tableBody = $("#attendanceStatus-tBody");

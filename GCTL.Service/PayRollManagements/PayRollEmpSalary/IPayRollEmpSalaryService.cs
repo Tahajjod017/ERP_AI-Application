@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
+﻿using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -14,5 +15,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
     {
         Task<PaginationService<EmployeeBaseBenefits, PayRollEmpSalaryGetAllVM>.PaginationResult<PayRollEmpSalaryGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null, string imgSrcThumb = null);
+        Task<CommonReturnViewModel> GetPaySlip(int id);
     }
 }
