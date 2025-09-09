@@ -147,7 +147,7 @@ namespace GCTL.Service.CommonService
                                        Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
                                        GroupName = dep.DepartmentName ?? "-"
                                    })
-                           .Take(pageSize) // limit per request
+                           .Take(pageSize) 
                            .ToListAsync();
 
             return employees;
