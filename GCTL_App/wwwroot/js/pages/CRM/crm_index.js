@@ -56,12 +56,12 @@
 
 
     const statusColors = {
-        "contacted": "text-bg-primary",       // green
-        "new": "text-bg-primary",             // blue
-        "not contacted": "text-bg-info", // gray
-        "nurturing": "text-bg-light",       // yellow
-        "qualified": "text-bg-success",          // light blue
-        "unqualified": "text-bg-danger"       // red
+        "contacted": "badge-phoenix-info",       // green
+        "new": "badge-phoenix-primary",             // blue
+        "not contacted": "badge-phoenix-warning", // gray
+        "nurturing": "badge-phoenix-secondary",       // yellow
+        "qualified": "badge-phoenix-success",          // light blue
+        "unqualified": "badge-phoenix-danger"       // red
     };
 
     function getStatusBadgeClass(status) {
@@ -115,7 +115,7 @@
                         <td class="position align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="7">${item.phone}</td>
                         <td class="reason align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="8">${item.contactName}</td>
                         <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="9">
-                           <span class="badge ${statusBadge} fs-9">${item.leadStatus}</span>
+                           <span class="badge badge-phoenix ${statusBadge} fs-9">${item.leadStatus}</span>
                         </td>
                         <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="10">
                             <button class="btn btn-sm btn-primary" id="editBtn" data-id="${item.leadId}"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -162,40 +162,10 @@
                 $("#leadPriorityID").val(response.priorityID);
                 $("#approximateDealValue").val(response.approximateDealValue);
                 $("#probabilityPercentage").val(response.probability);
-
-                const selectedValues = [26, 27];
-                const multiSelectElement = document.querySelector('#serviceTypes');
-
-
-                // Loop through all options
-                Array.from(multiSelectElement.options).forEach(option => {
-                    option.selected = selectedValues.includes(parseInt(option.value));
+                // multiselect edit field read
+                $('#serviceTypes').val(response.serviceIds).each(function () {
+                    coreui.MultiSelect.getInstance(this)?.update();
                 });
-
-                // Refresh CoreUI MultiSelect UI
-                multiSelectElement.dispatchEvent(new Event('change'));
-
-               
-              
-                //if (response.serviceIds.length > 0) {
-                //    showDev(response.serviceIds);
-
-                //    // Set selected options
-                //    $('#serviceTypes').val('27');
-                //}
-                //$('#serviceTypes').trigger('change');
-                //var selectedIds = response.serviceIds.map(String);
-                //$("#serviceTypes").val(selectedIds).trigger("change");
- 
-                //const selectElement = document.getElementById('serviceTypes');
-                //const selectedValues = Array.from(selectElement.selectedOptions).map(option => option.value);
-                //showDev(response)
-                ////if (response.success) {
-                ////    //toastr.success(response.message);
-                    
-                ////} else {
-                //    toastr.error(response.message || "Failed to create lead");
-                //}
             },
             error: function (xhr) {
                 toastr.error("Error creating lead");
@@ -223,5 +193,49 @@
         }
     });
 
+    // ==============================
+    // update lead information
+    // ==============================
+
+    $("#editBtn").on("click", function (e) {
+        e.preventDefault();
+        //if (await fieldValidation()) {
+        const data = {
+            LeadID: $("#leadID").val(),
+            LeadName: $("#leadName").val() || "",
+            LeadStatusID: parseInt($("#leadStatusID").val()) || 0,
+            LeadSourceID: parseInt($("#leadSourceID").val()) || 0,
+            LeadOwnerID: parseInt($("#leadOwnerID").val()) || 0,
+            PriorityID: parseInt($("#leadPriorityID").val()) || 0,
+            ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
+            ProbabilityPercentage: parseFloat($("#probabilityPercentage").val()) || 0,
+            LeadDescription: $("#descriptionText").val(),
+            ServiceTypeIds: $("#serviceTypes").val(),
+        };
+        showDev(data);
+        $.ajax({
+            url: '/CRM/EditLeadData',
+            method: 'POST',
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+
+            success: function (response) {
+
+                if (response.success) {
+                    toastr.success(response.message);
+                    let modalEl = document.getElementById("editModal");
+                    let modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+                    location.reload();
+                } else {
+                    toastr.error(response.message || "Failed to create lead");
+                }
+            },
+            error: function (xhr) {
+                toastr.error("Error creating lead");
+            }
+        });
+        //}
+    })
 
 });

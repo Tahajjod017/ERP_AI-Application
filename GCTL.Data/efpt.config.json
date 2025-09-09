@@ -348,10 +348,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[records]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[Religions]",
          "ObjectType": 0
       },

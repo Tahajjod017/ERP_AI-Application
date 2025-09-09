@@ -1,5 +1,10 @@
 $(function () {
-
+    const ids = {
+        note : "#aNote",
+        date : '#aDate',
+        file: '#aFile',
+        leadID: '#leadID',
+    }
     // ==============================
     // Active option buttons
     // ==============================
@@ -42,14 +47,14 @@ $(function () {
     let loadedIds2 = new Set();
 
 
-    $('#addLDetails').on('click', function (e) {
+    $('#addLActivity').on('click', function (e) {
         e.preventDefault();
 
         const buttonID = $(".option-btn.active").data('id');
-        const date = $("#lDetailsDate").val();
-        const text = $("#lDetailsText").val();
+        const date = $(ids.date).val();
+        const text = $(ids.note).val();
         const id = $("#leadID").val();
-        const fileInput = $('#formFile')[0];
+        const fileInput = $(ids.file)[0];
         const file = fileInput.files[0];
 
         if (!id || !buttonID || !date) {
@@ -77,9 +82,9 @@ $(function () {
                 resetAndReload();
                 resetAndReloadUpcoming();
                 $(".option-btn").removeClass("active");
-                $("#lDetailsDate").val("");
-                $("#lDetailsText").val("");
-                $("#formFile").val("");
+                $(ids.date).val("");
+                $(ids.note).val("");
+                $(ids.file).val("");
                 $('#file-field').hide();
             },
             error: function (error) {
@@ -156,7 +161,6 @@ $(function () {
             contentType: 'application/json',
             data: { id, query: search, page, type: typeD },
             success: function (response) {
-                debugger;
                 $("#activity-label").text(tabName);
                 if (!response || response.length === 0) {
                     noMoreDataDown = true;
@@ -252,7 +256,7 @@ $(function () {
                                 <span class="fw-semibold">${activityDate}</span>
                             </div>
                         </div>
-                        <p class="fs-9 mb-0">${value.activityNote}</p>
+                        ${value.activityNote ? `<p class="fs-9 mb-0">${value.activityNote}</p>` : ''}
                     </div>
                 </div>
             </div>`;
@@ -272,17 +276,6 @@ $(function () {
             container.innerHTML = `<iframe src="${fileUrl}" 
                            style="width:100%;height:500px" frameborder="0"></iframe>`;
         }
-        //else if (["xls", "xlsx"].includes(ext)) {
-        //    // Excel preview using SheetJS
-        //    fetch(fileUrl).then(res => res.arrayBuffer()).then(data => {
-        //        let workbook = XLSX.read(data, { type: "array" });
-        //        let firstSheet = workbook.SheetNames[0];
-        //        let html = XLSX.utils.sheet_to_html(workbook.Sheets[firstSheet]);
-        //        container.innerHTML = `<div class="table-responsive" style="max-height:500px;overflow:auto">${html}</div>`;
-        //    }).catch(() => {
-        //        window.open(fileUrl, "_blank"); // fallback download
-        //    });
-        //}
         else {
             // Not supported ? force download
             window.open(fileUrl, "_blank");
@@ -329,7 +322,7 @@ $(function () {
     
 
     // ==============================
-    // Convert date to ISO string
+    // Update lead information
     // ==============================
 
     $("#editBtn").on("click", function (e) {
@@ -347,7 +340,6 @@ $(function () {
             LeadDescription: $("#descriptionText").val(),
             ServiceTypeIds: $("#serviceTypes").val(),
         };
-        debugger
         showDev(data);
             $.ajax({
                 url: '/LeadDetails/EditLeadData',
@@ -401,7 +393,7 @@ $(function () {
         let fieldValue = $(this).val();
         let fieldID = $(this).attr("id");
         let fieldName = fieldID === "leadSource" ? "source" : fieldID == "lead-status" ? "stage" : fieldID === 'leadPriority' ? "priority" : "";
-        let leadID = $("#leadID").val();
+        let leadID = $(ids.leadID).val();
 
         $.ajax({
             url: '/LeadDetails/UpdateLeadValue',
@@ -441,33 +433,82 @@ $(function () {
     // ==============================
     // loss and won button work
     // ==============================
-    $("#loss, #won").on("click", function (e) {
-        let type = $(this).attr('id');
-        const id = $("#leadID").val();
-        $.ajax({
-            url: '/LeadDetails/IsWon',
-            method: 'POST',
-            data: { id : id, type : type },
-            success: function (response) {
-                showDev(`${type}Modal`);
-                let modalEl = document.getElementById(`${type}Modal`);
-                let modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                modal.hide();
-                location.reload();
-            },
-            complete: function () { loading2 = false; },
-            error: function (jqXHR, textStatus) {
-                toastr.error("Error: " + textStatus);
-            }
+    $("#Lost, #Won").on("click", function (e) {
+        const typeID = $(this).data('id');
+        const leadID = $(ids.leadID).val();
+        const note = $(ids.note).val();
+        const id = $(this).attr('id');
+        $(".option-btn").removeClass("active");
+        $(".special-btn").removeClass("active")
+        $(this).addClass("active");
+        if (id == 'Lost') {
+            $("#transferDiv").css("display", "none");
+        }
+        showDev(typeID);
+        showDev(leadID);
+        showDev(note);
+        if (validation(id)) {
+            $.ajax({
+                url: '/LeadDetails/IsWon',
+                method: 'POST',
+                data: { LeadID: leadID, LeadActivityTypeID: typeID, ActivityNote : note },
+                success: function (response) {
+                    if (id === 'Won') {
+                        $("#transferDiv").css("display", "block");
+                    }
+                    if (response == true) {
+                        toastr.success("Successfully updated");
+                    } else {
+                        toastr.error("Something went wrong");
+                    }
+                    resetAndReload();
+                    resetAndReloadUpcoming();
+                    $(ids.date).val("");
+                    $(ids.note).val("");
+                    $(ids.file).val("");
+                },
+                complete: function () { loading2 = false; },
+                error: function (jqXHR, textStatus) {
+                    toastr.error("Error: " + textStatus);
+                }
 
-        });
+            });
+        }
+        
     });
 
 
+    
+
+    function validation(placeName) {
+        let requiredField = placeName === 'Lost' ? [ids.note] : [];
+        let isValid = true;
+        showDev(requiredField);
+        requiredField.forEach(function (selector) {
+            let $el = $(selector);
+            showDev(selector)
+            let fieldText = $el.val();
+            if (fieldText.trim() === "") {
+                $el.css("border-color", "red");
+                isValid = false;
+            } else {
+                $el.css("border-color", "");
+            }
+        });
+
+        return isValid;
+    }
+
+    // ==============================
+    // validation load
+    // ==============================
+
+    
+
+   
     // ==============================
     // Initial load
     // ==============================
-   
     updateActivate(1, "reset");
     updateUpcomingActivate();
    

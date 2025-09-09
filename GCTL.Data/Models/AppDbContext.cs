@@ -43,10 +43,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
 
     //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
-
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
-
     public virtual DbSet<Attendance> Attendance { get; set; }
 
     public virtual DbSet<AttendanceLog> AttendanceLog { get; set; }
@@ -293,13 +291,11 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<YearlyEndBonusTypes> YearlyEndBonusTypes { get; set; }
 
-    public virtual DbSet<records> records { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<ActionLogs>(entity =>
         {
+            base.OnModelCreating(modelBuilder);
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2BD3C9DBD");
 
             entity.Property(e => e.ActionName).HasMaxLength(150);
@@ -646,8 +642,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //                j.HasKey("UserId", "RoleId");
         //            });
         //});
-
-
         modelBuilder.Entity<ApplicationUser>()
 .HasDiscriminator<string>("Discriminator")
 .HasValue<ApplicationUser>("ApplicationUser");
@@ -729,12 +723,14 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<AttendanceLog>(entity =>
         {
-            entity.HasKey(e => e.AttendanceLogID).HasName("PK__Attendan__6E3D7064DFA1D0DD");
+            entity.HasKey(e => e.AttendanceLogID).HasName("PK__Attendan__6E3D7064DFBEC8A7");
 
+            entity.Property(e => e.CHECKTIME_UTC).HasColumnType("datetime");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeviceSN).HasMaxLength(50);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.PunchTime).HasColumnType("datetime");
@@ -747,19 +743,19 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasOne(d => d.Attendance).WithMany(p => p.AttendanceLog)
                 .HasForeignKey(d => d.AttendanceID)
-                .HasConstraintName("FK__Attendanc__Atten__0E8E2250");
+                .HasConstraintName("FK__Attendanc__Atten__2E7BCEF5");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.AttendanceLogCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__Attendanc__Creat__10766AC2");
+                .HasConstraintName("FK__Attendanc__Creat__2F6FF32E");
 
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.AttendanceLogDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__Attendanc__Delet__1352D76D");
+                .HasConstraintName("FK__Attendanc__Delet__30641767");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.AttendanceLogUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__Attendanc__Updat__116A8EFB");
+                .HasConstraintName("FK__Attendanc__Updat__31583BA0");
         });
 
         modelBuilder.Entity<BloodGroup>(entity =>
@@ -2692,6 +2688,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.LeadActivityIcon).HasMaxLength(50);
             entity.Property(e => e.LeadActivityName).HasMaxLength(50);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UseFor).HasMaxLength(20);
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadActivityTypesCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
@@ -4822,19 +4819,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.YearlyEndBonusTypesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__YearlyEnd__Updat__2F2FFC0C");
-        });
-
-        modelBuilder.Entity<records>(entity =>
-        {
-            entity.Property(e => e._event).HasColumnName("event");
-            entity.Property(e => e.device_serial_num)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.image)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.records_time).HasColumnType("datetime");
-            entity.Property(e => e.records_utcTime).HasColumnType("datetime");
         });
 
         OnModelCreatingPartial(modelBuilder);

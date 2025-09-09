@@ -52,6 +52,8 @@ namespace GCTL.Service.CRM.LeadDetails
                     new LeadActivityTypes{LeadActivityIcon = "fa-quote-left", LeadActivityName = "Quatation", CreatedAt = DateTime.UtcNow},
                     new LeadActivityTypes{LeadActivityIcon = "fa-angles-right", LeadActivityName = "Rev. Quatation", CreatedAt = DateTime.UtcNow},
                     new LeadActivityTypes{LeadActivityIcon = "fa-file", LeadActivityName = "Attachment", CreatedAt = DateTime.UtcNow},
+                    new LeadActivityTypes{LeadActivityIcon = "fa-won-sign", LeadActivityName = "Won", CreatedAt = DateTime.UtcNow, UseFor = "special"},
+                    new LeadActivityTypes{LeadActivityIcon = "fa-square-minus", LeadActivityName = "Lost", CreatedAt = DateTime.UtcNow, UseFor = "special"},
                 };
 
                 await _leadActivityTypesGenericRepository.AddRangeAsync(items);
@@ -137,17 +139,38 @@ namespace GCTL.Service.CRM.LeadDetails
 
         public async Task<bool> AddIsWon(IsWonVM isWonVM)
         {
+            var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == isWonVM.LeadID);
+            var leadTypeObj = await _leadActivityTypesGenericRepository.FirstOrDefaultAsync(u => u.LeadActivityTypeID == isWonVM.LeadActivityTypeID);
+            var leadTypeID = leadTypeObj.LeadActivityTypeID;
 
-            var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == isWonVM.id);
+            if (leadTypeID != 0)
+            {
+                var leadActivityObj = new GCTL.Data.Models.LeadDetails()
+                {
+                    LeadID = leadObj.LeadID,
+                    ActivityDateTime = DateTime.UtcNow,
+                    LeadActivityTypeID = leadTypeID,
+                    ActivityNote = isWonVM.ActivityNote,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = isWonVM.CreatedBy,
+                    LIP = isWonVM.LIP,
+                    LMAC = isWonVM.LMAC,
+                };
+                await _leadDetailsGenericRepository.AddAsync(leadActivityObj);
 
-            leadObj.IsWwn = isWonVM.type == "won" ? true : false;
-            leadObj.ClosingDate = DateTime.UtcNow;
-            leadObj.UpdatedAt = DateTime.UtcNow;
-            leadObj.UpdatedBy = isWonVM.UpdatedBy;
 
-            await _leadsRepository.UpdateAsync(leadObj);
-            return true;
 
+
+
+                leadObj.IsWwn = leadTypeObj.LeadActivityName == "Won" ? true : false;
+                leadObj.ClosingDate = DateTime.UtcNow;
+                leadObj.UpdatedAt = DateTime.UtcNow;
+                leadObj.UpdatedBy = isWonVM.UpdatedBy;
+
+                await _leadsRepository.UpdateAsync(leadObj);
+                return true;
+            }
+            return false;
         }
     }
 }
