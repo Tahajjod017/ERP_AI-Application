@@ -33,9 +33,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
+
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
-
 
     public virtual DbSet<Attendance> Attendance { get; set; }
 
@@ -285,9 +285,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<ActionLogs>(entity =>
         {
+            base.OnModelCreating(modelBuilder);
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2BD3C9DBD");
 
             entity.Property(e => e.ActionName).HasMaxLength(150);
@@ -547,7 +547,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__ApprovalT__Updat__2EA5EC27");
         });
-
+        
         modelBuilder.Entity<ApplicationUser>()
    .HasDiscriminator<string>("Discriminator")
    .HasValue<ApplicationUser>("ApplicationUser");

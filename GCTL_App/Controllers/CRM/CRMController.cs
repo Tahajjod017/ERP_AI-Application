@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.Employee.EmployeeResign;
 using GCTL.Data.Models;
 using GCTL.Service.CRM;
+using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.CRM.LeadDetails;
 using GCTL.Service.Employees.EmployeeResign;
 using GCTL.Service.Language;
@@ -16,7 +17,7 @@ namespace GCTL_App.Controllers.CRM
 {
     public class CRMController : BaseController
     {
-
+        private readonly ILeadCreateService _leadCreateService;
         private readonly IGenericRepository<LeadSources> _leadSourceTypeRepository;
         private readonly IGenericRepository<LeadActivityTypes> _leadActivityTypesRepository;
         private readonly IGenericRepository<LeadStatuses> _leadStatusesRepository;
@@ -27,7 +28,7 @@ namespace GCTL_App.Controllers.CRM
         private readonly AppDbContext _context;
         private readonly ICRMService _crmService;
         private readonly IGenericRepository<AddressTypes> _addressTypeService;
-        public CRMController(IGenericRepository<AddressTypes> addressTypeService, ITranslateService translateService, IUserProfileService userProfileService, ICRMService crmService, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<Services> serviceTypeRepository, AppDbContext context) : base(translateService, userProfileService)
+        public CRMController(IGenericRepository<AddressTypes> addressTypeService, ITranslateService translateService, IUserProfileService userProfileService, ICRMService crmService, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<Services> serviceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService) : base(translateService, userProfileService)
         {
             _crmService = crmService;
             _addressTypeService = addressTypeService;
@@ -37,6 +38,7 @@ namespace GCTL_App.Controllers.CRM
             _prioritiesRepository = prioritiesRepository;
             _serviceTypeRepository = serviceTypeRepository;
             _context = context;
+            _leadCreateService = leadCreateService;
         }
 
         public IActionResult Index()
@@ -130,6 +132,26 @@ namespace GCTL_App.Controllers.CRM
                 CustomerInfoVM obj = new();
                 return Ok(obj);
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditLeadData([FromBody] LeadUpdateVM leadUpdateVM)
+        {
+            if (ModelState.IsValid)
+            {
+                if (leadUpdateVM.LeadID != 0)
+                {
+                    var result = await _leadCreateService.EditLead(leadUpdateVM);
+                    return Ok(result);
+                }
+            }
+            var results = new ReturnView
+            {
+                Success = false,
+                Message = "Data not inserted",
+            };
+            return Ok(results);
+
         }
     }
 

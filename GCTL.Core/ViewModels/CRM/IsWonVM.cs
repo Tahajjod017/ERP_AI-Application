@@ -8,7 +8,10 @@ namespace GCTL.Core.ViewModels.CRM
 {
     public class IsWonVM : BaseViewModel
     {
-        public int id { get; set; }
-        public string type { get; set; }
+        public int LeadID { get; set; }
+
+        public int LeadActivityTypeID { get; set; }
+
+        public string? ActivityNote { get; set; }
     }
 }

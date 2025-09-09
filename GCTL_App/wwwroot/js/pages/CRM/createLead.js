@@ -1660,8 +1660,6 @@ $(document).ready(function () {
         let services = $("#serviceTypes").val();
   
         if (await fieldValidation()) {
-            debugger;
-
 
             const data = {
                 LeadName: $("#" + idMapIndex.indexBase.leadName).val() || "",
@@ -1675,7 +1673,6 @@ $(document).ready(function () {
                 LeadDescription: $("#" + idMapIndex.indexBase.leadDescription).val(),
                 ServiceTypeIds: $("#serviceTypes").val() || [],
             };
-            debugger;
             $.ajax({
                 url: '/CreateLead/CreateLeadData',
                 method: 'POST',

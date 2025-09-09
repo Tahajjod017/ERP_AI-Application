@@ -115,31 +115,16 @@
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label" >@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
+                        <label class="form-label" >@Html.SmartLocalize("Lead Owner Name")<span style="color:red;">&nbsp;*</span></label>
                         <select class="form-multi-select coreUiDD"
-                                id="OrganizationIDs"
+                                id="ownerID"
                                 multiple
                                 data-coreui-selection-type="counter"
                                 data-coreui-search="true"
-                                data-coreui-placeholder="@Html.SmartLocalize("Select Organization")..." required>
+                                data-coreui-placeholder="@Html.SmartLocalize("Select Lead Owner")..." required>
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label for="form-control">Lead Owner Name</label>
-                        <select class="form-select" id="leadOwnerID" asp-items="@ViewBag.EmployeeDD as SelectList">
-
-                            @* @if (Model.LeadOwnerId != 0)
-                            {
-                                <option value="@Model.LeadOwnerId" selected>
-                                    @Model.LeadOwnerName
-                                </option>
-                            }
-                            else
-                            {
-                                <option selected>Open this select menu</option>
-                            } *@
-                        </select>
-                    </div>
+                    
                     <div class="col-md-6">
                         <label for="form-control">Lead Source</label>
                         <select class="form-select" id="leadSourceID"  asp-items="@ViewBag.LeadSourceDD as SelectList" required>
@@ -156,12 +141,14 @@
                         <label for="form-control">Approximate Deal Value</label>
                         <input class="form-control" id="approximateDealValue"  type="text" placeholder="" />
                     </div>
+
                     <div class="col-md-6">
                         <label for="form-control">Service Type</label>
                         <select class="form-multi-select form-multi-select" multiple id="serviceTypes" asp-items="@ViewBag.ServiceDD as SelectList">
                             <option value="" disabled selected>@Html.SmartLocalize("Select Service")...</option>
                         </select>
                     </div>
+
                     <div class="col-md-6">
                         <label for="form-control">@Html.SmartLocalize("Probability (%)")</label>
                         <div class="d-flex align-items-center mt-1">

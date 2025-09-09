@@ -228,7 +228,7 @@
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Priority")</label>
                             <select class="form-select choiceDD" id="priorityID" asp-items="@ViewBag.LeadPriorities as SelectList" required>
-                                <option value="" selected>@Html.SmartLocalize("Select Status")</option>
+                                <option value="" selected>@Html.SmartLocalize("Select Priority")</option>
                             </select>
                         </div>
                     </div>
@@ -412,131 +412,6 @@
                 </div>
             </div>
 
-            @* <!-----  person shiping address code ------>
-
-            <h5 class="text-body-highlight fs-8 mb-2 ms-2 mt-2">Shipping Address</h5>
-            <div class="border-top pb-0 mb-3"></div>
-            <div class="row">
-                <!-- Left Section -->
-                <div class="col-md-6">
-                    <div>
-                        <input type="number" id="shippingIndexIA_ID" name="name" hidden />
-                        <input type="text" name="name" value="" id="countryCodeShipingIndex" hidden />
-                    </div>
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" id="autocompleteShippingIndex" class="form-control" placeholder="Customer name" required>
-                            <label class="form-label req">Full Address</label>
-                            <span class="text-danger small"></span>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" id="streetShippingIndex" class="form-control" placeholder="Street" required>
-                                    <label class="form-label req">Street</label>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6 ps-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" id="cityShippingIndex" class="form-control" placeholder="City" required>
-                                    <label class="form-label req">City</label>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" id="additionalAddressShippingIndex" class="form-control" placeholder="" required>
-                                    <label class="form-label req">Additional Address</label>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6 ps-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" id="stateShippingIndex" class="form-control" placeholder="" required>
-                                    <label class="form-label req">State/Province</label>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input id="postalCodeShippingIndex" type="text" class="form-control" placeholder="" required>
-                                    <label class="form-label req">Zip/Postal Code</label>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6 ps-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input id="countryShippingIndex" type="text" class="form-control" placeholder="" required>
-                                    <label class="form-label req">Country</label>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" id="latitudeShippingIndex" class="form-control" placeholder="" required>
-                                    <label class="form-label req">Latitude</label>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6 ps-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" id="longitudeShippingIndex" class="form-control" placeholder="" required>
-                                    <label class="form-label req">Longitude</label>
-                                    <span class="text-danger small"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Right Section -->
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-6 pe-1 col-sm-6">
-                            <div class="mb-3 form-floating">
-                                <input type="text" id="firstNameShippingIndex" class="form-control" placeholder="" required>
-                                <label class="form-label req">First Name</label>
-                                <span class="text-danger small"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-6 ps-1 col-sm-6">
-                            <div class="mb-3 form-floating">
-                                <input type="text" id="lastNameShippingIndex" class="form-control" placeholder="" required>
-                                <label class="form-label req">Last Name</label>
-                                <span class="text-danger small"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 mb-3">
-                        <input class="form-control" id="phone5Index" type="tel" placeholder="Phone Number" />
-                    </div>
-                    <div class="col-12 mb-3">
-                        <input class="form-control" id="phone6Index" type="tel" placeholder="Other Phone" />
-                    </div>
-                    <div class="col-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" id="emailShippingIndex" class="form-control" placeholder="" required>
-                            <label class="form-label req">Email</label>
-                            <span class="text-danger small"></span>
-                        </div>
-                    </div>
-                </div>
-
-            </div> *@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-light me-2">Cancel</button>
