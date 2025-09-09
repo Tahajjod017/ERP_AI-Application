@@ -127,73 +127,7 @@
                 currentSortOrder: currentSortOrder,
                 organizationId: organizationId,
             },
-            //success: function (response) {
-
-
-
-            //    console.log("Datassssss", response);
-            //    var tableBody = $("#PayRollEmpSalary-body");
-            //    tableBody.empty();
-            //    var totalItems = response.paginationInfo.totalItems;
-
-            //    if (response.data.length > 0) {
-            //        response.data.forEach(function (item, index) {
-            //
-            //            if (currentSortOrder === 'asc') {
-            //                rowIndex = (currentPage - 1) * pageSize + index + 1;
-            //            } else {
-            //                rowIndex = totalItems - ((currentPage - 1) * pageSize + index);
-            //            }
-            //            const avatar = getAvatarHtml(item);
-            //            tableBody.append(`
-            //             <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-            //                <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
-            //                    <span>#Emp54736</span>
-            //                </td>
-            //                <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-            //              <div class="d-flex align-items-center file-name-icon">
-            //                <div class="avatar avatar-m avatar-bordered me-2">
-            //                 ${avatar}
-            //                </div>
-            //                <div class="ms-1">
-            //                  <h6 class="fw-bold">${item.employeeName}</h6>
-            //                  <span class="fs-12 fw-normal ">${item.employeeDepartment || 'HRM'}</span>
-            //                </div>
-            //              </div>
-            //            </td>
-            //                <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-            //                    <div class="d-flex align-items-center position-relative">
-            //                        <div class="avatar avatar-m me-3">
-            //                            <img class="rounded-circle avatar-placeholder" src="../../assets/img/team/avatar.webp" alt="" />
-            //                        </div><a class="text-body-highlight fw-bold stretched-link" href="#!">Hasan Ali</a>
-            //                    </div>
-            //                </td>
-            //                <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">Developer</td>
-            //                <td class="empSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">50000</td>
-            //                <td class="empBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">10000</td>
-            //                <td class="empDeduction align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">5000</td>
-            //                <td class="netSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">55000</td>
-            //                <td class="paySlip align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
-            //                    <a  asp-action="Index" asp-controller="PaySlipForEmp"><i class="fas fa-download text-success"></i></a>
-            //                </td>
-
-
-            //            </tr>
-            //       `);
-            //        });
-            //    } else {
-            //        tableBody.append('<tr><td colspan="10" class="text-center">No data available</td></tr>');
-            //    }
-
-            //    var paginationInfo = response.paginationInfo;
-
-            //    $("#payRollEmp-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-            //    $("#payRollEmp-totalCount").text(`(${paginationInfo.totalItems})`);
-
-            //    updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
-            //}
-
-            //
+            
             success: function (response) {
                 console.log("Data:", response);
                 var tableBody = $("#PayRollEmpSalary-sellers-body");

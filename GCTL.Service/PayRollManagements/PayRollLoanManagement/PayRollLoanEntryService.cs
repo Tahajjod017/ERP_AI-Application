@@ -39,7 +39,8 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
         private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
         private readonly IGenericRepository<Statuses> status;
         private readonly IUserInfoService _userInfoService;
-        public PayRollLoanEntryService(IGenericRepository<Loan> loanRepository, IGenericRepository<LoanInstallmentPeriods> loanInstallment, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<LoanBaseApprovalHistory> loanBaseHistory, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<Statuses> status, IUserInfoService userInfoService) : base(loanRepository)
+        private readonly IGenericRepository<LoanDetails> loanDetailsRepository;
+        public PayRollLoanEntryService(IGenericRepository<Loan> loanRepository, IGenericRepository<LoanInstallmentPeriods> loanInstallment, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<LoanBaseApprovalHistory> loanBaseHistory, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<Statuses> status, IUserInfoService userInfoService, IGenericRepository<LoanDetails> loanDetailsRepository) : base(loanRepository)
         {
             this.loanRepository = loanRepository;
             this.loanInstallment = loanInstallment;
@@ -52,6 +53,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
             this.approvaldesignation = approvaldesignation;
             this.status = status;
             _userInfoService = userInfoService;
+            this.loanDetailsRepository = loanDetailsRepository;
         }
         #region Save Data
 
@@ -618,7 +620,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                                       select role.Name).FirstOrDefaultAsync();
 
                 // 🔹 Step 3: Base query with includes
-                var query = loanRepository.AllActive().Include(x=>x.Status).Include(x => x.Employee).Include(x => x.LoanInstallmentPeriod).OrderByDescending(x => x.LoanID).AsQueryable();
+                var query = loanRepository.AllActive().Include(x=>x.Status).Include(x => x.Employee).Include(x=>x.LoanDetails).Include(x => x.LoanInstallmentPeriod).OrderByDescending(x => x.LoanID).AsQueryable();
                 if (query == null)
                 {
                     throw new InvalidOperationException("query source is null.");
@@ -715,8 +717,14 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                         EmployeeImage = (b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName)) ? url + b.Employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive()
                         .Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department != null ? m.Department.DepartmentName : "").FirstOrDefault(),
-                        ApproverStep =b.ApprovalStage   
+                        ApproverStep =b.ApprovalStage  ,
+                        EmployeeEarlyPayment=b.LoanDetails.Where(x=>x.LoanID==b.LoanID).Select(x=>x.EarlyPayAmount).FirstOrDefault(),
+                        
+                        OutSatndingbalance = b.LoanAmount.HasValue && b.LoanDetails != null && b.LoanDetails.Any()
+                     ? b.LoanAmount.Value - b.LoanDetails.Where(x => x.LoanID == b.LoanID).Sum(x => (x.EarlyPayAmount ?? 0) + (x.CurrentInstallmentAmunt ?? 0)) : b.LoanAmount ?? 0
+
                     });
+
                 return result;
 
             }
@@ -749,7 +757,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                                       select role.Name).FirstOrDefaultAsync();
 
                 // 🔹 Step 3: Base query with includes
-                var query = loanRepository.AllActive().Include(x => x.Employee).Include(x => x.LoanInstallmentPeriod).OrderByDescending(x => x.LoanID).AsQueryable();
+                var query = loanRepository.AllActive().Include(x => x.Employee).Include(x=>x.LoanDetails).Include(x => x.LoanInstallmentPeriod).OrderByDescending(x => x.LoanID).AsQueryable();
                 if (query == null)
                 {
                     throw new InvalidOperationException("query source is null.");
@@ -841,7 +849,11 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                         EmployeeName = b.Employee != null ? $"{b.Employee.FirstName ?? ""} {b.Employee.LastName ?? ""}".Trim() : "",
                         EmployeeImage = (b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName)) ? url + b.Employee.EmployeeImageFileName : "",
                         StatusName = b.Status != null ? b.Status.StatusName ?? "" : "",
-                        EmployeeDepartment = empoffi.AllActive() .Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department != null ? m.Department.DepartmentName ?? "" : "").FirstOrDefault() ?? ""
+                        EmployeeDepartment = empoffi.AllActive() .Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department != null ? m.Department.DepartmentName ?? "" : "").FirstOrDefault() ?? "",
+                               EmployeeEarlyPayment = b.LoanDetails.Where(x => x.LoanID == b.LoanID).Select(x => x.EarlyPayAmount).FirstOrDefault(),
+
+                        OutSatndingbalance = b.LoanAmount.HasValue && b.LoanDetails != null && b.LoanDetails.Any()
+                     ? b.LoanAmount.Value - b.LoanDetails.Where(x => x.LoanID == b.LoanID).Sum(x => (x.EarlyPayAmount ?? 0) + (x.CurrentInstallmentAmunt ?? 0)) : b.LoanAmount ?? 0
                     });
 
 
@@ -877,7 +889,7 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
                                       select role.Name).FirstOrDefaultAsync();
                 bool isSuperAdmin = string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase);
                 // 🔹 Step 3: Base query with includes
-                var query = loanRepository.AllActive().Include(x => x.Employee).Include(x => x.LoanBaseApprovalHistory).Include(x => x.LoanInstallmentPeriod).OrderByDescending(x => x.LoanID).AsQueryable();
+                var query = loanRepository.AllActive().Include(x => x.Employee).Include(x => x.LoanBaseApprovalHistory).Include(x=>x.LoanDetails).Include(x => x.LoanInstallmentPeriod).OrderByDescending(x => x.LoanID).AsQueryable();
                 if (query == null)
                 {
                     throw new InvalidOperationException("query source is null.");
@@ -969,7 +981,12 @@ namespace GCTL.Service.PayRollManagements.PayRollLoanManagement
 
                         EmployeeName = b.Employee != null ? $"{b.Employee.FirstName} {b.Employee.LastName}" : "",
                         EmployeeImage = (b.Employee != null && !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName)) ? url + b.Employee.EmployeeImageFileName : "",
-                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department != null ? m.Department.DepartmentName : "").FirstOrDefault()
+                        EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department != null ? m.Department.DepartmentName : "").FirstOrDefault(),
+                        EmployeeEarlyPayment = b.LoanDetails.Where(x => x.LoanID == b.LoanID).Select(x => x.EarlyPayAmount).FirstOrDefault(),
+
+                        OutSatndingbalance = b.LoanAmount.HasValue && b.LoanDetails != null && b.LoanDetails.Any()
+                     ? b.LoanAmount.Value - b.LoanDetails.Where(x => x.LoanID == b.LoanID).Sum(x => (x.EarlyPayAmount ?? 0) + (x.CurrentInstallmentAmunt ?? 0)) : b.LoanAmount ?? 0
+
                     });
 
 
