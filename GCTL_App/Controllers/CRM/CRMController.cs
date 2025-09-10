@@ -23,12 +23,13 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<LeadStatuses> _leadStatusesRepository;
         private readonly IGenericRepository<Priorities> _prioritiesRepository;
         private readonly IGenericRepository<Services> _serviceTypeRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeesRepository;
 
 
         private readonly AppDbContext _context;
         private readonly ICRMService _crmService;
         private readonly IGenericRepository<AddressTypes> _addressTypeService;
-        public CRMController(IGenericRepository<AddressTypes> addressTypeService, ITranslateService translateService, IUserProfileService userProfileService, ICRMService crmService, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<Services> serviceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService) : base(translateService, userProfileService)
+        public CRMController(IGenericRepository<AddressTypes> addressTypeService, ITranslateService translateService, IUserProfileService userProfileService, ICRMService crmService, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<Services> serviceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, IGenericRepository<GCTL.Data.Models.Employees> employeesRepository) : base(translateService, userProfileService)
         {
             _crmService = crmService;
             _addressTypeService = addressTypeService;
@@ -39,6 +40,7 @@ namespace GCTL_App.Controllers.CRM
             _serviceTypeRepository = serviceTypeRepository;
             _context = context;
             _leadCreateService = leadCreateService;
+            _employeesRepository = employeesRepository;
         }
 
         public IActionResult Index()
@@ -153,6 +155,45 @@ namespace GCTL_App.Controllers.CRM
             return Ok(results);
 
         }
+
+
+
+        // ================
+        // owner list
+        // ================
+
+        [HttpPost]
+        public async Task<IActionResult> GetOwnerList([FromForm] string? query, int page)
+        {
+            query = query?.Trim() ?? "";
+
+            const int pageSize = 10;
+            int skip = (page - 1) * pageSize;
+
+            var filtered = _employeesRepository
+                .AllActive()
+                .AsNoTracking()
+                .Select(c => new
+                {
+                    Id = c.EmployeeID,
+                    Name = c.FirstName + " " + c.LastName,
+                });
+
+            // Only search if query has value
+            if (!string.IsNullOrEmpty(query))
+            {
+                filtered = filtered.Where(x => EF.Functions.Like(x.Name, $"{query}%"));
+            }
+
+            var results = await filtered
+                .OrderBy(x => x.Name) // alphabetical
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return Json(new { success = true, result = results });
+        }
+
     }
 
 

@@ -13,6 +13,7 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Hosting;
 using OfficeOpenXml.Export.ToDataTable;
 using System.Web.Mvc;
+using System.Web.Helpers;
 
 
 namespace GCTL.Service.CRM.LeadDetails
@@ -62,44 +63,102 @@ namespace GCTL.Service.CRM.LeadDetails
             return false;
         }
 
+        //public async Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation)
+        //{
+
+        //    if (!leadDetailsVM.ActivityDateTime.HasValue)
+        //    {
+        //        return false; 
+        //    }
+        //    await _leadDetailsGenericRepository.BeginTransactionAsync();
+        //    // Convert local time to UTC
+        //    var localDateTime = DateTime.SpecifyKind(leadDetailsVM.ActivityDateTime.Value, DateTimeKind.Local);
+        //    var utcDateTime = localDateTime.ToUniversalTime();
+
+        //    var leadTypeObj = await _leadActivityTypesGenericRepository.FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
+        //    var leadTypeObj2 = await _leadActivityTypesGenericRepository.FirstOrDefaultAsync(u => u.LeadActivityName == "Attachment");
+        //    var leadTypeID = leadTypeObj.LeadActivityTypeID;
+        //    bool checkImageValidation = leadTypeObj.LeadActivityName == leadTypeObj2.LeadActivityName;
+
+        //        if (leadTypeID != 0)
+        //    {
+        //        var leadObj = new GCTL.Data.Models.LeadDetails()
+        //        {
+        //            LeadID = leadDetailsVM.LeadID,
+        //            ActivityDateTime = utcDateTime,
+        //            LeadActivityTypeID = leadTypeID,
+        //            ActivityNote = leadDetailsVM.ActivityNote,
+        //            FileLink = checkImageValidation && fileLocation != null ? fileLocation : null,
+        //            CreatedAt = DateTime.UtcNow,
+        //            CreatedBy = leadDetailsVM.CreatedBy,
+        //            LIP = leadDetailsVM.LIP,
+        //            LMAC = leadDetailsVM.LMAC,
+        //        };
+        //        await _leadDetailsGenericRepository.AddAsync(leadObj);
+
+        //    }
+
+
+        //    return true;
+        //    await _leadDetailsGenericRepository.CommitTransactionAsync();
+        //    await _leadDetailsGenericRepository.RollbackTransactionAsync();
+        //}
+
         public async Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation)
         {
-
             if (!leadDetailsVM.ActivityDateTime.HasValue)
             {
-                return false; 
+                return false;
             }
 
-            // Convert local time to UTC
-            var localDateTime = DateTime.SpecifyKind(leadDetailsVM.ActivityDateTime.Value, DateTimeKind.Local);
-            var utcDateTime = localDateTime.ToUniversalTime();
+            await _leadDetailsGenericRepository.BeginTransactionAsync();
 
-            var leadTypeObj = await _leadActivityTypesGenericRepository.FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
-            var leadTypeObj2 = await _leadActivityTypesGenericRepository.FirstOrDefaultAsync(u => u.LeadActivityName == "Attachment");
-            var leadTypeID = leadTypeObj.LeadActivityTypeID;
-            bool checkImageValidation = leadTypeObj.LeadActivityName == leadTypeObj2.LeadActivityName;
+            try
+            {
+                // Convert local time to UTC
+                var localDateTime = DateTime.SpecifyKind(leadDetailsVM.ActivityDateTime.Value, DateTimeKind.Local);
+                var utcDateTime = localDateTime.ToUniversalTime();
+
+                var leadTypeObj = await _leadActivityTypesGenericRepository
+                    .FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
+
+                var leadTypeObj2 = await _leadActivityTypesGenericRepository
+                    .FirstOrDefaultAsync(u => u.LeadActivityName == "Attachment");
+
+                var leadTypeID = leadTypeObj.LeadActivityTypeID;
+                bool checkImageValidation = leadTypeObj.LeadActivityName == leadTypeObj2.LeadActivityName;
 
                 if (leadTypeID != 0)
-            {
-                var leadObj = new GCTL.Data.Models.LeadDetails()
                 {
-                    LeadID = leadDetailsVM.LeadID,
-                    ActivityDateTime = utcDateTime,
-                    LeadActivityTypeID = leadTypeID,
-                    ActivityNote = leadDetailsVM.ActivityNote,
-                    FileLink = checkImageValidation && fileLocation != null ? fileLocation : null,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = leadDetailsVM.CreatedBy,
-                    LIP = leadDetailsVM.LIP,
-                    LMAC = leadDetailsVM.LMAC,
-                };
-                await _leadDetailsGenericRepository.AddAsync(leadObj);
+                    var leadObj = new GCTL.Data.Models.LeadDetails()
+                    {
+                        LeadID = leadDetailsVM.LeadID,
+                        ActivityDateTime = utcDateTime,
+                        LeadActivityTypeID = leadTypeID,
+                        ActivityNote = leadDetailsVM.ActivityNote,
+                        FileLink = checkImageValidation && fileLocation != null ? fileLocation : null,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = leadDetailsVM.CreatedBy,
+                        LIP = leadDetailsVM.LIP,
+                        LMAC = leadDetailsVM.LMAC,
+                    };
 
+                    await _leadDetailsGenericRepository.AddAsync(leadObj);
+                }
+
+                // ✅ Commit transaction if all operations succeed
+                await _leadDetailsGenericRepository.CommitTransactionAsync();
+                return true;
             }
-
-            
-            return true;
+            catch (Exception ex)
+            {
+                // ✅ Rollback transaction on error
+                await _leadDetailsGenericRepository.RollbackTransactionAsync();
+                // You can log ex here
+                return false;
+            }
         }
+
         //ToDo: How to get user id
         // lead table source, status update service function
         public async Task<bool> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM)
@@ -137,40 +196,56 @@ namespace GCTL.Service.CRM.LeadDetails
         // Save Won or Loss function
         // ==============================
 
-        public async Task<bool> AddIsWon(IsWonVM isWonVM)
-        {
+        public async Task<ReturnView> AddIsWon(IsWonVM isWonVM)
+        {     
+
+
             var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == isWonVM.LeadID);
             var leadTypeObj = await _leadActivityTypesGenericRepository.FirstOrDefaultAsync(u => u.LeadActivityTypeID == isWonVM.LeadActivityTypeID);
             var leadTypeID = leadTypeObj.LeadActivityTypeID;
-
+            var isWon = leadTypeObj.LeadActivityName == "Won";
             if (leadTypeID != 0)
             {
-                var leadActivityObj = new GCTL.Data.Models.LeadDetails()
+                if(leadObj.IsWwn != isWon)
                 {
-                    LeadID = leadObj.LeadID,
-                    ActivityDateTime = DateTime.UtcNow,
-                    LeadActivityTypeID = leadTypeID,
-                    ActivityNote = isWonVM.ActivityNote,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = isWonVM.CreatedBy,
-                    LIP = isWonVM.LIP,
-                    LMAC = isWonVM.LMAC,
+                    var leadActivityObj = new GCTL.Data.Models.LeadDetails()
+                    {
+                        LeadID = leadObj.LeadID,
+                        ActivityDateTime = DateTime.UtcNow,
+                        LeadActivityTypeID = leadTypeID,
+                        ActivityNote = isWonVM.ActivityNote,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = isWonVM.CreatedBy,
+                        LIP = isWonVM.LIP,
+                        LMAC = isWonVM.LMAC,
+                    };
+                    await _leadDetailsGenericRepository.AddAsync(leadActivityObj);
+
+                    leadObj.IsWwn = leadTypeObj.LeadActivityName == "Won" ? true : false;
+                    leadObj.ClosingDate = DateTime.UtcNow;
+                    leadObj.UpdatedAt = DateTime.UtcNow;
+                    leadObj.UpdatedBy = isWonVM.UpdatedBy;
+
+                    await _leadsRepository.UpdateAsync(leadObj);
+
+                    return new ReturnView
+                    {
+                        Success = true,
+                        Message = "Lead status updated to " + leadTypeObj.LeadActivityName
+                    };
+                }
+
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = "You status is already " + leadTypeObj.LeadActivityName
                 };
-                await _leadDetailsGenericRepository.AddAsync(leadActivityObj);
-
-
-
-
-
-                leadObj.IsWwn = leadTypeObj.LeadActivityName == "Won" ? true : false;
-                leadObj.ClosingDate = DateTime.UtcNow;
-                leadObj.UpdatedAt = DateTime.UtcNow;
-                leadObj.UpdatedBy = isWonVM.UpdatedBy;
-
-                await _leadsRepository.UpdateAsync(leadObj);
-                return true;
             }
-            return false;
+            return new ReturnView
+            {
+                Success = false,
+                Message = "Something went wrong"
+            };
         }
     }
 }

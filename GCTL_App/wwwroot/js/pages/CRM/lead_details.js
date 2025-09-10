@@ -49,48 +49,55 @@ $(function () {
 
     $('#addLActivity').on('click', function (e) {
         e.preventDefault();
+        debugger
+        const fieldId = $(this).attr('id');
+        showDev(fieldId);
 
-        const buttonID = $(".option-btn.active").data('id');
-        const date = $(ids.date).val();
-        const text = $(ids.note).val();
-        const id = $("#leadID").val();
-        const fileInput = $(ids.file)[0];
-        const file = fileInput.files[0];
+        if (validation(fieldId)) {
 
-        if (!id || !buttonID || !date) {
-            toastr.error("Please fill all required fields");
-            return;
+            const buttonID = $(".option-btn.active").data('id');
+            const date = $(ids.date).val();
+            const text = $(ids.note).val();
+            const id = $("#leadID").val();
+            const fileInput = $(ids.file)[0];
+            const file = fileInput.files[0];
+
+            //if (!id || !buttonID || !date) {
+            //    toastr.error("Please fill all required fields");
+            //    return;
+            //}
+
+            const convertedDate = convertToISODateTime(date);
+
+            const formData = new FormData();
+            formData.append("LeadID", parseInt(id));
+            formData.append("LeadActivityTypeID", parseInt(buttonID));
+            formData.append("ActivityDateTime", convertedDate);
+            formData.append("ActivityNote", text || "");
+            if (file) formData.append("File", file);
+
+ 
+            $.ajax({
+                url: '/LeadDetails/CeateLeadDetail',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    toastr.success(response.message);
+                    resetAndReload();
+                    resetAndReloadUpcoming();
+                    $(".option-btn").removeClass("active");
+                    $(ids.date).val("");
+                    $(ids.note).val("");
+                    $(ids.file).val("");
+                    $('#file-field').hide();
+                },
+                error: function (error) {
+                    toastr.error(error.responseJSON?.message || "Error adding lead detail");
+                }
+            });
         }
-
-        const convertedDate = convertToISODateTime(date);
-
-        const formData = new FormData();
-        formData.append("LeadID", parseInt(id));
-        formData.append("LeadActivityTypeID", parseInt(buttonID));
-        formData.append("ActivityDateTime", convertedDate);
-        formData.append("ActivityNote", text || "");
-        if (file) formData.append("File", file);
-
-        $.ajax({
-            url: '/LeadDetails/CeateLeadDetail',
-            method: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (response) {
-                toastr.success(response.message);
-                resetAndReload();
-                resetAndReloadUpcoming();
-                $(".option-btn").removeClass("active");
-                $(ids.date).val("");
-                $(ids.note).val("");
-                $(ids.file).val("");
-                $('#file-field').hide();
-            },
-            error: function (error) {
-                toastr.error(error.responseJSON?.message || "Error adding lead detail");
-            }
-        });
     });
 
     // ==============================
@@ -146,7 +153,7 @@ $(function () {
     // ==============================
     // Fetch activity data
     // ==============================
-    function updateActivate(page = 1, direction = "down") {
+    function updateActivate(page = 1) {
         if (loading) return;
         loading = true;
 
@@ -453,13 +460,14 @@ $(function () {
                 method: 'POST',
                 data: { LeadID: leadID, LeadActivityTypeID: typeID, ActivityNote : note },
                 success: function (response) {
+                    showDev(response);
                     if (id === 'Won') {
                         $("#transferDiv").css("display", "block");
                     }
-                    if (response == true) {
-                        toastr.success("Successfully updated");
+                    if (response.success == true) {
+                        toastr.success(response.message);
                     } else {
-                        toastr.error("Something went wrong");
+                        toastr.error(response.message);
                     }
                     resetAndReload();
                     resetAndReloadUpcoming();
@@ -481,8 +489,23 @@ $(function () {
     
 
     function validation(placeName) {
-        let requiredField = placeName === 'Lost' ? [ids.note] : [];
+        let requiredField = placeName === 'Lost' ? [ids.note] : placeName === 'addLActivity' ? [ids.date, ids.note] : [];
         let isValid = true;
+        debugger;
+        if (placeName == 'addLActivity') {
+            if (!$('.option-btn').hasClass("active")) {
+                $('#optionBtnDiv').css("border", "1px solid red");
+                isValid = false;
+            } else {
+                $('#optionBtnDiv').css("border", "");
+            }
+            const activeBtn = $(".option-btn.active").text().trim();
+            if (activeBtn == "Attachment") {
+                requiredField.push(ids.file);
+            }
+        }
+
+
         showDev(requiredField);
         requiredField.forEach(function (selector) {
             let $el = $(selector);
