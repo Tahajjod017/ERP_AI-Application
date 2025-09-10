@@ -188,6 +188,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             var shiftStartTime = shift.StartTime;
             var shiftEndTime = shift.EndTime;
 
+            // Format CheckInTime based on the localization context
+            //var checkInFormatted = _localizationContext(checkInTime);
             // Calculate production time as the difference between current time and CheckInTime
             var productionTime = currentTime - checkInTime;
 
@@ -216,7 +218,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             // Fix for CS1503: Correctly convert manualOvertime from string to TimeSpan before formatting  
             var manualOvertime = attendanceData.OvertimeHour.HasValue
-                                ? TimeSpan.FromMinutes(attendanceData.OvertimeHour.Value.Hour * 60 + attendanceData.OvertimeHour.Value.Minute)
+                                ? TimeSpan.FromMinutes(attendanceData.OvertimeHour.Value * 60 + attendanceData.OvertimeHour.Value)
                                 : TimeSpan.Zero;
 
 

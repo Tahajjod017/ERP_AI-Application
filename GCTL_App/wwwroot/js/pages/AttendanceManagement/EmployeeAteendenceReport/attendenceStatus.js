@@ -1,4 +1,23 @@
-﻿//function parseTime(timeStr) {
+﻿//$(document).ready(function () {
+//    // Dynamically fetch the current time from the server
+//    function updateTime() {
+//        $.get('/EmployeesAttendance/GetCurrentTimeAsync', function (data) {
+//            // Check if data is returned
+//            if (data) {
+//                console.log(data); // You can log it to the console for debugging
+//                $('#current-time').text(data); // Update the UI with the fetched time
+//            }
+//        }, 'json'); // Make sure the response is expected to be JSON
+//    }
+
+//    // Update time every second
+//    setInterval(updateTime, 1000);
+//});
+
+
+
+
+//function parseTime(timeStr) {
 //    const [hh, mm] = timeStr.split(':').map(Number);
 //    return new Date(0, 0, 0, hh, mm);
 //}
