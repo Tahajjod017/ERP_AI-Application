@@ -41,6 +41,12 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             RosterInOffDayPageVM model = new RosterInOffDayPageVM();
             SetSmartPageCode(203200);
 
+            var organizations = await _commonService.GetOrganizations();
+            if (organizations.Count == 1)
+            {
+                model.Setup.OrganizationID = organizations[0].Id;
+            }
+            //ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name", model.Setup.OrganizationID);
             ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
             ViewBag.BrnchDD = new SelectList(await _commonService.GetBranches(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await _commonService.GetDepartments(), "Id", "Name");

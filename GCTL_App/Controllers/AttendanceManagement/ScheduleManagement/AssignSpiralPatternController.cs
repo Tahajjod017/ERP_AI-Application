@@ -34,7 +34,13 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             AssignSpiralPatternPageVM model = new AssignSpiralPatternPageVM();
             SetSmartPageCode(203400);
 
-            ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
+            var organizations = await _commonService.GetOrganizations();
+            if (organizations.Count == 1)
+            {
+                model.Create.OrganizationID = organizations[0].Id;
+            }
+            ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name", model.Create.OrganizationID);
+            //ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
             ViewBag.DepartmentDD = await _commonService.GetDepartments();
             ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
             ViewBag.SpiralPatternTypeDD = new SelectList(await _commonService.GetSpiralPatternTypes(), "Id", "Name");

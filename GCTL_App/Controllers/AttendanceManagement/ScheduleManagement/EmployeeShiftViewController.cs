@@ -31,8 +31,13 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         {
             EmployeeShiftViewPageView model = new EmployeeShiftViewPageView();
             SetSmartPageCode(203500);
-
-            ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
+            var organizations = await _commonService.GetOrganizations();
+            if (organizations.Count == 1)
+            {
+                model.List.OrganizationID = organizations[0].Id;
+            }
+            ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name", model.List.OrganizationID);
+            //ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
             ViewBag.BrnchDD = new SelectList(await _commonService.GetBranches(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await _commonService.GetDepartments(), "Id", "Name");
             ViewBag.ShiftDD = new SelectList(await _commonService.GetShifts(), "Id", "Name");

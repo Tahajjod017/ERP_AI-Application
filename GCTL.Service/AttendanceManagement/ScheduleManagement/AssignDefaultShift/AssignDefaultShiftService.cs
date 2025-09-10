@@ -283,40 +283,47 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
         #region GetAllAsync
         public async Task<PaginationService<DefaultShifts, AssignDefaultShiftSetupVM>.PaginationResult<AssignDefaultShiftSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "DefaultShiftID", string sortOrder = "desc", int? organizationID = null)
         {
-            var query = _genericRepository.All().AsNoTracking().Include(x => x.Shift).Include(x => x.Organization).Include(x => x.Department).Include(x => x.Employee).Where(x => x.DeletedAt == null);
-
-            if (!string.IsNullOrEmpty(sortColumn))
+            try
             {
-                query = sortColumn switch
-                {
-                    "DefaultShiftID" => sortOrder == "desc" ? query.OrderByDescending(x => x.DefaultShiftID) : query.OrderBy(x => x.DefaultShiftID),
-                    "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Shift.ShiftName) : query.OrderBy(x => x.Shift.ShiftName),
-                    "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
-                    "DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
-                    "EmployeeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Employee.FirstName) : query.OrderBy(x => x.Employee.FirstName),
-                    _ => query.OrderBy(x => x.ShiftID)
-                };
-            }
+                var query = _genericRepository.All().AsNoTracking().Include(x => x.Shift).Include(x => x.Organization).Include(x => x.Department).Include(x => x.Employee).Where(x => x.DeletedAt == null);
 
-            if(pageSize == 0)
+                if (!string.IsNullOrEmpty(sortColumn))
+                {
+                    query = sortColumn switch
+                    {
+                        "DefaultShiftID" => sortOrder == "desc" ? query.OrderByDescending(x => x.DefaultShiftID) : query.OrderBy(x => x.DefaultShiftID),
+                        "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Shift.ShiftName) : query.OrderBy(x => x.Shift.ShiftName),
+                        "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
+                        "DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
+                        "EmployeeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Employee.FirstName) : query.OrderBy(x => x.Employee.FirstName),
+                        _ => query.OrderBy(x => x.ShiftID)
+                    };
+                }
+
+                if (pageSize == 0)
+                {
+                    pageSize = await query.CountAsync();
+                    pageNumber = 1;
+                }
+
+                var result = await PaginationService<DefaultShifts, AssignDefaultShiftSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
+                    term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%") || EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") ||
+                    EF.Functions.Like(x.Department.DepartmentName, $"%{term}%") || EF.Functions.Like(x.Employee.FirstName, $"%{term}%"),
+                    x => new AssignDefaultShiftSetupVM
+                    {
+                        DefaultShiftID = x.DefaultShiftID,
+                        OrganizationName = x.Organization?.OrganizationName ?? "-",
+                        DepartmentName = x.Department?.DepartmentName ?? "-",
+                        EmployeeName = $"{x.Employee?.FirstName} {x.Employee?.LastName} ({x.Employee?.EmployeeCode})",
+                        ShiftName = x.Shift?.ShiftName ?? "-",
+                    });
+
+                return result;
+            }
+            catch (Exception ex)
             {
-                pageSize = await query.CountAsync();
-                pageNumber = 1;
+                throw new Exception(ex.Message, ex);
             }
-
-            var result = await PaginationService<DefaultShifts, AssignDefaultShiftSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
-                term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%") || EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") ||
-                EF.Functions.Like(x.Department.DepartmentName, $"%{term}%") || EF.Functions.Like(x.Employee.FirstName, $"%{term}%"),
-                x => new AssignDefaultShiftSetupVM
-                {
-                    DefaultShiftID = x.DefaultShiftID,
-                    OrganizationName = x.Organization.OrganizationName ?? "-",
-                    DepartmentName = x.Department.DepartmentName ?? "-",
-                    EmployeeName = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})",
-                    ShiftName = x.Shift.ShiftName ?? "-",
-                });
-
-            return result;
         }
         #endregion
 

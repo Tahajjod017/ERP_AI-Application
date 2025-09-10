@@ -15,7 +15,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpi
         public string SpiralPatternName { get; set; }
 
         [Required(ErrorMessage = "Organization is required!")]
-        public int OrganizationID { get; set; }
+        public int? OrganizationID { get; set; }
 
         [Required(ErrorMessage = "Pattern type is required!")]
         public int SpiralPatternTypeID { get; set; }

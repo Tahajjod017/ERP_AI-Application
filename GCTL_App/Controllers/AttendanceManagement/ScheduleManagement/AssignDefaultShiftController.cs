@@ -35,10 +35,34 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
                 SetSmartPageCode(202900);
 
-                ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
-                ViewBag.BrnchDD = new SelectList(await _commonService.GetBranches(), "Id", "Name");
-                ViewBag.DepartmentDD = new SelectList(await _commonService.GetDepartments(), "Id", "Name");
-                ViewBag.ShiftDD = new SelectList(await _commonService.GetShifts(), "Id", "Name");
+                var organizations = await _commonService.GetOrganizations();
+                if (organizations.Count == 1)
+                {
+                    model.Setup.OrganizationID = organizations[0].Id;  
+                }
+                ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name", model.Setup.OrganizationID);
+
+                var branches = await _commonService.GetBranches();
+                if(branches.Count == 1)
+                {
+                    model.Setup.BranchIDs = branches[0].Id.HasValue ? new List<int> { branches[0].Id.Value } : new List<int>();
+                }
+                ViewBag.BrnchDD = new SelectList(branches, "Id", "Name", model.Setup.BranchIDs);
+
+                var departments = await _commonService.GetDepartments();
+                if(departments.Count == 1)
+                {
+                    model.Setup.DepartmentIDs = departments[0].Id.HasValue ? new List<int> { departments[0].Id.Value } : new List<int>();
+                }
+                ViewBag.DepartmentDD = new SelectList(departments, "Id", "Name");
+
+                var shifts = await _commonService.GetShifts();
+                if(shifts.Count == 1)
+                {
+                    model.Setup.ShiftID = shifts[0].Id;
+                }
+                ViewBag.ShiftDD = new SelectList(shifts, "Id", "Name", model.Setup.ShiftID);
+
                 ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
 
                 return View(model);
@@ -171,9 +195,16 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #region GetAll
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "DefaultShiftID", string sortOrder = "desc", int? organizationID = null)
         {
-            var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
-
-            return Json(result);
+            try
+            {
+                var result = await _assignDefaultShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
+                
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
         }
         #endregion
 
