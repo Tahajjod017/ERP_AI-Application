@@ -485,10 +485,10 @@ namespace GCTL.Service.CRM.LeadCreate
                 var leadObj = await _leadsRepository.FirstOrDefaultAsync( u => u.LeadID == leadUpdateVM.LeadID );
 
                 leadObj.LeadName = leadUpdateVM.LeadName;
-                leadObj.LeadStatusID = leadUpdateVM.LeadStatusID;
-                leadObj.LeadSourceID = leadUpdateVM.LeadSourceID;
-                leadObj.LeadOwnerID = leadUpdateVM.LeadOwnerID;
-                leadObj.PriorityID = leadUpdateVM.PriorityID;
+                leadObj.LeadStatusID = leadUpdateVM.LeadStatusID ?? null;
+                leadObj.LeadSourceID = leadUpdateVM.LeadSourceID ?? null;
+                leadObj.LeadOwnerID = leadUpdateVM.LeadOwnerID ?? null;
+                leadObj.PriorityID = leadUpdateVM.PriorityID ?? null;
                 leadObj.ApproximateDealValue = leadUpdateVM.ApproximateDealValue;
                 leadObj.ProbabilityPercentage = leadUpdateVM.ProbabilityPercentage;
                 leadObj.LeadDescription = leadUpdateVM.LeadDescription;

@@ -78,7 +78,7 @@
         var dir = $('#resignProcessed').data('dir');
         var dateRange = $('#dateRange2').val();
         var customerType = $('#customerType').val();
-        
+
 
         $.ajax({
             url: '/CRM/GetAllLead',
@@ -96,7 +96,7 @@
                 var tbody = $('#processed-resignation-body');
                 tbody.empty();
                 $.each(data.result.leads, function (index, item) {
-                    let statusBadge = getStatusBadgeClass(item.status); 
+                    let statusBadge = getStatusBadgeClass(item.status);
                     //var statusBadge = item.status === 'Approved' ? 'badge-phoenix-success' : 'badge-phoenix-danger';
                     tbody.append(`
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
@@ -117,8 +117,8 @@
                         <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="9">
                            <span class="badge badge-phoenix ${statusBadge} fs-9">${item.leadStatus}</span>
                         </td>
-                        <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="10">
-                            <button class="btn btn-sm btn-primary" id="editBtn" data-id="${item.leadId}"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <td class="status align-middle white-space-nowrap pe-0 ps-2 d-flex justify-content-center" data-column="10">
+                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2"  id="editModalBtn" data-id="${item.leadId}"><i class="fas fa-edit text-black"></i></a>
                         </td>
                     </tr>
                 `);
@@ -142,7 +142,7 @@
     // ====================
     // Edit Button work
     // ======================
-    $(document).on("click", "#editBtn", function (e) {
+    $(document).on("click", "#editModalBtn", function (e) {
         // Bootstrap 5 way to open modal
         var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
             keyboard: false
@@ -162,10 +162,36 @@
                 $("#leadPriorityID").val(response.priorityID);
                 $("#approximateDealValue").val(response.approximateDealValue);
                 $("#probabilityPercentage").val(response.probability);
+                $("#descriptionText").val(response.leadDescription);
                 // multiselect edit field read
                 $('#serviceTypes').val(response.serviceIds).each(function () {
                     coreui.MultiSelect.getInstance(this)?.update();
                 });
+                showDev(response);
+                //// ========== Lead Owner single select with search ==========
+                //const $owner = $("#ownerID");
+                //$owner.empty(); // clear previous options
+
+                //// Add the lead owner from response
+                //$owner.append(
+                //    $("<option>", {
+                //        value: response.leadOwnerId,
+                //        text: response.leadOwnerName,
+                //        selected: true
+                //    })
+                //);
+
+                //// Initialize CoreUI MultiSelect for single select with search
+                //let ms = coreui.MultiSelect.getInstance($owner[0]);
+                //if (!ms) {
+                //    ms = new coreui.MultiSelect($owner[0], {
+                //        search: true,       // enable search
+                //        selectionType: 'single', // single select
+                //        placeholder: 'Select Lead Owner...'
+                //    });
+                //} else {
+                //    ms.update(); // refresh if already initialized
+                //}
             },
             error: function (xhr) {
                 toastr.error("Error creating lead");
@@ -193,6 +219,9 @@
         }
     });
 
+
+
+
     // ==============================
     // update lead information
     // ==============================
@@ -205,7 +234,7 @@
             LeadName: $("#leadName").val() || "",
             LeadStatusID: parseInt($("#leadStatusID").val()) || 0,
             LeadSourceID: parseInt($("#leadSourceID").val()) || 0,
-            LeadOwnerID: parseInt($("#leadOwnerID").val()) || 0,
+            LeadOwnerID: parseInt($("#ownerID").val()) || 0,
             PriorityID: parseInt($("#leadPriorityID").val()) || 0,
             ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
             ProbabilityPercentage: parseFloat($("#probabilityPercentage").val()) || 0,
@@ -223,10 +252,10 @@
 
                 if (response.success) {
                     toastr.success(response.message);
-                    let modalEl = document.getElementById("editModal");
-                    let modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    // HIDE modal
+                    var myModalEl = document.getElementById('editModal');
+                    var modal = bootstrap.Modal.getInstance(myModalEl);
                     modal.hide();
-                    location.reload();
                 } else {
                     toastr.error(response.message || "Failed to create lead");
                 }
@@ -238,4 +267,187 @@
         //}
     })
 
+    // ============
+    // get data
+    // ===========
+    let ownerList = [];
+    let currentPage = 1;
+    let loadItem = new Set();
+    let loading = false;
+    let noMoreDataDown = false;
+    let selectedIndex = -1;
+    let typedValue = ""; 
+
+    async function getOwnerList(page = 1) {
+        debugger;
+        if (loading || noMoreDataDown) return;
+        loading = true;
+        
+        try {
+            let query = $("#queryText").val().trim();
+            const response = await $.ajax({
+                url: '/CRM/GetOwnerList',
+                method: 'POST',
+                data: { query: query, page: page },
+            });
+
+            if (page === 1) {
+                $("#result-show-div").empty();
+                loadItem.clear();
+                selectedIndex = -1;
+            }
+
+            const results = response.result;
+
+            if (!results || results.length === 0) {
+                noMoreDataDown = true;
+            } else {
+                results.forEach(item => {
+                    if (!loadItem.has(item.id)) {
+                        $("#result-show-div").append(`<button type="button"
+                            class="list-group-item list-group-item-action item"
+                            data-id="${item.id}">
+                            ${item.name}</button>`);
+                        loadItem.add(item.id);
+                    }
+                })
+            }
+        } catch (e) {
+
+        } finally {
+            loading = false;
+        }
+        
+    }
+    // =============
+    // search owner
+        // ==============
+    $("#queryText").on("input click", async function () {
+        currentPage = 1;
+        loading = false;
+        noMoreDataDown = false;
+        loadItem.clear();
+
+        $("#result-show-div").remove();
+
+        const resultDiv = `<div class="list-group bg-white p-0 border position-absolute" id="result-show-div" style="width:100%;overflow-y:auto; z-index:10012;max-height:210px;scrollbar-width: none;"></div>`;
+        $(this).after(resultDiv);
+
+        $("#result-show-div").off('scroll').on('scroll', function () {
+            const container = $(this);
+            if (!loading && !noMoreDataDown &&
+                Math.ceil(container.scrollTop() + container.innerHeight()) >= container[0].scrollHeight) {
+                currentPage++;
+                getOwnerList(currentPage);
+            }
+        });
+
+        await getOwnerList(currentPage); // fetch first page
+    });
+
+    // ===============
+    // arrow key
+    // ===================
+    function checkLoadMoreKeyboard() {
+        const container = $("#result-show-div");
+        const items = container.find(".item");
+        if (selectedIndex < 0 || selectedIndex >= items.length) return;
+
+        const selectedItem = items.eq(selectedIndex);
+
+        // Use container's scrollTop relative to container
+        const containerTop = container.scrollTop();
+        const containerBottom = containerTop + container.innerHeight();
+
+        // Use selectedItem's position relative to container
+        const itemTop = selectedItem.position().top + containerTop;
+        const itemBottom = itemTop + selectedItem.outerHeight();
+
+        // Reset flag so we can load more
+        if (!loading && itemBottom > containerBottom - 20) {
+            noMoreDataDown = false; // reset
+            currentPage++;
+            getOwnerList(currentPage);
+        }
+    }
+
+
+
+    // ============
+    // keyboard event
+    // ===================
+
+
+    $("#queryText").on("keydown", function (e) {
+        const items = $("#result-show-div .item");
+        if (items.length === 0) return;
+
+        if (e.key === "ArrowDown") {
+            selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+            items.removeClass("active").eq(selectedIndex).addClass("active")[0].scrollIntoView({ block: "nearest" });
+
+            // Show nearest suggestion in input
+            $(this).val(items.eq(selectedIndex).text().trim());
+            checkLoadMoreKeyboard();
+            e.preventDefault();
+            setTimeout(checkLoadMoreKeyboard, 50);
+        }
+             else if (e.key === "ArrowUp") {
+                selectedIndex = Math.max(selectedIndex - 1, 0);
+                items.removeClass("active").eq(selectedIndex)
+                    .addClass("active")[0]
+                .scrollIntoView({ block: "nearest" }); // <<< add this
+            // Show nearest suggestion in input
+            $(this).val(items.eq(selectedIndex).text().trim());
+                e.preventDefault();
+            } else if (e.key === "Tab") {
+            if (selectedIndex >= 0) {
+                const selectedName = items.eq(selectedIndex).text();
+                $(this).val(selectedName);
+                $("#result-show-div").remove();
+                e.preventDefault();
+            }
+        }
+    });
+
+    //    // BIND AFTER WORK 
+
+    //    $('#result-show-div').on('scroll', function () {
+    //        currentPage = 1;
+    //        onMoreDataDown = false;
+    //        debugger;
+    //        const container = $(this);
+    //        const scrollTop = container.scrollTop();
+    //        const innerHeight = container.innerHeight();
+    //        const scrollHeight = container[0].scrollHeight;
+
+    //        if (!loading && !noMoreDataDown && Math.ceil(scrollTop + innerHeight) >= scrollHeight) {
+    //            currentPage++;
+    //            getOwnerList(currentPage);
+    //        }
+    //    });
+
+
+    //    await getOwnerList(currentPage);
+    //})
+
+
+    // ==============
+    // scroll event
+    // ==============
+
+
+    // ========================
+    // response when did search
+    // ========================
+    //$('#search-activity').on("input", function () {
+    //    clearTimeout(typingTimer);
+    //    typingTimer = setTimeout(function () {
+    //        const search = $('#search-activity').val() || "";
+    //        if (search !== lastSearch) {
+    //            lastSearch = search;
+    //            resetAndReload();
+    //        }
+    //    }, delay);
+    //});
 });

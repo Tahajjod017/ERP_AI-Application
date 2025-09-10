@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.ViewModels.CRM;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace GCTL.Service.CRM.LeadDetails
     {
         public Task<bool> CreateLeadActivateTypes();
         Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation);
-        Task<bool> AddIsWon(IsWonVM isWonVM);
+        Task<ReturnView> AddIsWon(IsWonVM isWonVM);
         Task<bool> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM);
     }
 }

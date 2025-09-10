@@ -4,7 +4,7 @@ using GCTL.Data.Models;
 using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.CRM.LeadDetails;
 using GCTL.Service.Language;
-using GCTL.Service.UserProfile;
+using GCTL.Service.UserProfile; 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.AspNetCore.Mvc;
@@ -320,13 +320,13 @@ namespace GCTL_App.Controllers.CRM
             {
                 if (isWonVM.LeadID != 0)
                 {
-                    var result = _leadDetailsService.AddIsWon(isWonVM);
-                    return Ok(new { success = result });
+                    var result = await _leadDetailsService.AddIsWon(isWonVM);
+                    return Ok(result);
                 }
-                return Ok(new { success = false });
+                return Ok(new { success = false, mesage= "Lead status could not be updated. Check required fields." });
             }
 
-            return Ok(new { success = false });
+            return Ok(new { success = false, mesage = "Lead status could not be updated. Check required fields." });
         }
     }
 }
