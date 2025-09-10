@@ -58,7 +58,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             {
                 // Handle the case where currentEmployeeId is null if necessary  
             }
-            var serverTime = DateTime.Now.ToString("hh:mm tt, dd MMM yyyy");
+            //var serverTime = DateTime.Now.ToString("hh:mm tt, dd MMM yyyy");
             // Pass the current time to the view  
             ViewData["CurrentTime"] = DateTimeExtensions.NowDateTime(_loc);
 
@@ -66,6 +66,18 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 
             return View();
         }
+        public async Task<IActionResult> GetCurrentTimeAsync()
+        {
+            // Simulating an async operation (e.g., fetching data from a database or external service)
+            await Task.Delay(100); // Simulate some delay to make the method async.
+
+            // Fetch the current time (using your existing logic)
+            var currentTime = DateTimeExtensions.NowDateTime(_loc);
+
+            // Return the time as a JsonResult
+            return Json(currentTime);
+        }
+
         #region table
         public async Task<IActionResult> GetAlls(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "HolidayTitle", string sortOrder = "desc", int? organizationID = null, int? employeeId = null, int? statusID = null, string? sortId = "")
         {

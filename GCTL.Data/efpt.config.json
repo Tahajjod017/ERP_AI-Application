@@ -575,6 +575,10 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[bb]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[GetPaginatedEmployeeAttendance]",
          "ObjectType": 1
       },
