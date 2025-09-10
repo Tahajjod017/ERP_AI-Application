@@ -4,6 +4,7 @@ using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using GCTL.Service.PayRollManagements.PayRollEmpSalary;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 {
@@ -17,6 +18,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 
         public IActionResult Index()
         {
+           
             return View();
         }
         #region Get All Data List

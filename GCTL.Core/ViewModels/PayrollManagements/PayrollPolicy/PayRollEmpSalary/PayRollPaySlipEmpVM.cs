@@ -9,10 +9,13 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
     public class PayRollPaySlipEmpVM
     {
         public string? EmployeeName { get; set; }
+        public string? EmployeeAddress { get; set; }
+        public string? EmployeeEmail { get; set; }
         public string? OrganizationName { get; set; }
         public string?  OrganizationAddress { get; set; }
-        public string ? EmailAddress { get; set; }
-        public decimal Basic { get; set; }
+        public string ? OrganizationEmailAddress { get; set; }
+        public string ? OrganizationLogoPic {  get; set; }
+        public decimal? BasicSalary { get; set; }
         public decimal HRA { get; set; }
         public decimal DA { get; set; }
         public decimal SpecialAllowance { get; set; }
@@ -27,5 +30,14 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
         public decimal NetPay { get; set; }
         public string? PayslipNo { get; set; }
         public DateTime PaymentDate { get; set; }
+        public List<AllowanceVM> Allowances { get; set; } = new();
+        public decimal TotalSalary { get; set; }
+    }
+    public class AllowanceVM
+    {
+        public string? Type { get; set; }
+        public decimal Amount { get; set; }
+        public string? DisplayValue { get; set; }
+        public decimal? AllowanceSalary { get; set; }
     }
 }

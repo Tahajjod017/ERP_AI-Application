@@ -1,20 +1,28 @@
-﻿using GCTL.Service.Language;
+﻿using GCTL.Data.Models;
+using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.PayRollEmpSalary;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 {
     public class PaySlipForEmpController : BaseController
     {
         private readonly IPayRollEmpSalaryService payRollEmpSalaryService;
-        public PaySlipForEmpController(ITranslateService translateService, IUserProfileService userProfileService, IPayRollEmpSalaryService payRollEmpSalaryService) : base(translateService, userProfileService)
+        private readonly AppDbContext appDb;
+        public PaySlipForEmpController(ITranslateService translateService, IUserProfileService userProfileService, IPayRollEmpSalaryService payRollEmpSalaryService, AppDbContext appDb) : base(translateService, userProfileService)
         {
             this.payRollEmpSalaryService = payRollEmpSalaryService;
+            this.appDb = appDb;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var employeeId = await appDb.Users.Where(u => u.Id == userId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
+            ViewBag.EmployeeId = employeeId;    
             return View();
         }
 
