@@ -6,6 +6,7 @@ using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,12 +116,13 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         #region Get PaySlip 
         public async Task<CommonReturnViewModel> GetPaySlip(int id)
         {
+
             try
             {
-                // Fetch EmployeeOfficeInfo with related Organization data
                 var baseQuery = await _employeeOfficeInfoRepository.AllActive()
+                    .Include(x => x.Employee).ThenInclude(x => x.EmployeeSalarySettingsEmployee)
                     .Where(x => x.EmployeeID == id)
-                    .Include(x => x.Organization) // Assuming a navigation property exists
+                    .Include(x => x.Organization).ThenInclude(x => x.EmployeeAllowances)
                     .FirstOrDefaultAsync();
 
                 if (baseQuery == null)
@@ -132,28 +134,124 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     };
                 }
 
-                // Map to PayRollPaySlipEmpVM (you'll need to populate other fields)
+                // Get Basic Salary
+                decimal? basicsalary = await employeeSalarySettingsRepository.AllActive()
+                    .Where(x => x.EmployeeID == id)
+                    .Select(x => x.Salary)
+                    .FirstOrDefaultAsync();
+
+                // Fetch Allowances
+                var allowancesList = await employeeAllowancesRepository.AllActive()
+                    .Include(ea => ea.EmployeeAllowanceType)
+                    .Include(ea => ea.EmployeeAllowanceSetup)
+                    .Where(ea => ea.OrganizationID == baseQuery.OrganizationID && ea.IsActive == true)
+                    .ToListAsync();
+
+                var allowanceVMs = new List<AllowanceVM>();
+                //decimal amount = 0;
+               // string display = "";
+
+                //foreach (var allowance in allowancesList)
+                //{
+
+                //    // Pick the setup for this employee’s salary range
+                //    var setup = allowance.EmployeeAllowanceSetup
+                //     .Where(s => (s.SalaryMin == null || basicsalary >= s.SalaryMin) &&
+                //    (s.SalaryMax == null || basicsalary <= s.SalaryMax))
+                //  .OrderByDescending(s => s.EffectiveDate ?? DateTime.MinValue)
+                //   .FirstOrDefault();
+
+                //    // fallback: if no matching range, take the latest effective setup
+                //    if (setup == null)
+                //    {
+                //        setup = allowance.EmployeeAllowanceSetup
+                //            .OrderByDescending(s => s.EffectiveDate ?? DateTime.MinValue)
+                //            .FirstOrDefault();
+                //    }
+
+
+                //    if (setup != null)
+                //    {
+
+
+                //        if (setup.CalculationType?.CalculationTypeName == "Percentage")
+                //        {
+                //            amount = (decimal)(basicsalary * (setup.Value ?? 0) / 100);
+                //            display = $"{setup.Value}%";
+                //        }
+                //        else if (setup.CalculationType?.CalculationTypeName == "Fixed")
+                //        {
+                //            amount = setup.Value ?? 0;
+                //            display = $"{amount} (Fixed)";
+                //        }
+                //        else
+                //        {
+                //            amount = setup.Value ?? 0;
+                //            display = $"{amount}";
+                //        }
+
+                //        allowanceVMs.Add(new AllowanceVM
+                //        {
+                //            Type = allowance.EmployeeAllowanceType.EmployeeAllowanceTypeName,
+                //            Amount = amount,
+                //            DisplayValue = display
+                //        });
+                //    }
+                //}
+                foreach (var allowance in allowancesList)
+                {
+                    var setup = allowance.EmployeeAllowanceSetup
+                        .Where(s => (s.SalaryMin == null || basicsalary >= s.SalaryMin) &&
+                                    (s.SalaryMax == null || basicsalary <= s.SalaryMax))
+                        .OrderByDescending(s => s.EffectiveDate ?? DateTime.MinValue)
+                        .FirstOrDefault();
+
+                    if (setup == null)
+                    {
+                        setup = allowance.EmployeeAllowanceSetup
+                            .OrderByDescending(s => s.EffectiveDate ?? DateTime.MinValue)
+                            .FirstOrDefault();
+                    }
+
+                    if (setup != null)
+                    {
+                        decimal allowanceSalary = 0;
+                        string display = "";
+
+                        if (setup.CalculationType?.CalculationTypeName == "Percentage")
+                        {
+                            allowanceSalary = (decimal)(basicsalary * (setup.Value ?? 0) / 100);
+                            display = $"{setup.Value}% of Basic";
+                        }
+                        else // Fixed
+                        {
+                            allowanceSalary = setup.Value ?? 0;
+                            display = $"{allowanceSalary} (Fixed)";
+                        }
+
+                        allowanceVMs.Add(new AllowanceVM
+                        {
+                            Type = allowance.EmployeeAllowanceType.EmployeeAllowanceTypeName,
+                            Amount = setup.Value ?? 0,      // raw DB value
+                            DisplayValue = display,
+                            AllowanceSalary = allowanceSalary
+                        });
+                    }
+                }
+                // Create VM
                 var paySlipVM = new PayRollPaySlipEmpVM
                 {
-                    //EmployeeName = /* Fetch from Employees table or related entity */,
-                    OrganizationName = baseQuery.Organization?.OrganizationName ?? " ", 
-                    OrganizationAddress=baseQuery.Organization?.Address ?? " ",
-                    EmailAddress=baseQuery?.Organization?.Address ?? " ",
-                    //Basic = /* Calculate or fetch from payroll data */,
-                    //HRA = /* Calculate or fetch from payroll data */,
-                    // DA = /* Calculate or fetch from payroll data */,
-                    // SpecialAllowance = /* Calculate or fetch from payroll data */,
-                    // Bonus = /* Calculate or fetch from payroll data */,
-                    // TotalEarnings = /* Sum of earnings */,
-                    // ProvidentFund = /* Calculate or fetch from payroll data */,
-                    //ProfessionalTax = /* Calculate or fetch from payroll data */,
-                    // ESI = /* Calculate or fetch from payroll data */,
-                    // HomeLoan = /* Calculate or fetch from payroll data */,
-                    // TDS = /* Calculate or fetch from payroll data */,
-                    //TotalDeductions = /* Sum of deductions */,
-                    // NetPay = /* TotalEarnings - TotalDeductions */,
-                    //PayslipNo = /* Generate or fetch payslip number */,
-                    // PaymentDate = /* Set payment date */
+                    OrganizationName = baseQuery.Organization?.OrganizationName ?? "",
+                    OrganizationAddress = baseQuery.Organization?.Address ?? "",
+                    OrganizationEmailAddress = baseQuery?.Organization?.EmailAddress ?? "",
+                    OrganizationLogoPic = baseQuery?.Organization.LogoLink ?? "",
+                    EmployeeName = $"{baseQuery?.Employee.FirstName} {baseQuery?.Employee.LastName}",
+                    EmployeeAddress = $"{baseQuery.Employee.State} {baseQuery.Employee.City},{baseQuery.Employee.HouseNo} {baseQuery.Employee.PostalCode}",
+                    EmployeeEmail = baseQuery.Employee.Email,
+                    BasicSalary = basicsalary,
+                    Allowances = allowanceVMs,
+                    //TotalSalary = (decimal)(basicsalary + allowanceVMs.Sum(a => a.Amount))
+                    TotalSalary = (decimal)(basicsalary + allowanceVMs.Sum(a => a.AllowanceSalary)* basicsalary/100)
                 };
 
                 return new CommonReturnViewModel
@@ -165,13 +263,76 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             }
             catch (Exception ex)
             {
-                // Log exception if logging is implemented
                 return new CommonReturnViewModel
                 {
                     Success = false,
                     Message = $"An error occurred: {ex.Message}"
                 };
             }
+
+
+            //try
+            //{
+            //    var baseQuery = await _employeeOfficeInfoRepository.AllActive().Include(x=>x.Employee).ThenInclude(x=>x.EmployeeSalarySettingsEmployee)
+            //        .Where(x => x.EmployeeID == id).Include(x => x.Organization).ThenInclude(x=>x.EmployeeAllowances).FirstOrDefaultAsync();
+
+            //    if (baseQuery == null)
+            //    {
+            //        return new CommonReturnViewModel
+            //        {
+            //            Success = false,
+            //            Message = "Employee not found."
+            //        };
+            //    }
+            //    var allowances = await employeeAllowancesRepository.AllActive()
+            //      .Include(ea => ea.EmployeeAllowanceType)   // type of allowance (e.g., DA, HRA, Bonus)
+            //      .Include(ea => ea.EmployeeAllowanceSetup) // allowance setup values
+            //      .Where(ea => ea.OrganizationID == baseQuery.OrganizationID && ea.IsActive == true)
+            //      .Select(ea => new
+            //      {
+            //          AllowanceID = ea.EmployeeAllowanceID,
+            //          AllowanceType = ea.EmployeeAllowanceType.EmployeeAllowanceTypeName, 
+            //          Setups = ea.EmployeeAllowanceSetup.Select(s => new
+            //          {
+            //              MinSalary = s.SalaryMin,
+            //              MaxSalary = s.SalaryMax,
+            //              CalculationType = s.CalculationType.CalculationTypeName,
+            //              Value = s.Value,
+            //              EffectiveDate = s.EffectiveDate
+            //          }).ToList()
+            //      }).ToListAsync();
+
+            //    //employeeAllowancesRepository
+            //    var basicsalary =await employeeSalarySettingsRepository.AllActive().Where(x=>x.EmployeeID==id).Select(x=>x.Salary).FirstOrDefaultAsync();
+            //    var paySlipVM = new PayRollPaySlipEmpVM
+            //    {
+            //        OrganizationName = baseQuery.Organization?.OrganizationName ?? "", 
+            //        OrganizationAddress=baseQuery.Organization?.Address ?? "",
+            //        OrganizationEmailAddress=baseQuery?.Organization?.EmailAddress ?? "",
+            //        OrganizationLogoPic=baseQuery?.Organization.LogoLink ?? "",
+            //        EmployeeName=$"{baseQuery?.Employee.FirstName} {baseQuery?.Employee.LastName}",
+            //        EmployeeAddress =$"{baseQuery.Employee.State} {baseQuery.Employee.City},{baseQuery.Employee.HouseNo} {baseQuery.Employee.PostalCode}",
+            //        EmployeeEmail=baseQuery.Employee.Email,
+            //        BasicSalary=basicsalary,
+
+            //    };
+
+            //    return new CommonReturnViewModel
+            //    {
+            //        Success = true,
+            //        Data = paySlipVM,
+            //        Message = "Payslip retrieved successfully."
+            //    };
+            //}
+            //catch (Exception ex)
+            //{
+            //    // Log exception if logging is implemented
+            //    return new CommonReturnViewModel
+            //    {
+            //        Success = false,
+            //        Message = $"An error occurred: {ex.Message}"
+            //    };
+            //}
         }
         #endregion
 

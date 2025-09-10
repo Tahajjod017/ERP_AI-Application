@@ -1,5 +1,5 @@
 ﻿@{
-
+    var employeeId = ViewBag.EmployeeId;
     DateTime date = DateTime.Now;
 }
 <div class="mb-9 mt-1">
@@ -9,7 +9,7 @@
             <div class="d-flex justify-content-center">
                 <span class="h4">Payslip for the month of @date.ToString("MMMM yyyy")</span>
             </div>
-
+            <input id="EmployeeID" value="@employeeId" type="hidden"/>
             <div class="payment-info">
                 <div class="row border-bottom">
                     <div class="col-sm-6 mb-3">
@@ -24,18 +24,18 @@
             <div class="payment-details mt-3">
                 <div class="row">
                     <div class="col-sm-6">
-                        <img src="../../assets/img/logo.svg" class="mb-2">
-                        <strong> CSL Technology </strong>
-                        <p>
-                            52, GCTL software hub <br> Banani <br> Dhaka <br> Bangladesh <br><a href="#"> hr@einfosoft.com </a>
+                        <img id="orgLogo" class="mb-2" width="26px">
+                        <strong id="OrganizationName"> </strong>
+                        <p id="OrganizationAddress">
+                            @* 52, GCTL software hub <br> Banani <br> Dhaka <br> Bangladesh <br><a href="#"> hr@einfosoft.com </a> *@
                         </p>
                     </div>
                     <div class="col-sm-6 text-end">
                         <span>Payment To</span>
-                        <strong> Sarah Smith </strong>
-                        <p>
-                            A 507 Parimal Hights <br> Hazi-Para <br> Cox's Bazar <br> Bangladesh <br>
-                            <a href="#"> sarah@einfosoft.com </a>
+                        <strong id="empName"></strong>
+                        <p id="empAddress">
+                            @* A 507 Parimal Hights <br> Hazi-Para <br> Cox's Bazar <br> Bangladesh <br>
+                            <a href="#"> sarah@einfosoft.com </a> *@
                         </p>
                     </div>
                 </div>
@@ -50,10 +50,10 @@
                                     <tr>
                                         <td>
                                             <strong class="ms-2">Basic</strong>
-                                            <span class=" me-2 float-end">80000</span>
+                                            <span class=" me-2 float-end" id="BasicSalary"></span>
                                         </td>
                                     </tr>
-                                    <tr>
+                                    @* <tr>
                                         <td>
                                             <strong class="ms-2">HRA</strong><span class="me-2 float-end">10000</span>
                                         </td>
@@ -67,15 +67,16 @@
                                         <td>
                                             <strong class="ms-2">Special Allowance</strong><span class="me-2 float-end">5000</span>
                                         </td>
-                                    </tr>
+                                    </tr> *@
+                                <tbody id="allowanceTable"></tbody>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">Bonus</strong><span class="me-2 float-end">7500</span>
+                                            <strong class="ms-2">Bonus</strong><span class="me-2 float-end">-</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">Total Earnings</strong><span class="me-2 float-end"><strong>900000</strong></span>
+                                        <strong class="ms-2">Total Earnings</strong><span class="me-2 float-end"><strong id="TotalSalary"></strong></span>
                                         </td>
                                     </tr>
                                 </tbody>
