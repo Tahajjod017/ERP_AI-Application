@@ -28,9 +28,9 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             // Ensure the user is authenticated
             if (!http.User.Identity.IsAuthenticated)
             {
-                // Handle unauthenticated access if needed (e.g., redirect, error message, etc.)
+                
                 await _next(http);
-                return; // Exit middleware if user is not authenticated
+                return; 
             }
 
             // Fallbacks from the server (machine) itself
@@ -85,15 +85,16 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
                     zone = DateTimeZoneProviders.Tzdb[bundle.TzValueOrIana];
                 }
 
-                // Fill scoped context with the resolved values
+               
                 ctx.Zone = zone;
                 ctx.DatePattern = bundle.DatePattern;
                 ctx.TimePattern = bundle.TimePattern;
+                await _next(http);
+                return;
             }
             catch (InvalidOperationException ex)
             {
-                // Handle the case where the organization has no localization setup
-                // This will catch the specific exception and apply fallback settings
+                
                 ctx.Zone = fallbackZone;
                 ctx.DatePattern = fallbackDatePattern;
                 ctx.TimePattern = fallbackTimePattern;
