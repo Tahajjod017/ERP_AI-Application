@@ -182,7 +182,7 @@
             </ol>
         </nav> *@
         <h3 class="fs-4 mb-3">@Html.SmartLocalize("Create Lead New")</h3>
-        <form class="bg-white py-4 form-control shadow-sm" action="shift-roster-ui.html">
+        <form class="bg-white py-4 form-control shadow-sm" action="shift-roster-ui.html" id="leadForm">
             <div class="modal-body pb-2">
                 <div class="row gy-3 ">
 
@@ -245,7 +245,7 @@
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
                             <select class="form-select" id="leadOwnerId" aria-label="Default select example">
-                                <option selected>Open this select menu</option>
+                                <option value="" selected disabled>Open this select menu</option>
                             </select>
                         </div>
                     </div>

@@ -95,7 +95,7 @@ namespace GCTL_App.Controllers.CRM
                                         Email = address.Email,
                                         FirstName = address.FirstName,
                                         LastName = address.LastName,
-
+                                        isWon = lead.IsWwn ?? null,
                                         LeadOwnerId = lead.LeadOwnerID,
                                         LeadOwnerName = lead.LeadOwner.FirstName + " " +lead.LeadOwner.LastName,
                                         ServiceIds = lead.LeadServices.Where(s=> s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
@@ -216,7 +216,7 @@ namespace GCTL_App.Controllers.CRM
                       || EF.Functions.Like(u.LeadActivityType.LeadActivityName, $"%{query}%")
                      )
           )
-          .OrderByDescending(e => e.CreatedAt)   // ORDER FIRST!
+          .OrderByDescending(e => e.ActivityDateTime)   // ORDER FIRST!
           .Skip(skip)                            // THEN skip
           .Take(pageSize)                        // THEN take
           .Select(e => new

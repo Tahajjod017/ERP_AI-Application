@@ -5,6 +5,10 @@
         background-color: #007bff;
         color: white;
     }
+
+    .choices {
+        margin-bottom: 0 !important; /* remove margin */
+    }
 </style> 
 <div class="container m-0 p-0">
 
@@ -29,11 +33,13 @@
                             <input class="form-control datetimepicker flatpickr-input caiCon" id="dateRange2" type="text" placeholder="@Html.SmartLocalize("Select Date Range")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
                         </div>
                     </div>
-                    <div class="dropdown me-3">
-                        <select class="form-select choiceDD" id="customerType" data-choices="data-choices" size="1" required="required" name="customerType" asp-items="@ViewBag.ServiceTypeDD">
-                            <option value="">@Html.SmartLocalize("Customer Type")</option>
-                        </select>
-                    </div>
+                    <select class="form-select choiceDD mb-0" id="customerType" name="customerType" required>
+                        <option value="">@Html.SmartLocalize("Customer Type")</option>
+                        @foreach (var item in ViewBag.ServiceTypeDD)
+                        {
+                            <option value="@item.Value">@item.Text.ToUpper()</option>
+                        }
+                    </select>
 
                     <div class="dropdown me-3">
                         <div class="input-group">
@@ -125,7 +131,8 @@
                             <label>@Html.SmartLocalize("Customer Search")</label>
 
                             <input type="text" id="queryText" class="form-control searchField">
-                            <input type="number" class="idBank" id="wCId" hidden>
+                            <input type="hidden" id="selectedID" name="OwnerId" />
+
                         </div>
                     </div>
 
@@ -157,7 +164,7 @@
                         <label for="form-control">@Html.SmartLocalize("Probability (%)")</label>
                         <div class="d-flex align-items-center mt-1">
                             <input type="range" class="form-range" min="0" max="100" step="1" id="probabilityPercentage" value="" oninput="completionValue.innerText = this.value + '%'">
-                            <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">5%</span>
+                            <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">0%</span>
                         </div>
                     </div>
 

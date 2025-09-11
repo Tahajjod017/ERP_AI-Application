@@ -41,7 +41,7 @@
                                 <div class="tab-pane fade show active" id="company" role="tabpanel">
                                     <h5 class="mb-3 text-body-highlight">Add Company</h5>
                                     <div class="row g-3">
-                                        <form id="promotionForm">
+                                        <form id="companyForm">
                                             <input type="text" name="name" value="" id="cCountryCode" hidden />
                                             <input type="number" id="cId" hidden />
                                             <div class="row">
@@ -175,7 +175,7 @@
                                 <div class="tab-pane fade h-100" id="addBranchTabContent" role="tabpanel" aria-labelledby="addBranchTab">
                                     <div class="d-flex flex-column h-100">
                                         <h5 class="mb-3 text-body-highlight">Add Branch</h5>
-                                        <div class="row g-3">
+                                        <div class="row g-3" id="branchForm">
                                             <form action="">
                                                 <input type="number" id="bId" name="name" hidden />
                                                 <input type="text" name="name" value="" id="bCountryCode" hidden />
@@ -192,12 +192,7 @@
                                                                     <!-- ContactName items will be populated here -->
                                                                 </div>
 
-                                                                <div class="no-results position-absolute bg-white p-2 border" id="bNoResults" style="position:absolute; display: none; width:100%; z-index:1000;">
-                                                                    @Html.SmartLocalize("Item Not Found. Are you add new item?")
-                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="bAddNewBtn">@Html.SmartLocalize("Business")</button>
-                                                                    <span>Or</span>
-                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="bAddNewContactBtn">@Html.SmartLocalize("Person")</button>
-                                                                </div>
+                                                                
                                                             </div>
                                                            
                                                         </div>
@@ -327,7 +322,7 @@
                                     <div class="d-flex flex-column h-100">
                                         <h5 class="mb-3 text-body-highlight">Add Warehouse</h5>
                                         <div class="row g-3">
-                                            <form action="">
+                                            <form action="" id="warehouseForm">
                                                 <input type="number" id="wId" name="name" hidden />
                                                 <input type="text" name="name" value="" id="wCountryCode" hidden />
                                                 <div class="row">
@@ -344,12 +339,7 @@
                                                                     <!-- ContactName items will be populated here -->
                                                                 </div>
                                                                 
-                                                                <div class="no-results position-absolute bg-white p-2 border" id="wNoResults" style="position:absolute; display: none; width:100%; z-index:1000;">
-                                                                    @Html.SmartLocalize("Item Not Found. Are you add new item?")
-                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="wAddNewBtn">@Html.SmartLocalize("Business")</button>
-                                                                    <span>Or</span>
-                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="wAddNewContactBtn">@Html.SmartLocalize("Person")</button>
-                                                                </div>
+                                                               
                                                             </div>
                                                         </div>
                                                         <div class="row">
@@ -502,7 +492,7 @@
                                 <div class="tab-pane fade" id="person" role="tabpanel">
                                     <h5 class="mb-3 text-body-highlight">Add Custommer</h5>
                                     <div class="row g-3">
-                                        <form action="">
+                                        <form action="" id="customerForm">
                                             <input type="number" id="personID" name="name" hidden />
                                             <input type="text" name="name" value="" id="countryCodePerson" hidden />
                                             <div class="row">
@@ -652,7 +642,7 @@
                                             </div>
                                         </div>
                                         <div class="row g-3">
-                                            <form action="">
+                                            <form action="" id="shippingForm">
                                                 <input type="number" id="sId" name="name" hidden />
                                                 <input type="text" name="name" value="" id="sCountryCode" hidden />
                                                 <div class="row">
@@ -667,13 +657,6 @@
                                                                 
                                                                 <div class="list-group bg-white p-0 border position-absolute" id="sCustomerList" style="display: none; width:100%; z-index:10012;">
                                                                     <!-- ContactName items will be populated here -->
-                                                                </div>
-
-                                                                <div class="no-results position-absolute bg-white p-2 border" id="sNoResults" style="position:absolute; display: none; width:100%; z-index:1000;">
-                                                                    @Html.SmartLocalize("Item Not Found. Are you add new item?")
-                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="sAddNewBtn">@Html.SmartLocalize("Business")</button>
-                                                                    <span>Or</span>
-                                                                    <button type="button" class="btn btn-sm btn-link p-0" id="sAddNewContactBtn">@Html.SmartLocalize("Person")</button>
                                                                 </div>
                                                             </div>
                                                            

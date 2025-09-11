@@ -17,6 +17,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null, int? employeeId = null, int? statusID = null, string? sortId = "");
         Task<EmployeeAttendenceVM> GetAttendanceDetailsAsync(int employeeId);
         Task<List<PunchActivityDto>> GetEmployeePunchActivityAsync(int userId);
+        Task<TimeOnly?> GetEmployeeFirstPunchInTimeAsync(int userId);
         Task<double> GetTotalHoursForWeek(int employeeId, int organizationId, int? organizationBranchId);
         Task<IActionResult> CalculateWorkingHours(int attendanceId);
 

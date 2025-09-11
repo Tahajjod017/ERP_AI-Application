@@ -226,7 +226,11 @@ namespace GCTL_App.Controllers.CRM
                     Email = c.Address.Email,
                     Phone = c.Address.Phone
                 })
-                .Where(x => x.Name != null && EF.Functions.Like(x.Name, $"%{query}%"))
+                .Where(x =>
+                    (x.Name != null && EF.Functions.Like(x.Name, $"%{query}%")) ||
+                    (x.Email != null && EF.Functions.Like(x.Email, $"%{query}%")) ||
+                    (x.Phone != null && EF.Functions.Like(x.Phone, $"%{query}%"))
+                )
                 .OrderByDescending(x => x.Name == query)                   // exact match first
                 .ThenByDescending(x => EF.Functions.Like(x.Name, $"{query}%")) // then starts with
                 .ThenBy(x => x.Name)                                      // then alphabetical

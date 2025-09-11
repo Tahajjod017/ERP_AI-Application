@@ -15,8 +15,18 @@ $(function () {
         let btnText = $(this).text().trim();
         if (btnText === "Attachment") {
             $('#file-field').show();
-        } else {
+        }else if (btnText === "Won") {
             $('#file-field').hide();
+            $('#dateField').hide();
+            $('#note-Field').hide();
+        }else if (btnText === "Lost") {
+            $('#file-field').hide();
+            $('#dateField').hide();
+            $('#note-Field').show();
+        }else {
+            $('#file-field').hide();
+            $('#dateField').show();
+            $('#note-Field').show();
         }
     });
 
@@ -51,7 +61,6 @@ $(function () {
         e.preventDefault();
         debugger
         const fieldId = $(this).attr('id');
-        showDev(fieldId);
 
         if (validation(fieldId)) {
 
@@ -347,7 +356,6 @@ $(function () {
             LeadDescription: $("#descriptionText").val(),
             ServiceTypeIds: $("#serviceTypes").val(),
         };
-        showDev(data);
             $.ajax({
                 url: '/LeadDetails/EditLeadData',
                 method: 'POST',
@@ -437,59 +445,62 @@ $(function () {
         updateUpcomingActivate(currentPage2);
     }
 
-    // ==============================
-    // loss and won button work
-    // ==============================
-    $("#Lost, #Won").on("click", function (e) {
-        const typeID = $(this).data('id');
-        const leadID = $(ids.leadID).val();
-        const note = $(ids.note).val();
-        const id = $(this).attr('id');
-        $(".option-btn").removeClass("active");
-        $(".special-btn").removeClass("active")
-        $(this).addClass("active");
-        if (id == 'Lost') {
-            $("#transferDiv").css("display", "none");
-        }
-        showDev(typeID);
-        showDev(leadID);
-        showDev(note);
-        if (validation(id)) {
-            $.ajax({
-                url: '/LeadDetails/IsWon',
-                method: 'POST',
-                data: { LeadID: leadID, LeadActivityTypeID: typeID, ActivityNote : note },
-                success: function (response) {
-                    showDev(response);
-                    if (id === 'Won') {
-                        $("#transferDiv").css("display", "block");
-                    }
-                    if (response.success == true) {
-                        toastr.success(response.message);
-                    } else {
-                        toastr.error(response.message);
-                    }
-                    resetAndReload();
-                    resetAndReloadUpcoming();
-                    $(ids.date).val("");
-                    $(ids.note).val("");
-                    $(ids.file).val("");
-                },
-                complete: function () { loading2 = false; },
-                error: function (jqXHR, textStatus) {
-                    toastr.error("Error: " + textStatus);
-                }
+    //// ==============================
+    //// loss and won button work
+    //// ==============================
+    //$("#Lost, #Won").on("click", function (e) {
+    //    const typeID = $(this).data('id');
+    //    const leadID = $(ids.leadID).val();
+    //    const note = $(ids.note).val();
+    //    const id = $(this).attr('id');
+    //    $(".option-btn").removeClass("active");
+    //    $(".special-btn").removeClass("active")
+    //    $(this).addClass("active");
+    //    if (id == 'Lost') {
+    //        $("#transferDiv").css("display", "none");
+    //    }
+    //    showDev(typeID);
+    //    showDev(leadID);
+    //    showDev(note);
+    //    if (validation(id)) {
+    //        $.ajax({
+    //            url: '/LeadDetails/IsWon',
+    //            method: 'POST',
+    //            data: { LeadID: leadID, LeadActivityTypeID: typeID, ActivityNote : note },
+    //            success: function (response) {
+    //                showDev(response);
+    //                if (id === 'Won') {
+    //                    $("#transferDiv").css("display", "block");
+    //                }
+    //                if (response.success == true) {
+    //                    toastr.success(response.message);
+    //                } else {
+    //                    toastr.error(response.message);
+    //                }
+    //                resetAndReload();
+    //                resetAndReloadUpcoming();
+    //                $(ids.date).val("");
+    //                $(ids.note).val("");
+    //                $(ids.file).val("");
+    //            },
+    //            complete: function () { loading2 = false; },
+    //            error: function (jqXHR, textStatus) {
+    //                toastr.error("Error: " + textStatus);
+    //            }
 
-            });
-        }
+    //        });
+    //    }
         
-    });
+    //});
 
 
     
 
     function validation(placeName) {
-        let requiredField = placeName === 'Lost' ? [ids.note] : placeName === 'addLActivity' ? [ids.date, ids.note] : [];
+        debugger;
+        clearAllValidationBorders();
+        
+        let requiredField = placeName === 'Lost' ? [ids.note] : placeName === 'Won' ? [] :[ids.date, ids.note];
         let isValid = true;
         debugger;
         if (placeName == 'addLActivity') {
@@ -504,12 +515,8 @@ $(function () {
                 requiredField.push(ids.file);
             }
         }
-
-
-        showDev(requiredField);
         requiredField.forEach(function (selector) {
             let $el = $(selector);
-            showDev(selector)
             let fieldText = $el.val();
             if (fieldText.trim() === "") {
                 $el.css("border-color", "red");
@@ -525,6 +532,20 @@ $(function () {
     // ==============================
     // validation load
     // ==============================
+    function clearAllValidationBorders() {
+        // Clear option buttons and container
+        $(".option-btn").css("border", "");
+        $("#optionBtnDiv").css("border", "");
+
+        // Clear all input, textarea, select fields
+        $("input, textarea, select").css("border", "");
+
+        // Clear file inputs
+        $("input[type='file']").css("border", "");
+
+        // Clear error messages if you have spans
+        $(".errorShow").text("");
+    }
 
     
 

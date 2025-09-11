@@ -41,6 +41,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             if (currentEmployeeId.HasValue)
             {
                 var getEmployeeTotalHoursRelated = await _employeeAttendanceReport.GetAttendanceDetailsAsync(currentEmployeeId.Value);
+                var getEmployeeFirstPunch = await _employeeAttendanceReport.GetEmployeeFirstPunchInTimeAsync(currentEmployeeId.Value);
                 var getEmployeeDetails = await _employeeAttendanceReport.GetTotalHoursForWeek(currentEmployeeId.Value,2,null);
 
                 ViewData["TotalHoursWeek"] = getEmployeeDetails.ToString("F2");
@@ -48,11 +49,12 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 
                 ViewData["ProductionTime"] = getEmployeeTotalHoursRelated.ProductionTime;
                 ViewData["ProductionTimeMinute"] = getEmployeeTotalHoursRelated.ProductionTimeMinute;
-                ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime; 
+               // ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime; 
+                ViewData["CheckInTime"] = getEmployeeFirstPunch; 
                 //ViewBag.ProductionTime = getEmployeeTotalHoursRelated.ProductionTime;
                 ViewData["Overtime"] = getEmployeeTotalHoursRelated.Overtime;
                 ViewData["TotalWorkingHours"] = getEmployeeTotalHoursRelated.TotalWorkingHours;
-                ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime;
+                //ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime;
             }
             else
             {

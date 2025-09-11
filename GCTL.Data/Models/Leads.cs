@@ -23,7 +23,7 @@ public partial class Leads
 
     public decimal? ProbabilityPercentage { get; set; }
 
-    public string LeadDescription { get; set; }
+    public string? LeadDescription { get; set; }
 
     public string LIP { get; set; }
 

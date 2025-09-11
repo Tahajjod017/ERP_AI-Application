@@ -1,4 +1,18 @@
 ﻿$('document').ready(function () {
+    let ids = {
+        leadID: "#leadID",
+        leadName: "#leadName",
+        leadStatusID: '#leadStatusID',
+        leadSourceID: '#leadSourceID',
+        leadPriorityID: '#leadPriorityID',
+        approximateDealValue: '#approximateDealValue',
+        probabilityPercentage: '#probabilityPercentage',
+        completionValue: 'completionValue',
+        descriptionText: 'descriptionText',
+        queryText: '#queryText',
+        selectedID: '#selectedID',
+    }
+
     let typingTimer;
     let delay = 300;
 
@@ -162,7 +176,10 @@
                 $("#leadPriorityID").val(response.priorityID);
                 $("#approximateDealValue").val(response.approximateDealValue);
                 $("#probabilityPercentage").val(response.probability);
+                $("#completionValue").text(response.probability);
                 $("#descriptionText").val(response.leadDescription);
+                $("#queryText").val(response.leadOwnerName);
+                $("#selectedID").val(response.leadOwnerId);
                 // multiselect edit field read
                 $('#serviceTypes').val(response.serviceIds).each(function () {
                     coreui.MultiSelect.getInstance(this)?.update();
@@ -234,7 +251,7 @@
             LeadName: $("#leadName").val() || "",
             LeadStatusID: parseInt($("#leadStatusID").val()) || 0,
             LeadSourceID: parseInt($("#leadSourceID").val()) || 0,
-            LeadOwnerID: parseInt($("#ownerID").val()) || 0,
+            LeadOwnerID: parseInt($("#selectedID").val()) || 0,
             PriorityID: parseInt($("#leadPriorityID").val()) || 0,
             ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
             ProbabilityPercentage: parseFloat($("#probabilityPercentage").val()) || 0,
@@ -242,28 +259,31 @@
             ServiceTypeIds: $("#serviceTypes").val(),
         };
         showDev(data);
-        $.ajax({
-            url: '/CRM/EditLeadData',
-            method: 'POST',
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
+        if (validation()) {
+            $.ajax({
+                url: '/CRM/EditLeadData',
+                method: 'POST',
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
 
-            success: function (response) {
+                success: function (response) {
 
-                if (response.success) {
-                    toastr.success(response.message);
-                    // HIDE modal
-                    var myModalEl = document.getElementById('editModal');
-                    var modal = bootstrap.Modal.getInstance(myModalEl);
-                    modal.hide();
-                } else {
-                    toastr.error(response.message || "Failed to create lead");
+                    if (response.success) {
+                        toastr.success(response.message);
+                        // HIDE modal
+                        var myModalEl = document.getElementById('editModal');
+                        var modal = bootstrap.Modal.getInstance(myModalEl);
+                        modal.hide();
+                    } else {
+                        toastr.error(response.message || "Failed to create lead");
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error("Error creating lead");
                 }
-            },
-            error: function (xhr) {
-                toastr.error("Error creating lead");
-            }
-        });
+            });
+        }
+        
         //}
     })
 
@@ -288,7 +308,10 @@
             const response = await $.ajax({
                 url: '/CRM/GetOwnerList',
                 method: 'POST',
-                data: { query: query, page: page },
+                data: {
+                    query: typedValue,
+                    page : page
+                },
             });
 
             if (page === 1) {
@@ -301,6 +324,7 @@
 
             if (!results || results.length === 0) {
                 noMoreDataDown = true;
+                return;
             } else {
                 results.forEach(item => {
                     if (!loadItem.has(item.id)) {
@@ -323,6 +347,7 @@
     // search owner
         // ==============
     $("#queryText").on("input click", async function () {
+        typedValue = $(this).val().trim();
         currentPage = 1;
         loading = false;
         noMoreDataDown = false;
@@ -342,7 +367,20 @@
             }
         });
 
-        await getOwnerList(currentPage); // fetch first page
+        $(document).on('click', '.item', function () {
+            const text = $(this).text().trim();
+            const id = $(this).data("id");
+            
+            $('#queryText').val(text);
+            $('#selectedID').val(id);
+            $("#result-show-div").remove();
+        });
+
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(async () => {
+            await getOwnerList(currentPage);
+        }, 500);
+       
     });
 
     // ===============
@@ -372,6 +410,15 @@
     }
 
 
+    // ===================
+    // autosuggation
+    // ===================
+    function autocompleteInput(input, suggestion) {
+        const typed = input.val();
+        input.val(suggestion);
+        input[0].setSelectionRange(typed.length, suggestion.length);
+    }
+
 
     // ============
     // keyboard event
@@ -379,18 +426,33 @@
 
 
     $("#queryText").on("keydown", function (e) {
+        
         const items = $("#result-show-div .item");
         if (items.length === 0) return;
 
         if (e.key === "ArrowDown") {
             selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
             items.removeClass("active").eq(selectedIndex).addClass("active")[0].scrollIntoView({ block: "nearest" });
+            const selectedItem = items.eq(selectedIndex);
+            autocompleteInput($(this), selectedItem.text().trim());
 
             // Show nearest suggestion in input
             $(this).val(items.eq(selectedIndex).text().trim());
+            $("#selectedID").val(selectedItem.data("id"));
             checkLoadMoreKeyboard();
             e.preventDefault();
-            setTimeout(checkLoadMoreKeyboard, 50);
+            // Run after repaint
+            setTimeout(() => {
+                debugger;
+                // If we reached the last item, load more
+                if (selectedIndex === items.length - 1) {
+                    noMoreDataDown = false; // allow next page
+                    currentPage++;
+                    getOwnerList(currentPage);
+                } else {
+                    checkLoadMoreKeyboard();
+                }
+            }, 50);
         }
              else if (e.key === "ArrowUp") {
                 selectedIndex = Math.max(selectedIndex - 1, 0);
@@ -400,54 +462,85 @@
             // Show nearest suggestion in input
             $(this).val(items.eq(selectedIndex).text().trim());
                 e.preventDefault();
-            } else if (e.key === "Tab") {
+            } else if (e.key === "Enter") {
             if (selectedIndex >= 0) {
-                const selectedName = items.eq(selectedIndex).text();
-                $(this).val(selectedName);
+                const selectedItem = items.eq(selectedIndex);
+                $(this).val(items.eq(selectedIndex).text().trim());
+                $("#selectedID").val(selectedItem.data("id"));
+
+
+                //$(this).val(selectedName);
                 $("#result-show-div").remove();
                 e.preventDefault();
             }
         }
     });
+    $(document).on("click", function (e) {
+        const $target = $(e.target);
 
-    //    // BIND AFTER WORK 
-
-    //    $('#result-show-div').on('scroll', function () {
-    //        currentPage = 1;
-    //        onMoreDataDown = false;
-    //        debugger;
-    //        const container = $(this);
-    //        const scrollTop = container.scrollTop();
-    //        const innerHeight = container.innerHeight();
-    //        const scrollHeight = container[0].scrollHeight;
-
-    //        if (!loading && !noMoreDataDown && Math.ceil(scrollTop + innerHeight) >= scrollHeight) {
-    //            currentPage++;
-    //            getOwnerList(currentPage);
-    //        }
-    //    });
+        // If the click is NOT on the input or the result div
+        if (!$target.is("#queryText") && !$target.closest("#result-show-div").length) {
+            $("#result-show-div").remove(); // hide/remove the result div
+        }
+    });
 
 
-    //    await getOwnerList(currentPage);
-    //})
+    // ===============
+    // lead validation
+    // =================
+
+    function validation() {
+        let requiredField = [ids.leadName, ids.leadPriorityID, ids.leadSourceID, ids.leadStatusID];
+        let isValid = true;
+        //debugger;
+        //if (placeName == 'addLActivity') {
+        //    if (!$('.option-btn').hasClass("active")) {
+        //        $('#optionBtnDiv').css("border", "1px solid red");
+        //        isValid = false;
+        //    } else {
+        //        $('#optionBtnDiv').css("border", "");
+        //    }
+        //    const activeBtn = $(".option-btn.active").text().trim();
+        //    if (activeBtn == "Attachment") {
+        //        requiredField.push(ids.file);
+        //    }
+        //}
 
 
-    // ==============
-    // scroll event
-    // ==============
+        showDev(requiredField);
+        requiredField.forEach(function (selector) {
+            //let $el = $(selector);
+            //showDev(selector)
+            //let fieldText = $el.val();
+            //if (fieldText.trim() === "") {
+            //    $el.css("border-color", "red");
+            //    isValid = false;
+            //} else {
+            //    $el.css("border-color", "");
+            //}
+            debugger;
+            requiredField.forEach(function (selector) {
+                let $el = $(selector);
+                let value = $el.val() ? $el.val().trim() : '';
+                let target = $el;
 
+                // Handle Choices.js dropdowns
+                if ($el.closest('.choices').length > 0) {
+                    target = $el.closest('.choices').find('.choices__inner');
+                }
 
-    // ========================
-    // response when did search
-    // ========================
-    //$('#search-activity').on("input", function () {
-    //    clearTimeout(typingTimer);
-    //    typingTimer = setTimeout(function () {
-    //        const search = $('#search-activity').val() || "";
-    //        if (search !== lastSearch) {
-    //            lastSearch = search;
-    //            resetAndReload();
-    //        }
-    //    }, delay);
-    //});
+                if (value === '') {
+                    target.css('border', '1px solid red');
+                    errorCount += 1;
+                } else {
+                    target.css('border', '1px solid #ccc'); // reset valid field
+                }
+            });
+
+        });
+
+        return isValid;
+    }
+
+ 
 });
