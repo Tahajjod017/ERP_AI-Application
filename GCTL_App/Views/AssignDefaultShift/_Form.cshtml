@@ -7,7 +7,7 @@
 <form asp-action="Create" asp-controller="AssignDefaultShift" id="assignDefaultShift-addForm" enctype="multipart/form-data">
     <div class="row g-3">
         @Html.AntiForgeryToken()
-
+        <input type="hidden" asp-for="DefaultShiftID" />
         <div class="col-md-3">
             <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
             <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">

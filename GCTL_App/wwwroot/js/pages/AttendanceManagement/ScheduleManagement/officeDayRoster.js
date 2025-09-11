@@ -771,11 +771,115 @@
             // #endregion
 
 
-            // #region Choice with Pagination have delay
+            //// #region Choice with Pagination + Infinite Scroll + Loading Indicator
+            //const selectEl = document.getElementById('OrganizationID');
+            //let debounceTimer;
+            //let loading = false;
+            //let currentPage = 1;
+            //let lastSearch = '';
+            //let hasMore = true;
+
+            //const choices = new Choices(selectEl, {
+            //    searchEnabled: true,
+            //    placeholder: true,
+            //    placeholderValue: 'Select Organization...',
+            //    searchPlaceholderValue: 'Type to search...',
+            //    noChoicesText: 'Type 3 or more characters...',
+            //    searchResultLimit: 50, // matches server page size
+            //    shouldSort: false,
+            //    duplicateItemsAllowed: false,
+            //    loadingText: 'Loading...',
+            //    itemSelectText: '',
+            //    removeItemButton: true,
+
+            //    // 🚨 disable local filtering, let server results show as-is
+            //    searchFloor: 0,
+            //    fuseOptions: false,
+            //    searchFn: function () { return true; }
+            //});
+
+
+            //// Fetch data from server
+            //async function fetchOptions(search, page = 1, pageSize = 50) {
+            //    loading = true;
+
+            //    // Add temporary loading item
+            //    choices.setChoices(
+            //        [{ value: '', label: 'Loading...', disabled: true }],
+            //        'value',
+            //        'label',
+            //        true
+            //    );
+
+            //    try {
+            //        const res = await fetch(`/OfficeDayRoster/SearchOrganizations?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
+            //        const data = await res.json();
+            //        hasMore = data.hasMore;
+            //        return data;
+            //    } catch (error) {
+            //        console.error("Error fetching organizations:", error);
+            //        return { items: [], hasMore: false };
+            //    } finally {
+            //        loading = false;
+            //    }
+            //}
+
+            //// Handle debounce on search
+            //selectEl.addEventListener('search', function (e) {
+            //    const searchTerm = e.detail.value;
+            //    clearTimeout(debounceTimer);
+
+            //    if (searchTerm.length < 3) {
+            //        choices.clearChoices();
+            //        return;
+            //    }
+
+            //    debounceTimer = setTimeout(async () => {
+            //        currentPage = 1;
+            //        lastSearch = searchTerm;
+            //        const data = await fetchOptions(searchTerm, currentPage);
+
+            //        // Replace loading with fresh results
+            //        choices.clearChoices();
+            //        if (data.items.length > 0) {
+            //            choices.setChoices(data.items, 'value', 'label', true);
+            //        }
+            //    }, 500); // debounce
+            //});
+
+            //// Scroll handler
+            //async function handleScroll(e) {
+            //    const dropdownList = e.target;
+            //    if (!loading && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
+            //        currentPage++;
+            //        const data = await fetchOptions(lastSearch, currentPage);
+
+            //        // Remove loading & append
+            //        choices.removeActiveItemsByValue(''); // remove the "Loading..." option
+            //        if (data.items.length > 0) {
+            //            choices.setChoices(data.items, 'value', 'label', false); // append
+            //        }
+            //    }
+            //}
+
+            //// Reattach scroll listener when dropdown is shown
+            //choices.passedElement.element.addEventListener('showDropdown', () => {
+            //    const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
+            //    if (dropdownList) {
+            //        dropdownList.removeEventListener('scroll', handleScroll);
+            //        dropdownList.addEventListener('scroll', handleScroll);
+            //    }
+            //});
+            //// #endregion
+
+
+            // #region Choice with Pagination + Infinite Scroll (final)
             const selectEl = document.getElementById('OrganizationID');
             let debounceTimer;
             let loading = false;
-            let hasInteracted = false;
+            let currentPage = 1;
+            let lastSearch = '';
+            let hasMore = true;
 
             const choices = new Choices(selectEl, {
                 searchEnabled: true,
@@ -783,51 +887,135 @@
                 placeholderValue: 'Select Organization...',
                 searchPlaceholderValue: 'Type to search...',
                 noChoicesText: 'Type 3 or more characters...',
-                searchResultLimit: 10,
+                searchResultLimit: 50, // same as backend
                 shouldSort: false,
                 duplicateItemsAllowed: false,
                 loadingText: 'Loading...',
                 itemSelectText: '',
-                removeItemButton: true
+                removeItemButton: true,
+
+                // 🔑 Disable local filtering → only backend search
+                fuseOptions: false,
+                searchFn: function () { return true; }
             });
 
             // Fetch data from server
-            async function fetchOptions(search) {
+            async function fetchOptions(search, page = 1, pageSize = 50) {
                 loading = true;
                 try {
-                    const res = await fetch(`/OfficeDayRoster/SearchOrganizations?search=${encodeURIComponent(search)}&page=1&pageSize=10`);
+                    const res = await fetch(`/OfficeDayRoster/SearchOrganizations?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
                     const data = await res.json();
-                    return data;
+                    hasMore = data.hasMore;
+                    return data.items;
                 } catch (error) {
                     console.error("Error fetching organizations:", error);
-                    return { items: [] };
+                    return [];
                 } finally {
                     loading = false;
                 }
             }
 
-            // Handle debounce on search
+            // Handle search (debounced)
             selectEl.addEventListener('search', function (e) {
                 const searchTerm = e.detail.value;
-
-                // Wait until user really types
-                if (!hasInteracted) {
-                    hasInteracted = true;
-                }
-
                 clearTimeout(debounceTimer);
 
-                if (!hasInteracted || searchTerm.length < 3) {
+                if (searchTerm.length < 3) {
                     choices.clearChoices();
                     return;
                 }
 
                 debounceTimer = setTimeout(async () => {
-                    const data = await fetchOptions(searchTerm);
+                    currentPage = 1;
+                    lastSearch = searchTerm;
+                    const items = await fetchOptions(searchTerm, currentPage);
+
+                    // 🔑 Replace old choices (new search)
                     choices.clearChoices();
-                    choices.setChoices(data.items, 'value', 'label', true);
-                }, 1000); // Wait 1 second after pause
+                    choices.setChoices(items, 'value', 'label', true);
+                }, 600);
             });
+
+            // Handle infinite scroll (append results)
+            async function handleScroll(e) {
+                const dropdownList = e.target;
+                if (!loading && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
+                    currentPage++;
+                    const items = await fetchOptions(lastSearch, currentPage);
+
+                    // 🔑 Append, don't clear
+                    choices.setChoices(items, 'value', 'label', false);
+                }
+            }
+
+            // Reattach scroll listener when dropdown opens
+            choices.passedElement.element.addEventListener('showDropdown', () => {
+                const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
+                if (dropdownList) {
+                    dropdownList.removeEventListener('scroll', handleScroll);
+                    dropdownList.addEventListener('scroll', handleScroll);
+                }
+            });
+            // #endregion
+
+
+            // #region Choice with Pagination have delay
+            //const selectEl = document.getElementById('OrganizationID');
+            //let debounceTimer;
+            //let loading = false;
+            //let hasInteracted = false;
+
+            //const choices = new Choices(selectEl, {
+            //    searchEnabled: true,
+            //    placeholder: true,
+            //    placeholderValue: 'Select Organization...',
+            //    searchPlaceholderValue: 'Type to search...',
+            //    noChoicesText: 'Type 3 or more characters...',
+            //    searchResultLimit: 10,
+            //    shouldSort: false,
+            //    duplicateItemsAllowed: false,
+            //    loadingText: 'Loading...',
+            //    itemSelectText: '',
+            //    removeItemButton: true
+            //});
+
+            //// Fetch data from server
+            //async function fetchOptions(search) {
+            //    loading = true;
+            //    try {
+            //        const res = await fetch(`/OfficeDayRoster/SearchOrganizations?search=${encodeURIComponent(search)}&page=1&pageSize=50`);
+            //        const data = await res.json();
+            //        return data;
+            //    } catch (error) {
+            //        console.error("Error fetching organizations:", error);
+            //        return { items: [] };
+            //    } finally {
+            //        loading = false;
+            //    }
+            //}
+
+            //// Handle debounce on search
+            //selectEl.addEventListener('search', function (e) {
+            //    const searchTerm = e.detail.value;
+
+            //    // Wait until user really types
+            //    if (!hasInteracted) {
+            //        hasInteracted = true;
+            //    }
+
+            //    clearTimeout(debounceTimer);
+
+            //    if (!hasInteracted || searchTerm.length < 3) {
+            //        choices.clearChoices();
+            //        return;
+            //    }
+
+            //    debounceTimer = setTimeout(async () => {
+            //        const data = await fetchOptions(searchTerm);
+            //        choices.clearChoices();
+            //        choices.setChoices(data.items, 'value', 'label', true);
+            //    }, 1000); // Wait 1 second after pause
+            //});
             // #endregion
         });
 
