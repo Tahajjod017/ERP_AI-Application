@@ -143,6 +143,12 @@ public partial class Employees
 
     public virtual ICollection<Attendance> AttendanceUpdatedByNavigation { get; set; } = new List<Attendance>();
 
+    public virtual ICollection<BenefitTypes> BenefitTypesCreatedByNavigation { get; set; } = new List<BenefitTypes>();
+
+    public virtual ICollection<BenefitTypes> BenefitTypesDeletedByNavigation { get; set; } = new List<BenefitTypes>();
+
+    public virtual ICollection<BenefitTypes> BenefitTypesUpdatedByNavigation { get; set; } = new List<BenefitTypes>();
+
     public virtual BloodGroup BloodGroup { get; set; }
 
     public virtual ICollection<BloodGroup> BloodGroupCreatedByNavigation { get; set; } = new List<BloodGroup>();

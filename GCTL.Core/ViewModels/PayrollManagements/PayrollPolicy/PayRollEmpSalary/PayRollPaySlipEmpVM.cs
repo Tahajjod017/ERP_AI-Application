@@ -32,6 +32,8 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
         public DateTime PaymentDate { get; set; }
         public List<AllowanceVM> Allowances { get; set; } = new();
         public decimal TotalSalary { get; set; }
+        public string? SalaryInWords { get; set; }
+        public decimal TotalBonus { get; set; }
     }
     public class AllowanceVM
     {

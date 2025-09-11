@@ -31,7 +31,6 @@
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    debugger
                     const data = response.data;
                     console.log(data);
                     $('#OrganizationName').text(data.organizationName || 'N/A');
@@ -40,13 +39,13 @@
                     <a href="mailto:${data.organizationEmailAddress}">${data.organizationEmailAddress}</a>`);
                     let organizationLogoPic = data.organizationLogoPic || "";
                     let logoPath = organizationLogoPic
-                        ? `/uploads/company/logo/${organizationLogoPic}`: "../../assets/img/logo.svg";
+                        ? `/uploads/company/logo/${organizationLogoPic}` : "../../assets/img/icons/No-Image-Placeholder.svg.png";
                     document.getElementById("orgLogo").src = logoPath;
                     $('#empName').text(data.employeeName);
                     $('#empAddress').html(`
                     ${data.employeeAddress.replace(/,/g, '<br>')} <br> 
                     <a href="mailto:${data.employeeAddress}">${data.employeeEmail}</a>`);
-                    $('#BasicSalary').text(data.basicSalary);
+                    $('#BasicSalary').text(parseFloat(data.basicSalary).toFixed(2));
 
                     let allowanceRows = "";
                     data.allowances.forEach(a => {
@@ -54,15 +53,15 @@
                 <tr>
                     <td>
                         <strong class="ms-2">${a.type}(${a.amount}%)</strong>  
-                        <span class="me-2 float-end">${(a.amount * data.basicSalary) / 100}</span>
+                        <span class="me-2 float-end">${parseFloat((a.amount * data.basicSalary) / 100).toFixed(2)}</span>
 
                     </td>
                 </tr>`;
                     });
-                    //<span class="me-2 float-end">${(a.amount * data.basicSalary) / 100} <small>(${a.displayValue})</small></span>
                     // Append to table
                     $("#allowanceTable").html(allowanceRows);
-                    $('#TotalSalary').text(data.totalSalary)
+                    $('#TotalSalary').text(parseFloat(data.totalSalary).toFixed(2));
+                    $('#SalaryInWords').text(data.salaryInWords);
                 } else
                 {
                     toastr.error('Failed to load payslip: ' + response.Message);

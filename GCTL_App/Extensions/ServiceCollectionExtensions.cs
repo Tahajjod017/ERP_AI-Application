@@ -99,6 +99,7 @@ using GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using GCTL.Service.PayRollManagements.PayRollEmpSalary;
 using GCTL.Service.PayRollManagements.PayRollLoanManagement;
+using GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.PayRollManagements.PayRollSettings;
 using GCTL.Service.RolePermissions;
@@ -196,6 +197,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IEmpAllowanceTypeOrganizationService, EmpAllowanceTypeOrganizationService>();
             services.AddScoped<IPayRollLoanEntryService, PayRollLoanEntryService>();
             services.AddScoped<IPayRollEarlyPaymentService, PayRollEarlyPaymentService>();
+            services.AddScoped<IPayRollOrgaBenefitsTypeService, PayRollOrgaBenefitsTypeService>();
             #endregion
 
             #region Asad
