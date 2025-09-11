@@ -297,10 +297,46 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     };
                 }).ToList();
 
-
+            
 
             return result;
         }
+
+        // Fix for CS0029: Cannot implicitly convert type 'string' to 'System.DateTime?'
+        // The issue occurs because the code is trying to return a string where a nullable DateTime is expected.
+        // The fix involves parsing the string back to a DateTime object or directly returning the DateTime value.
+
+        public async Task<TimeOnly?> GetEmployeeFirstPunchInTimeAsync(int userId)
+        {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+
+            // Pull the first PunchTime from DB  
+            var firstPunchIn = await _genericAttendanceLog.All()
+                .Where(x => x.DeletedAt == null
+                            && x.Attendance.EmployeeID == userId
+                            && x.CHECKTIME_UTC >= today
+                            && x.CHECKTIME_UTC < tomorrow)
+                .OrderBy(x => x.CHECKTIME_UTC)
+                .Select(x => x.CHECKTIME_UTC)
+                .FirstOrDefaultAsync();
+
+            // If a punch-in time is found, convert it to local time  
+            if (firstPunchIn.HasValue)
+            {
+                // Convert the UTC time to the localized time based on the _localizationContext
+                var localTimeString = firstPunchIn.Value.ToOrgTime(_localizationContext); // Get local time as string
+
+                // Parse the string into DateTime and return
+                var localTime = TimeOnly.Parse(localTimeString);
+
+                return localTime; // Return the localized DateTime
+            }
+
+            return null; // Return null if no punch-in is found  
+        }
+
+
         public async Task<IActionResult> CalculateWorkingHours(int attendanceId)
         {
             var currentDate = DateTime.Today.AddDays(-1); // Yesterday’s date
