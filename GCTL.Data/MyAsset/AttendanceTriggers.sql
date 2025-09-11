@@ -1,5 +1,6 @@
 ﻿USE [fingerprint]
 GO
+/****** Object:  Trigger [dbo].[ProcessPunchToHRMApp]    Script Date: 9/11/2025 5:58:26 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -116,11 +117,21 @@ BEGIN
         IF @IsLateCount = 1 AND @CHECKTIME > @ShiftStartWithGrace
         BEGIN
             -- LateHour calculated from StartTime (not grace)
-            SET @LateHour = DATEDIFF(MINUTE, CAST(@ShiftStartTime AS DATETIME2), @CHECKTIME);
+            --SET @LateHour = DATEDIFF(MINUTE, CAST(@ShiftStartTime AS DATETIME2), @CHECKTIME);
+            SET @LateHour = DATEDIFF(
+                MINUTE,
+                DATEADD(DAY, DATEDIFF(DAY, 0, @CHECKTIME), @ShiftStartTime), -- today's shift start
+                @CHECKTIME
+            );
         END
         ELSE IF CAST(@CHECKTIME AS TIME) < @ShiftStartTime
         BEGIN
-            SET @EarlyHour = DATEDIFF(MINUTE, @CHECKTIME, CAST(@ShiftStartTime AS DATETIME2));
+            --SET @EarlyHour = DATEDIFF(MINUTE, @CHECKTIME, CAST(@ShiftStartTime AS DATETIME2));
+            SET @EarlyHour = DATEDIFF(
+                MINUTE,
+                @CHECKTIME,
+                DATEADD(DAY, DATEDIFF(DAY, 0, @CHECKTIME), @ShiftStartTime) -- today's shift start
+            );
         END
 
         -- Insert into Attendance (CheckInTime in UTC)
@@ -210,4 +221,3 @@ BEGIN
     WHERE AttendanceID = @AttendanceID;
 
 END;
-GO
