@@ -1,0 +1,79 @@
+﻿ @model GCTL.Core.ViewModels.PayrollManagements.PayRollOrganizationBenefitsType.OrgaBenefitsTypeSaveVM
+
+
+<div class="mt-4 mx-lg-n4">
+    <div class="row g-4">
+        <div class="col-12 col-md-7 col-xl-5 col-xxl-5">
+
+
+            <div class="card">
+                <div class="card-header border-bottom-1">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col-auto">
+                            <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("Benefits Type")</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body mt-3">
+                    <form enctype="multipart/form-data" id="OrganizationBenefitsType-form">
+                        @Html.AntiForgeryToken()
+                        <div class="col-sm-12 col-md-12 mb-4">
+                            <input type="hidden" asp-for="BenefitTypeID" />
+                            <div class="mb-1">
+                                <div class="content-head d-flex justify-content-between align-items-center">
+                                    <label>@Html.SmartLocalize("Organization Name") <span style="color: red;">*</span></label>
+                                    <div class="form-check form-switch">
+                                    </div>
+                                </div>
+
+                                <select class="form-select choiceDD"
+                                        asp-for="OrganizatonID"
+                                        asp-items="@ViewBag.SelectedOrgaDD as SelectList"
+                                       placeholder="@Html.SmartLocalize("Select Company")">
+                                       <option value="">Select Company</option>
+                                </select>
+                            </div>
+                            <span id="OrganizationID-error" class="text-danger"></span>
+
+                        </div>
+                        <div class="col-sm-12 col-md-12 mb-4">
+
+                            <div class="flatpickr-input-container">
+                                <label asp-for="BenefitTypeName">@Html.SmartLocalize("Benefit Type") <span style="color: red;">*</span></label>
+                                <input class="form-control" asp-for="BenefitTypeName" type="text" placeholder="@Html.SmartLocalize("Benefit Type")" autocomplete="off" />
+                                <span id="nameError" class="text-danger" style="display:none;"></span>
+                                <span asp-validation-for="BenefitTypeName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-4">
+                            <div class="row g-3 justify-content-end">
+                                <div class="col-auto">
+                                    <button type="reset" class="btn btn-phoenix-primary px-5" id="OrganizationBenefitsType-resetBtn">@Html.SmartLocalize("Reset")</button>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="button" class="btn btn-primary px-5 px-sm-15" id="OrganizationBenefitsType-saveBtn">@Html.SmartLocalize("Save")</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-12 col-md-7 col-xl-7 col-xxl-7">
+            <partial name="_Table" />
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfirmDelete" />
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/payrollmanagements/payrollsettings/PayRollOrgaBenefitsType.js"></script>
+
+}
