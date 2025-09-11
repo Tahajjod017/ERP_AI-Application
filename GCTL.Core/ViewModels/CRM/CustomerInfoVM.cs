@@ -41,5 +41,6 @@ namespace GCTL.Core.ViewModels.CRM
         public int? SuccessPercentage { get; set; }
         public int? LostPercentage { get; set; }
         public int? CancelPercentage { get; set; }
+        public bool? isWon { get; set; }
     }
 }

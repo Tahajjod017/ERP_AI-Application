@@ -8,8 +8,8 @@
         border-color: #0d6efd;
     }
 
-    .special-btn.active {
-        background-color: #0d6efd; /* Bootstrap primary */
+    .special-btn.active2 {
+        background-color: #011c45; /* Bootstrap primary */
         color: white;
         border-color: #0d6efd;
     }
@@ -273,8 +273,8 @@
                             }
 
                         </div> 
-
-                        <div class="col-md-12">
+                        <!-- Dat field -->
+                        <div class="col-md-12" id="dateField">
                             <div class="mb-1">
                                 <div class="row g-3">
                                     <div class="col-6">
@@ -292,6 +292,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- file field-->
                         <div class="mb-1" id="file-field" style="display:none;">
                             <div class="row g-3">
                                 <div class="col-6">
@@ -308,8 +310,8 @@
                         <input type="number" id="leadID" value="@Model.LeadID" hidden/>
 
 
-
-                        <div class="col-md-12">
+                        <!-- Note field -->
+                        <div class="col-md-12" id="note-Field">
                             <div class="mb-3">
                                 <label class="text-body-highlight mb-2">Note </label>
                                 <textarea class="form-control" id="aNote" rows="3"> </textarea>
@@ -317,8 +319,6 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            
-
                         <button type="submit" id="addLActivity" class="btn btn-primary">Add Activity</button>
 
                         <div class="d-flex align-items-center">
@@ -326,16 +326,27 @@
                             <div class="form-check ms-2 me-4 fs-8" id="transferDiv" style="display:none;">
                                 <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
                                 <label class="form-check-label fs-8" for="flexCheckChecked">
-                                    Transfer
+                                    Transfer To Field Service
                                 </label>
                             </div>
 
                             @foreach (var item in ViewBag.LeadActivityTypes2)
                             {
-                                <button id="@item.LeadActivityName" class="btn btn-phoenix-secondary rounded-pill mx-1 special-btn" data-id="@item.LeadActivityTypeID">
-                                    <span class="fs-7 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span> @item.LeadActivityName
+
+                                var activeClass = "";
+                                string buttonSelect = (Model.isWon == true) ? "Won" : (Model.isWon == false) ? "Lost" : "";
+                                if ( item.LeadActivityName == buttonSelect )
+                                {
+                                    activeClass = "active2";
+                                }
+                                <button id="@item.LeadActivityName"
+                                        class="btn btn-phoenix-secondary rounded-pill mx-1 special-btn option-btn @activeClass" type="button"
+                                        data-id="@item.LeadActivityTypeID">
+                                    <span class="fs-7 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span> 
+                                    @item.LeadActivityName
                                 </button>
                             }
+
                         </div>
                     </div>
                                       
