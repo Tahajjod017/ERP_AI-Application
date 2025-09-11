@@ -161,6 +161,8 @@
                     if (response.isSuccess) {
                         const data = response.data;
 
+                        $('#DefaultShiftID').val(data.defaultShiftID);
+
                         organizationDD.setChoiceByValue(data.organizationID.toString());
 
                         suppressDepartmentChange = true; // Disable event temporarily
@@ -864,10 +866,10 @@
                                         <input type="checkbox" class="form-check-input assignDefaultShift-selectItem" data-id="${item.defaultShiftID}" />
                                     </td>
                                     <td class="align-middle white-space-nowrap fw-semibold text-body-emphasis ps-0 py-2">
-                                        <h5>${item.organizationName}</h5>
+                                        <h5>${item.organizationName ?? '-'}</h5>
                                     </td>
                                     <td class="align-middle white-space-nowrap ps-0 fw-semibold text-body py-1">
-                                        <span>${item.departmentName}</span>
+                                        <span>${item.departmentName ?? '-'}</span>
                                     </td>
                                     <td class="white-space-nowrap align-middle ps-0">${item.employeeName ?? '-'}</td>
                                     <td class="white-space-nowrap align-middle ps-0">${item.shiftName ?? '-'}</td>

@@ -263,8 +263,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                 }
 
                 entity.OrganizationID = model.OrganizationID;
-                entity.DepartmentID = model.DepartmentIDs.FirstOrDefault();
-                entity.EmployeeID = model.EmployeeIDs.FirstOrDefault();
+                entity.DepartmentID = model.DepartmentIDs?.FirstOrDefault();
+                entity.EmployeeID = model.EmployeeIDs?.FirstOrDefault();
                 entity.ShiftID = model.ShiftID;
 
                 await _genericRepository.UpdateAsync(entity);
