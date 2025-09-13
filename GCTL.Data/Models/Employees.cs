@@ -157,6 +157,24 @@ public partial class Employees
 
     public virtual ICollection<BloodGroup> BloodGroupUpdatedByNavigation { get; set; } = new List<BloodGroup>();
 
+    public virtual ICollection<BonusSetups> BonusSetupsCreatedByNavigation { get; set; } = new List<BonusSetups>();
+
+    public virtual ICollection<BonusSetups> BonusSetupsDeletedByNavigation { get; set; } = new List<BonusSetups>();
+
+    public virtual ICollection<BonusSetups> BonusSetupsUpdatedByNavigation { get; set; } = new List<BonusSetups>();
+
+    public virtual ICollection<BonusTypes> BonusTypesCreatedByNavigation { get; set; } = new List<BonusTypes>();
+
+    public virtual ICollection<BonusTypes> BonusTypesDeletedByNavigation { get; set; } = new List<BonusTypes>();
+
+    public virtual ICollection<BonusTypes> BonusTypesUpdatedByNavigation { get; set; } = new List<BonusTypes>();
+
+    public virtual ICollection<Bonuses> BonusesCreatedByNavigation { get; set; } = new List<Bonuses>();
+
+    public virtual ICollection<Bonuses> BonusesDeletedByNavigation { get; set; } = new List<Bonuses>();
+
+    public virtual ICollection<Bonuses> BonusesUpdatedByNavigation { get; set; } = new List<Bonuses>();
+
     public virtual ICollection<CalculationTypes> CalculationTypesCreatedByNavigation { get; set; } = new List<CalculationTypes>();
 
     public virtual ICollection<CalculationTypes> CalculationTypesDeletedByNavigation { get; set; } = new List<CalculationTypes>();

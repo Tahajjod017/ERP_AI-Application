@@ -19,6 +19,7 @@ using GCTL.Service.AdminSettings.SystemSettings.ISmsSettingService;
 using GCTL.Service.AdminSettings.SystemSettings.OtpSettingService;
 using GCTL.Service.AdminSettings.SystemSettings.SmsSettingService;
 using GCTL.Service.AllNotifications;
+using GCTL.Service.AttendanceManagement;
 using GCTL.Service.AttendanceManagement.EmployeeAttendence;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyReports;
@@ -142,7 +143,7 @@ namespace GCTL_App.Extensions
             #endregion
 
             //services.AddScoped<DataSeeder>();
-
+            services.AddScoped<IEmailService, EmailService>();
             #region Added by Md. Rakib Hasan
             services.AddScoped<IBloodGroupService, BloodGroupService>();
             services.AddScoped<ICountryService, CountryService>();

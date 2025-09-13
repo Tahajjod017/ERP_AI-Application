@@ -67,6 +67,10 @@ public partial class Organization
 
     public virtual ICollection<BenefitTypes> BenefitTypes { get; set; } = new List<BenefitTypes>();
 
+    public virtual ICollection<BonusTypes> BonusTypes { get; set; } = new List<BonusTypes>();
+
+    public virtual ICollection<Bonuses> Bonuses { get; set; } = new List<Bonuses>();
+
     public virtual Country Country { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
