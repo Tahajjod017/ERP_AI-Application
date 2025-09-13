@@ -99,6 +99,7 @@ namespace GCTL_App.Controllers.CRM
                                         LeadOwnerId = lead.LeadOwnerID,
                                         LeadOwnerName = lead.LeadOwner.FirstName + " " +lead.LeadOwner.LastName,
                                         ServiceIds = lead.LeadServices.Where(s=> s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
+                                        ClosingDate = lead.ClosingDate,
 
                                         // 🔥 Stats calculation for this LeadOwner
                                         SuccessPercentage = (int) Math.Round(_context.Leads
@@ -129,15 +130,12 @@ namespace GCTL_App.Controllers.CRM
 
         public async Task<string> StorePhoto(IFormFile? file)
         {
-            if (file == null || file.Length == 0)
-                return null;
+            if (file == null || file.Length == 0) return null;
 
-            // Set the uploads folder path
             var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "media/leads");
             if (!Directory.Exists(uploadsFolder))
                 Directory.CreateDirectory(uploadsFolder);
 
-            // Generate a short unique file name
             var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff"); // e.g., 20250903154530123
             var random = new Random().Next(100, 999); // 3-digit random number
             var extension = Path.GetExtension(file.FileName); // Keep original extension
@@ -145,45 +143,20 @@ namespace GCTL_App.Controllers.CRM
 
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-            // Save the file
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            // Return the relative URL
             return $"/media/leads/{uniqueFileName}";
         }
 
-       
-
-
-
-    [HttpPost]
-        public async Task<IActionResult> CeateLeadDetail([FromForm] LeadDetailsVM leadDetailsVM)
-        {
-            if (leadDetailsVM == null)
-                return BadRequest(new { result = false, message = "Invalid data" });
-
-            if (leadDetailsVM.LeadID == 0)
-                return BadRequest(new { result = false, message = "LeadID is required" });
-
-            string fileLocation = await StorePhoto(leadDetailsVM.File);
-
-            bool result = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM, fileLocation);
-
-            return Ok(new
-            {
-                result,
-                message = result ? "Data added successfully" : "Failed to add lead details"
-            });
-        }
 
         // update source field value 
         [HttpPost]
         public async Task<IActionResult> UpdateLeadValue([FromForm] DetailsLeadUpdateVM detailsLeadUpdateVM)
         {
-            var fieldNames = new[] { "source", "priority", "stage" };
+            var fieldNames = new[] { "source", "priority", "stage", "probability" };
             if (fieldNames.Contains(detailsLeadUpdateVM.FieldName)) {
                 var result = await _leadDetailsService.UpdateLeadFieldValue(detailsLeadUpdateVM);
                 return Ok(result);
@@ -254,6 +227,7 @@ namespace GCTL_App.Controllers.CRM
               e.LeadDetailID,
               e.ActivityDateTime,
               e.ActivityNote,
+              e.FileLink,
               e.LeadActivityType.LeadActivityName,
               e.LeadActivityType.LeadActivityIcon,
               CreatedByName = e.CreatedByNavigation != null
@@ -312,21 +286,48 @@ namespace GCTL_App.Controllers.CRM
 
         }
 
+     
+        // ===================
+        // new lead details
+        // =======================
         [HttpPost]
-        public async Task<IActionResult> IsWon([FromForm] IsWonVM isWonVM)
+        public async Task<IActionResult> SaveLeadActivity([FromForm] LeadDetailsVM leadDetailsVM)
         {
-         
-            if (ModelState.IsValid)
-            {
-                if (isWonVM.LeadID != 0)
+            if (leadDetailsVM == null)
+                return BadRequest(new { success = false, message = "Invalid data" });
+
+            if (leadDetailsVM.LeadID == null || leadDetailsVM.LeadID == 0)
+                return BadRequest(new { success = false, message = "LeadID is required" });
+
+            //Won / Lost special case
+            var existingLeadTypeObj =  await _leadActivityTypesRepository.FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
+            if (existingLeadTypeObj.LeadActivityName == "Won" || existingLeadTypeObj.LeadActivityName == "Lost")
                 {
-                    var result = await _leadDetailsService.AddIsWon(isWonVM);
+                    var result = await _leadDetailsService.AddIsWon(new IsWonVM
+                    {
+                        LeadID = leadDetailsVM.LeadID.Value,
+                        LeadActivityTypeID = leadDetailsVM.LeadActivityTypeID ?? 0,
+                        ActivityNote = leadDetailsVM.ActivityNote,
+                        CreatedBy = leadDetailsVM.CreatedBy,
+
+                    });
+
                     return Ok(result);
                 }
-                return Ok(new { success = false, mesage= "Lead status could not be updated. Check required fields." });
-            }
 
-            return Ok(new { success = false, mesage = "Lead status could not be updated. Check required fields." });
+                // Handle file if uploaded
+                string fileLocation = leadDetailsVM.File != null
+                ? await StorePhoto(leadDetailsVM.File)
+                : null;
+
+            bool created = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM, fileLocation);
+
+            return Ok(new
+            {
+                success = created,
+                message = created ? "Data added successfully" : "Failed to add lead details"
+            });
         }
+
     }
 }

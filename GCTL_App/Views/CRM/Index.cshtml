@@ -9,6 +9,16 @@
     .choices {
         margin-bottom: 0 !important; /* remove margin */
     }
+    /* Hide scrollbar but keep scrolling */
+    .choices__list--dropdown .choices__list {
+        max-height: 200px; /* control height */
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox */
+    }
+
+        .choices__list--dropdown .choices__list::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
+        }
 </style> 
 <div class="container m-0 p-0">
 
@@ -65,22 +75,23 @@
                         <table class="table table-sm fs-9 leads-table dyn-tableDrag leadTable table-hover" id="resignProcessed">
                             <thead>
                                 <tr>
-                                    <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                    @* <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
                                         <div class="form-check mb-0 fs-8">
                                             <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"processed-resignation-body"}' />
                                         </div>
-                                    </th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadName" data-column="0">@Html.SmartLocalize("Leads Name")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadStatus" data-column="1">@Html.SmartLocalize("leadStatus")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadSourceName" data-column="2">@Html.SmartLocalize("leadSourceName")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadOwnerName" data-column="3">@Html.SmartLocalize("leadOwnerName")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approximateDealValue" data-column="4">@Html.SmartLocalize("approximateDealValue")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="probabilityPercentage" data-column="5">@Html.SmartLocalize("probabilityPercentage")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="email" data-column="6">@Html.SmartLocalize("Email")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="phone" data-column="7">@Html.SmartLocalize("Phone")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="contactName" data-column="8">@Html.SmartLocalize("Contact Name")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="9">@Html.SmartLocalize("Status")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="10">@Html.SmartLocalize("Action")</th>
+                                    </th> *@
+                                    <th class="sort align-middle text-uppercase text-nowrap" scope="col" data-sort="leadName" data-column="0" style="max-width:25px; width:25px;">@Html.SmartLocalize("SL")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadName" data-column="1">@Html.SmartLocalize("Leads Name")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadStatus" data-column="2">@Html.SmartLocalize("leadStatus")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadSourceName" data-column="3">@Html.SmartLocalize("leadSourceName")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="leadOwnerName" data-column="4">@Html.SmartLocalize("leadOwnerName")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="approximateDealValue" data-column="5">@Html.SmartLocalize("approximateDealValue")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="probabilityPercentage" data-column="6">@Html.SmartLocalize("probabilityPercentage")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="email" data-column="7">@Html.SmartLocalize("Email")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="phone" data-column="8">@Html.SmartLocalize("Phone")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="contactName" data-column="9">@Html.SmartLocalize("Contact Name")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="10">@Html.SmartLocalize("Status")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="status" data-column="11">@Html.SmartLocalize("Action")</th>
                                 </tr>
                             </thead>
                             <tbody class="list" id="processed-resignation-body">
@@ -94,9 +105,9 @@
                             <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="totalApprove" data-list-info="data-list-info"></p>
                         </div>
                         <div class="col-auto d-flex">
-                            <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+                            @* <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button> *@
                             <ul class="mb-0 pagination" id="pageNumber"></ul>
-                            <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
+                            @* <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button> *@
                         </div>
                     </div>
                 </div>
@@ -104,6 +115,84 @@
         </div>
     </div>
 </div>
+@* 
+<!--- edit modal -----><!-- Button trigger modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Lead</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row gy-3 ">
+                    <input type="hidden" id="leadID"/>
+                    <div class="col-md-6">
+                        <label for="form-control">Lead Name</label>
+                        <input class="form-control" id="leadName" type="text" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">Status Name</label>
+                        <select class="form-select" id="leadStatusID"  asp-items="@ViewBag.LeadStatus as SelectList">
+                            <option value="" disabled selected>Select Staus</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-contro" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
+                        <select class="form-select" id="leadOwnerId" aria-label="Default select example">
+                            <option value="" selected disabled>select Owner Name</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="form-control">Lead Source</label>
+                        <select class="form-select" id="leadSourceID"  asp-items="@ViewBag.LeadSourceDD as SelectList" required>
+                            <option value="" disabled>select</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">Priority</label>
+                        <select class="form-select" id="leadPriorityID" asp-items="@ViewBag.LeadPriorities as SelectList">
+                            <option value="" disabled>select Priority</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="form-control">Approximate Deal Value</label>
+                        <input class="form-control" id="approximateDealValue"  type="text" placeholder="" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="form-control">Service Type</label>
+                        <select class="form-multi-select form-multi-select" multiple id="serviceTypes" asp-items="@ViewBag.ServiceDD as SelectList">
+                            <option value="" disabled selected>@Html.SmartLocalize("Select Service")...</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="form-control">@Html.SmartLocalize("Probability (%)")</label>
+                        <div class="d-flex align-items-center mt-1">
+                            <input type="range" class="form-range" min="0" max="100" step="1" id="probabilityPercentage" value="" oninput="completionValue.innerText = this.value + '%'">
+                            <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-floating">
+                            <textarea class="form-control h-100" id="descriptionText" rows="3" placeholder=""></textarea>
+
+                            <label for="form-control">@Html.SmartLocalize("Description")</label>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" id="editBtn" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div> *@
 
 <!--- edit modal -----><!-- Button trigger modal -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -126,14 +215,11 @@
                             <option value="" disabled selected>Select Staus</option>
                         </select>
                     </div>
-                    <div class="col-md-6" id="personCustomerSearchMainDiv">
-                        <div class="position-lg-relative">
-                            <label>@Html.SmartLocalize("Customer Search")</label>
-
-                            <input type="text" id="queryText" class="form-control searchField">
-                            <input type="hidden" id="selectedID" name="OwnerId" />
-
-                        </div>
+                    <div class="col-md-6">
+                        <label class="form-contro" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
+                        <select class="form-select" id="leadOwnerId" aria-label="Default select example">
+                            <option value="" selected disabled>select Owner Name</option>
+                        </select>
                     </div>
 
                     <div class="col-md-6">

@@ -194,6 +194,26 @@ namespace GCTL_App.Controllers.CRM
             return Json(new { success = true, result = results });
         }
 
+
+        // ======================
+        // get Employee
+        // =====================
+        #region SearchOrganizations / OrganizationDD
+        [HttpGet]
+        public async Task<IActionResult> SearchEmployee(string search, int page = 1, int pageSize = 50)
+        {
+            var result = await _crmService.SearchOrganizations(search, page, pageSize);
+            return Json(new
+            {
+                items = result.Items.Select(x => new {
+                    value = x.Id,
+                    label = x.Name,
+                    group = x.GroupName // Optional: only if you want to group
+                }),
+                hasMore = result.HasMore
+            });
+        }
+        #endregion
     }
 
 

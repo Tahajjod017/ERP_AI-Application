@@ -1,12 +1,7 @@
-﻿using GCTL.Core.ViewModels.CRM;
-using GCTL.Core.ViewModels.Employee.EmployeeResign;
-using QuestPDF.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Helpers;
+﻿
+using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.CRM;
+
 
 namespace GCTL.Service.CRM
 {
@@ -22,6 +17,7 @@ namespace GCTL.Service.CRM
             string sortColumn,
             string sortDirection
         );
+        public Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 50);
 
     }
 }

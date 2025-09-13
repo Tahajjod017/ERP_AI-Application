@@ -56,58 +56,111 @@ $(function () {
     let loadedIds = new Set();
     let loadedIds2 = new Set();
 
-
+    // ==================
+    // save activity
+    // =================
     $('#addLActivity').on('click', function (e) {
         e.preventDefault();
-        debugger
-        const fieldId = $(this).attr('id');
 
-        if (validation(fieldId)) {
+        const buttonName = $(".option-btn.active").text().trim();
+        const buttonID = $(".option-btn.active").data('id');
+        const leadID = $(ids.leadID).val();
+        const note = $(ids.note).val();
+        const date = $(ids.date).val();
+        const fileInput = $(ids.file)[0];
+        const file = fileInput ? fileInput.files[0] : null;
 
-            const buttonID = $(".option-btn.active").data('id');
-            const date = $(ids.date).val();
-            const text = $(ids.note).val();
-            const id = $("#leadID").val();
-            const fileInput = $(ids.file)[0];
-            const file = fileInput.files[0];
+        // run validation
+        if (!validation(buttonName)) return;
 
-            //if (!id || !buttonID || !date) {
-            //    toastr.error("Please fill all required fields");
-            //    return;
-            //}
+        const formData = new FormData();
+        formData.append("LeadID", parseInt(leadID));
+        formData.append("LeadActivityTypeID", parseInt(buttonID));
+        formData.append("ActivityNote", note || "");
+        formData.append("ActivityTypeName", buttonName);
 
+        if (buttonName !== "Won" && buttonName !== "Lost") {
             const convertedDate = convertToISODateTime(date);
-
-            const formData = new FormData();
-            formData.append("LeadID", parseInt(id));
-            formData.append("LeadActivityTypeID", parseInt(buttonID));
             formData.append("ActivityDateTime", convertedDate);
-            formData.append("ActivityNote", text || "");
             if (file) formData.append("File", file);
-
- 
-            $.ajax({
-                url: '/LeadDetails/CeateLeadDetail',
-                method: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    toastr.success(response.message);
-                    resetAndReload();
-                    resetAndReloadUpcoming();
-                    $(".option-btn").removeClass("active");
-                    $(ids.date).val("");
-                    $(ids.note).val("");
-                    $(ids.file).val("");
-                    $('#file-field').hide();
-                },
-                error: function (error) {
-                    toastr.error(error.responseJSON?.message || "Error adding lead detail");
-                }
-            });
         }
+
+        $.ajax({
+            url: '/LeadDetails/SaveLeadActivity',
+            method: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    location.reload();
+                } else {
+                    toastr.error(response.message);
+                }
+                resetAndReload();
+                resetAndReloadUpcoming();
+                $(".option-btn").removeClass("active");
+                $(ids.date).val("");
+                $(ids.note).val("");
+                $(ids.file).val("");
+                $('#file-field').hide();
+
+                if (buttonName === "Won") {
+                    $("#transferDiv").css("display", "block");
+                } else if (buttonName === "Lost") {
+                    $("#transferDiv").css("display", "none");
+                }
+            },
+            error: function (error) {
+                toastr.error(error.responseJSON?.message || "Error saving lead activity");
+            }
+        });
     });
+
+
+    //============================
+    // validation
+    // ============================
+
+    function validation(placeName) {
+        clearAllValidationBorders();
+
+        let requiredField = [];
+        if (placeName === 'Lost') {
+            requiredField = [ids.note];
+        } else if (placeName !== 'Won') {
+            requiredField = [ids.date, ids.note];
+        }
+
+        let isValid = true;
+
+        if (!$('.option-btn').hasClass("active")) {
+            $('#optionBtnDiv').css("border", "1px solid red");
+            isValid = false;
+        } else {
+            $('#optionBtnDiv').css("border", "");
+        }
+
+        const activeBtn = $(".option-btn.active").text().trim();
+        if (activeBtn === "Attachment") {
+            requiredField.push(ids.file);
+        }
+
+        requiredField.forEach(function (selector) {
+            let $el = $(selector);
+            let fieldText = $el.val();
+            if (!fieldText || fieldText.trim() === "") {
+                $el.css("border-color", "red");
+                isValid = false;
+            } else {
+                $el.css("border-color", "");
+            }
+        });
+
+        return isValid;
+    }
+
 
     // ==============================
     // Infinite scroll inside activity-list
@@ -226,19 +279,25 @@ $(function () {
             success: function (response) {
                 if (!response || response.length === 0) {
                     noMoreDataDown2 = true;
-                    return;
                     $("#upcomming-div").addClass("d-none");
+                    return;
+                   
                 } else {
                     //$("#myTab").css("display", "block");
                     $("#upcomming-div").removeClass("d-none");
                 }
-
+                showDev(response)
                 response.forEach(item => {
                     if (!item.leadDetailID) return;
                     if (!loadedIds2.has(item.leadDetailID)) {
                         loadedIds2.add(item.leadDetailID);
                         const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
-                        $('#upcoming-activity').append(renderActivity(item, activityDate));
+                        if (item.leadActivityName === 'Attachment') {
+                            $('#upcoming-activity').append(renderAttachmentActivity(item, activityDate));
+                        } else {
+                            $('#upcoming-activity').append(renderActivity(item, activityDate));
+                        }
+                       
                     }
                 });
             },
@@ -337,49 +396,49 @@ $(function () {
 
     
 
-    // ==============================
-    // Update lead information
-    // ==============================
+    //// ==============================
+    //// Update lead information
+    //// ==============================
 
-    $("#editBtn").on("click", function (e) {
-        e.preventDefault();
-        //if (await fieldValidation()) {
-        const data = {
-                LeadID: $("#leadID").val(),
-                LeadName: $("#leadName").val() || "",
-                LeadStatusID: parseInt($("#leadStatusID").val()) || 0,
-                LeadSourceID: parseInt($("#leadSourceID").val()) || 0,
-                LeadOwnerID: parseInt($("#leadOwnerID").val()) || 0,
-                PriorityID: parseInt($("#leadPriorityID").val()) || 0,
-                ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
-                ProbabilityPercentage: parseFloat($("#probabilityPercentage").val()) || 0,
-            LeadDescription: $("#descriptionText").val(),
-            ServiceTypeIds: $("#serviceTypes").val(),
-        };
-            $.ajax({
-                url: '/LeadDetails/EditLeadData',
-                method: 'POST',
-                data: JSON.stringify(data),
-                contentType: "application/json; charset=utf-8",
+    //$("#editBtn").on("click", function (e) {
+    //    e.preventDefault();
+    //    //if (await fieldValidation()) {
+    //    const data = {
+    //            LeadID: $("#leadID").val(),
+    //            LeadName: $("#leadName").val() || "",
+    //            LeadStatusID: parseInt($("#leadStatusID").val()) || 0,
+    //            LeadSourceID: parseInt($("#leadSourceID").val()) || 0,
+    //            LeadOwnerID: parseInt($("#leadOwnerID").val()) || 0,
+    //            PriorityID: parseInt($("#leadPriorityID").val()) || 0,
+    //            ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
+    //            ProbabilityPercentage: parseFloat($("#probabilityPercentage").val()) || 0,
+    //        LeadDescription: $("#descriptionText").val(),
+    //        ServiceTypeIds: $("#serviceTypes").val(),
+    //    };
+    //        $.ajax({
+    //            url: '/LeadDetails/EditLeadData',
+    //            method: 'POST',
+    //            data: JSON.stringify(data),
+    //            contentType: "application/json; charset=utf-8",
 
-                success: function (response) {
+    //            success: function (response) {
 
-                    if (response.success) {
-                        toastr.success(response.message);
-                        let modalEl = document.getElementById("editModal");
-                        let modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                        modal.hide();
-                        location.reload();
-                    } else {
-                        toastr.error(response.message || "Failed to create lead");
-                    }
-                },
-                error: function (xhr) {
-                    toastr.error("Error creating lead");
-                }
-            });
-        //}
-    })
+    //                if (response.success) {
+    //                    toastr.success(response.message);
+    //                    let modalEl = document.getElementById("editModal");
+    //                    let modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+    //                    modal.hide();
+    //                    location.reload();
+    //                } else {
+    //                    toastr.error(response.message || "Failed to create lead");
+    //                }
+    //            },
+    //            error: function (xhr) {
+    //                toastr.error("Error creating lead");
+    //            }
+    //        });
+    //    //}
+    //})
 
     // ==============================
     // Convert date to ISO string
@@ -404,10 +463,12 @@ $(function () {
     // update Lead Source value
     // ==============================
 
-    $("#leadSource, #lead-status, #leadPriority").on("change", function () {
+    $("#leadSource, #lead-status, #leadPriority, #probabilityPercentage").on("change", function () {
+        
         let fieldValue = $(this).val();
         let fieldID = $(this).attr("id");
-        let fieldName = fieldID === "leadSource" ? "source" : fieldID == "lead-status" ? "stage" : fieldID === 'leadPriority' ? "priority" : "";
+        showDev(fieldID);
+        let fieldName = fieldID === "leadSource" ? "source" : fieldID == "lead-status" ? "stage" : fieldID === 'leadPriority' ? "priority" :  fieldID == 'probabilityPercentage' ? 'probability': "";
         let leadID = $(ids.leadID).val();
 
         $.ajax({
@@ -416,7 +477,7 @@ $(function () {
             data: { LeadID: leadID, FieldName: fieldName, FieldValue: fieldValue },
             success: function (response) {
                 if (response) {
-                    toastr.success("Lead source updated successfully");
+                    toastr.success(`${fieldName} updated successfully`);
                 }
             },
            
@@ -445,89 +506,6 @@ $(function () {
         updateUpcomingActivate(currentPage2);
     }
 
-    //// ==============================
-    //// loss and won button work
-    //// ==============================
-    //$("#Lost, #Won").on("click", function (e) {
-    //    const typeID = $(this).data('id');
-    //    const leadID = $(ids.leadID).val();
-    //    const note = $(ids.note).val();
-    //    const id = $(this).attr('id');
-    //    $(".option-btn").removeClass("active");
-    //    $(".special-btn").removeClass("active")
-    //    $(this).addClass("active");
-    //    if (id == 'Lost') {
-    //        $("#transferDiv").css("display", "none");
-    //    }
-    //    showDev(typeID);
-    //    showDev(leadID);
-    //    showDev(note);
-    //    if (validation(id)) {
-    //        $.ajax({
-    //            url: '/LeadDetails/IsWon',
-    //            method: 'POST',
-    //            data: { LeadID: leadID, LeadActivityTypeID: typeID, ActivityNote : note },
-    //            success: function (response) {
-    //                showDev(response);
-    //                if (id === 'Won') {
-    //                    $("#transferDiv").css("display", "block");
-    //                }
-    //                if (response.success == true) {
-    //                    toastr.success(response.message);
-    //                } else {
-    //                    toastr.error(response.message);
-    //                }
-    //                resetAndReload();
-    //                resetAndReloadUpcoming();
-    //                $(ids.date).val("");
-    //                $(ids.note).val("");
-    //                $(ids.file).val("");
-    //            },
-    //            complete: function () { loading2 = false; },
-    //            error: function (jqXHR, textStatus) {
-    //                toastr.error("Error: " + textStatus);
-    //            }
-
-    //        });
-    //    }
-        
-    //});
-
-
-    
-
-    function validation(placeName) {
-        debugger;
-        clearAllValidationBorders();
-        
-        let requiredField = placeName === 'Lost' ? [ids.note] : placeName === 'Won' ? [] :[ids.date, ids.note];
-        let isValid = true;
-        debugger;
-        if (placeName == 'addLActivity') {
-            if (!$('.option-btn').hasClass("active")) {
-                $('#optionBtnDiv').css("border", "1px solid red");
-                isValid = false;
-            } else {
-                $('#optionBtnDiv').css("border", "");
-            }
-            const activeBtn = $(".option-btn.active").text().trim();
-            if (activeBtn == "Attachment") {
-                requiredField.push(ids.file);
-            }
-        }
-        requiredField.forEach(function (selector) {
-            let $el = $(selector);
-            let fieldText = $el.val();
-            if (fieldText.trim() === "") {
-                $el.css("border-color", "red");
-                isValid = false;
-            } else {
-                $el.css("border-color", "");
-            }
-        });
-
-        return isValid;
-    }
 
     // ==============================
     // validation load
@@ -555,5 +533,292 @@ $(function () {
     // ==============================
     updateActivate(1, "reset");
     updateUpcomingActivate();
-   
+
+    // ====================
+    // Edit Button work
+    // ======================
+    $(document).on("click", "#editModalBtn", function (e) {
+        var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
+            keyboard: false
+        });
+        myModal.show();
+
+        let leadID = $(ids.leadID).val();
+        $.ajax({
+            url: '/CRM/GetLeadInfo',
+            method: 'POST',
+            data: { id: leadID },
+            success: function (response) {
+                //showDev(response)
+                //updateEmployee();
+                $("#leadID").val(response.leadID);
+                $("#leadName").val(response.leadName);
+                $("#leadStatusID").val(response.leadStatusID);
+                $("#leadSourceID").val(response.leadSourceID);
+                $("#leadPriorityID").val(response.priorityID);
+                $("#approximateDealValue").val(response.approximateDealValue);
+                $("#probabilityPercentage2").val(response.probability);
+                $("#completionValue2").text(response.probability + "%");
+                $("#descriptionText").val(response.leadDescription);
+                $("#queryText").val(response.leadOwnerName);
+                $("#selectedID").val(response.leadOwnerId);
+                // multiselect edit field read
+                $('#serviceTypes').val(response.serviceIds).each(function () {
+                    coreui.MultiSelect.getInstance(this)?.update();
+                });
+             
+                // employee add
+                const currentOwnerId = response.leadOwnerId;
+                const currentOwnerName = response.leadOwnerName;
+                showDev(currentOwnerId)
+                showDev(currentOwnerName)
+                if (currentOwnerId && currentOwnerName) {
+                    choices.setChoices(
+                        [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
+                        'value',
+                        'label',
+                        false // false = append (don’t clear)
+                    );
+                }
+            },
+            error: function (xhr) {
+                toastr.error("Error creating lead");
+            }
+        });
+    });
+
+    // ======================
+    // employee
+    // ======================
+    // #region Choice with Pagination + Infinite Scroll (server-side search only)
+    const selectEl = document.getElementById('leadOwnerId');
+    let debounceTimer;
+    let loading3 = false;
+    let currentPage3 = 1;
+    let lastSearch3 = '';
+    let hasMore = true;
+
+    const choices = new Choices(selectEl, {
+        searchEnabled: true,
+        placeholder: true,
+        placeholderValue: 'Select Organization...',
+        searchPlaceholderValue: 'Type to search...',
+        noChoicesText: 'Type 3 or more characters...',
+        searchResultLimit: -1, // disable local limiting
+        shouldSort: false,
+        duplicateItemsAllowed: false,
+        itemSelectText: '',
+        removeItemButton: true,
+
+        // ?? disable client-side filtering (server handles search)
+        searchChoices: false,
+        fuseOptions: false,
+        searchFn: () => true
+    });
+
+    // Fetch data from server
+    async function fetchOptions(search, page = 1, pageSize = 50) {
+        loading3 = true;
+        try {
+            const res = await fetch(`/CRM/SearchEmployee?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
+            const data = await res.json();
+            hasMore = data.hasMore;
+            return data;
+        } catch (error) {
+            console.error("Error fetching organizations:", error);
+            return { items: [], hasMore: false };
+        } finally {
+            loading3 = false;
+        }
+    }
+
+    // Handle debounce on search
+    selectEl.addEventListener('search', function (e) {
+        const searchTerm = e.detail.value;
+        clearTimeout(debounceTimer);
+
+        if (searchTerm.length < 1) {
+            choices.clearChoices();
+            return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+            currentPage3 = 1;
+            lastSearch3 = searchTerm;
+            const data = await fetchOptions(searchTerm, currentPage3);
+
+            choices.clearChoices();
+            if (data.items.length > 0) {
+                // replace with new results
+                choices.setChoices(data.items, 'value', 'label', true);
+            }
+        }, 500); // debounce delay
+    });
+
+    // Scroll handler
+    async function handleScroll(e) {
+        const dropdownList = e.target;
+        if (!loading3 && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
+            currentPage3++;
+            const data = await fetchOptions(lastSearch3, currentPage3);
+
+            if (data.items.length > 0) {
+                // append results, keep existing
+                choices.setChoices(data.items, 'value', 'label', false);
+            }
+        }
+    }
+
+    // Reattach scroll listener when dropdown opens
+    choices.passedElement.element.addEventListener('showDropdown', () => {
+        const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
+        if (dropdownList) {
+            dropdownList.removeEventListener('scroll', handleScroll);
+            dropdownList.addEventListener('scroll', handleScroll);
+        }
+    });
+    // #endregion
+
+
+
+
+
+    // old
+    //let search = "";
+
+    //const leadOwnerSelect = new Choices('#leadOwnerId', {
+    //    searchEnabled: true,
+    //    placeholderValue: 'Select Lead Owner',
+    //    removeItemButton: true,
+    //    shouldSort: false
+    //});
+
+    //function updateEmployee() {
+    //    if (loading) return;
+    //    loading = true;
+
+    //    $.ajax({
+    //        url: '/CreateLead/GetEmployeeList',
+    //        method: 'GET',
+    //        data: { query: search, page: currentPage },
+    //        success: function (response) {
+    //            showDev(response)
+    //            console.log('Response:', response);
+    //            if (Array.isArray(response) && response.length > 0) {
+    //                const newChoices = response.map(employee => ({
+    //                    value: employee.employeeID,
+    //                    label: `${employee.firstName} ${employee.lastName}`
+    //                }));
+
+    //                leadOwnerSelect.setChoices(newChoices, 'value', 'label', false);
+
+    //            } else {
+    //                toastr.info('No more employees to load.');
+    //            }
+    //        },
+    //        error: function (jqXHR, textStatus, errorThrown) {
+    //            console.log('AJAX Error:', {
+    //                status: jqXHR.status,
+    //                statusText: jqXHR.statusText,
+    //                textStatus: textStatus,
+    //                errorThrown: errorThrown,
+    //                responseText: jqXHR.responseText
+    //            });
+    //            toastr.error('Failed to load employees: ' + textStatus);
+    //        },
+    //        complete: function () {
+    //            loading = false;
+    //        }
+    //    });
+    //}
+
+    // ==============================
+    // update lead information
+    // ==============================
+
+    $("#editBtn").on("click", function (e) {
+        e.preventDefault();
+        const data = {
+            LeadID: $("#leadID").val(),
+            LeadName: $("#leadName").val() || "",
+            LeadStatusID: parseInt($("#leadStatusID").val()) || 0,
+            LeadSourceID: parseInt($("#leadSourceID").val()) || 0,
+            LeadOwnerID: parseInt($("#leadOwnerId").val()) || 0,
+            PriorityID: parseInt($("#leadPriorityID").val()) || 0,
+            ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
+            ProbabilityPercentage: parseFloat($("#probabilityPercentage2").val()) || 0,
+            LeadDescription: $("#descriptionText").val(),
+            ServiceTypeIds: $("#serviceTypes").val(),
+        };
+        //showDev(data);
+        if (validation2()) {
+            $.ajax({
+                url: '/CRM/EditLeadData',
+                method: 'POST',
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+
+                success: function (response) {
+
+                    if (response.success) {
+                        toastr.success(response.message);
+                        // HIDE modal
+                        var myModalEl = document.getElementById('editModal');
+                        var modal = bootstrap.Modal.getInstance(myModalEl);
+                        modal.hide();
+                    } else {
+                        toastr.error(response.message || "Failed to create lead");
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error("Error creating lead");
+                }
+            });
+        }
+    })
+
+
+    // ===============
+    // lead validation2
+    // =================
+
+    function validation2() {
+        let requiredField = [
+            '#leadOwnerId',
+            '#leadSourceID',
+            '#leadStatusID',
+            '#leadName',
+            '#leadPriorityID'
+        ];
+        debugger;
+        let isValid = true;
+
+        requiredField.forEach(function (selector) {
+            let el = $(selector);
+            let value = el.val() ? el.val().trim() : '';
+            let target = el;
+
+            // Special case for Choices.js (hidden select)
+            if (el.closest('.choices').length > 0) {
+                target = el.closest('.choices').find('.choices__inner');
+            }
+
+            if (value === '' || value === null) {
+                target.css('border', '1px solid red');
+                isValid = false;
+            } else {
+                target.css('border', '1px solid #ccc'); // reset valid field
+            }
+        });
+
+        return isValid;
+    }
+
+    // ==========================
+    // option button on click
+    // ===========================
+    $('.option-btn').on('click', function () {
+        clearAllValidationBorders();
+        showDev('called');
+    })
 });

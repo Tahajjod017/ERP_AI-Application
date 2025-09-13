@@ -11,10 +11,13 @@
         descriptionText: 'descriptionText',
         queryText: '#queryText',
         selectedID: '#selectedID',
+        leadOwnerId: '#leadOwnerId',
+        itemPerPage: '#pageElementSize',
     }
 
     let typingTimer;
     let delay = 300;
+    let currentIndex = 1;
 
     $("#dataSearch, #pageElementSize, #dateRange2, #customerType").on("change", function () {
         clearTimeout(typingTimer);
@@ -29,31 +32,25 @@
         const pagination = $('#pageNumber');
         pagination.empty();
 
-        const maxVisible = 5; // max page buttons to show
+        const maxVisible = 5;
         let startPage = Math.max(1, page - Math.floor(maxVisible / 2));
         let endPage = Math.min(totalPages, startPage + maxVisible - 1);
 
-        // adjust startPage if we're near the end
         startPage = Math.max(1, endPage - maxVisible + 1);
-
-        // Previous button
         const prevDisabled = page === 1 ? 'disabled' : '';
         pagination.append(`<li class="page-item ${prevDisabled}"><button class="page-link" data-page="${page - 1}">&laquo;</button></li>`);
 
-        // Page number buttons
         for (let i = startPage; i <= endPage; i++) {
             const activeClass = i === page ? 'active' : '';
             pagination.append(`<li class="page-item ${activeClass}"><button class="page-link" data-page="${i}">${i}</button></li>`);
         }
 
-        // Next button
         const nextDisabled = page === totalPages ? 'disabled' : '';
         pagination.append(`<li class="page-item ${nextDisabled}"><button class="page-link" data-page="${page + 1}">&raquo;</button></li>`);
 
         $('#totalApprove').text(`Showing ${(page - 1) * size + 1} to ${Math.min(page * size, totalCount)} of ${totalCount} entries`);
     }
 
-    // Click handler
     $('#pageNumber').off('click', '.page-link').on('click', '.page-link', function (e) {
         e.preventDefault();
         const selectedPage = parseInt($(this).data('page'));
@@ -70,12 +67,12 @@
 
 
     const statusColors = {
-        "contacted": "badge-phoenix-info",       // green
-        "new": "badge-phoenix-primary",             // blue
-        "not contacted": "badge-phoenix-warning", // gray
-        "nurturing": "badge-phoenix-secondary",       // yellow
-        "qualified": "badge-phoenix-success",          // light blue
-        "unqualified": "badge-phoenix-danger"       // red
+        "contacted": "badge-phoenix-info",      
+        "new": "badge-phoenix-primary",             
+        "not contacted": "badge-phoenix-warning",
+        "nurturing": "badge-phoenix-secondary",       
+        "qualified": "badge-phoenix-success",         
+        "unqualified": "badge-phoenix-danger"       
     };
 
     function getStatusBadgeClass(status) {
@@ -93,7 +90,6 @@
         var dateRange = $('#dateRange2').val();
         var customerType = $('#customerType').val();
 
-
         $.ajax({
             url: '/CRM/GetAllLead',
             type: 'GET',
@@ -109,29 +105,34 @@
             success: function (data) {
                 var tbody = $('#processed-resignation-body');
                 tbody.empty();
+                let itemsPerPage = parseInt($('#pageElementSize').val()) || 10;
+
+                let page = parseInt($('#pageNumber').data('page')) || 1;
+
+                showDev(itemsPerPage);
+                let pageOffset = (page - 1) * itemsPerPage;
+
                 $.each(data.result.leads, function (index, item) {
+                    debugger;
+                    let itemSL = pageOffset + index + 1; 
                     let statusBadge = getStatusBadgeClass(item.status);
-                    //var statusBadge = item.status === 'Approved' ? 'badge-phoenix-success' : 'badge-phoenix-danger';
                     tbody.append(`
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                        <td class="fs-9 align-middle py-1  py-2">
-                            <div class="form-check mb-0 fs-8">
-                                <input class="form-check-input" type="checkbox" />
-                            </div>
-                        </td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="0"><a class="fw-bold cursor-pointer" href="/LeadDetails/Index/${item.leadId}">${item.leadName}</a></td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1">${item.leadStatus}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="2">${item.leadSourceName}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.leadOwnerName}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.approximateDealValue}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="5">${item.probabilityPercentage}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="6">${item.email}</td>
-                        <td class="position align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="7">${item.phone}</td>
-                        <td class="reason align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="8">${item.contactName}</td>
-                        <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="9">
+
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="0">${itemSL}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1"><a class="fw-bold cursor-pointer" href="/LeadDetails/Index/${item.leadId}">${item.leadName}</a></td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="2">${item.leadStatus}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.leadSourceName}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadOwnerName}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="5">${item.approximateDealValue}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="6">${item.probabilityPercentage}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="7">${item.email}</td>
+                        <td class="position align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="8">${item.phone}</td>
+                        <td class="reason align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="9">${item.contactName}</td>
+                        <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="10">
                            <span class="badge badge-phoenix ${statusBadge} fs-9">${item.leadStatus}</span>
                         </td>
-                        <td class="status align-middle white-space-nowrap pe-0 ps-2 d-flex justify-content-center" data-column="10">
+                        <td class="status align-middle white-space-nowrap pe-0 ps-2 d-flex justify-content-center" data-column="11">
                             <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2"  id="editModalBtn" data-id="${item.leadId}"><i class="fas fa-edit text-black"></i></a>
                         </td>
                     </tr>
@@ -157,7 +158,6 @@
     // Edit Button work
     // ======================
     $(document).on("click", "#editModalBtn", function (e) {
-        // Bootstrap 5 way to open modal
         var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
             keyboard: false
         });
@@ -169,6 +169,7 @@
             method: 'POST',
             data: { id: leadID },
             success: function (response) {
+                showDev(response)
                 $("#leadID").val(response.leadID);
                 $("#leadName").val(response.leadName);
                 $("#leadStatusID").val(response.leadStatusID);
@@ -176,39 +177,31 @@
                 $("#leadPriorityID").val(response.priorityID);
                 $("#approximateDealValue").val(response.approximateDealValue);
                 $("#probabilityPercentage").val(response.probability);
-                $("#completionValue").text(response.probability);
+                $("#completionValue").text(response.probability + '%');
                 $("#descriptionText").val(response.leadDescription);
                 $("#queryText").val(response.leadOwnerName);
-                $("#selectedID").val(response.leadOwnerId);
+               // $("#selectedID").val(response.leadOwnerId);
+
+                choiceManager.setChoiceValue('leadOwnerId', response.leadOwnerId)
                 // multiselect edit field read
                 $('#serviceTypes').val(response.serviceIds).each(function () {
                     coreui.MultiSelect.getInstance(this)?.update();
                 });
-                showDev(response);
-                //// ========== Lead Owner single select with search ==========
-                //const $owner = $("#ownerID");
-                //$owner.empty(); // clear previous options
 
-                //// Add the lead owner from response
-                //$owner.append(
-                //    $("<option>", {
-                //        value: response.leadOwnerId,
-                //        text: response.leadOwnerName,
-                //        selected: true
-                //    })
-                //);
 
-                //// Initialize CoreUI MultiSelect for single select with search
-                //let ms = coreui.MultiSelect.getInstance($owner[0]);
-                //if (!ms) {
-                //    ms = new coreui.MultiSelect($owner[0], {
-                //        search: true,       // enable search
-                //        selectionType: 'single', // single select
-                //        placeholder: 'Select Lead Owner...'
-                //    });
-                //} else {
-                //    ms.update(); // refresh if already initialized
-                //}
+
+                // employee add
+                const currentOwnerId = response.leadOwnerId;
+                const currentOwnerName = response.leadOwnerName;
+
+                if (currentOwnerId && currentOwnerName) {
+                    choices.setChoices(
+                        [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
+                        'value',
+                        'label',
+                        false // false = append (don’t clear)
+                    );
+                }
             },
             error: function (xhr) {
                 toastr.error("Error creating lead");
@@ -216,11 +209,6 @@
         });
     });
 
-    //$("#editBtn").on("click", function (e) {
-    //    e.preventDefault();
-    //    showDev("Edit Button clicked");
-    //    console.log("clicked");
-    //})
 
     $('.sort').on('click', function () {
         var tableId = $(this).closest('table').attr('id');
@@ -245,20 +233,19 @@
 
     $("#editBtn").on("click", function (e) {
         e.preventDefault();
-        //if (await fieldValidation()) {
         const data = {
             LeadID: $("#leadID").val(),
             LeadName: $("#leadName").val() || "",
             LeadStatusID: parseInt($("#leadStatusID").val()) || 0,
             LeadSourceID: parseInt($("#leadSourceID").val()) || 0,
-            LeadOwnerID: parseInt($("#selectedID").val()) || 0,
+            LeadOwnerID: parseInt($("#leadOwnerId").val()) || 0,
             PriorityID: parseInt($("#leadPriorityID").val()) || 0,
             ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
             ProbabilityPercentage: parseFloat($("#probabilityPercentage").val()) || 0,
             LeadDescription: $("#descriptionText").val(),
             ServiceTypeIds: $("#serviceTypes").val(),
         };
-        showDev(data);
+        //showDev(data);
         if (validation()) {
             $.ajax({
                 url: '/CRM/EditLeadData',
@@ -283,206 +270,7 @@
                 }
             });
         }
-        
-        //}
     })
-
-    // ============
-    // get data
-    // ===========
-    let ownerList = [];
-    let currentPage = 1;
-    let loadItem = new Set();
-    let loading = false;
-    let noMoreDataDown = false;
-    let selectedIndex = -1;
-    let typedValue = ""; 
-
-    async function getOwnerList(page = 1) {
-        debugger;
-        if (loading || noMoreDataDown) return;
-        loading = true;
-        
-        try {
-            let query = $("#queryText").val().trim();
-            const response = await $.ajax({
-                url: '/CRM/GetOwnerList',
-                method: 'POST',
-                data: {
-                    query: typedValue,
-                    page : page
-                },
-            });
-
-            if (page === 1) {
-                $("#result-show-div").empty();
-                loadItem.clear();
-                selectedIndex = -1;
-            }
-
-            const results = response.result;
-
-            if (!results || results.length === 0) {
-                noMoreDataDown = true;
-                return;
-            } else {
-                results.forEach(item => {
-                    if (!loadItem.has(item.id)) {
-                        $("#result-show-div").append(`<button type="button"
-                            class="list-group-item list-group-item-action item"
-                            data-id="${item.id}">
-                            ${item.name}</button>`);
-                        loadItem.add(item.id);
-                    }
-                })
-            }
-        } catch (e) {
-
-        } finally {
-            loading = false;
-        }
-        
-    }
-    // =============
-    // search owner
-        // ==============
-    $("#queryText").on("input click", async function () {
-        typedValue = $(this).val().trim();
-        currentPage = 1;
-        loading = false;
-        noMoreDataDown = false;
-        loadItem.clear();
-
-        $("#result-show-div").remove();
-
-        const resultDiv = `<div class="list-group bg-white p-0 border position-absolute" id="result-show-div" style="width:100%;overflow-y:auto; z-index:10012;max-height:210px;scrollbar-width: none;"></div>`;
-        $(this).after(resultDiv);
-
-        $("#result-show-div").off('scroll').on('scroll', function () {
-            const container = $(this);
-            if (!loading && !noMoreDataDown &&
-                Math.ceil(container.scrollTop() + container.innerHeight()) >= container[0].scrollHeight) {
-                currentPage++;
-                getOwnerList(currentPage);
-            }
-        });
-
-        $(document).on('click', '.item', function () {
-            const text = $(this).text().trim();
-            const id = $(this).data("id");
-            
-            $('#queryText').val(text);
-            $('#selectedID').val(id);
-            $("#result-show-div").remove();
-        });
-
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(async () => {
-            await getOwnerList(currentPage);
-        }, 500);
-       
-    });
-
-    // ===============
-    // arrow key
-    // ===================
-    function checkLoadMoreKeyboard() {
-        const container = $("#result-show-div");
-        const items = container.find(".item");
-        if (selectedIndex < 0 || selectedIndex >= items.length) return;
-
-        const selectedItem = items.eq(selectedIndex);
-
-        // Use container's scrollTop relative to container
-        const containerTop = container.scrollTop();
-        const containerBottom = containerTop + container.innerHeight();
-
-        // Use selectedItem's position relative to container
-        const itemTop = selectedItem.position().top + containerTop;
-        const itemBottom = itemTop + selectedItem.outerHeight();
-
-        // Reset flag so we can load more
-        if (!loading && itemBottom > containerBottom - 20) {
-            noMoreDataDown = false; // reset
-            currentPage++;
-            getOwnerList(currentPage);
-        }
-    }
-
-
-    // ===================
-    // autosuggation
-    // ===================
-    function autocompleteInput(input, suggestion) {
-        const typed = input.val();
-        input.val(suggestion);
-        input[0].setSelectionRange(typed.length, suggestion.length);
-    }
-
-
-    // ============
-    // keyboard event
-    // ===================
-
-
-    $("#queryText").on("keydown", function (e) {
-        
-        const items = $("#result-show-div .item");
-        if (items.length === 0) return;
-
-        if (e.key === "ArrowDown") {
-            selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
-            items.removeClass("active").eq(selectedIndex).addClass("active")[0].scrollIntoView({ block: "nearest" });
-            const selectedItem = items.eq(selectedIndex);
-            autocompleteInput($(this), selectedItem.text().trim());
-
-            // Show nearest suggestion in input
-            $(this).val(items.eq(selectedIndex).text().trim());
-            $("#selectedID").val(selectedItem.data("id"));
-            checkLoadMoreKeyboard();
-            e.preventDefault();
-            // Run after repaint
-            setTimeout(() => {
-                debugger;
-                // If we reached the last item, load more
-                if (selectedIndex === items.length - 1) {
-                    noMoreDataDown = false; // allow next page
-                    currentPage++;
-                    getOwnerList(currentPage);
-                } else {
-                    checkLoadMoreKeyboard();
-                }
-            }, 50);
-        }
-             else if (e.key === "ArrowUp") {
-                selectedIndex = Math.max(selectedIndex - 1, 0);
-                items.removeClass("active").eq(selectedIndex)
-                    .addClass("active")[0]
-                .scrollIntoView({ block: "nearest" }); // <<< add this
-            // Show nearest suggestion in input
-            $(this).val(items.eq(selectedIndex).text().trim());
-                e.preventDefault();
-            } else if (e.key === "Enter") {
-            if (selectedIndex >= 0) {
-                const selectedItem = items.eq(selectedIndex);
-                $(this).val(items.eq(selectedIndex).text().trim());
-                $("#selectedID").val(selectedItem.data("id"));
-
-
-                //$(this).val(selectedName);
-                $("#result-show-div").remove();
-                e.preventDefault();
-            }
-        }
-    });
-    $(document).on("click", function (e) {
-        const $target = $(e.target);
-
-        // If the click is NOT on the input or the result div
-        if (!$target.is("#queryText") && !$target.closest("#result-show-div").length) {
-            $("#result-show-div").remove(); // hide/remove the result div
-        }
-    });
 
 
     // ===============
@@ -490,57 +278,123 @@
     // =================
 
     function validation() {
-        let requiredField = [ids.leadName, ids.leadPriorityID, ids.leadSourceID, ids.leadStatusID];
+        let requiredField = [
+            ids.leadName,
+            ids.leadPriorityID,
+            ids.leadSourceID,
+            ids.leadStatusID,
+            ids.leadOwnerId
+        ];
+
         let isValid = true;
-        //debugger;
-        //if (placeName == 'addLActivity') {
-        //    if (!$('.option-btn').hasClass("active")) {
-        //        $('#optionBtnDiv').css("border", "1px solid red");
-        //        isValid = false;
-        //    } else {
-        //        $('#optionBtnDiv').css("border", "");
-        //    }
-        //    const activeBtn = $(".option-btn.active").text().trim();
-        //    if (activeBtn == "Attachment") {
-        //        requiredField.push(ids.file);
-        //    }
-        //}
 
-
-        showDev(requiredField);
         requiredField.forEach(function (selector) {
-            //let $el = $(selector);
-            //showDev(selector)
-            //let fieldText = $el.val();
-            //if (fieldText.trim() === "") {
-            //    $el.css("border-color", "red");
-            //    isValid = false;
-            //} else {
-            //    $el.css("border-color", "");
-            //}
-            debugger;
-            requiredField.forEach(function (selector) {
-                let $el = $(selector);
-                let value = $el.val() ? $el.val().trim() : '';
-                let target = $el;
+            let el = $(selector);
+            let value = el.val() ? el.val().trim() : '';
+            let target = el;
 
-                // Handle Choices.js dropdowns
-                if ($el.closest('.choices').length > 0) {
-                    target = $el.closest('.choices').find('.choices__inner');
-                }
+            // Special case for Choices.js (hidden select)
+            if (el.closest('.choices').length > 0) {
+                target = el.closest('.choices').find('.choices__inner');
+            }
 
-                if (value === '') {
-                    target.css('border', '1px solid red');
-                    errorCount += 1;
-                } else {
-                    target.css('border', '1px solid #ccc'); // reset valid field
-                }
-            });
-
+            if (value === '' || value === null) {
+                target.css('border', '1px solid red');
+                isValid = false;
+            } else {
+                target.css('border', '1px solid #ccc'); // reset valid field
+            }
         });
 
         return isValid;
     }
 
- 
+    // #region Choice with Pagination + Infinite Scroll (server-side search only)
+    const selectEl = document.getElementById('leadOwnerId');
+    let debounceTimer;
+    let loading = false;
+    let currentPage = 1;
+    let lastSearch = '';
+    let hasMore = true;
+
+    const choices = new Choices(selectEl, {
+        searchEnabled: true,
+        placeholder: true,
+        placeholderValue: 'Select Organization...',
+        searchPlaceholderValue: 'Type to search...',
+        noChoicesText: 'Type 3 or more characters...',
+        searchResultLimit: -1, // disable local limiting
+        shouldSort: false,
+        duplicateItemsAllowed: false,
+        itemSelectText: '',
+        removeItemButton: true,
+
+        // 🚨 disable client-side filtering (server handles search)
+        searchChoices: false,
+        fuseOptions: false,
+        searchFn: () => true
+    });
+
+    // Fetch data from server
+    async function fetchOptions(search, page = 1, pageSize = 50) {
+        loading = true;
+        try {
+            const res = await fetch(`/CRM/SearchEmployee?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
+            const data = await res.json();
+            hasMore = data.hasMore;
+            return data;
+        } catch (error) {
+            console.error("Error fetching organizations:", error);
+            return { items: [], hasMore: false };
+        } finally {
+            loading = false;
+        }
+    }
+
+    // Handle debounce on search
+    selectEl.addEventListener('search', function (e) {
+        const searchTerm = e.detail.value;
+        clearTimeout(debounceTimer);
+
+        if (searchTerm.length < 1) {
+            choices.clearChoices();
+            return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+            currentPage = 1;
+            lastSearch = searchTerm;
+            const data = await fetchOptions(searchTerm, currentPage);
+
+            choices.clearChoices();
+            if (data.items.length > 0) {
+                // replace with new results
+                choices.setChoices(data.items, 'value', 'label', true);
+            }
+        }, 500); // debounce delay
+    });
+
+    // Scroll handler
+    async function handleScroll(e) {
+        const dropdownList = e.target;
+        if (!loading && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
+            currentPage++;
+            const data = await fetchOptions(lastSearch, currentPage);
+
+            if (data.items.length > 0) {
+                // append results, keep existing
+                choices.setChoices(data.items, 'value', 'label', false);
+            }
+        }
+    }
+
+    // Reattach scroll listener when dropdown opens
+    choices.passedElement.element.addEventListener('showDropdown', () => {
+        const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
+        if (dropdownList) {
+            dropdownList.removeEventListener('scroll', handleScroll);
+            dropdownList.addEventListener('scroll', handleScroll);
+        }
+    });
+    // #endregion
 });

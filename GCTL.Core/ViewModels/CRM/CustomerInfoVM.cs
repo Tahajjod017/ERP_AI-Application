@@ -42,5 +42,6 @@ namespace GCTL.Core.ViewModels.CRM
         public int? LostPercentage { get; set; }
         public int? CancelPercentage { get; set; }
         public bool? isWon { get; set; }
+        public DateTime? ClosingDate { get; set; }
     }
 }
