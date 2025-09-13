@@ -9,6 +9,6 @@ namespace GCTL.Service.AttendanceManagement
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(EmailVM model);
+        Task SendEmailAsync(EmailVM model, int? orgId);
     }
 }
