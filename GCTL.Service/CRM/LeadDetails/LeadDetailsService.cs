@@ -180,6 +180,10 @@ namespace GCTL.Service.CRM.LeadDetails
                 {
                     leadObj.PriorityID = detailsLeadUpdateVM.FieldValue;
                 }
+                else if (detailsLeadUpdateVM.FieldName == "probability")
+                {
+                    leadObj.ProbabilityPercentage = detailsLeadUpdateVM.FieldValue;
+                }
 
 
                 leadObj.UpdatedAt = DateTime.UtcNow;

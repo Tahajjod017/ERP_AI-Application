@@ -167,20 +167,20 @@
         font-size: 16px;
         margin-top: 5px;
     }
+    /* Hide scrollbar but keep scrolling */
+    .choices__list--dropdown .choices__list {
+        max-height: 200px; /* control height */
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox */
+    }
+
+        .choices__list--dropdown .choices__list::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
+        }
 </style>
 
-
-
 <div class="container p-0 d-flex flex-column align-items-center">
-
     <div class="row col-md-12 mb-2">
-        @* <nav class="mb-3 alig " aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="#!">Page 1</a></li>
-                <li class="breadcrumb-item"><a href="#!">Page 2</a></li>
-                <li class="breadcrumb-item active">Default</li>
-            </ol>
-        </nav> *@
         <h3 class="fs-4 mb-3">@Html.SmartLocalize("Create Lead New")</h3>
         <form class="bg-white py-4 form-control shadow-sm" action="shift-roster-ui.html" id="leadForm">
             <div class="modal-body pb-2">
@@ -204,8 +204,6 @@
                                 <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn2">@Html.SmartLocalize("Person")</button>
                             </div>
                         </div>
-
-                       
                     </div>
                     
                     <div class="col-md-6">
@@ -226,9 +224,15 @@
 
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
-                            <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Priority")</label>
-                            <select class="form-select choiceDD" id="priorityID" asp-items="@ViewBag.LeadPriorities as SelectList" required>
-                                <option value="" selected>@Html.SmartLocalize("Select Priority")</option>
+                            <label class="form-label" for="leadStatusId">@Html.SmartLocalize("Status Name")</label>
+                            <select class="form-select" id="leadStatusId" required>
+                                <option value="">@Html.SmartLocalize("Select Status")</option>
+                                @foreach (var status in ViewBag.LeadStatusDD as SelectList)
+                                {
+                                    <option value="@status.Value" selected="@(status.Text == "New" ? "selected" : null)">
+                                        @status.Text
+                                    </option>
+                                }
                             </select>
                         </div>
                     </div>
@@ -258,7 +262,7 @@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label">@Html.SmartLocalize("Service Type")</label>
-                            <select class="form-multi-select form-multi-select-lg mb-3" multiple id="serviceTypes" asp-items="@ViewBag.ServiceDD as SelectList">
+                            <select class="form-multi-select form-multi-select-lg" multiple id="serviceTypes" asp-items="@ViewBag.ServiceDD as SelectList">
                                 <option value="" disabled selected>@Html.SmartLocalize("Select Service")...</option>
                             </select>
                         </div>

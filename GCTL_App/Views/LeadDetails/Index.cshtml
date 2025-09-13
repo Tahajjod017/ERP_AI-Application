@@ -33,24 +33,25 @@
     .nav-item {
        cursor: pointer;
     }
-        </style>
+
+    /* Hide scrollbar but keep scrolling */
+    .choices__list--dropdown .choices__list {
+        max-height: 200px; /* control height */
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox */
+    }
+
+    .choices__list--dropdown .choices__list::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Edge */
+    }
+</style>
     <div class="pb-1">
         <div class="row align-items-center justify-content-between g-3 mb-2">
             <div class="col-12 col-md-auto">
                 <h2 class="mb-0">Lead Details</h2>
             </div>
             <div class="col-12 col-md-auto d-flex">
-                <button class="btn btn-phoenix-secondary px-3 px-sm-5 me-2" data-bs-toggle="modal" data-bs-target="#editModal"><span class="fa-solid fa-edit me-sm-2"></span><span class="d-none d-sm-inline">Edit</span></button>
-                @* <button class="btn btn-phoenix-danger me-2"><span class="fa-solid fa-trash me-2"></span><span>Delete Deal</span></button>
-                <div>
-                    <button class="btn px-3 btn-phoenix-secondary" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fa-solid fa-ellipsis"></span></button>
-                    <ul class="dropdown-menu dropdown-menu-end p-0" style="z-index: 9999;">
-                        <li><a class="dropdown-item" href="#!">View profile</a></li>
-                        <li><a class="dropdown-item" href="#!">Report</a></li>
-                        <li><a class="dropdown-item" href="#!">Manage notifications</a></li>
-                        <li><a class="dropdown-item text-danger" href="#!">Delete Lead</a></li>
-                    </ul>
-                </div> *@
+            <button class="btn btn-phoenix-secondary px-3 px-sm-5 me-2" id="editModalBtn" ><span class="fa-solid fa-edit me-sm-2"></span><span class="d-none d-sm-inline">Edit</span></button>
             </div>
         </div>
         <div class="row g-4 g-xl-6">
@@ -100,7 +101,14 @@
                                         </div>
                                     </div>
                                     <div class="progress mb-2 px-3 bg-white" style="height:25px">
-                                    <input class="form-range" id="customRange1" value="@Model.Probability" type="range" />
+                                    @* <input class="form-range" id="probability" value="@Model.Probability" type="range" /> *@
+                                    <div class="col">
+                                        @* <label for="completion" class="form-label p-0">@Html.SmartLocalize("Probability (%)")</label> *@
+                                        <div class="d-flex align-items-center">
+                                            <input type="range" class="form-range" min="0" max="100" step="1" id="probabilityPercentage" value="@Model.Probability" oninput="completionValue.innerText = this.value + '%'">
+                                            <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">@Model.Probability%</span>
+                                        </div>
+                                    </div>
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between">
                                         <p class="mb-0"> Probability</p>
@@ -203,29 +211,31 @@
                                     <span>@Model.Created</span>
                                 </td>
                             </tr>
-                            <tr class="text-center align-middle">
-                                <td class="d-flex align-items-center my-2">
-                                    <div class="d-flex bg-warning-subtle rounded-circle flex-center me-2" style="width:26px; height:26px;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                             class="text-success-dark" data-feather="clock">
-                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="9" cy="7" r="4"></circle>
-                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                        </svg>
-                                    </div>
-                                    <span class="fw-bold">Closing Date</span>
-                                </td>
+                            @if ( Model.ClosingDate != null)
+                            {
+                                <tr class="text-center align-middle">
+                                    <td class="d-flex align-items-center my-2">
+                                        <div class="d-flex bg-warning-subtle rounded-circle flex-center me-2" style="width:26px; height:26px;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                 class="text-success-dark" data-feather="clock">
+                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="9" cy="7" r="4"></circle>
+                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="fw-bold">Closing Date</span>
+                                    </td>
 
-                                <td class="align-middle text-center px-2">:</td>
+                                    <td class="align-middle text-center px-2">:</td>
 
-                                <td class="align-middle text-start">
-                                    <span>12/01/2025</span>
-                                </td>
-                            </tr>
-
+                                    <td class="align-middle text-start">
+                                        <span>@Model.ClosingDate</span>
+                                    </td>
+                                </tr>
+                            }
                             </table>
                         </div>
                     </div>
@@ -322,32 +332,35 @@
                         <button type="submit" id="addLActivity" class="btn btn-primary">Add Activity</button>
 
                         <div class="d-flex align-items-center">
-                            @* won button checkbox *@
-                            <div class="form-check ms-2 me-4 fs-8" id="transferDiv" style="display:none;">
-                                <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
-                                <label class="form-check-label fs-8" for="flexCheckChecked">
-                                    Transfer To Field Service
-                                </label>
-                            </div>
+                            @if (Model.isWon == true)
+                            {
+                                <div class="form-check ms-2 me-4 fs-8" id="transferDiv">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked">
+                                    <label class="form-check-label fs-8" for="flexCheckChecked">
+                                        Transfer To Field Service
+                                    </label>
+                                </div>
+                            }
 
                             @foreach (var item in ViewBag.LeadActivityTypes2)
                             {
-
                                 var activeClass = "";
                                 string buttonSelect = (Model.isWon == true) ? "Won" : (Model.isWon == false) ? "Lost" : "";
-                                if ( item.LeadActivityName == buttonSelect )
+                                if (item.LeadActivityName == buttonSelect)
                                 {
                                     activeClass = "active2";
                                 }
+
                                 <button id="@item.LeadActivityName"
-                                        class="btn btn-phoenix-secondary rounded-pill mx-1 special-btn option-btn @activeClass" type="button"
+                                        class="btn btn-phoenix-secondary rounded-pill mx-1 special-btn option-btn @activeClass"
+                                        type="button"
                                         data-id="@item.LeadActivityTypeID">
-                                    <span class="fs-7 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span> 
+                                    <span class="fs-7 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
                                     @item.LeadActivityName
                                 </button>
                             }
-
                         </div>
+
                     </div>
                                       
                 </div>
@@ -421,65 +434,60 @@
             </div>
             <div class="modal-body">
                 <div class="row gy-3 ">
+                    <input type="hidden" id="leadID" />
                     <div class="col-md-6">
                         <label for="form-control">Lead Name</label>
-                        <input class="form-control" id="leadName" type="text" value="@Model.LeadName" />
+                        <input class="form-control" id="leadName" type="text" />
                     </div>
                     <div class="col-md-6">
                         <label for="form-control">Status Name</label>
-                        <select class="form-select" id="leadStatusID" asp-for="LeadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
+                        <select class="form-select" id="leadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
                             <option value="" disabled selected>Select Staus</option>
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label for="form-control">Lead Owner Name</label>
-                        <select class="form-select" id="leadOwnerID" asp-items="@ViewBag.EmployeeDD as SelectList">
-                           
-                            @if (Model.LeadOwnerId != 0)
-                            {
-                                <option value="@Model.LeadOwnerId" selected>
-                                    @Model.LeadOwnerName
-                                </option>
-                            }
-                            else
-                            {
-                                <option selected>Open this select menu</option>
-                            }
+                        <label class="form-contro" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
+                        <select class="form-select" id="leadOwnerId" aria-label="Default select example">
+                            <option value="" selected disabled>select Owner Name</option>
                         </select>
                     </div>
+
                     <div class="col-md-6">
                         <label for="form-control">Lead Source</label>
-                        <select class="form-select" id="leadSourceID" asp-for="LeadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
-                            <option value="" disabled select>select source</option>
+                        <select class="form-select" id="leadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
+                            <option value="" disabled>select</option>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label for="form-control">Priority</label>
-                        <select class="form-select" id="leadPriorityID" asp-for="PriorityID" asp-items="@ViewBag.LeadPriorities as SelectList">
-                            <option value="" disabled selected>select Priority</option>
+                        <select class="form-select" id="leadPriorityID" asp-items="@ViewBag.LeadPriorities as SelectList">
+                            <option value="" disabled>select Priority</option>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label for="form-control">Approximate Deal Value</label>
-                        <input class="form-control" id="approximateDealValue" asp-for="@Model.ApproximateDealValue" type="text" placeholder="" />
+                        <input class="form-control" id="approximateDealValue" type="text" placeholder="" />
                     </div>
+
                     <div class="col-md-6">
                         <label for="form-control">Service Type</label>
-                        <select class="form-multi-select form-multi-select" multiple id="serviceTypes" asp-for="ServiceIds" asp-items="@ViewBag.ServiceDD as SelectList">
+                        <select class="form-multi-select form-multi-select" multiple id="serviceTypes" asp-items="@ViewBag.ServiceDD as SelectList">
                             <option value="" disabled selected>@Html.SmartLocalize("Select Service")...</option>
                         </select>
                     </div>
+
                     <div class="col-md-6">
                         <label for="form-control">@Html.SmartLocalize("Probability (%)")</label>
                         <div class="d-flex align-items-center mt-1">
-                            <input type="range" class="form-range" min="0" max="100" step="1" id="probabilityPercentage" value="@Model.Probability" oninput="completionValue.innerText = this.value + '%'">
-                            <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">@Model.Probability%</span>
+                            <input type="range" class="form-range" min="0" max="100" step="1" id="probabilityPercentage2" value="" oninput="completionValue.innerText = this.value + '%'">
+                            <span id="completionValue2" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">0%</span>
                         </div>
                     </div>
+
                     <div class="col-md-12">
                         <div class="form-floating">
-                            <textarea class="form-control h-100" id="descriptionText" rows="3" asp-for="@Model.LeadDescription" placeholder=""></textarea>
-                           
+                            <textarea class="form-control h-100" id="descriptionText" rows="3" placeholder=""></textarea>
+
                             <label for="form-control">@Html.SmartLocalize("Description")</label>
 
                         </div>
