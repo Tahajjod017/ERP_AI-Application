@@ -143,11 +143,23 @@ public partial class Employees
 
     public virtual ICollection<Attendance> AttendanceUpdatedByNavigation { get; set; } = new List<Attendance>();
 
+    public virtual ICollection<BenefitSetups> BenefitSetupsCreatedByNavigation { get; set; } = new List<BenefitSetups>();
+
+    public virtual ICollection<BenefitSetups> BenefitSetupsDeletedByNavigation { get; set; } = new List<BenefitSetups>();
+
+    public virtual ICollection<BenefitSetups> BenefitSetupsUpdatedByNavigation { get; set; } = new List<BenefitSetups>();
+
     public virtual ICollection<BenefitTypes> BenefitTypesCreatedByNavigation { get; set; } = new List<BenefitTypes>();
 
     public virtual ICollection<BenefitTypes> BenefitTypesDeletedByNavigation { get; set; } = new List<BenefitTypes>();
 
     public virtual ICollection<BenefitTypes> BenefitTypesUpdatedByNavigation { get; set; } = new List<BenefitTypes>();
+
+    public virtual ICollection<Benefits> BenefitsCreatedByNavigation { get; set; } = new List<Benefits>();
+
+    public virtual ICollection<Benefits> BenefitsDeletedByNavigation { get; set; } = new List<Benefits>();
+
+    public virtual ICollection<Benefits> BenefitsUpdatedByNavigation { get; set; } = new List<Benefits>();
 
     public virtual BloodGroup BloodGroup { get; set; }
 
@@ -156,24 +168,6 @@ public partial class Employees
     public virtual ICollection<BloodGroup> BloodGroupDeletedByNavigation { get; set; } = new List<BloodGroup>();
 
     public virtual ICollection<BloodGroup> BloodGroupUpdatedByNavigation { get; set; } = new List<BloodGroup>();
-
-    public virtual ICollection<BonusSetups> BonusSetupsCreatedByNavigation { get; set; } = new List<BonusSetups>();
-
-    public virtual ICollection<BonusSetups> BonusSetupsDeletedByNavigation { get; set; } = new List<BonusSetups>();
-
-    public virtual ICollection<BonusSetups> BonusSetupsUpdatedByNavigation { get; set; } = new List<BonusSetups>();
-
-    public virtual ICollection<BonusTypes> BonusTypesCreatedByNavigation { get; set; } = new List<BonusTypes>();
-
-    public virtual ICollection<BonusTypes> BonusTypesDeletedByNavigation { get; set; } = new List<BonusTypes>();
-
-    public virtual ICollection<BonusTypes> BonusTypesUpdatedByNavigation { get; set; } = new List<BonusTypes>();
-
-    public virtual ICollection<Bonuses> BonusesCreatedByNavigation { get; set; } = new List<Bonuses>();
-
-    public virtual ICollection<Bonuses> BonusesDeletedByNavigation { get; set; } = new List<Bonuses>();
-
-    public virtual ICollection<Bonuses> BonusesUpdatedByNavigation { get; set; } = new List<Bonuses>();
 
     public virtual ICollection<CalculationTypes> CalculationTypesCreatedByNavigation { get; set; } = new List<CalculationTypes>();
 

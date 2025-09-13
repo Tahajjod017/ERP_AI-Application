@@ -5,15 +5,21 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Bonuses
+public partial class BenefitSetups
 {
-    public int BonusID { get; set; }
+    public int BenefitSetupID { get; set; }
 
-    public int? OrganizationID { get; set; }
+    public int? BenefitID { get; set; }
 
-    public int? BonusTypeID { get; set; }
+    public decimal? SalaryMin { get; set; }
 
-    public bool? IsActive { get; set; }
+    public decimal? SalaryMax { get; set; }
+
+    public int? CalculationTypeID { get; set; }
+
+    public decimal? Value { get; set; }
+
+    public DateTime? EffectiveDate { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,15 +37,11 @@ public partial class Bonuses
 
     public int? DeletedBy { get; set; }
 
-    public virtual ICollection<BonusSetups> BonusSetups { get; set; } = new List<BonusSetups>();
-
-    public virtual BonusTypes BonusType { get; set; }
+    public virtual Benefits Benefit { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
-
-    public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

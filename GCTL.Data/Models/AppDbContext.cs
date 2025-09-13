@@ -33,22 +33,19 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
-
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
     public virtual DbSet<Attendance> Attendance { get; set; }
 
     public virtual DbSet<AttendanceLog> AttendanceLog { get; set; }
 
+    public virtual DbSet<BenefitSetups> BenefitSetups { get; set; }
+
     public virtual DbSet<BenefitTypes> BenefitTypes { get; set; }
 
+    public virtual DbSet<Benefits> Benefits { get; set; }
+
     public virtual DbSet<BloodGroup> BloodGroup { get; set; }
-
-    public virtual DbSet<BonusSetups> BonusSetups { get; set; }
-
-    public virtual DbSet<BonusTypes> BonusTypes { get; set; }
-
-    public virtual DbSet<Bonuses> Bonuses { get; set; }
 
     public virtual DbSet<CalculationTypes> CalculationTypes { get; set; }
 
@@ -293,7 +290,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2BD3C9DBD");
@@ -557,14 +553,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
-         .HasDiscriminator<string>("Discriminator")
-         .HasValue<ApplicationUser>("ApplicationUser");
-
+ .HasDiscriminator<string>("Discriminator")
+ .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Employees)
-                .WithMany(e => e.AspNetUsers)
-                .HasForeignKey(u => u.EmployeeId)
-                .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+        .HasOne(u => u.Employees)
+        .WithMany(e => e.AspNetUsers)
+        .HasForeignKey(u => u.EmployeeId)
+        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -643,6 +638,41 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__Attendanc__Updat__31583BA0");
         });
 
+        modelBuilder.Entity<BenefitSetups>(entity =>
+        {
+            entity.HasKey(e => e.BenefitSetupID).HasName("PK__BenefitS__F558BB66640B9864");
+
+            entity.ToTable("BenefitSetups", "Payroll");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EffectiveDate).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.SalaryMax).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.SalaryMin).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Value).HasColumnType("decimal(5, 2)");
+
+            entity.HasOne(d => d.Benefit).WithMany(p => p.BenefitSetups)
+                .HasForeignKey(d => d.BenefitID)
+                .HasConstraintName("FK__BenefitSe__Benef__1B33F057");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.BenefitSetupsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__BenefitSe__Creat__1C281490");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.BenefitSetupsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__BenefitSe__Delet__1F04813B");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.BenefitSetupsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__BenefitSe__Updat__1D1C38C9");
+        });
+
         modelBuilder.Entity<BenefitTypes>(entity =>
         {
             entity.HasKey(e => e.BenefitTypeID).HasName("PK__BenefitT__63C167176F688959");
@@ -677,6 +707,41 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__BenefitTy__Updat__70499252");
         });
 
+        modelBuilder.Entity<Benefits>(entity =>
+        {
+            entity.HasKey(e => e.BenefitID).HasName("PK__Benefits__5754C53A6B724F74");
+
+            entity.ToTable("Benefits", "Payroll");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.BenefitType).WithMany(p => p.Benefits)
+                .HasForeignKey(d => d.BenefitTypeID)
+                .HasConstraintName("FK__Benefits__Benefi__1486F2C8");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.BenefitsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Benefits__Create__157B1701");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.BenefitsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Benefits__Delete__185783AC");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.Benefits)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__Benefits__Organi__1392CE8F");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.BenefitsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Benefits__Update__166F3B3A");
+        });
+
         modelBuilder.Entity<BloodGroup>(entity =>
         {
             entity.HasKey(e => e.BloodGroupID).HasName("PK__BloodGro__4398C6AF27330EED");
@@ -709,110 +774,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.BloodGroupUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_Employees_EmployeeIDUpdatedByBloodGroup");
-        });
-
-        modelBuilder.Entity<BonusSetups>(entity =>
-        {
-            entity.HasKey(e => e.BonusSetupID).HasName("PK__BonusSet__04246F51453E0B1E");
-
-            entity.ToTable("BonusSetups", "Payroll");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.EffectiveDate).HasColumnType("datetime");
-            entity.Property(e => e.LIP).HasMaxLength(20);
-            entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.SalaryMax).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.SalaryMin).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Value).HasColumnType("decimal(5, 2)");
-
-            entity.HasOne(d => d.Bonus).WithMany(p => p.BonusSetups)
-                .HasForeignKey(d => d.BonusID)
-                .HasConstraintName("FK__BonusSetu__Bonus__0638D371");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.BonusSetupsCreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__BonusSetu__Creat__072CF7AA");
-
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.BonusSetupsDeletedByNavigation)
-                .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__BonusSetu__Delet__0A096455");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.BonusSetupsUpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__BonusSetu__Updat__08211BE3");
-        });
-
-        modelBuilder.Entity<BonusTypes>(entity =>
-        {
-            entity.HasKey(e => e.BonusTypeID).HasName("PK__BonusTyp__88343C5DD78804C1");
-
-            entity.ToTable("BonusTypes", "Payroll");
-
-            entity.Property(e => e.BonusTypeName)
-                .HasMaxLength(200)
-                .IsUnicode(false);
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.LIP).HasMaxLength(20);
-            entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.BonusTypesCreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__BonusType__Creat__66C02818");
-
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.BonusTypesDeletedByNavigation)
-                .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__BonusType__Delet__699C94C3");
-
-            entity.HasOne(d => d.Organization).WithMany(p => p.BonusTypes)
-                .HasForeignKey(d => d.OrganizationID)
-                .HasConstraintName("FK__BonusType__Organ__65CC03DF");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.BonusTypesUpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__BonusType__Updat__67B44C51");
-        });
-
-        modelBuilder.Entity<Bonuses>(entity =>
-        {
-            entity.HasKey(e => e.BonusID).HasName("PK__Bonuses__8E5547080EE4474E");
-
-            entity.ToTable("Bonuses", "Payroll");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.LIP).HasMaxLength(20);
-            entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.BonusType).WithMany(p => p.Bonuses)
-                .HasForeignKey(d => d.BonusTypeID)
-                .HasConstraintName("FK__Bonuses__BonusTy__741A2336");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.BonusesCreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__Bonuses__Created__750E476F");
-
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.BonusesDeletedByNavigation)
-                .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__Bonuses__Deleted__77EAB41A");
-
-            entity.HasOne(d => d.Organization).WithMany(p => p.Bonuses)
-                .HasForeignKey(d => d.OrganizationID)
-                .HasConstraintName("FK__Bonuses__Organiz__7325FEFD");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.BonusesUpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__Bonuses__Updated__76026BA8");
         });
 
         modelBuilder.Entity<CalculationTypes>(entity =>
