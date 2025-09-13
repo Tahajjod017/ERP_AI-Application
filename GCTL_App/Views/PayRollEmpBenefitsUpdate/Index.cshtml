@@ -85,25 +85,60 @@
         box-shadow: -5px 0 0 #e6e6e6, 5px 0 0 #e6e6e6;
     }
 </style>
-<form id="payrollEmpAllowanceForm" class="row g-3">
 
-    <div class="col-md-6">
-        <input type="hidden" name="EmployeeAllowanceID" />
-        <div class="mb-0">
-            <div class="content-head d-flex justify-content-between align-items-center">
-                <label class="form-label" for="organizerSingle">Company Name</label>
+<div class="mb-2">
+
+    <div class="card">
+
+        <div class="card-header ">
+            <h4 class="mb-1">Add Employee Benefits</h4>
+
+            <div class="">
+                <form id="payrollEmpBenefitsForm" class="row g-3">
+
+                    <div class="col-md-6">
+                        
+                        <div class="mb-0">
+                            <div class="content-head d-flex justify-content-between align-items-center">
+                                <label class="form-label" for="organizerSingle">Company Name</label>
+                            </div>
+                            <select class="form-multi-select choiceDD" id="OrganizationID" asp-items="@ViewBag.OrganizationDD">
+                                <option value="">Select Company</option>
+                            </select>
+                            <span id="OrganizationID-error" class="text-danger"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+
+                        <div id="EmployeeAllowanceAccordion"></div>
+                    </div>
+
+                </form>
             </div>
-            <select class="form-multi-select choiceDD" id="OrganizationID" asp-items="@ViewBag.OrganizationDD">
-                <option value="">Select Company</option>
-            </select>
-            <span id="OrganizationID-error" class="text-danger"></span>
         </div>
 
     </div>
 
-    <div class="card">
+    @* <div class="card mt-2">
+        <partial name="_TableList" />
 
-        <div id="EmployeeAllowanceAccordion"></div>
-    </div>
 
-</form>
+    </div> *@
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/payrollmanagements/payrollpolicy/PayRollEmpBenefitsUpdate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+
+}
+
+
+
+  

@@ -6,10 +6,12 @@ using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
 using GCTL.Core.ViewModels.MasterSetup.Statuses;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM;
+using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.AttendanceManagement.LeaveManagements;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
@@ -21,21 +23,136 @@ using System.Threading.Tasks;
 
 namespace GCTL.Service.PayRollManagements.PayRollPolicy
 {
-    public class EmployeeBenefitsService : AppService<EmployeeBenefits>, IEmployeeBenefitsService
+    public class EmployeeBenefitsService : AppService<Benefits>, IEmployeeBenefitsService
     {
         private readonly IGenericRepository<EmployeeBenefits> empBenefits;
+
+
         private readonly IUserInfoService userInfoService;
-        public EmployeeBenefitsService(IGenericRepository<EmployeeBenefits> empBenefits, IUserInfoService userInfoService):base(empBenefits) 
+        private readonly IGenericRepository<Benefits>  benefits;
+        private readonly IGenericRepository<BenefitTypes> benefitTypesRepository;
+        private readonly IGenericRepository<BenefitSetups> benefitSetupRepository;
+
+        public EmployeeBenefitsService(IGenericRepository<EmployeeBenefits> empBenefits, IUserInfoService userInfoService, IGenericRepository<Benefits> benefits, IGenericRepository<BenefitTypes> benefitTypesRepository, IGenericRepository<BenefitSetups> benefitSetupRepository):base(benefits)
         {
             this.empBenefits = empBenefits;
             this.userInfoService = userInfoService;
+            this.benefits = benefits;
+            this.benefitTypesRepository = benefitTypesRepository;
+            this.benefitSetupRepository = benefitSetupRepository;
         }
+
+
+        #region Get Benefits Type 
+
+
+        public async Task<CommonReturnViewModel> SaveEmployeeBenefitsAsync(EmployeeBenefitsVM entityVM)
+        {
+            var result = new CommonReturnViewModel();
+
+            if (entityVM == null || entityVM.OrganizationID is   <= 0)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Employee Benefit record not found!"
+                };
+            }
+
+            await benefits.BeginTransactionAsync();
+
+            try
+            {
+                foreach (var benefitVM in entityVM.Benefits)
+                {
+                    var benefit = new Benefits
+                    {
+                        OrganizationID = entityVM.OrganizationID,
+                        BenefitTypeID = benefitVM.BenefitTypeID,
+                        IsActive = benefitVM.IsActive,
+                        LIP = entityVM.LIP,
+                        LMAC = entityVM.LMAC,
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = entityVM.CreatedBy
+                    };
+
+                    await benefits.AddAsync(benefit);
+
+                    // Now save setups
+                    var setups = benefitVM.BenefitSetups.Select(setupVM => new BenefitSetups
+                    {
+                        BenefitID = benefit.BenefitID,   // link to parent
+                        CalculationTypeID = setupVM.CalculationTypeID,
+                        SalaryMax = setupVM.SalaryMax,
+                        SalaryMin = setupVM.SalaryMin,
+                        EffectiveDate = setupVM.EffectiveDate,
+                        Value = setupVM.Value,
+                        LIP = entityVM.LIP,
+                        LMAC = entityVM.LMAC,
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = entityVM.CreatedBy
+                    }).ToList();
+
+                    await benefitSetupRepository.AddRangeAsync(setups);
+                }
+
+                await benefits.CommitTransactionAsync();
+
+                result.Success = true;
+                result.Message = "Saved Successfully";
+            }
+            catch (Exception ex)
+            {
+                await benefits.RollbackTransactionAsync();
+
+                result.Success = false;
+                result.Message = "An error occurred while saving.";
+                result.Errors.Add(ex.Message);
+            }
+
+            return result;
+        }
+
+
+        public async Task<List<CommonSelectVM>> SelectAsync(int id)
+        {
+            try
+            {
+                var data = await benefitTypesRepository
+                    .AllActive()
+                    .Where(x => x.OrganizationID == id).ToListAsync();
+
+                if (data == null || !data.Any())
+                {
+                    return new List<CommonSelectVM>();
+                }
+                var result = data.Select(x => new CommonSelectVM
+                {
+                    Id = x.BenefitTypeID, 
+                    Name = x.BenefitTypeName,
+                }).ToList();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+        #endregion
+
+
+
+
+        #region  Old Benefits 
 
         #region Get All Dataum
 
         public async Task<PaginationService<EmployeeBenefits, PayRollEmpBenefitsGetAllVM>.PaginationResult<PayRollEmpBenefitsGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null)
         {
-          #nullable disable
+#nullable disable
 
             try
             {
@@ -48,8 +165,8 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
 
                 if (organizationId.HasValue)
                 {
-                   
-                    query = query.Where(x => x.OrganizationID==organizationId);
+
+                    query = query.Where(x => x.OrganizationID == organizationId);
                 }
                 Expression<Func<EmployeeBenefits, object>> orderByExpression = currentSortColumn?.ToLower() switch
                 {
@@ -71,7 +188,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                     : query.OrderBy(orderByExpression);
 
                 // For approver Step
-               
+
 
                 //
                 var result = await PaginationService<EmployeeBenefits, PayRollEmpBenefitsGetAllVM>.GetPaginatedData(
@@ -100,10 +217,10 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                         FastivalBonusOnSalaryTypeName = b.FastivalBonusOnSalaryType?.SalaryTypeName ?? string.Empty,
                         YearlyEndBonusTypeName = b.YearlyEndBonusType?.YearlyEndBonusTypeName ?? string.Empty,
                         PerformanceBonus = b.PerformanceBonus ?? 0,
-                        FastivalBonusRate=b.FastivalBonusRate ?? 0,
-                        ProvidentFundEmployeeContrebution=b.ProvidentFundEmployeeContrebution ?? 0,
-                        ProvidentFundOrganizationContrebution=b.ProvidentFundOrganizationContrebution ?? 0,
-                        ProvidentFundMinimumServiceYear=b.ProvidentFundMinimumServiceYear ?? 0,
+                        FastivalBonusRate = b.FastivalBonusRate ?? 0,
+                        ProvidentFundEmployeeContrebution = b.ProvidentFundEmployeeContrebution ?? 0,
+                        ProvidentFundOrganizationContrebution = b.ProvidentFundOrganizationContrebution ?? 0,
+                        ProvidentFundMinimumServiceYear = b.ProvidentFundMinimumServiceYear ?? 0,
                     });
 
                 return result;
@@ -121,7 +238,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
             }
         }
 
-       
+
         #endregion
 
         #region Save Data
@@ -155,7 +272,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                     IsPerformanceBonusEnabled = entityVM.IsPerformanceBonusEnabled,
                     IsYearEndBonusEnabled = entityVM.IsYearEndBonusEnabled,
                     YearlyEndBonusTypeID = entityVM.YearlyEndBonusTypeID,
-                    FastivalBonusMinimumServiceInMonth= (int?)entityVM.FastivalBonusMinimumServiceInMonth,
+                    FastivalBonusMinimumServiceInMonth = (int?)entityVM.FastivalBonusMinimumServiceInMonth,
                     CreatedAt = DateTime.Now,
                     CreatedBy = entityVM.CreatedBy,
                     LIP = entityVM.LIP,
@@ -268,8 +385,8 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
 
                 return new CommonReturnViewModel
                 {
-                    Success= true,
-                    Data=resutl,
+                    Success = true,
+                    Data = resutl,
                 };
             }
             catch (Exception)
@@ -277,7 +394,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                 return new CommonReturnViewModel
                 {
                     Success = false,
-                    Message="Employee Benefits Does not find"
+                    Message = "Employee Benefits Does not find"
                 };
             }
         }
@@ -328,8 +445,10 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
             }
         }
 
-        
+
         #endregion
+        #endregion
+
     }
 
 }

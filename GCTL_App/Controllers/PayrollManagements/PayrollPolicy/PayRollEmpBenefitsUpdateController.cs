@@ -1,8 +1,10 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
+using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,20 +21,21 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         private readonly IGenericRepository<SalaryTypes> salaryTypes;
         private readonly IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes;
         private readonly IGenericRepository<Percentages> percentagesService;
-        private readonly IPayRollEmpAllowanceService payRollEmpAllowanceService;
         private readonly IGenericRepository<CalculationTypes> calculationTypes;
         private readonly AppDbContext appDb;
         private readonly IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoService;
-        public PayRollEmpBenefitsUpdateController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organization, IGenericRepository<SalaryTypes> salaryTypes, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes, IGenericRepository<Percentages> percentagesService, IPayRollEmpAllowanceService payRollEmpAllowanceService, IGenericRepository<CalculationTypes> calculationTypes, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoService) : base(translateService, userProfileService)
+        private readonly IEmployeeBenefitsService employeeBenefitsService;
+
+        public PayRollEmpBenefitsUpdateController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organization, IGenericRepository<SalaryTypes> salaryTypes, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes, IGenericRepository<Percentages> percentagesService, IGenericRepository<CalculationTypes> calculationTypes, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoService, IEmployeeBenefitsService employeeBenefitsService) : base(translateService, userProfileService)
         {
             this.organization = organization;
             this.salaryTypes = salaryTypes;
             this.yearlyEndBonusTypes = yearlyEndBonusTypes;
             this.percentagesService = percentagesService;
-            this.payRollEmpAllowanceService = payRollEmpAllowanceService;
             this.calculationTypes = calculationTypes;
             this.appDb = appDb;
             this.employeeOfficeInfoService = employeeOfficeInfoService;
+            this.employeeBenefitsService = employeeBenefitsService;
         }
 
         public async Task<IActionResult> Index()
@@ -53,5 +56,44 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             ViewBag.CalculationTypeDD = new SelectList(calculationTypes.AllActive(), "CalculationTypeID", "CalculationTypeName");
             return View();
         }
+
+        #region Get Allowance Type according to Organization
+        [Route("PayRollEmpBenefitsUpdate/SelectAllowanceTypeAsync")]
+        [HttpGet]
+        public async Task<IActionResult> SelectAsync(int id)
+        {
+            try
+            {
+                var data = await employeeBenefitsService.SelectAsync(id);
+                return Json(data);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Get Allowance Type according to Organization
+        [Route("PayRollEmpBenefitsUpdate/Save")]
+        [HttpPost]
+        public async Task<IActionResult> Save([FromBody]EmployeeBenefitsVM model)
+        {
+            try
+            {
+                var data = await employeeBenefitsService.SaveEmployeeBenefitsAsync(model);
+                return Json(new {Success=data.Success, Message=data.Message});
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        #endregion
+
     }
 }

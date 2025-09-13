@@ -29,6 +29,8 @@ public partial class BenefitTypes
 
     public int? DeletedBy { get; set; }
 
+    public virtual ICollection<Benefits> Benefits { get; set; } = new List<Benefits>();
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

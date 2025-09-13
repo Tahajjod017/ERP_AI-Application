@@ -79,17 +79,19 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                     return response;
                 }
                 // Check for duplicate benefit type
-                var existingBenefitType = await benefitYpe
-                    .FindAsync(b => b.OrganizationID == model.OrganizatonID
-                        && b.BenefitTypeName.ToLower() == model.BenefitTypeName.ToLower() && b.BenefitTypeID != model.BenefitTypeID);
+                //var existingBenefitType = await benefitYpe
+                //    .FindAsync(b => b.OrganizationID == model.OrganizatonID
+                //        && b.BenefitTypeName.ToLower() == model.BenefitTypeName.ToLower() && b.BenefitTypeID != model.BenefitTypeID);
 
-                if (existingBenefitType != null)
-                {
-                    response.Success = false;
-                    response.Message = "Benefit type already exists.";
-                    response.Errors.Add($"A benefit type with name '{model.BenefitTypeName}' already exists for this organization.");
-                    return response;
-                }
+
+
+                //if (existingBenefitType != null)
+                //{
+                //    response.Success = false;
+                //    response.Message = "Benefit type already exists.";
+                //    response.Errors.Add($"A benefit type with name '{model.BenefitTypeName}' already exists for this organization.");
+                //    return response;
+                //}
 
                 await benefitYpe.BeginTransactionAsync();
 
