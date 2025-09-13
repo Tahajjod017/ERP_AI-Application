@@ -324,7 +324,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
             string sortColumn = "SpiralWeeklyPatternID",
             string sortOrder = "desc")
         {
-            var rawData = await _genericRepository.AllActive()
+            try
+            {
+                var rawData = await _genericRepository.AllActive()
                 .Select(x => new
                 {
                     x.SpiralWeeklyPatternID,
@@ -332,71 +334,77 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     x.OrganizationID,
                     x.SpiralPatternTypeID,
                     OrganizationName = x.Organization.OrganizationName,
-                    SpiralWeeklyPatternDetailsListVMs = x.SpiralWeeklyPatternDetails.Select(d => new SpiralWeeklyPatternDetailsListVM
+                    SpiralWeeklyPatternDetailsListVMs = x.SpiralWeeklyPatternDetails != null 
+                    ? x.SpiralWeeklyPatternDetails.Select(d => new SpiralWeeklyPatternDetailsListVM
                     {
                         SpiralWeeklyPatternDetailID = d.SpiralWeeklyPatternDetailID,
                         DayOfWeek = d.DayOfWeek,
                         ShiftID = d.ShiftID,
-                        ShiftName =d.Shift.ShiftName,
-                        ShiftTime = $"{d.Shift.StartTime} - {d.Shift.EndTime}"
-                    }).ToList()
+                        ShiftName = d.Shift != null ? d.Shift.ShiftName : "-",
+                        ShiftTime = d.Shift != null ? $"{d.Shift.StartTime} - {d.Shift.EndTime}" : "-"
+                    }).ToList() : new List<SpiralWeeklyPatternDetailsListVM>()
                 }).AsNoTracking().ToListAsync();
 
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                var lowerSearch = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
-                rawData = rawData
-                    .Where(x =>
-                        x.SpiralWeeklyPatternName.ToLower().Contains(lowerSearch) ||
-                        x.OrganizationName.ToLower().Contains(lowerSearch))
-                    .ToList();
-            }
-
-            if (!string.IsNullOrEmpty(sortColumn))
-            {
-                rawData = sortColumn.ToLower() switch
+                if (!string.IsNullOrWhiteSpace(searchTerm))
                 {
-                    "spiralweeklypatternname" => (sortOrder == "asc"
-                        ? rawData.OrderBy(x => x.SpiralWeeklyPatternName)
-                        : rawData.OrderByDescending(x => x.SpiralWeeklyPatternName)).ToList(),
+                    var lowerSearch = Regex.Replace(searchTerm, @"\s+", " ").Trim().ToLower();
+                    rawData = rawData
+                        .Where(x =>
+                            x.SpiralWeeklyPatternName.ToLower().Contains(lowerSearch) ||
+                            x.OrganizationName.ToLower().Contains(lowerSearch))
+                        .ToList();
+                }
 
-                    "organizationname" => (sortOrder == "asc"
-                        ? rawData.OrderBy(x => x.OrganizationName)
-                        : rawData.OrderByDescending(x => x.OrganizationName)).ToList(),
+                if (!string.IsNullOrEmpty(sortColumn))
+                {
+                    rawData = sortColumn.ToLower() switch
+                    {
+                        "spiralweeklypatternname" => (sortOrder == "asc"
+                            ? rawData.OrderBy(x => x.SpiralWeeklyPatternName)
+                            : rawData.OrderByDescending(x => x.SpiralWeeklyPatternName)).ToList(),
 
-                    _ => rawData.OrderByDescending(x => x.SpiralWeeklyPatternID).ToList()
+                        "organizationname" => (sortOrder == "asc"
+                            ? rawData.OrderBy(x => x.OrganizationName)
+                            : rawData.OrderByDescending(x => x.OrganizationName)).ToList(),
+
+                        _ => rawData.OrderByDescending(x => x.SpiralWeeklyPatternID).ToList()
+                    };
+                }
+
+                var totalCount = rawData.Count;
+                var pagedResult = pageSize == 0
+                    ? rawData
+                    : rawData.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+                // Map anonymous type to SpiralWeeklyPatternList
+                var mappedResult = pagedResult.Select(x => new SpiralWeeklyPatternList
+                {
+                    SpiralWeeklyPatternID = x.SpiralWeeklyPatternID,
+                    SpiralPatternName = x.SpiralWeeklyPatternName,
+                    OrganizationID = x.OrganizationID,
+                    SpiralPatternTypeID = x.SpiralPatternTypeID,
+                    OrganizationName = x.OrganizationName,
+                    SpiralWeeklyPatternDetailsListVMs = x.SpiralWeeklyPatternDetailsListVMs
+                }).ToList();
+
+                var pagination = new SeparatePaginationInfo
+                {
+                    StartItem = (pageNumber - 1) * pageSize + 1,
+                    EndItem = Math.Min(pageNumber * pageSize, totalCount),
+                    TotalItems = totalCount,
+                    CurrentPage = pageNumber,
+                    TotalPages = pageSize == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)pageSize),
+                    PageNumbers = pageSize == 0
+                        ? new List<int> { 1 }
+                        : Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
                 };
+
+                return (mappedResult, pagination);
             }
-
-            var totalCount = rawData.Count;
-            var pagedResult = pageSize == 0
-                ? rawData
-                : rawData.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
-
-            // Map anonymous type to SpiralWeeklyPatternList
-            var mappedResult = pagedResult.Select(x => new SpiralWeeklyPatternList
+            catch (Exception ex)
             {
-                SpiralWeeklyPatternID = x.SpiralWeeklyPatternID,
-                SpiralPatternName = x.SpiralWeeklyPatternName,
-                OrganizationID = x.OrganizationID,
-                SpiralPatternTypeID = x.SpiralPatternTypeID,
-                OrganizationName = x.OrganizationName,
-                SpiralWeeklyPatternDetailsListVMs = x.SpiralWeeklyPatternDetailsListVMs
-            }).ToList();
-
-            var pagination = new SeparatePaginationInfo
-            {
-                StartItem = (pageNumber - 1) * pageSize + 1,
-                EndItem = Math.Min(pageNumber * pageSize, totalCount),
-                TotalItems = totalCount,
-                CurrentPage = pageNumber,
-                TotalPages = pageSize == 0 ? 1 : (int)Math.Ceiling(totalCount / (double)pageSize),
-                PageNumbers = pageSize == 0
-                    ? new List<int> { 1 }
-                    : Enumerable.Range(1, (int)Math.Ceiling(totalCount / (double)pageSize)).ToList()
-            };
-
-            return (mappedResult, pagination);
+                throw new Exception("Error occurred while fetching data.", ex);
+            }
         }
         #endregion
 
@@ -417,14 +425,15 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     x.OrganizationID,
                     x.SpiralPatternTypeID,
                     OrganizationName = x.Organization.OrganizationName,
-                    SpiralBioWeeklyPatternDetailsListVMs = x.SpiralBioWeeklyPatternDetails.Select(d => new SpiralBioWeeklyPatternDetailsListVM
+                    SpiralBioWeeklyPatternDetailsListVMs = x.SpiralBioWeeklyPatternDetails != null 
+                    ? x.SpiralBioWeeklyPatternDetails.Select(d => new SpiralBioWeeklyPatternDetailsListVM
                     {
                         SpiralBioWeeklyPatternDetailID = d.SpiralBioWeeklyPatternDetailID,
                         DayOfMonth = d.DayOfMonth,
                         ShiftID = d.ShiftID,
-                        ShiftName = d.Shift.ShiftName,
-                        ShiftTime = $"{d.Shift.StartTime} - {d.Shift.EndTime}"
-                    }).ToList()
+                        ShiftName = d.Shift != null ? d.Shift.ShiftName : "-",
+                        ShiftTime = d.Shift != null ? $"{d.Shift.StartTime} - {d.Shift.EndTime}" : "-"
+                    }).ToList() : new List<SpiralBioWeeklyPatternDetailsListVM>()
                 }).AsNoTracking().ToListAsync();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -502,14 +511,15 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPatte
                     x.OrganizationID,
                     x.SpiralPatternTypeID,
                     OrganizationName = x.Organization.OrganizationName,
-                    SpiralMonthlyPatternDetailsListVMs = x.SpiralMonthlyPatternDetails.Select(d => new SpiralMonthlyPatternDetailsListVM
+                    SpiralMonthlyPatternDetailsListVMs = x.SpiralMonthlyPatternDetails != null 
+                    ? x.SpiralMonthlyPatternDetails.Select(d => new SpiralMonthlyPatternDetailsListVM
                     {
                         SpiralMonthlyPatternDetailID = d.SpiralMonthlyPatternDetailID,
                         DayOfMonth = d.DayOfMonth,
                         ShiftID = d.ShiftID,
-                        ShiftName = d.Shift.ShiftName,
-                        ShiftTime = $"{d.Shift.StartTime} - {d.Shift.EndTime}"
-                    }).ToList()
+                        ShiftName = d.Shift != null ? d.Shift.ShiftName : "-",
+                        ShiftTime = d.Shift != null ? $"{d.Shift.StartTime} - {d.Shift.EndTime}" : "-"
+                    }).ToList() : new List<SpiralMonthlyPatternDetailsListVM>()
                 }).AsNoTracking().ToListAsync();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))

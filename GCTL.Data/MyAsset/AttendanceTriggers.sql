@@ -69,7 +69,8 @@ BEGIN
     SELECT TOP 1 
         @AttendanceID = Att.AttendanceID
     FROM [HRM_DB_GCTL].[dbo].[Attendance] Att
-    WHERE CAST(Att.AttendanceDate AS DATE) = CAST(GETDATE() AS DATE)
+    --WHERE CAST(Att.AttendanceDate AS DATE) = CAST(GETDATE() AS DATE)
+    WHERE CAST(Att.AttendanceDate AS DATE) = CAST(@CHECKTIME AS DATE)
         AND Att.EmployeeID = @EmployeeID
     ORDER BY Att.AttendanceID DESC;
 
@@ -126,7 +127,8 @@ BEGIN
         -- COMBINE SHIFT TIME WITH TODAY'S DATE
         -----------------------------------
         DECLARE @ShiftStartToday DATETIME2;
-        SET @ShiftStartToday = DATEADD(MINUTE, DATEDIFF(MINUTE, 0, @ShiftStartTime), CAST(CAST(GETDATE() AS DATE) AS DATETIME2));
+        --SET @ShiftStartToday = DATEADD(MINUTE, DATEDIFF(MINUTE, 0, @ShiftStartTime), CAST(CAST(GETDATE() AS DATE) AS DATETIME2));
+        SET @ShiftStartToday = DATEADD(MINUTE, DATEDIFF(MINUTE, 0, @ShiftStartTime), CAST(CAST(@CHECKTIME AS DATE) AS DATETIME2));
 
         -- LateHour: punch after shift start + grace
         IF @IsLateCount = 1 AND @CHECKTIME > DATEADD(MINUTE, DATEDIFF(MINUTE, 0, @GraceTime), @ShiftStartToday)
@@ -146,7 +148,8 @@ BEGIN
         INSERT INTO [HRM_DB_GCTL].[dbo].[Attendance] 
         ([EmployeeID], [AttendanceDate], [CheckInTime], [ShiftID], [RegularHour], [LateHour], [EarlyHour])
         VALUES
-        (@EmployeeID, CAST(GETDATE() AS DATE), CAST(@CHECKTIME_UTC AS DATETIME2), @DefaultShiftID, @RegularHour, @LateHour, @EarlyHour);
+        --(@EmployeeID, CAST(GETDATE() AS DATE), CAST(@CHECKTIME_UTC AS DATETIME2), @DefaultShiftID, @RegularHour, @LateHour, @EarlyHour);
+        (@EmployeeID, CAST(@CHECKTIME AS DATE), CAST(@CHECKTIME_UTC AS DATETIME2), @DefaultShiftID, @RegularHour, @LateHour, @EarlyHour);
 
         SET @AttendanceID = SCOPE_IDENTITY();
 
@@ -168,7 +171,8 @@ BEGIN
         @PunchCount = COUNT(*),
         @LatestPunch = MAX(PunchTime)
     FROM [HRM_DB_GCTL].[dbo].[AttendanceLog]
-    WHERE AttendanceID = @AttendanceID AND CAST(PunchTime AS DATE) = CAST(GETDATE() AS DATE);
+    --WHERE AttendanceID = @AttendanceID AND CAST(PunchTime AS DATE) = CAST(GETDATE() AS DATE);
+    WHERE AttendanceID = @AttendanceID AND CAST(PunchTime AS DATE) = CAST(@CHECKTIME AS DATE);
 
     -- Convert latest punch to UTC
     IF @LatestPunch IS NOT NULL
