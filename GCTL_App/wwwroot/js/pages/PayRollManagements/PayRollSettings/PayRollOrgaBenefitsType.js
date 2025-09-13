@@ -77,11 +77,13 @@
         resetAllowanceTypeForm();
     })
     function resetAllowanceTypeForm() {
-        choiceManager.resetChoice('OrganizationID');
+       
         $('#OrganizationBenefitsType-form')[0].reset();
         $('#BenefitTypeName').val('');
         $('#BenefitTypeID').val('');
         loadTableData();
+       choiceManager.resetChoice('OrganizationID');
+        
         $('.field-validation-error').text('');
     }
 

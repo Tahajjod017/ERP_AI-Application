@@ -133,20 +133,20 @@ $(document).ready(function () {
     if (id) {
         loadAllowanceTypes(id);
     } else {
-        return toastr.error('No Organization Id Found');
+        return toastr.info('No Organization Id Found');
     }
 
     $(document).on('change', '#OrganizationID', function () {
         var id = $(this).val();
         if (!id)
         {
-            return toastr.error('No Organization Id Found');
+            return toastr.info('No Organization Id Found');
         }
         loadAllowanceTypes(id);
     });
         function loadAllowanceTypes(id) {
             $.ajax({
-                url: '/PayRollEmployeesAllowance/SelectAllowanceTypeAsync',
+                url: '/PayRollEmployeesAllowance/SelectAllowanceTypeAsync', 
                 type: 'GET',
                 data: { id: id },
                 dataType: 'json',
