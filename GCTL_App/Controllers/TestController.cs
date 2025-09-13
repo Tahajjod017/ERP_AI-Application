@@ -26,6 +26,8 @@ namespace GCTL_App.Controllers
         [HttpPost]
         public async Task<IActionResult> SendTestEmail()
         {
+            var currentUser = await GetCurrentEmployeeIdAsync();
+
             var model = new EmailVM
             {
                 To = "rhsrakib030@gmail.com", // change this
@@ -35,7 +37,7 @@ namespace GCTL_App.Controllers
 
             try
             {
-                await _emailService.SendEmailAsync(model);
+                await _emailService.SendEmailAsync(model, currentUser);  
                 TempData["Message"] = "✅ Email sent successfully!";
             }
             catch (Exception ex)
