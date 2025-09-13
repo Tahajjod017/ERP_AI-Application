@@ -5,29 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmailSettings
+public partial class Bonuses
 {
-    public int EmailSettingID { get; set; }
+    public int BonusID { get; set; }
 
     public int? OrganizationID { get; set; }
 
-    public string UserName { get; set; }
+    public int? BonusTypeID { get; set; }
 
-    public string Host { get; set; }
-
-    public int Port { get; set; }
-
-    public bool IsSSLRequired { get; set; }
-
-    public bool IsDefaultCredential { get; set; }
-
-    public string MailFrom { get; set; }
-
-    public string Password { get; set; }
-
-    public int? PriorityIndex { get; set; }
-
-    public bool IsActive { get; set; }
+    public bool? IsActive { get; set; }
 
     public string LIP { get; set; }
 
@@ -44,6 +30,10 @@ public partial class EmailSettings
     public DateTime? DeletedAt { get; set; }
 
     public int? DeletedBy { get; set; }
+
+    public virtual ICollection<BonusSetups> BonusSetups { get; set; } = new List<BonusSetups>();
+
+    public virtual BonusTypes BonusType { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 

@@ -5,29 +5,21 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmailSettings
+public partial class BonusSetups
 {
-    public int EmailSettingID { get; set; }
+    public int BonusSetupID { get; set; }
 
-    public int? OrganizationID { get; set; }
+    public int? BonusID { get; set; }
 
-    public string UserName { get; set; }
+    public decimal? SalaryMin { get; set; }
 
-    public string Host { get; set; }
+    public decimal? SalaryMax { get; set; }
 
-    public int Port { get; set; }
+    public int? CalculationTypeID { get; set; }
 
-    public bool IsSSLRequired { get; set; }
+    public decimal? Value { get; set; }
 
-    public bool IsDefaultCredential { get; set; }
-
-    public string MailFrom { get; set; }
-
-    public string Password { get; set; }
-
-    public int? PriorityIndex { get; set; }
-
-    public bool IsActive { get; set; }
+    public DateTime? EffectiveDate { get; set; }
 
     public string LIP { get; set; }
 
@@ -45,11 +37,11 @@ public partial class EmailSettings
 
     public int? DeletedBy { get; set; }
 
+    public virtual Bonuses Bonus { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
-
-    public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

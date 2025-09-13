@@ -4,6 +4,7 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
+   "MinimumProductVersion": "2.6.1080",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -108,10 +109,6 @@
       },
       {
          "Name": "[dbo].[AttendanceLog]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[BenefitTypes]",
          "ObjectType": 0
       },
       {
@@ -507,6 +504,22 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Payroll].[BenefitTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[Bonuses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[BonusSetups]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[BonusTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[CalculationTypes]",
          "ObjectType": 0
       },
@@ -604,6 +617,7 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -611,6 +625,7 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
@@ -622,5 +637,6 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false
+   "UseT4": false,
+   "UseT4Split": false
 }

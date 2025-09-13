@@ -44,7 +44,7 @@ namespace GCTL.Service.AdminSettings.SystemSettings.EmailSettingService
                 // Try to find an existing soft-deleted record  
                 var existingEntityList = await _genericRepository.FindAsync(e =>
                     e.DeletedAt != null &&
-                    e.ServerName == model.ServerName &&
+                    e.Host == model.ServerName &&
                     e.OrganizationID == model.OrganizationID
                 );
 
@@ -53,10 +53,11 @@ namespace GCTL.Service.AdminSettings.SystemSettings.EmailSettingService
                 if (existingEntity != null)
                 {
                     // Update and restore  
-                    existingEntity.ServerName = model.ServerName;
-                    existingEntity.PortNumber = model.PortNumber;
+                    existingEntity.Host = model.ServerName;
+                    existingEntity.MailFrom = model.MailFrom;
+                    existingEntity.Port = model.PortNumber;
                     existingEntity.IsSSLRequired = model.IsSSLRequired;
-                    existingEntity.IsSMTPAuthenticationRequired = model.IsSMTPAuthenticationRequired;
+                    existingEntity.IsDefaultCredential = model.IsSMTPAuthenticationRequired;
                     existingEntity.PriorityIndex = model.PriorityIndex;
                     existingEntity.UserName = model.UserName;
                     existingEntity.Password = model.Password;
@@ -79,10 +80,11 @@ namespace GCTL.Service.AdminSettings.SystemSettings.EmailSettingService
                     var newEntity = new EmailSettings
                     {
                         OrganizationID = model.OrganizationID,
-                        ServerName = model.ServerName,
-                        PortNumber = model.PortNumber,
+                        Host = model.ServerName,
+                        MailFrom = model.MailFrom,
+                        Port = model.PortNumber,
                         IsSSLRequired = model.IsSSLRequired,
-                        IsSMTPAuthenticationRequired = model.IsSMTPAuthenticationRequired,
+                        IsDefaultCredential = model.IsSMTPAuthenticationRequired,
                         PriorityIndex = model.PriorityIndex,
                         UserName = model.UserName,
                         Password = model.Password,
@@ -132,10 +134,10 @@ namespace GCTL.Service.AdminSettings.SystemSettings.EmailSettingService
 
                 // Update properties
                 entity.OrganizationID = model.OrganizationID;
-                entity.ServerName = model.ServerName;
-                entity.PortNumber = model.PortNumber;
+                entity.Host = model.ServerName;
+                entity.Port = model.PortNumber;
                 entity.IsSSLRequired = model.IsSSLRequired;
-                entity.IsSMTPAuthenticationRequired = model.IsSMTPAuthenticationRequired;
+                entity.IsDefaultCredential = model.IsSMTPAuthenticationRequired;
                 entity.PriorityIndex = model.PriorityIndex;
                 entity.UserName = model.UserName;
                 entity.Password = model.Password;
@@ -178,10 +180,10 @@ namespace GCTL.Service.AdminSettings.SystemSettings.EmailSettingService
             {
                 EmailSettingID = entity.EmailSettingID,
                 OrganizationID = entity.OrganizationID,
-                ServerName = entity.ServerName,
-                PortNumber = entity.PortNumber,
+                ServerName = entity.Host,
+                PortNumber = entity.Port,
                 IsSSLRequired = entity.IsSSLRequired,
-                IsSMTPAuthenticationRequired = entity.IsSMTPAuthenticationRequired,
+                IsSMTPAuthenticationRequired = entity.IsDefaultCredential,
                 PriorityIndex = entity.PriorityIndex,
                 UserName = entity.UserName,
                 Password = entity.Password,
@@ -203,9 +205,9 @@ namespace GCTL.Service.AdminSettings.SystemSettings.EmailSettingService
         #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name)
         {
-            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.ServerName != null);
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.Host != null);
 
-            var nameList = existingNames.Select(b => b.ServerName);
+            var nameList = existingNames.Select(b => b.Host);
 
             return !DuplicateChecker.IsDuplicate(name, nameList);
         }
@@ -276,8 +278,8 @@ namespace GCTL.Service.AdminSettings.SystemSettings.EmailSettingService
                 {
                     "EmailSettingID" => sortOrder == "desc" ? query.OrderByDescending(x => x.EmailSettingID) : query.OrderBy(x => x.EmailSettingID),
                     "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
-                    "ServerName" => sortOrder == "desc" ? query.OrderByDescending(x => x.ServerName) : query.OrderBy(x => x.ServerName),
-                    "PortNumber" => sortOrder == "desc" ? query.OrderByDescending(x => x.PortNumber) : query.OrderBy(x => x.PortNumber),
+                    "ServerName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Host) : query.OrderBy(x => x.Host),
+                    "PortNumber" => sortOrder == "desc" ? query.OrderByDescending(x => x.Port) : query.OrderBy(x => x.Port),
                     "PriorityIndex" => sortOrder == "desc" ? query.OrderByDescending(x => x.PriorityIndex) : query.OrderBy(x => x.PriorityIndex),
                     "IsActive" => sortOrder == "desc" ? query.OrderByDescending(x => x.IsActive) : query.OrderBy(x => x.IsActive),
                     _ => query.OrderBy(x => x.EmailSettingID)
@@ -292,16 +294,16 @@ namespace GCTL.Service.AdminSettings.SystemSettings.EmailSettingService
                 searchTerm,
                 sortColumn,
                 sortOrder,
-                term => x => EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") || EF.Functions.Like(x.ServerName, $"%{term}%"),
+                term => x => EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") || EF.Functions.Like(x.Host, $"%{term}%"),
                 x => new EmailSettingsViewModel
                 {
                     EmailSettingID = x.EmailSettingID,
                     OrganizationID = x.OrganizationID,
                     OrganizationName = x.Organization != null ? x.Organization.OrganizationName ?? "-" : "-",
-                    ServerName = x.ServerName ?? "-",
-                    PortNumber = x.PortNumber,
+                    ServerName = x.Host ?? "-",
+                    PortNumber = x.Port,
                     IsSSLRequired = x.IsSSLRequired,
-                    IsSMTPAuthenticationRequired = x.IsSMTPAuthenticationRequired,
+                    IsSMTPAuthenticationRequired = x.IsDefaultCredential,
                     PriorityIndex = x.PriorityIndex,
                     UserName = x.UserName ?? "-",
                     Password = x.Password ?? "-",
