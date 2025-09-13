@@ -8,6 +8,7 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
+using static System.Net.WebRequestMethods;
 
 namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 {
@@ -37,6 +38,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
            
 
             int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+            //var orgId = await GetCurrentOrganizationIdAsync();
 
             if (currentEmployeeId.HasValue)
             {
@@ -45,7 +47,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
                 var getEmployeeDetails = await _employeeAttendanceReport.GetTotalHoursForWeek(currentEmployeeId.Value,2,null);
 
                 ViewData["TotalHoursWeek"] = getEmployeeDetails.ToString("F2");
-
 
                 ViewData["ProductionTime"] = getEmployeeTotalHoursRelated.ProductionTime;
                 ViewData["ProductionTimeMinute"] = getEmployeeTotalHoursRelated.ProductionTimeMinute;
@@ -78,6 +79,26 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 
             // Return the time as a JsonResult
             return Json(currentTime);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAttendanceProgressBar()
+        {
+            int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+            int empId = 0;
+            // Fix for CS1503: Ensure the nullable int is converted to a non-nullable int before passing it to the method  
+            if (!currentEmployeeId.HasValue)
+            {
+                // You can log this or throw an exception depending on how critical this is
+                return Json("Current employee ID could not be determined.");
+            }
+            empId = currentEmployeeId.Value;
+
+
+            var attendanceData = await _employeeAttendanceReport.GetAttendanceProgressBarAsync(empId);
+            return Json(attendanceData);
+
+
         }
 
         #region table

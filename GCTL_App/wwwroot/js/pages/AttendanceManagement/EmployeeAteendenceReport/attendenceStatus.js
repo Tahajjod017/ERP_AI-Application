@@ -255,67 +255,150 @@ function formatTime(minutes) {
 }
 
 // Function to calculate total working hours, productive hours, break hours, and overtime
-function updateSessionHours() {
-    let totalWorkingHours = 0;
-    let productiveHours = 0;
-    let breakHours = 0;
-    let overtimeHours = 0;
+//function updateSessionHours() {
+//    let totalWorkingHours = 0;
+//    let productiveHours = 0;
+//    let breakHours = 0;
+//    let overtimeHours = 0;
 
-    // Loop through each session entry and accumulate time for each type
-    data.value.sessionTimeline.forEach(session => {
-        const durationInMinutes = convertToMinutes(session.duration);
+//    // Loop through each session entry and accumulate time for each type
+//    data.value.sessionTimeline.forEach(session => {
+//        const durationInMinutes = convertToMinutes(session.duration);
 
-        // Accumulate total time
-        totalWorkingHours += durationInMinutes;
+//        // Accumulate total time
+//        totalWorkingHours += durationInMinutes;
 
-        // Accumulate time based on session type
-        switch (session.type) {
-            case "Worked":
-                productiveHours += durationInMinutes;
-                break;
-            case "Break":
-                breakHours += durationInMinutes;
-                break;
-            case "Ovvertime":
-                overtimeHours += durationInMinutes;
-                break;
+//        // Accumulate time based on session type
+//        switch (session.type) {
+//            case "Worked":
+//                productiveHours += durationInMinutes;
+//                break;
+//            case "Break":
+//                breakHours += durationInMinutes;
+//                break;
+//            case "Ovvertime":
+//                overtimeHours += durationInMinutes;
+//                break;
+//        }
+//    });
+
+//    // Update the HTML with the calculated values
+//    $('#totalWorkingHours').text(formatTime(totalWorkingHours));
+//    $('#productiveHours').text(formatTime(productiveHours));
+//    $('#breakHours').text(formatTime(breakHours));
+//    $('#overtime').text(formatTime(overtimeHours));
+//}
+
+//// Function to update progress bars and session details
+//function updateProgressBars() {
+//    let totalTime = 0;
+//    let sessionPercentages = [];
+
+//    // Loop through each session entry and accumulate time for each type
+//    data.value.sessionTimeline.forEach(session => {
+//        const durationInMinutes = convertToMinutes(session.duration);
+//        totalTime += durationInMinutes;
+//    });
+
+//    // Now calculate the percentage for each session type
+//    data.value.sessionTimeline.forEach(session => {
+//        const durationInMinutes = convertToMinutes(session.duration);
+//        const sessionPercentage = (durationInMinutes / totalTime) * 100;
+
+//        // Push session type, duration, and formatted percentage to array
+//        sessionPercentages.push({
+//            type: session.type,
+//            duration: session.duration,
+//            percentage: sessionPercentage.toFixed(2) + "%"  // format percentage to 2 decimal places
+//        });
+//    });
+
+//    // Display the progress bars and the session details
+//    let progressBarsHtml = "";
+//    sessionPercentages.forEach(session => {
+//        progressBarsHtml += `
+//            <div class="progress-bar ${getProgressBarColor(session.type)} rounded me-1" role="progressbar"
+//                style="width: ${session.percentage}">
+//                ${session.duration}
+//            </div>
+//        `;
+//    });
+
+//    $('#progressBars').html(progressBarsHtml);  // Insert the progress bars into the container
+
+//    // Update the timeline labels
+//    const timelineLabels = $('#timelineLabels');
+//    let currentTime = 0;
+//    let currentHour = 7;  // Start at 6:00 AM
+
+//    data.value.sessionTimeline.forEach(session => {
+//        const durationInMinutes = convertToMinutes(session.duration);
+//        const label = $('<span>').addClass('fs-10').text(`${currentHour}:00`);
+//        timelineLabels.append(label);
+
+//        currentTime += durationInMinutes;
+//        currentHour = (currentHour + Math.floor(currentTime / 60)) % 24;  // Update hour
+//    });
+//}
+
+//// Function to determine the progress bar color based on session type
+//function getProgressBarColor(type) {
+//    switch (type) {
+//        case "Worked":
+//            return "bg-success";  // Green for Work
+//        case "Break":
+//            return "bg-warning";  // Yellow for Break
+//        case "Ovvertime":
+//            return "style='background-color: #20C997;";  // Blue for Overtime
+//        default:
+//            return "bg-secondary";  // Default for any unknown session type
+//    }
+//}
+
+//// Use jQuery's ready function to ensure the DOM is fully loaded
+//$(document).ready(function () {
+//    updateSessionHours();
+//    updateProgressBars();
+//});
+
+// Function to fetch pre-calculated data from the backend and update session details
+function fetchSessionData() {
+    $.ajax({
+        url: '/EmployeesAttendance/GetAttendanceProgressBar',  // Your backend endpoint to fetch the pre-calculated session data
+        type: 'GET',  // HTTP method (GET, POST, etc.)
+        dataType: 'json',  // Expected response type
+        success: function (response) {
+            if (response) {
+                // Update session hours using pre-calculated data
+                updateSessionHours(response);
+                // Update progress bars with session details
+                updateProgressBars(response);
+            } else {
+                console.error("Invalid data received");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching session data: ", error);
         }
     });
-
-    // Update the HTML with the calculated values
-    $('#totalWorkingHours').text(formatTime(totalWorkingHours));
-    $('#productiveHours').text(formatTime(productiveHours));
-    $('#breakHours').text(formatTime(breakHours));
-    $('#overtime').text(formatTime(overtimeHours));
 }
 
-// Function to update progress bars and session details
-function updateProgressBars() {
-    let totalTime = 0;
-    let sessionPercentages = [];
+// Function to update session hours with pre-calculated values from the backend
+function updateSessionHours(data) {
+    $('#totalWorkingHours').text(data.totalWorkingHours);
+    $('#productiveHours').text(data.productiveHours);
+    $('#breakHours').text(data.breakHours);
+    $('#overtime').text(data.overtime);
+    $('#lateHours').text(data.lateHours);
+    $('#earlyHours').text(data.earlyHours);
+}
 
-    // Loop through each session entry and accumulate time for each type
-    data.value.sessionTimeline.forEach(session => {
-        const durationInMinutes = convertToMinutes(session.duration);
-        totalTime += durationInMinutes;
-    });
-
-    // Now calculate the percentage for each session type
-    data.value.sessionTimeline.forEach(session => {
-        const durationInMinutes = convertToMinutes(session.duration);
-        const sessionPercentage = (durationInMinutes / totalTime) * 100;
-
-        // Push session type, duration, and formatted percentage to array
-        sessionPercentages.push({
-            type: session.type,
-            duration: session.duration,
-            percentage: sessionPercentage.toFixed(2) + "%"  // format percentage to 2 decimal places
-        });
-    });
-
-    // Display the progress bars and the session details
+// Function to update progress bars using the pre-calculated data
+function updateProgressBars(data) {
     let progressBarsHtml = "";
-    sessionPercentages.forEach(session => {
+
+    // Loop through sessionTimeline and create progress bars for each session type
+    data.sessionTimeline.forEach(session => {
         progressBarsHtml += `
             <div class="progress-bar ${getProgressBarColor(session.type)} rounded me-1" role="progressbar"
                 style="width: ${session.percentage}">
@@ -326,18 +409,17 @@ function updateProgressBars() {
 
     $('#progressBars').html(progressBarsHtml);  // Insert the progress bars into the container
 
-    // Update the timeline labels
+    // Optionally, update the timeline labels if required
     const timelineLabels = $('#timelineLabels');
-    let currentTime = 0;
-    let currentHour = 7;  // Start at 6:00 AM
+    let currentHour = 7;  // Starting hour for the timeline (adjust as needed)
 
-    data.value.sessionTimeline.forEach(session => {
-        const durationInMinutes = convertToMinutes(session.duration);
+    // Loop through sessionTimeline to display the timeline labels
+    data.sessionTimeline.forEach(session => {
         const label = $('<span>').addClass('fs-10').text(`${currentHour}:00`);
         timelineLabels.append(label);
 
-        currentTime += durationInMinutes;
-        currentHour = (currentHour + Math.floor(currentTime / 60)) % 24;  // Update hour
+        // Update current hour based on the session duration (if needed)
+        currentHour = (currentHour + 1) % 24;  // Increment hour, reset to 0 after 23
     });
 }
 
@@ -348,18 +430,22 @@ function getProgressBarColor(type) {
             return "bg-success";  // Green for Work
         case "Break":
             return "bg-warning";  // Yellow for Break
-        case "Ovvertime":
-            return "style='background-color: #20C997;";  // Blue for Overtime
+        case "Overtime":
+            return "bg-info";  // Light Blue for Overtime
+        case "Late":
+            return "bg-danger";  // Red for Late
+        case "Early":
+            return "bg-dark";  // Dark for Early
         default:
             return "bg-secondary";  // Default for any unknown session type
     }
 }
 
-// Use jQuery's ready function to ensure the DOM is fully loaded
+// Call the fetchSessionData function when the page is ready
 $(document).ready(function () {
-    updateSessionHours();
-    updateProgressBars();
+    fetchSessionData();  // Fetch the pre-calculated data from the backend
 });
+
 
 // Use jQuery's ready function to ensure the DOM is fully loaded
 //$(document).ready(function () {

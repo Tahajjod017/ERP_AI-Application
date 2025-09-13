@@ -39,6 +39,10 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence
         public string? Break { get; set; }
         public string? WorkingHours { get; set; }
         public string? TotalWorkingHours { get; set; }
+        public string? ProductiveHours { get; set; }
+        public string? BreakHours { get; set; }
+        public string? LateHours { get; set; }
+        public string? EarlyHours { get; set; }
         public string? TotalWorkingHoursMnt { get; set; }
         public string? ActualWorkingHrsMnt { get; set; }
         public string? TodayWorkHm { get; set; }
@@ -49,5 +53,13 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence
         public string? ProductionTimeMinute { get; set; }  // Calculated production time (CheckInTime to CurrentTime)
         public string? Overtime { get; set; }        // Calculated overtime if the production time exceeds working hours
 
+        public List<SessionData>? SessionTimeline { get; set; }
+
+    }
+    public class SessionData
+    {
+        public string? Type { get; set; }
+        public string? Duration { get; set; }
+        public string? Percentage { get; set; }
     }
 }
