@@ -120,53 +120,7 @@
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
 
-                //var $form = $(settings.addform);
-
-                //// Run validation check on all required fields
-                //var isFormValid = true;
-
-                //$form.find('input[required], select[required], textarea[required]').each(function () {
-                //    const $field = $(this);
-                //    const isCoreUIMulti = $field.hasClass('coreUiDD');
-
-                //    if (isCoreUIMulti) {
-                //        // Use custom CoreUI validation for multiselect
-                //        const isValid = validateCoreUIMultiselect($field);
-                //        if (!isValid) {
-                //            isFormValid = false;
-                //        } else {
-                //            clearCoreUIMultiselectValidation($field);
-                //        }
-                //    } else {
-                //        // Normal fields validated by jQuery Validate
-                //        if (!$field.valid()) {
-                //            $field.addClass('is-invalid');
-                //            isFormValid = false;
-                //        } else {
-                //            $field.removeClass('is-invalid');
-                //        }
-                //    }
-                //});
-
-                //$form.find('input[required], select[required], textarea[required]').each(function () {
-                //    const $field = $(this);
-                //    const isCoreUIMulti = $field.hasClass('coreUiDD');
-
-                //    if (!$(this).valid()) {
-                //        $(this).addClass('is-invalid');
-                //        isFormValid = false;
-                //    } else {
-                //        $(this).removeClass('is-invalid');
-                //    }
-                //});
-
-
-                //// 🚫 If form is invalid, stop here
-                //if (!isFormValid) {
-                //    return;
-                //}
-
-                /*var formData = new FormData($('#addShift-Addform')[0]);*/
+                $(settings.saveBtn).prop('disabled', true);
 
                 var token = $('#addShift-Addform input[name="__RequestVerificationToken"]').val();
 
@@ -189,9 +143,6 @@
                     MaximumAllowedOvertime: $('#MaximumAllowedOvertime').val(),
                     MealBreakTime: $('#MealBreakTime').val(),
                 }
-
-                //validateName();
-                //validateCompany();
 
                 var id = $(settings.updateform).find('#UpdateShiftID').val();
                 var url = '';
@@ -229,6 +180,7 @@
                         hideLoadingIndicator();
                     }
                 });
+                $(settings.saveBtn).prop('disabled', false);
             });
             // #endregion
 
