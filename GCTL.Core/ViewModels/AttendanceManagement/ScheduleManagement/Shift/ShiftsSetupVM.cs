@@ -23,8 +23,10 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 
         public string? OrganizationName { get; set; }
 
+        [Required(ErrorMessage = "{0} is required!"), Display(Name = "Start Time")]
         public TimeOnly? StartTime { get; set; }
 
+        [Required(ErrorMessage = "{0} is required!"), Display(Name = "End Time")]
         public TimeOnly? EndTime { get; set; }
 
         public bool IsLateCount { get; set; }

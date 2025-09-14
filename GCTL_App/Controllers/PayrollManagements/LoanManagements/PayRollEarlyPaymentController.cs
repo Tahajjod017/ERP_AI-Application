@@ -29,7 +29,14 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
         public async Task<IActionResult> Index()
         {
             PayRollEarlyPaymentPage model = new PayRollEarlyPaymentPage();
-            ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
+            //ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
+            var result = await _commonService.GetOrganizations(search: "", page: 1, pageSize: 50);
+            var organizations = result.Items;
+            if (organizations.Count == 1)
+            {
+                model.Save.OrganizationID = organizations[0].Id;
+            }
+            ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name");
             ViewBag.DepartmentDD = await _commonService.GetDepartments();
             ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
             ViewBag.EmployeeDD = await payRollLoanEntryService.SelectAsync();

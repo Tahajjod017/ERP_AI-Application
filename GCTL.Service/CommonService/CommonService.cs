@@ -85,21 +85,7 @@ namespace GCTL.Service.CommonService
         #region For ViewBag / Dropdown
 
         #region GetOrganizations
-        public async Task<List<CommonSelectVM>> GetOrganizations()
-        {
-            var result = await _organization.AllActive().AsNoTracking().Select(x => new CommonSelectVM
-            {
-                Id = x.OrganizationID,
-                Name = x.OrganizationName ?? "-"
-            }).ToListAsync();
-
-            return result;
-        }
-        #endregion
-
-
-        #region SearchOrganizations
-        public async Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 50)
+        public async Task<PaginatedResult<CommonSelectVM>> GetOrganizations(string search, int page = 1, int pageSize = 50)
         {
             var query = _organization.AllActive().AsNoTracking();
 
