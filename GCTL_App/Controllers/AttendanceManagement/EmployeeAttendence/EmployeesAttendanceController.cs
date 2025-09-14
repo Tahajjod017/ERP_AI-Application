@@ -64,6 +64,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
             //var serverTime = DateTime.Now.ToString("hh:mm tt, dd MMM yyyy");
             // Pass the current time to the view  
             ViewData["CurrentTime"] = DateTimeExtensions.NowDateTime(_loc);
+           // ViewData["TimeZone"] = _loc.Zone.Id;  // Time zone id
+            //ViewData["Locale"] = _loc.DatePattern;  // Locale for formatting the date
 
             ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive().Where(x=>x.StatusType== "Present/Absent"), "StatusID", "StatusName");
 
@@ -97,7 +99,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 
             var attendanceData = await _employeeAttendanceReport.GetAttendanceProgressBarAsync(empId);
             return Json(attendanceData);
-
+ 
 
         }
 

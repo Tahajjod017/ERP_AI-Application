@@ -7,6 +7,8 @@
 	var initials = !string.IsNullOrEmpty(fullName) ? fullName.Trim()[0].ToString().ToUpper() : "?";
 	bool hasImage = !string.IsNullOrWhiteSpace(profilePicturePath)
 							&& !profilePicturePath.ToLower().Contains("null");
+	//var currentLocale = ViewData["Locale"]; // Assuming _loc is the current locale context object
+	//var timeZone = ViewData["TimeZone"]; // Assuming you have access to the time zone
 }
 
 
@@ -19,6 +21,7 @@
 				<h4>@ViewData["CurrentTime"]</h4>
 				<h4 id="current-time"></h4>
 			</div>
+			
 			<div class="attendance-circle-progress mx-auto mb-3" data-value='65'>
 				<div class="avatar avatar-4xl start-50 translate-middle-x d-flex align-items-center justify-content-center rounded-circle bg-secondary text-white fw-bold"
                       style="width: 80px; height: 80px; font-size: 32px; overflow: hidden;">
@@ -140,39 +143,39 @@
 			<div class="card">
 				<div class="card-body">
 					<div class="row">
-						<div class="col-xl-3">
-							<div class="mb-3">
+						<div class="col-xl-2">
+							<div class="mb-2">
 								<p class="mb-1"><i class="ti ti-point-filled text-dark-transparent me-1"></i>Total Working hours</p>
 								<h3 id="totalWorkingHours">--</h3>
 							</div>
 						</div>
-						<div class="col-xl-3">
-							<div class="mb-3">
+						<div class="col-xl-2">
+							<div class="mb-2">
 								<p class="mb-1"><i class="ti ti-point-filled text-success me-1"></i>Productive Hours</p>
 								<h3 id="productiveHours">--</h3>
 							</div>
 						</div>
-						<div class="col-xl-3">
-							<div class="mb-3">
+						<div class="col-xl-2">
+							<div class="mb-2">
 								<p class="mb-1"><i class="ti ti-point-filled text-warning me-1"></i>Break hours</p>
 								<h3 id="breakHours">--</h3>
 							</div>
 						</div>
-						<div class="col-xl-3">
-							<div class="mb-3">
+						<div class="col-xl-2">
+							<div class="mb-2">
 								<p class="mb-1"><i class="ti ti-point-filled text-info me-1"></i>Overtime</p>
 								<h3 id="overtime">--</h3>
-							</div>
-						</div>
-						<div class="col-xl-3">
-							<div class="mb-3">
-								<p class="mb-1"><i class="ti ti-point-filled text-info me-1"></i>Latetime</p>
+							</div>		   
+						</div>			   
+						<div class="col-xl-2">
+							<div class="mb-2">
+								<p class="mb-1"><i class="ti ti-point-filled text-info me-1"></i>LateHours</p>
 								<h3 id="lateHours">--</h3>
-							</div>
-						</div>
-						<div class="col-xl-3">
-							<div class="mb-3">
-								<p class="mb-1"><i class="ti ti-point-filled text-info me-1"></i>Earlytime</p>
+							</div>		   
+						</div>			   
+						<div class="col-xl-2">
+							<div class="mb-2">
+								<p class="mb-1"><i class="ti ti-point-filled text-info me-1"></i>EarlyHours</p>
 								<h3 id="earlyHours">--</h3>
 							</div>
 						</div>

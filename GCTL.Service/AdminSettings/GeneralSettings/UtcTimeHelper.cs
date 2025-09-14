@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NodaTime;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -49,6 +50,24 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             var networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
 
             return networkDateTime.ToUniversalTime();
+        }
+        public static class TimeConversionHelper
+        {
+            // Convert a TimeOnly to UTC using the user's time zone from ILocalizationContext and return as TimeOnly
+            public static TimeOnly ConvertTimeOnlyToUtc(TimeOnly timeOnly, ILocalizationContext ctx)
+            {
+                // Combine the TimeOnly value with today's date to create a full LocalDateTime
+                var localDateTime = new LocalDateTime(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, timeOnly.Hour, timeOnly.Minute, timeOnly.Second);
+
+                // Convert this LocalDateTime to the user's time zone (ZonedDateTime)
+                var zonedDateTime = ctx.Zone.AtStrictly(localDateTime);
+
+                // Convert the ZonedDateTime to UTC and return as DateTime
+                var utcDateTime = zonedDateTime.ToInstant().ToDateTimeUtc();
+
+                // Extract and return only the time portion as TimeOnly
+                return new TimeOnly(utcDateTime.Hour, utcDateTime.Minute, utcDateTime.Second);
+            }
         }
     }
 
