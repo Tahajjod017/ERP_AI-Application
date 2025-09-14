@@ -19,8 +19,6 @@ public partial class BenefitSetups
 
     public decimal? Value { get; set; }
 
-    public DateTime? EffectiveDate { get; set; }
-
     public string LIP { get; set; }
 
     public string LMAC { get; set; }

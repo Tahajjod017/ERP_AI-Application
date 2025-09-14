@@ -1,5 +1,6 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary;
 using GCTL.Data.Models;
@@ -25,7 +26,10 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         private readonly IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository;
         private readonly IGenericRepository<EmployeeAllowances> employeeAllowancesRepository; 
         private readonly IGenericRepository<EmployeeBaseAllowances> _employeeBaseAllowancesRepository;
-        public PayRollEmploSalaryService(IGenericRepository<EmployeeBaseBenefits> employeeBenefitsRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository = null, IGenericRepository<EmployeeAllowances> employeeAllowancesRepository = null, IGenericRepository<EmployeeBaseAllowances> employeeBaseAllowancesRepository = null)
+        private readonly IGenericRepository<Benefits> benefitsRepository;
+        private readonly IGenericRepository<BenefitSetups> benefitSetupsRepository;
+        private readonly IGenericRepository<BenefitTypes> benefitType;
+        public PayRollEmploSalaryService(IGenericRepository<EmployeeBaseBenefits> employeeBenefitsRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository, IGenericRepository<EmployeeAllowances> employeeAllowancesRepository, IGenericRepository<EmployeeBaseAllowances> employeeBaseAllowancesRepository, IGenericRepository<Benefits> benefitsRepository, IGenericRepository<BenefitSetups> benefitSetupsRepository , IGenericRepository<BenefitTypes> benefitType)
         {
             _employeeBaseBenefitsRepository = employeeBenefitsRepository;
             _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
@@ -33,6 +37,9 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             this.employeeSalarySettingsRepository = employeeSalarySettingsRepository;
             this.employeeAllowancesRepository = employeeAllowancesRepository;
             _employeeBaseAllowancesRepository = employeeBaseAllowancesRepository;
+            this.benefitsRepository = benefitsRepository;
+            this.benefitSetupsRepository = benefitSetupsRepository;
+            this.benefitType = benefitType;
         }
 
         #region Get All Table 
@@ -136,10 +143,10 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                 // For Bonus 
                 decimal? basicsalary = await employeeSalarySettingsRepository.AllActive()
                    .Where(x => x.EmployeeID == id).Select(x => x.Salary).FirstOrDefaultAsync();
-                var baseBenefits = await _employeeBaseBenefitsRepository.AllActive().Where(x => x.EmployeeID == id).FirstOrDefaultAsync();
-                // Get Basic Salary
-               
 
+                var baseBenefits = await _employeeBaseBenefitsRepository.AllActive().Where(x => x.EmployeeID == id).FirstOrDefaultAsync();
+
+                // Get Basic Salary
                 decimal healthInsurance = (baseBenefits?.IsHealthInsuranceEnabled == true ? baseBenefits.HealthInsurance ?? 0 : 0);
                 decimal performanceBonus = (baseBenefits?.IsPerformanceBonusEnabled == true ? baseBenefits.PerformanceBonus ?? 0 : 0);
                 decimal yearlyEndBonus = (baseBenefits?.IsYearlyEndBonusTypeIDEnabled == true ?  0 : 0);
@@ -150,12 +157,62 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 
                 decimal totalBonus= healthInsurance+ performanceBonus+yearlyEndBonus+festivalBonus+providentFund;
 
+                //
+                // Fetch benefits from DB
+                var benefitsList = await benefitsRepository.AllActive()
+                    .Include(b => b.BenefitType)
+                    .Include(b => b.BenefitSetups)
+                    .Where(b => b.OrganizationID == baseQuery.OrganizationID && b.IsActive == true).ToListAsync();
+
+                var benefitsVMs = new List<BeneFitsVM>();
+
+                foreach (var benefit in benefitsList)
+                {
+                    var setup = benefit.BenefitSetups
+                        .Where(s => (s.SalaryMin == null || basicsalary >= s.SalaryMin) &&
+                                    (s.SalaryMax == null || basicsalary <= s.SalaryMax))
+                        .OrderByDescending(s => s.CreatedAt ?? DateTime.MinValue).FirstOrDefault();
+
+                    if (setup == null)
+                    {
+                        setup = benefit.BenefitSetups
+                            .OrderByDescending(s => s.CreatedAt ?? DateTime.MinValue)
+                            .FirstOrDefault();
+                    }
+
+                    if (setup != null)
+                    {
+                        decimal benefitSalary = 0;
+                        string display = "";
+
+                        if (setup.CalculationTypeID == 1) 
+                        {
+                            benefitSalary = (decimal)(basicsalary * (setup.Value ?? 0) / 100);
+                            display = $"{setup.Value}% of Basic";
+                        }
+                        else // Fixed
+                        {
+                            benefitSalary = setup.Value ?? 0;
+                            display = $"{benefitSalary} (Fixed)";
+                        }
+
+                        benefitsVMs.Add(new BeneFitsVM
+                        {
+                            Type = benefit.BenefitType.BenefitTypeName,
+                            Amount = setup.Value ?? 0,
+                            DisplayValue = display,
+                            BenefitsSalary = benefitSalary
+                        });
+                    }
+                }
+
+                
+
                 // Fetch Allowances
                 var allowancesList = await employeeAllowancesRepository.AllActive()
                     .Include(ea => ea.EmployeeAllowanceType)
                     .Include(ea => ea.EmployeeAllowanceSetup)
-                    .Where(ea => ea.OrganizationID == baseQuery.OrganizationID && ea.IsActive == true)
-                    .ToListAsync();
+                    .Where(ea => ea.OrganizationID == baseQuery.OrganizationID && ea.IsActive == true).ToListAsync();
 
                 var allowanceVMs = new List<AllowanceVM>();
                 foreach (var allowance in allowancesList)
@@ -198,7 +255,12 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     }
                 }
 
-                var totalSalaryEarning = ((basicsalary ?? 0) + (allowanceVMs?.Sum(a => a.AllowanceSalary ?? 0) ?? 0) * (basicsalary ?? 0) / 100);
+                //
+
+
+
+                //
+                var totalSalaryEarning = (basicsalary ?? 0) + (allowanceVMs?.Sum(a => a.AllowanceSalary ?? 0) ?? 0) +(benefitsVMs?.Sum(b => b.BenefitsSalary ?? 0) ?? 0);
 
                 var paySlipVM = new PayRollPaySlipEmpVM
                 {
@@ -211,6 +273,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     EmployeeEmail = baseQuery?.Employee.Email,
                     BasicSalary = basicsalary,
                     Allowances = allowanceVMs ,
+                    BeneFits= benefitsVMs,
                     TotalSalary = totalSalaryEarning,
                     SalaryInWords = NumberToWordsConverter.NumberToWords((int)totalSalaryEarning) + " Only",
                     TotalBonus= totalBonus

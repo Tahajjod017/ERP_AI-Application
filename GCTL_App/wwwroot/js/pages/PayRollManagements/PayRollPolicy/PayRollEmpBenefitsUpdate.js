@@ -1,16 +1,8 @@
 ﻿
 $(document).ready(function () {
 
-
-    FixedValue();
+    var percentageOptionsHtml = $("#percentageOptionsTemplate").html();
     initializeFlatpickr();
-    function FixedValue() {
-        $('.fixedPercentageSelect').val('Fixed');
-        $('.fixedPercentageSelect').each(function () {
-            const selected = $(this).val();
-            showHide($(this), selected);
-        });
-    };
     function initializeFlatpickr() {
         $('.flatpickr-input').flatpickr({
             altInput: true,
@@ -28,37 +20,6 @@ $(document).ready(function () {
     }
 
     //#endregion
-
-
-    //#region Fixed Percentage
-
-
-    $(document).on('change', '.fixedPercentageSelect', function () {
-        const selected = $(this).val();
-        showHide($(this), selected);
-    });
-    function showHide($select, selected) {
-        // Find the closest input-group to scope the fixedRate and percentRate elements
-        const $parent = $select.closest('.input-group');
-        const $fixedRate = $parent.find('.fixedRate');
-        const $percentRate = $parent.find('.percentRate');
-
-        if (selected === 'Fixed') {
-            $fixedRate.show();
-            $percentRate.hide();
-        } else if (selected === 'Percentage') {
-            $percentRate.show();
-            $fixedRate.hide();
-        } else {
-            $fixedRate.hide();
-            $percentRate.hide();
-        }
-    }
-
-    //#endregion
-
-
-
     // If no rows exist initially
     if ($(".houseRentRow").length === 0) {
         // Simulate click or directly call AJAX with index 0
@@ -76,24 +37,62 @@ $(document).ready(function () {
         });
     }
 
-    // Show/Hide Fixed/Percentage fields
+  
+    FixedValue();
+    function FixedValue() {
+        $('.fixedPercentageSelect').val('1');
+        $('.fixedPercentageSelect').each(function () {
+            const selected = $(this).val();
+            showHide($(this), selected);
+        });
+    };
     $(document).on('change', '.fixedPercentageSelect', function () {
         const selected = $(this).val();
         const $parent = $(this).closest('.input-group');
         const $fixedRate = $parent.find('.fixedRate');
         const $percentRate = $parent.find('.percentRate');
+        const $calcTypeInput = $parent.closest('.col-lg-3').find('.calculationTypeInput');
 
         if (selected === 'Fixed') {
             $fixedRate.show();
             $percentRate.hide();
+            $calcTypeInput.val(1); // 1 = Fixed
         } else if (selected === 'Percentage') {
+            $percentRate.show();
+            $fixedRate.hide();
+            $calcTypeInput.val(2); // 2 = Percentage
+        } else {
+            $fixedRate.hide();
+            $percentRate.hide();
+            $calcTypeInput.val(0);
+        }
+    });
+    //#region Fixed Percentage
+
+
+    $(document).on('change', '.fixedPercentageSelect', function () {
+        const selected = $(this).val();
+        showHide($(this), selected);
+    });
+    function showHide($select, selected) {
+        // Find the closest input-group to scope the fixedRate and percentRate elements
+        const $parent = $select.closest('.input-group');
+        const $fixedRate = $parent.find('.fixedRate');
+        const $percentRate = $parent.find('.percentRate');
+
+        if (selected == 1) {
+            $fixedRate.show();
+            $percentRate.hide();
+        } else if (selected == 2) {
             $percentRate.show();
             $fixedRate.hide();
         } else {
             $fixedRate.hide();
             $percentRate.hide();
         }
-    });
+    }
+
+    //#endregion
 
     // Add new row
     $(document).on('click', '.addRow', function () {
@@ -191,7 +190,7 @@ $(document).ready(function () {
                                                         <label class="form-label">Effective Date</label>
                                                         <div class="input-icon-end position-relative">
                                                             <input class="form-control ps-6 flatpickr-input"
-                   name="Benefits[${i}].BenefitSetups[0].EffectiveDate"
+                   name="Benefits[${i}].EffectiveDate"
                    type="text" readonly placeholder="Select Month">
                                                             <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
                                                         </div>
@@ -217,34 +216,40 @@ $(document).ready(function () {
                name="Benefits[${i}].BenefitSetups[0].SalaryMax" 
                placeholder="Enter Max Salary" />
                                                     </div>
-                                                    <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
-                                                    <input type="hidden"
-               name="Benefits[${i}].BenefitSetups[0].CalculationTypeID" />
-                                                        <div class="input-group mb-3">
-                                                            <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
-                                                                <option value="">Select One</option>
-                                                                <option value="Fixed">Fixed</option>
-                                                                <option value="Percentage">Percentage</option>
-                                                            </select>
+                                                                         <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
+                                <!-- Hidden CalculationTypeID -->
+                              
 
-                                                            <div class="percentRate" style="display: none;">
-                                                                <label class="form-label">Percentage(%)</label>
-                                                                 <select class="form-select choiceDD"
-                        name="Benefits[${i}].BenefitSetups[0].Value" 
-                        style="max-width:185px;">
-                    <option value="">Select %</option>
-                </select>
-                                                            </div>
-                                                            <div class="fixedRate" style="display: none;">
-                                                                <label class="form-label">Fixed</label>
-                                                                <input type="text" class="form-control"
-                       name="Benefits[${i}].BenefitSetups[0].Value" 
-                       placeholder="Enter Fixed Rate" 
-                       style="max-width: 185px;">
-                                                            </div>
 
-                                                        </div>
-                                                    </div>
+                                <div class="input-group mb-3">
+                                    <!-- Selector -->
+                                    <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
+                                        <option value="">Select One</option>
+                                        <option value="1">Fixed</option>
+                                        <option value="2">Percentage</option>
+                                    </select>
+
+                                    <!-- Percentage -->
+                                    <div class="percentRate" style="display: none;">
+                                        <label class="form-label">Percentage(%)</label>
+                                        <select class="form-select choiceDD percentInput"
+                                                name="Benefits[${i}].BenefitSetups[0].Value"
+                                                style="max-width:185px;">
+                                            <option value="">Select %</option>
+                                           ${percentageOptionsHtml}
+                                        </select>
+                                    </div>
+
+                                    <!-- Fixed -->
+                                    <div class="fixedRate" style="display: none;">
+                                        <label class="form-label">Fixed</label>
+                                        <input type="text" class="form-control fixedInput"
+                                               name="Benefits[${i}].BenefitSetups[0].Value"
+                                               placeholder="Enter Fixed Rate"
+                                               style="max-width: 185px;">
+                                    </div>
+                                </div>
+                            </div>
                                                     <div class="col-lg-1 px-0 col-md-1 col-sm-1">
                                                         <button type="button" class="btn btn-primary px-3 mt-4 addRow">
                                                             <i class="bi bi-plus-circle"></i>+
@@ -306,58 +311,58 @@ $(document).ready(function () {
         }
     }
 
-
     $(document).on('click', '.PayRollEmpBenefitsSave', function (e) {
         e.preventDefault();
-
-        // Find the accordion card for the clicked Save button
         let $card = $(this).closest('.accordion-item');
-        let benefitIndex = $card.index(); // Index of the card
-
-        // Initialize JSON data
         let jsonData = {
             OrganizationID: parseInt($('#OrganizationID').val()) || 0,
             Benefits: []
         };
-
-        // Collect data only for this card
+        let dateStr = $card.find('.flatpickr-input').val();
+        let effectiveDate = dateStr ? new Date(dateStr).toISOString().split('T')[0] : null;
         let benefit = {
-            BenefitID: parseInt($card.find(`input[name="Benefits[${benefitIndex}].BenefitID"]`).val()) || 0,
-            BenefitTypeID: parseInt($card.find(`input[name="Benefits[${benefitIndex}].BenefitTypeID"]`).val()) || 0,
-            IsActive: $card.find(`input[name="Benefits[${benefitIndex}].IsActive"]`).is(':checked'),
+            BenefitID: parseInt($card.find('input[name$=".BenefitID"]').val()) || 0,
+            BenefitTypeID: parseInt($card.find('input[name$=".BenefitTypeID"]').val()) || 0,
+            IsActive: $card.find('input[name$=".IsActive"]').is(':checked'),
+            EffectiveDate: effectiveDate,
             BenefitSetups: []
         };
-
-        // Loop only through the rows inside this card
-        $card.find('.houseRentRow').each(function (setupIndex) {
-            let dateStr = $(this).find(`input[name="Benefits[${benefitIndex}].BenefitSetups[${setupIndex}].EffectiveDate"]`).val();
-            let effectiveDate = dateStr ? new Date(dateStr).toISOString().split('T')[0] : null;
-
-            let setup = {
+        $card.find('.houseRentContainer .houseRentRow').each(function () {
+            const $row = $(this);
+          
+            let calcTypeId = parseInt($row.find('.fixedPercentageSelect').val()) || 0;
+            let value = 0;
+            if (calcTypeId === 1) {
+                value = parseFloat($row.find('.fixedInput').val()) || 0;
+            } else if (calcTypeId === 2) {
+                value = parseFloat($row.find('.percentInput').val()) || 0;
+            }
+            let salaryMin = parseFloat($row.find('input[name$=".SalaryMin"]').val()) || 0;
+            let salaryMax = parseFloat($row.find('input[name$=".SalaryMax"]').val()) || 0;
+            benefit.BenefitSetups.push({
                 BenefitSetupID: 0,
-                EffectiveDate: effectiveDate,
-                SalaryMin: parseFloat($(this).find(`input[name="Benefits[${benefitIndex}].BenefitSetups[${setupIndex}].SalaryMin"]`).val()) || 0,
-                SalaryMax: parseFloat($(this).find(`input[name="Benefits[${benefitIndex}].BenefitSetups[${setupIndex}].SalaryMax"]`).val()) || 0,
-                CalculationTypeID: parseInt($(this).find(`input[name="Benefits[${benefitIndex}].BenefitSetups[${setupIndex}].CalculationTypeID"]`).val()) || 0,
-                Value: parseFloat($(this).find(`[name="Benefits[${benefitIndex}].BenefitSetups[${setupIndex}].Value"]`).val()) || 0
-            };
-
-            benefit.BenefitSetups.push(setup);
+                SalaryMin: salaryMin,
+                SalaryMax: salaryMax,
+                CalculationTypeID: calcTypeId,
+                Value: value
+            });
         });
-
         jsonData.Benefits.push(benefit);
-
         console.log("Sending JSON for only this card:", JSON.stringify(jsonData, null, 2));
-
-        // Send via AJAX
         $.ajax({
             url: '/PayRollEmpBenefitsUpdate/Save',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(jsonData),
             success: function (res) {
-                if (res.success) toastr.success("Benefit saved successfully");
-                else toastr.error(res.message || "Save failed");
+                if (res.success) {
+                    toastr.success(res.message);
+                   // resetPayRollEmpBenefitsForm();
+                }
+                else {
+                    toastr.error(res.message || "Save failed");
+                }
+                   
             },
             error: function (err) {
                 toastr.error("Error while saving");
@@ -368,34 +373,40 @@ $(document).ready(function () {
 
     //
 
-    function resetPayRollEmpAllowanceForm() {
-        const $form = $('#payrollEmpAllowanceForm');
+    function resetPayRollEmpBenefitsForm() {
+        const $form = $('#payrollEmpBenefitsForm');
 
-        // Reset all form fields
         $form[0].reset();
-        choiceManager.resetChoice('OrganizationID');
+
+        if (typeof choiceManager !== "undefined") {
+            choiceManager.resetChoice('OrganizationID');
+        } else {
+            // fallback if plain select
+            $('#OrganizationID').val("").trigger('change');
+        }
+
         $form.find('.flatpickr-input').each(function () {
             if (this._flatpickr) {
                 this._flatpickr.clear();
+            } else {
+                $(this).val("");
             }
         });
+        $form.find('input[type="checkbox"]').prop('checked', false);
 
+        $('#EmployeeAllowanceAccordion').empty();
 
+        $form.find('.text-danger').text('');
     }
+
 
     $(document).on('click', '#ResetButton', function (e) {
         e.preventDefault();
-        resetPayRollEmpAllowanceForm();
+        resetPayRollEmpBenefitsForm();
 
     })
 
-    function resetPayRollEmpAllowanceFormEdit() {
-
-        var form = $("#payrollEmpAllowanceFormUpdate");
-        form[0].reset();
-
-
-    }
+   
 
 
     // Edit Button Click
@@ -442,56 +453,6 @@ $(document).ready(function () {
                             $allowanceIdInput.val(item.employeeAllowanceID);
                         }
 
-
-                        const $row = $(`#payrollEmpAllowanceForm .houseRentRow`).eq(index);
-
-                        if (item.houseRentAllowances && item.houseRentAllowances.length > 0) {
-                            const hra = item.houseRentAllowances[0];
-
-                            // Min Salary
-                            const $minSalaryInput = $row.find(`[name="HouseRentAllowances[${index}].SalaryMin"]`);
-                            if ($minSalaryInput.length && hra.salaryMin != null) {
-                                $minSalaryInput.val(hra.salaryMin);
-                            }
-
-                            // Max Salary
-                            const $maxSalaryInput = $row.find(`[name="HouseRentAllowances[${index}].SalaryMax"]`);
-                            if ($maxSalaryInput.length && hra.salaryMax != null) {
-                                $maxSalaryInput.val(hra.salaryMax);
-                            }
-
-                            // CalculationTypeID
-                            const $calcTypeInput = $row.find(`[name="HouseRentAllowances[${index}].CalculationTypeID"]`);
-                            if ($calcTypeInput.length && hra.calculationTypeID != null) {
-                                $calcTypeInput.val(hra.calculationTypeID);
-                            }
-
-                            // Fixed / Percentage handling
-                            const $fixedSelect = $row.find('.fixedPercentageSelect');
-                            const $fixedRateInput = $row.find(`input[name="HouseRentAllowances[${index}].Value"]`);
-                            const $percentRateSelect = $row.find('.percentRate select.choiceDD');
-
-                            let calcTypeStr = '';
-                            if (hra.calculationTypeID == 1) calcTypeStr = 'Fixed';
-                            else if (hra.calculationTypeID == 2) calcTypeStr = 'Percentage';
-
-                            if ($fixedSelect.length && calcTypeStr) {
-                                $fixedSelect.val(calcTypeStr);
-
-                                $row.find('.fixedRate').toggle(calcTypeStr === 'Fixed');
-                                $row.find('.percentRate').toggle(calcTypeStr === 'Percentage');
-
-                                if (calcTypeStr === 'Fixed' && $fixedRateInput.length) {
-                                    $fixedRateInput.val(hra.value);
-                                } else if (calcTypeStr === 'Percentage' && $percentRateSelect.length) {
-                                    $percentRateSelect.val(hra.value);
-                                }
-                            }
-                        }
-
-
-
-
                     });
 
                     toastr.success(res.message || "Data loaded successfully");
@@ -503,56 +464,14 @@ $(document).ready(function () {
 
             error: function (err) {
                 console.error("Error fetching data:", err);
-                toastr.error("Failed to load payroll employee allowance data.");
+                toastr.error("Failed to load payroll employee Benefits data.");
             }
         });
     }
 
 
 
-    // Initialize dropdown states
-    $('.fixedPercentageSelect').each(function () {
-        const selected = $(this).val();
-        showHide($(this), selected);
-    });
-
-
-
-    // Save/Update Button
-    $(document).on('click', '#PayRollEmpAllowanceUpdate', function (e) {
-        e.preventDefault();
-
-        var formData = $('#payrollEmpAllowanceFormUpdate').serialize();
-
-        $.ajax({
-            url: '/PayRollEmpBenefitsUpdate/UpdatePayRollEmpAllowance',
-            type: 'POST',
-            data: formData,
-            success: function (response) {
-                debugger
-                if (response.success) {
-                    toastr.success(response.message);
-                    resetPayRollEmpAllowanceFormEdit();
-                    var applyModalEl = document.getElementById('edit_alloance');
-                    var applyModal = bootstrap.Modal.getInstance(applyModalEl);
-                    if (!applyModal) {
-                        applyModal = new bootstrap.Modal(applyModalEl);
-                    }
-                    applyModal.hide();
-                } else {
-                    toastr.error(response.message);
-                }
-            },
-            error: function (xhr, status, error) {
-                let msg = "Something went wrong!";
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    msg = xhr.responseJSON.message;
-                }
-                toastr.error(msg);
-            }
-        });
-    });
-
+   
 
     //#region Delete Soft Leave Request
     $(document).on('click', '#SoftDeletePayRollEmpAllowanceDelete-singleDelBtn', function () {

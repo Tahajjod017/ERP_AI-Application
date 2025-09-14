@@ -31,6 +31,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
         public string? PayslipNo { get; set; }
         public DateTime PaymentDate { get; set; }
         public List<AllowanceVM> Allowances { get; set; } = new();
+        public List<BeneFitsVM>  BeneFits { get; set; } = new();
         public decimal TotalSalary { get; set; }
         public string? SalaryInWords { get; set; }
         public decimal TotalBonus { get; set; }
@@ -42,4 +43,13 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
         public string? DisplayValue { get; set; }
         public decimal? AllowanceSalary { get; set; }
     }
+
+    public class BeneFitsVM
+    {
+        public string? Type { get; set; }
+        public decimal Amount { get; set; }
+        public string? DisplayValue { get; set; }
+        public decimal? BenefitsSalary { get; set; }
+    }
+
 }
