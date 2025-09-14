@@ -127,13 +127,13 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
                     CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
                     //LateHour = x.LateHour.HasValue ? x.LateHour.Value.ToString("F2") : "-",
-                    LateHour = x.LateHour.HasValue ? (x.LateHour.Value).ToString("H") : "-",
+                    LateHour = FormatTime(x.LateHour),
                     //EarlyHour = x.EarlyHour.HasValue ? x.EarlyHour.Value.ToString("F2") : "-",
-                    EarlyHour = x.EarlyHour.HasValue ? (x.EarlyHour.Value).ToString("H") : "-",
+                    EarlyHour = FormatTime(x.EarlyHour),
+                    RegularHour = FormatTime(x.RegularHour),
 
-
-                    OvertimeHour = x.OvertimeHour.HasValue ? x.OvertimeHour.Value.ToString("F2") : "-",
-                    WorkingHours = "-",
+                    OvertimeHour = FormatTime(x.OvertimeHour),
+                    WorkingHours = FormatTime(x.WorkingHour),
                     Break = "-",
 
                     CreatedBy = x.CreatedBy,
@@ -141,6 +141,16 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 });
 
             return result;
+        }
+        private string FormatTime(int? minutes)
+        {
+            if (!minutes.HasValue)
+                return "-";
+
+            int hours = minutes.Value / 60;
+            int remainingMinutes = minutes.Value % 60;
+
+            return $"{hours:D2}:{remainingMinutes:D2}"; // Formats as "HH:mm"
         }
 
         public async Task<EmployeeAttendenceVM> GetAttendanceDetailsAsync(int userId)
@@ -245,176 +255,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             };
         }
 
-        //public async Task<EmployeeAttendenceVM> GetAttendanceProgressBarAsync(int userId)
-        //{
-        //    var today = DateTime.UtcNow;
-
-        //    // Get today's attendance record
-        //    var attendanceDataId = await _genericRepository.AllActive()
-        //        .Where(a => a.EmployeeID == userId && a.AttendanceDate == DateOnly.FromDateTime(today))
-        //        .FirstOrDefaultAsync();
-
-        //    if (attendanceDataId == null)
-        //    {
-        //        return new EmployeeAttendenceVM
-        //        {
-        //            TotalWorkingHours = "0h 0m",
-        //            ProductiveHours = "0h 0m",
-        //            BreakHours = "0h 0m",
-        //            Overtime = "0h 0m",
-        //            LateHours = "0h 0m",
-        //            EarlyHours = "0h 0m",
-        //            SessionTimeline = new List<SessionData>()
-        //        };
-        //    }
-
-        //    // Get logs for today
-        //    var attendanceLogs = await _genericAttendanceLog.AllActive()
-        //        .Where(log => log.AttendanceID == attendanceDataId.AttendanceID
-        //                     && log.CHECKTIME_UTC.Value.Date == today.Date)
-        //        .OrderBy(log => log.CHECKTIME_UTC)
-        //        .ToListAsync();
-
-        //    if (attendanceLogs == null || !attendanceLogs.Any())
-        //    {
-        //        return new EmployeeAttendenceVM
-        //        {
-        //            TotalWorkingHours = "0h 0m",
-        //            ProductiveHours = "0h 0m",
-        //            BreakHours = "0h 0m",
-        //            Overtime = "0h 0m",
-        //            LateHours = "0h 0m",
-        //            EarlyHours = "0h 0m",
-        //            SessionTimeline = new List<SessionData>()
-        //        };
-        //    }
-
-        //    // Get shift details
-        //    var shift = await _genericRepositoryShift.All()
-        //        .Where(s => s.ShiftID == attendanceDataId.ShiftID)
-        //        .FirstOrDefaultAsync();
-
-        //    var shiftStartTime = shift?.StartTime.HasValue == true
-        //        ? DateTime.Today.Add(shift.StartTime.Value.ToTimeSpan())
-        //        : (DateTime?)null;
-
-        //    var shiftEndTime = shift?.EndTime.HasValue == true
-        //        ? DateTime.Today.Add(shift.EndTime.Value.ToTimeSpan())
-        //        : (DateTime?)null;
-
-        //    // Initialize totals
-        //    int totalRegularMinutes = 0;
-        //    int totalOvertimeMinutes = 0;
-        //    int totalBreakMinutes = 0;
-        //    int totalWorkingMinutes = 0;
-        //    int totalLateMinutes = 0;
-        //    int totalEarlyMinutes = 0;
-
-        //    List<SessionData> sessionTimeline = new List<SessionData>();
-        //    DateTime? previousPunchTime = null;
-        //    bool isFirstPunch = true;
-
-        //    // Loop through logs
-        //    for (int i = 0; i < attendanceLogs.Count; i++)
-        //    {
-        //        var log = attendanceLogs[i];
-        //        string sessionType = "Worked";
-
-        //        // --- First punch check for Early or Late ---
-        //        if (isFirstPunch && shiftStartTime.HasValue)
-        //        {
-        //            if (log.PunchTime > shiftStartTime.Value)
-        //            {
-        //                var lateDuration = log.PunchTime - shiftStartTime.Value;
-        //                totalLateMinutes = (int)lateDuration.TotalMinutes;
-
-        //                sessionTimeline.Add(new SessionData
-        //                {
-        //                    Type = "Late",
-        //                    Duration = $"{(int)lateDuration.TotalHours}h {lateDuration.Minutes}m",
-        //                    Percentage = "0%"
-        //                });
-        //            }
-        //            else if (log.PunchTime < shiftStartTime.Value)
-        //            {
-        //                var earlyDuration = shiftStartTime.Value - log.PunchTime;
-        //                totalEarlyMinutes = (int)earlyDuration.TotalMinutes;
-
-        //                sessionTimeline.Add(new SessionData
-        //                {
-        //                    Type = "Early",
-        //                    Duration = $"{(int)earlyDuration.TotalHours}h {earlyDuration.Minutes}m",
-        //                    Percentage = "0%"
-        //                });
-        //            }
-
-        //            isFirstPunch = false;
-        //        }
-
-        //        // --- Calculate worked/break time ---
-        //        if (previousPunchTime != null)
-        //        {
-        //            var gap = log.PunchTime - previousPunchTime.Value;
-
-        //            if (gap.TotalMinutes >= 30)
-        //            {
-        //                sessionType = "Break";
-        //                totalBreakMinutes += (int)gap.TotalMinutes;
-        //            }
-        //            else
-        //            {
-        //                sessionType = "Worked";
-        //                totalRegularMinutes += (int)gap.TotalMinutes;
-        //                totalWorkingMinutes += (int)gap.TotalMinutes;
-        //            }
-
-        //            sessionTimeline.Add(new SessionData
-        //            {
-        //                Type = sessionType,
-        //                Duration = $"{(int)gap.TotalHours}h {gap.Minutes}m",
-        //                Percentage = (totalWorkingMinutes > 0)
-        //                    ? $"{(int)((float)gap.TotalMinutes / totalWorkingMinutes * 100)}%"
-        //                    : "0%"
-        //            });
-        //        }
-
-        //        previousPunchTime = log.PunchTime;
-        //    }
-
-        //    // --- Overtime check ---
-        //    if (shiftEndTime.HasValue && previousPunchTime.HasValue && previousPunchTime.Value > shiftEndTime.Value)
-        //    {
-        //        var overtimeDuration = previousPunchTime.Value - shiftEndTime.Value;
-        //        totalOvertimeMinutes = (int)overtimeDuration.TotalMinutes;
-
-        //        sessionTimeline.Add(new SessionData
-        //        {
-        //            Type = "Overtime",
-        //            Duration = $"{(int)overtimeDuration.TotalHours}h {overtimeDuration.Minutes}m",
-        //            Percentage = "0%"
-        //        });
-        //    }
-
-        //    // Helper to format minutes
-        //    string FormatTime(int totalMinutes)
-        //    {
-        //        int hours = totalMinutes / 60;
-        //        int minutes = totalMinutes % 60;
-        //        return $"{hours}h {minutes}m";
-        //    }
-
-        //    // Build result
-        //    return new EmployeeAttendenceVM
-        //    {
-        //        TotalWorkingHours = FormatTime(totalWorkingMinutes),
-        //        ProductiveHours = FormatTime(totalRegularMinutes),
-        //        BreakHours = FormatTime(totalBreakMinutes),
-        //        Overtime = FormatTime(totalOvertimeMinutes),
-        //        LateHours = FormatTime(totalLateMinutes),
-        //        EarlyHours = FormatTime(totalEarlyMinutes),
-        //        SessionTimeline = sessionTimeline
-        //    };
-        //}
+       
 
         public async Task<EmployeeAttendenceVM> GetAttendanceProgressBarAsync(int userId)
         {
@@ -480,6 +321,42 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             var sessionTimeline = new List<SessionData>();
 
+            var firstPunch = attendanceLogs.First().CHECKTIME_UTC.Value;
+
+            if (shiftStartTime.HasValue)
+            {
+                if (firstPunch > shiftStartTime.Value)
+                {
+                    // Employee is late
+                    var lateMinutes = (int)(firstPunch - shiftStartTime.Value).TotalMinutes;
+                    if (lateMinutes > 5)
+                    {
+                        totalLateMinutes = lateMinutes;
+                        sessionTimeline.Add(new SessionData
+                        {
+                            Type = "Late",
+                            Duration = $"{lateMinutes / 60}h {lateMinutes % 60}m",
+                            Percentage = "0%"
+                        });
+                    }
+                }
+                else if (firstPunch < shiftStartTime.Value)
+                {
+                    // Employee is early
+                    var earlyMinutes = (int)(shiftStartTime.Value - firstPunch).TotalMinutes;
+                    if (earlyMinutes > 5)
+                    {
+                        totalEarlyMinutes = earlyMinutes;
+                        sessionTimeline.Add(new SessionData
+                        {
+                            Type = "Early",
+                            Duration = $"{earlyMinutes / 60}h {earlyMinutes % 60}m",
+                            Percentage = "0%"
+                        });
+                    }
+                }
+            }
+
             // ---------------- STEP 2: Loop through punches ----------------
             for (int i = 0; i < attendanceLogs.Count; i++)
             {
@@ -491,7 +368,6 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                         ? attendanceLogs[i + 1].CHECKTIME_UTC // Next punch (checkout)
                         : DateTime.UtcNow; // still working
 
-                   
                     var workedMinutes = endTime.HasValue && log.CHECKTIME_UTC.HasValue
                        ? (int)(endTime.Value - log.CHECKTIME_UTC.Value).TotalMinutes
                        : 0; // Default to 0 if either value is null.  
@@ -522,14 +398,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             }
 
             // ---------------- STEP 3: Late / Early ----------------
-            var firstPunch = attendanceLogs.First().CHECKTIME_UTC.Value;
-            if (shiftStartTime.HasValue)
-            {
-                if (firstPunch > shiftStartTime.Value)
-                    totalLateMinutes = (int)(firstPunch - shiftStartTime.Value).TotalMinutes;
-                else if (firstPunch < shiftStartTime.Value)
-                    totalEarlyMinutes = (int)(shiftStartTime.Value - firstPunch).TotalMinutes;
-            }
+            
 
             // ---------------- STEP 4: Overtime ----------------
             var lastPunch = attendanceLogs.Last().CHECKTIME_UTC.Value;
@@ -549,6 +418,13 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
                     lastWorked.Duration = $"{workedMinutes / 60}h {workedMinutes % 60}m";
                 }
+
+                sessionTimeline.Add(new SessionData
+                {
+                    Type = "Overtime",
+                    Duration = $"{totalOvertimeMinutes / 60}h {totalOvertimeMinutes % 60}m",
+                    Percentage = "0%"
+                });
             }
 
             // ---------------- STEP 5: Percentages ----------------
@@ -569,7 +445,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             return new EmployeeAttendenceVM
             {
-                TotalWorkingHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes),
+                TotalWorkingHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes + totalLateMinutes + totalEarlyMinutes),
                 ProductiveHours = FormatTime(totalRegularMinutes),
                 BreakHours = FormatTime(totalBreakMinutes),
                 Overtime = FormatTime(totalOvertimeMinutes),
@@ -580,6 +456,168 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         }
 
 
+        //public async Task<EmployeeAttendenceVM> GetAttendanceProgressBarAsync(int userId)
+        //{
+        //    var today = DateTime.Now;
+
+        //    // Get today's attendance record
+        //    var attendanceDataId = await _genericRepository.AllActive()
+        //        .Where(a => a.EmployeeID == userId && a.AttendanceDate == DateOnly.FromDateTime(today))
+        //        .FirstOrDefaultAsync();
+
+        //    if (attendanceDataId == null)
+        //    {
+        //        return new EmployeeAttendenceVM
+        //        {
+        //            TotalWorkingHours = "0h 0m",
+        //            ProductiveHours = "0h 0m",
+        //            BreakHours = "0h 0m",
+        //            Overtime = "0h 0m",
+        //            LateHours = "0h 0m",
+        //            EarlyHours = "0h 0m",
+        //            SessionTimeline = new List<SessionData>()
+        //        };
+        //    }
+
+        //    var attendanceLogs = await _genericAttendanceLog.AllActive()
+        //        .Where(log => log.AttendanceID == attendanceDataId.AttendanceID
+        //                     && log.PunchTime.Date == today.Date)
+        //        .OrderBy(log => log.PunchTime)
+        //        .ToListAsync();
+
+        //    if (!attendanceLogs.Any())
+        //    {
+        //        return new EmployeeAttendenceVM
+        //        {
+        //            TotalWorkingHours = "0h 0m",
+        //            ProductiveHours = "0h 0m",
+        //            BreakHours = "0h 0m",
+        //            Overtime = "0h 0m",
+        //            LateHours = "0h 0m",
+        //            EarlyHours = "0h 0m",
+        //            SessionTimeline = new List<SessionData>()
+        //        };
+        //    }
+
+        //    var shift = await _genericRepositoryShift.All()
+        //        .Where(s => s.ShiftID == attendanceDataId.ShiftID)
+        //        .FirstOrDefaultAsync();
+
+        //    var shiftStartTime = shift?.StartTime.HasValue == true
+        //        ? DateTime.Today.Add(shift.StartTime.Value.ToTimeSpan())
+        //        : (DateTime?)null;
+
+        //    var shiftEndTime = shift?.EndTime.HasValue == true
+        //        ? DateTime.Today.Add(shift.EndTime.Value.ToTimeSpan())
+        //        : (DateTime?)null;
+
+        //    // ---------------- STEP 1: Totals ----------------
+        //    int totalRegularMinutes = 0;
+        //    int totalBreakMinutes = 0;
+        //    int totalLateMinutes = 0;
+        //    int totalEarlyMinutes = 0;
+        //    int totalOvertimeMinutes = 0;
+
+        //    var sessionTimeline = new List<SessionData>();
+
+        //    // ---------------- STEP 2: Loop through punches ----------------
+        //    for (int i = 0; i < attendanceLogs.Count; i++)
+        //    {
+        //        var log = attendanceLogs[i];
+
+        //        if (i % 2 == 0) // Odd punch → Worked
+        //        {
+        //            var endTime = (i + 1 < attendanceLogs.Count)
+        //                ? attendanceLogs[i + 1].PunchTime // Next punch (checkout)
+        //                : DateTime.Now; // still working
+
+
+        //            var workedMinutes = (endTime > log.PunchTime)
+        //               ? (int)(endTime - log.PunchTime).TotalMinutes
+        //               : 0;  
+        //            totalRegularMinutes += workedMinutes;
+
+        //            sessionTimeline.Add(new SessionData
+        //            {
+        //                Type = "Worked",
+        //                Duration = $"{workedMinutes / 60}h {workedMinutes % 60}m",
+        //                Percentage = "0%" // later updated
+        //            });
+        //        }
+        //        else // Even punch → Break
+        //        {
+        //            if (i + 1 < attendanceLogs.Count)
+        //            {
+        //                var breakMinutes = (int)(attendanceLogs[i + 1].CHECKTIME_UTC.Value - log.CHECKTIME_UTC.Value).TotalMinutes;
+        //                totalBreakMinutes += breakMinutes;
+
+        //                sessionTimeline.Add(new SessionData
+        //                {
+        //                    Type = "Break",
+        //                    Duration = $"{breakMinutes / 60}h {breakMinutes % 60}m",
+        //                    Percentage = "0%"
+        //                });
+        //            }
+        //        }
+        //    }
+
+        //    // ---------------- STEP 3: Late / Early ----------------
+        //    var firstPunch = attendanceLogs.First().CHECKTIME_UTC.Value;
+        //    if (shiftStartTime.HasValue)
+        //    {
+        //        if (firstPunch > shiftStartTime.Value)
+        //            totalLateMinutes = (int)(firstPunch - shiftStartTime.Value).TotalMinutes;
+        //        else if (firstPunch < shiftStartTime.Value)
+        //            totalEarlyMinutes = (int)(shiftStartTime.Value - firstPunch).TotalMinutes;
+        //    }
+
+        //    // ---------------- STEP 4: Overtime ----------------
+        //    var lastPunch = attendanceLogs.Last().CHECKTIME_UTC.Value;
+        //    if (shiftEndTime.HasValue && lastPunch > shiftEndTime.Value)
+        //    {
+        //        totalOvertimeMinutes = (int)(lastPunch - shiftEndTime.Value).TotalMinutes;
+
+        //        // Add overtime into last Worked session
+        //        var lastWorked = sessionTimeline.LastOrDefault(s => s.Type == "Worked");
+        //        if (lastWorked != null)
+        //        {
+        //            // Update duration
+        //            var parts = lastWorked.Duration.Split(' ');
+        //            int workedMinutes = int.Parse(parts[0].Replace("h", "")) * 60
+        //                               + int.Parse(parts[1].Replace("m", ""));
+        //            workedMinutes += totalOvertimeMinutes;
+
+        //            lastWorked.Duration = $"{workedMinutes / 60}h {workedMinutes % 60}m";
+        //        }
+        //    }
+
+        //    // ---------------- STEP 5: Percentages ----------------
+        //    int totalAll = totalRegularMinutes + totalBreakMinutes + totalLateMinutes + totalEarlyMinutes + totalOvertimeMinutes;
+
+        //    foreach (var s in sessionTimeline)
+        //    {
+        //        var parts = s.Duration.Split(' ');
+        //        int minutes = int.Parse(parts[0].Replace("h", "")) * 60
+        //                     + int.Parse(parts[1].Replace("m", ""));
+
+        //        if (totalAll > 0)
+        //            s.Percentage = $"{(int)((float)minutes / totalAll * 100)}%";
+        //    }
+
+        //    // ---------------- STEP 6: Return ----------------
+        //    string FormatTime(int minutes) => $"{minutes / 60}h {minutes % 60}m";
+
+        //    return new EmployeeAttendenceVM
+        //    {
+        //        TotalWorkingHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes),
+        //        ProductiveHours = FormatTime(totalRegularMinutes),
+        //        BreakHours = FormatTime(totalBreakMinutes),
+        //        Overtime = FormatTime(totalOvertimeMinutes),
+        //        LateHours = FormatTime(totalLateMinutes),
+        //        EarlyHours = FormatTime(totalEarlyMinutes),
+        //        SessionTimeline = sessionTimeline
+        //    };
+        //}
 
 
 
@@ -615,7 +653,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                             && x.Attendance.EmployeeID == userId
                             && x.CHECKTIME_UTC >= today
                             && x.CHECKTIME_UTC < tomorrow)
-                .OrderBy(x => x.CHECKTIME_UTC)
+                .OrderByDescending(x => x.CHECKTIME_UTC)
                 .Select(x => x.CHECKTIME_UTC)
                 
                 .ToListAsync();
