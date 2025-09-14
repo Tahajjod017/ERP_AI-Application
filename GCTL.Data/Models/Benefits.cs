@@ -31,6 +31,8 @@ public partial class Benefits
 
     public int? DeletedBy { get; set; }
 
+    public DateTime? EffectiveDate { get; set; }
+
     public virtual ICollection<BenefitSetups> BenefitSetups { get; set; } = new List<BenefitSetups>();
 
     public virtual BenefitTypes BenefitType { get; set; }

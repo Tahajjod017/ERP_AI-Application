@@ -32,7 +32,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
         private readonly IGenericRepository<Benefits>  benefits;
         private readonly IGenericRepository<BenefitTypes> benefitTypesRepository;
         private readonly IGenericRepository<BenefitSetups> benefitSetupRepository;
-
+        private readonly IGenericRepository<CalculationTypes> calculationTypesRepository;
         public EmployeeBenefitsService(IGenericRepository<EmployeeBenefits> empBenefits, IUserInfoService userInfoService, IGenericRepository<Benefits> benefits, IGenericRepository<BenefitTypes> benefitTypesRepository, IGenericRepository<BenefitSetups> benefitSetupRepository):base(benefits)
         {
             this.empBenefits = empBenefits;
@@ -58,9 +58,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                     Message = "Employee Benefit record not found!"
                 };
             }
-
             await benefits.BeginTransactionAsync();
-
             try
             {
                 foreach (var benefitVM in entityVM.Benefits)
@@ -70,34 +68,28 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                         OrganizationID = entityVM.OrganizationID,
                         BenefitTypeID = benefitVM.BenefitTypeID,
                         IsActive = benefitVM.IsActive,
+                        EffectiveDate= benefitVM.EffectiveDate,
                         LIP = entityVM.LIP,
                         LMAC = entityVM.LMAC,
                         CreatedAt = DateTime.Now,
                         CreatedBy = entityVM.CreatedBy
                     };
-
                     await benefits.AddAsync(benefit);
-
-                    // Now save setups
                     var setups = benefitVM.BenefitSetups.Select(setupVM => new BenefitSetups
                     {
-                        BenefitID = benefit.BenefitID,   // link to parent
+                        BenefitID = benefit.BenefitID,   
                         CalculationTypeID = setupVM.CalculationTypeID,
                         SalaryMax = setupVM.SalaryMax,
                         SalaryMin = setupVM.SalaryMin,
-                        EffectiveDate = setupVM.EffectiveDate,
                         Value = setupVM.Value,
                         LIP = entityVM.LIP,
                         LMAC = entityVM.LMAC,
                         CreatedAt = DateTime.Now,
                         CreatedBy = entityVM.CreatedBy
                     }).ToList();
-
                     await benefitSetupRepository.AddRangeAsync(setups);
                 }
-
                 await benefits.CommitTransactionAsync();
-
                 result.Success = true;
                 result.Message = "Saved Successfully";
             }

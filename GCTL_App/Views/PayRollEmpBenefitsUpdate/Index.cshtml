@@ -1,12 +1,19 @@
-﻿@* @using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance
-@model GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance.PayRollEmpAllowanceSaveVM *@
+﻿
+<select id="percentageOptionsTemplate" style="display:none">
+    @if (ViewBag.PercenatageDD != null)
+    {
+        foreach (SelectListItem item in (SelectList)ViewBag.PercenatageDD)
+        {
+            <option value="@item.Value">@item.Text</option>
+        }
+    }
+</select>
+
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
-@* @{
-    List<AllowanceTypeNameVM> list = ViewBag.LIsttt;
 
-} *@
 <style>
     .flatpickr-monthSelect-months {
         display: grid;
@@ -136,9 +143,6 @@
     <script src="~/js/pages/payrollmanagements/payrollpolicy/PayRollEmpBenefitsUpdate.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+  
 
 }
-
-
-
-  

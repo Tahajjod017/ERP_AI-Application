@@ -31,6 +31,7 @@
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
+                    debugger
                     const data = response.data;
                     console.log(data);
                     $('#OrganizationName').text(data.organizationName || 'N/A');
@@ -60,6 +61,19 @@
                     });
                     // Append to table
                     $("#allowanceTable").html(allowanceRows);
+
+                    let benefitRows = "";
+                    data.beneFits.forEach(a => {
+                        benefitRows += `
+                          <tr>
+                    <td>
+                        <strong class="ms-2">${a.type}(${a.amount}%)</strong>  
+                        <span class="me-2 float-end">${parseFloat((a.amount * data.basicSalary) / 100).toFixed(2)}</span>
+
+                    </td>
+                    </tr>`
+                    });
+                    $('#benefitTable').html(benefitRows);
                     $('#TotalSalary').text(parseFloat(data.totalSalary).toFixed(2));
                     $('#SalaryInWords').text(data.salaryInWords);
                 } else
