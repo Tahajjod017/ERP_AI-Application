@@ -5,6 +5,7 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.Pagination;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Dapper.SqlMapper;
+using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
@@ -28,14 +30,16 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<Organization> _organizationRepository;
         private readonly IDbConnection _dbConnection;
+        private readonly ILocalizationContext _localizationContext;
 
 
-        public AddShiftService(IGenericRepository<Shifts> genericRepository, IUserInfoService userInfoService, IGenericRepository<Organization> organizationRepository, IDbConnection dbConnection) : base(genericRepository)
+        public AddShiftService(IGenericRepository<Shifts> genericRepository, IUserInfoService userInfoService, IGenericRepository<Organization> organizationRepository, IDbConnection dbConnection, ILocalizationContext localizationContext) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
             _organizationRepository = organizationRepository;
             _dbConnection = dbConnection;
+            _localizationContext = localizationContext;
         }
         #endregion
 
@@ -157,6 +161,12 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
         public async Task<bool> AddAsync(ShiftsSetupVM model)
         {
             await _genericRepository.BeginTransactionAsync();
+            
+            var userTimeZone = _localizationContext.Zone;  // Assuming _localizationContext is your ILocalizationContext
+
+            var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.StartTime.Value, _localizationContext);
+            var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.EndTime.Value, _localizationContext);
+
             try
             {
                 foreach (var organizationID in model.OrganizationIDs)
@@ -168,8 +178,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     {
                         existingEntity.ShiftName = model.ShiftName;
                         existingEntity.OrganizationID = organizationID;
-                        existingEntity.StartTime = model.StartTime;
-                        existingEntity.EndTime = model.EndTime;
+                        existingEntity.StartTime = utcStartTime;
+                        existingEntity.EndTime = utcEndTime;
                         existingEntity.IsLateCount = model.IsLateCount;
                         existingEntity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
                         existingEntity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
@@ -200,8 +210,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         Shifts entity = new Shifts();
                         entity.ShiftName = model.ShiftName;
                         entity.OrganizationID = organizationID;
-                        entity.StartTime = model.StartTime;
-                        entity.EndTime = model.EndTime;
+                        entity.StartTime = utcStartTime;
+                        entity.EndTime = utcEndTime;
                         entity.IsLateCount = model.IsLateCount;
                         entity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
                         entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
@@ -243,6 +253,12 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
         public async Task<bool> UpdateAsync(ShiftUpdateSetupVM model)
         {
             await _genericRepository.BeginTransactionAsync();
+
+            var userTimeZone = _localizationContext.Zone;  // Assuming _localizationContext is your ILocalizationContext
+
+            var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateStartTime.Value, _localizationContext);
+            var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateEndTime.Value, _localizationContext);
+
             try
             {
                 var entity = await _genericRepository.GetByIdAsync(model.UpdateShiftID);
@@ -254,8 +270,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
 
                 entity.ShiftName = model.UpdateShiftName;
                 entity.OrganizationID = model.UpdateOrganizationID;
-                entity.StartTime = model.UpdateStartTime.ToTimeOnly();
-                entity.EndTime = model.UpdateEndTime.ToTimeOnly();
+                entity.StartTime = utcStartTime;
+                entity.EndTime = utcEndTime;
                 entity.IsLateCount = model.UpdateIsLateCount;
                 entity.IsAutomaticORManualBreakTime = model.UpdateIsAutomaticORManualBreakTime;
                 entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.UpdateIsMBCompulsaryOrComplementaryDeductWithShift;
@@ -303,8 +319,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     UpdateShiftID = data.ShiftID,
                     UpdateShiftName = data.ShiftName,
                     UpdateOrganizationID = data.OrganizationID,
-                    UpdateStartTime = data.StartTime?.ToString("hh:mm tt"),
-                    UpdateEndTime = data.EndTime?.ToString("hh:mm tt"),
+                    UpdateStartTime = data.StartTime,
+                    UpdateEndTime = data.EndTime,
                     UpdateIsLateCount = data.IsLateCount,
                     UpdateIsAutomaticORManualBreakTime = data.IsAutomaticORManualBreakTime,
                     UpdateIsMBCompulsaryOrComplementaryDeductWithShift = data.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
@@ -421,8 +437,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     OrganizationID = x.OrganizationID,
                     OrganizationName = x.Organization != null ? x.Organization.OrganizationName ?? "-" : "-",
                     //StartTime = x.StartTime.HasValue ? x.StartTime.Value.ToString("hh\\:mm") : "-",
-                    StartTime = x.StartTime,
-                    EndTime = x.EndTime,
+                    //StartTime = x.StartTime,
+                    StartTime = x.StartTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(x.StartTime.Value, _localizationContext) : null,
+                    EndTime = x.EndTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(x.EndTime.Value, _localizationContext) : null,
                     IsLateCount = x.IsLateCount,
                     IsAutomaticORManualBreakTime = x.IsAutomaticORManualBreakTime,
                     IsMealBreakCompulsaryOrComplementaryDeductWithShift = x.IsMealBreakCompulsaryOrComplementaryDeductWithShift,

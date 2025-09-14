@@ -20,9 +20,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 
         public string? UpdateOrganizationName { get; set; }
 
-        public string? UpdateStartTime { get; set; }
+        public TimeOnly? UpdateStartTime { get; set; }
 
-        public string? UpdateEndTime { get; set; }
+        public TimeOnly? UpdateEndTime { get; set; }
 
         public bool UpdateIsLateCount { get; set; }
 

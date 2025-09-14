@@ -2,12 +2,14 @@
 using GCTL.Core.ViewModels.APIViewModels;
 using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.ManualAttendence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.APIControllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class MobileAttendanceController : ControllerBase
     {
