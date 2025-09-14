@@ -18,8 +18,15 @@
     let typingTimer;
     let delay = 300;
     let currentIndex = 1;
+    // Use input for #dataSearch (text field) 
+    $("#dataSearch").on("input", function () {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(function () {
+            loadProcessedTable();
+        }, delay);
+    });
 
-    $("#dataSearch, #pageElementSize, #dateRange2, #customerType").on("change", function () {
+    $("#pageElementSize, #dateRange2, #customerType").on("change", function () {
         clearTimeout(typingTimer);
         typingTimer = setTimeout(async function () {
             loadProcessedTable();
@@ -113,7 +120,6 @@
                 let pageOffset = (page - 1) * itemsPerPage;
 
                 $.each(data.result.leads, function (index, item) {
-                    debugger;
                     let itemSL = pageOffset + index + 1; 
                     let statusBadge = getStatusBadgeClass(item.status);
                     tbody.append(`

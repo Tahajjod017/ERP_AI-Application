@@ -48,6 +48,9 @@ namespace GCTL.Service.CRM.LeadCreate
 
         public async Task<ReturnView> CreatePerson(CustomerVM customerVM)
         {
+            // Begin transaction
+            await _customersRepository.BeginTransactionAsync();
+
             try
             {
                 Customers customerObj = new Customers();
@@ -55,47 +58,48 @@ namespace GCTL.Service.CRM.LeadCreate
                 int returnID = 0;
                 string returnName = "";
 
+                // Create default address types if none exist
                 if (!items.Any())
                 {
-                    List<AddressTypes> addressTypes = new List<AddressTypes>();
-                    var listImte = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
-                    for (int i = 0; i < listImte.Length; i++)
+                    var addressTypes = new List<AddressTypes>();
+                    var listItem = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+
+                    foreach (var typeName in listItem)
                     {
                         addressTypes.Add(new AddressTypes()
                         {
-                            AddressTypeName = listImte[i],
-
+                            AddressTypeName = typeName,
                             CreatedAt = DateTime.UtcNow,
                             CreatedBy = customerVM.CreatedBy,
                             LIP = customerVM.LIP,
                             LMAC = customerVM.LMAC,
-
                         });
                     }
+
                     await _addressTypesRepository.AddRangeAsync(addressTypes);
                 }
-                Country countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == customerVM.CountryId);
 
+                // Fetch country
+                var countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == customerVM.CountryId);
 
+                // Fetch billing address type
                 var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "billing");
 
-                // individual
-                // only this condition will run when item type is billing
-
+                // Create customer (individual)
                 customerObj = new Customers()
-                    {
-                        FullName = customerVM.FirstName + " " + customerVM.LastName,
-                        IsPerson = true,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = customerVM.CreatedBy,
-                        LIP = customerVM.LIP,
-                        LMAC = customerVM.LMAC,
-                    };
-                    await _customersRepository.AddAsync(customerObj);
-                    returnName = customerObj.FullName;
+                {
+                    FullName = customerVM.FirstName + " " + customerVM.LastName,
+                    IsPerson = true,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = customerVM.CreatedBy,
+                    LIP = customerVM.LIP,
+                    LMAC = customerVM.LMAC,
+                };
+                await _customersRepository.AddAsync(customerObj);
+                returnName = customerObj.FullName;
 
-                // Address
-                Addresses addresses = new Addresses()
+                // Create address
+                var addresses = new Addresses()
                 {
                     FullAddress = customerVM.FullAddress,
                     Street = customerVM.Street,
@@ -121,15 +125,12 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
                 await _addressesRepository.AddAsync(addresses);
 
-                //get all table id
-                int addressesId = addresses.AddressID;
-
-                CustomerAddresses customerAddress = new CustomerAddresses()
+                // Link customer with address
+                var customerAddress = new CustomerAddresses()
                 {
                     AddressTypeID = addressTypeObj.AddressTypeID,
-                    AddressID = addressesId,
+                    AddressID = addresses.AddressID,
                     CustomerID = customerObj.CustomerID,
-
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = customerVM.CreatedBy,
                     LIP = customerVM.LIP,
@@ -138,66 +139,70 @@ namespace GCTL.Service.CRM.LeadCreate
                 await _customerAddressesRepository.AddAsync(customerAddress);
                 returnID = customerAddress.CustomerAddressID;
 
+                // Commit transaction
+                await _customersRepository.CommitTransactionAsync();
 
                 return new ReturnView
                 {
                     Success = true,
-                    Message = "Data saved succesfull",
+                    Message = "Data saved successfully",
                     Id = returnID,
                     Name = returnName
                 };
-
             }
             catch (Exception ex)
             {
+                // Rollback transaction on error
+                await _customersRepository.RollbackTransactionAsync();
+
                 return new ReturnView
                 {
                     Success = false,
                     Message = ex.Message,
                 };
             }
-
         }
+
         public async Task<ReturnView> CreateCompany(CompanyVM companyVM)
         {
+            // Begin transaction
+            await _customersRepository.BeginTransactionAsync();
+
             try
             {
-                var items = await _addressTypesRepository.GetAllAsync();
                 int returnID = 0;
                 string returnName = "";
 
+                // Ensure default address types exist
+                var items = await _addressTypesRepository.GetAllAsync();
                 if (!items.Any())
                 {
-                    List<AddressTypes> addressTypes = new List<AddressTypes>();
-                    var listImte = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
-                    for (int i = 0; i < listImte.Length; i++)
+                    var addressTypes = new List<AddressTypes>();
+                    var listItem = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+
+                    foreach (var typeName in listItem)
                     {
                         addressTypes.Add(new AddressTypes()
                         {
-                            AddressTypeName = listImte[i],
-
+                            AddressTypeName = typeName,
                             CreatedAt = DateTime.UtcNow,
                             CreatedBy = companyVM.CreatedBy,
                             LIP = companyVM.LIP,
                             LMAC = companyVM.LMAC,
-
                         });
                     }
+
                     await _addressTypesRepository.AddRangeAsync(addressTypes);
                 }
-                
 
-
-
+                // Fetch company address type
                 var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "company");
 
-                // individual
-                // only this condition will run when item type is billing
+                // Fetch country
+                var countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == companyVM.CountryID);
 
-
-                Country countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == companyVM.CountryID);
-                // Address
-                Addresses addresses = new Addresses()
+                // Create address
+                var addresses = new Addresses()
                 {
                     FullAddress = companyVM.FullAddress,
                     Street = companyVM.Street,
@@ -220,11 +225,8 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
                 await _addressesRepository.AddAsync(addresses);
 
-                //get all table id
-                int addressesId = addresses.AddressID;
-
-
-                Customers customer = new Customers()
+                // Create company customer
+                var customer = new Customers()
                 {
                     FullName = companyVM.CompanyName,
                     IsPerson = false,
@@ -232,69 +234,93 @@ namespace GCTL.Service.CRM.LeadCreate
                     CreatedBy = companyVM.CreatedBy,
                     LIP = companyVM.LIP,
                     LMAC = companyVM.LMAC,
-
                 };
                 await _customersRepository.AddAsync(customer);
 
-                CustomerAddresses companyAddressesObj = new CustomerAddresses()
+                // Link customer with address
+                var companyAddressesObj = new CustomerAddresses()
                 {
                     AddressTypeID = addressTypeObj.AddressTypeID,
                     AddressID = addresses.AddressID,
                     CustomerID = customer.CustomerID,
-
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = companyVM.CreatedBy,
                     LIP = companyVM.LIP,
                     LMAC = companyVM.LMAC,
                 };
-
                 await _customerAddressesRepository.AddAsync(companyAddressesObj);
+
                 returnID = companyAddressesObj.CustomerAddressID;
                 returnName = customer.FullName;
+
+                // Commit transaction
+                await _customersRepository.CommitTransactionAsync();
 
                 return new ReturnView
                 {
                     Success = true,
-                    Message = "Data saved succesfull",
+                    Message = "Data saved successfully",
                     Id = returnID,
                     Name = returnName
                 };
-
             }
             catch (Exception ex)
             {
+                // Rollback transaction on error
+                await _customersRepository.RollbackTransactionAsync();
+
                 return new ReturnView
                 {
                     Success = false,
                     Message = ex.Message,
                 };
             }
-
         }
-        public async Task<int> SaveAddressType(int? CreatedBy, string? LIP, string? LMAC)
+        public async Task<int> SaveAddressType(int? createdBy, string? LIP, string? LMAC)
         {
-            var items = await _addressTypesRepository.GetAllAsync();
-            if (!items.Any())
+            // Begin transaction
+            await _addressTypesRepository.BeginTransactionAsync();
+
+            try
             {
-                List<AddressTypes> addressTypes = new List<AddressTypes>();
-                var listImte = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
-                for (int i = 0; i < listImte.Length; i++)
+                var items = await _addressTypesRepository.GetAllAsync();
+                int createdCount = 0;
+
+                if (!items.Any())
                 {
-                    addressTypes.Add(new AddressTypes()
+                    var addressTypes = new List<AddressTypes>();
+                    var listItem = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+
+                    foreach (var typeName in listItem)
                     {
-                        AddressTypeName = listImte[i],
+                        addressTypes.Add(new AddressTypes()
+                        {
+                            AddressTypeName = typeName,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = createdBy,
+                            LIP = LIP,
+                            LMAC = LMAC,
+                        });
+                    }
 
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = CreatedBy,
-                        LIP = LIP,
-                        LMAC = LMAC,
-
-                    });
+                    await _addressTypesRepository.AddRangeAsync(addressTypes);
+                    createdCount = addressTypes.Count;
                 }
-                await _addressTypesRepository.AddRangeAsync(addressTypes);
+
+                // Commit transaction
+                await _addressTypesRepository.CommitTransactionAsync();
+
+                return createdCount;
             }
-            return 0;
+            catch (Exception ex)
+            {
+                // Rollback on error
+                await _addressTypesRepository.RollbackTransactionAsync();
+                // Optional: log ex
+                return 0;
+            }
         }
+
 
         //private async Task<int> saveCountry(string? countryCode, string? coutryName, int? CreatedBy, string? LIP, string? LMAC)
         //{
@@ -321,7 +347,7 @@ namespace GCTL.Service.CRM.LeadCreate
         //                CreatedBy = CreatedBy,
         //                LIP = LIP,
         //                LMAC = LMAC,
-                  
+
         //            };
 
         //            await _countryRepository.AddAsync(newCountry);
@@ -331,25 +357,35 @@ namespace GCTL.Service.CRM.LeadCreate
         //    return countryId;
         //}
 
-
         public async Task<CommonReturnViewModel> CreateShippingAddress(ShippingVM shippingVM)
         {
+            // Begin transaction only in this method
+            await _addressesRepository.BeginTransactionAsync();
+
             try
             {
-                await SaveAddressType(shippingVM.CreatedBy, shippingVM.LIP, shippingVM.LMAC);
+                // Ensure address types exist (do NOT start a transaction inside this helper)
+                await EnsureAddressTypesExist(shippingVM.CreatedBy, shippingVM.LIP, shippingVM.LMAC);
 
-                Country countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == shippingVM.CountryId);
+                // Get country
+                var countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == shippingVM.CountryId);
 
-
-
-
+                // Get shipping address type
                 var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "shipping");
 
-                // individual
+                // Get customer
                 var customerAddressObj = await _customerAddressesRepository.FirstOrDefaultAsync(u => u.CustomerAddressID == shippingVM.PersonID);
+                if (customerAddressObj == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Customer not found"
+                    };
+                }
 
-
-                Addresses addresses = new Addresses()
+                // Create address
+                var addresses = new Addresses()
                 {
                     FullAddress = shippingVM.FullAddress,
                     Street = shippingVM.Street,
@@ -375,51 +411,83 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
                 await _addressesRepository.AddAsync(addresses);
 
-                //get all table id
-                int addressesId = addresses.AddressID;
-
-                CustomerAddresses individualAddresses = new CustomerAddresses()
+                // Link customer with address
+                var individualAddresses = new CustomerAddresses()
                 {
                     AddressTypeID = addressTypeObj.AddressTypeID,
-                    AddressID = addressesId,
+                    AddressID = addresses.AddressID,
                     CustomerID = customerAddressObj.CustomerID,
-
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = shippingVM.CreatedBy,
                     LIP = shippingVM.LIP,
                     LMAC = shippingVM.LMAC,
-
                     UpdatedAt = DateTime.UtcNow,
                     UpdatedBy = shippingVM.UpdatedBy ?? null,
                     DeletedAt = null,
                 };
                 await _customerAddressesRepository.AddAsync(individualAddresses);
 
+                // Commit transaction
+                await _addressesRepository.CommitTransactionAsync();
+
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Data saved succesfull",
+                    Message = "Data saved successfully",
                 };
-
             }
             catch (Exception ex)
             {
+                // Rollback transaction
+                await _addressesRepository.RollbackTransactionAsync();
+
                 return new CommonReturnViewModel
                 {
                     Success = false,
                     Message = ex.Message,
                 };
             }
-
         }
+
+        // ✅ Helper method: Do NOT start a transaction here
+        private async Task EnsureAddressTypesExist(int? createdBy, string? LIP, string? LMAC)
+        {
+            var items = await _addressTypesRepository.GetAllAsync();
+            if (!items.Any())
+            {
+                var listItems = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                List<AddressTypes> newAddressTypes = new List<AddressTypes>();
+
+                foreach (var item in listItems)
+                {
+                    newAddressTypes.Add(new AddressTypes
+                    {
+                        AddressTypeName = item,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = createdBy,
+                        LIP = LIP,
+                        LMAC = LMAC
+                    });
+                }
+
+                await _addressTypesRepository.AddRangeAsync(newAddressTypes);
+                // Do NOT commit or start transaction here
+            }
+        }
+
         public async Task<CommonReturnViewModel> CreateLead(LeadsVM leadsVM)
         {
+            // Begin transaction
+            await _leadsRepository.BeginTransactionAsync();
+
             try
             {
+                // Get the customer address
+                var individualAddressObj = await _customerAddressesRepository.FirstOrDefaultAsync(
+                    u => u.CustomerAddressID == leadsVM.CustomerId);
 
-                var individualAddressObj = await _customerAddressesRepository.FirstOrDefaultAsync(u => u.CustomerAddressID == leadsVM.CustomerId);
-
-                Leads leadObj = new Leads()
+                // Create lead
+                var leadObj = new Leads()
                 {
                     CustomerID = individualAddressObj.CustomerAddressID,
                     LeadName = leadsVM.LeadName,
@@ -431,19 +499,18 @@ namespace GCTL.Service.CRM.LeadCreate
                     ApproximateDealValue = leadsVM.ApproximateDealValue,
                     ProbabilityPercentage = leadsVM.ProbabilityPercentage,
                     LeadDescription = leadsVM.LeadDescription,
-
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = leadsVM.CreatedBy,
                     LIP = leadsVM.LIP,
                     LMAC = leadsVM.LMAC,
                     UpdatedAt = DateTime.UtcNow,
-
                 };
                 await _leadsRepository.AddAsync(leadObj);
 
+                // Add lead services if provided
                 if (leadsVM.ServiceTypeIds != null && leadsVM.ServiceTypeIds.Count > 0)
                 {
-                    List<LeadServices> services = leadsVM.ServiceTypeIds.Select(serviceId => new LeadServices
+                    var services = leadsVM.ServiceTypeIds.Select(serviceId => new LeadServices
                     {
                         LeadID = leadObj.LeadID,
                         ServiceID = serviceId,
@@ -452,25 +519,25 @@ namespace GCTL.Service.CRM.LeadCreate
                         LIP = leadsVM.LIP,
                         LMAC = leadsVM.LMAC,
                     }).ToList();
+
                     await _leadServicesRepository.AddRangeAsync(services);
                 }
 
-                //List<LeadServices> services = new()
-                //{
-                //    new LeadServices{LeadID = leadObj.LeadID, ServiceID = leadsVM.ServiceTypeIds[0]}
-                //};
+                // Commit transaction
+                await _leadsRepository.CommitTransactionAsync();
 
-                //}
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Data saved succesfull",
+                    Message = "Data saved successfully",
                 };
-
             }
             catch (Exception ex)
             {
-                return new CommonReturnViewModel    
+                // Rollback on error
+                await _leadsRepository.RollbackTransactionAsync();
+
+                return new CommonReturnViewModel
                 {
                     Success = false,
                     Message = ex.Message,
@@ -479,11 +546,23 @@ namespace GCTL.Service.CRM.LeadCreate
         }
         public async Task<CommonReturnViewModel> EditLead(LeadUpdateVM leadUpdateVM)
         {
+            // Begin transaction
+            await _leadsRepository.BeginTransactionAsync();
+
             try
             {
-                var individualAddressObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == leadUpdateVM.LeadID);
-                var leadObj = await _leadsRepository.FirstOrDefaultAsync( u => u.LeadID == leadUpdateVM.LeadID );
+                // Get the lead
+                var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == leadUpdateVM.LeadID);
+                if (leadObj == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Lead not found."
+                    };
+                }
 
+                // Update lead fields
                 leadObj.LeadName = leadUpdateVM.LeadName;
                 leadObj.LeadStatusID = leadUpdateVM.LeadStatusID ?? null;
                 leadObj.LeadSourceID = leadUpdateVM.LeadSourceID ?? null;
@@ -497,14 +576,17 @@ namespace GCTL.Service.CRM.LeadCreate
                 leadObj.UpdatedBy = leadUpdateVM.CreatedBy;
                 leadObj.LIP = leadUpdateVM.LIP;
                 leadObj.LMAC = leadUpdateVM.LMAC;
-       
+
                 await _leadsRepository.UpdateAsync(leadObj);
-                var leadServices = await _leadServicesRepository.FindAsync(u=> u.LeadID==leadUpdateVM.LeadID);
+
+                // Delete existing lead services
+                var leadServices = await _leadServicesRepository.FindAsync(u => u.LeadID == leadUpdateVM.LeadID);
                 await _leadServicesRepository.DeleteRangeAsync(leadServices);
 
+                // Add updated services
                 if (leadUpdateVM.ServiceTypeIds != null && leadUpdateVM.ServiceTypeIds.Count > 0)
                 {
-                    List<LeadServices> services = leadUpdateVM.ServiceTypeIds.Select(serviceId => new LeadServices
+                    var services = leadUpdateVM.ServiceTypeIds.Select(serviceId => new LeadServices
                     {
                         LeadID = leadObj.LeadID,
                         ServiceID = serviceId,
@@ -513,18 +595,25 @@ namespace GCTL.Service.CRM.LeadCreate
                         LIP = leadUpdateVM.LIP,
                         LMAC = leadUpdateVM.LMAC,
                     }).ToList();
+
                     await _leadServicesRepository.AddRangeAsync(services);
                 }
+
+                // Commit transaction
+                await _leadsRepository.CommitTransactionAsync();
+
                 return new CommonReturnViewModel
                 {
                     Success = true,
-                    Message = "Data Updated succesfull",
+                    Message = "Data updated successfully",
                 };
-
             }
             catch (Exception ex)
             {
-                return new CommonReturnViewModel    
+                // Rollback transaction on error
+                await _leadsRepository.RollbackTransactionAsync();
+
+                return new CommonReturnViewModel
                 {
                     Success = false,
                     Message = ex.Message,
@@ -536,203 +625,257 @@ namespace GCTL.Service.CRM.LeadCreate
 
         public async Task<ReturnView> CreateBranch(BranchVM branchVM)
         {
+            // Begin transaction
+            await _companyBranchesRepository.BeginTransactionAsync();
+
             try
             {
-                await SaveAddressType(branchVM.CreatedBy, branchVM.LIP, branchVM.LMAC);
+                // Ensure address types exist WITHOUT starting a new transaction
+                var addressTypes = await _addressTypesRepository.GetAllAsync();
+                if (!addressTypes.Any())
+                {
+                    var listItems = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    List<AddressTypes> newAddressTypes = new List<AddressTypes>();
 
-                Country countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == branchVM.CountryID);
+                    foreach (var item in listItems)
+                    {
+                        newAddressTypes.Add(new AddressTypes
+                        {
+                            AddressTypeName = item,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = branchVM.CreatedBy,
+                            LIP = branchVM.LIP,
+                            LMAC = branchVM.LMAC
+                        });
+                    }
 
+                    await _addressTypesRepository.AddRangeAsync(newAddressTypes);
+                    // Note: No CommitTransaction here, we are inside CreateBranch transaction
+                }
 
+                // Get country
+                var countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == branchVM.CountryID);
+
+                // Get address type
                 var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "branch");
 
-                // individual
+                // Get company
+                var companyAddressObj = await _customerAddressesRepository
+                    .AllActive()
+                    .Include(c => c.Customer)
+                    .FirstOrDefaultAsync(u => u.CustomerAddressID == branchVM.CompanyID);
 
-                var compnayAddressObj = await _customerAddressesRepository.AllActive().Include(c => c.Customer).FirstOrDefaultAsync(u => u.CustomerAddressID == branchVM.CompanyID);
-                int returnID = 0;
-                    string returnName = "";
-                if (compnayAddressObj != null)
+                if (companyAddressObj == null)
                 {
-                    returnName = compnayAddressObj.Customer.FullName;
-                    returnID = compnayAddressObj.CustomerAddressID;
-
-                    CompanyBranches companyBranches = new CompanyBranches
-                    {
-                        BranchName = branchVM.BranchName,
-                        CustomerID = compnayAddressObj.CustomerID,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = branchVM.CreatedBy,
-                        LIP = branchVM.LIP,
-                        LMAC = branchVM.LMAC,
-                    };
-                    await _companyBranchesRepository.AddAsync(companyBranches);
-
-                    Addresses addresses = new Addresses()
-                    {
-                        FullAddress = branchVM.FullAddress,
-                        Street = branchVM.Street,
-                        City = branchVM.City,
-                        State = branchVM.State,
-                        Additionaladdress = branchVM.Additionaladdress,
-                        PostalCode = branchVM.PostalCode,
-                        CountryID = countryObj?.CountryID,
-                        Phone = branchVM.Phone,
-                        OtherPhone = branchVM.OtherPhone,
-                        Email = branchVM.Email,
-                        Latitude = branchVM.Latitude,
-                        Longitude = branchVM.Longitude,
-                        FirstName = branchVM.FirstName,
-                        LastName = branchVM.LastName,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = branchVM.CreatedBy,
-                        LIP = branchVM.LIP,
-                        LMAC = branchVM.LMAC,
-                        UpdatedAt = DateTime.UtcNow,
-                        UpdatedBy = branchVM.UpdatedBy ?? null,
-                        DeletedAt = null,
-                    };
-                    await _addressesRepository.AddAsync(addresses);
-
-                    //get all table id
-                    int addressesId = addresses.AddressID;
-
-                    CompanyBranchAddresses companyWarehouseAddress = new CompanyBranchAddresses()
-                    {
-                        AddressTypeID = addressTypeObj.AddressTypeID,
-                        AddressID = addresses.AddressID,
-                        BranchID = companyBranches.BranchID,
-
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = branchVM.CreatedBy,
-                        LIP = branchVM.LIP,
-                        LMAC = branchVM.LMAC,
-
-                        UpdatedAt = DateTime.UtcNow,
-                        UpdatedBy = branchVM.UpdatedBy ?? null,
-                        DeletedAt = null,
-                    };
-                    await _companyBranchAddressesRepository.AddAsync(companyWarehouseAddress);
-                    
-
-
                     return new ReturnView
                     {
-                        Success = true,
-                        Message = "Data saved succesfull",
-                        Id = returnID,
-                        Name = returnName
+                        Success = false,
+                        Message = "Company not found"
                     };
                 }
 
+                // Save branch
+                var companyBranches = new CompanyBranches
+                {
+                    BranchName = branchVM.BranchName,
+                    CustomerID = companyAddressObj.CustomerID,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = branchVM.CreatedBy,
+                    LIP = branchVM.LIP,
+                    LMAC = branchVM.LMAC,
+                };
+                await _companyBranchesRepository.AddAsync(companyBranches);
 
+                // Save address
+                var addresses = new Addresses
+                {
+                    FullAddress = branchVM.FullAddress,
+                    Street = branchVM.Street,
+                    City = branchVM.City,
+                    State = branchVM.State,
+                    Additionaladdress = branchVM.Additionaladdress,
+                    PostalCode = branchVM.PostalCode,
+                    CountryID = countryObj?.CountryID,
+                    Phone = branchVM.Phone,
+                    OtherPhone = branchVM.OtherPhone,
+                    Email = branchVM.Email,
+                    Latitude = branchVM.Latitude,
+                    Longitude = branchVM.Longitude,
+                    FirstName = branchVM.FirstName,
+                    LastName = branchVM.LastName,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = branchVM.CreatedBy,
+                    LIP = branchVM.LIP,
+                    LMAC = branchVM.LMAC,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = branchVM.UpdatedBy ?? null,
+                    DeletedAt = null,
+                };
+                await _addressesRepository.AddAsync(addresses);
+
+                // Save branch address
+                var companyBranchAddress = new CompanyBranchAddresses
+                {
+                    AddressTypeID = addressTypeObj.AddressTypeID,
+                    AddressID = addresses.AddressID,
+                    BranchID = companyBranches.BranchID,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = branchVM.CreatedBy,
+                    LIP = branchVM.LIP,
+                    LMAC = branchVM.LMAC,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = branchVM.UpdatedBy ?? null,
+                    DeletedAt = null,
+                };
+                await _companyBranchAddressesRepository.AddAsync(companyBranchAddress);
+
+                // Commit transaction
+                await _companyBranchesRepository.CommitTransactionAsync();
 
                 return new ReturnView
                 {
-                    Success = false,
-                    Message = "Data not inserted",
+                    Success = true,
+                    Message = "Data saved successfully",
+                    Id = companyAddressObj.CustomerAddressID,
+                    Name = companyAddressObj.Customer.FullName
                 };
-
-
             }
             catch (Exception ex)
             {
+                // Rollback transaction on error
+                await _companyBranchesRepository.RollbackTransactionAsync();
+
                 return new ReturnView
                 {
                     Success = false,
-                    Message = ex.Message,
+                    Message = ex.Message
                 };
             }
         }
+
+
         public async Task<ReturnView> CreateWarehouse(WarehouseVM warehouseVM)
         {
+            // Begin transaction
+            await _companyWarehousesRepository.BeginTransactionAsync();
+
             try
             {
-                await SaveAddressType(warehouseVM.CreatedBy, warehouseVM.LIP, warehouseVM.LMAC);
+                // Ensure address types exist without starting a new transaction
+                var addressTypes = await _addressTypesRepository.GetAllAsync();
+                if (!addressTypes.Any())
+                {
+                    var listItems = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    List<AddressTypes> newAddressTypes = new List<AddressTypes>();
 
-                Country countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == warehouseVM.CountryID);
+                    foreach (var item in listItems)
+                    {
+                        newAddressTypes.Add(new AddressTypes
+                        {
+                            AddressTypeName = item,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = warehouseVM.CreatedBy,
+                            LIP = warehouseVM.LIP,
+                            LMAC = warehouseVM.LMAC
+                        });
+                    }
+
+                    await _addressTypesRepository.AddRangeAsync(newAddressTypes);
+                    // Note: Do not commit here, transaction is managed by CreateWarehouse
+                }
+
+                // Get country and address type
+                var countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == warehouseVM.CountryID);
                 var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "warehouse");
 
-                // individual
-                var compnayAddressObj = await _customerAddressesRepository.AllActive().Include(c => c.Customer).FirstOrDefaultAsync(u => u.CustomerAddressID == warehouseVM.CompanyID);
-                int returnID = 0;
-                string returnName = "";
+                // Get company
+                var companyAddressObj = await _customerAddressesRepository
+                    .AllActive()
+                    .Include(c => c.Customer)
+                    .FirstOrDefaultAsync(u => u.CustomerAddressID == warehouseVM.CompanyID);
 
-                if (compnayAddressObj != null) {
-
-                    returnName = compnayAddressObj.Customer.FullName;
-                    returnID = compnayAddressObj.CustomerAddressID;
-
-                    CompanyWarehouses companyWarehouses = new CompanyWarehouses
-                    {
-                        WarehouseName = warehouseVM.WareHouseName,
-                        CustomerID = compnayAddressObj.CustomerID,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = warehouseVM.CreatedBy,
-                        LIP = warehouseVM.LIP,
-                        LMAC = warehouseVM.LMAC,
-                    };
-                    await _companyWarehousesRepository.AddAsync(companyWarehouses);
-
-                    Addresses addresses = new Addresses()
-                    {
-                        FullAddress = warehouseVM.FullAddress,
-                        Street = warehouseVM.Street,
-                        City = warehouseVM.City,
-                        State = warehouseVM.State,
-                        Additionaladdress = warehouseVM.Additionaladdress,
-                        PostalCode = warehouseVM.PostalCode,
-                        CountryID = countryObj?.CountryID,
-                        Phone = warehouseVM.Phone,
-                        OtherPhone = warehouseVM.OtherPhone,
-                        Email = warehouseVM.Email,
-                        Latitude = warehouseVM.Latitude,
-                        Longitude = warehouseVM.Longitude,
-                        FirstName = warehouseVM.FirstName,
-                        LastName = warehouseVM.LastName,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = warehouseVM.CreatedBy,
-                        LIP = warehouseVM.LIP,
-                        LMAC = warehouseVM.LMAC,
-
-                    };
-                    await _addressesRepository.AddAsync(addresses);
-
-
-                    CompanyWarehouseAddresses companyWarehouseAddress = new CompanyWarehouseAddresses()
-                    {
-                        AddressTypeID = addressTypeObj.AddressTypeID,
-                        AddressID = addresses.AddressID,
-                        WarehouseID = companyWarehouses.WarehouseID,
-
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = warehouseVM.CreatedBy,
-                        LIP = warehouseVM.LIP,
-                        LMAC = warehouseVM.LMAC,
-                    };
-                    await _companyWarehouseAddressesRepository.AddAsync(companyWarehouseAddress);
-
+                if (companyAddressObj == null)
+                {
                     return new ReturnView
                     {
-                        Success = true,
-                        Message = "Data saved succesfull",
-                        Id = returnID,
-                        Name = returnName
+                        Success = false,
+                        Message = "Company not found"
                     };
                 }
+
+                // Save warehouse
+                var companyWarehouses = new CompanyWarehouses
+                {
+                    WarehouseName = warehouseVM.WareHouseName,
+                    CustomerID = companyAddressObj.CustomerID,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = warehouseVM.CreatedBy,
+                    LIP = warehouseVM.LIP,
+                    LMAC = warehouseVM.LMAC,
+                };
+                await _companyWarehousesRepository.AddAsync(companyWarehouses);
+
+                // Save address
+                var addresses = new Addresses
+                {
+                    FullAddress = warehouseVM.FullAddress,
+                    Street = warehouseVM.Street,
+                    City = warehouseVM.City,
+                    State = warehouseVM.State,
+                    Additionaladdress = warehouseVM.Additionaladdress,
+                    PostalCode = warehouseVM.PostalCode,
+                    CountryID = countryObj?.CountryID,
+                    Phone = warehouseVM.Phone,
+                    OtherPhone = warehouseVM.OtherPhone,
+                    Email = warehouseVM.Email,
+                    Latitude = warehouseVM.Latitude,
+                    Longitude = warehouseVM.Longitude,
+                    FirstName = warehouseVM.FirstName,
+                    LastName = warehouseVM.LastName,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = warehouseVM.CreatedBy,
+                    LIP = warehouseVM.LIP,
+                    LMAC = warehouseVM.LMAC,
+                };
+                await _addressesRepository.AddAsync(addresses);
+
+                // Save warehouse address
+                var companyWarehouseAddress = new CompanyWarehouseAddresses
+                {
+                    AddressTypeID = addressTypeObj.AddressTypeID,
+                    AddressID = addresses.AddressID,
+                    WarehouseID = companyWarehouses.WarehouseID,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = warehouseVM.CreatedBy,
+                    LIP = warehouseVM.LIP,
+                    LMAC = warehouseVM.LMAC,
+                };
+                await _companyWarehouseAddressesRepository.AddAsync(companyWarehouseAddress);
+
+                // Commit transaction
+                await _companyWarehousesRepository.CommitTransactionAsync();
+
                 return new ReturnView
                 {
-                    Success = false,
-                    Message = "Data is not insert",
+                    Success = true,
+                    Message = "Data saved successfully",
+                    Id = companyAddressObj.CustomerAddressID,
+                    Name = companyAddressObj.Customer.FullName
                 };
             }
             catch (Exception ex)
             {
+                // Rollback transaction
+                await _companyWarehousesRepository.RollbackTransactionAsync();
+
                 return new ReturnView
                 {
                     Success = false,
-                    Message = ex.Message,
+                    Message = ex.Message
                 };
             }
         }
+
 
         public async Task<object?> getcustomerInfo(int? id = 0)
         {

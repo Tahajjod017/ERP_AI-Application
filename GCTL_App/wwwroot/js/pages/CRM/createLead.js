@@ -1465,7 +1465,7 @@ $(document).ready(function () {
 
     $("#indexSaveBtn").on("click", async function (e) {
         e.preventDefault();
-
+        debugger;
         let services = $("#serviceTypes").val();
   
         if (await fieldValidation()) {
@@ -1501,8 +1501,17 @@ $(document).ready(function () {
                         toastr.error(response.message || "Failed to create lead");
                     }
                 },
-                error: function (xhr) {
-                    toastr.error("Error creating lead");
+                error: function (xhr, status, error) {
+
+                    if (xhr.status === 403 && xhr.responseJSON) {
+
+                        toastr.error(xhr.responseJSON.message || "Access denied.", 'Permission Denied');
+
+                    } else {
+
+                        toastr.error("Unexpected error: " + error, 'Server Error');
+
+                    }
                 }
             });
         } else {
@@ -1511,6 +1520,7 @@ $(document).ready(function () {
     });
 
     function targetListForValidation() {
+        debugger;
         if (targetTab === 'person') {
             return [
                 idMap.person.firstName,
@@ -1585,6 +1595,7 @@ $(document).ready(function () {
     }
 
     async function uniquenPhoneCheck() {
+        debugger;
         let isValid = true;
         const targetedField = targetTab === 'person' ? [[idMap.person.phone, idMap.person.otherPhone, idMap.person.primaryID, idMap.person.email]]
             //: targetTab === 'shipping' ? [[idMap.shipping.phone, idMap.shipping.otherPhone, idMap.shipping.primaryID, idMap.shipping.email]]
@@ -1686,7 +1697,8 @@ $(document).ready(function () {
         const selectedTab = targetListForValidation();
         runtimeValidationCheck();
         let isValid = true;
-        //isValid = await uniquenPhoneCheck();
+        debugger;
+        isValid = await uniquenPhoneCheck();
         isValid = isValid === false ? false :  await extraFieldIdValidation();
         //isValid = isValid === false ? false : await exRuntimeValidationCheck();
         let errorCount = 0;

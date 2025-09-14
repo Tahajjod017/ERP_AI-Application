@@ -5,7 +5,9 @@ using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
 using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +17,7 @@ using SkiaSharp;
 
 namespace GCTL_App.Controllers.CRM
 {
+    [Authorize]
     public class CreateLeadController : BaseController
     {
         #region CTOR
@@ -132,6 +135,7 @@ namespace GCTL_App.Controllers.CRM
             return Json(customers);
         }
 
+        
         [HttpGet]
         public async Task<IActionResult> addCountry(string countryName)
         {
@@ -206,7 +210,7 @@ namespace GCTL_App.Controllers.CRM
             return Json(results);
         }
 
-
+        
         [HttpPost]
         public async Task<IActionResult> getAllCustomerList([FromBody] string query)
         {
@@ -306,7 +310,7 @@ namespace GCTL_App.Controllers.CRM
             return Json(new { customer = customerObj });
         }
 
-
+        [Permission("Create", "CreateLead")]
         [HttpPost]
         public async Task<IActionResult> InsertPerson([FromBody] CustomerVM customerVM)
         {
@@ -403,6 +407,8 @@ namespace GCTL_App.Controllers.CRM
             }
             return Ok(false); 
         }
+
+        [Permission("Create", "CreateLead")]
         [HttpPost]
         public async Task<IActionResult> CreateLeadData([FromBody] LeadsVM leadsVM)
         {
