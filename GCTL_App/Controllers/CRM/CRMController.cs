@@ -8,13 +8,13 @@ using GCTL.Service.CRM.LeadDetails;
 using GCTL.Service.Employees.EmployeeResign;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 namespace GCTL_App.Controllers.CRM
-
-
 {
+    [Authorize]
     public class CRMController : BaseController
     {
         private readonly ILeadCreateService _leadCreateService;
@@ -101,6 +101,11 @@ namespace GCTL_App.Controllers.CRM
         // =================
         public async Task<IActionResult> GetLeadInfo([FromForm] int? id)
         {
+            if (id == null)
+            {
+                return BadRequest("Lead ID is required");
+            }
+
             var customerObj = await (from lead in _context.Leads
                                      join cAddress in _context.CustomerAddresses
                                      on lead.CustomerID equals cAddress.CustomerAddressID

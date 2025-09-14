@@ -4,17 +4,23 @@ using GCTL.Data.Models;
 using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.CRM.LeadDetails;
 using GCTL.Service.Language;
-using GCTL.Service.UserProfile; 
+using GCTL.Service.RolePermissions;
+using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using NuGet.Protocol.Plugins;
+using OpenQA.Selenium.Support.UI;
 
 
 namespace GCTL_App.Controllers.CRM
 {
+    [Authorize]
     public class LeadDetailsController : BaseController
     {
         private readonly ILeadCreateService _leadCreateService;
@@ -24,6 +30,7 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
         private readonly IGenericRepository<LeadStatuses> _leadStatusesRepository;
         private readonly IGenericRepository<Priorities> _prioritiesRepository;
+        private readonly IGenericRepository<Leads> _leadsRepository;
         private readonly ILeadDetailsService _leadDetailsService;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -32,7 +39,7 @@ namespace GCTL_App.Controllers.CRM
         //private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         //private readonly IGenericRepository<Customers> _customersRepository;
         //private readonly IGenericRepository<Country> _countryRepository;
-        public LeadDetailsController(IWebHostEnvironment webHostEnvironment, IGenericRepository<LeadDetails> leadDetailsRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository) : base(translateService, userProfileService)
+        public LeadDetailsController(IWebHostEnvironment webHostEnvironment, IGenericRepository<LeadDetails> leadDetailsRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Leads> leadsRepository) : base(translateService, userProfileService)
         {
             _leadCreateService = leadCreateService;
             _leadSourceTypeRepository = leadSourceTypeRepository;
@@ -44,6 +51,7 @@ namespace GCTL_App.Controllers.CRM
             _leadStatusesRepository = leadStatusesRepository;
             _prioritiesRepository = prioritiesRepository;
             _serviceTypeRepository = serviceTypeRepository;
+            _leadsRepository = leadsRepository;
         }
 
         public async Task<IActionResult> Index(int? id)
@@ -53,77 +61,78 @@ namespace GCTL_App.Controllers.CRM
 
 
             ViewBag.ServiceDD = new SelectList(_serviceTypeRepository.AllActive().Select(e => new { e.ServiceID, e.ServiceName }), "ServiceID", "ServiceName");
-            
+
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
-            ViewBag.LeadActivityTypes = _leadActivityTypesRepository.AllActive().Where(e=> e.UseFor == null).Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
-            ViewBag.LeadActivityTypes2 = _leadActivityTypesRepository.AllActive().Where(e=> e.UseFor == "special").Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
-            ViewBag.LeadStatus =  new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName}), "LeadStatusID", "LeadStatusName");
-            ViewBag.LeadPriorities =  new SelectList(_prioritiesRepository.AllActive().Select(e => new { e.PriorityID, e.PriorityName}), "PriorityID", "PriorityName");
-            
+            ViewBag.LeadActivityTypes = _leadActivityTypesRepository.AllActive().Where(e => e.UseFor == null).Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
+            ViewBag.LeadActivityTypes2 = _leadActivityTypesRepository.AllActive().Where(e => e.UseFor == "special").Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
+            ViewBag.LeadStatus = new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
+            ViewBag.LeadPriorities = new SelectList(_prioritiesRepository.AllActive().Select(e => new { e.PriorityID, e.PriorityName }), "PriorityID", "PriorityName");
 
-            var customerObj = await(from lead in _context.Leads
-                                    join cAddress in _context.CustomerAddresses
-                                    on lead.CustomerID equals cAddress.CustomerAddressID
-                                    join customer in _context.Customers on cAddress.CustomerID equals customer.CustomerID
-                                    join address in _context.Addresses on cAddress.AddressID equals address.AddressID
-                  
-                                    where lead.LeadID == id
-                                    select new CustomerInfoVM
-                                    {
-                                        FullName = customer.FullName,
-                                        LeadName = lead.LeadName,
-                                        LeadID = lead.LeadID,
-                                        LeadSourceID = lead.LeadSourceID ?? 0,
-                                        LeadStatusID = lead.LeadStatusID ?? 0,
-                                        PriorityID = lead.PriorityID ?? 0,
-                                        Created = lead.CreatedAt,
-                                        ApproximateDealValue = lead.ApproximateDealValue ?? 0m,
-                                        Priority = lead.Priority.PriorityName,
-                                        Probability = (int)(lead.ProbabilityPercentage ?? 0),
-                                        LeadDescription = lead.LeadDescription,
-                                        AddressTypeName = cAddress.AddressType.AddressTypeName,
-                                        FullAddress = address.FullAddress,
-                                        Street = address.Street,
-                                        City = address.City,
-                                        Additionaladdress = address.Additionaladdress,
-                                        State = address.State,
-                                        PostalCode = address.PostalCode,
-                                        Latitude = address.Latitude,
-                                        Longitude = address.Longitude,
-                                        Phone = address.Phone,
-                                        OtherPhone = address.OtherPhone,
-                                        Email = address.Email,
-                                        FirstName = address.FirstName,
-                                        LastName = address.LastName,
-                                        isWon = lead.IsWwn ?? null,
-                                        LeadOwnerId = lead.LeadOwnerID,
-                                        LeadOwnerName = lead.LeadOwner.FirstName + " " +lead.LeadOwner.LastName,
-                                        ServiceIds = lead.LeadServices.Where(s=> s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
-                                        ClosingDate = lead.ClosingDate,
 
-                                        // 🔥 Stats calculation for this LeadOwner
-                                        SuccessPercentage = (int) Math.Round(_context.Leads
-                                        .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == true)
-                                        .Count() * 100m /
-                                        (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID))),
+            var customerObj = await (from lead in _context.Leads
+                                     join cAddress in _context.CustomerAddresses
+                                     on lead.CustomerID equals cAddress.CustomerAddressID
+                                     join customer in _context.Customers on cAddress.CustomerID equals customer.CustomerID
+                                     join address in _context.Addresses on cAddress.AddressID equals address.AddressID
 
-                                        LostPercentage = (int) Math.Round (_context.Leads
-                                        .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == false)
-                                        .Count() * 100m /
-                                        (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID))),
+                                     where lead.LeadID == id
+                                     select new CustomerInfoVM
+                                     {
+                                         FullName = customer.FullName,
+                                         LeadName = lead.LeadName,
+                                         LeadID = lead.LeadID,
+                                         LeadSourceID = lead.LeadSourceID ?? 0,
+                                         LeadStatusID = lead.LeadStatusID ?? 0,
+                                         PriorityID = lead.PriorityID ?? 0,
+                                         Created = lead.CreatedAt,
+                                         ApproximateDealValue = lead.ApproximateDealValue ?? 0m,
+                                         Priority = lead.Priority.PriorityName,
+                                         Probability = (int)(lead.ProbabilityPercentage ?? 0),
+                                         LeadDescription = lead.LeadDescription,
+                                         AddressTypeName = cAddress.AddressType.AddressTypeName,
+                                         FullAddress = address.FullAddress,
+                                         Street = address.Street,
+                                         City = address.City,
+                                         Additionaladdress = address.Additionaladdress,
+                                         State = address.State,
+                                         PostalCode = address.PostalCode,
+                                         Latitude = address.Latitude,
+                                         Longitude = address.Longitude,
+                                         Phone = address.Phone,
+                                         OtherPhone = address.OtherPhone,
+                                         Email = address.Email,
+                                         FirstName = address.FirstName,
+                                         LastName = address.LastName,
+                                         isWon = lead.IsWwn ?? null,
+                                         LeadOwnerId = lead.LeadOwnerID,
+                                         LeadOwnerName = lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName,
+                                         ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
+                                         ClosingDate = lead.ClosingDate,
 
-                                        CancelPercentage = (int) Math.Round (_context.Leads
-                                        .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == null)
-                                        .Count() * 100m /
-                                        (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID)))
-                                    
-                                    }).FirstOrDefaultAsync();
+                                         // 🔥 Stats calculation for this LeadOwner
+                                         SuccessPercentage = (int)Math.Round(_context.Leads
+                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == true)
+                                         .Count() * 100m /
+                                         (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID))),
+
+                                         LostPercentage = (int)Math.Round(_context.Leads
+                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == false)
+                                         .Count() * 100m /
+                                         (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID))),
+
+                                         CancelPercentage = (int)Math.Round(_context.Leads
+                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == null)
+                                         .Count() * 100m /
+                                         (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID)))
+
+                                     }).FirstOrDefaultAsync();
             if (customerObj != null)
             {
                 return View(customerObj);
-            } else
+            }
+            else
             {
-                CustomerInfoVM obj = new ();
+                CustomerInfoVM obj = new();
                 return View(obj);
             }
         }
@@ -157,7 +166,8 @@ namespace GCTL_App.Controllers.CRM
         public async Task<IActionResult> UpdateLeadValue([FromForm] DetailsLeadUpdateVM detailsLeadUpdateVM)
         {
             var fieldNames = new[] { "source", "priority", "stage", "probability" };
-            if (fieldNames.Contains(detailsLeadUpdateVM.FieldName)) {
+            if (fieldNames.Contains(detailsLeadUpdateVM.FieldName))
+            {
                 var result = await _leadDetailsService.UpdateLeadFieldValue(detailsLeadUpdateVM);
                 return Ok(result);
             }
@@ -213,13 +223,13 @@ namespace GCTL_App.Controllers.CRM
         {
 
             const int pageSize = 10;
-            int skip = (page - 1) * pageSize; 
+            int skip = (page - 1) * pageSize;
             // Fetch filtered and paginated data using LIKE
             var list = await _leadDetailsRepository
           .Find(u => u.LeadID == id &&
                      u.ActivityDateTime >= DateTime.UtcNow
           )
-          .OrderByDescending(e => e.CreatedAt)   // ORDER FIRST!
+          .OrderByDescending(e => e.ActivityDateTime)   // ORDER FIRST!
           .Skip(skip)                            // THEN skip
           .Take(pageSize)                        // THEN take
           .Select(e => new
@@ -258,7 +268,7 @@ namespace GCTL_App.Controllers.CRM
                 e.ActivityNote,
                 e.LeadActivityType.LeadActivityName,
                 e.LeadActivityType.LeadActivityIcon,
-                CreatedByName = e.CreatedByNavigation != null ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}" : null 
+                CreatedByName = e.CreatedByNavigation != null ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}" : null
             })
             .ToListAsync();
             return Ok(list);
@@ -286,22 +296,33 @@ namespace GCTL_App.Controllers.CRM
 
         }
 
-     
+
         // ===================
         // new lead details
         // =======================
+        [Permission("Create", "LeadDetails")]
         [HttpPost]
         public async Task<IActionResult> SaveLeadActivity([FromForm] LeadDetailsVM leadDetailsVM)
         {
-            if (leadDetailsVM == null)
-                return BadRequest(new { success = false, message = "Invalid data" });
+            try
+            {
+                if (leadDetailsVM == null)
+                    return BadRequest(new { success = false, message = "Invalid data" });
 
-            if (leadDetailsVM.LeadID == null || leadDetailsVM.LeadID == 0)
-                return BadRequest(new { success = false, message = "LeadID is required" });
+                if (leadDetailsVM.LeadID == null || leadDetailsVM.LeadID == 0)
+                    return BadRequest(new { success = false, message = "LeadID is required" });
 
-            //Won / Lost special case
-            var existingLeadTypeObj =  await _leadActivityTypesRepository.FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
-            if (existingLeadTypeObj.LeadActivityName == "Won" || existingLeadTypeObj.LeadActivityName == "Lost")
+                var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == leadDetailsVM.LeadID);
+
+                if (leadObj != null && leadObj.IsWwn != null)
+                {
+                    leadObj.IsWwn = null;
+                    leadObj.ClosingDate = null;
+                    await _leadsRepository.UpdateAsync(leadObj);
+                }
+                //Won / Lost special case
+                var existingLeadTypeObj = await _leadActivityTypesRepository.FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
+                if (existingLeadTypeObj.LeadActivityName == "Won" || existingLeadTypeObj.LeadActivityName == "Lost")
                 {
                     var result = await _leadDetailsService.AddIsWon(new IsWonVM
                     {
@@ -315,19 +336,27 @@ namespace GCTL_App.Controllers.CRM
                     return Ok(result);
                 }
 
-                // Handle file if uploaded
                 string fileLocation = leadDetailsVM.File != null
                 ? await StorePhoto(leadDetailsVM.File)
                 : null;
 
-            bool created = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM, fileLocation);
+                bool created = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM, fileLocation);
 
-            return Ok(new
+                return Ok(new
+                {
+                    success = true,
+                    message = created ? "Data added successfully" : "Failed to add lead details"
+                });
+            }
+            catch (Exception ex)
             {
-                success = created,
-                message = created ? "Data added successfully" : "Failed to add lead details"
-            });
-        }
+                return Ok(new
+                {
+                    success = false,
+                    message =  "Something goes to wrong"
+                });
+            }
 
+        }
     }
 }

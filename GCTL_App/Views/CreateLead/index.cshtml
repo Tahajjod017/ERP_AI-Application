@@ -238,8 +238,8 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
-                            <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Status Name")</label>
-                            <select class="form-select choiceDD" id="leadStatusId" asp-items="@ViewBag.LeadStatusDD as SelectList" required>
+                            <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Priority Name")</label>
+                            <select class="form-select choiceDD" id="priorityID" asp-items="@ViewBag.LeadPriorities as SelectList" required>
                                 <option value="" selected>@Html.SmartLocalize("Select Status")</option>
                             </select>
                         </div>
