@@ -25,7 +25,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
 
         #region Others
         Task<bool> IsNameUniqueAsync(int id, string name);
-        IEnumerable<CommonSelectVM> GetOrganizations();
         #endregion
     }
 }

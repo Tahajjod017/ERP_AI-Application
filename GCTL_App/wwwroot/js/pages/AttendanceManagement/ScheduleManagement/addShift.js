@@ -209,7 +209,7 @@
                         showLoadingIndicator(); 
                     },
                     success: function (response) {
-                        const allFields = ["ShiftName", "OrganizationIDs"];
+                        const allFields = ["ShiftName", "OrganizationIDs", "StartTime", "EndTime"];
 
                         allFields.forEach(function (fieldId) {
                             validateField(fieldId, response);
@@ -641,7 +641,7 @@
             // #endregion
 
 
-
+            // #region Toggols
             $(document).ready(function () {
                 
                 $('#UpdateIsLateCount').on('change', function () {
@@ -682,7 +682,7 @@
                     }
                 });
             });
-
+            // #endregion
 
             $(settings.modalCloseBtn).on('click', function () {
                 $('#editShiftModal').modal('hide');
@@ -692,7 +692,7 @@
             });
 
 
-
+            // #region Dropdowns
             let companyChoice;
             function initcompanyChoice() {
                 companyChoice = new Choices('#UpdateOrganizationID', {
@@ -702,7 +702,7 @@
                 });
             }
             document.addEventListener('DOMContentLoaded', initcompanyChoice);
-
+            // #endregion
 
 
             $('#addShift-dd-search').on('change', function () {
@@ -720,198 +720,198 @@
 
 
             // #region CoreUI Multiselect with Pagination + Search (fixed)
-            let page = 1;
-            let term = '';
-            const pageSize = 20;
+            //let page = 1;
+            //let term = '';
+            //const pageSize = 20;
 
-            let hasMore = true;
-            let loading = false;
-            let debounce;
-            let scrollPosition = 0;
+            //let hasMore = true;
+            //let loading = false;
+            //let debounce;
+            //let scrollPosition = 0;
 
-            const selectEl = document.getElementById('OrganizationIDs');
-            if (!selectEl) return;
+            //const selectEl = document.getElementById('OrganizationIDs');
+            //if (!selectEl) return;
 
-            const apiUrl = '/AddShift/SearchOrganizations';
-            const ms = coreui.MultiSelect.getOrCreateInstance(selectEl); // CoreUI instance
+            //const apiUrl = '/AddShift/SearchOrganizations';
+            //const ms = coreui.MultiSelect.getOrCreateInstance(selectEl); // CoreUI instance
 
-            // Attach search handler to the current DOM search input (safe to call multiple times)
-            function ensureSearchHandler() {
-                const wrapper = selectEl.nextElementSibling;
-                if (!wrapper) return;
-                const searchInput = wrapper.querySelector('.form-multi-select-search');
-                const box = wrapper.querySelector('.form-multi-select-options');
-                if (!searchInput) return;
-                if (searchInput.dataset.listenerAttached) return; // already attached
+            //// Attach search handler to the current DOM search input (safe to call multiple times)
+            //function ensureSearchHandler() {
+            //    const wrapper = selectEl.nextElementSibling;
+            //    if (!wrapper) return;
+            //    const searchInput = wrapper.querySelector('.form-multi-select-search');
+            //    const box = wrapper.querySelector('.form-multi-select-options');
+            //    if (!searchInput) return;
+            //    if (searchInput.dataset.listenerAttached) return; // already attached
 
-                searchInput.dataset.listenerAttached = '1';
+            //    searchInput.dataset.listenerAttached = '1';
 
-                // prevent dropdown from closing when focus/mousedown inside input occurs
-                searchInput.addEventListener('mousedown', (e) => e.stopPropagation());
+            //    // prevent dropdown from closing when focus/mousedown inside input occurs
+            //    searchInput.addEventListener('mousedown', (e) => e.stopPropagation());
 
-                // the input handler: debounced server search
-                searchInput.addEventListener('input', (e) => {
-                    const val = e.target.value.trim();
-                    clearTimeout(debounce);
+            //    // the input handler: debounced server search
+            //    searchInput.addEventListener('input', (e) => {
+            //        const val = e.target.value.trim();
+            //        clearTimeout(debounce);
 
-                    if (val.length < 3) {
-                        // too short → clear results (but keep selected options)
-                        addOptions([], { reset: true });
-                        page = 1;
-                        term = '';
-                        hasMore = false;
-                        if (box) box.scrollTop = 0;
-                        return;
-                    }
+            //        if (val.length < 3) {
+            //            // too short → clear results (but keep selected options)
+            //            addOptions([], { reset: true });
+            //            page = 1;
+            //            term = '';
+            //            hasMore = false;
+            //            if (box) box.scrollTop = 0;
+            //            return;
+            //        }
 
-                    // wait for 1 seconds of no typing before sending request
-                    debounce = setTimeout(() => {
-                        term = val;
-                        page = 1; // reset paging for fresh search
-                        hasMore = true;
-                        fetchPage({ append: false });
-                        if (box) box.scrollTop = 0;
-                    }, 1000); // 1 second delay on search
-                });
-            }
+            //        // wait for 1 seconds of no typing before sending request
+            //        debounce = setTimeout(() => {
+            //            term = val;
+            //            page = 1; // reset paging for fresh search
+            //            hasMore = true;
+            //            fetchPage({ append: false });
+            //            if (box) box.scrollTop = 0;
+            //        }, 1000); // 1 second delay on search
+            //    });
+            //}
 
-            // append <option> nodes to <select>, then refresh CoreUI
-            function addOptions(items, { reset = false } = {}) {
-                // For remember the scroll position
-                const wrapper = selectEl.nextElementSibling;
-                const box = wrapper?.querySelector('.form-multi-select-options');
-                if (box) {
-                    scrollPosition = box.scrollTop;
-                }
+            //// append <option> nodes to <select>, then refresh CoreUI
+            //function addOptions(items, { reset = false } = {}) {
+            //    // For remember the scroll position
+            //    const wrapper = selectEl.nextElementSibling;
+            //    const box = wrapper?.querySelector('.form-multi-select-options');
+            //    if (box) {
+            //        scrollPosition = box.scrollTop;
+            //    }
 
-                // keep already selected options so tags remain
-                if (reset) {
-                    const keep = new Set([...selectEl.options].filter(o => o.selected).map(o => o.value));
-                    [...selectEl.options].forEach(o => { if (!keep.has(o.value)) o.remove(); });
-                }
+            //    // keep already selected options so tags remain
+            //    if (reset) {
+            //        const keep = new Set([...selectEl.options].filter(o => o.selected).map(o => o.value));
+            //        [...selectEl.options].forEach(o => { if (!keep.has(o.value)) o.remove(); });
+            //    }
 
-                // avoid duplicates
-                const existing = new Set([...selectEl.options].map(o => String(o.value)));
-                for (const it of (items || [])) {
-                    const v = String(it.value);
-                    if (existing.has(v)) continue;
-                    const opt = document.createElement('option');
-                    opt.value = v;
-                    opt.textContent = it.label;
-                    selectEl.appendChild(opt);
-                }
+            //    // avoid duplicates
+            //    const existing = new Set([...selectEl.options].map(o => String(o.value)));
+            //    for (const it of (items || [])) {
+            //        const v = String(it.value);
+            //        if (existing.has(v)) continue;
+            //        const opt = document.createElement('option');
+            //        opt.value = v;
+            //        opt.textContent = it.label;
+            //        selectEl.appendChild(opt);
+            //    }
 
-                // preserve open state + search value while updating
-                const wrapperBefore = selectEl.nextElementSibling;
-                const oldSearchInput = wrapperBefore?.querySelector('.form-multi-select-search');
-                const oldSearchValue = oldSearchInput ? oldSearchInput.value : '';
-                const oldSelStart = oldSearchInput?.selectionStart;
-                const oldSelEnd = oldSearchInput?.selectionEnd;
+            //    // preserve open state + search value while updating
+            //    const wrapperBefore = selectEl.nextElementSibling;
+            //    const oldSearchInput = wrapperBefore?.querySelector('.form-multi-select-search');
+            //    const oldSearchValue = oldSearchInput ? oldSearchInput.value : '';
+            //    const oldSelStart = oldSearchInput?.selectionStart;
+            //    const oldSelEnd = oldSearchInput?.selectionEnd;
 
-                const wasOpen = !!ms._isShown;
-                ms.update(); // rebuild dropdown UI
+            //    const wasOpen = !!ms._isShown;
+            //    ms.update(); // rebuild dropdown UI
 
-                if (wasOpen) {
-                    ms.show();
-                }
+            //    if (wasOpen) {
+            //        ms.show();
+            //    }
 
-                // re-attach handlers to the new input and restore text/caret
-                ensureSearchHandler();
+            //    // re-attach handlers to the new input and restore text/caret
+            //    ensureSearchHandler();
 
-                const wrapperAfter = selectEl.nextElementSibling;
-                const newSearchInput = wrapperAfter?.querySelector('.form-multi-select-search');
-                if (newSearchInput && oldSearchValue) {
-                    try {
-                        newSearchInput.value = oldSearchValue;
-                        if (typeof oldSelStart === 'number' && typeof oldSelEnd === 'number') {
-                            newSearchInput.setSelectionRange(oldSelStart, oldSelEnd);
-                        }
-                    } catch (err) {
-                        // ignore selection-range errors in some browsers
-                    }
-                }
+            //    const wrapperAfter = selectEl.nextElementSibling;
+            //    const newSearchInput = wrapperAfter?.querySelector('.form-multi-select-search');
+            //    if (newSearchInput && oldSearchValue) {
+            //        try {
+            //            newSearchInput.value = oldSearchValue;
+            //            if (typeof oldSelStart === 'number' && typeof oldSelEnd === 'number') {
+            //                newSearchInput.setSelectionRange(oldSelStart, oldSelEnd);
+            //            }
+            //        } catch (err) {
+            //            // ignore selection-range errors in some browsers
+            //        }
+            //    }
 
-                // Restore scroll position after a small delay to ensure DOM is ready
-                setTimeout(() => {
-                    const wrapper = selectEl.nextElementSibling;
-                    const box = wrapper?.querySelector('.form-multi-select-options');
-                    if (box) {
-                        if (reset) {
-                            // new search → always scroll to top
-                            box.scrollTop = 0;
-                            scrollPosition = 0;
-                        } else {
-                            // infinite scroll append → restore position
-                            box.scrollTop = scrollPosition;
-                        }
-                    }
-                }, 10);
+            //    // Restore scroll position after a small delay to ensure DOM is ready
+            //    setTimeout(() => {
+            //        const wrapper = selectEl.nextElementSibling;
+            //        const box = wrapper?.querySelector('.form-multi-select-options');
+            //        if (box) {
+            //            if (reset) {
+            //                // new search → always scroll to top
+            //                box.scrollTop = 0;
+            //                scrollPosition = 0;
+            //            } else {
+            //                // infinite scroll append → restore position
+            //                box.scrollTop = scrollPosition;
+            //            }
+            //        }
+            //    }, 10);
 
 
-                // rebind scroll for the newly-created options container
-                rebindScroll();
-            }
+            //    // rebind scroll for the newly-created options container
+            //    rebindScroll();
+            //}
 
-            async function fetchPage({ append }) {
-                if (loading || (!hasMore && append)) return;
-                loading = true;
-                try {
-                    const res = await fetch(`${apiUrl}?search=${encodeURIComponent(term)}&page=${page}&pageSize=${pageSize}`);
-                    const data = await res.json();
+            //async function fetchPage({ append }) {
+            //    if (loading || (!hasMore && append)) return;
+            //    loading = true;
+            //    try {
+            //        const res = await fetch(`${apiUrl}?search=${encodeURIComponent(term)}&page=${page}&pageSize=${pageSize}`);
+            //        const data = await res.json();
 
-                    addOptions(data.items, { reset: !append });
-                    hasMore = !!data.hasMore;
+            //        addOptions(data.items, { reset: !append });
+            //        hasMore = !!data.hasMore;
 
-                    if (append) {
-                        page += 1;
-                    } else {
-                        // we've just loaded page 1 for a fresh search; next scroll should fetch page 2
-                        page = 2;
-                    }
-                } catch (e) {
-                    console.error(e);
-                } finally {
-                    loading = false;
-                }
-            }
+            //        if (append) {
+            //            page += 1;
+            //        } else {
+            //            // we've just loaded page 1 for a fresh search; next scroll should fetch page 2
+            //            page = 2;
+            //        }
+            //    } catch (e) {
+            //        console.error(e);
+            //    } finally {
+            //        loading = false;
+            //    }
+            //}
 
-            function rebindScroll() {
-                const wrapper = selectEl.nextElementSibling;
-                const box = wrapper?.querySelector('.form-multi-select-options');
-                if (!box) return;
+            //function rebindScroll() {
+            //    const wrapper = selectEl.nextElementSibling;
+            //    const box = wrapper?.querySelector('.form-multi-select-options');
+            //    if (!box) return;
 
-                // If we already attached to this box DOM node, skip
-                if (box.dataset.infiniteAttached) return;
-                box.dataset.infiniteAttached = '1';
+            //    // If we already attached to this box DOM node, skip
+            //    if (box.dataset.infiniteAttached) return;
+            //    box.dataset.infiniteAttached = '1';
 
-                // prevent dropdown from closing when interacting with the scroll area (optional)
-                // If you previously needed to stopImmediatePropagation for CoreUI, you can uncomment:
-                // ['mousedown', 'mouseup', 'click'].forEach(evt => box.addEventListener(evt, e => e.stopImmediatePropagation()));
+            //    // prevent dropdown from closing when interacting with the scroll area (optional)
+            //    // If you previously needed to stopImmediatePropagation for CoreUI, you can uncomment:
+            //    // ['mousedown', 'mouseup', 'click'].forEach(evt => box.addEventListener(evt, e => e.stopImmediatePropagation()));
 
-                box.addEventListener('scroll', () => {
-                    if (box.scrollTop + box.clientHeight >= box.scrollHeight - 10) {
-                        if (hasMore && !loading) fetchPage({ append: true });
-                    }
-                });
-            }
+            //    box.addEventListener('scroll', () => {
+            //        if (box.scrollTop + box.clientHeight >= box.scrollHeight - 10) {
+            //            if (hasMore && !loading) fetchPage({ append: true });
+            //        }
+            //    });
+            //}
 
-            // on open, wire search + initial load
-            selectEl.addEventListener('shown.coreui.multi-select', () => {
-                const wrapper = selectEl.nextElementSibling;
-                const searchInput = wrapper?.querySelector('.form-multi-select-search');
-                const box = wrapper?.querySelector('.form-multi-select-options');
+            //// on open, wire search + initial load
+            //selectEl.addEventListener('shown.coreui.multi-select', () => {
+            //    const wrapper = selectEl.nextElementSibling;
+            //    const searchInput = wrapper?.querySelector('.form-multi-select-search');
+            //    const box = wrapper?.querySelector('.form-multi-select-options');
 
-                // ensure handler on first open too
-                ensureSearchHandler();
+            //    // ensure handler on first open too
+            //    ensureSearchHandler();
 
-                // first open: load first page (empty term)
-                if (selectEl.options.length === 0) {
-                    page = 1; term = ''; hasMore = true;
-                    fetchPage({ append: false });
-                }
+            //    // first open: load first page (empty term)
+            //    if (selectEl.options.length === 0) {
+            //        page = 1; term = ''; hasMore = true;
+            //        fetchPage({ append: false });
+            //    }
 
-                rebindScroll();
-            });
+            //    rebindScroll();
+            //});
             // #endregion
             
             
@@ -977,6 +977,7 @@
         });
 
 
+        // #region loadTableData
         let currentSortColumn = 'ShiftID';
         let currentSortOrder = 'desc';
 
@@ -1115,5 +1116,6 @@
             loadTableData();
         });
     }
+    // #endregion
 }(jQuery));
 

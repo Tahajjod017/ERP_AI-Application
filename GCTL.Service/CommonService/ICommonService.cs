@@ -11,8 +11,6 @@ namespace GCTL.Service.CommonService
     public interface ICommonService
     {
         #region Load All
-        Task<List<CommonSelectVM>> GetOrganizations();
-
         Task<List<CommonSelectVM>> GetBranches();
 
         Task<List<CommonSelectVM>> GetDepartments();
@@ -32,7 +30,7 @@ namespace GCTL.Service.CommonService
 
 
         #region Load Paginated
-        Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 50);
+        Task<PaginatedResult<CommonSelectVM>> GetOrganizations(string search, int page = 1, int pageSize = 50);
         Task<List<CommonSelectVM>> SearchEmployees(string search, int pageSize = 50);
         #endregion
 

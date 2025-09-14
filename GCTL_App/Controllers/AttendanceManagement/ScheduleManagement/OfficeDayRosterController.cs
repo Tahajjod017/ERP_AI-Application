@@ -36,12 +36,19 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             RosterInOfficeDaysPageVM model = new RosterInOfficeDaysPageVM();
             SetSmartPageCode(203100);
 
-            var organizations = await _commonService.GetOrganizations();
+            //var organizations = await _commonService.GetOrganizations();
+            //if (organizations.Count == 1)
+            //{
+            //    model.Setup.OrganizationID = organizations[0].Id;
+            //}
+            //ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name", model.Setup.OrganizationID);
+            var result = await _commonService.GetOrganizations(search: "", page: 1, pageSize: 50);
+            var organizations = result.Items;
             if (organizations.Count == 1)
             {
                 model.Setup.OrganizationID = organizations[0].Id;
             }
-            ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name", model.Setup.OrganizationID);
+            ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name");
             //ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
             ViewBag.BrnchDD = new SelectList(await _commonService.GetBranches(), "Id", "Name");
             ViewBag.DepartmentDD = new SelectList(await _commonService.GetDepartments(), "Id", "Name");
@@ -57,7 +64,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         [HttpGet]
         public async Task<IActionResult> SearchOrganizations(string search, int page = 1, int pageSize = 50)
         {
-            var result = await _commonService.SearchOrganizations(search, page, pageSize);
+            var result = await _commonService.GetOrganizations(search, page, pageSize);
             return Json(new
             {
                 items = result.Items.Select(x => new {

@@ -35,12 +35,19 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
                 SetSmartPageCode(202900);
 
-                var organizations = await _commonService.GetOrganizations();
+                //var organizations = await _commonService.GetOrganizations();
+                //if (organizations.Count == 1)
+                //{
+                //    model.Setup.OrganizationID = organizations[0].Id;  
+                //}
+                //ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name", model.Setup.OrganizationID);
+                var result = await _commonService.GetOrganizations(search: "", page: 1, pageSize: 50);
+                var organizations = result.Items;
                 if (organizations.Count == 1)
                 {
-                    model.Setup.OrganizationID = organizations[0].Id;  
+                    model.Setup.OrganizationID = organizations[0].Id;
                 }
-                ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name", model.Setup.OrganizationID);
+                ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name");
 
                 var branches = await _commonService.GetBranches();
                 if(branches.Count == 1)

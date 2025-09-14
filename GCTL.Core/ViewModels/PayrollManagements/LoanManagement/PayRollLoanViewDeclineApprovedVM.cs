@@ -14,6 +14,8 @@ namespace GCTL.Core.ViewModels.PayrollManagements.LoanManagement
         //[Display(Name = "Employee Name")]
         public int? EmployeeIDs { get; set; }
 
+        public int? OrganizationID { get; set; }
+
         //[Required(ErrorMessage = "Loan amount is required.")]
         //[Range(500, 10000000, ErrorMessage = "Loan amount must be between 500 and 10,000,000.")]
         //[Display(Name = "Loan Amount")]
