@@ -16,7 +16,7 @@ using System.Web.Mvc;
 using System.Web.Helpers;
 
 
-namespace GCTL.Service.CRM.LeadDetails
+namespace GCTL.Service.CRM.LeadDetail
 {
    
     public class LeadDetailsService : ILeadDetailsService
