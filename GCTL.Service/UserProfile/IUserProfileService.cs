@@ -11,6 +11,7 @@ namespace GCTL.Service.UserProfile
         (string FullName, string ProfilePicturePath) GetUserProfileAsync(string userId);
         // New method to get only the current Employee ID
         Task<int?> GetCurrentEmployeeIdAsync(string userId);
+        Task<int?> GetCurrentOrganizationIdAsync(string userId);
     }
 
 }

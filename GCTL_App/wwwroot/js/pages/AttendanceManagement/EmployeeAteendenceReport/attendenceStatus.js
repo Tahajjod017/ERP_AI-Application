@@ -240,15 +240,16 @@ function updateProgressBars(data) {
 
     // Optionally, update the timeline labels if required
     const timelineLabels = $('#timelineLabels');
-    let currentHour = 7;  // Starting hour for the timeline (adjust as needed)
-
+    //let currentHour = 9;  // Starting hour for the timeline (adjust as needed)
+    let currentTime = moment(data.shiftStartHour || "09:30", "HH:mm"); 
     // Loop through sessionTimeline to display the timeline labels
     data.sessionTimeline.forEach(session => {
-        const label = $('<span>').addClass('fs-10').text(`${currentHour}:00`);
+        // Add the formatted current hour and minute to the label
+        const label = $('<span>').addClass('fs-10').text(currentTime.format("HH:mm"));
         timelineLabels.append(label);
 
-        // Update current hour based on the session duration (if needed)
-        currentHour = (currentHour + 1) % 24;  // Increment hour, reset to 0 after 23
+        // Increment currentTime by the session duration (assuming it's 1 hour here, adjust as needed)
+        currentTime.add(1, 'hour'); // or currentTime.add(session.duration, 'minutes') if session has duration data
     });
 }
 
