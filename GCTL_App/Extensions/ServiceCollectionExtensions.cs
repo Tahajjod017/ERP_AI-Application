@@ -39,7 +39,8 @@ using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.CommonService;
 using GCTL.Service.CRM;
 using GCTL.Service.CRM.LeadCreate;
-using GCTL.Service.CRM.LeadDetails;
+using GCTL.Service.CRM.LeadDetail;
+using GCTL.Service.CRM.LeadsActivities;
 using GCTL.Service.ElementPermission;
 
 using GCTL.Service.Employees.EmployeeAdditional;
@@ -289,6 +290,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ICRMService, CRMService>();
             services.AddScoped<ILeadDetailsService, LeadDetailsService>();
             services.AddScoped<IPriorityService, PriorityService>();
+            services.AddScoped<ILeadsActivityService, LeadsActivityService>();
             #endregion
         }
     }

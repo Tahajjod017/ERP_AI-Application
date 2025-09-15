@@ -74,20 +74,19 @@
 
 
     const statusColors = {
-        "contacted": "badge-phoenix-info",      
-        "new": "badge-phoenix-primary",             
+        "contacted": "badge-phoenix-info",
+        "new": "badge-phoenix-primary",
         "not contacted": "badge-phoenix-warning",
-        "nurturing": "badge-phoenix-secondary",       
-        "qualified": "badge-phoenix-success",         
-        "unqualified": "badge-phoenix-danger"       
+        "nurturing": "badge-phoenix-secondary",
+        "qualified": "badge-phoenix-success",
+        "unqualified": "badge-phoenix-danger"
     };
 
     function getStatusBadgeClass(status) {
         return statusColors[status.trim().toLowerCase()] || "badge-secondary";
     }
     function loadProcessedTable() {
-        let typingTimer;
-        let delay = 200;
+        debugger;
         var page = $('#pageNumber').data('page');
         //var size = $('#resignProcessed').data('size');
         var size = $('#pageElementSize').val();
@@ -95,48 +94,43 @@
         var sort = $('#resignProcessed').data('sort');
         var dir = $('#resignProcessed').data('dir');
         var dateRange = $('#dateRange2').val();
-        var customerType = $('#customerType').val();
 
         $.ajax({
-            url: '/CRM/GetAllLead',
-            type: 'GET',
+            url: '/LeadsActivities/GetUpcomingActivities',
+            type: 'POST',
             data: {
                 dateRange: dateRange,
-                customerType: customerType,
                 pageNumber: page,
-                pageSize: size,
-                searchTerm: search,
+                itemPerPage: size,
+                search: search,
                 sortColumn: sort,
                 sortDirection: dir
             },
-            success: function (data) {
+            success: function (response) {
+                debugger;
+                showDev(response.data)
                 var tbody = $('#processed-resignation-body');
                 tbody.empty();
                 let itemsPerPage = parseInt($('#pageElementSize').val()) || 10;
 
                 let page = parseInt($('#pageNumber').data('page')) || 1;
+                
 
                 let pageOffset = (page - 1) * itemsPerPage;
 
-                $.each(data.result.leads, function (index, item) {
-                    let itemSL = pageOffset + index + 1; 
-                    let statusBadge = getStatusBadgeClass(item.status);
+                $.each(response.data, function (index, item) {
+                    debugger;
+                    showDev(item);
+                    let itemSL = pageOffset + index + 1;
+                    //let statusBadge = getStatusBadgeClass(item.status);
                     tbody.append(`
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
 
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="0">${itemSL}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="1"><a class="fw-bold cursor-pointer" href="/LeadDetails/Index/${item.leadId}">${item.leadName}</a></td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="2">${item.leadStatus}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.leadSourceName}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadOwnerName}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="5">${item.approximateDealValue}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="6">${item.probabilityPercentage}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="7">${item.email}</td>
-                        <td class="position align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="8">${item.phone}</td>
-                        <td class="reason align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="9">${item.contactName}</td>
-                        <td class="status align-middle white-space-nowrap pe-0 ps-2" data-column="10">
-                           <span class="badge badge-phoenix ${statusBadge} fs-9">${item.leadStatus}</span>
-                        </td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadActivityType}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.activityDateTime}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.activityNote}</td>
+           
                         <td class="status align-middle white-space-nowrap pe-0 ps-2 d-flex justify-content-center" data-column="11">
                             <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2"  id="editModalBtn" data-id="${item.leadId}"><i class="fas fa-edit text-black"></i></a>
                         </td>
@@ -144,7 +138,7 @@
                 `);
                 });
 
-                //DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('resignProcessed'), 'resignProcessed');
+                DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('resignProcessed'), 'resignProcessed');
 
                 DynamicTableDrag.refreshTableSettings('resignProcessed');
                 updatePaginationApprove(data.result.totalCount, data.result.pageNumber, data.result.pageSize)
@@ -184,7 +178,7 @@
                 $("#completionValue").text(response.probability + '%');
                 $("#descriptionText").val(response.leadDescription);
                 $("#queryText").val(response.leadOwnerName);
-               // $("#selectedID").val(response.leadOwnerId);
+                // $("#selectedID").val(response.leadOwnerId);
 
                 choiceManager.setChoiceValue('leadOwnerId', response.leadOwnerId)
                 // multiselect edit field read

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GCTL.Service.CRM.LeadDetails
+namespace GCTL.Service.CRM.LeadDetail
 {
     public interface ILeadDetailsService
     {

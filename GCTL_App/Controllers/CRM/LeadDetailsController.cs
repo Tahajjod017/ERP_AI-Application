@@ -2,7 +2,7 @@
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using GCTL.Service.CRM.LeadCreate;
-using GCTL.Service.CRM.LeadDetails;
+using GCTL.Service.CRM.LeadDetail;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
