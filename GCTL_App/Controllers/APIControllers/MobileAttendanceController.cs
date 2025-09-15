@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GCTL_App.Controllers.APIControllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "JwtBearer", Policy = "ApiPolicy")]
     [ApiController]
     public class MobileAttendanceController : ControllerBase
     {
@@ -22,6 +22,14 @@ namespace GCTL_App.Controllers.APIControllers
         {
             _attendanceRepository = attendanceRepository;
             _attendanceLogRepository = attendanceLogRepository;
+        }
+
+
+
+        [HttpGet("GetMobile")]
+        public IActionResult GetMobile()
+        {
+            return Ok("✅ Mobile Attendance API is running and secured with JWT.");
         }
 
 

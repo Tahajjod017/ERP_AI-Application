@@ -1,6 +1,6 @@
 ﻿USE [fingerprint]
 GO
-/****** Object:  Trigger [dbo].[ProcessPunchToHRMApp] ******/
+/****** Object:  Trigger [dbo].[ProcessPunchToHRMApp]    Script Date: 9/15/2025 5:47:45 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -232,9 +232,9 @@ BEGIN
     SET 
         CheckOutTime = CASE WHEN @PunchCount >= 2 THEN CAST(@LatestPunchUTC AS DATETIME2) ELSE NULL END,
         WorkingHour = @WorkingHour,       -- total minutes worked
-        OvertimeHour = @OvertimeHour,     -- minutes of OT if any
-        LateHour = @LateHour,             -- minutes late
-        EarlyHour = @EarlyHour            -- minutes early
+        OvertimeHour = @OvertimeHour     -- minutes of OT if any
+        -- ,LateHour = @LateHour,             -- minutes late
+        -- EarlyHour = @EarlyHour            -- minutes early
     WHERE AttendanceID = @AttendanceID;
 
 END;

@@ -1,4 +1,3 @@
-//using GCTL.Core.SeedData;
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
 using GCTL.Service;
@@ -20,7 +19,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 #region Manual
 builder.Services.ConfigureContext(builder.Configuration);
 builder.Services.ConfigureDapperConnection(builder.Configuration);
@@ -30,89 +28,90 @@ builder.Services.AddSignalR();
 #endregion
 
 
-#region JWT
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "your-secret-key-123456"; // Store in appsettings.json
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "your-app";
+#region Authentication & Authorization
+
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "your-secret-key-123456";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "https://localhost:7086/";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "https://localhost:7086/";
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    // Default = Cookies (for MVC). APIs explicitly use JWT.
+    options.DefaultScheme = Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme;
 })
-.AddJwtBearer(options =>
+// JWT for APIs
+.AddJwtBearer("JwtBearer", options =>
 {
+    options.RequireHttpsMetadata = true; // Enable in production
+    options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidateAudience = false,
+        ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
+})
+// Cookies for MVC
+.AddCookie("Cookies", options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Home/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Always secure in production
+    options.SessionStore = new MemoryCacheTicketStore();
 });
+
+builder.Services.AddAuthorization(options =>
+{
+    // APIs => JWT
+    options.AddPolicy("ApiPolicy", policy =>
+    {
+        policy.AddAuthenticationSchemes("JwtBearer");
+        policy.RequireAuthenticatedUser();
+    });
+
+    // MVC => Cookies
+    options.AddPolicy("WebPolicy", policy =>
+    {
+        policy.AddAuthenticationSchemes("Cookies");
+        policy.RequireAuthenticatedUser();
+    });
+});
+
 #endregion
 
 
-#region identity
+#region Identity
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
     options.User.RequireUniqueEmail = true;
-    //options.Password.RequireDigit = true;
-    //options.Password.RequiredLength = 6;
-    //options.Password.RequireLowercase = true;
-    //options.Password.RequireNonAlphanumeric = false;
-    //options.Password.RequireUppercase = true;
     options.Lockout.AllowedForNewUsers = true;
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
     options.Lockout.MaxFailedAccessAttempts = 3;
-    // options.Stores.SchemaVersion = "dbo"; // Set the schema version to dbo
-    //options.Stores.MaxLengthForKeys = 128; // Set the maximum length for keys
-    // options.Stores.ProtectPersonalData = true; // Protect personal data
-}).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
-
-// Add Cookie Authentication
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme;
 })
-.AddCookie(options =>
-{
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.LoginPath = "/Account/Login"; // Where to redirect for login
-    options.LogoutPath = "/Account/Logout"; // Where to redirect for logout
-    options.AccessDeniedPath = "/Home/AccessDenied";
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Set cookie expiration time
-    options.Cookie.SecurePolicy = CookieSecurePolicy.None;  // Make sure cookies are secure
-    options.SessionStore = new MemoryCacheTicketStore();
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+#endregion
 
-});
 
+#region Services
 builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<IAccessControlService, AccessControlService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-
-//Globally retrieve LIP, LMAC, and CreatedBy, UpdatedBy, DeletedBy fields. [Added by Siam]
-//builder.Services.AddHttpContextAccessor(); // 1?? Required for accessing HttpContext
 builder.Services.AddScoped<UserInfoActionFilter>();
+#endregion
 
-builder.Services.AddEndpointsApiExplorer(); // Swagger for API documentation
-// Swagger for API documentation
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "GCTL API", Version = "v1" });
 
-//    // Only include [ApiController] controllers
-//    c.DocInclusionPredicate((docName, apiDesc) =>
-//    {
-//        var actionDescriptor = apiDesc.ActionDescriptor as ControllerActionDescriptor;
-//        return actionDescriptor?.ControllerTypeInfo.GetCustomAttributes(typeof(ApiControllerAttribute), true).Any() ?? false;
-//    });
-//});
+#region Swagger
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -154,63 +153,42 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+#endregion
 
 
 builder.Services.AddControllers(); // For API controllers
 builder.Services.AddControllersWithViews(options =>
 {
-    options.Filters.AddService<UserInfoActionFilter>(); // 2?? Global filter registration
+    options.Filters.AddService<UserInfoActionFilter>(); // Global filter registration
 });
-#endregion
 
 // localization
 builder.Services.AddScoped<ILocalizationContext, LocalizationContext>();
-
 QuestPDF.Settings.License = LicenseType.Community;
-
 
 var app = builder.Build();
 
-#region Seed data before running app using bogus
-//using (var scope = app.Services.CreateScope())
-//{
-//    var services = scope.ServiceProvider;
-//    var seeder = services.GetRequiredService<DataSeeder>();
-//    var context = services.GetRequiredService<AppDbContext>();
 
-//    if (!context.Employees.Any())
-//        await seeder.SeedEmployeesAsync(context);
-
-//    if (!context.EmployeeOfficeInfo.Any())
-//        await seeder.SeedEmployeeOfficeInfoAsync(context);
-
-//    if (!context.Shifts.Any())
-//        await seeder.SeedShiftsAsync(context);
-//}
-#endregion
-
-
+#region Error Handling & Swagger
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 else
 {
-    //app.UseDeveloperExceptionPage(); // Detailed error pages in development
-    //app.UseSwagger(); // Swagger for development
-    //app.UseSwaggerUI(); // Swagger for development
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "GCTL API V1");
-        c.RoutePrefix = "swagger"; // Swagger UI will be at /swagger
+        c.RoutePrefix = "swagger";
     });
 }
+#endregion
 
 
-#region Language
+#region Language Middleware
 app.Use(async (context, next) =>
 {
     var language = context.Request.Cookies["Language"] ?? "en"; // Default to English
@@ -221,7 +199,7 @@ app.Use(async (context, next) =>
         context.Response.Cookies.Append("Language", "en", new CookieOptions
         {
             HttpOnly = true,
-            Secure = !app.Environment.IsDevelopment(), 
+            Secure = !app.Environment.IsDevelopment(),
             SameSite = SameSiteMode.Lax
         });
     }
@@ -233,10 +211,11 @@ app.Use(async (context, next) =>
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseMiddleware<LocalizationMiddleware>();
-
 app.UseAuthorization();
+
 app.MapControllers(); // Maps attribute-routed API controllers
 app.MapControllerRoute(
     name: "default",

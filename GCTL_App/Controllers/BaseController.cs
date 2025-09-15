@@ -118,6 +118,20 @@ namespace GCTL_App.Controllers
 
             return currentEmployeeId;
         }
+        protected async Task<int?> GetCurrentOrganizationIdAsync()
+        {
+            int? currentOrganizationId = null;
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    // Fetch current organization ID using IUserProfileService
+                    currentOrganizationId = await _userProfileService.GetCurrentOrganizationIdAsync(userId);
+                }
+            }
+            return currentOrganizationId;
+        }
 
     }
 
