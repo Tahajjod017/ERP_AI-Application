@@ -5,11 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmployeeAllowanceTypes
+public partial class PayDeductions
 {
-    public int EmployeeAllowanceTypeID { get; set; }
+    public int PayDeductionID { get; set; }
 
-    public string EmployeeAllowanceTypeName { get; set; }
+    public int? PaySlipID { get; set; }
+
+    public string PayAllowancBenifitName { get; set; }
+
+    public decimal Amount { get; set; }
+
+    public bool? IsPercentage { get; set; }
+
+    public decimal? PercentageOfBasic { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,19 +35,11 @@ public partial class EmployeeAllowanceTypes
 
     public int? DeletedBy { get; set; }
 
-    public int? OrganizationID { get; set; }
-
-    public bool ApplyOnBasicSalary { get; set; }
-
-    public bool ApplyOnGrossSalary { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeAllowances> EmployeeAllowances { get; set; } = new List<EmployeeAllowances>();
-
-    public virtual Organization Organization { get; set; }
+    public virtual PaySlips PaySlip { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

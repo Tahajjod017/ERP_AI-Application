@@ -4,8 +4,6 @@
 <div class="mt-4 mx-lg-n4">
     <div class="row g-4">
         <div class="col-12 col-md-7 col-xl-5 col-xxl-5">
-
-
             <div class="card">
                 <div class="card-header border-bottom-1">
                     <div class="row justify-content-between align-items-center">
@@ -14,7 +12,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="card-body mt-3">
                     <form enctype="multipart/form-data" id="OrganizationBenefitsType-form">
                         @Html.AntiForgeryToken()
@@ -27,13 +24,23 @@
                                     </div>
                                 </div>
 
-                                <select class="form-select choiceDD"
+                           @*      <select class="form-select choiceDD"
                                         asp-for="OrganizatonID"
                                         id="OrganizatonID"
                                         asp-items="@ViewBag.SelectedOrgaDD as SelectList"
                                         placeholder="@Html.SmartLocalize("Select Organization")">
                                        <option value="">Select Company</option>
+                                </select> *@
+                                <select class="form-multi-select"
+                                        asp-for="OrganizatonIDs"
+                                        asp-items="@ViewBag.SelectedOrgaDD as SelectList"
+                                        multiple
+                                        data-coreui-multiple="true"
+                                        data-coreui-selection-type="counter"
+                                        data-coreui-search="true"
+                                        data-coreui-placeholder="@Html.SmartLocalize("Select Company")">
                                 </select>
+
                             </div>
                             <span id="OrganizationID-error" class="text-danger"></span>
 
@@ -45,6 +52,27 @@
                                 <input class="form-control" asp-for="BenefitTypeName" type="text" placeholder="@Html.SmartLocalize("Benefit Type")" autocomplete="off" />
                                 <span id="nameError" class="text-danger" style="display:none;"></span>
                                 <span asp-validation-for="BenefitTypeName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-12 mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" asp-for="ApplyOnBasicSalary" />
+                                        <label class="form-check-label" asp-for="ApplyOnBasicSalary">
+                                            @Html.SmartLocalize("Apply On Basic Salary")
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" asp-for="ApplyOnGrossSalary" />
+                                        <label class="form-check-label" asp-for="ApplyOnGrossSalary">
+                                            @Html.SmartLocalize("Apply On Gross Salary")
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-12 mb-4">

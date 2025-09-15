@@ -661,6 +661,26 @@ public partial class Employees
 
     public virtual ICollection<PassingYears> PassingYearsUpdatedByNavigation { get; set; } = new List<PassingYears>();
 
+    public virtual ICollection<PayAllowancBenifits> PayAllowancBenifitsCreatedByNavigation { get; set; } = new List<PayAllowancBenifits>();
+
+    public virtual ICollection<PayAllowancBenifits> PayAllowancBenifitsDeletedByNavigation { get; set; } = new List<PayAllowancBenifits>();
+
+    public virtual ICollection<PayAllowancBenifits> PayAllowancBenifitsUpdatedByNavigation { get; set; } = new List<PayAllowancBenifits>();
+
+    public virtual ICollection<PayDeductions> PayDeductionsCreatedByNavigation { get; set; } = new List<PayDeductions>();
+
+    public virtual ICollection<PayDeductions> PayDeductionsDeletedByNavigation { get; set; } = new List<PayDeductions>();
+
+    public virtual ICollection<PayDeductions> PayDeductionsUpdatedByNavigation { get; set; } = new List<PayDeductions>();
+
+    public virtual ICollection<PaySlips> PaySlipsCreatedByNavigation { get; set; } = new List<PaySlips>();
+
+    public virtual ICollection<PaySlips> PaySlipsDeletedByNavigation { get; set; } = new List<PaySlips>();
+
+    public virtual ICollection<PaySlips> PaySlipsEmployee { get; set; } = new List<PaySlips>();
+
+    public virtual ICollection<PaySlips> PaySlipsUpdatedByNavigation { get; set; } = new List<PaySlips>();
+
     public virtual ICollection<PaymentModes> PaymentModesCreatedByNavigation { get; set; } = new List<PaymentModes>();
 
     public virtual ICollection<PaymentModes> PaymentModesDeletedByNavigation { get; set; } = new List<PaymentModes>();

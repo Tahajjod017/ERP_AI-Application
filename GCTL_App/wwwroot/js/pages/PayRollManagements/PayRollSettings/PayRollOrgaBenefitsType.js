@@ -3,11 +3,14 @@
     $(document).on('click', '#OrganizationBenefitsType-saveBtn', function (e) {
         e.preventDefault();
         var token = $('#OrganizationBenefitsType-form input[name="__RequestVerificationToken"]').val();
+        debugger
         var formData = {
             __RequestVerificationToken: token,
             BenefitTypeID: $('#BenefitTypeID').val(),
-            OrganizatonID: $('#OrganizatonID').val(),
+            OrganizatonIDs: $('#OrganizatonIDs').val(),
             BenefitTypeName: $('#BenefitTypeName').val(),
+            ApplyOnBasicSalary: $('#ApplyOnBasicSalary').is(':checked'),
+            ApplyOnGrossSalary: $('#ApplyOnGrossSalary').is(':checked')
         }
         var id = $('#OrganizationBenefitsType-form #BenefitTypeID').val();
         var url = '';
@@ -16,6 +19,7 @@
         } else {
             url = '/OrganizationBenefitsType/Save';
         }
+        debugger
         $.ajax({
             url: url,
             type: 'POST',
@@ -58,11 +62,16 @@
             success: function (res) {
                 if (res.success) {
                     d = res.data;
+                    debugger
                     $('#BenefitTypeID').val(d.benefitTypeID);
-                    choiceManager.setChoiceValue('OrganizatonID', d.organizatonID);
-                    
-                    $('#BenefitTypeName').val(d.benefitTypeName);
+                    $('#OrganizationIDs').val(d.organizatonID).each(function () {
+                        coreui.MultiSelect.getInstance(this)?.update();
+                    });
 
+                    $('#BenefitTypeName').val(d.benefitTypeName);
+                    $('#ApplyOnBasicSalary').prop('checked', d.applyOnBasicSalary === true);
+                    $('#ApplyOnGrossSalary').prop('checked', d.applyOnGrossSalary === true);
+                    console.log("TTT" + res.data);
                 } else {
                     toastr.error(res);
                 }
@@ -81,8 +90,12 @@
         $('#OrganizationBenefitsType-form')[0].reset();
         $('#BenefitTypeName').val('');
         $('#BenefitTypeID').val('');
+        const orgSelect = document.getElementById('OrganizationIDs');
+        const orgInstance = coreui.MultiSelect.getInstance(orgSelect);
+        if (orgInstance) {
+            orgInstance.deselectAll();
+        }
         loadTableData();
-       choiceManager.resetChoice('OrganizationID');
         
         $('.field-validation-error').text('');
     }
