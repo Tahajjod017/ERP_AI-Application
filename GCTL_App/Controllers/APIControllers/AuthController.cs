@@ -49,10 +49,11 @@ namespace GCTL_App.Controllers.APIControllers
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var tokenValidity = int.Parse(_configuration["Jwt:TokenValidityMins"] ?? "30");
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
-                audience: null,
-                expires: DateTime.UtcNow.AddHours(6),
+                audience: _configuration["Jwt:Audience"],
+                expires: DateTime.UtcNow.AddMinutes(tokenValidity),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
             );
