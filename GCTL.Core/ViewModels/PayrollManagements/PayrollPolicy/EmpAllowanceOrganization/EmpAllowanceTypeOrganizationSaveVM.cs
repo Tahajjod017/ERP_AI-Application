@@ -12,8 +12,9 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmpAllowanceOrga
         public int EmployeeAllowanceTypeID { get; set; }
 
         public string? EmployeeAllowanceTypeName { get; set; }
-       public int? OrganizationID { get; set; }
+         public int? OrganizationID { get; set; }
         public List<int>? OrganizationIDs { get; set; } = new List<int>();
-
+        public bool ApplyOnBasicSalary { get; set; }
+        public bool ApplyOnGrossSalary { get; set; }
     }
 }

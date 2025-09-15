@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmpAllowanceOrganiza
 using GCTL.Data.Models;
 using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization;
+using GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.PayRollManagements.AllowanceType;
@@ -28,7 +29,17 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
         public IActionResult Index()
         {
             EmpAllowanceOrganizationPageVM model = new EmpAllowanceOrganizationPageVM();
-            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
+            
+            var orga = _organizationRepository.AllActive();
+            if(orga.Count()==1)
+            {
+                ViewBag.OrganizationDD = new SelectList( orga, "OrganizationID", "OrganizationName",orga.First().OrganizationID);
+            }
+            else
+            {
+                ViewBag.OrganizationDD = new SelectList(orga, "OrganizationID", "OrganizationName");
+            }
+           
             return View(model);
         }
 

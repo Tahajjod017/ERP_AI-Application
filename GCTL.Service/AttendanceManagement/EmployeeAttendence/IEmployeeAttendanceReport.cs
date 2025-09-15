@@ -20,6 +20,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         Task<List<PunchActivityDto>> GetEmployeePunchActivityAsync(int userId);
         Task<TimeOnly?> GetEmployeeFirstPunchInTimeAsync(int userId);
         Task<double> GetTotalHoursForWeek(int employeeId, int organizationId, int? organizationBranchId);
+        Task<double> GetTotalHoursForMonth(int employeeId, int organizationId, int? organizationBranchId);
         Task<IActionResult> CalculateWorkingHours(int attendanceId);
 
     }

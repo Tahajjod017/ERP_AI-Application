@@ -11,6 +11,8 @@
             EmployeeAllowanceTypeID: $('#EmployeeAllowanceTypeID').val(),
             OrganizationIDs: $('#OrganizationIDs').val(),
             EmployeeAllowanceTypeName: $('#EmployeeAllowanceTypeName').val(),
+            ApplyOnBasicSalary: $('#ApplyOnBasicSalary').is(':checked'),
+            ApplyOnGrossSalary: $('#ApplyOnGrossSalary').is(':checked')
         }
         var id = $('#AllowanceType-form #EmployeeAllowanceTypeID').val();
         var url = '';
@@ -69,7 +71,8 @@
                         coreui.MultiSelect.getInstance(this)?.update();
                     });
                     $('#EmployeeAllowanceTypeName').val(d.employeeAllowanceTypeName);
-                   
+                    $('#ApplyOnBasicSalary').prop('checked', d.applyOnBasicSalary === true);
+                    $('#ApplyOnGrossSalary').prop('checked', d.applyOnGrossSalary === true);
                 } else {
                     toastr.error(res);
                 }

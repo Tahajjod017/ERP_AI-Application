@@ -64,13 +64,7 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                 }
 
                
-                if (model.OrganizatonID <= 0)
-                {
-                    response.Success = false;
-                    response.Message = "Invalid organization ID.";
-                    response.Errors.Add("OrganizationID must be greater than zero.");
-                    return response;
-                }
+                
                 if (string.IsNullOrWhiteSpace(model.BenefitTypeName))
                 {
                     response.Success = false;
@@ -94,23 +88,28 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                 //}
 
                 await benefitYpe.BeginTransactionAsync();
-
-                var entity = new BenefitTypes
+                foreach(var item in model.OrganizatonIDs)
                 {
-                    OrganizationID = model.OrganizatonID,
-                    BenefitTypeName = model.BenefitTypeName.Trim(),
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = model.CreatedBy,
-                    LIP = model.LIP,
-                    LMAC = model.LMAC,
-                };
+                    var entity = new BenefitTypes
+                    {
+                        OrganizationID = item,
+                        BenefitTypeName = model.BenefitTypeName.Trim(),
+                        ApplyOnGrossSalary = model.ApplyOnGrossSalary,
+                        ApplyOnBasicSalary = model.ApplyOnBasicSalary,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = model.CreatedBy,
+                        LIP = model.LIP,
+                        LMAC = model.LMAC,
+                    };
 
-                await benefitYpe.AddAsync(entity);
+                    await benefitYpe.AddAsync(entity);
+
+                }
+              
                 await benefitYpe.CommitTransactionAsync();
 
                 response.Success = true;
                 response.Message = "Benefit type saved successfully.";
-                response.Data = entity;
             }
             catch (Exception ex)
             {
@@ -141,16 +140,21 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                         Message = "Benefit type not found."
                     };
                 }
-
+                foreach (var item in model.OrganizatonIDs) {
+                    entity.BenefitTypeName = model.BenefitTypeName;
+                    entity.OrganizationID = item;
+                    entity.ApplyOnBasicSalary = model.ApplyOnBasicSalary;
+                    entity.ApplyOnGrossSalary = model.ApplyOnGrossSalary;
+                    entity.UpdatedAt = DateTime.UtcNow;
+                    entity.UpdatedBy = model.UpdatedBy;
+                    entity.LIP = model.LIP;
+                    entity.LMAC = model.LMAC;
+                    await benefitYpe.UpdateAsync(entity);
+                }
                 // update fields
-                entity.BenefitTypeName = model.BenefitTypeName;
-                entity.OrganizationID = model.OrganizatonID;
-                entity.UpdatedAt = DateTime.UtcNow;
-                entity.UpdatedBy = model.UpdatedBy;
-                entity.LIP = model.LIP;
-                entity.LMAC = model.LMAC;
+             
 
-                await benefitYpe.UpdateAsync(entity);
+                
                 await benefitYpe.CommitTransactionAsync();
 
                 return new CommonReturnViewModel
@@ -282,7 +286,8 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                     BenefitTypeID = data.BenefitTypeID,
                     OrganizatonID = data.OrganizationID,
                     BenefitTypeName = data.BenefitTypeName,
-
+                    ApplyOnGrossSalary = data.ApplyOnGrossSalary,
+                    ApplyOnBasicSalary = data.ApplyOnBasicSalary,
                 };
                 return result;
             }
