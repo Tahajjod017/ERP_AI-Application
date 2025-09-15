@@ -1,0 +1,178 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div class="col-xl-12 mt-3">
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="border-bottom mb-3 pb-3">
+                <h4>Attendance Settings</h4>
+            </div>
+
+            <form id="attendanceForm" asp-controller="AttendanceSettings" asp-action="Create" method="post">
+                <div class="mb-3">
+                    <div class="row g-3">
+                        <!-- Organization / Company Dropdown -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="organizationId">Organization</label>
+                                <select class="form-select choiceDD" id="organizationId" name="CompanyID" required>
+                                    <option value="">Select</option>
+                                    <!-- Options dynamically loaded from DB -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- ================= Auto Absent Rule ================= -->
+                        <div class="col-12">
+                            <div class="card p-3">
+                                <h6 class="mb-3">Auto Absent Rule</h6>
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="AutoAbsentEnabled" name="AutoAbsentEnabled">
+                                            <label class="form-check-label" for="AutoAbsentEnabled">Enable Auto Absent</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label">Mark Absent If No Check-in After</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" id="AbsentAfterHours" name="AbsentAfterHours" class="form-control" placeholder="Hours">
+                                            <span class="input-group-text">hr</span>
+                                            <input type="number" min="0" max="59" id="AbsentAfterMinutes" name="AbsentAfterMinutes" class="form-control" placeholder="Minutes">
+                                            <span class="input-group-text">min</span>
+                                        </div>
+                                    </div>
+
+                                    @* <div class="col-md-4">
+                                        <label class="form-label d-block mb-2">Reference Point</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="AbsentBasis" id="AbsentFromShiftStart" value="ShiftStart" checked>
+                                            <label class="form-check-label" for="AbsentFromShiftStart">Shift Start</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="AbsentBasis" id="AbsentFromDayStart" value="DayStart">
+                                            <label class="form-check-label" for="AbsentFromDayStart">Calendar Day Start</label>
+                                        </div>
+                                    </div> *@
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ================= Half-day Calculation ================= -->
+                        <div class="col-12">
+                            <div class="card p-3">
+                                <h6 class="mb-3">Half-day Calculation</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Half-day When Worked At Least</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" id="HalfDayHours" name="HalfDayHours" class="form-control" placeholder="Hours">
+                                            <span class="input-group-text">hr</span>
+                                            <input type="number" min="0" max="59" id="HalfDayMinutes" name="HalfDayMinutes" class="form-control" placeholder="Minutes">
+                                            <span class="input-group-text">min</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label">Half-day Window (Optional)</label>
+                                        <select class="form-select choiceDD" id="HalfDayWindowType" name="HalfDayWindowType">
+                                            <option value="Any">Any Time</option>
+                                            <option value="FirstHalf">First Half</option>
+                                            <option value="SecondHalf">Second Half</option>
+                                        </select>
+                                    </div>
+
+                                    @* <div class="col-md-4">
+                                        <label class="form-label d-block mb-2">Treatment In Payroll</label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="HalfDayPayrollMode" id="HalfDayEquals0_5" value="0.5" checked>
+                                            <label class="form-check-label" for="HalfDayEquals0_5">Count as 0.5 Day</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="HalfDayPayrollMode" id="HalfDayCustom" value="custom">
+                                            <label class="form-check-label" for="HalfDayCustom">Custom Hours</label>
+                                        </div>
+                                        <input type="number" min="0" step="0.5" id="HalfDayCustomHourInput" name="HalfDayCustomHours" class="form-control mt-2" placeholder="e.g., 4" style="max-width:160px; display:none;">
+                                    </div> *@
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ================= Working Hours Policy ================= -->
+                        <div class="col-12">
+                            <div class="card p-3">
+                                <h6 class="mb-3">Working Hours Policy</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Full-day Required Hours</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" id="FullDayHours" name="FullDayHours" class="form-control" placeholder="Hours">
+                                            <span class="input-group-text">hr</span>
+                                            <input type="number" min="0" max="59" id="FullDayMinutes" name="FullDayMinutes" class="form-control" placeholder="Minutes">
+                                            <span class="input-group-text">min</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label">Minimum Working Hours (Present)</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" id="MinWorkingHours" name="MinWorkingHours" class="form-control" placeholder="Hours">
+                                            <span class="input-group-text">hr</span>
+                                            <input type="number" min="0" max="59" id="MinWorkingMinutes" name="MinWorkingMinutes" class="form-control" placeholder="Minutes">
+                                            <span class="input-group-text">min</span>
+                                        </div>
+                                    </div>
+
+                                    @* <div class="col-md-4">
+                                        <label class="form-label">Late Grace Period</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" id="GraceMinutes" name="GraceMinutes" class="form-control" placeholder="Minutes">
+                                            <span class="input-group-text">min</span>
+                                        </div>
+                                        <div class="form-text">Applied against scheduled shift start.</div>
+                                    </div> *@
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /row -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex align-items-center justify-content-end">
+                    <button type="reset" class="btn btn-outline-secondary me-2">Reset</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Optional: include list/edit partials like your example -->
+    @* <partial name="_attendanceListTable" /> *@
+    @* <partial name="_attendanceEdit" /> *@
+    @* <partial name="_ConfirmDelete" /> *@
+</div>
+<script>
+    // Toggle custom hours input
+    document.addEventListener('change', function (e) {
+      if (e.target.name === 'HalfDayPayrollMode') {
+        const show = e.target.value === 'custom';
+        document.getElementById('HalfDayCustomHourInput').style.display = show ? 'block' : 'none';
+      }
+    });
+
+    // Disable absent thresholds if auto-absent off
+    const autoChk = document.getElementById('AutoAbsentEnabled');
+    const absentInputs = ['AbsentAfterHours','AbsentAfterMinutes']
+      .map(id => document.getElementById(id));
+    function syncAbsent() {
+      absentInputs.forEach(i => i.disabled = !autoChk.checked);
+    }
+    autoChk.addEventListener('change', syncAbsent);
+    syncAbsent();
+</script>
+

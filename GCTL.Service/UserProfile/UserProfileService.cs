@@ -64,6 +64,23 @@ namespace GCTL.Service.UserProfile
 
             return currentEmployeeId;
         }
+        public async Task<int?> GetCurrentOrganizationIdAsync(string userId)
+        {
+            int? currentEmployeeId = null;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user != null)
+                {
+                    currentEmployeeId = user.OrganizationID;  // Fetch and return the Employee ID directly
+                }
+            }
+
+            return currentEmployeeId;
+        }
     }
 
 }
