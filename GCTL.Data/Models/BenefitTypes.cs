@@ -29,6 +29,10 @@ public partial class BenefitTypes
 
     public int? DeletedBy { get; set; }
 
+    public bool ApplyOnBasicSalary { get; set; }
+
+    public bool ApplyOnGrossSalary { get; set; }
+
     public virtual ICollection<Benefits> Benefits { get; set; } = new List<Benefits>();
 
     public virtual Employees CreatedByNavigation { get; set; }
