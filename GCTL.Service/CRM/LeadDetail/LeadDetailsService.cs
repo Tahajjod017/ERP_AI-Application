@@ -261,7 +261,7 @@ namespace GCTL.Service.CRM.LeadDetail
                 }
 
                 // Check if status already matches
-                if (leadObj.IsWwn == isWon)
+                if (leadObj.IsOwn == isWon)
                 {
                     await _leadsRepository.RollbackTransactionAsync();
                     return new ReturnView
@@ -286,7 +286,7 @@ namespace GCTL.Service.CRM.LeadDetail
                 await _leadDetailsGenericRepository.AddAsync(leadActivityObj);
 
                 // Update lead status
-                leadObj.IsWwn = isWon;
+                leadObj.IsOwn = isWon;
                 leadObj.ClosingDate = DateTime.UtcNow;
                 leadObj.UpdatedAt = DateTime.UtcNow;
                 leadObj.UpdatedBy = isWonVM.UpdatedBy;

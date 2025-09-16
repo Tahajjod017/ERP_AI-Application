@@ -67,11 +67,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.Movement
                     x.Remarks,
                     x.LIP,
                     x.LMAC,
-                    x.RegularHour,
-                    x.OvertimeHour,
-                    x.LateHour,
-                    x.EarlyHour,
-                    x.WorkingHour,
+                    x.OfficeTimeMinutes,
+                    x.OvertimeMinutes,
+                    x.LateTimeMinutes,
+                    x.EarlyTimeMinutes,
+                    x.WorkingTimeMinutes,
                     ShiftName = x.Shift.ShiftName,  // Access ShiftName from the Shift navigation property
                     OrganizationID = x.Shift.OrganizationID // Access OrganizationID from Shift
                 });
@@ -106,11 +106,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.Movement
                         Shift = attendanceItem.ShiftName,
                         CheckInTime = attendanceItem.CheckInTime?.ToString("hh:mm tt"),
                         CheckOutTime = attendanceItem.CheckOutTime?.ToString("hh:mm tt"),
-                        RegularHour = attendanceItem.RegularHour,
-                        OvertimeHour = attendanceItem.OvertimeHour,
-                        LateHour = attendanceItem.LateHour,
-                        EarlyHour = attendanceItem.EarlyHour,
-                        WorkingHour = attendanceItem.WorkingHour,
+                        RegularHour = attendanceItem.OfficeTimeMinutes,
+                        OvertimeHour = attendanceItem.OvertimeMinutes,
+                        LateHour = attendanceItem.LateTimeMinutes,
+                        EarlyHour = attendanceItem.EarlyTimeMinutes,
+                        WorkingHour = attendanceItem.WorkingTimeMinutes,
                         Remarks = attendanceItem.Remarks,
                         Status = attendanceItem.StatusID ?? 0,  // Default status if null
                         SpecialDay = "Workday"

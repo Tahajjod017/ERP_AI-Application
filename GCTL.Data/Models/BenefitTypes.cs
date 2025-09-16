@@ -29,9 +29,7 @@ public partial class BenefitTypes
 
     public int? DeletedBy { get; set; }
 
-    public bool ApplyOnBasicSalary { get; set; }
-
-    public bool ApplyOnGrossSalary { get; set; }
+    public bool IsApplyOnGrossSalary { get; set; }
 
     public virtual ICollection<Benefits> Benefits { get; set; } = new List<Benefits>();
 

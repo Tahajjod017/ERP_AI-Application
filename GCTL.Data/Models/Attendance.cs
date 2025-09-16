@@ -41,15 +41,17 @@ public partial class Attendance
 
     public bool? IsChecked { get; set; }
 
-    public int? RegularHour { get; set; }
+    public int? OfficeTimeMinutes { get; set; }
 
-    public int? OvertimeHour { get; set; }
+    public int? OvertimeMinutes { get; set; }
 
-    public int? LateHour { get; set; }
+    public int? LateTimeMinutes { get; set; }
 
-    public int? EarlyHour { get; set; }
+    public int? EarlyTimeMinutes { get; set; }
 
-    public int? WorkingHour { get; set; }
+    public int? WorkingTimeMinutes { get; set; }
+
+    public int? BreakTimeMinutes { get; set; }
 
     public virtual ICollection<AttendanceLog> AttendanceLog { get; set; } = new List<AttendanceLog>();
 
