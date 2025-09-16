@@ -1062,7 +1062,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
         //    return totalWorkingHours;
         //}
-        public async Task<(double totalWorkingHours, double totalWorkedHours)> GetTotalHoursForWeek(int employeeId, int organizationId, int? organizationBranchId)
+        public async Task<(double totalWorkingHours, string totalWorkedHours)> GetTotalHoursForWeek(int employeeId, int organizationId, int? organizationBranchId)
         {
             DateTime currentDate = DateTime.UtcNow;
             DateOnly currentDateOnly = DateOnly.FromDateTime(currentDate);
@@ -1094,10 +1094,14 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 .Where(d => !holidays.Any(h => d >= DateOnly.FromDateTime(h.StartDate.Value)
                                                && d <= DateOnly.FromDateTime(h.EndDate.Value))) // Remove holidays
                 .ToList();
+            if (!workingDays.Any())
+                return (0, "0h 0m"); // No working days, return zeros
+
 
             // 5. Identify start and end working day (optional, for logging or other purposes)
             DateOnly firstWorkingDay = workingDays.FirstOrDefault();
             DateOnly lastWorkingDay = workingDays.LastOrDefault();
+
 
             // 6. Get employee attendance for the remaining working days
             var attendanceData = await _genericRepository.All()
@@ -1105,110 +1109,116 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                                                     && workingDays.Contains(a.AttendanceDate)
                                                     && a.DeletedAt == null)
                                         .ToListAsync();
+            var attendanceData2 = await _genericRepository.All()
+                .Where(a => a.EmployeeID == employeeId && a.DeletedAt == null)
+               .OrderByDescending(a => a.AttendanceDate)
+                .FirstOrDefaultAsync();
 
             // 7. Get shifts for the organization
             var shifts = await _genericRepositoryShift.All()
-                        .Where(s => s.OrganizationID == organizationId)
-                        .ToListAsync();
-
+                        .Where(s => s.ShiftID == attendanceData2.ShiftID)
+                        .FirstOrDefaultAsync();
+            
             // 8. Calculate total working hours
             double totalWorkingHours = 0;
+            var shiftStartTime = shifts.StartTime;
+            var shiftEndTime = shifts.EndTime;
+            var mealBreakTime = shifts.MealBreakTime.HasValue ? shifts.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
 
-            foreach (var attendance in attendanceData)
-            {
-                var shift = shifts.FirstOrDefault(s => s.ShiftID == attendance.ShiftID);
-                if (shift != null)
-                {
-                    var shiftStartTime = shift.StartTime;
-                    var shiftEndTime = shift.EndTime;
-                    var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+            double dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime)?.TotalHours ?? 0;
 
-                    var dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime)?.TotalHours ?? 0;
-                    totalWorkingHours += dailyWorkingHours;
-                }
-            }
+            // 7. Total working hours = dailyWorkingHours * number of working days
+             totalWorkingHours = dailyWorkingHours * workingDays.Count;
+
+
             // Fix for CS0266 and CS8629: Ensure null handling and explicit conversion to double
-            double totalWorkedHours = attendanceData.Sum(a => a.RegularHour.HasValue ? (double)a.RegularHour.Value : 0) / 60;
-            return (totalWorkingHours, totalWorkedHours);
+            // 8. Total worked hours in hours and minutes as string "7h 45m"
+            int totalMinutesWorked = attendanceData.Sum(a => a.OfficeTimeMinutes ?? 0);
+            int hoursWorked = totalMinutesWorked / 60;
+            int minutesWorked = totalMinutesWorked % 60;
+            string totalWorkedHoursStr = $"{hoursWorked}h {minutesWorked}m";
+
+            return (totalWorkingHours, totalWorkedHoursStr);
         }
 
 
-        public async Task<double> GetTotalHoursForMonth(int employeeId, int organizationId, int? organizationBranchId)
+        public async Task<(double totalWorkingHours, string totalWorkedHours)> GetTotalHoursForMonth(
+           int employeeId, int organizationId, int? organizationBranchId)
         {
-            DateTime now = DateTime.UtcNow;
-            DateOnly today = DateOnly.FromDateTime(now);
-            DateOnly startOfMonth = new DateOnly(now.Year, now.Month, 1);
+            DateTime currentDate = DateTime.UtcNow;
+            DateOnly currentDateOnly = DateOnly.FromDateTime(currentDate);
 
-            // Attendance for this month (inclusive)
-            var attendanceData = await _genericRepository.AllActive()
-                .Where(a => a.EmployeeID == employeeId
-                    && a.AttendanceDate >= startOfMonth
-                    && a.AttendanceDate <= today
-                    )
-                .ToListAsync();
-            double totalRegularHours = attendanceData.Sum(a => a.OfficeTimeMinutes ?? 0);
-            int hours = (int)totalRegularHours;
-            int minutes = (int)((totalRegularHours - hours) * 60);
+            // 1. Get all days of the current month
+            int daysInMonth = DateTime.DaysInMonth(currentDate.Year, currentDate.Month);
+            List<DateOnly> monthDays = Enumerable.Range(1, daysInMonth)
+                                                 .Select(d => new DateOnly(currentDate.Year, currentDate.Month, d))
+                                                 .ToList();
 
-            // Weekend days for this org/branch (0=Sunday ... 6=Saturday)
+            // 2. Get weekend days dynamically from the Weekend table
             var weekendDays = await _genericWeekdays.All()
                 .Where(w => w.DeletedAt == null
-                    && w.WeekendSetting.OrganizationID == organizationId
-                    && (organizationBranchId == null || w.WeekendSetting.OrganizationBranchID == organizationBranchId))
+                            && w.WeekendSetting.OrganizationID == organizationId
+                            && (organizationBranchId == null || w.WeekendSetting.OrganizationBranchID == organizationBranchId))
                 .Select(w => w.WeekdayNumber)
                 .ToListAsync();
 
-            // Shifts (by org)
-            var shifts = await _genericRepositoryShift.All()
-                .Where(s => s.OrganizationID == organizationId)
-                .ToListAsync();
-
-            // Holidays overlapping this month window
+            // 3. Get holidays dynamically from the Holidays table
             var holidays = await _genericHolidays.All()
                 .Where(h => h.OrganizationID == organizationId
-                    && (organizationBranchId == null || h.OrganizationBranchID == organizationBranchId)
-                    && h.StartDate.HasValue && h.EndDate.HasValue
-                    && DateOnly.FromDateTime(h.EndDate.Value) >= startOfMonth
-                    && DateOnly.FromDateTime(h.StartDate.Value) <= today)
+                            && (organizationBranchId == null || h.OrganizationBranchID == organizationBranchId)
+                            && DateOnly.FromDateTime(h.StartDate.Value) <= currentDateOnly
+                            && DateOnly.FromDateTime(h.EndDate.Value) >= new DateOnly(currentDate.Year, currentDate.Month, 1))
                 .ToListAsync();
 
-            double totalWorkingHours = 0;
+            // 4. Remove weekends and holidays from monthDays
+            List<DateOnly> workingDays = monthDays
+                .Where(d => !weekendDays.Contains((int)d.DayOfWeek))
+                .Where(d => !holidays.Any(h => d >= DateOnly.FromDateTime(h.StartDate.Value)
+                                               && d <= DateOnly.FromDateTime(h.EndDate.Value)))
+                .ToList();
 
-            foreach (var attendance in attendanceData)
-            {
-                DateOnly d = attendance.AttendanceDate;
+            if (!workingDays.Any())
+                return (0, "0h 0m");
 
-                // Skip weekends
-                if (weekendDays.Contains((int)d.DayOfWeek))
-                    continue;
+            // 5. Get employee attendance for the working days
+            var attendanceData = await _genericRepository.All()
+                                        .Where(a => a.EmployeeID == employeeId
+                                                    && workingDays.Contains(a.AttendanceDate)
+                                                    && a.DeletedAt == null)
+                                        .ToListAsync();
 
-                // Skip holidays
-                bool isHoliday = holidays.Any(h =>
-                    d >= DateOnly.FromDateTime(h.StartDate!.Value) &&
-                    d <= DateOnly.FromDateTime(h.EndDate!.Value));
-                if (isHoliday)
-                    continue;
+            var lastAttendance = await _genericRepository.All()
+                .Where(a => a.EmployeeID == employeeId && a.DeletedAt == null)
+                .OrderByDescending(a => a.AttendanceDate)
+                .FirstOrDefaultAsync();
 
-                // Find the shift for this attendance
-                var shift = shifts.FirstOrDefault(s => s.ShiftID == attendance.ShiftID);
-                if (shift == null)
-                    continue;
+            if (lastAttendance == null)
+                return (0, "0h 0m");
 
-                var startTs = shift.StartTime.HasValue ? shift.StartTime.Value.ToTimeSpan() : TimeSpan.Zero;
-                var endTs = shift.EndTime.HasValue ? shift.EndTime.Value.ToTimeSpan() : TimeSpan.Zero;
-                var meal = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+            // 6. Get the shift info for daily working hours
+            var shift = await _genericRepositoryShift.All()
+                .Where(s => s.ShiftID == lastAttendance.ShiftID)
+                .FirstOrDefaultAsync();
 
-                // Raw duration (if negative, it wrapped past midnight)
-                var duration = endTs - startTs;
-                if (duration < TimeSpan.Zero)
-                    duration += TimeSpan.FromDays(1);
+            if (shift == null)
+                return (0, "0h 0m");
 
-                duration -= meal;
-                if (duration > TimeSpan.Zero)
-                    totalWorkingHours += duration.TotalHours; // keep fractional hours
-            }
+            var shiftStartTime = shift.StartTime;
+            var shiftEndTime = shift.EndTime;
+            var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
 
-            return totalWorkingHours;
+            double dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime)?.TotalHours ?? 0;
+
+            // 7. Total working hours = dailyWorkingHours * number of working days
+            double totalWorkingHours = dailyWorkingHours * workingDays.Count;
+
+            // 8. Total worked hours in hours and minutes as string "7h 45m"
+            int totalMinutesWorked = attendanceData.Sum(a => a.OfficeTimeMinutes ?? 0);
+            int hoursWorked = totalMinutesWorked / 60;
+            int minutesWorked = totalMinutesWorked % 60;
+            string totalWorkedHoursStr = $"{hoursWorked}h {minutesWorked}m";
+
+            return (totalWorkingHours, totalWorkedHoursStr);
         }
 
 
