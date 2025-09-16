@@ -9,8 +9,7 @@
             BenefitTypeID: $('#BenefitTypeID').val(),
             OrganizatonIDs: $('#OrganizatonIDs').val(),
             BenefitTypeName: $('#BenefitTypeName').val(),
-            ApplyOnBasicSalary: $('#ApplyOnBasicSalary').is(':checked'),
-            ApplyOnGrossSalary: $('#ApplyOnGrossSalary').is(':checked')
+            IsApplyOnGrossSalary: $('#IsApplyOnGrossSalary').is(':checked'),
         }
         var id = $('#OrganizationBenefitsType-form #BenefitTypeID').val();
         var url = '';
@@ -45,9 +44,6 @@
     });
 
 
-    //
-
-
 
     //
     $(document).on('click', '#OrganizationBenefitsType-edit', function () {
@@ -62,15 +58,13 @@
             success: function (res) {
                 if (res.success) {
                     d = res.data;
-                    debugger
                     $('#BenefitTypeID').val(d.benefitTypeID);
                     $('#OrganizationIDs').val(d.organizatonID).each(function () {
                         coreui.MultiSelect.getInstance(this)?.update();
                     });
 
                     $('#BenefitTypeName').val(d.benefitTypeName);
-                    $('#ApplyOnBasicSalary').prop('checked', d.applyOnBasicSalary === true);
-                    $('#ApplyOnGrossSalary').prop('checked', d.applyOnGrossSalary === true);
+                    $('#IsApplyOnGrossSalary').prop('checked', d.isApplyOnGrossSalary === true);
                     console.log("TTT" + res.data);
                 } else {
                     toastr.error(res);
@@ -262,6 +256,7 @@
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.organizationName}</td>
                              <td class="align-middle white-space-nowrap ps-0">${item.benefitTypeName}</td>
+                             <td class="align-middle white-space-nowrap ps-5">${item.isApplyOnGrossSalary}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 OrganizationBenefitsType-bulkDelete" href="#!" id="OrganizationBenefitsType-edit" data-id="${item.benefitTypeID}"><i class="fas fa-edit"></i></a>

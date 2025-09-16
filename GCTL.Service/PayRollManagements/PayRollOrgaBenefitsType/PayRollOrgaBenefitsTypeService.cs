@@ -94,8 +94,9 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                     {
                         OrganizationID = item,
                         BenefitTypeName = model.BenefitTypeName.Trim(),
-                        //ApplyOnGrossSalary = model.ApplyOnGrossSalary,
-                        //ApplyOnBasicSalary = model.ApplyOnBasicSalary,
+
+                        IsApplyOnGrossSalary = model.IsApplyOnGrossSalary,
+
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy,
                         LIP = model.LIP,
@@ -143,8 +144,9 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                 foreach (var item in model.OrganizatonIDs) {
                     entity.BenefitTypeName = model.BenefitTypeName;
                     entity.OrganizationID = item;
-                    //entity.ApplyOnBasicSalary = model.ApplyOnBasicSalary;
-                    //entity.ApplyOnGrossSalary = model.ApplyOnGrossSalary;
+
+                    entity.IsApplyOnGrossSalary = model.IsApplyOnGrossSalary;
+
                     entity.UpdatedAt = DateTime.UtcNow;
                     entity.UpdatedBy = model.UpdatedBy;
                     entity.LIP = model.LIP;
@@ -219,6 +221,8 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                         BenefitTypeID = x.BenefitTypeID,
                         OrganizationName = x.Organization != null ? x.Organization.OrganizationName ?? "-" : "-",
                         BenefitTypeName = x.BenefitTypeName,
+                        IsApplyOnGrossSalary = x.IsApplyOnGrossSalary == true ? "Yes" : "No",
+
                     });
 
                 return result;
@@ -286,8 +290,8 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                     BenefitTypeID = data.BenefitTypeID,
                     OrganizatonID = data.OrganizationID,
                     BenefitTypeName = data.BenefitTypeName,
-                    //ApplyOnGrossSalary = data.ApplyOnGrossSalary,
-                    //ApplyOnBasicSalary = data.ApplyOnBasicSalary,
+                    IsApplyOnGrossSalary = data.IsApplyOnGrossSalary,
+
                 };
                 return result;
             }

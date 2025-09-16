@@ -49,9 +49,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
                 var getEmployeeDetails = await _employeeAttendanceReport.GetTotalHoursForWeek(currentEmployeeId.Value, orgId.Value, null);
                 var getEmployeeDetailsMonth = await _employeeAttendanceReport.GetTotalHoursForMonth(currentEmployeeId.Value, orgId.Value, null);
 
-                ViewData["TotalHoursWeek"] = getEmployeeDetails.ToString("F2");
-                ViewData["TotalHoursMonth"] = getEmployeeDetailsMonth.ToString("F2");
-
+               
                 ViewData["ProductionTime"] = getEmployeeTotalHoursRelated2.TotalWorkingHours;
                 ViewData["ProductionTimeMinute"] = getEmployeeTotalHoursRelated.ProductionTimeMinute;
                // ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime; 
@@ -59,6 +57,10 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
                 //ViewBag.ProductionTime = getEmployeeTotalHoursRelated.ProductionTime;
                 ViewData["Overtime"] = getEmployeeTotalHoursRelated.Overtime;
                 ViewData["TotalWorkingHours"] = getEmployeeTotalHoursRelated.TotalWorkingHours;
+                ViewData["TotalWorkingHoursWeek"] = getEmployeeDetails.totalWorkingHours;
+                ViewData["TotalWorkedHoursWeek"] = getEmployeeDetails.totalWorkedHours;
+                ViewData["TotalWorkingHoursMonth"] = getEmployeeDetailsMonth.totalWorkingHours;
+                ViewData["TotalWorkedHoursMonth"] = getEmployeeDetailsMonth.totalWorkedHours;
                 //ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime;
             }
             else
