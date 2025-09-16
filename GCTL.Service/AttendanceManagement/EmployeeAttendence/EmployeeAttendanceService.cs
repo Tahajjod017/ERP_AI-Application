@@ -1062,7 +1062,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
         //    return totalWorkingHours;
         //}
-        public async Task<(double totalWorkingHours, string totalWorkedHours)> GetTotalHoursForWeek(int employeeId, int organizationId, int? organizationBranchId)
+        public async Task<(double totalWorkingHours, string totalWorkedHours)> GetTotalHoursForWeek(int employeeId, int? organizationId, int? organizationBranchId)
         {
             DateTime currentDate = DateTime.UtcNow;
             DateOnly currentDateOnly = DateOnly.FromDateTime(currentDate);
@@ -1143,7 +1143,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
 
         public async Task<(double totalWorkingHours, string totalWorkedHours)> GetTotalHoursForMonth(
-           int employeeId, int organizationId, int? organizationBranchId)
+           int employeeId, int? organizationId, int? organizationBranchId)
         {
             DateTime currentDate = DateTime.UtcNow;
             DateOnly currentDateOnly = DateOnly.FromDateTime(currentDate);
