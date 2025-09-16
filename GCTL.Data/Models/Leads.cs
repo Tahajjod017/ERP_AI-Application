@@ -9,8 +9,6 @@ public partial class Leads
 {
     public int LeadID { get; set; }
 
-    public int? CustomerID { get; set; }
-
     public bool? IsIndividualCustomer { get; set; }
 
     public int? LeadStatusID { get; set; }
@@ -45,11 +43,15 @@ public partial class Leads
 
     public int? PriorityID { get; set; }
 
-    public bool? IsWwn { get; set; }
+    public bool? IsOwn { get; set; }
 
     public DateTime? ClosingDate { get; set; }
 
+    public int? CustomerID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
+
+    public virtual Customers Customer { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 

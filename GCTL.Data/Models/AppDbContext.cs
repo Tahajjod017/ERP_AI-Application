@@ -33,6 +33,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
     public virtual DbSet<Attendance> Attendance { get; set; }
@@ -296,6 +297,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2BD3C9DBD");
@@ -559,13 +561,14 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
-.HasDiscriminator<string>("Discriminator")
-.HasValue<ApplicationUser>("ApplicationUser");
+         .HasDiscriminator<string>("Discriminator")
+         .HasValue<ApplicationUser>("ApplicationUser");
+
         modelBuilder.Entity<ApplicationUser>()
-        .HasOne(u => u.Employees)
-        .WithMany(e => e.AspNetUsers)
-        .HasForeignKey(u => u.EmployeeId)
-        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+                .HasOne(u => u.Employees)
+                .WithMany(e => e.AspNetUsers)
+                .HasForeignKey(u => u.EmployeeId)
+                .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -2884,6 +2887,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
                 .HasConstraintName("FK__Leads__CreatedBy__20CCCE1C");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.Leads)
+                .HasForeignKey(d => d.CustomerID)
+                .HasConstraintName("FK_Customers_CustomerID_Leads");
 
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeadsDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
