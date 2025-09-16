@@ -409,7 +409,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             // ---------------- STEP 3: Overtime ----------------
             var lastPunch = attendanceLogs.Last().CHECKTIME_UTC.Value;
-            if (shiftEndTime.HasValue && lastPunch > shiftEndTime.Value)
+            if (shiftEndTime.HasValue && lastPunch > shiftEndTime.Value && shift.IsAllowOvertime==true)
             {
                 totalOvertimeMinutes = (int)(lastPunch - shiftEndTime.Value).TotalMinutes;
 
@@ -963,106 +963,176 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         //    };
         //}
 
-        public async Task<double> GetTotalHoursForWeek(int employeeId, int organizationId, int? organizationBranchId)
+        //public async Task<double> GetTotalHoursForWeek(int employeeId, int organizationId, int? organizationBranchId)
+        //{
+        //    DateTime currentDate = DateTime.UtcNow;
+        //    DateOnly currentDateOnly = DateOnly.FromDateTime(currentDate); // Use DateOnly for date without time
+        //    DateOnly startOfWeek = currentDateOnly.AddDays(-7); // Get the start of the week (7 days ago)
+
+        //    var attendanceData = await _genericRepository.All()
+        //                        .Where(a => a.EmployeeID == employeeId
+        //                            && a.AttendanceDate >= startOfWeek
+        //                            && a.AttendanceDate <= currentDateOnly
+        //                            && a.DeletedAt == null
+        //                           )
+        //                        .ToListAsync();
+
+        //    // Get employee attendance for the past 7 days, excluding weekends and holidays, and match the organizationId and organizationBranchId
+        //    //        var attendanceData = await _genericRepository.All()
+        //    //.Where(a => a.EmployeeID == employeeId
+        //    //            && a.AttendanceDate >= startOfWeek
+        //    //            && a.AttendanceDate <= currentDateOnly
+        //    //            && a.DeletedAt == null
+        //    //            && a.Employee.EmployeeOfficeInfoCreatedByNavigation
+        //    //                .Any(e => e.OrganizationID == organizationId
+        //    //                          && (organizationBranchId == null || e.OrganizationBranchID == organizationBranchId)))
+        //    //.ToListAsync();
+
+        //    //var getEmployeeOfficeInfo = await _genericEmployeeOfficeInfo.All()
+        //    //    .Where(e => e.EmployeeID == employeeId && e.OrganizationID == organizationId && (e.OrganizationBranchID ==null || e.OrganizationBranchID == organizationBranchId) )
+        //    //    .FirstOrDefaultAsync();
+
+
+        //    // Get the weekend days for the current week, filtered by organization and branch
+        //    var weekendDays = await _genericWeekdays.All()
+        //        .Where(w => w.DeletedAt == null
+        //                && w.WeekendSetting.OrganizationID == organizationId
+        //                && (organizationBranchId == null || w.WeekendSetting.OrganizationBranchID == organizationBranchId))
+        //        .Select(w => w.WeekdayNumber) // Get the weekday numbers (0 for Sunday, 1 for Monday, etc.)
+        //        .ToListAsync();
+
+        //    // Get the employee's shifts, filtered by organization (no need to filter by organizationBranchId for shifts)
+        //    var shifts = await _genericRepositoryShift.All()
+        //        .Where(s => s.OrganizationID == organizationId)  // Only filter by OrganizationID
+        //        .ToListAsync();
+
+        //    // Get the holidays for the week, filtered by organization and branch
+        //    var holidays = await _genericHolidays.All()
+        //        .Where(h => h.OrganizationID == organizationId
+        //                    && (organizationBranchId == null || h.OrganizationBranchID == organizationBranchId)
+        //                    && DateOnly.FromDateTime(h.StartDate.Value) <= currentDateOnly
+        //                    && DateOnly.FromDateTime(h.EndDate.Value) >= startOfWeek)
+        //        .ToListAsync();
+
+        //    double totalWorkingHours = 0;
+
+        //    foreach (var attendance in attendanceData)
+        //    {
+        //        DateOnly attendanceDateOnly = attendance.AttendanceDate;
+
+        //        // Check if the day is a weekend (using WeekendDays table)
+        //        bool isWeekend = weekendDays.Contains((int)attendanceDateOnly.DayOfWeek); // WeekendDays are stored as numbers (0 to 6)
+
+        //        // Skip weekends
+        //        if (isWeekend)
+        //            continue;
+
+        //        // Check if the day is a holiday
+        //        bool isHoliday = holidays.Any(h => attendanceDateOnly >= DateOnly.FromDateTime(h.StartDate.Value) && attendanceDateOnly <= DateOnly.FromDateTime(h.EndDate.Value));
+
+        //        // Skip holidays
+        //        if (isHoliday)
+        //            continue;
+
+        //        // Get the shift for the attendance day
+        //        var shift = shifts.FirstOrDefault(s => s.ShiftID == attendance.ShiftID);
+
+        //        if (shift != null)
+        //        {
+        //            // Calculate total working hours for the shift
+        //            var shiftStartTime = shift.StartTime;
+        //            var shiftEndTime = shift.EndTime;
+
+        //            // Subtract meal break time if any
+        //            // Replace the following line:  
+        //           // var mealBreakTime = shift.MealBreakTime ?? TimeSpan.Zero;
+
+
+        //            var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+        //            //var mealBreakTime = shift.MealBreakTime ?? TimeSpan.Zero;
+
+        //            //  total working hours for this day (shift time minus break time)
+        //           // var dailyWorkingHours = shiftEndTime.Subtract(shiftStartTime).Subtract(mealBreakTime).TotalHours;
+        //           var dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime).Value.Hours;
+
+
+
+        //            totalWorkingHours += dailyWorkingHours;
+        //        }
+        //    }
+
+        //    return totalWorkingHours;
+        //}
+        public async Task<(double totalWorkingHours, double totalWorkedHours)> GetTotalHoursForWeek(int employeeId, int organizationId, int? organizationBranchId)
         {
             DateTime currentDate = DateTime.UtcNow;
-            DateOnly currentDateOnly = DateOnly.FromDateTime(currentDate); // Use DateOnly for date without time
-            DateOnly startOfWeek = currentDateOnly.AddDays(-7); // Get the start of the week (7 days ago)
+            DateOnly currentDateOnly = DateOnly.FromDateTime(currentDate);
 
-            var attendanceData = await _genericRepository.All()
-                                .Where(a => a.EmployeeID == employeeId
-                                    && a.AttendanceDate >= startOfWeek
-                                    && a.AttendanceDate <= currentDateOnly
-                                    && a.DeletedAt == null
-                                   )
-                                .ToListAsync();
+            // 1. Generate last 7 days (from 6 days ago up to today)
+            List<DateOnly> weekDays = Enumerable.Range(0, 7)
+                                                .Select(i => currentDateOnly.AddDays(-6 + i))
+                                                .ToList();
 
-            // Get employee attendance for the past 7 days, excluding weekends and holidays, and match the organizationId and organizationBranchId
-            //        var attendanceData = await _genericRepository.All()
-            //.Where(a => a.EmployeeID == employeeId
-            //            && a.AttendanceDate >= startOfWeek
-            //            && a.AttendanceDate <= currentDateOnly
-            //            && a.DeletedAt == null
-            //            && a.Employee.EmployeeOfficeInfoCreatedByNavigation
-            //                .Any(e => e.OrganizationID == organizationId
-            //                          && (organizationBranchId == null || e.OrganizationBranchID == organizationBranchId)))
-            //.ToListAsync();
-
-            //var getEmployeeOfficeInfo = await _genericEmployeeOfficeInfo.All()
-            //    .Where(e => e.EmployeeID == employeeId && e.OrganizationID == organizationId && (e.OrganizationBranchID ==null || e.OrganizationBranchID == organizationBranchId) )
-            //    .FirstOrDefaultAsync();
-
-
-            // Get the weekend days for the current week, filtered by organization and branch
+            // 2. Get weekend days dynamically from the Weekend table
             var weekendDays = await _genericWeekdays.All()
                 .Where(w => w.DeletedAt == null
-                        && w.WeekendSetting.OrganizationID == organizationId
-                        && (organizationBranchId == null || w.WeekendSetting.OrganizationBranchID == organizationBranchId))
-                .Select(w => w.WeekdayNumber) // Get the weekday numbers (0 for Sunday, 1 for Monday, etc.)
+                            && w.WeekendSetting.OrganizationID == organizationId
+                            && (organizationBranchId == null || w.WeekendSetting.OrganizationBranchID == organizationBranchId))
+                .Select(w => w.WeekdayNumber) // 0=Sunday, 1=Monday,...6=Saturday
                 .ToListAsync();
 
-            // Get the employee's shifts, filtered by organization (no need to filter by organizationBranchId for shifts)
-            var shifts = await _genericRepositoryShift.All()
-                .Where(s => s.OrganizationID == organizationId)  // Only filter by OrganizationID
-                .ToListAsync();
-
-            // Get the holidays for the week, filtered by organization and branch
+            // 3. Get holidays dynamically from the Holidays table
             var holidays = await _genericHolidays.All()
                 .Where(h => h.OrganizationID == organizationId
                             && (organizationBranchId == null || h.OrganizationBranchID == organizationBranchId)
                             && DateOnly.FromDateTime(h.StartDate.Value) <= currentDateOnly
-                            && DateOnly.FromDateTime(h.EndDate.Value) >= startOfWeek)
+                            && DateOnly.FromDateTime(h.EndDate.Value) >= currentDateOnly.AddDays(-6))
                 .ToListAsync();
 
+            // 4. Remove weekends and holidays from weekDays
+            List<DateOnly> workingDays = weekDays
+                .Where(d => !weekendDays.Contains((int)d.DayOfWeek)) // Remove weekends
+                .Where(d => !holidays.Any(h => d >= DateOnly.FromDateTime(h.StartDate.Value)
+                                               && d <= DateOnly.FromDateTime(h.EndDate.Value))) // Remove holidays
+                .ToList();
+
+            // 5. Identify start and end working day (optional, for logging or other purposes)
+            DateOnly firstWorkingDay = workingDays.FirstOrDefault();
+            DateOnly lastWorkingDay = workingDays.LastOrDefault();
+
+            // 6. Get employee attendance for the remaining working days
+            var attendanceData = await _genericRepository.All()
+                                        .Where(a => a.EmployeeID == employeeId
+                                                    && workingDays.Contains(a.AttendanceDate)
+                                                    && a.DeletedAt == null)
+                                        .ToListAsync();
+
+            // 7. Get shifts for the organization
+            var shifts = await _genericRepositoryShift.All()
+                        .Where(s => s.OrganizationID == organizationId)
+                        .ToListAsync();
+
+            // 8. Calculate total working hours
             double totalWorkingHours = 0;
 
             foreach (var attendance in attendanceData)
             {
-                DateOnly attendanceDateOnly = attendance.AttendanceDate;
-
-                // Check if the day is a weekend (using WeekendDays table)
-                bool isWeekend = weekendDays.Contains((int)attendanceDateOnly.DayOfWeek); // WeekendDays are stored as numbers (0 to 6)
-
-                // Skip weekends
-                if (isWeekend)
-                    continue;
-
-                // Check if the day is a holiday
-                bool isHoliday = holidays.Any(h => attendanceDateOnly >= DateOnly.FromDateTime(h.StartDate.Value) && attendanceDateOnly <= DateOnly.FromDateTime(h.EndDate.Value));
-
-                // Skip holidays
-                if (isHoliday)
-                    continue;
-
-                // Get the shift for the attendance day
                 var shift = shifts.FirstOrDefault(s => s.ShiftID == attendance.ShiftID);
-
                 if (shift != null)
                 {
-                    // Calculate total working hours for the shift
                     var shiftStartTime = shift.StartTime;
                     var shiftEndTime = shift.EndTime;
-
-                    // Subtract meal break time if any
-                    // Replace the following line:  
-                   // var mealBreakTime = shift.MealBreakTime ?? TimeSpan.Zero;
-
-                
                     var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
-                    //var mealBreakTime = shift.MealBreakTime ?? TimeSpan.Zero;
 
-                    //  total working hours for this day (shift time minus break time)
-                   // var dailyWorkingHours = shiftEndTime.Subtract(shiftStartTime).Subtract(mealBreakTime).TotalHours;
-                   var dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime).Value.Hours;
-
-
-
+                    var dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime)?.TotalHours ?? 0;
                     totalWorkingHours += dailyWorkingHours;
                 }
             }
-            
-            return totalWorkingHours;
+            // Fix for CS0266 and CS8629: Ensure null handling and explicit conversion to double
+            double totalWorkedHours = attendanceData.Sum(a => a.RegularHour.HasValue ? (double)a.RegularHour.Value : 0) / 60;
+            return (totalWorkingHours, totalWorkedHours);
         }
+
 
         public async Task<double> GetTotalHoursForMonth(int employeeId, int organizationId, int? organizationBranchId)
         {
