@@ -38,17 +38,21 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
            
 
             int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+            int? orgId = await GetCurrentOrganizationIdAsync();
             //var orgId = await GetCurrentOrganizationIdAsync();
 
             if (currentEmployeeId.HasValue)
             {
                 var getEmployeeTotalHoursRelated = await _employeeAttendanceReport.GetAttendanceDetailsAsync(currentEmployeeId.Value);
+                var getEmployeeTotalHoursRelated2 = await _employeeAttendanceReport.GetAttendanceProgressBarAsync(currentEmployeeId.Value);
                 var getEmployeeFirstPunch = await _employeeAttendanceReport.GetEmployeeFirstPunchInTimeAsync(currentEmployeeId.Value);
-                var getEmployeeDetails = await _employeeAttendanceReport.GetTotalHoursForWeek(currentEmployeeId.Value,2,null);
+                var getEmployeeDetails = await _employeeAttendanceReport.GetTotalHoursForWeek(currentEmployeeId.Value, orgId.Value, null);
+                var getEmployeeDetailsMonth = await _employeeAttendanceReport.GetTotalHoursForMonth(currentEmployeeId.Value, orgId.Value, null);
 
                 ViewData["TotalHoursWeek"] = getEmployeeDetails.ToString("F2");
+                ViewData["TotalHoursMonth"] = getEmployeeDetailsMonth.ToString("F2");
 
-                ViewData["ProductionTime"] = getEmployeeTotalHoursRelated.ProductionTime;
+                ViewData["ProductionTime"] = getEmployeeTotalHoursRelated2.TotalWorkingHours;
                 ViewData["ProductionTimeMinute"] = getEmployeeTotalHoursRelated.ProductionTimeMinute;
                // ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime; 
                 ViewData["CheckInTime"] = getEmployeeFirstPunch; 

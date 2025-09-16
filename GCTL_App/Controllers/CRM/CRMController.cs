@@ -4,7 +4,7 @@ using GCTL.Core.ViewModels.Employee.EmployeeResign;
 using GCTL.Data.Models;
 using GCTL.Service.CRM;
 using GCTL.Service.CRM.LeadCreate;
-using GCTL.Service.CRM.LeadDetails;
+using GCTL.Service.CRM.LeadDetail;
 using GCTL.Service.Employees.EmployeeResign;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;

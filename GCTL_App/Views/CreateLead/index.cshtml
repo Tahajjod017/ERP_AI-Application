@@ -225,7 +225,7 @@
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="leadStatusId">@Html.SmartLocalize("Status Name")</label>
-                            <select class="form-select" id="leadStatusId" required>
+                            <select class="form-select choiceDD" id="leadStatusId" required>
                                 <option value="">@Html.SmartLocalize("Select Status")</option>
                                 @foreach (var status in ViewBag.LeadStatusDD as SelectList)
                                 {

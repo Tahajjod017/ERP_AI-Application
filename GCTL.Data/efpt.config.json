@@ -551,6 +551,18 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Payroll].[PayAllowancBenifits]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[PayDeductions]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Payroll].[PaySlips]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Payroll].[PSettings]",
          "ObjectType": 0
       },

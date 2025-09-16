@@ -689,7 +689,6 @@ $(document).ready(function () {
                 method: 'GET',
                 contentType: 'application/json',
                 success: function (response) {
-                    showDev(response,"contry");
 
                     choiceManager.populateDropdown(id, response)
                     
@@ -1465,7 +1464,6 @@ $(document).ready(function () {
 
     $("#indexSaveBtn").on("click", async function (e) {
         e.preventDefault();
-        debugger;
         let services = $("#serviceTypes").val();
   
         if (await fieldValidation()) {
@@ -1488,7 +1486,6 @@ $(document).ready(function () {
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (response) {
-                    debugger;
                     if (response.success) {
                         toastr.success(response.message);
                         //getCustomerList();
@@ -1520,7 +1517,6 @@ $(document).ready(function () {
     });
 
     function targetListForValidation() {
-        debugger;
         if (targetTab === 'person') {
             return [
                 idMap.person.firstName,
@@ -1595,7 +1591,6 @@ $(document).ready(function () {
     }
 
     async function uniquenPhoneCheck() {
-        debugger;
         let isValid = true;
         const targetedField = targetTab === 'person' ? [[idMap.person.phone, idMap.person.otherPhone, idMap.person.primaryID, idMap.person.email]]
             //: targetTab === 'shipping' ? [[idMap.shipping.phone, idMap.shipping.otherPhone, idMap.shipping.primaryID, idMap.shipping.email]]
@@ -1697,7 +1692,6 @@ $(document).ready(function () {
         const selectedTab = targetListForValidation();
         runtimeValidationCheck();
         let isValid = true;
-        debugger;
         isValid = await uniquenPhoneCheck();
         isValid = isValid === false ? false :  await extraFieldIdValidation();
         //isValid = isValid === false ? false : await exRuntimeValidationCheck();

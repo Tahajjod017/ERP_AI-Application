@@ -1,0 +1,114 @@
+﻿
+<style>
+    #result-show-div .item.active {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .choices {
+        margin-bottom: 0 !important; /* remove margin */
+    }
+    /* Hide scrollbar but keep scrolling */
+    .choices__list--dropdown .choices__list {
+        max-height: 200px; /* control height */
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox */
+    }
+
+        .choices__list--dropdown .choices__list::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
+        }
+</style>
+<div class="container m-0 p-0">
+
+    <div class="mb-4">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
+                <h4 class="mb-1">@Html.SmartLocalize("Lead Table")</h4>
+                <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                    <div class="dropdown me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control" id="dataSearch" type="text" placeholder="@Html.SmartLocalize("Search...")">
+                        </div>
+                    </div>
+
+                    <div class="dropdown me-3">
+                        <div class="columnDrag leadTable" placeholder="Column settings"></div>
+                    </div>
+
+
+                    <div class="dropdown me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control datetimepicker flatpickr-input caiCon" id="dateRange2" type="text" placeholder="@Html.SmartLocalize("Select Date Range")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        </div>
+                    </div>
+                    <select class="form-select choiceDD mb-0" id="customerType" name="customerType" required>
+                        @* <option value="">@Html.SmartLocalize("Customer Type")</option>
+                        @foreach (var item in ViewBag.ServiceTypeDD)
+                        {
+                            <option value="@item.Value">@item.Text.ToUpper()</option>
+                        } *@
+                    </select>
+
+                    <div class="dropdown me-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
+                            </div>
+                            <select class="form-select" id="pageElementSize" data-choices="data-choices" size="1" name="pageSizeSelectApprove" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="border-translucent p-3">
+                <div id="processedResignationTable">
+                    <div class="table-responsive scrollbar mx-n1 px-1">
+                        <table class="table table-sm fs-9 leads-table dyn-tableDrag leadTable table-hover" id="resignProcessed">
+                            <thead>
+                                <tr>
+                                    @* <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                        <div class="form-check mb-0 fs-8">
+                                            <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"processed-resignation-body"}' />
+                                        </div>
+                                    </th> *@
+                                    <th class="sort align-middle text-uppercase text-nowrap" scope="col" data-sort="SL" data-column="0" style="max-width:25px; width:25px;">@Html.SmartLocalize("SL")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col"  data-column="1">@Html.SmartLocalize("Icon")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="date" data-column="2">@Html.SmartLocalize("Date")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="note" data-column="3">@Html.SmartLocalize("Note")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="file" data-column="4">@Html.SmartLocalize("File")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-column="11">@Html.SmartLocalize("Action")</th>
+                                </tr>
+                            </thead>
+                            <tbody class="list" id="processed-resignation-body">
+                                <!-- Processed resignation rows will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row align-items-center justify-content-between pe-0 fs-9">
+                        <div class="col-auto d-flex">
+                            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="totalApprove" data-list-info="data-list-info"></p>
+                        </div>
+                        <div class="col-auto d-flex">
+                            @* <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button> *@
+                            <ul class="mb-0 pagination" id="pageNumber"></ul>
+                            @* <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/pages/crm/leads_activities.js"></script>
+}

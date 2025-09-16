@@ -205,6 +205,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<PassingYears> PassingYears { get; set; }
 
+    public virtual DbSet<PayAllowancBenifits> PayAllowancBenifits { get; set; }
+
+    public virtual DbSet<PayDeductions> PayDeductions { get; set; }
+
+    public virtual DbSet<PaySlips> PaySlips { get; set; }
+
     public virtual DbSet<PaymentModes> PaymentModes { get; set; }
 
     public virtual DbSet<PaymentPeriodTypes> PaymentPeriodTypes { get; set; }
@@ -289,6 +295,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<ActionLogs>(entity =>
         {
@@ -3593,6 +3600,109 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PassingYearsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__PassingYe__Updat__63D8CE75");
+        });
+
+        modelBuilder.Entity<PayAllowancBenifits>(entity =>
+        {
+            entity.HasKey(e => e.PayAllowancBenifitID).HasName("PK__PayAllow__1AF98610E7CF30DD");
+
+            entity.ToTable("PayAllowancBenifits", "Payroll");
+
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsPercentage).HasDefaultValue(false);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.PayAllowancBenifitName).HasMaxLength(200);
+            entity.Property(e => e.PercentageOfBasic).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PayAllowancBenifitsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PayAllowa__Creat__3BA0BFE9");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PayAllowancBenifitsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PayAllowa__Delet__3E7D2C94");
+
+            entity.HasOne(d => d.PaySlip).WithMany(p => p.PayAllowancBenifits)
+                .HasForeignKey(d => d.PaySlipID)
+                .HasConstraintName("FK__PayAllowa__PaySl__39B87777");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PayAllowancBenifitsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PayAllowa__Updat__3C94E422");
+        });
+
+        modelBuilder.Entity<PayDeductions>(entity =>
+        {
+            entity.HasKey(e => e.PayDeductionID).HasName("PK__PayDeduc__FDAD09B0A9B5B206");
+
+            entity.ToTable("PayDeductions", "Payroll");
+
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsPercentage).HasDefaultValue(false);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.PayAllowancBenifitName).HasMaxLength(200);
+            entity.Property(e => e.PercentageOfBasic).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PayDeductionsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PayDeduct__Creat__4341E1B1");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PayDeductionsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PayDeduct__Delet__461E4E5C");
+
+            entity.HasOne(d => d.PaySlip).WithMany(p => p.PayDeductions)
+                .HasForeignKey(d => d.PaySlipID)
+                .HasConstraintName("FK__PayDeduct__PaySl__4159993F");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PayDeductionsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PayDeduct__Updat__443605EA");
+        });
+
+        modelBuilder.Entity<PaySlips>(entity =>
+        {
+            entity.HasKey(e => e.PaySlipID).HasName("PK__PaySlips__F854679407F340E7");
+
+            entity.ToTable("PaySlips", "Payroll");
+
+            entity.Property(e => e.BasicSalary).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsPaid).HasDefaultValue(false);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PaySlipsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PaySlips__Create__33FF9E21");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PaySlipsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PaySlips__Delete__36DC0ACC");
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.PaySlipsEmployee)
+                .HasForeignKey(d => d.EmployeeID)
+                .HasConstraintName("FK__PaySlips__Employ__321755AF");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PaySlipsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PaySlips__Update__34F3C25A");
         });
 
         modelBuilder.Entity<PaymentModes>(entity =>

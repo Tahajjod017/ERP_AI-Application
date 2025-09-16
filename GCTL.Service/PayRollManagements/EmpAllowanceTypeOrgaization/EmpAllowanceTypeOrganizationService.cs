@@ -141,6 +141,8 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 {
                     OrganizationID = orgId,
                     EmployeeAllowanceTypeName = EntityVM.EmployeeAllowanceTypeName.Trim(),
+                    ApplyOnBasicSalary = EntityVM.ApplyOnBasicSalary,   
+                    ApplyOnGrossSalary = EntityVM.ApplyOnGrossSalary,
                     LIP = EntityVM.LIP,
                     LMAC = EntityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -190,6 +192,8 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                     EmployeeAllowanceTypeID = data.EmployeeAllowanceTypeID,
                     OrganizationID = data.OrganizationID,
                     EmployeeAllowanceTypeName = data.EmployeeAllowanceTypeName,
+                    ApplyOnGrossSalary = data.ApplyOnGrossSalary,
+                    ApplyOnBasicSalary = data.ApplyOnBasicSalary,
 
                 };
                 return result;
@@ -248,6 +252,8 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 {
                     entity.OrganizationID = item;
                     entity.EmployeeAllowanceTypeName = EntityVM.EmployeeAllowanceTypeName.Trim();
+                    entity.ApplyOnBasicSalary=EntityVM.ApplyOnBasicSalary;
+                    entity.ApplyOnGrossSalary=EntityVM.ApplyOnGrossSalary;
                     entity.LIP = EntityVM.LIP;
                     entity.LMAC = EntityVM.LMAC;
                     entity.UpdatedAt = DateTime.Now;
