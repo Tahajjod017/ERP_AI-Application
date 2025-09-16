@@ -103,7 +103,7 @@ namespace GCTL_App.Controllers.CRM
                                          Email = address.Email,
                                          FirstName = address.FirstName,
                                          LastName = address.LastName,
-                                         isWon = lead.IsWwn ?? null,
+                                         isWon = lead.IsOwn ?? null,
                                          LeadOwnerId = lead.LeadOwnerID,
                                          LeadOwnerName = lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName,
                                          ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
@@ -111,17 +111,17 @@ namespace GCTL_App.Controllers.CRM
 
                                          // 🔥 Stats calculation for this LeadOwner
                                          SuccessPercentage = (int)Math.Round(_context.Leads
-                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == true)
+                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsOwn == true)
                                          .Count() * 100m /
                                          (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID))),
 
                                          LostPercentage = (int)Math.Round(_context.Leads
-                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == false)
+                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsOwn == false)
                                          .Count() * 100m /
                                          (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID))),
 
                                          CancelPercentage = (int)Math.Round(_context.Leads
-                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == null)
+                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsOwn == null)
                                          .Count() * 100m /
                                          (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID)))
 
@@ -314,9 +314,9 @@ namespace GCTL_App.Controllers.CRM
 
                 var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == leadDetailsVM.LeadID);
 
-                if (leadObj != null && leadObj.IsWwn != null)
+                if (leadObj != null && leadObj.IsOwn != null)
                 {
-                    leadObj.IsWwn = null;
+                    leadObj.IsOwn = null;
                     leadObj.ClosingDate = null;
                     await _leadsRepository.UpdateAsync(leadObj);
                 }

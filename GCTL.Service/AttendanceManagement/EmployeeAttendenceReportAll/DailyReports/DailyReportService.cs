@@ -82,11 +82,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                     AttendanceDate = x.AttendanceDate.ToString("yyyy-MM-dd") ?? "-",
                     CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
                     CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
-                    //LateHour = x.LateHour.HasValue ? x.LateHour.Value.ToString("F2") : "-",
-                    LateHour = x.LateHour.HasValue ? (x.LateHour.Value).ToString("H") : "-",
-                    //EarlyHour = x.EarlyHour.HasValue ? x.EarlyHour.Value.ToString("F2") : "-",
-                    EarlyHour = x.EarlyHour.HasValue ? (x.EarlyHour.Value).ToString("H") : "-",
-                    OvertimeHour = x.OvertimeHour.HasValue ? x.OvertimeHour.Value.ToString("H") : "-",
+                    //LateHour = x.LateTimeMinutes.HasValue ? x.LateTimeMinutes.Value.ToString("F2") : "-",
+                    LateHour = x.LateTimeMinutes.HasValue ? (x.LateTimeMinutes.Value).ToString("H") : "-",
+                    //EarlyHour = x.EarlyTimeMinutes.HasValue ? x.EarlyTimeMinutes.Value.ToString("F2") : "-",
+                    EarlyHour = x.EarlyTimeMinutes.HasValue ? (x.EarlyTimeMinutes.Value).ToString("H") : "-",
+                    OvertimeHour = x.OvertimeMinutes.HasValue ? x.OvertimeMinutes.Value.ToString("H") : "-",
                     WorkingHours = "-",
                     Break = "-",
 
@@ -144,11 +144,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                     AttendanceDate = x.AttendanceDate.ToString("yyyy-MM-dd") ?? "-",
                     CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
                     CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
-                                                                                                           //LateHour = x.LateHour.HasValue ? x.LateHour.Value.ToString("F2") : "-",
-                    LateHour = x.LateHour.HasValue ? (x.LateHour.Value).ToString("H") : "-",
+                                                                                                           //LateHour = x.LateTimeMinutes.HasValue ? x.LateTimeMinutes.Value.ToString("F2") : "-",
+                    LateHour = x.LateTimeMinutes.HasValue ? (x.LateTimeMinutes.Value).ToString("H") : "-",
                     //EarlyHour = x.EarlyHour.HasValue ? x.EarlyHour.Value.ToString("F2") : "-",
-                    EarlyHour = x.EarlyHour.HasValue ? (x.EarlyHour.Value).ToString("H") : "-",
-                    OvertimeHour = x.OvertimeHour.HasValue ? x.OvertimeHour.Value.ToString("H") : "-",
+                    EarlyHour = x.EarlyTimeMinutes.HasValue ? (x.EarlyTimeMinutes.Value).ToString("H") : "-",
+                    OvertimeHour = x.OvertimeMinutes.HasValue ? x.OvertimeMinutes.Value.ToString("H") : "-",
                     WorkingHours = "-",
                     Break = "-",
 

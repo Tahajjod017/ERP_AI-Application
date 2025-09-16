@@ -127,13 +127,12 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
                     CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
                     //LateHour = x.LateHour.HasValue ? x.LateHour.Value.ToString("F2") : "-",
-                    LateHour = FormatTime(x.LateHour),
+                    LateHour = FormatTime(x.LateTimeMinutes),
                     //EarlyHour = x.EarlyHour.HasValue ? x.EarlyHour.Value.ToString("F2") : "-",
-                    EarlyHour = FormatTime(x.EarlyHour),
-                    RegularHour = FormatTime(x.RegularHour),
-
-                    OvertimeHour = FormatTime(x.OvertimeHour),
-                    WorkingHours = FormatTime(x.WorkingHour),
+                    EarlyHour = FormatTime(x.EarlyTimeMinutes),
+                    RegularHour = FormatTime(x.OfficeTimeMinutes),
+                    OvertimeHour = FormatTime(x.OvertimeMinutes),
+                    WorkingHours = FormatTime(x.WorkingTimeMinutes),
                     Break = "-",
 
                     CreatedBy = x.CreatedBy,
@@ -227,8 +226,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             //var manualOvertime = attendanceData.OvertimeHour?.ToString("F2"); ;
 
             // Fix for CS1503: Correctly convert manualOvertime from string to TimeSpan before formatting  
-            var manualOvertime = attendanceData.OvertimeHour.HasValue
-                                ? TimeSpan.FromMinutes(attendanceData.OvertimeHour.Value * 60 + attendanceData.OvertimeHour.Value)
+            var manualOvertime = attendanceData.OvertimeMinutes.HasValue
+                                ? TimeSpan.FromMinutes(attendanceData.OvertimeMinutes.Value * 60 + attendanceData.OvertimeMinutes.Value)
                                 : TimeSpan.Zero;
 
 
@@ -241,10 +240,10 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 CheckInShiftTime = shiftStartTime?.ToString("HH:mm"), // Assuming this is the same as CheckInTime
                 CheckOutTime = attendanceData.CheckOutTime?.ToString("HH:mm"),
                 CheckOutShiftTime = shiftEndTime?.ToString("HH:mm"), // Assuming this is the same as CheckOutTime
-                RegularHour = attendanceData.RegularHour?.ToString(),
-                OvertimeHour = attendanceData.OvertimeHour?.ToString(),
-                LateHour = attendanceData.LateHour?.ToString(),
-                EarlyHour = attendanceData.EarlyHour?.ToString(),
+                RegularHour = attendanceData.OfficeTimeMinutes?.ToString(),
+                OvertimeHour = attendanceData.OvertimeMinutes?.ToString(),
+                LateHour = attendanceData.LateTimeMinutes?.ToString(),
+                EarlyHour = attendanceData.EarlyTimeMinutes?.ToString(),
                 TotalWorkingHours = FormatTimeSpanHHMM(totalWorkingHourMnt.GetValueOrDefault()),
                 ActualWorkingHrsMnt = FormatTimeSpanHHMM(actualTotalWorkingTime.GetValueOrDefault()), // Convert to minutes
                 CurrentTime = currentTimeString,
@@ -1077,7 +1076,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     && a.AttendanceDate <= today
                     )
                 .ToListAsync();
-            double totalRegularHours = attendanceData.Sum(a => a.RegularHour ?? 0);
+            double totalRegularHours = attendanceData.Sum(a => a.OfficeTimeMinutes ?? 0);
             int hours = (int)totalRegularHours;
             int minutes = (int)((totalRegularHours - hours) * 60);
 
