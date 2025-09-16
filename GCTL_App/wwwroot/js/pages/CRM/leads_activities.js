@@ -120,6 +120,9 @@
 
                 $.each(response.data, function (index, item) {
                     debugger;
+                    const datePart = item.activityDateTime.split("T")[0];  // "2025-09-28"
+                    const timePart = item.activityDateTime.split("T")[1];  // "00:00:00"
+
                     showDev(item);
                     let itemSL = pageOffset + index + 1;
                     //let statusBadge = getStatusBadgeClass(item.status);
@@ -127,12 +130,14 @@
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
 
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="0">${itemSL}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.leadName}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadActivityType}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.activityDateTime}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${datePart}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${timePart}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.activityNote}</td>
            
                         <td class="status align-middle white-space-nowrap pe-0 ps-2 d-flex justify-content-center" data-column="11">
-                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2"  id="editModalBtn" data-id="${item.leadId}"><i class="fas fa-edit text-black"></i></a>
+                            <a href="/LeadDetails/Index/${item.leadID}" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2"  id="editModalBtn" data-id="${item.leadId}"><i class="fa-solid fa-arrow-right"></i></a>
                         </td>
                     </tr>
                 `);

@@ -9,7 +9,7 @@ namespace GCTL.Core.ViewModels.CRM
 {
     public class ReturnDataView
     {
-        public string? success { get; set; }
+        public bool? success { get; set; }
         public string? message{ get; set; }
         public List<LeadDetailsDTO>? data { get; set; } = new List<LeadDetailsDTO>();
        

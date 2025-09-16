@@ -95,7 +95,8 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                         OrganizationID = item,
                         BenefitTypeName = model.BenefitTypeName.Trim(),
 
-                        IsApplyOnGrossSalary = model.IsApplyOnGrossSalary,
+                        //ApplyOnGrossSalary = model.ApplyOnGrossSalary,
+                        //ApplyOnBasicSalary = model.ApplyOnBasicSalary,
 
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy,
@@ -145,7 +146,8 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                     entity.BenefitTypeName = model.BenefitTypeName;
                     entity.OrganizationID = item;
 
-                    entity.IsApplyOnGrossSalary = model.IsApplyOnGrossSalary;
+                    //entity.ApplyOnBasicSalary = model.ApplyOnBasicSalary;
+                    //entity.ApplyOnGrossSalary = model.ApplyOnGrossSalary;
 
                     entity.UpdatedAt = DateTime.UtcNow;
                     entity.UpdatedBy = model.UpdatedBy;
@@ -290,7 +292,9 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                     BenefitTypeID = data.BenefitTypeID,
                     OrganizatonID = data.OrganizationID,
                     BenefitTypeName = data.BenefitTypeName,
-                    IsApplyOnGrossSalary = data.IsApplyOnGrossSalary,
+
+                    //ApplyOnGrossSalary = data.ApplyOnGrossSalary,
+                    //ApplyOnBasicSalary = data.ApplyOnBasicSalary,
 
                 };
                 return result;
