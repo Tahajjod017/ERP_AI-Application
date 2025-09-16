@@ -32,6 +32,7 @@ using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.EmployeeShiftView;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
@@ -145,6 +146,8 @@ namespace GCTL_App.Extensions
 
             //services.AddScoped<DataSeeder>();
             services.AddScoped<IEmailService, EmailService>();
+
+
             #region Added by Md. Rakib Hasan
             services.AddScoped<IBloodGroupService, BloodGroupService>();
             services.AddScoped<ICountryService, CountryService>();
@@ -178,6 +181,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ICreateSpiralPatternService, CreateSpiralPatternService>();
             services.AddScoped<IAssignSpiralPatternService, AssignSpiralPatternService>();
             services.AddScoped<IEmployeeShiftViewService, EmployeeShiftViewService>();
+            services.AddScoped<IAttendanceService, AttendanceService>();
             #endregion
 
 
