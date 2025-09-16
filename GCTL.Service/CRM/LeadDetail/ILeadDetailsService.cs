@@ -13,6 +13,6 @@ namespace GCTL.Service.CRM.LeadDetail
         public Task<bool> CreateLeadActivateTypes();
         Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation);
         Task<ReturnView> AddIsWon(IsWonVM isWonVM);
-        Task<bool> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM);
+        Task<ReturnView> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM);
     }
 }

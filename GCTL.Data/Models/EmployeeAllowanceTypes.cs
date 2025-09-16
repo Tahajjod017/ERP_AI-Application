@@ -29,9 +29,7 @@ public partial class EmployeeAllowanceTypes
 
     public int? OrganizationID { get; set; }
 
-    public bool ApplyOnBasicSalary { get; set; }
-
-    public bool ApplyOnGrossSalary { get; set; }
+    public bool IsApplyOnGrossSalary { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
