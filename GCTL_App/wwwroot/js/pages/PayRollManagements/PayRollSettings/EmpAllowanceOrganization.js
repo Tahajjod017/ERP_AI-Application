@@ -11,8 +11,7 @@
             EmployeeAllowanceTypeID: $('#EmployeeAllowanceTypeID').val(),
             OrganizationIDs: $('#OrganizationIDs').val(),
             EmployeeAllowanceTypeName: $('#EmployeeAllowanceTypeName').val(),
-            ApplyOnBasicSalary: $('#ApplyOnBasicSalary').is(':checked'),
-            ApplyOnGrossSalary: $('#ApplyOnGrossSalary').is(':checked')
+            IsApplyOnGrossSalary: $('#IsApplyOnGrossSalary').is(':checked'),
         }
         var id = $('#AllowanceType-form #EmployeeAllowanceTypeID').val();
         var url = '';
@@ -71,8 +70,7 @@
                         coreui.MultiSelect.getInstance(this)?.update();
                     });
                     $('#EmployeeAllowanceTypeName').val(d.employeeAllowanceTypeName);
-                    $('#ApplyOnBasicSalary').prop('checked', d.applyOnBasicSalary === true);
-                    $('#ApplyOnGrossSalary').prop('checked', d.applyOnGrossSalary === true);
+                    $('#IsApplyOnGrossSalary').prop('checked', d.isApplyOnGrossSalary === true);
                 } else {
                     toastr.error(res);
                 }
@@ -266,12 +264,13 @@
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.organizationName}</td>
                              <td class="align-middle white-space-nowrap ps-0">${item.employeeAllowanceTypeName}</td>
+                             <td class="align-middle white-space-nowrap ps-5">${item.isApplyOnGrossSalary}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
-                                <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 EmpAllowanceOrganization-bulkDelete" href="#!" id="EmpAllowanceOrganization-edit" data-id="${item.employeeAllowanceTypeID}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 EmpAllowanceOrganization-Edit" href="#!" id="EmpAllowanceOrganization-single-delete" data-id="${item.employeeAllowanceTypeID}"><span class="fas fa-trash"></span></a>
-                                </div>
-                            </td>
+    <div class="row g-3">
+        <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 EmpAllowanceOrganization-bulkDelete" href="#!" id="EmpAllowanceOrganization-edit" data-id="${item.employeeAllowanceTypeID}"><i class="fas fa-edit"></i></a>
+        <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 EmpAllowanceOrganization-Edit" href="#!" id="EmpAllowanceOrganization-single-delete" data-id="${item.employeeAllowanceTypeID}"><span class="fas fa-trash"></span></a>
+    </div>
+</td>
                         </tr>
                     `);
                     });

@@ -36,7 +36,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         private readonly IGenericRepository<ApprovalSettings> approvalSettingsRepository;
         private readonly IGenericRepository<ApprovalTypes> approvalTypesRepository;
         private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
-        public LeaveApprovalService(IGenericRepository<LeaveApplications> leaveRequest, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, ILeaveRequestService leaveRequestService, IGenericRepository<LeaveBalances> leaveBalance, IGenericRepository<LeaveTypes> leaveTypesRepository, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseAprovalHistory, IGenericRepository<Statuses> status, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation = null) : base(leaveRequest)
+        private readonly IEmailService emailService;
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
+        public LeaveApprovalService(IGenericRepository<LeaveApplications> leaveRequest, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, ILeaveRequestService leaveRequestService, IGenericRepository<LeaveBalances> leaveBalance, IGenericRepository<LeaveTypes> leaveTypesRepository, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseAprovalHistory, IGenericRepository<Statuses> status, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IEmailService emailService, IGenericRepository<Data.Models.Employees> employee) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.appDb = appDb;
@@ -50,6 +52,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
             this.approvalSettingsRepository = approvalSettingsRepository;
             this.approvalTypesRepository = approvalTypesRepository;
             this.approvaldesignation = approvaldesignation;
+            this.emailService = emailService;
+            this.employee = employee;
         }
 
 
@@ -547,6 +551,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         Message = "Approval or Decline must be selected."
                     };
                 }
+
                 // 🔹 Authorization chec
 
                 if (isFirstApprover && approvalSettings.IsEnableSecondApproval && !approvalSettings.IsDesignationOrEmpFirstApprovalID)
@@ -683,6 +688,95 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     leaveBase.PartialToTime = entityVM.PartialToTimeEdit;
                 }
                 await leaveBaseAprovalHistory.AddAsync(leaveBase);
+
+
+                // for email
+                var approvalDepartment = await empoffi.AllActive().Where(x => x.EmployeeID == approvalPersonId)
+            .Select(x => new { x.OfficeEmail, x.Department.DepartmentName, x.Designation.DesignationName }).FirstOrDefaultAsync();
+                var applicantNameEmail = await employee.AllActive()
+                    .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
+                    .Select(x => new { x.FirstName, x.LastName, x.Email }).FirstOrDefaultAsync();
+
+                var applicantDepartment = await empoffi.AllActive()
+                    .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
+                    .Select(x => new
+                    {
+                        x.OfficeEmail,
+                        DepartmentName = x.Department.DepartmentName,
+                        DesignationName = x.Designation.DesignationName
+                    }).FirstOrDefaultAsync();
+
+                // Approver info
+                var approverNameEmail = await employee.AllActive()
+                    .Where(x => x.EmployeeID == approvalPersonId)
+                    .Select(x => new { x.FirstName, x.LastName, x.Email })
+                    .FirstOrDefaultAsync();
+
+                var approverDepartment = await empoffi.AllActive()
+                    .Where(x => x.EmployeeID == approvalPersonId)
+                    .Select(x => new
+                    {
+                        x.OfficeEmail,
+                        DepartmentName = x.Department.DepartmentName,
+                        DesignationName = x.Designation.DesignationName
+                    }).FirstOrDefaultAsync();
+                var leaveName = await leaveTypesRepository.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit).Select(x => x.LeaveTypeName).FirstOrDefaultAsync();
+                // Calculate total days (inclusive)
+                // Calculate total days (inclusive)
+                int totalDays = 0;
+
+                if (entityVM.FromDateEdit.HasValue && entityVM.ToDateEdit.HasValue)
+                {
+                    totalDays = (entityVM.ToDateEdit.Value.DayNumber - entityVM.FromDateEdit.Value.DayNumber) + 1;
+                }
+                string toEmail;
+
+                if (statusId == leavStatusDecline)
+                {
+                    // Notify applicant after decision
+                    toEmail = applicantNameEmail?.Email ?? applicantDepartment?.OfficeEmail;
+                }
+                else
+                {
+                    // Fallback (new leave application goes to approver)
+                    toEmail = approverNameEmail?.Email ?? approverDepartment?.OfficeEmail;
+                }
+
+                // Build email model
+                var emailModel = new EmailVM
+                {
+                    To = toEmail, // fallback if personal email is null
+                    Subject = $"Leave Application from {applicantNameEmail?.FirstName} {applicantNameEmail?.LastName}",
+                    Body = $@"
+        <p>Dear {approverNameEmail?.FirstName} {approverNameEmail?.LastName},</p>
+        <p>{applicantNameEmail?.FirstName} {applicantNameEmail?.LastName} 
+        ({applicantDepartment?.DesignationName}, {applicantDepartment?.DepartmentName}) 
+        has applied for leave.</p>
+
+        <ul>
+            <li><strong>From:</strong> {entityVM.FromDateEdit:dd MMM yyyy}</li>
+            <li><strong>To:</strong> {entityVM.ToDateEdit:dd MMM yyyy}</li>
+            
+           <li><strong>Total day(s):</strong> {totalDays}</li> 
+           <li><strong>Leave Type:</strong> {leaveName}</li> 
+            <li><strong>Reason:</strong> {entityVM.ReasonEdit}</li>
+        </ul>
+
+        <p>Please log in to the HRM system to review and approve this request.</p>
+         <p>
+    <a href='' style='padding:8px 12px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;'>Login</a>
+    &nbsp;&nbsp;
+    <a href='' style='padding:8px 12px;background:#28a745;color:#fff;text-decoration:none;border-radius:4px;'>Accept</a>
+    &nbsp;&nbsp;
+    <a href='' style='padding:8px 12px;background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;'>Decline</a>
+</p>
+        <p>Regards,<br/>HRM System</p>
+    "
+                };
+
+                // Send using EmailService (SMTP uses applicant’s org config)
+                await emailService.SendEmailAsync(emailModel, entityVM.EmployeeIDEdit);
+
                 await leaveRequest.CommitTransactionAsync();
                 return new CommonReturnViewModel
                 {

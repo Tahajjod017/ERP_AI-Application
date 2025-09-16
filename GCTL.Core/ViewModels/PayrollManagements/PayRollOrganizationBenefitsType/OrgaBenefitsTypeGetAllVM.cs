@@ -11,5 +11,6 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayRollOrganizationBenefitsTyp
         public int BenefitTypeID { get; set; }
         public string? OrganizationName { get; set; }
         public string? BenefitTypeName { get; set; }
+        public string? IsApplyOnGrossSalary { get; set; }
     }
 }

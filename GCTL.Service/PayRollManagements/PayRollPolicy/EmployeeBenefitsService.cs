@@ -26,20 +26,19 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
     public class EmployeeBenefitsService : AppService<Benefits>, IEmployeeBenefitsService
     {
         private readonly IGenericRepository<EmployeeBenefits> empBenefits;
-
-
         private readonly IUserInfoService userInfoService;
         private readonly IGenericRepository<Benefits>  benefits;
         private readonly IGenericRepository<BenefitTypes> benefitTypesRepository;
         private readonly IGenericRepository<BenefitSetups> benefitSetupRepository;
         private readonly IGenericRepository<CalculationTypes> calculationTypesRepository;
-        public EmployeeBenefitsService(IGenericRepository<EmployeeBenefits> empBenefits, IUserInfoService userInfoService, IGenericRepository<Benefits> benefits, IGenericRepository<BenefitTypes> benefitTypesRepository, IGenericRepository<BenefitSetups> benefitSetupRepository):base(benefits)
+        public EmployeeBenefitsService(IGenericRepository<EmployeeBenefits> empBenefits, IUserInfoService userInfoService, IGenericRepository<Benefits> benefits, IGenericRepository<BenefitTypes> benefitTypesRepository, IGenericRepository<BenefitSetups> benefitSetupRepository, IGenericRepository<CalculationTypes> calculationTypesRepository) : base(benefits)
         {
             this.empBenefits = empBenefits;
             this.userInfoService = userInfoService;
             this.benefits = benefits;
             this.benefitTypesRepository = benefitTypesRepository;
             this.benefitSetupRepository = benefitSetupRepository;
+            this.calculationTypesRepository = calculationTypesRepository;
         }
 
 
