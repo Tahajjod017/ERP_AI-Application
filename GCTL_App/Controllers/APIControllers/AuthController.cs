@@ -15,6 +15,7 @@ namespace GCTL_App.Controllers.APIControllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        #region Repositories & Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
 
@@ -23,9 +24,12 @@ namespace GCTL_App.Controllers.APIControllers
             _userManager = userManager;
             _configuration = configuration;
         }
+        #endregion
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginVM model)
+
+        #region AppsLogin
+        [HttpPost("AppsLogin")]
+        public async Task<IActionResult> AppsLogin([FromBody] LoginVM model)
         {
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
@@ -45,7 +49,10 @@ namespace GCTL_App.Controllers.APIControllers
                 expiration = token.ValidTo
             });
         }
+        #endregion
 
+
+        #region GetToken
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -60,5 +67,6 @@ namespace GCTL_App.Controllers.APIControllers
 
             return token;
         }
+        #endregion
     }
 }

@@ -41,8 +41,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.EmployeeShiftView
                 parameters.Add("@daysToShow", daysToShow);
                 parameters.Add("@startDate", startDate);
 
-                using var multi = await _dbConnection.QueryMultipleAsync(
-                    "sp_GetAllEmployeeShifts", parameters, commandType: CommandType.StoredProcedure);
+                using var multi = await _dbConnection.QueryMultipleAsync("sp_GetAllEmployeeShifts", parameters, commandType: CommandType.StoredProcedure);
 
                 var items = await multi.ReadAsync<EmployeeShiftViewSetupVM>();
                 var pagination = await multi.ReadFirstAsync<dynamic>();
