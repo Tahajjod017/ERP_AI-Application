@@ -32,5 +32,6 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
         public int EmployeeAllowanceTypeID { get; set; }
         public string? EmployeeAllowanceTypeName { get; set; }
         public string? OrganizationName { get; set; }
+        public string? IsApplyOnGrossSalary { get; set; }
     }
 }

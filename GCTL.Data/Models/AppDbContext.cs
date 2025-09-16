@@ -44,6 +44,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
     public virtual DbSet<Attendance> Attendance { get; set; }
@@ -306,6 +307,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             base.OnModelCreating(modelBuilder);
@@ -657,9 +659,11 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //            });
         //});
         modelBuilder.Entity<ApplicationUser>()
-.HasDiscriminator<string>("Discriminator")
-.HasValue<ApplicationUser>("ApplicationUser");
+         .HasDiscriminator<string>("Discriminator")
+         .HasValue<ApplicationUser>("ApplicationUser");
+
         modelBuilder.Entity<ApplicationUser>()
+
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
         .HasForeignKey(u => u.EmployeeId)
@@ -689,6 +693,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .HasForeignKey(r => r.TenantInfoId)
         .IsRequired(false)
         .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+
 
         modelBuilder.Entity<Attendance>(entity =>
         {
