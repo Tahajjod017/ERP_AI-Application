@@ -323,13 +323,14 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             if (shiftStartTime.HasValue && shiftEndTime.HasValue)
                 shiftDurationMinutes = (int)(shiftEndTime.Value - shiftStartTime.Value).TotalMinutes;
 
+
             // ---------------- STEP 1: Late / Early ----------------
-            if (shiftStartTime.HasValue)
+            if (shiftStartTime.HasValue && shift.IsLateCount==true)
             {
                 if (firstPunch > shiftStartTime.Value)
                 {
                     var lateMinutes = (int)(firstPunch - shiftStartTime.Value).TotalMinutes;
-                    if (lateMinutes > 5)
+                    if (shift.GraceTime.HasValue && lateMinutes > shift.GraceTime.Value.ToTimeSpan().TotalMinutes)
                     {
                         totalLateMinutes = lateMinutes;
                         sessionTimeline.Add(new SessionData
