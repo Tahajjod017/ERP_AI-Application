@@ -181,7 +181,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ICreateSpiralPatternService, CreateSpiralPatternService>();
             services.AddScoped<IAssignSpiralPatternService, AssignSpiralPatternService>();
             services.AddScoped<IEmployeeShiftViewService, EmployeeShiftViewService>();
-            services.AddScoped<IAttendanceService, AttendanceService>();
+            services.AddScoped<IAppsAttendanceService, AppsAttendanceService>();
             #endregion
 
 

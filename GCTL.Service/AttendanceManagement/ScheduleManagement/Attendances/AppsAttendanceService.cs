@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
 {
-    public class AttendanceService : AppService<Attendance>, IAttendanceService
+    public class AppsAttendanceService : AppService<Attendance>, IAppsAttendanceService
     {
         #region Repositories
         private readonly IGenericRepository<Attendance> _genericRepository;
         private readonly IDbConnection _dbConnection;
 
-        public AttendanceService(IGenericRepository<Attendance> genericRepository, IDbConnection dbConnection) : base(genericRepository)
+        public AppsAttendanceService(IGenericRepository<Attendance> genericRepository, IDbConnection dbConnection) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _dbConnection = dbConnection;
