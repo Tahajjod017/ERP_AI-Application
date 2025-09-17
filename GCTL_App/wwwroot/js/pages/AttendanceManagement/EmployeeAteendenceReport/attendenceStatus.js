@@ -641,7 +641,7 @@ function renderAttendanceCompareChart(data) {
     var option = {
         title: {
             text: 'You vs Emp benchmark',
-            subtext: 'Previous Month'
+            subtext: 'This Month'
         },
         tooltip: {
             trigger: 'axis'
@@ -661,7 +661,7 @@ function renderAttendanceCompareChart(data) {
         xAxis: [
             {
                 type: 'category',
-                data: ['Present', 'Absent', 'Early Leave', 'Late Leave']
+                data: ['Present', 'Absent', 'Early', 'Late']
             }
         ],
         yAxis: [
@@ -767,7 +767,7 @@ function renderAttendanceBarChart(data) {
     };
 
     const option = {
-        title: { text: 'Attendance Status', subtext: 'Previous Year' },
+        title: { text: 'Attendance Status', subtext: 'Latest Month' },
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
         grid: { left: '3%', right: '3%', bottom: '3%', containLabel: true },
         legend: { data: ['Present', 'Absent', 'Late Entry', 'Early Leave', 'Casual Leave', 'Medical Leave'] },
