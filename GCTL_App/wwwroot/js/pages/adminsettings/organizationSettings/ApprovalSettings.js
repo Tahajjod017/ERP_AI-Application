@@ -151,6 +151,7 @@ $(document).ready(function () {
     });
 
     $('#OrganizationID').on('change', function () {
+        debugger;
         const newOrgId = $(this).val();
         selectedFirst = null;
         selectedSecond = null;

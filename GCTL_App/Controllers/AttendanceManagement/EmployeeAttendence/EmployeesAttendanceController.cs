@@ -46,10 +46,10 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
                 var getEmployeeTotalHoursRelated = await _employeeAttendanceReport.GetAttendanceDetailsAsync(currentEmployeeId.Value);
                 var getEmployeeTotalHoursRelated2 = await _employeeAttendanceReport.GetAttendanceProgressBarAsync(currentEmployeeId.Value);
                 var getEmployeeFirstPunch = await _employeeAttendanceReport.GetEmployeeFirstPunchInTimeAsync(currentEmployeeId.Value);
-               
 
-               
-                ViewData["ProductionTime"] = getEmployeeTotalHoursRelated2.TotalWorkingHours;
+
+
+                ViewData["ProductionTime"] = getEmployeeTotalHoursRelated2.ProductiveHours;
                 ViewData["ProductionTimeMinute"] = getEmployeeTotalHoursRelated.ProductionTimeMinute;
                // ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime; 
                 ViewData["CheckInTime"] = getEmployeeFirstPunch; 
