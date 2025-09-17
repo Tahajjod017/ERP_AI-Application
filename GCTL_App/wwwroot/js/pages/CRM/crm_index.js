@@ -260,6 +260,7 @@
                 success: function (response) {
 
                     if (response.success) {
+                        loadProcessedTable();
                         toastr.success(response.message);
                         // HIDE modal
                         var myModalEl = document.getElementById('editModal');

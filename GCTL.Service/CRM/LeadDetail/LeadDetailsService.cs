@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using OfficeOpenXml.Export.ToDataTable;
 using System.Web.Mvc;
 using System.Web.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace GCTL.Service.CRM.LeadDetail
@@ -148,7 +149,7 @@ namespace GCTL.Service.CRM.LeadDetail
 
                 // ✅ Commit transaction if all operations succeed
                 await _leadDetailsGenericRepository.CommitTransactionAsync();
-                return true;
+                return true;    
             }
             catch (Exception ex)
             {
@@ -315,6 +316,9 @@ namespace GCTL.Service.CRM.LeadDetail
 
                 // Commit transaction
                 await _leadsRepository.CommitTransactionAsync();
+
+                var upcommingActivity = await _leadDetailsGenericRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.Now).ToListAsync();
+                await _leadDetailsGenericRepository.DeleteRangeAsync(upcommingActivity);
 
                 return new ReturnView
                 {

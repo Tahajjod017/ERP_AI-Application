@@ -215,8 +215,10 @@ function resetValidation(fields) {
 
 const dev = true;
 
+
 function showDev(message, headerText = 'console') {
-    if (!dev) return;
+    // Show only in localhost
+    if (!dev || (location.hostname !== "localhost" && location.hostname !== "127.0.0.1")) return;
 
     let container = document.getElementById("custom-toast-container");
     if (!container) {
@@ -226,18 +228,19 @@ function showDev(message, headerText = 'console') {
 
         Object.assign(container.style, {
             position: "fixed",
-            bottom: "20px",
-            left: "20px",
             display: "flex",
             flexDirection: "column",
             gap: "10px",
             zIndex: "9999",
         });
+
+        // Load position from localStorage
+        let savedPosition = localStorage.getItem("dev-toast-position") || "bottom-left";
+        setContainerPosition(container, savedPosition);
     }
 
     const toast = document.createElement("div");
 
-   
     Object.assign(toast.style, {
         background: "#333",
         color: "#fff",
@@ -248,40 +251,67 @@ function showDev(message, headerText = 'console') {
         transform: "translateY(20px)",
         transition: "opacity 0.3s ease, transform 0.3s ease",
         pointerEvents: "auto",
-        //maxWidth: "300px",
-        //minWidth: "300px",
-        //overflow: "hidden",
-        width: "300px",       // Initial fixed width
-        maxWidth: "800px",    // Allow resizing up to this limit
-        resize: "both", //    "horizontal"
-        overflow: "auto",    
-        
+        width: "300px",
+        maxWidth: "800px",
+        resize: "both",
+        overflow: "auto",
         maxHeight: "450px",
         display: "flex",
         flexDirection: "column",
     });
 
-    // Header with Copy button
+    // Header with Position Toggle + Copy + Close
     const header = document.createElement("div");
     Object.assign(header.style, {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         background: "#444",
-        padding: "3px 3px",
+        padding: "3px 5px",
         borderTopLeftRadius: "5px",
         borderTopRightRadius: "5px",
+        gap: "5px",
     });
 
-    // Console-style text
+    const positionBtn = document.createElement("button");
+    positionBtn.textContent = "⇔";
+    Object.assign(positionBtn.style, {
+        background: "#555",
+        color: "#fff",
+        border: "none",
+        padding: "2px 6px",
+        fontSize: "12px",
+        borderRadius: "3px",
+        cursor: "pointer",
+    });
+
+    positionBtn.addEventListener("click", () => {
+        let current = localStorage.getItem("dev-toast-position") || "bottom-left";
+        let next;
+        switch (current) {
+            case "bottom-left": next = "bottom-right"; break;
+            case "bottom-right": next = "top-right"; break;
+            case "top-right": next = "top-left"; break;
+            default: next = "bottom-left";
+        }
+        localStorage.setItem("dev-toast-position", next);
+        setContainerPosition(container, next);
+    });
+
     const consoleText = document.createElement("span");
     consoleText.textContent = headerText;
     Object.assign(consoleText.style, {
         fontSize: "14px",
         whiteSpace: "nowrap",
+        flex: "1",
     });
 
-
+    const headerActions = document.createElement("div");
+    Object.assign(headerActions.style, {
+        display: "flex",
+        gap: "5px",
+        alignItems: "center",
+    });
 
     const copyBtn = document.createElement("button");
     copyBtn.textContent = "Copy";
@@ -295,11 +325,32 @@ function showDev(message, headerText = 'console') {
         cursor: "pointer",
     });
 
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "×";
+    Object.assign(closeBtn.style, {
+        background: "transparent",
+        color: "#fff",
+        border: "none",
+        fontSize: "16px",
+        fontWeight: "bold",
+        cursor: "pointer",
+        lineHeight: "1",
+    });
+
+    closeBtn.addEventListener("click", () => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(20px)";
+        setTimeout(() => toast.remove(), 300);
+    });
+
+    header.appendChild(positionBtn);
     header.appendChild(consoleText);
-    header.appendChild(copyBtn);
+    headerActions.appendChild(copyBtn);
+    headerActions.appendChild(closeBtn);
+    header.appendChild(headerActions);
     toast.appendChild(header);
 
-    // Message body
+    // Body
     const body = document.createElement("div");
     Object.assign(body.style, {
         padding: "10px 15px",
@@ -357,6 +408,33 @@ function showDev(message, headerText = 'console') {
     });
 
     scheduleRemoval();
+}
+
+function setContainerPosition(container, position) {
+    // Reset all
+    container.style.top = "";
+    container.style.bottom = "";
+    container.style.left = "";
+    container.style.right = "";
+
+    switch (position) {
+        case "bottom-left":
+            container.style.bottom = "20px";
+            container.style.left = "20px";
+            break;
+        case "bottom-right":
+            container.style.bottom = "20px";
+            container.style.right = "20px";
+            break;
+        case "top-right":
+            container.style.top = "20px";
+            container.style.right = "20px";
+            break;
+        case "top-left":
+            container.style.top = "20px";
+            container.style.left = "20px";
+            break;
+    }
 }
 
 
