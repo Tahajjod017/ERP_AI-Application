@@ -91,6 +91,18 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 
             return View();
         }
+        [HttpGet]
+        public IActionResult NowLocal()
+        {
+            // Get organization-local current time (your helper already does the TZ conversion)
+            var nowLocal = DateTimeExtensions.NowDateTime(_loc);
+
+            // Send a simple, unambiguous ISO-like string WITHOUT timezone so the client treats it as wall-clock
+            //var isoLocal = nowLocal.ToString("yyyy-MM-dd'T'HH:mm:ss");
+
+            return Json(new { nowLocal });
+        }
+
         public async Task<IActionResult> GetCurrentTimeAsync()
         {
             // Simulating an async operation (e.g., fetching data from a database or external service)

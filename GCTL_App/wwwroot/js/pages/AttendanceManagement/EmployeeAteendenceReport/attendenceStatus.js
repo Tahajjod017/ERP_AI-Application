@@ -14,6 +14,139 @@
 //    setInterval(updateTime, 1000);
 //});
 
+const FORMATS = [
+    // ── YYYY/MM/DD (slashes) — 12-hour
+    "YYYY/MM/DD h:mm:ss A",
+    "YYYY/M/D h:mm:ss A",
+    "YYYY/MM/DD h:mm A",
+    "YYYY/M/D h:mm A",
+    "YYYY/MM/DD hh:mm:ss A",
+    "YYYY/M/D hh:mm:ss A",
+    "YYYY/MM/DD hh:mm A",
+    "YYYY/M/D hh:mm A",
+
+    // ── YYYY/MM/DD (slashes) — 24-hour
+    "YYYY/MM/DD HH:mm:ss",
+    "YYYY/M/D HH:mm:ss",
+    "YYYY/MM/DD H:mm:ss",
+    "YYYY/M/D H:mm:ss",
+    "YYYY/MM/DD HH:mm",
+    "YYYY/M/D HH:mm",
+    "YYYY/MM/DD H:mm",
+    "YYYY/M/D H:mm",
+
+    // ── YYYY/MM/DD (slashes) — with milliseconds
+    "YYYY/MM/DD HH:mm:ss.SSS",
+    "YYYY/M/D HH:mm:ss.SSS",
+    "YYYY/MM/DD h:mm:ss.SSS A",
+    "YYYY/M/D h:mm:ss.SSS A",
+
+    // ── YYYY/MM/DD (slashes) — with timezone offsets
+    "YYYY/MM/DD HH:mm:ss Z",
+    "YYYY/M/D HH:mm:ss Z",
+    "YYYY/MM/DD HH:mm:ss ZZ",
+    "YYYY/M/D HH:mm:ss ZZ",
+
+    // ── ISO-like (dashes) with T and/or space
+    "YYYY-MM-DDTHH:mm:ss.SSSZ",
+    "YYYY-MM-DDTHH:mm:ss.SSSZZ",
+    "YYYY-MM-DDTHH:mm:ssZ",
+    "YYYY-MM-DDTHH:mm:ssZZ",
+    "YYYY-MM-DDTHH:mm:ss",
+    "YYYY-MM-DDTHH:mm",
+    "YYYY-MM-DD HH:mm:ss",
+    "YYYY-MM-DD HH:mm",
+    "YYYY-MM-DD H:mm:ss",
+    "YYYY-MM-DD H:mm",
+
+    // ── YYYY-MM-DD with 12-hour
+    "YYYY-MM-DD h:mm:ss A",
+    "YYYY-MM-DD h:mm A",
+    "YYYY-MM-DD hh:mm:ss A",
+    "YYYY-MM-DD hh:mm A",
+
+    // ── D/M/Y (day-first) — slashes
+    "DD/MM/YYYY HH:mm:ss",
+    "D/M/YYYY HH:mm:ss",
+    "DD/MM/YYYY HH:mm",
+    "D/M/YYYY HH:mm",
+    "DD/MM/YYYY h:mm:ss A",
+    "D/M/YYYY h:mm:ss A",
+    "DD/MM/YYYY h:mm A",
+    "D/M/YYYY h:mm A",
+
+    // ── D-M-Y (day-first) — dashes
+    "DD-MM-YYYY HH:mm:ss",
+    "D-M-YYYY HH:mm:ss",
+    "DD-MM-YYYY HH:mm",
+    "D-M-YYYY HH:mm",
+    "DD-MM-YYYY h:mm:ss A",
+    "D-M-YYYY h:mm:ss A",
+    "DD-MM-YYYY h:mm A",
+    "D-M-YYYY h:mm A",
+
+    // ── Dots
+    "YYYY.MM.DD HH:mm:ss",
+    "YYYY.MM.DD HH:mm",
+    "DD.MM.YYYY HH:mm:ss",
+    "DD.MM.YYYY HH:mm",
+
+    // ── Month names (English) — 12-hour & 24-hour
+    "MMM D, YYYY h:mm:ss A",
+    "MMM D, YYYY h:mm A",
+    "MMMM D, YYYY h:mm:ss A",
+    "MMMM D, YYYY h:mm A",
+    "MMM D, YYYY HH:mm:ss",
+    "MMM D, YYYY HH:mm",
+
+    // ── Date-only fallbacks (no ticking if you only get a date)
+    "YYYY/MM/DD",
+    "YYYY-MM-DD",
+    "DD/MM/YYYY",
+    "DD-MM-YYYY"
+];
+
+
+
+function parseRawPreserveFormat(rawLike) {
+   
+    const raw = (rawLike && typeof rawLike === 'object' && rawLike.nowLocal)
+        ? rawLike.nowLocal
+        : String(rawLike || '').trim();
+
+    for (const fmt of FORMATS) {
+        const m = moment(raw, fmt, true); // strict
+        if (m.isValid()) return { m, fmt, raw };
+    }
+  
+    const m = moment(raw);
+    return { m, fmt: null, raw };
+}
+
+function startClockFromServer() {
+   
+    $.get('/EmployeesAttendance/NowLocal', function (resp) {
+        const { m, fmt, raw } = parseRawPreserveFormat(resp);
+
+      
+        $('#current-time').text(raw || 'Invalid date');
+
+      
+        clearInterval(window._tick);
+
+      
+        if (m.isValid() && fmt) {
+            let t = m.clone();
+            window._tick = setInterval(function () {
+                t.add(1, 'second');
+                $('#current-time').text(t.format(fmt)); 
+            }, 1000);
+        }
+       
+    });
+}
+
+$(document).ready(startClockFromServer);
 
 
 
