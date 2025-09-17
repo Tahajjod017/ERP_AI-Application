@@ -104,15 +104,18 @@ $(function () {
         const fileInput = $(ids.file)[0];
         const file = fileInput ? fileInput.files[0] : null;
 
+        debugger;
         // run validation
         if (!validation(buttonName)) return;
 
         let isWonOrLost = $('.special-btn').hasClass('active2');
+        let isWonOrLostText = $('.special-btn.active').text().trim();
         // Show confirmation modal if Won/Lost
-        if (isWonOrLost) {
+        if (isWonOrLost && isWonOrLostText !== 'Won' && isWonOrLostText !== 'Lost') {
             const confirmed = await showConfirmationModal();
-            if (!confirmed) return; // user clicked No, stop execution
+            if (!confirmed) return; // User clicked No, stop execution
         }
+
 
         const formData = new FormData();
         formData.append("LeadID", parseInt(leadID));
@@ -146,10 +149,13 @@ $(function () {
                 $(ids.file).val("");
                 $('#file-field').hide();
 
-                if (buttonName === "Won") {
-                    $("#transferDiv").css("display", "block");
-                } else if (buttonName === "Lost") {
-                    $("#transferDiv").css("display", "none");
+                //if (buttonName === "Won") {
+                //    $("#transforDiv").css("display", "block");
+                //} else if (buttonName === "Lost") {
+                //    $("#transforDiv").css("display", "none");
+                //}
+                if (buttonName !== 'won' && buttonName !== 'lost') {
+                    $('.special-btn').removeClass('active2');
                 }
             },
             error: function (error) {
@@ -531,7 +537,7 @@ $(function () {
     function resetAndReloadUpcoming() {
         currentPage2 = 1;
         noMoreDataDown2 = false;
-        loadedIds2.clear()
+        loadedIds2.clear();
         $(upcomingListDiv).empty();
         updateUpcomingActivate(currentPage2);
     }

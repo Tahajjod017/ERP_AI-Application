@@ -186,6 +186,16 @@ namespace GCTL_App.Controllers.CRM
                 leadDetailsTypeID = leadDetailsTypeObj.LeadActivityTypeID;
             }
 
+            // if lead isWon not null then same time created id will come first
+
+            //var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == id);
+            //bool? isWon = leadObj.IsOwn;
+            //DateTime? ClosingDate = leadObj.ClosingDate;
+            //if (isWon != null)
+            //{
+
+            //}
+
             const int pageSize = 10; // Number of items per page
             int skip = (page - 1) * pageSize; // Calculate how many items to skip
 
@@ -227,7 +237,7 @@ namespace GCTL_App.Controllers.CRM
             // Fetch filtered and paginated data using LIKE
             var list = await _leadDetailsRepository
           .Find(u => u.LeadID == id &&
-                     u.ActivityDateTime >= DateTime.UtcNow
+                     u.ActivityDateTime >= DateTime.UtcNow.AddSeconds(11)
           )
           .OrderByDescending(e => e.ActivityDateTime)   // ORDER FIRST!
           .Skip(skip)                            // THEN skip

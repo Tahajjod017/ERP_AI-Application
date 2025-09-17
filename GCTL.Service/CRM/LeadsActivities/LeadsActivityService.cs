@@ -116,6 +116,7 @@ namespace GCTL.Service.CRM.LeadsActivities
                     CreatedAt = u.CreatedAt,
                     LeadName = u.Lead.LeadName,
                     LeadID = u.LeadID,
+                    File  = u.FileLink,
                     CustomerName = u.Lead.Customer.FullName,
                     LeadStage =  u.Lead.LeadStatus.LeadStatusName,
                     LeadPriority = u.Lead.Priority.PriorityName,
