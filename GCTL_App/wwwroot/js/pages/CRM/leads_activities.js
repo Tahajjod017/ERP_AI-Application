@@ -114,7 +114,7 @@
                 let itemsPerPage = parseInt($('#pageElementSize').val()) || 10;
 
                 let page = parseInt($('#pageNumber').data('page')) || 1;
-                
+
 
                 let pageOffset = (page - 1) * itemsPerPage;
 

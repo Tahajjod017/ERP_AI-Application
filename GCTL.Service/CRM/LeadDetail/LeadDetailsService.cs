@@ -148,7 +148,7 @@ namespace GCTL.Service.CRM.LeadDetail
 
                 // ✅ Commit transaction if all operations succeed
                 await _leadDetailsGenericRepository.CommitTransactionAsync();
-                return true;
+                return true;    
             }
             catch (Exception ex)
             {

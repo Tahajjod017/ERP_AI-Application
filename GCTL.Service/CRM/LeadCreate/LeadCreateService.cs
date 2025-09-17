@@ -489,7 +489,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 // Create lead
                 var leadObj = new Leads()
                 {
-                    CustomerID = individualAddressObj.CustomerAddressID,
+                    CustomerID = individualAddressObj.CustomerID,
                     LeadName = leadsVM.LeadName,
                     IsIndividualCustomer = leadsVM.IsIndividualCustomer,
                     LeadStatusID = leadsVM.LeadStatusID,

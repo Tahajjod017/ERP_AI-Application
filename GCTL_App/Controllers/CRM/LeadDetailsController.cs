@@ -71,7 +71,7 @@ namespace GCTL_App.Controllers.CRM
 
             var customerObj = await (from lead in _context.Leads
                                      join cAddress in _context.CustomerAddresses
-                                     on lead.CustomerID equals cAddress.CustomerAddressID
+                                     on lead.CustomerID equals cAddress.CustomerID
                                      join customer in _context.Customers on cAddress.CustomerID equals customer.CustomerID
                                      join address in _context.Addresses on cAddress.AddressID equals address.AddressID
 
