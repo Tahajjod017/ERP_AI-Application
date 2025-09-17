@@ -190,6 +190,24 @@ function formatTime(minutes) {
 //    updateProgressBars();
 //});
 
+// --- helpers (add once, above your functions) ---
+function toHHmm(raw) {
+    if (!raw) return null;
+    const s = String(raw).trim();
+    const m = moment(s, ["h:mm A", "hh:mm A", "H:mm", "HH:mm"], true);
+    if (m.isValid()) return m.format("HH:mm");
+    const n = parseInt(s, 10);
+    if (!isNaN(n)) return String(n).padStart(2, "0") + ":00";
+    return null;
+}
+
+function parseDurationToMinutes(str) {
+    if (!str) return 0;
+    const h = (str.match(/(\d+)\s*h/i) || [0, 0])[1] | 0;
+    const m = (str.match(/(\d+)\s*m/i) || [0, 0])[1] | 0;
+    return h * 60 + m;
+}
+
 // Function to fetch pre-calculated data from the backend and update session details
 function fetchSessionData() {
     $.ajax({
@@ -239,18 +257,40 @@ function updateProgressBars(data) {
     $('#progressBars').html(progressBarsHtml);  // Insert the progress bars into the container
 
     // Optionally, update the timeline labels if required
-    const timelineLabels = $('#timelineLabels');
-    //let currentHour = 9;  // Starting hour for the timeline (adjust as needed)
-    let currentTime = moment(data.shiftStartHour || "09:30", "HH:mm"); 
-    // Loop through sessionTimeline to display the timeline labels
-    data.sessionTimeline.forEach(session => {
-        // Add the formatted current hour and minute to the label
-        const label = $('<span>').addClass('fs-10').text(currentTime.format("HH:mm"));
-        timelineLabels.append(label);
+    // Optionally, update the timeline labels if required
+    const timelineLabels = $('#timelineLabels').empty();
 
-        // Increment currentTime by the session duration (assuming it's 1 hour here, adjust as needed)
-        currentTime.add(1, 'hour'); // or currentTime.add(session.duration, 'minutes') if session has duration data
-    });
+    // Optionally, update the timeline labels if required
+   // const timelineLabels = $('#timelineLabels').empty();
+
+    const earlyRaw = data.earlyStartTime ?? data.EarlyStartTime;
+    const shiftRaw = data.shiftStartTime ?? data.shiftStartHour;
+
+    if (earlyRaw) {
+        // --- Requirement: if earlyStartTime exists, render 9 hours in 30-min steps ---
+        const startStr = toHHmm(earlyRaw) || "09:00";
+        let t = moment(startStr, "HH:mm");
+        // First tick at start
+        timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        // 9 hours / 0.5h = 18 increments
+        for (let i = 0; i < 20; i++) {
+            t = t.clone().add(30, 'minutes');
+            timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        }
+    } else {
+        // --- Requirement: if earlyStartTime exists, render 9 hours in 30-min steps ---
+        const startStr = toHHmm(shiftRaw) || "09:00";
+        let t = moment(startStr, "HH:mm");
+        // First tick at start
+        timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        // 9 hours / 0.5h = 18 increments
+        for (let i = 0; i < 20; i++) {
+            t = t.clone().add(30, 'minutes');
+            timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        }
+    }
+
+
 }
 
 // Function to determine the progress bar color based on session type

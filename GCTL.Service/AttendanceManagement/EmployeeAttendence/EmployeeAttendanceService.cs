@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
 
 namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 {
@@ -124,10 +125,18 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     StatusID = x.StatusID,
                     StatusName = x.Status?.StatusName ?? "-",
                     AttendanceDate = x.AttendanceDate.ToString("yyyy-MM-dd") ?? "-",
-                    CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
-                    CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
+                    // CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
+                    CheckInTime = x.CheckInTime.HasValue
+                                    ? TimeConversionHelper.ConvertDateTimeToUtcHHmm(x.CheckInTime.Value, _localizationContext)  // Convert UTC to local
+                                    : "-",
+
+                   // CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
+                    CheckOutTime = x.CheckOutTime.HasValue
+                                    ? TimeConversionHelper.ConvertDateTimeToUtcHHmm(x.CheckOutTime.Value, _localizationContext)  // Convert UTC to local
+                                    : "-",
                     //LateHour = x.LateHour.HasValue ? x.LateHour.Value.ToString("F2") : "-",
                     LateHour = FormatTime(x.LateTimeMinutes),
+
                     //EarlyHour = x.EarlyHour.HasValue ? x.EarlyHour.Value.ToString("F2") : "-",
                     EarlyHour = FormatTime(x.EarlyTimeMinutes),
                     RegularHour = FormatTime(x.OfficeTimeMinutes),
@@ -342,7 +351,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                         });
                     }
                 }
-                else if (firstPunch < shiftStartTime.Value)
+               
+            }
+            if (shiftStartTime.HasValue)
+            {
+                if (firstPunch < shiftStartTime.Value)
                 {
                     var earlyMinutes = (int)(shiftStartTime.Value - firstPunch).TotalMinutes;
                     if (earlyMinutes > 5)
@@ -361,30 +374,48 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             }
 
             // ---------------- STEP 2: Loop through punches ----------------
+
             for (int i = 0; i < attendanceLogs.Count; i++)
             {
                 var log = attendanceLogs[i];
 
-                if (i % 2 == 0) // Worked
+                if (i % 2 == 0) // Worked interval
                 {
-                    var endTime = (i + 1 < attendanceLogs.Count)
+                    var startUtc = log.CHECKTIME_UTC;
+                    var endUtc = (i + 1 < attendanceLogs.Count)
                         ? attendanceLogs[i + 1].CHECKTIME_UTC
                         : DateTime.UtcNow;
 
-                    var workedMinutes = endTime.HasValue && log.CHECKTIME_UTC.HasValue
-                       ? (int)(endTime.Value - log.CHECKTIME_UTC.Value).TotalMinutes
-                       : 0;
+                    if (!startUtc.HasValue || !endUtc.HasValue) continue;
 
-                    totalRegularMinutes += workedMinutes;
+                    // Clamp the work interval to the shift window:
+                    // start' = max(punchIn, shiftStart), end' = min(punchOut, shiftEnd)
+                    DateTime clampedStart = startUtc.Value;
+                    DateTime clampedEnd = endUtc.Value;
+
+                    if (shiftStartTime.HasValue)
+                        clampedStart = (clampedStart < shiftStartTime.Value) ? shiftStartTime.Value : clampedStart;
+
+                    if (shiftEndTime.HasValue)
+                        clampedEnd = (clampedEnd > shiftEndTime.Value) ? shiftEndTime.Value : clampedEnd;
+
+                    int workedAfterShiftStart = 0;
+                    if (clampedEnd > clampedStart)
+                        workedAfterShiftStart = (int)(clampedEnd - clampedStart).TotalMinutes;
+
+                    // If you only want to count post-shift-start minutes, add the clamped value:
+                    totalRegularMinutes += workedAfterShiftStart;
 
                     sessionTimeline.Add(new SessionData
                     {
                         Type = "Worked",
-                        Duration = $"{workedMinutes / 60}h {workedMinutes % 60}m",
+                        Duration = $"{workedAfterShiftStart / 60}h {workedAfterShiftStart % 60}m",
                         Percentage = shiftDurationMinutes > 0
-                            ? $"{(int)((float)workedMinutes / shiftDurationMinutes * 100)}%"
+                            ? $"{(int)((float)workedAfterShiftStart / shiftDurationMinutes * 100)}%"
                             : "0%"
                     });
+
+                   
                 }
                 else // Break
                 {
@@ -436,8 +467,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             return new EmployeeAttendenceVM
             {
-                TotalWorkingHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes + totalLateMinutes + totalEarlyMinutes),
-                ProductiveHours = FormatTime(totalRegularMinutes),
+                //TotalWorkingHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes + totalLateMinutes + totalEarlyMinutes),
+                TotalWorkingHours = FormatTime(shiftDurationMinutes),
+                ProductiveHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes + totalEarlyMinutes),
                 BreakHours = FormatTime(totalBreakMinutes),
                 Overtime = FormatTime(totalOvertimeMinutes),
                 LateHours = FormatTime(totalLateMinutes),
@@ -445,9 +477,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 SessionTimeline = sessionTimeline,
 
                 // Fix to pass only the hour part as a string.  
-                ShiftStartTime = shiftStartTime.HasValue ? shiftStartTime.Value.ToString("HH") : "-",
-
-                
+                ShiftStartTime = shiftStartTime.HasValue ? shiftStartTime.Value.ToOrgTimeString(_localizationContext): "-",// need localization then pass time according to user
+                EarlyStartTime = firstPunch < shiftStartTime ? firstPunch.ToOrgTime(_localizationContext) : null,
 
             };
         }
@@ -692,6 +723,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 .Select(x => x.CHECKTIME_UTC)
                 
                 .ToListAsync();
+            int count = punchTimes.Count;
 
             var result = punchTimes
                // consistent with your ViewBag logic
@@ -701,7 +733,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     var localTime = x.HasValue ? x.Value.ToOrgTime(_localizationContext) : DateTime.MinValue.ToOrgTime(_localizationContext);
                 
 
-                    var type = index % 2 == 0 ? "Punch In" : "Punch Out";
+                   // var type = index % 2 == 0 ? "Punch In" : "Punch Out";
+                    int chronologicalIndex = count - 1 - index;
+                    var type = chronologicalIndex % 2 == 0 ? "Punch In" : "Punch Out";
 
                     return new PunchActivityDto
                     {

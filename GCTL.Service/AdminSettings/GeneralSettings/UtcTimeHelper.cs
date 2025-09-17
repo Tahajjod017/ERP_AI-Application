@@ -1,6 +1,7 @@
 ﻿using NodaTime;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -68,7 +69,21 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
                 // Extract and return only the time portion as TimeOnly
                 return new TimeOnly(utcDateTime.Hour, utcDateTime.Minute, utcDateTime.Second);
             }
+            public static string ConvertDateTimeToUtcHHmm(DateTime localDateTime, ILocalizationContext ctx)
+            {
+                // Interpret the input as a local wall-clock time in the user's zone (ignore DateTime.Kind)
+                var unspecified = DateTime.SpecifyKind(localDateTime, DateTimeKind.Unspecified);
+                var ldt = LocalDateTime.FromDateTime(unspecified);
+
+                // If you prefer strict DST rules (throw on gaps/overlaps), use AtStrictly.
+                // Using AtLeniently to avoid exceptions and auto-resolve DST issues.
+                var zoned = ctx.Zone.AtLeniently(ldt);
+
+                var utc = zoned.ToInstant().ToDateTimeUtc();
+                return utc.ToString("HH:mm", CultureInfo.InvariantCulture);
+            }
         }
+
     }
 
 }
