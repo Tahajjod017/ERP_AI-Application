@@ -44,7 +44,17 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive().Where(x=>x.IsActive==true), "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive().Where(x=>x.StatusName=="APPROVED" || x.StatusName== "DECLINED"), "StatusID", "StatusName");
             var employees =await  employee.AllActive().Select(e => new  {  e.EmployeeID, FullName = e.FirstName + " " + e.LastName  }).ToListAsync();
-            ViewBag.EmployeesDD = new SelectList(employees, "EmployeeID", "FullName");
+            if (employees.Count == 1)
+            {
+                // Only one employee → auto select it
+                ViewBag.EmployeesDD = new SelectList(employees, "EmployeeID", "FullName", employees[0].EmployeeID);
+            }
+            else
+            {
+                // More than one → show all without selection
+                ViewBag.EmployeesDD = new SelectList(employees, "EmployeeID", "FullName");
+            }
+           // ViewBag.EmployeesDD = new SelectList(employees, "EmployeeID", "FullName");
 
             return View(model);
         }

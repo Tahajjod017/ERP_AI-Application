@@ -943,11 +943,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
 
                 <br/><br/>
+<!--
            <a href='https://localhost:7086/LeaveApprovalDecline/Index?leaveApplicationID={leaveApplicationID}' 
           style='display: inline-block; padding: 12px 24px; background: #6f42c1; color: #fff; text-decoration: none; border-radius: 6px; margin: 0 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;'>
            📋 Approvals
         </a>
-
+-->
             </div>
             
             <div style='background: #e9ecef; padding: 15px; border-radius: 6px; margin: 20px 0;'>
@@ -1645,14 +1646,15 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #endregion
 
         #region GetCompanies
-        public Task<List<CommonSelectVM>> GetCompanies()
+        public  async Task<List<CommonSelectVM>> GetCompanies()
         {
-            var data = _organizationRepository.AllActive()
+            var data =await _organizationRepository.AllActive()
                 .Select(x => new CommonSelectVM
                 {
                     Id = x.OrganizationID,
                     Name = x.OrganizationName
                 }).ToListAsync();
+            
             return data;
         }
         #endregion

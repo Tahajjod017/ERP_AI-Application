@@ -1305,6 +1305,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                style='display:inline-block; padding: 12px 24px; background:#007bff; color:#fff; text-decoration:none; border-radius:6px; margin: 0 5px;'>
                🔐 Login
             </a>
+
             <a href='https://localhost:7086/LeaveApprovalDecline/Approve?leaveApplicationID={entityVM.LeaveApplicationID}' 
                style='display:inline-block; padding: 12px 24px; background:#28a745; color:#fff; text-decoration:none; border-radius:6px; margin: 0 5px; font-weight:bold;'>
                ✅ Approve

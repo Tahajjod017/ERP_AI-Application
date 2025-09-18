@@ -44,10 +44,35 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
 
             ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive().Where(x=>x.IsActive==true), "LeaveTypeID", "LeaveTypeName");
-            ViewBag.StatusDD = new SelectList(status.AllActive(), "StatusID", "StatusName");
-            ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
-            ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");
+            ViewBag.StatusDD = new SelectList(status.AllActive().Where(x=>x.StatusName== "APPROVED" || x.StatusName== "DECLINED"), "StatusID", "StatusName");
+           // ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
+            var companies = await leaveRequestService.GetCompanies();
+
+            if (companies.Count == 1)
+            {
+                ViewBag.OrganizationDD = new SelectList(companies, "Id", "Name", companies[0].Id);
+            }
+            else
+            {
+                ViewBag.OrganizationDD = new SelectList(companies, "Id", "Name");
+            }
+
+            //ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");
+            // Departments dropdown
+            var departments = await leaveRequestService.GetDepartments();
+            if (departments.Count == 1)
+            {
+                ViewBag.DepartmentDD = new SelectList(departments, "Id", "Name", departments[0].Id);
+            }
+            else
+            {
+                ViewBag.DepartmentDD = new SelectList(departments, "Id", "Name");
+            }
+
+            // Employees list (if you want a dropdown or grouped display, just assign it directly)
             ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
+            ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
+
             return View(model);
         }
         #region Get All Or Single Employee according to loginID

@@ -27,11 +27,14 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive().Where(x=>x.IsActive), "LeaveTypeID", "LeaveTypeName");
+            ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive().Where(x=>x.IsActive==true), "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive().Where(x => x.StatusName == "DECLINED" || x.StatusName == "APPROVED"), "StatusID", "StatusName");
-            ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
-            ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");
+            var companies = await leaveRequestService.GetCompanies();
+            ViewBag.OrganizationDD = companies.Count == 1? new SelectList(companies, "Id", "Name", companies[0].Id) : new SelectList(companies, "Id", "Name");
+            var departments = await leaveRequestService.GetDepartments();
+            ViewBag.DepartmentDD = departments.Count == 1 ? new SelectList(departments, "Id", "Name", departments[0].Id) : new SelectList(departments, "Id", "Name");
             ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
+
             return View();
         }
 
