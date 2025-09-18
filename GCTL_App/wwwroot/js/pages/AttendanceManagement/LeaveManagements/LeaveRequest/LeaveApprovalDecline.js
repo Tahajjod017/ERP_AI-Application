@@ -491,7 +491,7 @@ $(document).ready(function () {
                     updateDatepickerWithMinDate('FromDateEdit', data.fromDateEdit, data.toDateEdit);
                     updateDatepickerWithMinDate('ToDateEdit', data.fromDateEdit, data.toDateEdit);
                     TotalDaysCount(data.fromDateEdit, data.toDateEdit);
-                    $('#edit_leaves').modal('show');
+                    //$('#edit_leaves').modal('show');
                 }
             },
 
@@ -502,10 +502,10 @@ $(document).ready(function () {
     }
 
 
-    $('.mdlClose').click(function () {
-        showDev('dddd')
-        hideModal('edit_leaves')
-    });
+    //$('.mdlClose').click(function () {
+    //    showDev('dddd')
+    //    hideModal('edit_leaves')
+    //});
 
     
     //
