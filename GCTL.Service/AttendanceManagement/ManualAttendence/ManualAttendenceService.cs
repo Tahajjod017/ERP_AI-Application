@@ -99,7 +99,7 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                                           BreakOutTime = shift?.MealBreakEndTime?.ToString("hh:mm tt") ?? "Not Punched",
                                           //Overtime = (att?.OvertimeHour ?? 0) > 0 ?
                                           //    $"{att.OvertimeHour} hrs" : "No Overtime",
-                                          Overtime = att?.OvertimeHour,
+                                          Overtime = att?.OvertimeMinutes,
                                           BiometricHits = att != null ?
                                               logs?.Count(x => x.AttendanceID == att.AttendanceID) ?? 0 : 0,
 

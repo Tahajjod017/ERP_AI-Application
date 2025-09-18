@@ -37,7 +37,7 @@ namespace GCTL.Service.CRM.LeadsActivities
                 {
                     return new ReturnDataView
                     {
-                        success = "true",
+                        success = true,
                         message = "No data available for null user",
                         data = [],
                         totalItem = 0,
@@ -113,13 +113,22 @@ namespace GCTL.Service.CRM.LeadsActivities
                     LeadActivityType = u.LeadActivityType.LeadActivityName,
                     ActivityNote = u.ActivityNote,
                     ActivityDateTime = u.ActivityDateTime,
-                    CreatedAt = u.CreatedAt
+                    CreatedAt = u.CreatedAt,
+                    LeadName = u.Lead.LeadName,
+                    LeadID = u.LeadID,
+                    File  = u.FileLink,
+                    CustomerName = u.Lead.Customer.FullName,
+                    LeadStage =  u.Lead.LeadStatus.LeadStatusName,
+                    LeadPriority = u.Lead.Priority.PriorityName,
+                    LeadSource = u.Lead.LeadStatus.LeadStatusName,
+                    LeadProbability = u.Lead.ProbabilityPercentage,
+                    LeadOwner = u.Lead.LeadOwner.FirstName + " " + u.Lead.LeadOwner.LastName,
 
                 }).ToListAsync();
 
                 return new ReturnDataView
                 {
-                    success = "true",
+                    success = true,
                     message = totalSearchItem > 0 ? "Upcoming List Data successfully loaded" : "No records found",
                     data = data,
                     totalItem = totalItem,
@@ -133,7 +142,7 @@ namespace GCTL.Service.CRM.LeadsActivities
             {
                 return new ReturnDataView
                 {
-                    success = "false",
+                    success = false,
                     message = $"Something went wrong: {ex.Message}"
                 };
             }

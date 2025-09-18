@@ -46,19 +46,35 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
                 var getEmployeeTotalHoursRelated = await _employeeAttendanceReport.GetAttendanceDetailsAsync(currentEmployeeId.Value);
                 var getEmployeeTotalHoursRelated2 = await _employeeAttendanceReport.GetAttendanceProgressBarAsync(currentEmployeeId.Value);
                 var getEmployeeFirstPunch = await _employeeAttendanceReport.GetEmployeeFirstPunchInTimeAsync(currentEmployeeId.Value);
-                var getEmployeeDetails = await _employeeAttendanceReport.GetTotalHoursForWeek(currentEmployeeId.Value, orgId.Value, null);
-                var getEmployeeDetailsMonth = await _employeeAttendanceReport.GetTotalHoursForMonth(currentEmployeeId.Value, orgId.Value, null);
 
-                ViewData["TotalHoursWeek"] = getEmployeeDetails.ToString("F2");
-                ViewData["TotalHoursMonth"] = getEmployeeDetailsMonth.ToString("F2");
 
-                ViewData["ProductionTime"] = getEmployeeTotalHoursRelated2.TotalWorkingHours;
+
+                ViewData["ProductionTime"] = getEmployeeTotalHoursRelated2.ProductiveHours;
                 ViewData["ProductionTimeMinute"] = getEmployeeTotalHoursRelated.ProductionTimeMinute;
                // ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime; 
                 ViewData["CheckInTime"] = getEmployeeFirstPunch; 
                 //ViewBag.ProductionTime = getEmployeeTotalHoursRelated.ProductionTime;
                 ViewData["Overtime"] = getEmployeeTotalHoursRelated.Overtime;
                 ViewData["TotalWorkingHours"] = getEmployeeTotalHoursRelated.TotalWorkingHours;
+              
+                //ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime;
+            }
+            else
+            {
+                // Handle the case where currentEmployeeId is null if necessary  
+            }
+            if (currentEmployeeId.HasValue && orgId.HasValue)
+            {
+                
+                var getEmployeeDetails = await _employeeAttendanceReport.GetTotalHoursForWeek(currentEmployeeId.Value, orgId.Value, null);
+                var getEmployeeDetailsMonth = await _employeeAttendanceReport.GetTotalHoursForMonth(currentEmployeeId.Value, orgId.Value, null);
+
+
+               
+                ViewData["TotalWorkingHoursWeek"] = getEmployeeDetails.totalWorkingHours;
+                ViewData["TotalWorkedHoursWeek"] = getEmployeeDetails.totalWorkedHours;
+                ViewData["TotalWorkingHoursMonth"] = getEmployeeDetailsMonth.totalWorkingHours;
+                ViewData["TotalWorkedHoursMonth"] = getEmployeeDetailsMonth.totalWorkedHours;
                 //ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime;
             }
             else
@@ -75,6 +91,18 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 
             return View();
         }
+        [HttpGet]
+        public IActionResult NowLocal()
+        {
+            // Get organization-local current time (your helper already does the TZ conversion)
+            var nowLocal = DateTimeExtensions.NowDateTime(_loc);
+
+            // Send a simple, unambiguous ISO-like string WITHOUT timezone so the client treats it as wall-clock
+            //var isoLocal = nowLocal.ToString("yyyy-MM-dd'T'HH:mm:ss");
+
+            return Json(new { nowLocal });
+        }
+
         public async Task<IActionResult> GetCurrentTimeAsync()
         {
             // Simulating an async operation (e.g., fetching data from a database or external service)

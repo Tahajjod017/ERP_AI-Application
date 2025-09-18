@@ -31,6 +31,8 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
             _userInfoService = userInfoService;
         }
         #endregion
+
+
         #region Get All Data
         public async Task<PaginationService<EmployeeAllowanceTypes, GetAllTable>.PaginationResult<GetAllTable>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "", string sortOrder = "desc")
         {
@@ -142,7 +144,10 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 {
                     OrganizationID = orgId,
                     EmployeeAllowanceTypeName = EntityVM.EmployeeAllowanceTypeName.Trim(),
-                    IsApplyOnGrossSalary = EntityVM.IsApplyOnGrossSalary,   
+
+                    //ApplyOnBasicSalary = EntityVM.ApplyOnBasicSalary,   
+                    //ApplyOnGrossSalary = EntityVM.ApplyOnGrossSalary,
+
                     LIP = EntityVM.LIP,
                     LMAC = EntityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -192,7 +197,10 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                     EmployeeAllowanceTypeID = data.EmployeeAllowanceTypeID,
                     OrganizationID = data.OrganizationID,
                     EmployeeAllowanceTypeName = data.EmployeeAllowanceTypeName,
-                    IsApplyOnGrossSalary = data.IsApplyOnGrossSalary,
+
+                    //ApplyOnGrossSalary = data.ApplyOnGrossSalary,
+                    //ApplyOnBasicSalary = data.ApplyOnBasicSalary,
+
 
                 };
                 return result;
@@ -251,7 +259,10 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 {
                     entity.OrganizationID = item;
                     entity.EmployeeAllowanceTypeName = EntityVM.EmployeeAllowanceTypeName.Trim();
-                    entity.IsApplyOnGrossSalary=EntityVM.IsApplyOnGrossSalary;
+
+                    //entity.ApplyOnBasicSalary=EntityVM.ApplyOnBasicSalary;
+                    //entity.ApplyOnGrossSalary=EntityVM.ApplyOnGrossSalary;
+
                     entity.LIP = EntityVM.LIP;
                     entity.LMAC = EntityVM.LMAC;
                     entity.UpdatedAt = DateTime.Now;

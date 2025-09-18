@@ -288,7 +288,7 @@ namespace GCTL_App.Controllers.CRM
                                      select new
                                      {
                                          FullName = ind.FullName,
-                                         CustomerAddressID = add.CustomerAddressID,
+                                         CustomerAddressID = add.CustomerID,
                                          AddressTypeName = add.AddressType.AddressTypeName,
                                          FullAddress = address.FullAddress,
                                          Street = address.Street,

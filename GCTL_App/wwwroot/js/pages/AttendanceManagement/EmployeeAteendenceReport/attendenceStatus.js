@@ -14,6 +14,139 @@
 //    setInterval(updateTime, 1000);
 //});
 
+const FORMATS = [
+    // ── YYYY/MM/DD (slashes) — 12-hour
+    "YYYY/MM/DD h:mm:ss A",
+    "YYYY/M/D h:mm:ss A",
+    "YYYY/MM/DD h:mm A",
+    "YYYY/M/D h:mm A",
+    "YYYY/MM/DD hh:mm:ss A",
+    "YYYY/M/D hh:mm:ss A",
+    "YYYY/MM/DD hh:mm A",
+    "YYYY/M/D hh:mm A",
+
+    // ── YYYY/MM/DD (slashes) — 24-hour
+    "YYYY/MM/DD HH:mm:ss",
+    "YYYY/M/D HH:mm:ss",
+    "YYYY/MM/DD H:mm:ss",
+    "YYYY/M/D H:mm:ss",
+    "YYYY/MM/DD HH:mm",
+    "YYYY/M/D HH:mm",
+    "YYYY/MM/DD H:mm",
+    "YYYY/M/D H:mm",
+
+    // ── YYYY/MM/DD (slashes) — with milliseconds
+    "YYYY/MM/DD HH:mm:ss.SSS",
+    "YYYY/M/D HH:mm:ss.SSS",
+    "YYYY/MM/DD h:mm:ss.SSS A",
+    "YYYY/M/D h:mm:ss.SSS A",
+
+    // ── YYYY/MM/DD (slashes) — with timezone offsets
+    "YYYY/MM/DD HH:mm:ss Z",
+    "YYYY/M/D HH:mm:ss Z",
+    "YYYY/MM/DD HH:mm:ss ZZ",
+    "YYYY/M/D HH:mm:ss ZZ",
+
+    // ── ISO-like (dashes) with T and/or space
+    "YYYY-MM-DDTHH:mm:ss.SSSZ",
+    "YYYY-MM-DDTHH:mm:ss.SSSZZ",
+    "YYYY-MM-DDTHH:mm:ssZ",
+    "YYYY-MM-DDTHH:mm:ssZZ",
+    "YYYY-MM-DDTHH:mm:ss",
+    "YYYY-MM-DDTHH:mm",
+    "YYYY-MM-DD HH:mm:ss",
+    "YYYY-MM-DD HH:mm",
+    "YYYY-MM-DD H:mm:ss",
+    "YYYY-MM-DD H:mm",
+
+    // ── YYYY-MM-DD with 12-hour
+    "YYYY-MM-DD h:mm:ss A",
+    "YYYY-MM-DD h:mm A",
+    "YYYY-MM-DD hh:mm:ss A",
+    "YYYY-MM-DD hh:mm A",
+
+    // ── D/M/Y (day-first) — slashes
+    "DD/MM/YYYY HH:mm:ss",
+    "D/M/YYYY HH:mm:ss",
+    "DD/MM/YYYY HH:mm",
+    "D/M/YYYY HH:mm",
+    "DD/MM/YYYY h:mm:ss A",
+    "D/M/YYYY h:mm:ss A",
+    "DD/MM/YYYY h:mm A",
+    "D/M/YYYY h:mm A",
+
+    // ── D-M-Y (day-first) — dashes
+    "DD-MM-YYYY HH:mm:ss",
+    "D-M-YYYY HH:mm:ss",
+    "DD-MM-YYYY HH:mm",
+    "D-M-YYYY HH:mm",
+    "DD-MM-YYYY h:mm:ss A",
+    "D-M-YYYY h:mm:ss A",
+    "DD-MM-YYYY h:mm A",
+    "D-M-YYYY h:mm A",
+
+    // ── Dots
+    "YYYY.MM.DD HH:mm:ss",
+    "YYYY.MM.DD HH:mm",
+    "DD.MM.YYYY HH:mm:ss",
+    "DD.MM.YYYY HH:mm",
+
+    // ── Month names (English) — 12-hour & 24-hour
+    "MMM D, YYYY h:mm:ss A",
+    "MMM D, YYYY h:mm A",
+    "MMMM D, YYYY h:mm:ss A",
+    "MMMM D, YYYY h:mm A",
+    "MMM D, YYYY HH:mm:ss",
+    "MMM D, YYYY HH:mm",
+
+    // ── Date-only fallbacks (no ticking if you only get a date)
+    "YYYY/MM/DD",
+    "YYYY-MM-DD",
+    "DD/MM/YYYY",
+    "DD-MM-YYYY"
+];
+
+
+
+function parseRawPreserveFormat(rawLike) {
+   
+    const raw = (rawLike && typeof rawLike === 'object' && rawLike.nowLocal)
+        ? rawLike.nowLocal
+        : String(rawLike || '').trim();
+
+    for (const fmt of FORMATS) {
+        const m = moment(raw, fmt, true); // strict
+        if (m.isValid()) return { m, fmt, raw };
+    }
+  
+    const m = moment(raw);
+    return { m, fmt: null, raw };
+}
+
+function startClockFromServer() {
+   
+    $.get('/EmployeesAttendance/NowLocal', function (resp) {
+        const { m, fmt, raw } = parseRawPreserveFormat(resp);
+
+      
+        $('#current-time').text(raw || 'Invalid date');
+
+      
+        clearInterval(window._tick);
+
+      
+        if (m.isValid() && fmt) {
+            let t = m.clone();
+            window._tick = setInterval(function () {
+                t.add(1, 'second');
+                $('#current-time').text(t.format(fmt)); 
+            }, 1000);
+        }
+       
+    });
+}
+
+$(document).ready(startClockFromServer);
 
 
 
@@ -190,6 +323,24 @@ function formatTime(minutes) {
 //    updateProgressBars();
 //});
 
+// --- helpers (add once, above your functions) ---
+function toHHmm(raw) {
+    if (!raw) return null;
+    const s = String(raw).trim();
+    const m = moment(s, ["h:mm A", "hh:mm A", "H:mm", "HH:mm"], true);
+    if (m.isValid()) return m.format("HH:mm");
+    const n = parseInt(s, 10);
+    if (!isNaN(n)) return String(n).padStart(2, "0") + ":00";
+    return null;
+}
+
+function parseDurationToMinutes(str) {
+    if (!str) return 0;
+    const h = (str.match(/(\d+)\s*h/i) || [0, 0])[1] | 0;
+    const m = (str.match(/(\d+)\s*m/i) || [0, 0])[1] | 0;
+    return h * 60 + m;
+}
+
 // Function to fetch pre-calculated data from the backend and update session details
 function fetchSessionData() {
     $.ajax({
@@ -239,18 +390,40 @@ function updateProgressBars(data) {
     $('#progressBars').html(progressBarsHtml);  // Insert the progress bars into the container
 
     // Optionally, update the timeline labels if required
-    const timelineLabels = $('#timelineLabels');
-    //let currentHour = 9;  // Starting hour for the timeline (adjust as needed)
-    let currentTime = moment(data.shiftStartHour || "09:30", "HH:mm"); 
-    // Loop through sessionTimeline to display the timeline labels
-    data.sessionTimeline.forEach(session => {
-        // Add the formatted current hour and minute to the label
-        const label = $('<span>').addClass('fs-10').text(currentTime.format("HH:mm"));
-        timelineLabels.append(label);
+    // Optionally, update the timeline labels if required
+    const timelineLabels = $('#timelineLabels').empty();
 
-        // Increment currentTime by the session duration (assuming it's 1 hour here, adjust as needed)
-        currentTime.add(1, 'hour'); // or currentTime.add(session.duration, 'minutes') if session has duration data
-    });
+    // Optionally, update the timeline labels if required
+   // const timelineLabels = $('#timelineLabels').empty();
+
+    const earlyRaw = data.earlyStartTime ?? data.EarlyStartTime;
+    const shiftRaw = data.shiftStartTime ?? data.shiftStartHour;
+
+    if (earlyRaw) {
+        // --- Requirement: if earlyStartTime exists, render 9 hours in 30-min steps ---
+        const startStr = toHHmm(earlyRaw) || "09:00";
+        let t = moment(startStr, "HH:mm");
+        // First tick at start
+        timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        // 9 hours / 0.5h = 18 increments
+        for (let i = 0; i < 20; i++) {
+            t = t.clone().add(30, 'minutes');
+            timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        }
+    } else {
+        // --- Requirement: if earlyStartTime exists, render 9 hours in 30-min steps ---
+        const startStr = toHHmm(shiftRaw) || "09:00";
+        let t = moment(startStr, "HH:mm");
+        // First tick at start
+        timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        // 9 hours / 0.5h = 18 increments
+        for (let i = 0; i < 20; i++) {
+            t = t.clone().add(30, 'minutes');
+            timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        }
+    }
+
+
 }
 
 // Function to determine the progress bar color based on session type
@@ -468,7 +641,7 @@ function renderAttendanceCompareChart(data) {
     var option = {
         title: {
             text: 'You vs Emp benchmark',
-            subtext: 'Previous Month'
+            subtext: 'This Month'
         },
         tooltip: {
             trigger: 'axis'
@@ -488,7 +661,7 @@ function renderAttendanceCompareChart(data) {
         xAxis: [
             {
                 type: 'category',
-                data: ['Present', 'Absent', 'Early Leave', 'Late Leave']
+                data: ['Present', 'Absent', 'Early', 'Late']
             }
         ],
         yAxis: [
@@ -594,7 +767,7 @@ function renderAttendanceBarChart(data) {
     };
 
     const option = {
-        title: { text: 'Attendance Status', subtext: 'Previous Year' },
+        title: { text: 'Attendance Status', subtext: 'Latest Month' },
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
         grid: { left: '3%', right: '3%', bottom: '3%', containLabel: true },
         legend: { data: ['Present', 'Absent', 'Late Entry', 'Early Leave', 'Casual Leave', 'Medical Leave'] },

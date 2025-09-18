@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using OfficeOpenXml.Export.ToDataTable;
 using System.Web.Mvc;
 using System.Web.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace GCTL.Service.CRM.LeadDetail
@@ -148,7 +149,7 @@ namespace GCTL.Service.CRM.LeadDetail
 
                 // ✅ Commit transaction if all operations succeed
                 await _leadDetailsGenericRepository.CommitTransactionAsync();
-                return true;
+                return true;    
             }
             catch (Exception ex)
             {
@@ -161,7 +162,7 @@ namespace GCTL.Service.CRM.LeadDetail
 
         //ToDo: How to get user id
         // lead table source, status update service function
-        public async Task<bool> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM)
+        public async Task<ReturnView> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM)
         {
             // Begin transaction
             await _leadsRepository.BeginTransactionAsync();
@@ -174,7 +175,12 @@ namespace GCTL.Service.CRM.LeadDetail
                 {
                     // No lead found, rollback and return false
                     await _leadsRepository.RollbackTransactionAsync();
-                    return false;
+                    return new ReturnView
+                    {
+                        Success = false,
+                        Message = $"{detailsLeadUpdateVM.FieldName} not updated"
+
+                    };
                 }
 
                 // Update the specified field
@@ -195,7 +201,12 @@ namespace GCTL.Service.CRM.LeadDetail
                     default:
                         // Invalid field, rollback
                         await _leadsRepository.RollbackTransactionAsync();
-                        return false;
+                        return new ReturnView
+                        {
+                            Success = false,
+                            Message = $"{detailsLeadUpdateVM.FieldName} not updated"
+
+                        };
                 }
 
                 // Update audit fields
@@ -207,14 +218,24 @@ namespace GCTL.Service.CRM.LeadDetail
 
                 // Commit transaction
                 await _leadsRepository.CommitTransactionAsync();
-                return true;
+                return new ReturnView
+                {
+                    Success = true,
+                    Message = $"{detailsLeadUpdateVM.FieldName} is updated"
+
+                };
             }
             catch (Exception ex)
             {
                 // Rollback on error
                 await _leadsRepository.RollbackTransactionAsync();
                 // Optional: log the exception
-                return false;
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = $"{detailsLeadUpdateVM.FieldName} not updated"
+
+                };
             }
         }
 
@@ -261,7 +282,7 @@ namespace GCTL.Service.CRM.LeadDetail
                 }
 
                 // Check if status already matches
-                if (leadObj.IsWwn == isWon)
+                if (leadObj.IsOwn == isWon)
                 {
                     await _leadsRepository.RollbackTransactionAsync();
                     return new ReturnView
@@ -286,7 +307,7 @@ namespace GCTL.Service.CRM.LeadDetail
                 await _leadDetailsGenericRepository.AddAsync(leadActivityObj);
 
                 // Update lead status
-                leadObj.IsWwn = isWon;
+                leadObj.IsOwn = isWon;
                 leadObj.ClosingDate = DateTime.UtcNow;
                 leadObj.UpdatedAt = DateTime.UtcNow;
                 leadObj.UpdatedBy = isWonVM.UpdatedBy;
@@ -295,6 +316,9 @@ namespace GCTL.Service.CRM.LeadDetail
 
                 // Commit transaction
                 await _leadsRepository.CommitTransactionAsync();
+
+                var upcommingActivity = await _leadDetailsGenericRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.Now).ToListAsync();
+                await _leadDetailsGenericRepository.DeleteRangeAsync(upcommingActivity);
 
                 return new ReturnView
                 {

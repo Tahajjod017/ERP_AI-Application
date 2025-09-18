@@ -130,7 +130,7 @@
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.leadSourceName}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadOwnerName}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="5">${item.approximateDealValue}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="6">${item.probabilityPercentage}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="6">${item.probabilityPercentage} %</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="7">${item.email}</td>
                         <td class="position align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="8">${item.phone}</td>
                         <td class="reason align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="9">${item.contactName}</td>
@@ -260,6 +260,7 @@
                 success: function (response) {
 
                     if (response.success) {
+                        loadProcessedTable();
                         toastr.success(response.message);
                         // HIDE modal
                         var myModalEl = document.getElementById('editModal');

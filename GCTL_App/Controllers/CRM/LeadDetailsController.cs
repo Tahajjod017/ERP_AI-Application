@@ -71,7 +71,7 @@ namespace GCTL_App.Controllers.CRM
 
             var customerObj = await (from lead in _context.Leads
                                      join cAddress in _context.CustomerAddresses
-                                     on lead.CustomerID equals cAddress.CustomerAddressID
+                                     on lead.CustomerID equals cAddress.CustomerID
                                      join customer in _context.Customers on cAddress.CustomerID equals customer.CustomerID
                                      join address in _context.Addresses on cAddress.AddressID equals address.AddressID
 
@@ -103,7 +103,7 @@ namespace GCTL_App.Controllers.CRM
                                          Email = address.Email,
                                          FirstName = address.FirstName,
                                          LastName = address.LastName,
-                                         isWon = lead.IsWwn ?? null,
+                                         isWon = lead.IsOwn ?? null,
                                          LeadOwnerId = lead.LeadOwnerID,
                                          LeadOwnerName = lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName,
                                          ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
@@ -111,17 +111,17 @@ namespace GCTL_App.Controllers.CRM
 
                                          // 🔥 Stats calculation for this LeadOwner
                                          SuccessPercentage = (int)Math.Round(_context.Leads
-                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == true)
+                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsOwn == true)
                                          .Count() * 100m /
                                          (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID))),
 
                                          LostPercentage = (int)Math.Round(_context.Leads
-                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == false)
+                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsOwn == false)
                                          .Count() * 100m /
                                          (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID))),
 
                                          CancelPercentage = (int)Math.Round(_context.Leads
-                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsWwn == null)
+                                         .Where(x => x.LeadOwnerID == lead.LeadOwnerID && x.IsOwn == null)
                                          .Count() * 100m /
                                          (_context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID) == 0 ? 1 : _context.Leads.Count(x => x.LeadOwnerID == lead.LeadOwnerID)))
 
@@ -186,6 +186,16 @@ namespace GCTL_App.Controllers.CRM
                 leadDetailsTypeID = leadDetailsTypeObj.LeadActivityTypeID;
             }
 
+            // if lead isWon not null then same time created id will come first
+
+            //var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == id);
+            //bool? isWon = leadObj.IsOwn;
+            //DateTime? ClosingDate = leadObj.ClosingDate;
+            //if (isWon != null)
+            //{
+
+            //}
+
             const int pageSize = 10; // Number of items per page
             int skip = (page - 1) * pageSize; // Calculate how many items to skip
 
@@ -227,7 +237,7 @@ namespace GCTL_App.Controllers.CRM
             // Fetch filtered and paginated data using LIKE
             var list = await _leadDetailsRepository
           .Find(u => u.LeadID == id &&
-                     u.ActivityDateTime >= DateTime.UtcNow
+                     u.ActivityDateTime >= DateTime.UtcNow.AddSeconds(11)
           )
           .OrderByDescending(e => e.ActivityDateTime)   // ORDER FIRST!
           .Skip(skip)                            // THEN skip
@@ -314,9 +324,9 @@ namespace GCTL_App.Controllers.CRM
 
                 var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == leadDetailsVM.LeadID);
 
-                if (leadObj != null && leadObj.IsWwn != null)
+                if (leadObj != null && leadObj.IsOwn != null)
                 {
-                    leadObj.IsWwn = null;
+                    leadObj.IsOwn = null;
                     leadObj.ClosingDate = null;
                     await _leadsRepository.UpdateAsync(leadObj);
                 }

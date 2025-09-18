@@ -36,7 +36,7 @@ namespace GCTL_App.Controllers.CRM
             if (!model.CreatedBy.HasValue)
                 return Ok(new ReturnDataView
                 {
-                    success = "false",
+                    success = false,
                     message = "User ID not provided",
                     data = [],
                     totalItem = 0,
