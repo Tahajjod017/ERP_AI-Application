@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.CommonSelectMasterDropDown;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
@@ -16,18 +17,26 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 {
     public class LeaveSettingsController : BaseController
     {
-        private readonly IGenericRepository<Organization> organization;
         private readonly ILeaveSettingsService leaveSettingsService;
-
-        public LeaveSettingsController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organization, ILeaveSettingsService leaveSettingsService) : base(translateService, userProfileService)
+        private readonly ICommonDroDownService  commonDroDownService;
+        public LeaveSettingsController(ITranslateService translateService, IUserProfileService userProfileService, ILeaveSettingsService leaveSettingsService, ICommonDroDownService commonDroDownService) : base(translateService, userProfileService)
         {
-            this.organization = organization;
             this.leaveSettingsService = leaveSettingsService;
+            this.commonDroDownService = commonDroDownService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            ViewBag.organizationDD = new SelectList(organization.AllActive(), "OrganizationID", "OrganizationName");
+             var orga=await commonDroDownService.GetAllOrganizationsAsync();
+            if(orga.Count==1)
+            {
+                ViewBag.organizationDD = new SelectList(orga, "Id", "Name", orga[0].Id);
+            }
+            else
+            {
+                ViewBag.organizationDD = new SelectList(orga, "Id", "Name");
+            }
+
             return View();
         }
         #region  Add and Update Data Leave 
