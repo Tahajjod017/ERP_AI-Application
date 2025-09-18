@@ -7,12 +7,14 @@ using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Helpers;
 using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
 
 namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
@@ -28,8 +30,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         private readonly IGenericRepository<EmployeeOfficeInfo> _genericEmployeeOfficeInfo;
         private readonly IGenericRepository<AttendanceLog> _genericAttendanceLog;
         private readonly ILocalizationContext _localizationContext;
+        private readonly IGenericRepository<LeaveApplications> _genericLeaveApplication;
 
-        public EmployeeAttendanceService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, IGenericRepository<Shifts> genericRepositoryShift, IGenericRepository<Holidays> genericHolidays, IGenericRepository<WeekendDays> genericWeekdays, IGenericRepository<WeekendSettings> genericWeekSettings, IGenericRepository<EmployeeOfficeInfo> genericEmployeeOfficeInfo, IGenericRepository<AttendanceLog> genericAttendanceLog, ILocalizationContext localizationContext) : base(genericRepository)
+        public EmployeeAttendanceService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, IGenericRepository<Shifts> genericRepositoryShift, IGenericRepository<Holidays> genericHolidays, IGenericRepository<WeekendDays> genericWeekdays, IGenericRepository<WeekendSettings> genericWeekSettings, IGenericRepository<EmployeeOfficeInfo> genericEmployeeOfficeInfo, IGenericRepository<AttendanceLog> genericAttendanceLog, ILocalizationContext localizationContext, IGenericRepository<LeaveApplications> genericLeaveApplication) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
@@ -40,6 +43,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             _genericEmployeeOfficeInfo = genericEmployeeOfficeInfo;
             _genericAttendanceLog = genericAttendanceLog;
             _localizationContext = localizationContext;
+            _genericLeaveApplication = genericLeaveApplication;
         }
 
         public async Task<PaginationService<Attendance, EmployeeAttendenceVM>.PaginationResult<EmployeeAttendenceVM>> GetAllAsync(
@@ -484,211 +488,6 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         }
 
 
-        //public async Task<EmployeeAttendenceVM> GetAttendanceProgressBarAsync(int userId)
-        //{
-        //    var today = DateTime.UtcNow;
-
-        //    // Get today's attendance record
-        //    var attendanceDataId = await _genericRepository.AllActive()
-        //        .Where(a => a.EmployeeID == userId && a.AttendanceDate == DateOnly.FromDateTime(today))
-        //        .FirstOrDefaultAsync();
-
-        //    if (attendanceDataId == null)
-        //    {
-        //        return new EmployeeAttendenceVM
-        //        {
-        //            TotalWorkingHours = "0h 0m",
-        //            ProductiveHours = "0h 0m",
-        //            BreakHours = "0h 0m",
-        //            Overtime = "0h 0m",
-        //            LateHours = "0h 0m",
-        //            EarlyHours = "0h 0m",
-        //            SessionTimeline = new List<SessionData>()
-        //        };
-        //    }
-
-        //    var attendanceLogs = await _genericAttendanceLog.AllActive()
-        //        .Where(log => log.AttendanceID == attendanceDataId.AttendanceID
-        //                     && log.CHECKTIME_UTC.Value.Date == today.Date)
-        //        .OrderBy(log => log.CHECKTIME_UTC)
-        //        .ToListAsync();
-
-        //    if (!attendanceLogs.Any())
-        //    {
-        //        return new EmployeeAttendenceVM
-        //        {
-        //            TotalWorkingHours = "0h 0m",
-        //            ProductiveHours = "0h 0m",
-        //            BreakHours = "0h 0m",
-        //            Overtime = "0h 0m",
-        //            LateHours = "0h 0m",
-        //            EarlyHours = "0h 0m",
-        //            SessionTimeline = new List<SessionData>()
-        //        };
-        //    }
-
-        //    var shift = await _genericRepositoryShift.All()
-        //        .Where(s => s.ShiftID == attendanceDataId.ShiftID)
-        //        .FirstOrDefaultAsync();
-
-        //    var shiftStartTime = shift?.StartTime.HasValue == true
-        //        ? DateTime.Today.Add(shift.StartTime.Value.ToTimeSpan())
-        //        : (DateTime?)null;
-
-        //    var shiftEndTime = shift?.EndTime.HasValue == true
-        //        ? DateTime.Today.Add(shift.EndTime.Value.ToTimeSpan())
-        //        : (DateTime?)null;
-
-        //    // ---------------- STEP 1: Totals ----------------
-        //    int totalRegularMinutes = 0;
-        //    int totalBreakMinutes = 0;
-        //    int totalLateMinutes = 0;
-        //    int totalEarlyMinutes = 0;
-        //    int totalOvertimeMinutes = 0;
-
-        //    var sessionTimeline = new List<SessionData>();
-
-        //    var firstPunch = attendanceLogs.First().CHECKTIME_UTC.Value;
-
-        //    if (shiftStartTime.HasValue)
-        //    {
-        //        if (firstPunch > shiftStartTime.Value)
-        //        {
-        //            // Employee is late
-        //            var lateMinutes = (int)(firstPunch - shiftStartTime.Value).TotalMinutes;
-        //            if (lateMinutes > 5)
-        //            {
-        //                totalLateMinutes = lateMinutes;
-        //                sessionTimeline.Add(new SessionData
-        //                {
-        //                    Type = "Late",
-        //                    Duration = $"{lateMinutes / 60}h {lateMinutes % 60}m",
-        //                    Percentage = "0%"
-        //                });
-        //            }
-        //        }
-        //        else if (firstPunch < shiftStartTime.Value)
-        //        {
-        //            // Employee is early
-        //            var earlyMinutes = (int)(shiftStartTime.Value - firstPunch).TotalMinutes;
-        //            if (earlyMinutes > 5)
-        //            {
-        //                totalEarlyMinutes = earlyMinutes;
-        //                sessionTimeline.Add(new SessionData
-        //                {
-        //                    Type = "Early",
-        //                    Duration = $"{earlyMinutes / 60}h {earlyMinutes % 60}m",
-        //                    Percentage = "0%"
-        //                });
-        //            }
-        //        }
-        //    }
-
-        //    // ---------------- STEP 2: Loop through punches ----------------
-        //    for (int i = 0; i < attendanceLogs.Count; i++)
-        //    {
-        //        var log = attendanceLogs[i];
-
-        //        if (i % 2 == 0) // Odd punch → Worked
-        //        {
-        //            var endTime = (i + 1 < attendanceLogs.Count)
-        //                ? attendanceLogs[i + 1].CHECKTIME_UTC // Next punch (checkout)
-        //                : DateTime.UtcNow; // still working
-
-        //            var workedMinutes = endTime.HasValue && log.CHECKTIME_UTC.HasValue
-        //               ? (int)(endTime.Value - log.CHECKTIME_UTC.Value).TotalMinutes
-        //               : 0; // Default to 0 if either value is null.  
-        //            totalRegularMinutes += workedMinutes;
-
-        //            sessionTimeline.Add(new SessionData
-        //            {
-        //                Type = "Worked",
-        //                Duration = $"{workedMinutes / 60}h {workedMinutes % 60}m",
-        //                Percentage = "0%" // later updated
-        //            });
-        //        }
-        //        else // Even punch → Break
-        //        {
-        //            if (i + 1 < attendanceLogs.Count)
-        //            {
-        //                var breakMinutes = (int)(attendanceLogs[i + 1].CHECKTIME_UTC.Value - log.CHECKTIME_UTC.Value).TotalMinutes;
-        //                totalBreakMinutes += breakMinutes;
-
-        //                sessionTimeline.Add(new SessionData
-        //                {
-        //                    Type = "Break",
-        //                    Duration = $"{breakMinutes / 60}h {breakMinutes % 60}m",
-        //                    Percentage = "0%"
-        //                });
-        //            }
-        //        }
-        //    }
-
-        //    // ---------------- STEP 3: Late / Early ----------------
-
-
-        //    // ---------------- STEP 4: Overtime ----------------
-        //    var lastPunch = attendanceLogs.Last().CHECKTIME_UTC.Value;
-        //    if (shiftEndTime.HasValue && lastPunch > shiftEndTime.Value)
-        //    {
-        //        totalOvertimeMinutes = (int)(lastPunch - shiftEndTime.Value).TotalMinutes;
-
-        //        // Add overtime into last Worked session
-        //        var lastWorked = sessionTimeline.LastOrDefault(s => s.Type == "Worked");
-        //        if (lastWorked != null)
-        //        {
-        //            // Update duration
-        //            var parts = lastWorked.Duration.Split(' ');
-        //            int workedMinutes = int.Parse(parts[0].Replace("h", "")) * 60
-        //                               + int.Parse(parts[1].Replace("m", ""));
-        //            workedMinutes += totalOvertimeMinutes;
-
-        //            lastWorked.Duration = $"{workedMinutes / 60}h {workedMinutes % 60}m";
-        //        }
-
-        //        sessionTimeline.Add(new SessionData
-        //        {
-        //            Type = "Overtime",
-        //            Duration = $"{totalOvertimeMinutes / 60}h {totalOvertimeMinutes % 60}m",
-        //            Percentage = "0%"
-        //        });
-        //    }
-
-        //    // ---------------- STEP 5: Percentages ----------------
-        //    int totalAll = totalRegularMinutes + totalBreakMinutes + totalLateMinutes + totalEarlyMinutes + totalOvertimeMinutes;
-
-        //    foreach (var s in sessionTimeline)
-        //    {
-        //        var parts = s.Duration.Split(' ');
-        //        int minutes = int.Parse(parts[0].Replace("h", "")) * 60
-        //                     + int.Parse(parts[1].Replace("m", ""));
-
-        //        if (totalAll > 0)
-        //            s.Percentage = $"{(int)((float)minutes / totalAll * 100)}%";
-        //    }
-
-        //    // ---------------- STEP 6: Return ----------------
-        //    string FormatTime(int minutes) => $"{minutes / 60}h {minutes % 60}m";
-
-        //    return new EmployeeAttendenceVM
-        //    {
-        //        TotalWorkingHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes + totalLateMinutes + totalEarlyMinutes),
-        //        ProductiveHours = FormatTime(totalRegularMinutes),
-        //        BreakHours = FormatTime(totalBreakMinutes),
-        //        Overtime = FormatTime(totalOvertimeMinutes),
-        //        LateHours = FormatTime(totalLateMinutes),
-        //        EarlyHours = FormatTime(totalEarlyMinutes),
-        //        SessionTimeline = sessionTimeline
-        //    };
-        //}
-
-
-
-
-
-
-
-
         private string FormatTimeSpanHHMM(TimeSpan timeSpan)
         {
             return $"{(int)timeSpan.TotalHours:D2}h {timeSpan.Minutes:D2}m";
@@ -898,15 +697,6 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             int mins = (int)(minutes % 60);
             return $"{hours}h {mins}m";
         }
-
-
-
-
-
-
-
-
-
 
         //public async Task<EmployeeAttendenceVM> GetAttendanceDetailsAsync(int userId)
         //{
@@ -1256,6 +1046,94 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         }
 
 
+        public async Task<EmployeeStatusReportVM> GetEmployeeStatusReport(int employeeId, int? organizationId, int? organizationBranchId)
+        {
+            var now = DateTime.UtcNow;
+            var from = new DateOnly(now.Year, now.Month, 1);
+            var to = DateOnly.FromDateTime(now);
+            // All days in [from..to]
+            var allDays = Enumerable.Range(0, to.Day)
+                                    .Select(i => from.AddDays(i))
+                                    .ToList();
+
+          
+
+            // 2. Get weekend days dynamically from the Weekend table
+            var weekendDays = await _genericWeekdays.All()
+                .Where(w => w.DeletedAt == null
+                            && w.WeekendSetting.OrganizationID == organizationId
+                            && (organizationBranchId == null || w.WeekendSetting.OrganizationBranchID == organizationBranchId))
+                .Select(w => w.WeekdayNumber)
+                .ToListAsync();
+
+            // 3. Get holidays dynamically from the Holidays table
+            var holidays = await _genericHolidays.All()
+                .Where(h => h.OrganizationID == organizationId
+                            && (organizationBranchId == null || h.OrganizationBranchID == organizationBranchId)
+                            && DateOnly.FromDateTime(h.StartDate.Value) <= from
+                            && DateOnly.FromDateTime(h.EndDate.Value) >= to)
+                .ToListAsync();
+
+            HashSet<DateOnly> holidayDays = new();
+            foreach (var h in holidays)
+            {
+                var hs = DateOnly.FromDateTime(h.StartDate!.Value);
+                var he = DateOnly.FromDateTime(h.EndDate!.Value);
+                var s = hs < from ? from : hs;
+                var e = he > to ? to : he;
+                for (var d = s; d <= e; d = d.AddDays(1))
+                    holidayDays.Add(d);
+            }
+
+            var fullLeavedays = await _genericLeaveApplication.All()
+                .Where(l => l.EmployeeID == employeeId
+                            && l.IsFinalApproved == true
+                            && l.IsFullDay == true
+                            && l.DeletedAt == null
+                            && (l.FromDate) >= new DateOnly(from.Year, from.Month, 1)
+                            && (l.ToDate) <= to
+                            )
+                .ToListAsync();
+            var halfLeavedays = await _genericLeaveApplication.All()
+                .Where(l => l.EmployeeID == employeeId
+                            && l.IsFinalApproved == true
+                            && l.IsFullDay == false
+                            && l.DeletedAt == null
+                            && (l.FromDate) >= from
+                            && (l.ToDate) <= to
+                            )
+                .ToListAsync();
+
+            // 4. Remove weekends and holidays from monthDays
+            List<DateOnly> workingDays = allDays
+                .Where(d => !weekendDays.Contains((int)d.DayOfWeek))
+                .Where(d => !holidayDays.Contains(d))
+                .Where(d => !halfLeavedays.Any(l => d >= l.FromDate && d <= l.ToDate))
+                .ToList();
+            var attendanceData = await _genericRepository.All()
+                                       .Where(a => a.EmployeeID == employeeId
+                                                   && workingDays.Contains(a.AttendanceDate)
+                                                   && a.DeletedAt == null)
+             
+                                       .ToListAsync();
+            // -------------------------
+            // 🔹 Calculate Totals
+            // -------------------------
+            int totalPresent = attendanceData.Count;
+            int totalAbsent = workingDays.Count - totalPresent;
+            int totalLate = attendanceData.Count(a => a.LateTimeMinutes.HasValue);
+            int totalEarlyLeave = attendanceData.Count(a => a.EarlyTimeMinutes.HasValue);
+
+            return new EmployeeStatusReportVM
+            {
+                Present = totalPresent,
+                Absent = totalAbsent,
+                Late = totalLate,
+                Early = totalEarlyLeave
+
+            };
+
+        }
 
 
 

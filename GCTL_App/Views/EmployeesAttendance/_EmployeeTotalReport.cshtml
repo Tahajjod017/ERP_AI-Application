@@ -7,6 +7,7 @@
 	var initials = !string.IsNullOrEmpty(fullName) ? fullName.Trim()[0].ToString().ToUpper() : "?";
 	bool hasImage = !string.IsNullOrWhiteSpace(profilePicturePath)
 							&& !profilePicturePath.ToLower().Contains("null");
+	var hasCheckIn = ViewData["CheckInTime"] != null;
 	//var currentLocale = ViewData["Locale"]; // Assuming _loc is the current locale context object
 	//var timeZone = ViewData["TimeZone"]; // Assuming you have access to the time zone
 }
@@ -43,16 +44,16 @@
                 </div>
 			</div>
 			<div class="text-center">
-				<div class="badge text-bg-danger mb-3 px-5 py-2">
-					@if (ViewData["CheckInTime"] == null)
-					{
-						<text>Absent</text>
-					}
-					else
-					{
-						<text>Production: @ViewData["ProductionTime"] </text>  <!-- Access the first element of the array -->
-					}
-				</div>
+				@if (!hasCheckIn)
+				{
+					<div class="badge text-bg-danger mb-3 px-5 py-2">Absent</div>
+				}
+				else
+				{
+					<div class="badge text-bg-success mb-3 px-5 py-2">
+						Production: @ViewData["ProductionTime"]
+					</div>
+				}
 				<h6 class="fw-medium d-flex align-items-center justify-content-center mb-3">
 					<i class="ti ti-fingerprint text-primary me-1"></i>
 					@if (ViewData["CheckInTime"] != null)
