@@ -63,7 +63,9 @@
                             </select>
                         </div>
                     </div>
-
+                    <div class="dropdown">
+                        <div><button class="btn btn-outline-secondary"><i class="fa-solid fa-file-arrow-down"></i> PDF</button></div>
+                    </div>
 
                 </div>
             </div>
@@ -80,14 +82,14 @@
                                         </div>
                                     </th> *@
                                     <th class="sort align-middle text-uppercase text-nowrap" scope="col" data-sort="SL" data-column="0" style="max-width:25px; width:25px;">@Html.SmartLocalize("SL")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="file" data-column="4">@Html.SmartLocalize("Lead Name")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="file" data-column="4">@Html.SmartLocalize("Customer Name")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="LeadDetailID" data-column="4">@Html.SmartLocalize("Lead Name")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="CustomerName" data-column="4">@Html.SmartLocalize("Customer Name")</th>
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col"  data-column="1">@Html.SmartLocalize("Service Type")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="date" data-column="2">@Html.SmartLocalize("Date & Time")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="ActivityDateTime" data-column="2">@Html.SmartLocalize("Date & Time")</th>
 
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="file" data-column="4">@Html.SmartLocalize("Note")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="file" data-column="4">@Html.SmartLocalize("File")</th>
-                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="note" data-column="3">@Html.SmartLocalize("Owber Name")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="ActivityNote" data-column="4">@Html.SmartLocalize("Note")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="File" data-column="4">@Html.SmartLocalize("File")</th>
+                                    <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="LeadOwner" data-column="3">@Html.SmartLocalize("Owber Name")</th>
                                     <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-column="11">@Html.SmartLocalize("Action")</th>
                                 </tr>
                             </thead>

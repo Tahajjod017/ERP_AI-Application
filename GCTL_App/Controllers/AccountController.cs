@@ -17,6 +17,8 @@ using System.Security.Cryptography;
 using System.Text;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using GCTL.Core;
+using System.Web;
 
 namespace GCTL_App.Controllers
 {
@@ -44,14 +46,39 @@ namespace GCTL_App.Controllers
         {
             return View();
         }
-        // Login GET
+        //[HttpGet]
+        //public IActionResult Login() => View();
+
         [HttpGet]
-        public IActionResult Login() => View();
+        public IActionResult Login(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+        ////
+        //[HttpGet]
+        //public IActionResult Login(string returnUrl = null)
+        //{
+        //    // ✅ If user is already logged in, skip login and redirect
+        //    if (User.Identity.IsAuthenticated)
+        //    {
+        //        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        //        {
+        //            return Redirect(returnUrl); // Goes straight to LeaveApprovalDecline/Index
+        //        }
+
+        //        return RedirectToAction("Index", "Home");
+        //    }
+
+        //    ViewData["ReturnUrl"] = returnUrl;
+        //    return View();
+        //}
+
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             if (ModelState.IsValid)
             {
@@ -152,6 +179,10 @@ namespace GCTL_App.Controllers
                     await _Db.ActionLogs.AddAsync(actiondata);
                     await _Db.SaveChangesAsync();
 
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl); // Goes to /LeaveApprovalDecline/Index if the user clicked that link
+                    }
                     // Step 9: Redirect after successful login
                     return RedirectToAction("Index", "Home");
                 }

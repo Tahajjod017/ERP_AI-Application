@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
 {
-    public interface IAttendanceService
+    public interface IAppsAttendanceService
     {
         Task<bool> AttendanceFromApps(PunchDataRequestVM model);
     }

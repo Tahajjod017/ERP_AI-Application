@@ -35,7 +35,7 @@ namespace GCTL.Service.CRM
             // Base query
             var query = from lead in _leadsGenericRepository.AllActive()
                         join indDddr in _context.CustomerAddresses
-                            on lead.CustomerID equals indDddr.CustomerAddressID
+                            on lead.CustomerID equals indDddr.CustomerID
                         join address in _context.Addresses
                             on indDddr.AddressID equals address.AddressID
                         join individual in _context.Customers

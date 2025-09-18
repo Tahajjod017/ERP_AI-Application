@@ -417,17 +417,29 @@ $(document).ready(function () {
         }
     });
     //
+    $(document).ready(function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        console.log("QueryString:", window.location.search);
+        const leaveApplicationID = urlParams.get("leaveApplicationID");
+        console.log("leaveApplicationID:", leaveApplicationID);
+
+        if (leaveApplicationID) {
+            openLeaveModal(leaveApplicationID);
+        }
+    });
 
     // Get By data leaveRequest
     $(document).on('click', '#LeaveRequestEditButton', function () {
         var leaveApplicationID = $(this).data('id');
-
+        openLeaveModal(leaveApplicationID)
+    })
+    function openLeaveModal(leaveApplicationID) {
         $.ajax({
             url: '/LeaveApprovalDeclineRoute/GetLeaveRequestByIdAsync',
             type: 'GET',
             data: { leaveApplicationID: leaveApplicationID },
             success: function (data) {
-          
+
                 console.log("Data GetBy LeaveRequest", data);
                 if (data && Object.keys(data).length > 0) {
 
@@ -435,7 +447,7 @@ $(document).ready(function () {
                     $('#LeaveApplicationID').val(data.leaveApplicationID);
 
                     // EmployeeIDEdit
-            
+
                     choiceManager.setChoiceValue('EmployeeIDEdit', data.employeeIDEdit);
                     choiceManager.setChoiceValue('LeaveTypeIDEdit', data.leaveTypeIDEdit);
                     flatpickrHelper.setDate('ToDateFromDateCombinedEdit', data.fromDateEdit);
@@ -472,13 +484,14 @@ $(document).ready(function () {
                     } else {
                         $('#SubsequentHolydayDays').val("0");
                     }
-                   // GetLeavePolicyIsCountAsync();
+                    // GetLeavePolicyIsCountAsync();
                     // Set original From/To dates globally
                     window.__originalFromDate = data.fromDateEdit;
                     window.__originalToDate = data.toDateEdit;
                     updateDatepickerWithMinDate('FromDateEdit', data.fromDateEdit, data.toDateEdit);
                     updateDatepickerWithMinDate('ToDateEdit', data.fromDateEdit, data.toDateEdit);
                     TotalDaysCount(data.fromDateEdit, data.toDateEdit);
+                    $('#edit_leaves').modal('show');
                 }
             },
 
@@ -486,8 +499,15 @@ $(document).ready(function () {
                 toastr.error("Error leave request get by Id.");
             }
         })
-    })
+    }
 
+
+    $('.mdlClose').click(function () {
+        showDev('dddd')
+        hideModal('edit_leaves')
+    });
+
+    
     //
     
     function updateDatepickerWithMinDate(dateId, fromDate, toDate) {

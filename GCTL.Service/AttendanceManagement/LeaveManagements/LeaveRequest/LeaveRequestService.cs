@@ -782,7 +782,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 }
 
                 var currentStart = fromDate.AddDays(usedDays);
-
                 if (remainingDays > 0 && allowFallback)
                 {
                     var fallbackTypes = await leaveTypes.AllActive()
@@ -821,6 +820,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                             };
 
                             await leaveRequest.AddAsync(partial);
+                            sequence = partial.LeaveApplicationID;
                             await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, partial, partial.LeaveApplicationID, entityVM);
 
                             remainingDays -= usedFallback;
@@ -856,16 +856,17 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     };
 
                     await leaveRequest.AddAsync(lwpEntity);
+                    sequence=lwpEntity.LeaveApplicationID;
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, lwpEntity, lwpEntity.LeaveApplicationID, entityVM);
                 }
                 // fro email 
-                var approvalDepartment = await empoffi.AllActive().Where(x => x.EmployeeID == approvalPersonId)
+                var approvalDepartment = await empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation).Where(x => x.EmployeeID == approvalPersonId)
                     .Select(x => new { x.OfficeEmail, x.Department.DepartmentName, x.Designation.DesignationName }).FirstOrDefaultAsync();
                 var applicantNameEmail = await employee.AllActive()
                     .Where(x => x.EmployeeID == entityVM.EmployeeID)
                     .Select(x => new { x.FirstName, x.LastName, x.Email }).FirstOrDefaultAsync();
 
-                var applicantDepartment = await empoffi.AllActive()
+                var applicantDepartment = await empoffi.AllActive().Include(x=>x.Designation).Include(x=>x.Department)
                     .Where(x => x.EmployeeID == entityVM.EmployeeID)
                     .Select(x => new
                     {
@@ -880,7 +881,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     .Select(x => new { x.FirstName, x.LastName, x.Email })
                     .FirstOrDefaultAsync();
 
-                var approverDepartment = await empoffi.AllActive()
+                var approverDepartment = await empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
                     .Where(x => x.EmployeeID == approvalPersonId)
                     .Select(x => new
                     {
@@ -895,34 +896,116 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     totalDays = (entityVM.ToDate.Value.DayNumber - entityVM.FromDate.Value.DayNumber) + 1;
                 }
 
+                //                // Build email model
+                //                var emailModel = new EmailVM
+                //                {
+                //                    To = approverNameEmail?.Email ?? approverDepartment?.OfficeEmail, 
+                //                    Subject = $"Leave Application from {applicantNameEmail?.FirstName} {applicantNameEmail?.LastName}",
+                //                    Body = $@"
+                //        <p>Dear {approverNameEmail?.FirstName} {approverNameEmail?.LastName},</p>
+                //        <p>{applicantNameEmail?.FirstName} {applicantNameEmail?.LastName} 
+                //        ({applicantDepartment?.DesignationName}, {applicantDepartment?.DepartmentName}) 
+                //        has applied for leave.</p>
+
+                //        <ul>
+                //            <li><strong>From:</strong> {entityVM.FromDate:dd MMM yyyy}</li>
+                //            <li><strong>To:</strong> {entityVM.ToDate:dd MMM yyyy}</li>
+                //           <li><strong>Total day(s):</strong> {totalDays}</li> 
+                //           <li><strong>Leave Type:</strong> {leaveName}</li> 
+                //            <li><strong>Reason:</strong> {entityVM.Reason}</li>
+                //        </ul>
+
+                //        <p>Please log in to the HRM system to review and approve this request.</p>
+                //         <p>
+                //   <a href='https://localhost:7086/' style='padding:8px 12px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;'>Login</a>
+
+                //    &nbsp;&nbsp;
+                //    <a href='' style='padding:8px 12px;background:#28a745;color:#fff;text-decoration:none;border-radius:4px;'>Accept</a>
+                //    &nbsp;&nbsp;
+                //    <a href='' style='padding:8px 12px;background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;'>Decline</a>
+                //</p>
+                //        <p>Regards,<br/>HRM System</p>
+                //    "
+                //                };
+
+
                 // Build email model
+                int leaveApplicationID = sequence;
                 var emailModel = new EmailVM
                 {
-                    To = approverNameEmail?.Email ?? approverDepartment?.OfficeEmail, 
+                    To = approverNameEmail?.Email ?? approverDepartment?.OfficeEmail,
+                    //To="siam.mbstubritto12@gmail.com",
                     Subject = $"Leave Application from {applicantNameEmail?.FirstName} {applicantNameEmail?.LastName}",
                     Body = $@"
-        <p>Dear {approverNameEmail?.FirstName} {approverNameEmail?.LastName},</p>
-        <p>{applicantNameEmail?.FirstName} {applicantNameEmail?.LastName} 
-        ({applicantDepartment?.DesignationName}, {applicantDepartment?.DepartmentName}) 
-        has applied for leave.</p>
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;'>
+            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; margin: -20px -20px 20px -20px;'>
+                <h2 style='margin: 0; font-size: 24px;'>Leave Application Request</h2>
+            </div>
+            
+            <p style='color: #333; font-size: 16px;'>Dear {approverNameEmail?.FirstName} {approverNameEmail?.LastName},</p>
+            
+            <p style='color: #333; font-size: 16px; line-height: 1.6;'>
+                <strong>{applicantNameEmail?.FirstName} {applicantNameEmail?.LastName}</strong> 
+                ({applicantDepartment?.DesignationName}, {applicantDepartment?.DepartmentName}) has applied for leave.
+            </p>
+            
+            <div style='background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;'>
+                <h3 style='color: #667eea; margin-top: 0;'>Leave Details:</h3>
+                <table style='width: 100%; border-collapse: collapse;'>
+                    <tr>
+                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>From Date:</td>
+                        <td style='padding: 8px 0; color: #333;'>{entityVM.FromDate:dd MMM yyyy}</td>
+                    </tr>
+                    <tr>
+                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>To Date:</td>
+                        <td style='padding: 8px 0; color: #333;'>{entityVM.ToDate:dd MMM yyyy}</td>
+                    </tr>
+                    <tr>
+                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>Total Days:</td>
+                        <td style='padding: 8px 0; color: #333;'>{totalDays}</td>
+                    </tr>
+                    <tr>
+                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>Leave Type:</td>
+                        <td style='padding: 8px 0; color: #333;'>{leaveName}</td>
+                    </tr>
+                    <tr>
+                        <td style='padding: 8px 0; font-weight: bold; color: #555; vertical-align: top;'>Reason:</td>
+                        <td style='padding: 8px 0; color: #333;'>{entityVM.Reason}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <p style='color: #333; font-size: 16px; line-height: 1.6;'>
+                Please log in to the HRM system to review and approve this request.
+            </p>
+            
+            <div style='text-align: center; margin: 30px 0;'>
+ <a href=""https://localhost:7086/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}""
+               style=""display: inline-block; padding: 12px 24px; background: #007bff; color: #fff; text-decoration: none; border-radius: 6px;"">
+               🔐 LOGIN TO HRM
+            </a>
 
-        <ul>
-            <li><strong>From:</strong> {entityVM.FromDate:dd MMM yyyy}</li>
-            <li><strong>To:</strong> {entityVM.ToDate:dd MMM yyyy}</li>
-           <li><strong>Total day(s):</strong> {totalDays}</li> 
-           <li><strong>Leave Type:</strong> {leaveName}</li> 
-            <li><strong>Reason:</strong> {entityVM.Reason}</li>
-        </ul>
 
-        <p>Please log in to the HRM system to review and approve this request.</p>
-         <p>
-    <a href='' style='padding:8px 12px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;'>Login</a>
-    &nbsp;&nbsp;
-    <a href='' style='padding:8px 12px;background:#28a745;color:#fff;text-decoration:none;border-radius:4px;'>Accept</a>
-    &nbsp;&nbsp;
-    <a href='' style='padding:8px 12px;background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;'>Decline</a>
-</p>
-        <p>Regards,<br/>HRM System</p>
+                <br/><br/>
+           <a href='https://localhost:7086/LeaveApprovalDecline/Index?leaveApplicationID={leaveApplicationID}' 
+   style='display: inline-block; padding: 12px 24px; background: #6f42c1; color: #fff; text-decoration: none; border-radius: 6px; margin: 0 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;'>
+   📋 Approvals
+</a>
+
+            </div>
+            
+            <div style='background: #e9ecef; padding: 15px; border-radius: 6px; margin: 20px 0;'>
+                <p style='margin: 0; color: #6c757d; font-size: 14px; text-align: center;'>
+                    <strong>Quick Actions:</strong> After logging in, you can directly access the leave approval page using the link above.
+                </p>
+            </div>
+            
+            <div style='border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px;'>
+                <p style='color: #333; font-size: 16px; margin-bottom: 5px;'>Best Regards,</p>
+                <p style='color: #667eea; font-weight: bold; font-size: 16px; margin: 0;'>HRM System</p>
+                <p style='color: #6c757d; font-size: 14px; margin: 5px 0 0 0;'>Human Resource Management</p>
+            </div>
+        </div>
     "
                 };
 

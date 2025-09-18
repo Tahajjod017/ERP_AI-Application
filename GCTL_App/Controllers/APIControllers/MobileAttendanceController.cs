@@ -15,10 +15,10 @@ namespace GCTL_App.Controllers.APIControllers
     public class MobileAttendanceController : ControllerBase
     {
         #region Services
-        private readonly IAttendanceService _attendanceService;
+        private readonly IAppsAttendanceService _attendanceService;
 
         public MobileAttendanceController(
-            IAttendanceService attendanceService)
+            IAppsAttendanceService attendanceService)
         {
             _attendanceService = attendanceService;
         }

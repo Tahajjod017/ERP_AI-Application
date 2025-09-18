@@ -114,15 +114,19 @@
                 let itemsPerPage = parseInt($('#pageElementSize').val()) || 10;
 
                 let page = parseInt($('#pageNumber').data('page')) || 1;
-                
+
 
                 let pageOffset = (page - 1) * itemsPerPage;
 
                 $.each(response.data, function (index, item) {
                     debugger;
-                    const datePart = item.activityDateTime.split("T")[0];  // "2025-09-28"
-                    const timePart = item.activityDateTime.split("T")[1];  // "00:00:00"
+                    const dt = new Date(item.activityDateTime);
 
+                    // Format Date (dd-mm-yyyy)
+                    const datePart = dt.toLocaleDateString('en-GB').replace(/\//g, '-');
+
+                    // Format Time (hh:mm AM/PM)
+                    const time = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
                     showDev(item);
                     let itemSL = pageOffset + index + 1;
                     //let statusBadge = getStatusBadgeClass(item.status);
@@ -130,14 +134,16 @@
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
 
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="0">${itemSL}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.customerName}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.leadName}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadActivityType}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${datePart}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${timePart}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${datePart} ${time}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.activityNote}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.activityNote}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadOwner}</td>
            
                         <td class="status align-middle white-space-nowrap pe-0 ps-2 d-flex justify-content-center" data-column="11">
-                            <a href="/LeadDetails/Index/${item.leadID}" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2"  id="editModalBtn" data-id="${item.leadId}"><i class="fa-solid fa-arrow-right"></i></a>
+                            <a href="/LeadDetails/Index/${item.leadID}" class="btn btn-outline-secondary btn-icon addShift-bulkEdit me-2"  id="editModalBtn" data-id="${item.leadId}"><i class="fa-solid fa-arrow-right"></i></a>
                         </td>
                     </tr>
                 `);
@@ -228,176 +234,4 @@
     });
 
 
-
-
-    // ==============================
-    // update lead information
-    // ==============================
-
-    $("#editBtn").on("click", function (e) {
-        e.preventDefault();
-        const data = {
-            LeadID: $("#leadID").val(),
-            LeadName: $("#leadName").val() || "",
-            LeadStatusID: parseInt($("#leadStatusID").val()) || 0,
-            LeadSourceID: parseInt($("#leadSourceID").val()) || 0,
-            LeadOwnerID: parseInt($("#leadOwnerId").val()) || 0,
-            PriorityID: parseInt($("#leadPriorityID").val()) || 0,
-            ApproximateDealValue: parseFloat($("#approximateDealValue").val()) || 0,
-            ProbabilityPercentage: parseFloat($("#probabilityPercentage").val()) || 0,
-            LeadDescription: $("#descriptionText").val(),
-            ServiceTypeIds: $("#serviceTypes").val(),
-        };
-        //showDev(data);
-        if (validation()) {
-            $.ajax({
-                url: '/CRM/EditLeadData',
-                method: 'POST',
-                data: JSON.stringify(data),
-                contentType: "application/json; charset=utf-8",
-
-                success: function (response) {
-
-                    if (response.success) {
-                        toastr.success(response.message);
-                        // HIDE modal
-                        var myModalEl = document.getElementById('editModal');
-                        var modal = bootstrap.Modal.getInstance(myModalEl);
-                        modal.hide();
-                    } else {
-                        toastr.error(response.message || "Failed to create lead");
-                    }
-                },
-                error: function (xhr) {
-                    toastr.error("Error creating lead");
-                }
-            });
-        }
-    })
-
-
-    // ===============
-    // lead validation
-    // =================
-
-    function validation() {
-        let requiredField = [
-            ids.leadName,
-            ids.leadPriorityID,
-            ids.leadSourceID,
-            ids.leadStatusID,
-            ids.leadOwnerId
-        ];
-
-        let isValid = true;
-
-        requiredField.forEach(function (selector) {
-            let el = $(selector);
-            let value = el.val() ? el.val().trim() : '';
-            let target = el;
-
-            // Special case for Choices.js (hidden select)
-            if (el.closest('.choices').length > 0) {
-                target = el.closest('.choices').find('.choices__inner');
-            }
-
-            if (value === '' || value === null) {
-                target.css('border', '1px solid red');
-                isValid = false;
-            } else {
-                target.css('border', '1px solid #ccc'); // reset valid field
-            }
-        });
-
-        return isValid;
-    }
-
-    // #region Choice with Pagination + Infinite Scroll (server-side search only)
-    const selectEl = document.getElementById('leadOwnerId');
-    let debounceTimer;
-    let loading = false;
-    let currentPage = 1;
-    let lastSearch = '';
-    let hasMore = true;
-
-    const choices = new Choices(selectEl, {
-        searchEnabled: true,
-        placeholder: true,
-        placeholderValue: 'Select Organization...',
-        searchPlaceholderValue: 'Type to search...',
-        noChoicesText: 'Type 3 or more characters...',
-        searchResultLimit: -1, // disable local limiting
-        shouldSort: false,
-        duplicateItemsAllowed: false,
-        itemSelectText: '',
-        removeItemButton: true,
-
-        // 🚨 disable client-side filtering (server handles search)
-        searchChoices: false,
-        fuseOptions: false,
-        searchFn: () => true
-    });
-
-    // Fetch data from server
-    async function fetchOptions(search, page = 1, pageSize = 50) {
-        loading = true;
-        try {
-            const res = await fetch(`/CRM/SearchEmployee?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
-            const data = await res.json();
-            hasMore = data.hasMore;
-            return data;
-        } catch (error) {
-            console.error("Error fetching organizations:", error);
-            return { items: [], hasMore: false };
-        } finally {
-            loading = false;
-        }
-    }
-
-    // Handle debounce on search
-    selectEl.addEventListener('search', function (e) {
-        const searchTerm = e.detail.value;
-        clearTimeout(debounceTimer);
-
-        if (searchTerm.length < 1) {
-            choices.clearChoices();
-            return;
-        }
-
-        debounceTimer = setTimeout(async () => {
-            currentPage = 1;
-            lastSearch = searchTerm;
-            const data = await fetchOptions(searchTerm, currentPage);
-
-            choices.clearChoices();
-            if (data.items.length > 0) {
-                // replace with new results
-                choices.setChoices(data.items, 'value', 'label', true);
-            }
-        }, 500); // debounce delay
-    });
-
-    // Scroll handler
-    async function handleScroll(e) {
-        const dropdownList = e.target;
-        if (!loading && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
-            currentPage++;
-            const data = await fetchOptions(lastSearch, currentPage);
-
-            if (data.items.length > 0) {
-                // append results, keep existing
-                choices.setChoices(data.items, 'value', 'label', false);
-            }
-        }
-    }
-
-    // Reattach scroll listener when dropdown opens
-    choices.passedElement.element.addEventListener('showDropdown', () => {
-        const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
-        if (dropdownList) {
-            dropdownList.removeEventListener('scroll', handleScroll);
-            dropdownList.addEventListener('scroll', handleScroll);
-        }
-    });
-    // #endregion
 });
