@@ -35,6 +35,7 @@
 
 
     function updatePaginationApprove(totalCount, page, size) {
+        debugger;
         const totalPages = Math.ceil(totalCount / size);
         const pagination = $('#pageNumber');
         pagination.empty();
@@ -107,8 +108,9 @@
                 sortDirection: dir
             },
             success: function (response) {
+                
+                showDev(response)
                 debugger;
-                showDev(response.data)
                 var tbody = $('#processed-resignation-body');
                 tbody.empty();
                 let itemsPerPage = parseInt($('#pageElementSize').val()) || 10;
@@ -119,7 +121,6 @@
                 let pageOffset = (page - 1) * itemsPerPage;
 
                 $.each(response.data, function (index, item) {
-                    debugger;
                     const dt = new Date(item.activityDateTime);
 
                     // Format Date (dd-mm-yyyy)
@@ -127,7 +128,6 @@
 
                     // Format Time (hh:mm AM/PM)
                     const time = dt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                    showDev(item);
                     let itemSL = pageOffset + index + 1;
                     //let statusBadge = getStatusBadgeClass(item.status);
                     tbody.append(`
@@ -149,12 +149,14 @@
                 `);
                 });
 
-                DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('resignProcessed'), 'resignProcessed');
+                //DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('resignProcessed'), 'resignProcessed');
 
-                DynamicTableDrag.refreshTableSettings('resignProcessed');
-                updatePaginationApprove(data.result.totalCount, data.result.pageNumber, data.result.pageSize)
+                DynamicTableDrag.refreshTableSettings('LeadsActivities');
+                updatePaginationApprove(response.totalSearchItem, page, size);
 
-                $('#resignProcessed').data('total', data.result.totalCount);
+
+                $('#LeadsActivities').data('total', response.totalSearchItem);
+
             },
             error: function () {
                 console.error('Error loading processed resignations');

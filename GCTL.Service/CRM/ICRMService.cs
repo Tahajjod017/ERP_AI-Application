@@ -11,6 +11,7 @@ namespace GCTL.Service.CRM
         Task<(List<LeadsTableVM> Leads, int TotalCount)> GetLeads(
             int customerType,
             string dateRange,
+            string leadStatus2,
             int pageNumber,
             int pageSize,
             string searchTerm,

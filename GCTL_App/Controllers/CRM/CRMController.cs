@@ -50,7 +50,8 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.ServiceDD = new SelectList(_serviceTypeRepository.AllActive().Select(e => new { e.ServiceID, e.ServiceName }), "ServiceID", "ServiceName");
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadActivityTypes = _leadActivityTypesRepository.AllActive().Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
-            ViewBag.LeadStatus = new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
+            ViewBag.LeadStatus = new SelectList(_leadStatusesRepository.AllActive().Where(u=> u.LeadStatusName != "Won" && u.LeadStatusName != "Lost").Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
+            ViewBag.LeadStatus2 = new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
             ViewBag.LeadPriorities = new SelectList(_prioritiesRepository.AllActive().Select(e => new { e.PriorityID, e.PriorityName }), "PriorityID", "PriorityName");
 
 
@@ -64,18 +65,19 @@ namespace GCTL_App.Controllers.CRM
         #region Approved
 
         [HttpGet]
-        public async Task<IActionResult> GetAllLead(
-     string dateRange,
-     int customerType,
-     string designation,
-     int pageNumber = 1,
-     int pageSize = 10,
-     string searchTerm = "",
-     string sortColumn = "",
-     string sortDirection = "desc")
+        public async Task<IActionResult> GetAllLead (
+         string dateRange,
+         int customerType,
+         string designation,
+         int pageNumber = 1,
+         int pageSize = 10,
+         string searchTerm = "",
+         string sortColumn = "",
+         string sortDirection = "desc",
+         string leadStatus = "")
         {
             var (leads, totalCount) = await _crmService.GetLeads(
-                customerType, dateRange, pageNumber, pageSize,
+                customerType, dateRange, leadStatus, pageNumber, pageSize,
                 searchTerm, sortColumn, sortDirection
             );
 

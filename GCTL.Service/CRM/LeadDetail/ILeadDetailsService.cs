@@ -10,9 +10,11 @@ namespace GCTL.Service.CRM.LeadDetail
 {
     public interface ILeadDetailsService
     {
-        public Task<bool> CreateLeadActivateTypes();
+        Task<bool> CreateLeadActivateTypes();
         Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation);
         Task<ReturnView> AddIsWon(IsWonVM isWonVM);
         Task<ReturnView> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM);
+        Task<LeadActivityResultVM> ActivityList(int id, string query, int page, string type);
+        Task<ReturnView> RestoreLead(int id);
     }
 }

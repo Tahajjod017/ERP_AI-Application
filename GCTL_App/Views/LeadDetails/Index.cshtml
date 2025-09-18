@@ -9,7 +9,7 @@
     }
 
     .special-btn.active2 {
-        background-color: #0d6efd; /* Bootstrap primary */
+        background-color: #0d6ef3; /* Bootstrap primary */
         color: white;
         border-color: #0d6efd;
     }
@@ -365,27 +365,18 @@
 
                             @foreach (var item in ViewBag.LeadActivityTypes2)
                             {
-                                var activeClass = "";
-                                var dataConfirm = "";
-
-                                string buttonSelect = (Model.isWon == true) ? "Won" : (Model.isWon == false) ? "Lost" : "";
-                                if (item.LeadActivityName == buttonSelect)
-                                {
-                                    activeClass = "active2";
-
-                                    dataConfirm = "yes";
-                                }
-
                                 <button id="@item.LeadActivityName"
-                                        class="btn btn-phoenix-secondary rounded-pill mx-1 special-btn option-btn @activeClass"
+                                        class="btn btn-phoenix-secondary rounded-pill mx-1 special-btn option-btn"
                                         type="button"
-                                        data-id="@item.LeadActivityTypeID" data-confirm="@dataConfirm">
+                                        data-id="@item.LeadActivityTypeID">
                                     <span class="fs-7 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
                                     @item.LeadActivityName
                                 </button>
+
+                                
                             }
 
-                            <div><button class="btn btn-outline-danger">Restore</button></div>
+                            <div><button class="btn btn-outline-danger rounded-pill d-none" id="restoreBtn2" >Restore</button></div>
                         </div>
 
                     </div>

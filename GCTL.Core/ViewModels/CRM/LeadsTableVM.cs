@@ -22,6 +22,7 @@ namespace GCTL.Core.ViewModels.CRM
         public string? Status { get; set; }
         public DateTime? CreatedDate { get; set; }
         public int? CustomerTypeID { get; set; }
+        public int? LeadStatusID { get; set; }
     }
 
     public class LeadListViewModel

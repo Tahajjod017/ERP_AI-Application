@@ -65,7 +65,7 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadActivityTypes = _leadActivityTypesRepository.AllActive().Where(e => e.UseFor == null).Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
             ViewBag.LeadActivityTypes2 = _leadActivityTypesRepository.AllActive().Where(e => e.UseFor == "special").Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
-            ViewBag.LeadStatus = new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
+            ViewBag.LeadStatus = new SelectList(_leadStatusesRepository.AllActive().Where(u => u.LeadStatusName != "Won" && u.LeadStatusName != "Lost").Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
             ViewBag.LeadPriorities = new SelectList(_prioritiesRepository.AllActive().Select(e => new { e.PriorityID, e.PriorityName }), "PriorityID", "PriorityName");
 
 
@@ -179,52 +179,7 @@ namespace GCTL_App.Controllers.CRM
         [HttpGet]
         public async Task<IActionResult> getActivityList(int id, string query, int page, string type)
         {
-            int leadDetailsTypeID = 0;
-            if (!string.IsNullOrEmpty(type))
-            {
-                var leadDetailsTypeObj = await _leadActivityTypesRepository.FirstOrDefaultAsync(u => u.LeadActivityName == type);
-                leadDetailsTypeID = leadDetailsTypeObj.LeadActivityTypeID;
-            }
-
-            // if lead isWon not null then same time created id will come first
-
-            //var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == id);
-            //bool? isWon = leadObj.IsOwn;
-            //DateTime? ClosingDate = leadObj.ClosingDate;
-            //if (isWon != null)
-            //{
-
-            //}
-
-            const int pageSize = 10; // Number of items per page
-            int skip = (page - 1) * pageSize; // Calculate how many items to skip
-
-            // Fetch filtered and paginated data using LIKE
-            var list = await _leadDetailsRepository
-          .Find(u => u.LeadID == id &&
-                     (leadDetailsTypeID == 0 || u.LeadActivityTypeID == leadDetailsTypeID) &&
-                     (string.IsNullOrEmpty(query)
-                      || EF.Functions.Like(u.ActivityDateTime.ToString(), $"%{query}%")
-                      || EF.Functions.Like(u.ActivityNote, $"%{query}%")
-                      || EF.Functions.Like(u.LeadActivityType.LeadActivityName, $"%{query}%")
-                     )
-          )
-          .OrderByDescending(e => e.ActivityDateTime)   // ORDER FIRST!
-          .Skip(skip)                            // THEN skip
-          .Take(pageSize)                        // THEN take
-          .Select(e => new
-          {
-              e.LeadDetailID,
-              e.ActivityDateTime,
-              e.ActivityNote,
-              e.FileLink,
-              e.LeadActivityType.LeadActivityName,
-              e.LeadActivityType.LeadActivityIcon,
-              CreatedByName = e.CreatedByNavigation != null
-                              ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}"
-                              : null
-          })
-          .ToListAsync();
+            var list = await _leadDetailsService.ActivityList(id, query, page, type);
 
             return Ok(list);
         }
@@ -236,7 +191,7 @@ namespace GCTL_App.Controllers.CRM
             int skip = (page - 1) * pageSize;
             // Fetch filtered and paginated data using LIKE
             var list = await _leadDetailsRepository
-          .Find(u => u.LeadID == id &&
+          .AllActive().Where(u => u.LeadID == id &&
                      u.ActivityDateTime >= DateTime.UtcNow.AddSeconds(11)
           )
           .OrderByDescending(e => e.ActivityDateTime)   // ORDER FIRST!
@@ -269,7 +224,7 @@ namespace GCTL_App.Controllers.CRM
 
             // Fetch filtered and paginated data using LIKE
             var list = await _leadDetailsRepository
-            .Find(u => u.LeadID == id && u.ActivityDateTime >= currentDate)
+            .AllActive().Where(u => u.LeadID == id && u.ActivityDateTime >= currentDate)
             .Skip(skip)
             .OrderByDescending(e => e.CreatedAt)
             .Take(pageSize).Select(e => new
@@ -340,7 +295,7 @@ namespace GCTL_App.Controllers.CRM
                         LeadActivityTypeID = leadDetailsVM.LeadActivityTypeID ?? 0,
                         ActivityNote = leadDetailsVM.ActivityNote,
                         CreatedBy = leadDetailsVM.CreatedBy,
-
+                        DeletedBy = leadDetailsVM.DeletedBy,
                     });
 
                     return Ok(result);
@@ -367,6 +322,16 @@ namespace GCTL_App.Controllers.CRM
                 });
             }
 
+        }
+
+        //==============================
+        // restore lead details activity
+        //==============================
+        [HttpPost]
+        public async Task<IActionResult> RestoreLead([FromForm]  int id)
+         {
+            var restult = await _leadDetailsService.RestoreLead(id);
+            return Ok(restult);
         }
     }
 }
