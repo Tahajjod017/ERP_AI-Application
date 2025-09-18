@@ -859,36 +859,25 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     sequence=lwpEntity.LeaveApplicationID;
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, lwpEntity, lwpEntity.LeaveApplicationID, entityVM);
                 }
-                // fro email 
-                var approvalDepartment = await empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation).Where(x => x.EmployeeID == approvalPersonId)
-                    .Select(x => new { x.OfficeEmail, x.Department.DepartmentName, x.Designation.DesignationName }).FirstOrDefaultAsync();
-                var applicantNameEmail = await employee.AllActive()
-                    .Where(x => x.EmployeeID == entityVM.EmployeeID)
-                    .Select(x => new { x.FirstName, x.LastName, x.Email }).FirstOrDefaultAsync();
+                // for email 
+                var allEmployeeData = await (from emp in employee.AllActive()
+                                             join empOff in empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
+                                                 on emp.EmployeeID equals empOff.EmployeeID
+                                             
+                                             select new
+                                             {
+                                                 emp.EmployeeID,
+                                                 emp.FirstName,
+                                                 emp.LastName,
+                                                 emp.Email,
+                                                 empOff.OfficeEmail,
+                                                 DepartmentName = empOff.Department.DepartmentName,
+                                                 DesignationName = empOff.Designation.DesignationName
+                                             }).ToListAsync();
 
-                var applicantDepartment = await empoffi.AllActive().Include(x=>x.Designation).Include(x=>x.Department)
-                    .Where(x => x.EmployeeID == entityVM.EmployeeID)
-                    .Select(x => new
-                    {
-                        x.OfficeEmail,
-                        DepartmentName = x.Department.DepartmentName,
-                        DesignationName = x.Designation.DesignationName
-                    }).FirstOrDefaultAsync();
+                var applicantData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == entityVM.EmployeeID);
+                var approverData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == approvalPersonId);
 
-                // Approver info
-                var approverNameEmail = await employee.AllActive()
-                    .Where(x => x.EmployeeID == approvalPersonId)
-                    .Select(x => new { x.FirstName, x.LastName, x.Email })
-                    .FirstOrDefaultAsync();
-
-                var approverDepartment = await empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
-                    .Where(x => x.EmployeeID == approvalPersonId)
-                    .Select(x => new
-                    {
-                        x.OfficeEmail,
-                        DepartmentName = x.Department.DepartmentName,
-                        DesignationName = x.Designation.DesignationName
-                    }).FirstOrDefaultAsync();
                 var leaveName = await leaveTypes.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeID).Select(x => x.LeaveTypeName).FirstOrDefaultAsync();
                 int totalDays = 0;
                 if (entityVM.FromDate.HasValue && entityVM.ToDate.HasValue)
@@ -896,57 +885,24 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     totalDays = (entityVM.ToDate.Value.DayNumber - entityVM.FromDate.Value.DayNumber) + 1;
                 }
 
-                //                // Build email model
-                //                var emailModel = new EmailVM
-                //                {
-                //                    To = approverNameEmail?.Email ?? approverDepartment?.OfficeEmail, 
-                //                    Subject = $"Leave Application from {applicantNameEmail?.FirstName} {applicantNameEmail?.LastName}",
-                //                    Body = $@"
-                //        <p>Dear {approverNameEmail?.FirstName} {approverNameEmail?.LastName},</p>
-                //        <p>{applicantNameEmail?.FirstName} {applicantNameEmail?.LastName} 
-                //        ({applicantDepartment?.DesignationName}, {applicantDepartment?.DepartmentName}) 
-                //        has applied for leave.</p>
-
-                //        <ul>
-                //            <li><strong>From:</strong> {entityVM.FromDate:dd MMM yyyy}</li>
-                //            <li><strong>To:</strong> {entityVM.ToDate:dd MMM yyyy}</li>
-                //           <li><strong>Total day(s):</strong> {totalDays}</li> 
-                //           <li><strong>Leave Type:</strong> {leaveName}</li> 
-                //            <li><strong>Reason:</strong> {entityVM.Reason}</li>
-                //        </ul>
-
-                //        <p>Please log in to the HRM system to review and approve this request.</p>
-                //         <p>
-                //   <a href='https://localhost:7086/' style='padding:8px 12px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;'>Login</a>
-
-                //    &nbsp;&nbsp;
-                //    <a href='' style='padding:8px 12px;background:#28a745;color:#fff;text-decoration:none;border-radius:4px;'>Accept</a>
-                //    &nbsp;&nbsp;
-                //    <a href='' style='padding:8px 12px;background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;'>Decline</a>
-                //</p>
-                //        <p>Regards,<br/>HRM System</p>
-                //    "
-                //                };
-
-
                 // Build email model
                 int leaveApplicationID = sequence;
                 var emailModel = new EmailVM
                 {
-                    To = approverNameEmail?.Email ?? approverDepartment?.OfficeEmail,
-                    //To="siam.mbstubritto12@gmail.com",
-                    Subject = $"Leave Application from {applicantNameEmail?.FirstName} {applicantNameEmail?.LastName}",
+                    To = approverData?.Email ?? approverData?.OfficeEmail,
+                    
+                    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;'>
             <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; margin: -20px -20px 20px -20px;'>
                 <h2 style='margin: 0; font-size: 24px;'>Leave Application Request</h2>
             </div>
             
-            <p style='color: #333; font-size: 16px;'>Dear {approverNameEmail?.FirstName} {approverNameEmail?.LastName},</p>
+            <p style='color: #333; font-size: 16px;'>Dear {approverData?.FirstName} {approverData?.LastName},</p>
             
             <p style='color: #333; font-size: 16px; line-height: 1.6;'>
-                <strong>{applicantNameEmail?.FirstName} {applicantNameEmail?.LastName}</strong> 
-                ({applicantDepartment?.DesignationName}, {applicantDepartment?.DepartmentName}) has applied for leave.
+                <strong>{applicantData?.FirstName} {applicantData?.LastName}</strong> 
+                ({applicantData?.DesignationName}, {applicantData?.DepartmentName}) has applied for leave.
             </p>
             
             <div style='background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;'>
@@ -988,9 +944,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
                 <br/><br/>
            <a href='https://localhost:7086/LeaveApprovalDecline/Index?leaveApplicationID={leaveApplicationID}' 
-   style='display: inline-block; padding: 12px 24px; background: #6f42c1; color: #fff; text-decoration: none; border-radius: 6px; margin: 0 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;'>
-   📋 Approvals
-</a>
+          style='display: inline-block; padding: 12px 24px; background: #6f42c1; color: #fff; text-decoration: none; border-radius: 6px; margin: 0 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;'>
+           📋 Approvals
+        </a>
 
             </div>
             

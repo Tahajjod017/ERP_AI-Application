@@ -1129,37 +1129,57 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 }
                 await leaveBaseAprovalHistory.AddAsync(leaveBase);
 
-               // Email notification
-                
-                  var approvalDepartment = await empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation).Where(x => x.EmployeeID == approvalPersonId)
-                .Select(x => new { x.OfficeEmail, x.Department.DepartmentName, x.Designation.DesignationName }).FirstOrDefaultAsync();
-                var applicantNameEmail = await employee.AllActive()
-                    .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
-                    .Select(x => new { x.FirstName, x.LastName, x.Email }).FirstOrDefaultAsync();
+                // Email notification
 
-                var applicantDepartment = await empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
-                    .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
-                    .Select(x => new
-                    {
-                        x.OfficeEmail,
-                        DepartmentName = x.Department.DepartmentName,
-                        DesignationName = x.Designation.DesignationName
-                    }).FirstOrDefaultAsync();
+                //  var approvalDepartment = await empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation).Where(x => x.EmployeeID == approvalPersonId)
+                //.Select(x => new { x.OfficeEmail, x.Department.DepartmentName, x.Designation.DesignationName }).FirstOrDefaultAsync();
+                //var applicantNameEmail = await employee.AllActive()
+                //    .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
+                //    .Select(x => new { x.FirstName, x.LastName, x.Email }).FirstOrDefaultAsync();
 
-                // Approver info
-                var approverNameEmail = await employee.AllActive()
-                    .Where(x => x.EmployeeID == approvalPersonId)
-                    .Select(x => new { x.FirstName, x.LastName, x.Email })
-                    .FirstOrDefaultAsync();
+                //var applicantDepartment = await empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
+                //    .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
+                //    .Select(x => new
+                //    {
+                //        x.OfficeEmail,
+                //        DepartmentName = x.Department.DepartmentName,
+                //        DesignationName = x.Designation.DesignationName
+                //    }).FirstOrDefaultAsync();
 
-                var approverDepartment = await empoffi.AllActive().Include(x=>x.Department).Include(x=>x.Designation)
-                    .Where(x => x.EmployeeID == approvalPersonId)
-                    .Select(x => new
-                    {
-                        x.OfficeEmail,
-                        DepartmentName = x.Department.DepartmentName,
-                        DesignationName = x.Designation.DesignationName
-                    }).FirstOrDefaultAsync();
+                //// Approver info
+                //var approverNameEmail = await employee.AllActive()
+                //    .Where(x => x.EmployeeID == approvalPersonId)
+                //    .Select(x => new { x.FirstName, x.LastName, x.Email })
+                //    .FirstOrDefaultAsync();
+
+                //var approverDepartment = await empoffi.AllActive().Include(x=>x.Department).Include(x=>x.Designation)
+                //    .Where(x => x.EmployeeID == approvalPersonId)
+                //    .Select(x => new
+                //    {
+                //        x.OfficeEmail,
+                //        DepartmentName = x.Department.DepartmentName,
+                //        DesignationName = x.Designation.DesignationName
+                //    }).FirstOrDefaultAsync();
+
+
+                var allEmployeeData = await (from emp in employee.AllActive()
+                                             join empOff in empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
+                                                 on emp.EmployeeID equals empOff.EmployeeID
+
+                                             select new
+                                             {
+                                                 emp.EmployeeID,
+                                                 emp.FirstName,
+                                                 emp.LastName,
+                                                 emp.Email,
+                                                 empOff.OfficeEmail,
+                                                 DepartmentName = empOff.Department.DepartmentName,
+                                                 DesignationName = empOff.Designation.DesignationName
+                                             }).ToListAsync();
+
+                var applicantData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == entityVM.EmployeeIDEdit);
+                var approverData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == approvalPersonId);
+
                 var leaveName = await leaveTypesRepository.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit).Select(x => x.LeaveTypeName).FirstOrDefaultAsync();
                 // Calculate total days (inclusive)
                 // Calculate total days (inclusive)
@@ -1174,53 +1194,139 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 if (statusId == leavStatusDecline)
                 {
                     // Notify applicant if declined
-                    toEmail = applicantNameEmail?.Email ?? applicantDepartment?.OfficeEmail ?? string.Empty;
+                    toEmail = applicantData?.Email ?? applicantData?.OfficeEmail ?? string.Empty;
                     statusMessage = "Your leave request has been declined.";
                 }
                 else if (isFinalApproval)
                 {
                     // Notify applicant if final approval (approved)
-                    toEmail = applicantNameEmail?.Email ?? applicantDepartment?.OfficeEmail ?? string.Empty;
+                    toEmail = applicantData?.Email ?? applicantData?.OfficeEmail ?? string.Empty;
                     statusMessage = "Your leave request has been approved.";
                 }
                 else
                 {
                     // Notify next approver for intermediate steps
-                    toEmail = approverNameEmail?.Email ?? approverDepartment?.OfficeEmail ?? string.Empty;
-                    statusMessage = $"{applicantNameEmail?.FirstName} {applicantNameEmail?.LastName} has applied for leave. Please review.";
+                    toEmail = approverData?.Email ?? approverData?.OfficeEmail ?? string.Empty;
+                    statusMessage = $"{applicantData?.FirstName} {applicantData?.LastName} has applied for leave. Please review.";
                 }
 
                 // Build email model
+                //                var emailModel = new EmailVM
+                //                {
+                //                    To = toEmail,
+
+                //                    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
+                //                    Body = $@"
+                //        <p>Dear {(statusId == leavStatusDecline || isFinalApproval ? $"{applicantData?.FirstName} {applicantData?.LastName}" : $"{approverData?.FirstName} {approverData?.LastName}")},
+                //</p>
+                //        <p>{statusMessage}</p>
+                //        <p>{applicantData?.FirstName} {applicantData?.LastName} 
+                //        ({applicantData?.DesignationName}, {applicantData?.DepartmentName}) 
+                //        has applied for leave.</p>
+                //        <ul>
+                //            <li><strong>From:</strong> {(entityVM.FromDateEdit.HasValue ? entityVM.FromDateEdit.Value.ToString("dd MMM yyyy") : "")}</li>
+                //            <li><strong>To:</strong> {(entityVM.ToDateEdit.HasValue ? entityVM.ToDateEdit.Value.ToString("dd MMM yyyy") : "")}</li>
+                //            <li><strong>Total day(s):</strong> {totalDays}</li>
+                //            <li><strong>Leave Type:</strong> {leaveName ?? ""}</li>
+                //            <li><strong>Reason:</strong> {entityVM.ReasonEdit ?? ""}</li>
+                //        </ul>
+                //        {(statusId == leavStatusDecline || isFinalApproval ? "<p>Please contact HR for further details.</p>" : "<p>Please log in to the HRM system to review and approve this request.</p>")}
+                //        {(statusId == leavStatusDecline || isFinalApproval ? "" : @"
+                //        <p>
+                //         <a href='https://localhost:7086/' style='padding:8px 12px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;'>Login</a>
+
+                //            &nbsp;&nbsp;
+                //            <a href='' style='padding:8px 12px;background:#28a745;color:#fff;text-decoration:none;border-radius:4px;'>Accept</a>
+                //            &nbsp;&nbsp;
+                //            <a href='' style='padding:8px 12px;background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;'>Decline</a>
+                //        </p>"
+
+                //)}
+                //        <p>Regards,<br/>HRM System</p>"
+                //                };
+
+
+                //
                 var emailModel = new EmailVM
                 {
                     To = toEmail,
-                    Subject = $"Leave Application from {applicantNameEmail?.FirstName} {applicantNameEmail?.LastName}",
-                    Body = $@"
-        <p>Dear {(statusId == leavStatusDecline || isFinalApproval ? $"{applicantNameEmail?.FirstName} {applicantNameEmail?.LastName}" : $"{approverNameEmail?.FirstName} {approverNameEmail?.LastName}")},
-</p>
-        <p>{statusMessage}</p>
-        <p>{applicantNameEmail?.FirstName} {applicantNameEmail?.LastName} 
-        ({applicantDepartment?.DesignationName}, {applicantDepartment?.DepartmentName}) 
-        has applied for leave.</p>
-        <ul>
-            <li><strong>From:</strong> {(entityVM.FromDateEdit.HasValue ? entityVM.FromDateEdit.Value.ToString("dd MMM yyyy") : "")}</li>
-            <li><strong>To:</strong> {(entityVM.ToDateEdit.HasValue ? entityVM.ToDateEdit.Value.ToString("dd MMM yyyy") : "")}</li>
-            <li><strong>Total day(s):</strong> {totalDays}</li>
-            <li><strong>Leave Type:</strong> {leaveName ?? ""}</li>
-            <li><strong>Reason:</strong> {entityVM.ReasonEdit ?? ""}</li>
-        </ul>
-        {(statusId == leavStatusDecline || isFinalApproval ? "<p>Please contact HR for further details.</p>" : "<p>Please log in to the HRM system to review and approve this request.</p>")}
-        {(statusId == leavStatusDecline || isFinalApproval ? "" : @"
-        <p>
-         <a href='https://localhost:7086/' style='padding:8px 12px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;'>Login</a>
 
-            &nbsp;&nbsp;
-            <a href='' style='padding:8px 12px;background:#28a745;color:#fff;text-decoration:none;border-radius:4px;'>Accept</a>
-            &nbsp;&nbsp;
-            <a href='' style='padding:8px 12px;background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;'>Decline</a>
-        </p>")}
-        <p>Regards,<br/>HRM System</p>"
+                    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
+                    Body = $@"
+<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;'>
+
+    <!-- Header -->
+    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; margin: -20px -20px 20px -20px;'>
+        <h2 style='margin: 0; font-size: 22px;'>Leave Application {(statusId == leavStatusDecline ? "Declined" : (isFinalApproval ? "Final Decision" : "Approval Request"))}</h2>
+    </div>
+
+    <!-- Greeting -->
+    <p style='color: #333; font-size: 16px;'>Dear {(statusId == leavStatusDecline || isFinalApproval
+        ? $"{applicantData?.FirstName} {applicantData?.LastName}  ({applicantData?.DesignationName}, {applicantData?.DepartmentName}) "
+        : $"{approverData?.FirstName} {approverData?.LastName}")},</p>
+
+    <!-- Status message -->
+    <p style='color: #333; font-size: 16px; line-height: 1.6;'>{statusMessage}</p>
+
+    <!-- Leave details -->
+    <div style='background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;'>
+        <h3 style='color: #667eea; margin-top: 0;'>Leave Details:</h3>
+        <table style='width: 100%; border-collapse: collapse;'>
+            <tr>
+                <td style='padding: 8px 0; font-weight: bold; color: #555;'>From Date:</td>
+                <td style='padding: 8px 0; color: #333;'>{(entityVM.FromDateEdit.HasValue ? entityVM.FromDateEdit.Value.ToString("dd MMM yyyy") : "")}</td>
+            </tr>
+            <tr>
+                <td style='padding: 8px 0; font-weight: bold; color: #555;'>To Date:</td>
+                <td style='padding: 8px 0; color: #333;'>{(entityVM.ToDateEdit.HasValue ? entityVM.ToDateEdit.Value.ToString("dd MMM yyyy") : "")}</td>
+            </tr>
+            <tr>
+                <td style='padding: 8px 0; font-weight: bold; color: #555;'>Total Days:</td>
+                <td style='padding: 8px 0; color: #333;'>{totalDays}</td>
+            </tr>
+            <tr>
+                <td style='padding: 8px 0; font-weight: bold; color: #555;'>Leave Type:</td>
+                <td style='padding: 8px 0; color: #333;'>{leaveName ?? ""}</td>
+            </tr>
+            <tr>
+                <td style='padding: 8px 0; font-weight: bold; color: #555; vertical-align: top;'>Reason:</td>
+                <td style='padding: 8px 0; color: #333;'>{entityVM.ReasonEdit ?? ""}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Actions -->
+    {(statusId == leavStatusDecline || isFinalApproval
+        ? "<p style='color:#333; font-size:16px;'>Please contact HR for further details.</p>"
+        : $@"
+        <p style='color:#333; font-size:16px;'>Please log in to the HRM system to review and take action:</p>
+        <div style='text-align: center; margin: 30px 0;'>
+            <a href='https://localhost:7086/' 
+               style='display:inline-block; padding: 12px 24px; background:#007bff; color:#fff; text-decoration:none; border-radius:6px; margin: 0 5px;'>
+               🔐 Login
+            </a>
+            <a href='https://localhost:7086/LeaveApprovalDecline/Approve?leaveApplicationID={entityVM.LeaveApplicationID}' 
+               style='display:inline-block; padding: 12px 24px; background:#28a745; color:#fff; text-decoration:none; border-radius:6px; margin: 0 5px; font-weight:bold;'>
+               ✅ Approve
+            </a>
+            <a href='https://localhost:7086/LeaveApprovalDecline/Decline?leaveApplicationID={entityVM.LeaveApplicationID}' 
+               style='display:inline-block; padding: 12px 24px; background:#dc3545; color:#fff; text-decoration:none; border-radius:6px; margin: 0 5px; font-weight:bold;'>
+               ❌ Decline
+            </a>
+        </div>"
+    )}
+
+    <!-- Footer -->
+    <div style='border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px; text-align:center;'>
+        <p style='color: #333; font-size: 16px; margin-bottom: 5px;'>Best Regards,</p>
+        <p style='color: #667eea; font-weight: bold; font-size: 16px; margin: 0;'>HRM System</p>
+        <p style='color: #6c757d; font-size: 14px; margin: 5px 0 0 0;'>Human Resource Management</p>
+    </div>
+
+</div>"
                 };
+
+                //
 
                 await emailService.SendEmailAsync(emailModel, entityVM.EmployeeIDEdit);
                 await leaveRequest.CommitTransactionAsync();
