@@ -1,7 +1,9 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.CommonSelectMasterDropDown;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmpAllowanceOrganization;
 using GCTL.Data.Models;
+using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization;
 using GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType;
@@ -11,6 +13,7 @@ using GCTL_App.ViewModels.PayRollManagements.AllowanceType;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 
 
@@ -18,28 +21,43 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
 {
     public class EmpAllowanceOrganizationController : BaseController
     {
-        private readonly IGenericRepository<Organization> _organizationRepository;
+         private readonly   ICommonDroDownService commonDroDownService;
+         private readonly IGenericRepository<Organization> _organizationRepository;
         private readonly IEmpAllowanceTypeOrganizationService empAllowanceTypeOrganizationService;
-        public EmpAllowanceOrganizationController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organizationRepository, IEmpAllowanceTypeOrganizationService empAllowanceTypeOrganizationService) : base(translateService, userProfileService)
+        public EmpAllowanceOrganizationController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organizationRepository, IEmpAllowanceTypeOrganizationService empAllowanceTypeOrganizationService, ICommonDroDownService commonDroDownService) : base(translateService, userProfileService)
         {
             _organizationRepository = organizationRepository;
             this.empAllowanceTypeOrganizationService = empAllowanceTypeOrganizationService;
+            this.commonDroDownService = commonDroDownService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            EmpAllowanceOrganizationPageVM model = new EmpAllowanceOrganizationPageVM();
-            
-            var orga = _organizationRepository.AllActive();
-            if(orga.Count()==1)
+            EmpAllowanceTypeOrganizationSaveVM model = new EmpAllowanceTypeOrganizationSaveVM();
+
+            //var orga = commonDroDownService.GetAllOrganizationsAsync();
+
+            //if (orga.cou() == 1)
+            //{
+            //    ViewBag.OrganizationDD = new SelectList(orga, "OrganizationID", "OrganizationName", orga.First().OrganizationID);
+            //}
+            //else
+            //{
+            //    ViewBag.OrganizationDD = new SelectList(orga, "OrganizationID", "OrganizationName");
+            //}
+            // Await the async method to get the actual list
+            var orga = await commonDroDownService.GetAllOrganizationsAsync(); // orga is List<CommonDropDownVM>
+
+            if (orga.Count == 1) // ✅ use Count property
             {
-                ViewBag.OrganizationDD = new SelectList( orga, "OrganizationID", "OrganizationName",orga.First().OrganizationID);
+                // Pre-select the only organization
+                ViewBag.OrganizationDD = new SelectList(orga, "Id", "Name", orga.First().Id);
             }
             else
             {
-                ViewBag.OrganizationDD = new SelectList(orga, "OrganizationID", "OrganizationName");
+                ViewBag.OrganizationDD = new SelectList(orga, "Id", "Name");
             }
-           
+
             return View(model);
         }
 

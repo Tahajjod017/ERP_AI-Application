@@ -1,6 +1,7 @@
 ﻿#region References
 using GCTL.Core.Configurations;
 using GCTL.Core.Helpers.AttendenceHelper;
+using GCTL.Core.Helpers.CommonSelectMasterDropDown;
 using GCTL.Core.Repository;
 //using GCTL.Core.SeedData;
 using GCTL.Data.Models;
@@ -204,6 +205,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IPayRollLoanEntryService, PayRollLoanEntryService>();
             services.AddScoped<IPayRollEarlyPaymentService, PayRollEarlyPaymentService>();
             services.AddScoped<IPayRollOrgaBenefitsTypeService, PayRollOrgaBenefitsTypeService>();
+            services.AddScoped<ICommonDroDownService, CommonDropDownService>();
             #endregion
 
             #region Asad
