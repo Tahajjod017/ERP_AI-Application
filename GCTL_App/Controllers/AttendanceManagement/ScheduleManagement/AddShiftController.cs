@@ -103,7 +103,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ShiftID });
                 }
 
-                var orderedKeys = new[] { "ShiftName", "OrganizationIDs", "StartTime", "EndTime" };
+                var orderedKeys = new[] { "OrganizationIDs", "ShiftName", "StartTime", "EndTime" };
 
                 foreach (var key in orderedKeys)
                 {

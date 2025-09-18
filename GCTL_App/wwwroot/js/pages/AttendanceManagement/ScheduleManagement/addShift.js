@@ -160,7 +160,7 @@
                         showLoadingIndicator(); 
                     },
                     success: function (response) {
-                        const allFields = ["ShiftName", "OrganizationIDs", "StartTime", "EndTime"];
+                        const allFields = ["OrganizationIDs", "ShiftName", "StartTime", "EndTime"];
 
                         allFields.forEach(function (fieldId) {
                             validateField(fieldId, response);
