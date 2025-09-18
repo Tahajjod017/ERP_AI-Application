@@ -995,6 +995,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     isFinalApproval = entityVM.Approved;
                 }
 
+
+                //
+
+               
                 // Get status IDs
                 int? leavStatusApproved = await GetIdByNameAsync("APPROVED");
                 int? leavStatusDecline = await GetIdByNameAsync("DECLINED");
@@ -1344,7 +1348,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 return new CommonReturnViewModel
                 {
                     Success = false,
-                    Message = "An error occurred while saving the leave request update."
+                    Message = ex.Message
                 };
             }
         }
