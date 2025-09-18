@@ -217,111 +217,7 @@ function formatTime(minutes) {
 }
 
 // Function to calculate total working hours, productive hours, break hours, and overtime
-//function updateSessionHours() {
-//    let totalWorkingHours = 0;
-//    let productiveHours = 0;
-//    let breakHours = 0;
-//    let overtimeHours = 0;
 
-//    // Loop through each session entry and accumulate time for each type
-//    data.value.sessionTimeline.forEach(session => {
-//        const durationInMinutes = convertToMinutes(session.duration);
-
-//        // Accumulate total time
-//        totalWorkingHours += durationInMinutes;
-
-//        // Accumulate time based on session type
-//        switch (session.type) {
-//            case "Worked":
-//                productiveHours += durationInMinutes;
-//                break;
-//            case "Break":
-//                breakHours += durationInMinutes;
-//                break;
-//            case "Ovvertime":
-//                overtimeHours += durationInMinutes;
-//                break;
-//        }
-//    });
-
-//    // Update the HTML with the calculated values
-//    $('#totalWorkingHours').text(formatTime(totalWorkingHours));
-//    $('#productiveHours').text(formatTime(productiveHours));
-//    $('#breakHours').text(formatTime(breakHours));
-//    $('#overtime').text(formatTime(overtimeHours));
-//}
-
-//// Function to update progress bars and session details
-//function updateProgressBars() {
-//    let totalTime = 0;
-//    let sessionPercentages = [];
-
-//    // Loop through each session entry and accumulate time for each type
-//    data.value.sessionTimeline.forEach(session => {
-//        const durationInMinutes = convertToMinutes(session.duration);
-//        totalTime += durationInMinutes;
-//    });
-
-//    // Now calculate the percentage for each session type
-//    data.value.sessionTimeline.forEach(session => {
-//        const durationInMinutes = convertToMinutes(session.duration);
-//        const sessionPercentage = (durationInMinutes / totalTime) * 100;
-
-//        // Push session type, duration, and formatted percentage to array
-//        sessionPercentages.push({
-//            type: session.type,
-//            duration: session.duration,
-//            percentage: sessionPercentage.toFixed(2) + "%"  // format percentage to 2 decimal places
-//        });
-//    });
-
-//    // Display the progress bars and the session details
-//    let progressBarsHtml = "";
-//    sessionPercentages.forEach(session => {
-//        progressBarsHtml += `
-//            <div class="progress-bar ${getProgressBarColor(session.type)} rounded me-1" role="progressbar"
-//                style="width: ${session.percentage}">
-//                ${session.duration}
-//            </div>
-//        `;
-//    });
-
-//    $('#progressBars').html(progressBarsHtml);  // Insert the progress bars into the container
-
-//    // Update the timeline labels
-//    const timelineLabels = $('#timelineLabels');
-//    let currentTime = 0;
-//    let currentHour = 7;  // Start at 6:00 AM
-
-//    data.value.sessionTimeline.forEach(session => {
-//        const durationInMinutes = convertToMinutes(session.duration);
-//        const label = $('<span>').addClass('fs-10').text(`${currentHour}:00`);
-//        timelineLabels.append(label);
-
-//        currentTime += durationInMinutes;
-//        currentHour = (currentHour + Math.floor(currentTime / 60)) % 24;  // Update hour
-//    });
-//}
-
-//// Function to determine the progress bar color based on session type
-//function getProgressBarColor(type) {
-//    switch (type) {
-//        case "Worked":
-//            return "bg-success";  // Green for Work
-//        case "Break":
-//            return "bg-warning";  // Yellow for Break
-//        case "Ovvertime":
-//            return "style='background-color: #20C997;";  // Blue for Overtime
-//        default:
-//            return "bg-secondary";  // Default for any unknown session type
-//    }
-//}
-
-//// Use jQuery's ready function to ensure the DOM is fully loaded
-//$(document).ready(function () {
-//    updateSessionHours();
-//    updateProgressBars();
-//});
 
 // --- helpers (add once, above your functions) ---
 function toHHmm(raw) {
@@ -553,6 +449,7 @@ function generateTimeline() {
 $(document).ready(function () {
     generateTimeline();
     fetchPunchActivityData();
+    AttendancePieChar();
 });
 
 
@@ -560,7 +457,7 @@ $(document).ready(function () {
 ///piechart
 
 // Function to update the attendance status pie chart
-function updateAttendancePieChart(present, absent, leave, late, earlyLeave) {
+function updateAttendancePieChart(present, absent, leave, late) {
     var dom = document.getElementById('employee-attendance-status-piechart');
     var myChart = echarts.init(dom, null, {
         renderer: 'canvas',
@@ -598,7 +495,7 @@ function updateAttendancePieChart(present, absent, leave, late, earlyLeave) {
 
                     },
                     {
-                        value: leave, name: 'Early Leave',
+                        value: leave, name: 'Early',
                         itemStyle: {
                             color: '#FFA500'  // Set color 
                         }
@@ -624,8 +521,26 @@ function updateAttendancePieChart(present, absent, leave, late, earlyLeave) {
 
 // Call the function with dynamic data
 // Example dynamic data
-updateAttendancePieChart(65, 20, 2, 5, 8);
+//updateAttendancePieChart(65, 20, 2, 5);
+function AttendancePieChar() {
+    $.ajax({
+        url: '/EmployeesAttendance/GetEmployeeStatusMonthReport',  // Your backend endpoint to fetch the pre-calculated session data
+        type: 'GET',  // HTTP method (GET, POST, etc.)
+        dataType: 'json',  // Expected response type
+        success: function (response) {
+            if (response) {
+                // Update session hours using pre-calculated data
+                updateAttendancePieChart(response.present, response.absent, response.late, response.early);
 
+            } else {
+                console.error("Invalid data received");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching session data: ", error);
+        }
+    });
+}
 // You can call this function again with new data to update the chart dynamically
 // updateAttendancePieChart(newPresent, newAbsent, newLeave, newLate, newEarlyLeave);
 
@@ -770,7 +685,7 @@ function renderAttendanceBarChart(data) {
         title: { text: 'Attendance Status', subtext: 'Latest Month' },
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
         grid: { left: '3%', right: '3%', bottom: '3%', containLabel: true },
-        legend: { data: ['Present', 'Absent', 'Late Entry', 'Early Leave', 'Casual Leave', 'Medical Leave'] },
+        legend: { data: ['Present', 'Absent', 'Late', 'Early', 'Casual Leave', 'Medical Leave'] },
         toolbox: {
             show: true,
             orient: 'vertical',
@@ -809,23 +724,23 @@ function renderAttendanceBarChart(data) {
                 type: 'bar',
                 label: labelOption,
                 itemStyle: {
-                    color: 'red'  // Set color #B0B0B0
+                    color: '#B0B0B0'  // Set color #B0B0B0
                 },
                 emphasis: { focus: 'series' },
                 data: data.absent // Dynamic data for "Absent"
             },
             {
-                name: 'Late Entry',
+                name: 'Late',
                 type: 'bar',
                 label: labelOption,
                 itemStyle: {
-                    color: '#D9534F'  // Set color 
+                    color: 'red'  // Set color 
                 },
                 emphasis: { focus: 'series' },
                 data: data.lateEntry // Dynamic data for "Late Entry"
             },
             {
-                name: 'Early Leave',
+                name: 'Early',
                 type: 'bar',
                 label: labelOption,
                 itemStyle: {
