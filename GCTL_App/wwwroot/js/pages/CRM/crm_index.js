@@ -3,7 +3,8 @@
         leadID: "#leadID",
         leadName: "#leadName",
         leadStatusID: '#leadStatusID',
-        leadSourceID: '#leadSourceID',
+        filterLeadStatus: '#LeadStatus',
+        filterLeadSource: "#leadSource",
         leadPriorityID: '#leadPriorityID',
         approximateDealValue: '#approximateDealValue',
         probabilityPercentage: '#probabilityPercentage',
@@ -26,7 +27,7 @@
         }, delay);
     });
 
-    $("#pageElementSize, #dateRange2, #customerType").on("change", function () {
+    $("#pageElementSize, #dateRange2, #customerType, #LeadStatus").on("change", function () {
         clearTimeout(typingTimer);
         typingTimer = setTimeout(async function () {
             loadProcessedTable();
@@ -96,7 +97,8 @@
         var dir = $('#resignProcessed').data('dir');
         var dateRange = $('#dateRange2').val();
         var customerType = $('#customerType').val();
-
+        var leadSourceID = $(ids.filterLeadStatus).val();
+        showDev(leadSourceID);
         $.ajax({
             url: '/CRM/GetAllLead',
             type: 'GET',
@@ -107,7 +109,8 @@
                 pageSize: size,
                 searchTerm: search,
                 sortColumn: sort,
-                sortDirection: dir
+                sortDirection: dir,
+                leadStatus: leadSourceID
             },
             success: function (data) {
                 var tbody = $('#processed-resignation-body');
@@ -143,10 +146,8 @@
                     </tr>
                 `);
                 });
-
-                //DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('resignProcessed'), 'resignProcessed');
-
-                DynamicTableDrag.refreshTableSettings('resignProcessed');
+                DynamicTableDrag.refreshTableSettings('mytable');
+                
                 updatePaginationApprove(data.result.totalCount, data.result.pageNumber, data.result.pageSize)
 
                 $('#resignProcessed').data('total', data.result.totalCount);

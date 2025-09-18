@@ -1,6 +1,3 @@
-
-
-
 $(function () {
     const ids = {
         note: "#aNote",
@@ -9,8 +6,18 @@ $(function () {
         leadID: '#leadID',
         addActiveBtn: '#addLActivity',
         wonConfirmDiv: '#won-fonfirm-div',
+        restoreBtn: '#restoreBtn2',
 
+        wonBtn: '.special-btn:first',   // first .special-btn
+        lossBtn: '.special-btn:last',   // last .special-btn
+        cSpecialBtn: '.special-btn'
     }
+
+    //=============================
+    // gobal veriable
+    //==============================
+    let isWon = null;
+
     // ==============================
     // Active option buttons
     // ==============================
@@ -111,7 +118,7 @@ $(function () {
         let isWonOrLost = $('.special-btn').hasClass('active2');
         let isWonOrLostText = $('.special-btn.active').text().trim();
         // Show confirmation modal if Won/Lost
-        if (isWonOrLost && isWonOrLostText !== 'Won' && isWonOrLostText !== 'Lost') {
+        if (isWon == true || isWon == false) {
             const confirmed = await showConfirmationModal();
             if (!confirmed) return; // User clicked No, stop execution
         }
@@ -136,6 +143,7 @@ $(function () {
             contentType: false,
             processData: false,
             success: function (response) {
+                showDev(response)
                 if (response.success) {
                     toastr.success(response.message);
                 } else {
@@ -148,15 +156,8 @@ $(function () {
                 $(ids.note).val("");
                 $(ids.file).val("");
                 $('#file-field').hide();
-
-                //if (buttonName === "Won") {
-                //    $("#transforDiv").css("display", "block");
-                //} else if (buttonName === "Lost") {
-                //    $("#transforDiv").css("display", "none");
-                //}
-                if (buttonName !== 'won' && buttonName !== 'lost') {
-                    $('.special-btn').removeClass('active2');
-                }
+                $(ids.wonConfirmDiv).addClass("d-none");
+                $(ids.addActiveBtn).removeClass("d-none");
             },
             error: function (error) {
                 toastr.error(error.responseJSON?.message || "Error saving lead activity");
@@ -312,19 +313,36 @@ $(function () {
             contentType: 'application/json',
             data: { id, query: search, page, type: typeD },
             success: function (response) {
+                showDev(response)
+
+                // show or hide upcoming activity or add acitivity
                 $("#activity-label").text(tabName);
-                if (!response || response.length === 0) {
+                if (!response.activities || response.activities.length === 0) {
                     noMoreDataDown = true;
-                    //$("#activity-result-div").addClass("d-none");
-                    //$("#activity-label").text("");
                     return;
                 } else {
                     $("#all-activity-div").removeClass("d-none");
-                    //$("#activity-result-div").removeClass("d-none");
+                }
+                debugger;
+                // select won/lost/nothing todo 
+                isWon = response.isWon;
+                if (response.isWon == true) {
+                    $(ids.wonBtn).addClass('active2');
+                }
+                else if (response.isWon == false) {
+                    $(ids.lossBtn).addClass('active2');
+                } else {
+                    $(ids.cSpecialBtn).removeClass('active2');
                 }
 
+                if (response.isWon === true || response.isWon === false) {
+                    $(ids.restoreBtn).removeClass('d-none');
+                    $(ids.addActiveBtn).removeAttr('disabled');
+                } else{
+                    $(ids.restoreBtn).addClass('d-none');
+                }
 
-                response.forEach(item => {
+                response.activities.forEach(item => {
                     if (!item.leadDetailID) return; // skip invalid
                     if (!loadedIds.has(item.leadDetailID)) {
                         loadedIds.add(item.leadDetailID);
@@ -361,7 +379,7 @@ $(function () {
             success: function (response) {
                 if (!response || response.length === 0) {
                     noMoreDataDown2 = true;
-                    $("#upcomming-div").addClass("d-none");
+                    //$("#upcomming-div").addClass("d-none");
                     return;
 
                 } else {
@@ -803,4 +821,28 @@ $(function () {
         clearAllValidationBorders();
         showDev('called');
     })
+
+    $(document).on("click", ids.restoreBtn, function () {
+        let leadId = $(ids.leadID).val();
+        showDev(leadId);
+        $.ajax({
+            url: '/LeadDetails/RestoreLead',
+            method: 'POST',
+            data: { id: leadId },
+            success: function (response) {
+
+                if (response.success) {
+                    toastr.success(response.message);
+                    resetAndReloadUpcoming();
+                    resetAndReload();
+                   
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function (xhr) {
+                toastr.error("Error restoring lead");
+            }
+        });
+    });
 });
