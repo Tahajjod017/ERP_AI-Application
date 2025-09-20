@@ -1136,6 +1136,127 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         }
 
 
+        public async Task<AttendanceYearlyChartDTO> GetEmployeeStatusReportYearlyChart(
+            int employeeId, int? organizationId, int? organizationBranchId)
+        {
+            var nowUtc = DateTime.UtcNow;
+            var today = DateOnly.FromDateTime(nowUtc);
+
+           
+            var currentMonthStart = new DateOnly(today.Year, today.Month, 1);
+            var firstMonthStart = currentMonthStart.AddMonths(-11);
+            var rangeStart = firstMonthStart;
+            var rangeEnd = today; // inclusive
+
+            // ---------- Utilities ----------
+            static IEnumerable<DateOnly> EnumDays(DateOnly s, DateOnly e)
+            {
+                for (var d = s; d <= e; d = d.AddDays(1)) yield return d;
+            }
+            // -------------------------------
+
+            
+            var weekendDays = await _genericWeekdays.All()
+                .Where(w => w.DeletedAt == null
+                            && w.WeekendSetting.OrganizationID == organizationId
+                            && (organizationBranchId == null ||
+                                w.WeekendSetting.OrganizationBranchID == organizationBranchId))
+                .Select(w => w.WeekdayNumber)
+                .ToListAsync();
+            var weekendSet = weekendDays.ToHashSet();
+
+           
+            var holidays = await _genericHolidays.All()
+                .Where(h => h.OrganizationID == organizationId
+                            && (organizationBranchId == null || h.OrganizationBranchID == organizationBranchId)
+                            && DateOnly.FromDateTime(h.StartDate!.Value) <= rangeEnd
+                            && DateOnly.FromDateTime(h.EndDate!.Value) >= rangeStart)
+                .ToListAsync();
+
+            var holidayDays = new HashSet<DateOnly>();
+            foreach (var h in holidays)
+            {
+                var hs = DateOnly.FromDateTime(h.StartDate!.Value);
+                var he = DateOnly.FromDateTime(h.EndDate!.Value);
+                var s = hs < rangeStart ? rangeStart : hs;
+                var e = he > rangeEnd ? rangeEnd : he;
+                for (var d = s; d <= e; d = d.AddDays(1))
+                    holidayDays.Add(d);
+            }
+
+            
+            var halfLeavedays = await _genericLeaveApplication.All()
+                .Where(l => l.EmployeeID == employeeId
+                            && l.IsFinalApproved == true
+                            && l.IsFullDay == false
+                            && l.DeletedAt == null
+                            && l.FromDate <= rangeEnd
+                            && l.ToDate >= rangeStart)
+                .Select(l => new { l.FromDate, l.ToDate })
+                .ToListAsync();
+
+            var halfLeaveDaySet = new HashSet<DateOnly>();
+            foreach (var l in halfLeavedays)
+            {
+                var s = l.FromDate < rangeStart ? rangeStart : l.FromDate;
+                var e = l.ToDate > rangeEnd ? rangeEnd : l.ToDate;
+                for (var d = s; d <= e; d = d.AddDays(1))
+                    halfLeaveDaySet.Add(d);
+            }
+
+         
+            var allAttendance = await _genericRepository.All()
+                .Where(a => a.EmployeeID == employeeId
+                            && a.DeletedAt == null
+                            && a.AttendanceDate >= rangeStart
+                            && a.AttendanceDate <= rangeEnd)
+                .Select(a => new { a.AttendanceDate, a.LateTimeMinutes, a.EarlyTimeMinutes })
+                .ToListAsync();
+
+           
+            var dto = new AttendanceYearlyChartDTO();
+
+            for (int i = 0; i < 12; i++)
+            {
+                var monthStart = firstMonthStart.AddMonths(i);
+                var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+                if (monthEnd > rangeEnd) monthEnd = rangeEnd; 
+
+                
+                var allDays = EnumDays(monthStart, monthEnd).ToList();
+
+               
+                var workingDays = allDays
+                    .Where(d => !weekendSet.Contains((int)d.DayOfWeek))
+                    .Where(d => !holidayDays.Contains(d))
+                    .Where(d => !halfLeaveDaySet.Contains(d))
+                    .ToList();
+
+               
+                var attendanceData = allAttendance
+                    .Where(a => a.AttendanceDate >= monthStart && a.AttendanceDate <= monthEnd)
+                    .Where(a => workingDays.Contains(a.AttendanceDate))
+                    .ToList();
+
+                int totalPresent = attendanceData.Count;
+                int totalAbsent = workingDays.Count - totalPresent;
+                int totalLate = attendanceData.Count(a => a.LateTimeMinutes.HasValue);
+                int totalEarlyLeave = attendanceData.Count(a => a.EarlyTimeMinutes.HasValue);
+
+                dto.months.Add(monthStart.ToString("MMMM"));  // "January".."December"
+                dto.present.Add(totalPresent);
+                dto.absent.Add(totalAbsent);
+                dto.lateEntry.Add(totalLate);
+                dto.earlyLeave.Add(totalEarlyLeave);
+
+                // Optional:
+                dto.casualLeave.Add(0);
+                dto.medicalLeave.Add(0);
+            }
+
+            return dto; // frontend: renderAttendanceBarChart(jsonData)
+        }
+
 
 
 

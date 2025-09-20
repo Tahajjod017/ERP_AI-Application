@@ -213,6 +213,22 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 
             return Json(attendanceMonthReport);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeeStatusYearReport() {
+            int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+            int? orgId = await GetCurrentOrganizationIdAsync();
+
+            if (!currentEmployeeId.HasValue)
+            {
+                return Json(null);
+            }
+
+            // Use the interface method
+            var attendanceMonthReport = await _employeeAttendanceReport
+                .GetEmployeeStatusReportYearlyChart(currentEmployeeId.Value, orgId.Value, null);
+
+            return Json(attendanceMonthReport);
+        }
 
     }
 }
