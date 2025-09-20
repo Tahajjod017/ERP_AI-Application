@@ -652,6 +652,10 @@ $(document).ready(function () {
             contentType: false,
             processData: false,
             dataType: 'json',
+            beforeSend: function ()
+            {
+                showLoadingIndicator();
+            },
             success: function (response) {
                 console.log("Response:", response);
                 if (response.success) {
@@ -667,7 +671,6 @@ $(document).ready(function () {
                     applyModal.hide();
                     //
                 } else {
-                    // Show server-side validation errors
                     if (response.errors && response.errors.length > 0) {
                         response.errors.forEach(function (error) {
                             toastr.error(error);
@@ -679,6 +682,8 @@ $(document).ready(function () {
             },
             error: function () {
                 toastr.error("An unexpected error occurred.");
+            }, complete: function () {
+                hideLoadingIndicator();
             }
         });
     });

@@ -305,7 +305,8 @@ $(document).ready(function () {
             Approved: isApproved,
             Declined: !isApproved,
             ApprovalNote: $('#ApprovalNote').val(),
-            TotalAppliedDays: $('#TotalAppliedDays').val()
+            TotalAppliedDays: $('#TotalAppliedDays').val(),
+            ReasonEdit: $('#ReasonEdit').val()
         };
         if (!isFullDay) {
             formdata.PartialFromTimeEdit = $('#PartialFromTimeEdit').val();
@@ -317,6 +318,9 @@ $(document).ready(function () {
             data: JSON.stringify(formdata), 
             contentType: 'application/json; charset=utf-8', 
             dataType: 'json',
+            beforeSend: function () {
+                showLoadingIndicator();
+            },
             success: function (response) {
                 console.log("Response:", response);
                 if (response.success) {
@@ -341,6 +345,9 @@ $(document).ready(function () {
             },
             error: function () {
                 toastr.error("An unexpected error occurred.");
+            },
+            complete: function () {
+                hideLoadingIndicator();
             }
         });
     });

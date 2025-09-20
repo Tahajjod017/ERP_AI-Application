@@ -417,6 +417,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
 
         }
+        
         //        public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM)
         //        {
         //            if (entityVM == null)
@@ -854,7 +855,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
 
         //
-       
+
         public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM)
         {
             if (entityVM == null)
@@ -1067,6 +1068,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         }
                         existingBalance.TotalLeave = leaveDaysFromConfig.LeaveDays;
                         existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
+                       
                         existingBalance.LIP = entityVM.LIP;
                         existingBalance.LMAC = entityVM.LMAC;
                         existingBalance.UpdatedAt = DateTime.Now;
@@ -1095,6 +1097,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 // Update leave request with isFinalApproval
                 entity.ApprovalPersonID = approvalPersonId;
                 entity.StatusID = statusId;
+                entity.Reason = entityVM.ReasonEdit;
                 entity.LIP = entityVM.LIP;
                 entity.LMAC = entityVM.LMAC;
                 entity.UpdatedAt = DateTime.Now;
@@ -1214,40 +1217,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     statusMessage = $"{applicantData?.FirstName} {applicantData?.LastName} has applied for leave. Please review.";
                 }
 
-                // Build email model
-                //                var emailModel = new EmailVM
-                //                {
-                //                    To = toEmail,
-
-                //                    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
-                //                    Body = $@"
-                //        <p>Dear {(statusId == leavStatusDecline || isFinalApproval ? $"{applicantData?.FirstName} {applicantData?.LastName}" : $"{approverData?.FirstName} {approverData?.LastName}")},
-                //</p>
-                //        <p>{statusMessage}</p>
-                //        <p>{applicantData?.FirstName} {applicantData?.LastName} 
-                //        ({applicantData?.DesignationName}, {applicantData?.DepartmentName}) 
-                //        has applied for leave.</p>
-                //        <ul>
-                //            <li><strong>From:</strong> {(entityVM.FromDateEdit.HasValue ? entityVM.FromDateEdit.Value.ToString("dd MMM yyyy") : "")}</li>
-                //            <li><strong>To:</strong> {(entityVM.ToDateEdit.HasValue ? entityVM.ToDateEdit.Value.ToString("dd MMM yyyy") : "")}</li>
-                //            <li><strong>Total day(s):</strong> {totalDays}</li>
-                //            <li><strong>Leave Type:</strong> {leaveName ?? ""}</li>
-                //            <li><strong>Reason:</strong> {entityVM.ReasonEdit ?? ""}</li>
-                //        </ul>
-                //        {(statusId == leavStatusDecline || isFinalApproval ? "<p>Please contact HR for further details.</p>" : "<p>Please log in to the HRM system to review and approve this request.</p>")}
-                //        {(statusId == leavStatusDecline || isFinalApproval ? "" : @"
-                //        <p>
-                //         <a href='https://localhost:7086/' style='padding:8px 12px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;'>Login</a>
-
-                //            &nbsp;&nbsp;
-                //            <a href='' style='padding:8px 12px;background:#28a745;color:#fff;text-decoration:none;border-radius:4px;'>Accept</a>
-                //            &nbsp;&nbsp;
-                //            <a href='' style='padding:8px 12px;background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;'>Decline</a>
-                //        </p>"
-
-                //)}
-                //        <p>Regards,<br/>HRM System</p>"
-                //                };
 
 
                 //
