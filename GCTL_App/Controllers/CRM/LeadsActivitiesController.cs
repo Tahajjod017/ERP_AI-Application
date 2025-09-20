@@ -34,7 +34,7 @@ namespace GCTL_App.Controllers.CRM
             string dateTime = model.dateRange ?? string.Empty;
 
             if (!model.CreatedBy.HasValue)
-                return Ok(new ReturnDataView
+                return Ok(new ReturnDataView<LeadDetailsDTO>
                 {
                     success = false,
                     message = "User ID not provided",
@@ -48,6 +48,14 @@ namespace GCTL_App.Controllers.CRM
             return Ok(result);
         }
 
-    
+        //=======================
+        // generatePDF
+        //=======================
+        [HttpPost]
+        public async Task<IActionResult> GeneratePDF()
+        {
+            var pdfBytes = await _activityService.GeneratePDF();
+            return File(pdfBytes, "application/pdf", "report.pdf");
+        }
     }
 }

@@ -277,14 +277,7 @@ namespace GCTL_App.Controllers.CRM
                 if (leadDetailsVM.LeadID == null || leadDetailsVM.LeadID == 0)
                     return BadRequest(new { success = false, message = "LeadID is required" });
 
-                var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == leadDetailsVM.LeadID);
-
-                if (leadObj != null && leadObj.IsOwn != null)
-                {
-                    leadObj.IsOwn = null;
-                    leadObj.ClosingDate = null;
-                    await _leadsRepository.UpdateAsync(leadObj);
-                }
+                //var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == leadDetailsVM.LeadID);
                 //Won / Lost special case
                 var existingLeadTypeObj = await _leadActivityTypesRepository.FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
                 if (existingLeadTypeObj.LeadActivityName == "Won" || existingLeadTypeObj.LeadActivityName == "Lost")
@@ -305,13 +298,9 @@ namespace GCTL_App.Controllers.CRM
                 ? await StorePhoto(leadDetailsVM.File)
                 : null;
 
-                bool created = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM, fileLocation);
+                var result2 = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM, fileLocation);
 
-                return Ok(new
-                {
-                    success = true,
-                    message = created ? "Data added successfully" : "Failed to add lead details"
-                });
+                return Ok(result2);
             }
             catch (Exception ex)
             {

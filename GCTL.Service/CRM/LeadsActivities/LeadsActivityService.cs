@@ -2,13 +2,12 @@
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using NetTopologySuite.Mathematics;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+
 
 namespace GCTL.Service.CRM.LeadsActivities
 {
@@ -21,7 +20,7 @@ namespace GCTL.Service.CRM.LeadsActivities
             _leadDetailsRepository = leadDetailsRepository;
         }
 
-        public async Task<ReturnDataView> GetUpcomingActivityList(
+        public async Task<ReturnDataView<LeadDetailsDTO>> GetUpcomingActivityList(
             int page,
             int itemPerPage,
             string search,
@@ -35,7 +34,7 @@ namespace GCTL.Service.CRM.LeadsActivities
                 // ✅ If userID is null, return empty result immediately
                 if (!userID.HasValue)
                 {
-                    return new ReturnDataView
+                    return new ReturnDataView<LeadDetailsDTO>
                     {
                         success = true,
                         message = "No data available for null user",
@@ -126,7 +125,7 @@ namespace GCTL.Service.CRM.LeadsActivities
 
                 }).ToListAsync();
 
-                return new ReturnDataView
+                return new ReturnDataView<LeadDetailsDTO>
                 {
                     success = true,
                     message = totalSearchItem > 0 ? "Upcoming List Data successfully loaded" : "No records found",
@@ -140,7 +139,7 @@ namespace GCTL.Service.CRM.LeadsActivities
             }
             catch (Exception ex)
             {
-                return new ReturnDataView
+                return new ReturnDataView<LeadDetailsDTO>
                 {
                     success = false,
                     message = $"Something went wrong: {ex.Message}"
@@ -148,5 +147,102 @@ namespace GCTL.Service.CRM.LeadsActivities
             }
         }
 
+
+        public async Task<byte[]> GeneratePDF()
+        {
+            try
+            {
+                var upcomingActivities = await _leadDetailsRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.Now)
+                   .OrderBy(u => u.ActivityDateTime)
+                   .Select(u => new
+                   {
+                       LeadName = u.Lead.LeadName,
+                       ActivityType = u.LeadActivityType.LeadActivityName,
+                       ActivityNote = u.ActivityNote,
+                       ActivityDateTime = u.ActivityDateTime,
+                       CreatedAt = u.CreatedAt,
+                       LeadID = u.LeadID,
+                       CustomerName = u.Lead.Customer.FullName,
+                       LeadStage = u.Lead.LeadStatus.LeadStatusName,
+                       LeadPriority = u.Lead.Priority.PriorityName,
+                       LeadSource = u.Lead.LeadStatus.LeadStatusName,
+                       LeadProbability = u.Lead.ProbabilityPercentage,
+                       LeadOwner = u.Lead.LeadOwner.FirstName + " " + u.Lead.LeadOwner.LastName,
+                   }).ToListAsync();
+
+                var document = Document.Create(container =>
+                {
+                    container.Page(page =>
+                    {
+                        page.Size(PageSizes.A4);
+                        page.Margin(2, Unit.Centimetre);
+                        page.PageColor(Colors.White);
+                        page.DefaultTextStyle(x => x.FontSize(8));
+
+                        page.Header()
+                        .Text("Lead Activities (Upcoming)")
+                        .SemiBold().FontSize(18).FontColor(Colors.Blue.Medium);
+
+                        page.Content().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.ConstantColumn(40);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(2);
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(CellStyle).Text("SL");
+                                header.Cell().Element(CellStyle).Text("Lead Name");
+                                header.Cell().Element(CellStyle).Text("Customer Name");
+                                header.Cell().Element(CellStyle).Text("Service Type");
+                                header.Cell().Element(CellStyle).Text("Date & Time");
+                                header.Cell().Element(CellStyle).Text("Note");
+                                header.Cell().Element(CellStyle).Text("Owner Name");
+                            });
+                            int serial = 1;
+                            foreach (var activity in upcomingActivities)
+                            {
+                             
+                                table.Cell().Element(CellStyle).Text(serial++.ToString());
+                                table.Cell().Element(CellStyle).Text(activity.LeadName);
+                                table.Cell().Element(CellStyle).Text(activity.CustomerName);
+                                table.Cell().Element(CellStyle).Text(activity.ActivityType);
+                                table.Cell().Element(CellStyle).Text(activity.ActivityDateTime?.ToString("dd-MM-yyyy HH:mm:ss") ?? "");
+                                table.Cell().Element(CellStyle).Text(activity.ActivityNote);
+                                table.Cell().Element(CellStyle).Text(activity.LeadOwner);
+                
+                               
+                            }
+
+                            IContainer CellStyle(IContainer container) =>
+                                container.PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten2);
+
+                        });
+
+                        page.Footer()
+                        .AlignCenter()
+                        .Text(x =>
+                        {
+                            x.Span("Generated on: ").SemiBold();
+                            x.Span(DateTime.Now.ToString("dd-MM-yyyy HH:mm"));
+                        });
+                    });
+                });
+                var pdfBytes = document.GeneratePdf();
+
+                return pdfBytes;
+            }
+            catch (Exception) {
+                return new byte[0];
+            }
+            
+        }
     }
 }
