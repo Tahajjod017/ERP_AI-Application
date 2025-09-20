@@ -229,6 +229,21 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
 
             return Json(attendanceMonthReport);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetCompareMonth()
+        {
+            int? currentEmployeeId = await GetCurrentEmployeeIdAsync();
+            int? orgId = await GetCurrentOrganizationIdAsync();
+
+            if (!currentEmployeeId.HasValue)
+            {
+                return Json(null);
+            }
+            // Use the interface method
+            var dto = await _employeeAttendanceReport
+                .GetEmployeeStatusReportCompareThisMonth(currentEmployeeId.Value, orgId.Value, null);
+            return Json(dto);
+        }
 
     }
 }
