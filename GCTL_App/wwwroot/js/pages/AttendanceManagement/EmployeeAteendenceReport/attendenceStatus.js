@@ -103,8 +103,76 @@ const FORMATS = [
     "YYYY/MM/DD",
     "YYYY-MM-DD",
     "DD/MM/YYYY",
-    "DD-MM-YYYY"
+    "DD-MM-YYYY",
+
+    // ── Additional formats (date-only, requested + time variants)
+    // yyyy-MM-dd
+    "YYYY-MM-DD",
+    "YYYY-MM-DD h:mm:ss A",
+    "YYYY-MM-DD h:mm A",
+    "YYYY-MM-DD HH:mm:ss",
+    "YYYY-MM-DD HH:mm",
+
+    // MM/dd/yyyy
+    "MM/DD/YYYY",
+    "MM/DD/YYYY h:mm:ss A",
+    "MM/DD/YYYY h:mm A",
+    "MM/DD/YYYY HH:mm:ss",
+    "MM/DD/YYYY HH:mm",
+
+    // dd/MM/yyyy
+    "DD/MM/YYYY",
+    "DD/MM/YYYY h:mm:ss A",
+    "DD/MM/YYYY h:mm A",
+    "DD/MM/YYYY HH:mm:ss",
+    "DD/MM/YYYY HH:mm",
+
+    // yyyy/MM/dd
+    "YYYY/MM/DD",
+    "YYYY/MM/DD h:mm:ss A",
+    "YYYY/MM/DD h:mm A",
+    "YYYY/MM/DD HH:mm:ss",
+    "YYYY/MM/DD HH:mm",
+
+    // September 20, 2025
+    "MMMM DD, YYYY",
+    "MMMM DD, YYYY h:mm:ss A",
+    "MMMM DD, YYYY h:mm A",
+    "MMMM DD, YYYY HH:mm:ss",
+    "MMMM DD, YYYY HH:mm",
+
+    // Sep 20, 2025
+    "MMM DD, YYYY",
+    "MMM DD, YYYY h:mm:ss A",
+    "MMM DD, YYYY h:mm A",
+    "MMM DD, YYYY HH:mm:ss",
+    "MMM DD, YYYY HH:mm",
+
+    // 20-Sep-2025
+    "DD-MMM-YYYY",
+    "DD-MMM-YYYY h:mm:ss A",
+    "DD-MMM-YYYY h:mm A",
+    "DD-MMM-YYYY HH:mm:ss",
+    "DD-MMM-YYYY HH:mm",
+
+    // yyyy.MM.dd
+    "YYYY.MM.DD",
+    "YYYY.MM.DD h:mm:ss A",
+    "YYYY.MM.DD h:mm A",
+    "YYYY.MM.DD HH:mm:ss",
+    "YYYY.MM.DD HH:mm",
+
+    // 250920
+    "YYMMDD",
+
+    // 20 Sep 2025
+    "DD MMM YYYY",
+    "DD MMM YYYY h:mm:ss A",
+    "DD MMM YYYY h:mm A",
+    "DD MMM YYYY HH:mm:ss",
+    "DD MMM YYYY HH:mm"
 ];
+
 
 
 
