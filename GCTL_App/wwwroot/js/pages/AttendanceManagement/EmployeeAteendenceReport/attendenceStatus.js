@@ -450,6 +450,7 @@ $(document).ready(function () {
     generateTimeline();
     fetchPunchActivityData();
     AttendancePieChar();
+    renderAttendanceBarChartController();
 });
 
 
@@ -780,16 +781,36 @@ function renderAttendanceBarChart(data) {
 }
 
 // Example of passing dynamic data as a JSON object
-var jsonData = {
-    "months": ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    "present": [20, 21, 19, 21, 18, 20, 21, 19, 21, 18, 20, 21],
-    "absent": [3, 2, 1, 3, 2, 1, 1, 1, 2, 3, 1, 1],
-    "lateEntry": [2, 1, 2, 1, 3, 1, 2, 2, 1, 2, 1, 2],
-    "earlyLeave": [3, 2, 1, 3, 2, 1, 0, 1, 2, 3, 1, 1],
-    "casualLeave": [1, 0, 1, 1, 1, 1, 0, 1, 2, 1, 2, 1],
-    "medicalLeave": [0, 0, 1, 3, 0, 1, 0, 0, 2, 0, 2, 1]
-};
+//var jsonData = {
+//    "months": ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+//    "present": [20, 21, 19, 21, 18, 20, 21, 19, 21, 18, 20, 21],
+//    "absent": [3, 2, 1, 3, 2, 1, 1, 1, 2, 3, 1, 1],
+//    "lateEntry": [2, 1, 2, 1, 3, 1, 2, 2, 1, 2, 1, 2],
+//    "earlyLeave": [3, 2, 1, 3, 2, 1, 0, 1, 2, 3, 1, 1],
+//    "casualLeave": [1, 0, 1, 1, 1, 1, 0, 1, 2, 1, 2, 1],
+//    "medicalLeave": [0, 0, 1, 3, 0, 1, 0, 0, 2, 0, 2, 1]
+//};
 
+function renderAttendanceBarChartController() {
+    $.ajax({
+        url: '/EmployeesAttendance/GetEmployeeStatusYearReport',  // Your backend endpoint to fetch the pre-calculated session data
+        type: 'GET',  // HTTP method (GET, POST, etc.)
+        dataType: 'json',  // Expected response type
+        success: function (response) {
+            if (response) {
+                // Update session hours using pre-calculated data
+                //  updateAttendancePieChart(response.present, response.absent, response.late, response.early);
+                renderAttendanceBarChart(response);
+
+            } else {
+                console.error("Invalid data received");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching session data: ", error);
+        }
+    });
+}
 // Call the function with the dynamic data (this can be done on the fly)
 renderAttendanceBarChart(jsonData);
 
