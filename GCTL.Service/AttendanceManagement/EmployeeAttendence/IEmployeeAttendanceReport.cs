@@ -25,6 +25,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         Task<(double totalWorkingHours, string totalWorkedHours)> GetTotalHoursForWeek(int employeeId, int? organizationId, int? organizationBranchId);
         Task<(double totalWorkingHours, string totalWorkedHours)> GetTotalHoursForMonth(int employeeId, int? organizationId, int? organizationBranchId);
         Task<IActionResult> CalculateWorkingHours(int attendanceId);
+        Task<AttendanceCompareChartDTO> GetEmployeeStatusReportCompareThisMonth(int employeeId, int? organizationId, int? organizationBranchId);
 
     }
 }
