@@ -10,6 +10,7 @@ using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefault
 using GCTL.Core.ViewModels.MasterSetup.Statuses;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Razor.Generator;
 using static Dapper.SqlMapper;
+using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -54,7 +56,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
         private readonly IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory;
         private readonly IEmailService  emailService;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory, IEmailService emailService) : base(leaveRequest)
+        private readonly ILocalizationContext _localizationContext;
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory, IEmailService emailService, ILocalizationContext localizationContext) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -75,6 +78,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.approvaldesignation = approvaldesignation;
             this.leaveBaseApprovalHistory = leaveBaseApprovalHistory;
             this.emailService = emailService;
+            _localizationContext = localizationContext;
         }
 
         #region  Get Data All  Leave  Requyest
@@ -186,7 +190,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
                 // For approver Step
                 var approvalStepsMap = await leaveBaseApprovalHistory.AllActive().GroupBy(x => x.LeaveApplicationID).ToDictionaryAsync(g => g.Key, g => g.Select(x => x.ApprovalStep ?? 0).ToList());
-                //
                 var result = await PaginationService<LeaveApplications, LeaveApplicationsList>.GetPaginatedData(
 
 
@@ -194,7 +197,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     pageNumber,
                     pageSize,
                     searchTerm,
-
                     currentSortColumn,
                     currentSortOrder,
 
@@ -205,11 +207,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                       EF.Functions.Like(b.Status.StatusName, $"%{term}%") ||
                       EF.Functions.Like(b.FromDate.ToString(), $"%{term}%") ||
                       EF.Functions.Like(b.ToDate.ToString(), $"%{term}%"),
-
-
                     b => new LeaveApplicationsList
                     {
-                        ApplicationDateForTable = DateTimeHelpers.FormatDateTime(b.CreatedAt)  ,
+                        ApplicationDateForTable = b.CreatedAt.HasValue ? TimeConversionHelper.ConvertDateTimeToUtcHHmm(b.CreatedAt.Value, _localizationContext) : "",
                         ApplicationDate = b.CreatedAt,
                         LeaveApplicationID = b.LeaveApplicationID,
                         StatusName = !string.IsNullOrEmpty(b.Status?.StatusName) ? b.Status.StatusName : "",
@@ -231,7 +231,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             catch (Exception ex)
             {
                 Console.WriteLine($"Error : {ex.Message}");
-
                 return new PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>
                 {
                     Data = new List<LeaveApplicationsList>(),
@@ -601,7 +600,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             if (entityVM == null)
                 return new CommonReturnViewModel { Success = false, Message = "Data cannot be null" };
 
-            // 3. If it's a partial day leave, check how many partials already exist
+            
             if (!entityVM.IsFullDay)
             {
                 var result = await ValidationMaxPerDayPartialDayAsync(entityVM.EmployeeID, entityVM.ToDateFromDateCombined);
@@ -758,8 +757,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         PartialFromTime = entityVM.PartialFromTime,
                         PartialToTime = entityVM.PartialToTime,
                         StatusID = isSelfApproval ? leaveTypeIDApproved : entityVM.StatusID,
-                        LeaveApplicableYear = DateTime.Now.Year,
-                        CreatedAt = DateTime.Now,
+                        LeaveApplicableYear = DateTime.UtcNow.Year,
+                        CreatedAt = DateTime.UtcNow,
                         CreatedBy = entityVM.CreatedBy,
                         LeaveTypeID = entityVM.LeaveTypeID,
                         IsGroupApplication = entityVM.IsGroupApplication,
@@ -806,10 +805,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                 PartialFromTime = entityVM.PartialFromTime,
                                 PartialToTime = entityVM.PartialToTime,
                                 StatusID = entityVM.StatusID,
-                                LeaveApplicableYear = DateTime.Now.Year,
+                                LeaveApplicableYear = DateTime.UtcNow.Year,
                                 IsFinalApproved = isSelfApproval ? true : false,
                                 //IsGroupApplication = entityVM.IsGroupApplication,
-                                CreatedAt = DateTime.Now,
+                                CreatedAt = DateTime.UtcNow,
                                 CreatedBy = entityVM.CreatedBy,
                                 LeaveTypeID = fallback.LeaveTypeID,
                                 Reason = $"Exceeded original leave – adjusted using prioritized leave type ({fallback.LeaveTypeName})",
@@ -843,8 +842,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         PartialToTime = entityVM.PartialToTime,
                         StatusID = entityVM.StatusID,
                         IsFinalApproved = isSelfApproval ? true : false,
-                        LeaveApplicableYear = DateTime.Now.Year,
-                        CreatedAt = DateTime.Now,
+                        LeaveApplicableYear = DateTime.UtcNow.Year,
+                        CreatedAt = DateTime.UtcNow,
                         CreatedBy = entityVM.CreatedBy,
                         //IsGroupApplication= entityVM.IsGroupApplication,
                         LeaveTypeID = lWP,
@@ -1119,7 +1118,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 existing.ApprovalPersonID = approvalPersonId;
                 existing.LIP = entityVM.LIP;
                 existing.LMAC = entityVM.LMAC;
-                existing.UpdatedAt = DateTime.Now;
+                existing.UpdatedAt = DateTime.UtcNow;
                 existing.UpdatedBy = entityVM.CreatedBy;
 
                 await leaveRequest.UpdateAsync(existing);
@@ -1161,8 +1160,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                 PartialFromTime = entityVM.PartialFromTimeEdit,
                                 PartialToTime = entityVM.PartialToTimeEdit,
                                 // StatusID = entityVM.StatusID,
-                                LeaveApplicableYear = DateTime.Now.Year,
-                                CreatedAt = DateTime.Now,
+                                LeaveApplicableYear = DateTime.UtcNow.Year,
+                                CreatedAt = DateTime.UtcNow,
                                 CreatedBy = entityVM.CreatedBy,
                                 LeaveTypeID = fallback.LeaveTypeID,
                                 Reason = $"Exceeded original leave – adjusted using prioritized leave type ({fallback.LeaveTypeName})",
@@ -1194,8 +1193,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         PartialFromTime = entityVM.PartialFromTimeEdit,
                         PartialToTime = entityVM.PartialToTimeEdit,
                         // StatusID = entityVM.StatusID,
-                        LeaveApplicableYear = DateTime.Now.Year,
-                        CreatedAt = DateTime.Now,
+                        LeaveApplicableYear = DateTime.UtcNow.Year,
+                        CreatedAt = DateTime.UtcNow,
                         CreatedBy = entityVM.CreatedBy,
                         LeaveTypeID = lWP,
                         Reason = $"Exceeded leave days – fallback to LWP ({lwpName})",
@@ -1245,7 +1244,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 var targetIds = data.Select(x => (int?)x.LeaveApplicationID).ToList();
                 foreach (var item in data)
                 {
-                    item.DeletedAt = DateTime.Now;
+                    item.DeletedAt = DateTime.UtcNow;
                     item.LIP = deleteRequestVM.LIP;
                     item.LMAC = deleteRequestVM.LMAC;
                     item.DeletedBy = deleteRequestVM.DeletedBy ?? null;
