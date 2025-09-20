@@ -12,6 +12,7 @@ namespace GCTL.Service.CRM.LeadsActivities
 {
     public interface ILeadsActivityService
     {
-        public Task<ReturnDataView> GetUpcomingActivityList(int page, int itemPerPage, string search, string sort, string direction, string dateRange, int? userID);
+        Task<ReturnDataView<LeadDetailsDTO>> GetUpcomingActivityList(int page, int itemPerPage, string search, string sort, string direction, string dateRange, int? userID);
+        Task<byte[]> GeneratePDF();
     }
 }

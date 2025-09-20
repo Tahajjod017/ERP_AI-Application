@@ -23,7 +23,6 @@ $(function () {
     // ==============================
     $(".option-btn").on('click', function () {
         debugger;
-        showDev("clicked")
         $(".option-btn").removeClass('active');
         $(this).addClass('active');
 
@@ -36,7 +35,6 @@ $(function () {
             $(ids.wonConfirmDiv).addClass('d-none');
         } else if (btnText === "Won") {
             let isWonAlready = $(this).data('confirm');
-            showDev(isWonAlready);
             if (isWonAlready !== 'yes') {
                 $('#file-field').hide();
                 $('#dateField').hide();
@@ -99,10 +97,13 @@ $(function () {
     let loadedIds = new Set();
     let loadedIds2 = new Set();
 
+    let secialButtonState = null;
+
     //==========================
     // save lead activity function
     //==============================
-    async function saveActivityFunction() {
+    async function saveActivityFunction(e) {
+        debugger;
         const buttonName = $(".option-btn.active").text().trim();
         const buttonID = $(".option-btn.active").data('id');
         const leadID = $(ids.leadID).val();
@@ -115,14 +116,13 @@ $(function () {
         // run validation
         if (!validation(buttonName)) return;
 
-        let isWonOrLost = $('.special-btn').hasClass('active2');
-        let isWonOrLostText = $('.special-btn.active').text().trim();
+        //let isWonOrLost = $('.special-btn').hasClass('active2');
+        //let isWonOrLostText = $('.special-btn.active').text().trim();
         // Show confirmation modal if Won/Lost
-        if (isWon == true || isWon == false) {
-            const confirmed = await showConfirmationModal();
-            if (!confirmed) return; // User clicked No, stop execution
-        }
-
+        //if (isWon != null) {
+        //    const confirmed = await showConfirmationModal();
+        //    if (!confirmed) return; // User clicked No, stop execution
+        //}
 
         const formData = new FormData();
         formData.append("LeadID", parseInt(leadID));
@@ -135,6 +135,7 @@ $(function () {
             formData.append("ActivityDateTime", convertedDate);
             if (file) formData.append("File", file);
         }
+        let isWonOrLostBtnSelected = $('.special-btn').hasClass('active');
 
         $.ajax({
             url: '/LeadDetails/SaveLeadActivity',
@@ -142,22 +143,34 @@ $(function () {
             data: formData,
             contentType: false,
             processData: false,
-            success: function (response) {
-                showDev(response)
+            success: async function (response) {
+                debugger;
                 if (response.success) {
                     toastr.success(response.message);
+                    await updateActivate();
+                    resetAndReloadUpcoming();
+                    $(".option-btn").removeClass("active");
+                    $(ids.date).val("");
+                    $(ids.note).val("");
+                    $(ids.file).val("");
+                    $('#file-field').hide();
+                    $(ids.wonConfirmDiv).addClass("d-none");
+                    $(ids.addActiveBtn).removeClass("d-none");
+
+                    
+                    if (isWon === true && isWonOrLostBtnSelected) {
+                        showCustomToaster.success("Lead won added!");
+                        makeDisabledState();
+                    } if (isWon === false && isWonOrLostBtnSelected) {
+                        showCustomToaster.success("Lead Lost added!");
+                        $(ids.addActiveBtn).prop('disabled', true);
+
+                    }
+                    
                 } else {
                     toastr.error(response.message);
                 }
-                resetAndReload();
-                resetAndReloadUpcoming();
-                $(".option-btn").removeClass("active");
-                $(ids.date).val("");
-                $(ids.note).val("");
-                $(ids.file).val("");
-                $('#file-field').hide();
-                $(ids.wonConfirmDiv).addClass("d-none");
-                $(ids.addActiveBtn).removeClass("d-none");
+               
             },
             error: function (error) {
                 toastr.error(error.responseJSON?.message || "Error saving lead activity");
@@ -165,29 +178,29 @@ $(function () {
         });
     }
     // Helper: show Bootstrap 5.1 modal and return a Promise
-    function showConfirmationModal() {
-        return new Promise((resolve) => {
-            const modalEl = document.getElementById('confirmModal');
-            const bsModal = new bootstrap.Modal(modalEl);
-            bsModal.show();
+    //function showConfirmationModal() {
+    //    return new Promise((resolve) => {
+    //        const modalEl = document.getElementById('confirmModal');
+    //        const bsModal = new bootstrap.Modal(modalEl);
+    //        bsModal.show();
 
-            // Yes button
-            $('#modalYesBtn').off('click').one('click', () => {
-                bsModal.hide();
-                resolve(true);
-            });
+    //        // Yes button
+    //        $('#modalYesBtn').off('click').one('click', () => {
+    //            bsModal.hide();
+    //            resolve(true);
+    //        });
 
-            // No button
-            $('#modalNoBtn').off('click').one('click', () => {
-                bsModal.hide();
-                resolve(false);
-            });
-        });
-    }
+    //        // No button
+    //        $('#modalNoBtn').off('click').one('click', () => {
+    //            bsModal.hide();
+    //            resolve(false);
+    //        });
+    //    });
+    //}
 
     // ==================
     // save activity
-    // =================
+    // ==================
     $('#addLActivity').on('click', function (e) {
         e.preventDefault();
         saveActivityFunction(this);
@@ -197,8 +210,8 @@ $(function () {
     // yes no Won button work
     // ============================
     $('#wonYes, #wonNo').on('click', function () {
-        showDev("yes no clicked");
         saveActivityFunction(this);
+        secialButtonState = "won";
     });
 
 
@@ -299,75 +312,87 @@ $(function () {
     // Fetch activity data
     // ==============================
     function updateActivate(page = 1) {
-        if (loading) return;
-        loading = true;
+        return new Promise((resolve, reject) => {
+            if (loading) return;
+            loading = true;
 
-        const tabName = $("#myTab .nav-link.active").text().trim();
-        const search = $("#search-activity").val() || "";
-        const id = $("#leadID").val();
-        const typeD = tabName === "All Activity" ? "" : tabName;
+            const tabName = $("#myTab .nav-link.active").text().trim();
+            const search = $("#search-activity").val() || "";
+            const id = $("#leadID").val();
+            const typeD = tabName === "All Activity" ? "" : tabName;
 
-        $.ajax({
-            url: '/LeadDetails/getActivityList',
-            method: 'GET',
-            contentType: 'application/json',
-            data: { id, query: search, page, type: typeD },
-            success: function (response) {
-                showDev(response)
+            $.ajax({
+                url: '/LeadDetails/getActivityList',
+                method: 'GET',
+                contentType: 'application/json',
+                data: { id, query: search, page, type: typeD },
+                success: function (response) {
 
-                // show or hide upcoming activity or add acitivity
-                $("#activity-label").text(tabName);
-                if (!response.activities || response.activities.length === 0) {
-                    noMoreDataDown = true;
-                    return;
-                } else {
-                    $("#all-activity-div").removeClass("d-none");
-                }
-                debugger;
-                // select won/lost/nothing todo 
-                isWon = response.isWon;
-                if (response.isWon == true) {
-                    $(ids.wonBtn).addClass('active2');
-                }
-                else if (response.isWon == false) {
-                    $(ids.lossBtn).addClass('active2');
-                } else {
-                    $(ids.cSpecialBtn).removeClass('active2');
-                }
-
-                if (response.isWon === true || response.isWon === false) {
-                    $(ids.restoreBtn).removeClass('d-none');
-                    $(ids.addActiveBtn).removeAttr('disabled');
-                } else{
-                    $(ids.restoreBtn).addClass('d-none');
-                }
-
-                response.activities.forEach(item => {
-                    if (!item.leadDetailID) return; // skip invalid
-                    if (!loadedIds.has(item.leadDetailID)) {
-                        loadedIds.add(item.leadDetailID);
-                        const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
-
-                        if (item.leadActivityName === 'Attachment') {
-                            $(activityListDiv).append(renderAttachmentActivity(item, activityDate));
-                        } else {
-                            $(activityListDiv).append(renderActivity(item, activityDate));
-                        }
+                    // show or hide upcoming activity or add acitivity
+                    $("#activity-label").text(tabName);
+                    if (!response.activities || response.activities.length === 0) {
+                        noMoreDataDown = true;
+                        return;
+                    } else {
+                        $("#all-activity-div").removeClass("d-none");
                     }
-                });
-            },
-            complete: function () { loading = false; },
-            error: function (jqXHR, textStatus) {
-                toastr.error("Error: " + textStatus);
-            }
-        });
+                    debugger;
+                    // select won/lost/nothing todo 
+                    $(ids.cSpecialBtn).removeClass('active2');
+                    isWon = response.isWon;
+                    resolve(200);
+                    if (response.isWon == true) {
+                        $(ids.wonBtn).addClass('active2');
+                        makeDisabledState();
+                    }
+                    else if (response.isWon == false) {
+                        $(ids.lossBtn).addClass('active2');
+                        makeDisabledState();
+                    }
 
+                    if (response.isWon === true || response.isWon === false) {
+                        $(ids.restoreBtn).removeClass('d-none');
+                        //$(ids.addActiveBtn).removeAttr('disabled');
+                    } else {
+                        $(ids.restoreBtn).addClass('d-none');
+                    }
+
+                    response.activities.forEach(item => {
+                        if (!item.leadDetailID) return; // skip invalid
+                        if (!loadedIds.has(item.leadDetailID)) {
+                            loadedIds.add(item.leadDetailID);
+                            const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
+
+                            if (item.leadActivityName === 'Attachment') {
+                                $(activityListDiv).append(renderAttachmentActivity(item, activityDate));
+                            } else {
+                                $(activityListDiv).append(renderActivity(item, activityDate));
+                            }
+                        }
+                    });
+                },
+                complete: function () { loading = false; },
+                error: function (jqXHR, textStatus) {
+                    toastr.error("Error: " + textStatus);
+                }
+            });
+        });
+        
+    }
+    // =============================
+    // make disabled statue
+    //==============================
+    function makeDisabledState() {
+        $(ids.addActiveBtn).prop('disabled', true);
+        $("#optionBtnDiv .option-btn").prop('disabled', true);
+    }
+    function makeEnableState() {
 
     }
     // ==============================
     // Fetch upcoming activity data
     // ==============================
-    function updateUpcomingActivate(page = 1, direction = "down") {
+    function updateUpcomingActivate(page = 1) {
         if (loading2) return;
         loading2 = true;
         const id = $("#leadID").val();
@@ -377,6 +402,7 @@ $(function () {
             contentType: 'application/json',
             data: { id, page },
             success: function (response) {
+               
                 if (!response || response.length === 0) {
                     noMoreDataDown2 = true;
                     //$("#upcomming-div").addClass("d-none");
@@ -386,7 +412,6 @@ $(function () {
                     //$("#myTab").css("display", "block");
                     $("#upcomming-div").removeClass("d-none");
                 }
-                showDev(response)
                 response.forEach(item => {
                     if (!item.leadDetailID) return;
                     if (!loadedIds2.has(item.leadDetailID)) {
@@ -521,7 +546,6 @@ $(function () {
 
         let fieldValue = $(this).val();
         let fieldID = $(this).attr("id");
-        showDev(fieldID);
         let fieldName = fieldID === "leadSource" ? "source" : fieldID == "lead-status" ? "stage" : fieldID === 'leadPriority' ? "priority" : fieldID == 'probabilityPercentage' ? 'probability' : "";
         let leadID = $(ids.leadID).val();
 
@@ -603,7 +627,6 @@ $(function () {
             method: 'POST',
             data: { id: leadID },
             success: function (response) {
-                //showDev(response)
                 //updateEmployee();
                 $("#leadID").val(response.leadID);
                 $("#leadName").val(response.leadName);
@@ -624,8 +647,6 @@ $(function () {
                 // employee add
                 const currentOwnerId = response.leadOwnerId;
                 const currentOwnerName = response.leadOwnerName;
-                showDev(currentOwnerId)
-                showDev(currentOwnerName)
                 if (currentOwnerId && currentOwnerName) {
                     choices.setChoices(
                         [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
@@ -751,7 +772,6 @@ $(function () {
             LeadDescription: $("#descriptionText").val(),
             ServiceTypeIds: $("#serviceTypes").val(),
         };
-        //showDev(data);
         if (validation2()) {
             $.ajax({
                 url: '/CRM/EditLeadData',
@@ -819,12 +839,10 @@ $(function () {
     // ===========================
     $('.option-btn').on('click', function () {
         clearAllValidationBorders();
-        showDev('called');
     })
 
     $(document).on("click", ids.restoreBtn, function () {
         let leadId = $(ids.leadID).val();
-        showDev(leadId);
         $.ajax({
             url: '/LeadDetails/RestoreLead',
             method: 'POST',
@@ -832,10 +850,13 @@ $(function () {
             success: function (response) {
 
                 if (response.success) {
-                    toastr.success(response.message);
+                    showCustomToaster.success(response.message);
                     resetAndReloadUpcoming();
                     resetAndReload();
-                   
+                    $(ids.addActiveBtn).removeAttr('disabled');
+                    $(ids.addActiveBtn).removeAttr('disabled');
+                    $("#optionBtnDiv .option-btn").removeAttr('disabled');
+
                 } else {
                     toastr.error(response.message);
                 }
@@ -845,4 +866,7 @@ $(function () {
             }
         });
     });
+
+
+    
 });

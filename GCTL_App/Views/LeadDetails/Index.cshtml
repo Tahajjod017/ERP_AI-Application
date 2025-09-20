@@ -63,6 +63,70 @@
         font-size: 12px !important;
         line-height: 1.4 !important;
     }
+
+/* toaster shoing modal */
+    #customToaster {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50px);
+        min-width: 280px;
+        max-width: 350px;
+        background: #fff;
+        color: #333;
+        font-weight: 600;
+        font-size: 18px;
+        padding: 20px 20px 15px 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        text-align: center;
+        opacity: 0;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        z-index: 9999;
+    }
+
+        #customToaster.show-toast {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #customToaster.hide-toast {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-50px);
+        }
+
+        #customToaster img.toast-icon {
+            width: 60px;
+            height: 60px;
+        }
+
+    /* Buttons for demo */
+    .pro-btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        margin: 10px;
+        cursor: pointer;
+        color: #fff;
+        font-size: 16px;
+    }
+
+    .pro-btn-success {
+        background-color: #4caf50;
+    }
+
+    .pro-btn-error {
+        background-color: #f44336;
+    }
+
+    .pro-btn-info {
+        background-color: #2196f3;
+    }
 </style>
     <div class="pb-1">
         <div class="row align-items-center justify-content-between g-3 mb-2">
@@ -366,7 +430,7 @@
                             @foreach (var item in ViewBag.LeadActivityTypes2)
                             {
                                 <button id="@item.LeadActivityName"
-                                        class="btn btn-phoenix-secondary rounded-pill mx-1 special-btn option-btn"
+                                        class="d-flex justify-content-center align-items-center btn btn-phoenix-secondary rounded-pill mx-1 special-btn option-btn"
                                         type="button"
                                         data-id="@item.LeadActivityTypeID">
                                     <span class="fs-7 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
@@ -423,6 +487,9 @@
             </div>
         </div>
     </div>
+
+    <!--customer message showing modal which will popup on the center for few times -->
+<div id="customToaster" class="hide-toast"></div>
 
 <!-- Preview Modal -->
 <div class="modal fade" id="filePreviewModal" tabindex="-1" aria-hidden="true">
@@ -541,5 +608,6 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
 
+    <script src="~/js/pages/CRM/customeToaster.js"></script>
     <script src="~/js/pages/CRM/lead_details.js"></script>
 }

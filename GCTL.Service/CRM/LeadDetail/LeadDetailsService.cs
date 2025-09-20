@@ -49,54 +49,87 @@ namespace GCTL.Service.CRM.LeadDetail
             return false;
         }
 
-        public async Task<bool> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation)
+        public async Task<ReturnView> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation)
         {
+
             if (!leadDetailsVM.ActivityDateTime.HasValue)
             {
-                return false;
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = "Please add Date and Time field"
+                };
             }
 
             await _leadDetailsGenericRepository.BeginTransactionAsync();
 
             try
             {
-                var localDateTime = DateTime.SpecifyKind(leadDetailsVM.ActivityDateTime.Value, DateTimeKind.Local);
-                var utcDateTime = localDateTime.ToUniversalTime();
+                var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == leadDetailsVM.LeadID);
 
-                var leadTypeObj = await _leadActivityTypesGenericRepository
-                    .FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
-
-                var leadTypeObj2 = await _leadActivityTypesGenericRepository
-                    .FirstOrDefaultAsync(u => u.LeadActivityName == "Attachment");
-
-                var leadTypeID = leadTypeObj.LeadActivityTypeID;
-                bool checkImageValidation = leadTypeObj.LeadActivityName == leadTypeObj2.LeadActivityName;
-
-                if (leadTypeID != 0)
+                if (leadObj != null)
                 {
-                    var leadObj = new GCTL.Data.Models.LeadDetails()
+                    if (leadObj.IsOwn == null && leadObj.ClosingDate == null)
                     {
-                        LeadID = leadDetailsVM.LeadID,
-                        ActivityDateTime = utcDateTime,
-                        LeadActivityTypeID = leadTypeID,
-                        ActivityNote = leadDetailsVM.ActivityNote,
-                        FileLink = checkImageValidation && fileLocation != null ? fileLocation : null,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = leadDetailsVM.CreatedBy,
-                        LIP = leadDetailsVM.LIP,
-                        LMAC = leadDetailsVM.LMAC,
+                        var localDateTime = DateTime.SpecifyKind(leadDetailsVM.ActivityDateTime.Value, DateTimeKind.Local);
+                        var utcDateTime = localDateTime.ToUniversalTime();
+
+                        var leadTypeObj = await _leadActivityTypesGenericRepository
+                            .FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
+
+                        var leadTypeObj2 = await _leadActivityTypesGenericRepository
+                            .FirstOrDefaultAsync(u => u.LeadActivityName == "Attachment");
+
+                        var leadTypeID = leadTypeObj.LeadActivityTypeID;
+                        bool checkImageValidation = leadTypeObj.LeadActivityName == leadTypeObj2.LeadActivityName;
+
+                        if (leadTypeID != 0)
+                        {
+                            var leadDetailsObj = new GCTL.Data.Models.LeadDetails()
+                            {
+                                LeadID = leadDetailsVM.LeadID,
+                                ActivityDateTime = utcDateTime,
+                                LeadActivityTypeID = leadTypeID,
+                                ActivityNote = leadDetailsVM.ActivityNote,
+                                FileLink = checkImageValidation && fileLocation != null ? fileLocation : null,
+                                CreatedAt = DateTime.UtcNow,
+                                CreatedBy = leadDetailsVM.CreatedBy,
+                                LIP = leadDetailsVM.LIP,
+                                LMAC = leadDetailsVM.LMAC,
+                            };
+
+                            await _leadDetailsGenericRepository.AddAsync(leadDetailsObj);
+                        }
+
+                        await _leadDetailsGenericRepository.CommitTransactionAsync();
+                        return new ReturnView
+                        {
+                            Success = true,
+                            Message = "Activity Saved successfully"
+
+                        };
+                    }
+                    return new ReturnView
+                    {
+                        Success = false,
+                        Message = "Activity has a state. To reopen click on Restore Button"
                     };
-
-                    await _leadDetailsGenericRepository.AddAsync(leadObj);
                 }
-
-                await _leadDetailsGenericRepository.CommitTransactionAsync();
-                return true;    
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = "Lead Not Found"
+                };
             }
             catch (Exception ex)
             {
                 await _leadDetailsGenericRepository.RollbackTransactionAsync();
-                return false;
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = "Something went to wrong"
+
+                };
             }
         }
 
@@ -362,7 +395,7 @@ namespace GCTL.Service.CRM.LeadDetail
                                 return new ReturnView
                                 {
                                     Success = true,
-                                    Message = totalrestoreItem + "lead activities restored"
+                                    Message = totalrestoreItem + " Actvity Restored Successfully"
                                 };
                             }
                             return new ReturnView
@@ -370,18 +403,18 @@ namespace GCTL.Service.CRM.LeadDetail
                                 Success = true,
                                 Message = "No need to resotre any activity."
                             };
-                        }
+                        } 
                         return new ReturnView
                         {
                             Success = false,
-                            Message = "Lead not found"
+                            Message = "Leads already activated. No need to restore this lead."
                         };
 
                     }
                     return new ReturnView
                     {
                         Success = false,
-                        Message = "Leads already activated. No need to restore this lead."
+                        Message = "Lead not found"
                     };
                 }
                 return new ReturnView

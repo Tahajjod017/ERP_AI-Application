@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.CRM
 {
-    public class ReturnDataView
+    public class ReturnDataView<T>
     {
         public bool? success { get; set; }
         public string? message{ get; set; }
-        public List<LeadDetailsDTO>? data { get; set; } = new List<LeadDetailsDTO>();
+        public List<T>? data { get; set; } = new List<T>();
        
 
         public int? totalItem { get; set; }

@@ -1,4 +1,8 @@
 ﻿$('document').ready(function () {
+    let links = {
+        generatePDF: '/LeadsActivities/GeneratePDF',
+    }
+
     let ids = {
         leadID: "#leadID",
         leadName: "#leadName",
@@ -13,6 +17,7 @@
         selectedID: '#selectedID',
         leadOwnerId: '#leadOwnerId',
         itemPerPage: '#pageElementSize',
+        pdfDownloadBtn: '#downloadPDF',
     }
 
     let typingTimer;
@@ -35,7 +40,6 @@
 
 
     function updatePaginationApprove(totalCount, page, size) {
-        debugger;
         const totalPages = Math.ceil(totalCount / size);
         const pagination = $('#pageNumber');
         pagination.empty();
@@ -87,7 +91,6 @@
         return statusColors[status.trim().toLowerCase()] || "badge-secondary";
     }
     function loadProcessedTable() {
-        debugger;
         var page = $('#pageNumber').data('page');
         //var size = $('#resignProcessed').data('size');
         var size = $('#pageElementSize').val();
@@ -109,8 +112,6 @@
             },
             success: function (response) {
                 
-                showDev(response)
-                debugger;
                 var tbody = $('#processed-resignation-body');
                 tbody.empty();
                 let itemsPerPage = parseInt($('#pageElementSize').val()) || 10;
@@ -235,5 +236,21 @@
         }
     });
 
-
+    $(ids.pdfDownloadBtn).on('click', function () {
+        fetch(links.generatePDF, { method: "POST" })
+            .then(res => res.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "report.pdf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(() => {
+                toastr.error("Error crating PDF");
+            });
+    });
 });
