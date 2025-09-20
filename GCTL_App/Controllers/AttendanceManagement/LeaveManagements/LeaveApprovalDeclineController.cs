@@ -46,15 +46,12 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             var employees =await  employee.AllActive().Select(e => new  {  e.EmployeeID, FullName = e.FirstName + " " + e.LastName  }).ToListAsync();
             if (employees.Count == 1)
             {
-                // Only one employee → auto select it
                 ViewBag.EmployeesDD = new SelectList(employees, "EmployeeID", "FullName", employees[0].EmployeeID);
             }
             else
             {
-                // More than one → show all without selection
                 ViewBag.EmployeesDD = new SelectList(employees, "EmployeeID", "FullName");
             }
-           // ViewBag.EmployeesDD = new SelectList(employees, "EmployeeID", "FullName");
 
             return View(model);
         }
