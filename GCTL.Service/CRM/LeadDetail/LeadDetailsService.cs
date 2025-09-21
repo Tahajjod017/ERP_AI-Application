@@ -219,7 +219,8 @@ namespace GCTL.Service.CRM.LeadDetail
                   // ✅ Use precomputed stats
                 SuccessPercentage = successPercentage,
                 LostPercentage = lostPercentage,
-                CancelPercentage = cancelPercentage
+                CancelPercentage = cancelPercentage,
+                ClosingDate = leadObj.ClosingDate ?? null
             };
         }
 

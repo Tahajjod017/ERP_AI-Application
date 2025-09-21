@@ -11,6 +11,8 @@ $(function () {
         wonBtn: '.special-btn:first',   // first .special-btn
         lostBtn: '.special-btn:last',   // last .special-btn
         cSpecialBtn: '.special-btn',
+        closingDateDiv: '#closingDateDiv',
+        closingDateResult: '#closingDateResult',
 
         successPercentage: '#successPercentage',
         cancelPercentage: '#cancelPercentage',
@@ -148,6 +150,7 @@ $(function () {
                 if (response.success) {
                     toastr.success(response.message);
                     await updateActivate();
+                    resetAndReload();
                     resetAndReloadUpcoming();
                     $(".option-btn").removeClass("active");
                     $(ids.date).val("");
@@ -305,9 +308,13 @@ $(function () {
                 contentType: 'application/json',
                 data: { id, query: search, page, type: typeD },
                 success: function (response) {
-                    $(ids.successPercentage).text(response.successPercentage);
-                    $(ids.lostPercentage).text(response.lostPercentage);
-                    $(ids.cancelPercentage).text(response.cancelPercentage);
+                    showLeadCreatorPercentage(response.successPercentage, response.lostPercentage, response.cancelPercentage)
+
+                    if (response.closingDate != null) {
+                        showClosedDate(response.closingDate);
+                    } else {
+                        hideClosedDate();
+                    }
 
                     // show or hide upcoming activity or add acitivity
                     $("#activity-label").text(tabName);
@@ -320,7 +327,7 @@ $(function () {
                     // select won/lost/nothing todo 
                     $(ids.cSpecialBtn).removeClass('active2');
                     isWon = response.isWon;
-                    resolve(200);
+                    
                     if (response.isWon == true) {
                         $(ids.wonBtn).addClass('active2');
                         makeDisabledState();
@@ -352,13 +359,57 @@ $(function () {
                         }
                     });
                 },
-                complete: function () { loading = false; },
+                complete: function () { loading = false; resolve(200); },
                 error: function (jqXHR, textStatus) {
                     toastr.error("Error: " + textStatus);
                 }
             });
         });
         
+    }
+
+    //==============================
+    // show showLeadCreatorPercentage
+    //================================
+    function showLeadCreatorPercentage(success, lost, cancel) {
+        $(ids.successPercentage).text(success);
+        $(ids.lostPercentage).text(lost);
+        $(ids.cancelPercentage).text(cancel);
+    }
+
+    //==============================
+    // show close Date Div
+    //================================
+    function showClosedDate(date) {
+        const d = new Date(date);
+        const pad = n => n.toString().padStart(2, '0');
+        const isoLocal = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        $(ids.closingDateDiv).removeClass('d-none');
+        $(ids.closingDateResult).text(showClosedDate(isoLocal));
+    }
+    //==============================
+    // hide closed Date Div
+    //================================
+    function hideClosedDate(date) {
+        $(ids.closingDateDiv).addClass('d-none');
+        $(ids.closingDateResult).text("");
+    }
+    // =============================
+    // make disabled statue
+    //==========
+    function showClosedDate(date) {
+        $(ids.closingDateDiv).removeClass('d-none');
+        const d = new Date(date);
+        const options = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            hour12: true
+        };
+        $(ids.closingDateResult).text(d.toLocaleString('en-US', options));
     }
     // =============================
     // make disabled statue

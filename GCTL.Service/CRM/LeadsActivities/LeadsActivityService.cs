@@ -27,7 +27,10 @@ namespace GCTL.Service.CRM.LeadsActivities
             string sort,
             string direction,
             string dateRange,
-            int? userID)   // current user ID
+            int? userID,
+            int? CustomerTypeID, 
+            string? LeadStatusID
+            )   // current user ID
         {
             try
             {
@@ -89,14 +92,24 @@ namespace GCTL.Service.CRM.LeadsActivities
                     }
                 }
 
-                // ✅ Search filter
                 if (!string.IsNullOrEmpty(search))
                 {
-                    query = query.Where(u =>
-                        EF.Functions.Like(u.ActivityNote, $"%{search}%") ||
-                        EF.Functions.Like(u.ActivityDateTime, $"%{search}%") ||
-                        EF.Functions.Like(u.CreatedAt, $"%{search}%"));
+                    if (DateTime.TryParse(search, out var searchDate))
+                    {
+                        query = query.Where(u =>
+                            EF.Functions.Like(u.ActivityNote, $"%{search}%") ||
+                            u.ActivityDateTime == searchDate.Date ||
+                            u.CreatedAt == searchDate.Date
+                        );
+                    }
+                    else
+                    {
+                        query = query.Where(u =>
+                            EF.Functions.Like(u.ActivityNote, $"%{search}%")
+                        );
+                    }
                 }
+
 
                 var totalSearchItem = await query.CountAsync();
 

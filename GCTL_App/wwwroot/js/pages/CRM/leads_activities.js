@@ -31,7 +31,7 @@
         }, delay);
     });
 
-    $("#pageElementSize, #dateRange2, #customerType").on("change", function () {
+    $("#pageElementSize, #dateRange2, #customerType, #LeadStatus").on("change", function () {
         clearTimeout(typingTimer);
         typingTimer = setTimeout(async function () {
             loadProcessedTable();
@@ -91,24 +91,28 @@
         return statusColors[status.trim().toLowerCase()] || "badge-secondary";
     }
     function loadProcessedTable() {
+        debugger;
         var page = $('#pageNumber').data('page');
-        //var size = $('#resignProcessed').data('size');
         var size = $('#pageElementSize').val();
         var search = $('#dataSearch').val();
         var sort = $('#resignProcessed').data('sort');
         var dir = $('#resignProcessed').data('dir');
         var dateRange = $('#dateRange2').val();
+        var customerID = $('#customerType').val();
+        var statusID = $('#LeadStatus').val();
 
         $.ajax({
             url: '/LeadsActivities/GetUpcomingActivities',
             type: 'POST',
             data: {
-                dateRange: dateRange,
-                pageNumber: page,
-                itemPerPage: size,
-                search: search,
-                sortColumn: sort,
-                sortDirection: dir
+                DateRange: dateRange,
+                PageNumber: page,
+                ItemPerPage: size,
+                Search: search,
+                SortColumn: sort,
+                SortDirection: dir,
+                CustomerTypeID: customerID,
+                LeadStatusID: statusID
             },
             success: function (response) {
                 
@@ -123,7 +127,6 @@
 
                 $.each(response.data, function (index, item) {
                     const dt = new Date(item.activityDateTime);
-
                     // Format Date (dd-mm-yyyy)
                     const datePart = dt.toLocaleDateString('en-GB').replace(/\//g, '-');
 
@@ -139,8 +142,10 @@
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.leadName}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadActivityType}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${datePart} ${time}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.activityNote}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.activityNote}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">
+                            ${item.activityNote.length > 50 ? item.activityNote.substring(0, 25) + "..." : item.activityNote}
+                        </td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.file ?? '-'}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadOwner}</td>
            
                         <td class="status align-middle white-space-nowrap pe-0 ps-2 d-flex justify-content-center" data-column="11">

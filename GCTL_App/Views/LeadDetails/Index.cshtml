@@ -414,9 +414,7 @@
                                     <span>@Model.Created</span>
                                 </td>
                             </tr>
-                            @if ( Model.ClosingDate != null)
-                            {
-                                <tr class="text-center align-middle">
+                                <tr class="text-center align-middle d-none" id="closingDateDiv">
                                     <td class="d-flex align-items-center my-2">
                                         <div class="d-flex bg-warning-subtle rounded-circle flex-center me-2" style="width:26px; height:26px;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -435,10 +433,9 @@
                                     <td class="align-middle text-center px-2">:</td>
 
                                     <td class="align-middle text-start">
-                                        <span>@Model.ClosingDate</span>
+                                    <span id="closingDateResult"></span>
                                     </td>
                                 </tr>
-                            }
                             </table>
                         </div>
                     </div>
