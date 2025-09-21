@@ -141,55 +141,88 @@ namespace GCTL.Service.CRM.LeadDetail
             int leadDetailsTypeID = 0;
             if (!string.IsNullOrEmpty(type))
             {
-                var leadDetailsTypeObj = await _leadActivityTypesGenericRepository.FirstOrDefaultAsync(u => u.LeadActivityName == type);
-                leadDetailsTypeID = leadDetailsTypeObj.LeadActivityTypeID;
+                var leadDetailsTypeObj = await _leadActivityTypesGenericRepository
+                    .FirstOrDefaultAsync(u => u.LeadActivityName == type);
+
+                leadDetailsTypeID = leadDetailsTypeObj?.LeadActivityTypeID ?? 0;
             }
 
             const int pageSize = 10;
             int skip = (page - 1) * pageSize;
 
-
-            var list = await _leadDetailsGenericRepository
-          .AllActive().Where(u => u.LeadID == id &&
-                     (leadDetailsTypeID == 0 || u.LeadActivityTypeID == leadDetailsTypeID) &&
-                     (string.IsNullOrEmpty(query)
-                      || EF.Functions.Like(u.ActivityDateTime.ToString(), $"%{query}%")
-                      || EF.Functions.Like(u.ActivityNote, $"%{query}%")
-                      || EF.Functions.Like(u.LeadActivityType.LeadActivityName, $"%{query}%")
-                     )
-          )
-          .OrderByDescending(e => e.ActivityDateTime)   // ORDER FIRST!
-          .Skip(skip)                            // THEN skip
-          .Take(pageSize)                        // THEN take
-          .Select(e => new LeadActivityVM
-          {
-              LeadDetailID = e.LeadDetailID,
-              ActivityDateTime = e.ActivityDateTime,
-              ActivityNote = e.ActivityNote,
-              FileLink = e.FileLink,
-              LeadActivityName = e.LeadActivityType.LeadActivityName,
-              LeadActivityIcon  = e.LeadActivityType.LeadActivityIcon,
-              CreatedByName = e.CreatedByNavigation != null
-                              ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}"
-                              : null,
-          })
-          .ToListAsync();
-            // 🔹 Single flag about the Lead
+            // 🔹 Fetch the lead first to get the LeadOwnerID
             var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == id);
-            if (leadObj != null)
+            if (leadObj == null)
             {
-                var isWon = leadObj.IsOwn;
                 return new LeadActivityResultVM
                 {
-                    IsWon = isWon,
-                    Activities = list
+                    IsWon = null,
+                    Activities = new List<LeadActivityVM>()
                 };
             }
-            return new LeadActivityResultVM();
 
+            var leadOwnerId = leadObj.LeadOwnerID;
+
+            // 🔹 Pre-calculate stats ONCE (not inside projection)
+            var totalLeads = await _leadsRepository.AllActive()
+                .Where(x => x.LeadOwnerID == leadOwnerId)
+                .CountAsync();
+
+            if (totalLeads == 0) totalLeads = 1; // avoid division by zero
+
+            var successCount = await _leadsRepository.AllActive()
+                .Where(x => x.LeadOwnerID == leadOwnerId && x.IsOwn == true)
+                .CountAsync();
+
+            var lostCount = await _leadsRepository.AllActive()
+                .Where(x => x.LeadOwnerID == leadOwnerId && x.IsOwn == false)
+                .CountAsync();
+
+            var cancelCount = await _leadsRepository.AllActive()
+                .Where(x => x.LeadOwnerID == leadOwnerId && x.IsOwn == null)
+                .CountAsync();
+
+            var successPercentage = (int)Math.Round(successCount * 100m / totalLeads);
+            var lostPercentage = (int)Math.Round(lostCount * 100m / totalLeads);
+            var cancelPercentage = (int)Math.Round(cancelCount * 100m / totalLeads);
+
+            // 🔹 Query lead details
+            var list = await _leadDetailsGenericRepository
+                .AllActive()
+                .Where(u => u.LeadID == id &&
+                           (leadDetailsTypeID == 0 || u.LeadActivityTypeID == leadDetailsTypeID) &&
+                           (string.IsNullOrEmpty(query)
+                            || EF.Functions.Like(u.ActivityDateTime.ToString(), $"%{query}%")
+                            || EF.Functions.Like(u.ActivityNote, $"%{query}%")
+                            || EF.Functions.Like(u.LeadActivityType.LeadActivityName, $"%{query}%")))
+                .OrderByDescending(e => e.ActivityDateTime)
+                .Skip(skip)
+                .Take(pageSize)
+                .Select(e => new LeadActivityVM
+                {
+                    LeadDetailID = e.LeadDetailID,
+                    ActivityDateTime = e.ActivityDateTime,
+                    ActivityNote = e.ActivityNote,
+                    FileLink = e.FileLink,
+                    LeadActivityName = e.LeadActivityType.LeadActivityName,
+                    LeadActivityIcon = e.LeadActivityType.LeadActivityIcon,
+                    CreatedByName = e.CreatedByNavigation != null
+                        ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}"
+                        : null,
+                })
+                .ToListAsync();
+
+            return new LeadActivityResultVM
+            {
+                IsWon = leadObj.IsOwn,
+                Activities = list,
+                  // ✅ Use precomputed stats
+                SuccessPercentage = successPercentage,
+                LostPercentage = lostPercentage,
+                CancelPercentage = cancelPercentage
+            };
         }
 
-        //ToDo: How to get user id
         // lead table source, status update service function
         public async Task<ReturnView> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM)
         {
@@ -286,70 +319,82 @@ namespace GCTL.Service.CRM.LeadDetail
                         Message = "Something went wrong"
                     };
                 }
-
-                var leadTypeID = leadTypeObj.LeadActivityTypeID;
-                var isWon = leadTypeObj.LeadActivityName == "Won";
-
-                if (leadTypeID == 0)
+                
+                if (leadObj.IsOwn == null && leadObj.ClosingDate == null)
                 {
-                    await _leadsRepository.RollbackTransactionAsync();
+                    var leadTypeID = leadTypeObj.LeadActivityTypeID;
+                    var isWon = leadTypeObj.LeadActivityName == "Won";
+
+                    if (leadTypeID == 0)
+                    {
+                        await _leadsRepository.RollbackTransactionAsync();
+                        return new ReturnView
+                        {
+                            Success = false,
+                            Message = "Something went wrong"
+                        };
+                    }
+
+                    if (leadObj.IsOwn == isWon)
+                    {
+                        await _leadsRepository.RollbackTransactionAsync();
+                        return new ReturnView
+                        {
+                            Success = false,
+                            Message = "Your status is already " + leadTypeObj.LeadActivityName
+                        };
+                    }
+
+                    var leadActivityObj = new GCTL.Data.Models.LeadDetails()
+                    {
+                        LeadID = leadObj.LeadID,
+                        ActivityDateTime = DateTime.UtcNow,
+                        LeadActivityTypeID = leadTypeID,
+                        ActivityNote = isWonVM.ActivityNote,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = isWonVM.CreatedBy,
+                        LIP = isWonVM.LIP,
+                        LMAC = isWonVM.LMAC,
+                    };
+                    await _leadDetailsGenericRepository.AddAsync(leadActivityObj);
+
+                    // Update lead status
+                    leadObj.IsOwn = isWon;
+                    leadObj.ClosingDate = DateTime.UtcNow;
+                    leadObj.UpdatedAt = DateTime.UtcNow;
+                    leadObj.UpdatedBy = isWonVM.UpdatedBy;
+
+                    await _leadsRepository.UpdateAsync(leadObj);
+
+                    await _leadsRepository.CommitTransactionAsync();
+
+
+
+                    var upcommingActivity = await _leadDetailsGenericRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.UtcNow).ToListAsync();
+                    upcommingActivity.ForEach(item =>
+                    {
+                        item.DeletedAt = DateTime.UtcNow;
+                        item.DeletedBy = isWonVM.DeletedBy;
+                        item.LIP = isWonVM.LIP;
+                        item.LMAC = isWonVM.LMAC;
+                    });
+                    await _leadDetailsGenericRepository.UpdateRangeAsync(upcommingActivity);
+
+                    return new ReturnView
+                    {
+                        Success = true,
+                        Message = "Lead status updated to " + leadTypeObj.LeadActivityName
+                    };
+                }
+                else
+                {
                     return new ReturnView
                     {
                         Success = false,
-                        Message = "Something went wrong"
+                        Message = "Please Restart Your Lead First"
                     };
                 }
-
-                if (leadObj.IsOwn == isWon)
-                {
-                    await _leadsRepository.RollbackTransactionAsync();
-                    return new ReturnView
-                    {
-                        Success = false,
-                        Message = "Your status is already " + leadTypeObj.LeadActivityName
-                    };
-                }
-
-                var leadActivityObj = new GCTL.Data.Models.LeadDetails()
-                {
-                    LeadID = leadObj.LeadID,
-                    ActivityDateTime = DateTime.UtcNow,
-                    LeadActivityTypeID = leadTypeID,
-                    ActivityNote = isWonVM.ActivityNote,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = isWonVM.CreatedBy,
-                    LIP = isWonVM.LIP,
-                    LMAC = isWonVM.LMAC,
-                };
-                await _leadDetailsGenericRepository.AddAsync(leadActivityObj);
-
-                // Update lead status
-                leadObj.IsOwn = isWon;
-                leadObj.ClosingDate = DateTime.UtcNow;
-                leadObj.UpdatedAt = DateTime.UtcNow;
-                leadObj.UpdatedBy = isWonVM.UpdatedBy;
-
-                await _leadsRepository.UpdateAsync(leadObj);
-
-                await _leadsRepository.CommitTransactionAsync();
-
-
-
-                var upcommingActivity = await _leadDetailsGenericRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.Now).ToListAsync();
-                upcommingActivity.ForEach(item =>
-                {
-                    item.DeletedAt = DateTime.Now;
-                    item.DeletedBy = isWonVM.DeletedBy;
-                    item.LIP = isWonVM.LIP;
-                    item.LMAC = isWonVM.LMAC;
-                });
-                await _leadDetailsGenericRepository.UpdateRangeAsync(upcommingActivity);
-
-                return new ReturnView
-                {
-                    Success = true,
-                    Message = "Lead status updated to " + leadTypeObj.LeadActivityName
-                };
+                
             }
             catch (Exception ex)
             {

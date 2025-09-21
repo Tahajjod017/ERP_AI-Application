@@ -46,7 +46,7 @@ namespace GCTL.Service.CRM.LeadsActivities
                 }
 
                 int skip = (page - 1) * itemPerPage;
-                var now = DateTime.Now;
+                var now = DateTime.UtcNow;
                 var today = DateTime.Today;
 
                 // ✅ Base query: Only current user, all future (from today)
@@ -152,7 +152,7 @@ namespace GCTL.Service.CRM.LeadsActivities
         {
             try
             {
-                var upcomingActivities = await _leadDetailsRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.Now)
+                var upcomingActivities = await _leadDetailsRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.UtcNow)
                    .OrderBy(u => u.ActivityDateTime)
                    .Select(u => new
                    {

@@ -9,8 +9,12 @@ $(function () {
         restoreBtn: '#restoreBtn2',
 
         wonBtn: '.special-btn:first',   // first .special-btn
-        lossBtn: '.special-btn:last',   // last .special-btn
-        cSpecialBtn: '.special-btn'
+        lostBtn: '.special-btn:last',   // last .special-btn
+        cSpecialBtn: '.special-btn',
+
+        successPercentage: '#successPercentage',
+        cancelPercentage: '#cancelPercentage',
+        lostPercentage: '#lostPercentage',
     }
 
     //=============================
@@ -22,7 +26,6 @@ $(function () {
     // Active option buttons
     // ==============================
     $(".option-btn").on('click', function () {
-        debugger;
         $(".option-btn").removeClass('active');
         $(this).addClass('active');
 
@@ -103,7 +106,6 @@ $(function () {
     // save lead activity function
     //==============================
     async function saveActivityFunction(e) {
-        debugger;
         const buttonName = $(".option-btn.active").text().trim();
         const buttonID = $(".option-btn.active").data('id');
         const leadID = $(ids.leadID).val();
@@ -112,7 +114,6 @@ $(function () {
         const fileInput = $(ids.file)[0];
         const file = fileInput ? fileInput.files[0] : null;
 
-        debugger;
         // run validation
         if (!validation(buttonName)) return;
 
@@ -144,7 +145,6 @@ $(function () {
             contentType: false,
             processData: false,
             success: async function (response) {
-                debugger;
                 if (response.success) {
                     toastr.success(response.message);
                     await updateActivate();
@@ -159,14 +159,12 @@ $(function () {
 
                     
                     if (isWon === true && isWonOrLostBtnSelected) {
-                        showCustomToaster.success("Lead won added!");
+                        customToaster.success("Congratulations! Lead won successfully.");
                         makeDisabledState();
                     } if (isWon === false && isWonOrLostBtnSelected) {
-                        showCustomToaster.success("Lead Lost added!");
-                        $(ids.addActiveBtn).prop('disabled', true);
-
+                        customToaster.success("Lead marked as Lost successfully.");
+                        makeDisabledState();
                     }
-                    
                 } else {
                     toastr.error(response.message);
                 }
@@ -177,26 +175,6 @@ $(function () {
             }
         });
     }
-    // Helper: show Bootstrap 5.1 modal and return a Promise
-    //function showConfirmationModal() {
-    //    return new Promise((resolve) => {
-    //        const modalEl = document.getElementById('confirmModal');
-    //        const bsModal = new bootstrap.Modal(modalEl);
-    //        bsModal.show();
-
-    //        // Yes button
-    //        $('#modalYesBtn').off('click').one('click', () => {
-    //            bsModal.hide();
-    //            resolve(true);
-    //        });
-
-    //        // No button
-    //        $('#modalNoBtn').off('click').one('click', () => {
-    //            bsModal.hide();
-    //            resolve(false);
-    //        });
-    //    });
-    //}
 
     // ==================
     // save activity
@@ -327,6 +305,9 @@ $(function () {
                 contentType: 'application/json',
                 data: { id, query: search, page, type: typeD },
                 success: function (response) {
+                    $(ids.successPercentage).text(response.successPercentage);
+                    $(ids.lostPercentage).text(response.lostPercentage);
+                    $(ids.cancelPercentage).text(response.cancelPercentage);
 
                     // show or hide upcoming activity or add acitivity
                     $("#activity-label").text(tabName);
@@ -336,7 +317,6 @@ $(function () {
                     } else {
                         $("#all-activity-div").removeClass("d-none");
                     }
-                    debugger;
                     // select won/lost/nothing todo 
                     $(ids.cSpecialBtn).removeClass('active2');
                     isWon = response.isWon;
@@ -346,13 +326,14 @@ $(function () {
                         makeDisabledState();
                     }
                     else if (response.isWon == false) {
-                        $(ids.lossBtn).addClass('active2');
+                        $(ids.lostBtn).addClass('active2');
                         makeDisabledState();
                     }
 
                     if (response.isWon === true || response.isWon === false) {
                         $(ids.restoreBtn).removeClass('d-none');
                         //$(ids.addActiveBtn).removeAttr('disabled');
+                        makeDisabledState();
                     } else {
                         $(ids.restoreBtn).addClass('d-none');
                     }
@@ -385,9 +366,20 @@ $(function () {
     function makeDisabledState() {
         $(ids.addActiveBtn).prop('disabled', true);
         $("#optionBtnDiv .option-btn").prop('disabled', true);
+        $(ids.wonBtn).prop('disabled', true);
+        $(ids.lostBtn).prop('disabled', true);
+        $(ids.note).prop('disabled', true);
+        $(ids.date).prop('disabled', true);
+        $(ids.file).prop('disabled', true);
     }
     function makeEnableState() {
-
+        $(ids.addActiveBtn).removeAttr('disabled');
+        $("#optionBtnDiv .option-btn").removeAttr('disabled');
+        $(ids.wonBtn).removeAttr('disabled');
+        $(ids.lostBtn).removeAttr('disabled');
+        $(ids.note).removeAttr('disabled');
+        $(ids.date).removeAttr('disabled');
+        $(ids.file).removeAttr('disabled');
     }
     // ==============================
     // Fetch upcoming activity data
@@ -402,7 +394,13 @@ $(function () {
             contentType: 'application/json',
             data: { id, page },
             success: function (response) {
-               
+                debugger;
+                if (!response || response.length === 0 && loadedIds2.size == 0) {
+                    $("#upcomming-div").addClass("d-none");
+                    return;
+
+                }
+                  
                 if (!response || response.length === 0) {
                     noMoreDataDown2 = true;
                     //$("#upcomming-div").addClass("d-none");
@@ -835,38 +833,39 @@ $(function () {
     }
 
     // ==========================
-    // option button on click
+    // option button on click clear all validation
     // ===========================
     $('.option-btn').on('click', function () {
         clearAllValidationBorders();
     })
 
-    $(document).on("click", ids.restoreBtn, function () {
-        let leadId = $(ids.leadID).val();
-        $.ajax({
-            url: '/LeadDetails/RestoreLead',
-            method: 'POST',
-            data: { id: leadId },
-            success: function (response) {
+    $(document).on("click", ids.restoreBtn,async function () {
+ 
+            const confirmed = await customToaster.confirm("Do you want to restart this Lead?");
+            if (confirmed) {
+                let leadId = $(ids.leadID).val();
+                $.ajax({
+                    url: '/LeadDetails/RestoreLead',
+                    method: 'POST',
+                    data: { id: leadId },
+                    success: function (response) {
+                        if (response.success) {
+                            customToaster.success(response.message);
+                            resetAndReloadUpcoming();
+                            resetAndReload();
+                            makeEnableState();
 
-                if (response.success) {
-                    showCustomToaster.success(response.message);
-                    resetAndReloadUpcoming();
-                    resetAndReload();
-                    $(ids.addActiveBtn).removeAttr('disabled');
-                    $(ids.addActiveBtn).removeAttr('disabled');
-                    $("#optionBtnDiv .option-btn").removeAttr('disabled');
-
-                } else {
-                    toastr.error(response.message);
-                }
-            },
-            error: function (xhr) {
-                toastr.error("Error restoring lead");
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        toastr.error("Error restoring lead");
+                    }
+                });
             }
+            else customToaster.error("Cancelled!");
         });
-    });
+        
 
-
-    
 });
