@@ -5,13 +5,21 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Attendance
+public partial class DailyAttendanceStatus
 {
-    public int AttendanceID { get; set; }
+    public int DailyAttendanceStatusID { get; set; }
 
     public int? EmployeeID { get; set; }
 
     public DateOnly AttendanceDate { get; set; }
+
+    public int? CreatedBy { get; set; }
+
+    public int? UpdatedBy { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
 
     public int? StatusID { get; set; }
 
@@ -22,24 +30,6 @@ public partial class Attendance
     public DateTime? CheckOutTime { get; set; }
 
     public string Remarks { get; set; }
-
-    public string LIP { get; set; }
-
-    public string LMAC { get; set; }
-
-    public int? CreatedBy { get; set; }
-
-    public int? UpdatedBy { get; set; }
-
-    public DateTime? CreatedAt { get; set; }
-
-    public DateTime? UpdatedAt { get; set; }
-
-    public DateTime? DeletedAt { get; set; }
-
-    public int? DeletedBy { get; set; }
-
-    public bool? IsChecked { get; set; }
 
     public int? OfficeTimeMinutes { get; set; }
 
@@ -57,11 +47,7 @@ public partial class Attendance
 
     public int? LateOutTimeMinutes { get; set; }
 
-    public virtual ICollection<AttendanceLog> AttendanceLog { get; set; } = new List<AttendanceLog>();
-
     public virtual Employees CreatedByNavigation { get; set; }
-
-    public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees Employee { get; set; }
 

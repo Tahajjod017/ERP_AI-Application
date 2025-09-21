@@ -33,6 +33,8 @@ public partial class Statuses
 
     public virtual Employees CreatedByNavigation { get; set; }
 
+    public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatus { get; set; } = new List<DailyAttendanceStatus>();
+
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<EmployeeCareerChangeHistory> EmployeeCareerChangeHistory { get; set; } = new List<EmployeeCareerChangeHistory>();

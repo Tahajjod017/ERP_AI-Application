@@ -131,6 +131,8 @@
                     StartTime: $('#StartTime').val(),
                     EndTime: $('#EndTime').val(),
                     IsLateCount: $('#IsLateCount').prop('checked'),
+                    IsFlexibleInTime: $('#IsFlexibleInTime').prop('checked'),
+                    PunchCountFrom: $('#PunchCountFrom').val(),
                     IsAutomaticORManualBreakTime: $('#IsAutomaticORManualBreakTime').prop('checked'),
                     IsMealBreakCompulsaryOrComplementaryDeductWithShift: $('input[name=IsMealBreakCompulsaryOrComplementaryDeductWithShift]:checked').val() === "true",
                     IsAllowStartAndEndTime: $('#IsAllowStartAndEndTime').prop('checked'),
@@ -200,6 +202,8 @@
                     UpdateStartTime: $('#UpdateStartTime').val(),
                     UpdateEndTime: $('#UpdateEndTime').val(),
                     UpdateIsLateCount: $('#UpdateIsLateCount').prop('checked'),
+                    UpdateIsFlexibleInTime: $('#UpdateIsFlexibleInTime').prop('checked'),
+                    UpdatePunchCountFrom: $('#UpdatePunchCountFrom').val(),
                     UpdateIsAutomaticORManualBreakTime: $('#UpdateIsAutomaticORManualBreakTime').prop('checked'),
                     UpdateIsMBCompulsaryOrComplementaryDeductWithShift: $('input[name=UpdateIsMBCompulsaryOrComplementaryDeductWithShift]:checked').val() === "true",
                     UpdateIsAllowStartAndEndTime: $('#UpdateIsAllowStartAndEndTime').prop('checked'),
@@ -272,6 +276,12 @@
                             } else {
                                 $('#addShift-UpdateGraceTimeDiv').addClass('d-none');
                             }
+                            $(settings.updateform).find('#UpdateIsFlexibleInTime').prop('checked', data.updateIsFlexibleInTime);
+                            if ($('#UpdateIsFlexibleInTime').is(':checked')) {
+                                $('#addShift-UpdatePunchCountFromDiv').addClass('d-none');
+                            } else {
+                                $('#addShift-UpdatePunchCountFromDiv').removeClass('d-none');
+                            }
                             $(settings.updateform).find('#UpdateIsAutomaticORManualBreakTime').prop('checked', data.updateIsAutomaticORManualBreakTime);
                             if ($('#UpdateIsAutomaticORManualBreakTime').is(':checked')) {
                                 $('#addShift-UpdateBreakTimeDiv').removeClass('d-none');
@@ -302,6 +312,7 @@
                                 $('#addShift-UpdateDisableOvertime').addClass('d-none');
                             }
                             $(settings.updateform).find('#UpdateGraceTime').val(data.updateGraceTime);
+                            $(settings.updateform).find('#UpdatePunchCountFrom').val(data.updatePunchCountFrom);
                             $(settings.updateform).find('#UpdateMinimumWorkingTime').val(data.updateMinimumWorkingTime);
                             $(settings.updateform).find('#UpdateMinimumRequiredOvertime').val(data.updateMinimumRequiredOvertime);
                             $(settings.updateform).find('#UpdateMaximumAllowedOvertime').val(data.updateMaximumAllowedOvertime);
@@ -512,6 +523,16 @@
                 }
             });
 
+            $('#IsFlexibleInTime').on('change', function (e) {
+                e.preventDefault();
+
+                if ($(this).is(':checked')) {
+                    $('#addShift-PunchCountFromDiv').addClass('d-none');
+                } else {
+                    $('#addShift-PunchCountFromDiv').removeClass('d-none');
+                }
+            });
+
             $('#IsAutomaticORManualBreakTime').on('change', function (e) {
                 e.preventDefault();
 
@@ -598,6 +619,10 @@
                 
                 $('#UpdateIsLateCount').on('change', function () {
                     $('#addShift-UpdateGraceTimeDiv').toggleClass('d-none', !this.checked);
+                });
+
+                $('#UpdateIsFlexibleInTime').on('change', function () {
+                    $('#addShift-UpdatePunchCountFromDiv').toggleClass('d-none', this.checked);
                 });
 
                 $('#UpdateIsAutomaticORManualBreakTime').on('change', function () {

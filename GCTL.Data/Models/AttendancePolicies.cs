@@ -5,15 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class AttendanceLog
+public partial class AttendancePolicies
 {
-    public int AttendanceLogID { get; set; }
+    public int AttendancePolicyID { get; set; }
 
-    public int? AttendanceID { get; set; }
-
-    public DateTime PunchTime { get; set; }
-
-    public string SourceType { get; set; }
+    public int? OrganizationID { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,19 +27,11 @@ public partial class AttendanceLog
 
     public int? DeletedBy { get; set; }
 
-    public string DeviceSN { get; set; }
-
-    public DateTime? CHECKTIME_UTC { get; set; }
-
-    public string Latitude { get; set; }
-
-    public string Longitude { get; set; }
-
-    public virtual Attendance Attendance { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

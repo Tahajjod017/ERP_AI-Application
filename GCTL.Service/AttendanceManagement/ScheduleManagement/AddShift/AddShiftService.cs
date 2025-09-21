@@ -192,6 +192,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         existingEntity.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
                         existingEntity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
                         existingEntity.MealBreakTime = model.MealBreakTime;
+                        existingEntity.IsFlexibleInTime = model.IsFlexibleInTime;
+                        existingEntity.PunchCountFrom = model.PunchCountFrom;
 
                         existingEntity.CreatedAt = DateTime.Now;
                         existingEntity.CreatedBy = model.CreatedBy;
@@ -224,6 +226,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         entity.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
                         entity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
                         entity.MealBreakTime = model.MealBreakTime;
+                        entity.IsFlexibleInTime = model.IsFlexibleInTime;
+                        entity.PunchCountFrom = model.PunchCountFrom;
                         entity.CreatedAt = DateTime.Now;
                         entity.CreatedBy = model.CreatedBy ?? null;
                         entity.LIP = model.LIP;
@@ -284,6 +288,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 entity.MinimumRequiredOvertime = model.UpdateMinimumRequiredOvertime;
                 entity.MaximumAllowedOvertime = model.UpdateMaximumAllowedOvertime;
                 entity.MealBreakTime = model.UpdateMealBreakTime;
+                entity.IsFlexibleInTime = model.UpdateIsFlexibleInTime;
+                entity.PunchCountFrom = model.UpdatePunchCountFrom;
 
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -333,6 +339,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     UpdateMinimumRequiredOvertime = data.MinimumRequiredOvertime,
                     UpdateMaximumAllowedOvertime = data.MaximumAllowedOvertime,
                     UpdateMealBreakTime = data.MealBreakTime,
+                    UpdateIsFlexibleInTime = data.IsFlexibleInTime,
+                    UpdatePunchCountFrom = data.PunchCountFrom,
                 };
             }
             catch (Exception ex)
@@ -452,6 +460,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     MinimumRequiredOvertime = x.MinimumRequiredOvertime,
                     MaximumAllowedOvertime = x.MaximumAllowedOvertime,
                     MealBreakTime = x.MealBreakTime,
+                    IsFlexibleInTime = x.IsFlexibleInTime,
+                    PunchCountFrom = x.PunchCountFrom
                 });
 
             return result;
