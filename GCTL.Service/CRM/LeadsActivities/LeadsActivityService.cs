@@ -27,7 +27,10 @@ namespace GCTL.Service.CRM.LeadsActivities
             string sort,
             string direction,
             string dateRange,
-            int? userID)   // current user ID
+            int? userID,
+            int? CustomerTypeID, 
+            string? LeadStatusID
+            )   // current user ID
         {
             try
             {
@@ -46,7 +49,7 @@ namespace GCTL.Service.CRM.LeadsActivities
                 }
 
                 int skip = (page - 1) * itemPerPage;
-                var now = DateTime.Now;
+                var now = DateTime.UtcNow;
                 var today = DateTime.Today;
 
                 // ✅ Base query: Only current user, all future (from today)
@@ -89,14 +92,24 @@ namespace GCTL.Service.CRM.LeadsActivities
                     }
                 }
 
-                // ✅ Search filter
                 if (!string.IsNullOrEmpty(search))
                 {
-                    query = query.Where(u =>
-                        EF.Functions.Like(u.ActivityNote, $"%{search}%") ||
-                        EF.Functions.Like(u.ActivityDateTime, $"%{search}%") ||
-                        EF.Functions.Like(u.CreatedAt, $"%{search}%"));
+                    if (DateTime.TryParse(search, out var searchDate))
+                    {
+                        query = query.Where(u =>
+                            EF.Functions.Like(u.ActivityNote, $"%{search}%") ||
+                            u.ActivityDateTime == searchDate.Date ||
+                            u.CreatedAt == searchDate.Date
+                        );
+                    }
+                    else
+                    {
+                        query = query.Where(u =>
+                            EF.Functions.Like(u.ActivityNote, $"%{search}%")
+                        );
+                    }
                 }
+
 
                 var totalSearchItem = await query.CountAsync();
 
@@ -152,7 +165,7 @@ namespace GCTL.Service.CRM.LeadsActivities
         {
             try
             {
-                var upcomingActivities = await _leadDetailsRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.Now)
+                var upcomingActivities = await _leadDetailsRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.UtcNow)
                    .OrderBy(u => u.ActivityDateTime)
                    .Select(u => new
                    {
