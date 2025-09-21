@@ -48,6 +48,10 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 
         public TimeOnly? UpdateMealBreakTime { get; set; }
 
+        public bool UpdateIsFlexibleInTime { get; set; }
+
+        public TimeOnly? UpdatePunchCountFrom { get; set; }
+
 
         public IList<OrganizationsVM>? OrganizationsVMs { get; set; } = new List<OrganizationsVM>();
     }

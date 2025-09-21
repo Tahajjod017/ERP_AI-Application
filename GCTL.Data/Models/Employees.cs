@@ -141,6 +141,12 @@ public partial class Employees
 
     public virtual ICollection<AttendanceLog> AttendanceLogUpdatedByNavigation { get; set; } = new List<AttendanceLog>();
 
+    public virtual ICollection<AttendancePolicies> AttendancePoliciesCreatedByNavigation { get; set; } = new List<AttendancePolicies>();
+
+    public virtual ICollection<AttendancePolicies> AttendancePoliciesDeletedByNavigation { get; set; } = new List<AttendancePolicies>();
+
+    public virtual ICollection<AttendancePolicies> AttendancePoliciesUpdatedByNavigation { get; set; } = new List<AttendancePolicies>();
+
     public virtual ICollection<Attendance> AttendanceUpdatedByNavigation { get; set; } = new List<Attendance>();
 
     public virtual ICollection<BenefitSetups> BenefitSetupsCreatedByNavigation { get; set; } = new List<BenefitSetups>();
@@ -244,6 +250,12 @@ public partial class Employees
     public virtual ICollection<Customers> CustomersDeletedByNavigation { get; set; } = new List<Customers>();
 
     public virtual ICollection<Customers> CustomersUpdatedByNavigation { get; set; } = new List<Customers>();
+
+    public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatusCreatedByNavigation { get; set; } = new List<DailyAttendanceStatus>();
+
+    public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatusEmployee { get; set; } = new List<DailyAttendanceStatus>();
+
+    public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatusUpdatedByNavigation { get; set; } = new List<DailyAttendanceStatus>();
 
     public virtual ICollection<DefaultShifts> DefaultShiftsCreatedByNavigation { get; set; } = new List<DefaultShifts>();
 

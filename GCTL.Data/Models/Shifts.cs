@@ -57,9 +57,15 @@ public partial class Shifts
 
     public TimeOnly? MealBreakTime { get; set; }
 
+    public bool IsFlexibleInTime { get; set; }
+
+    public TimeOnly? PunchCountFrom { get; set; }
+
     public virtual ICollection<Attendance> Attendance { get; set; } = new List<Attendance>();
 
     public virtual Employees CreatedByNavigation { get; set; }
+
+    public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatus { get; set; } = new List<DailyAttendanceStatus>();
 
     public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
 

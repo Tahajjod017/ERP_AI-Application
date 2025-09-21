@@ -4,9 +4,7 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-
-   "MinimumProductVersion": "2.6.0",
-
+   "MinimumProductVersion": "2.6.1080",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -451,6 +449,14 @@
       },
       {
          "Name": "[dbo].[YearlyEndBonusTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[AttendancePolicies]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[DailyAttendanceStatus]",
          "ObjectType": 0
       },
       {
