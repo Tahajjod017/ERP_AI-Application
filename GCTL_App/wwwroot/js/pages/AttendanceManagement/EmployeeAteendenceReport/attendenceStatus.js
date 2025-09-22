@@ -519,6 +519,7 @@ $(document).ready(function () {
     fetchPunchActivityData();
     AttendancePieChar();
     renderAttendanceBarChartController();
+    renderAttendanceComparetController();
 });
 
 
@@ -680,6 +681,27 @@ function renderAttendanceCompareChart(data) {
     window.addEventListener('resize', myChart.resize);
 }
 
+function renderAttendanceComparetController() {
+    $.ajax({
+        url: '/EmployeesAttendance/GetCompareMonth',  // Your backend endpoint to fetch the pre-calculated session data
+        type: 'GET',  // HTTP method (GET, POST, etc.)
+        dataType: 'json',  // Expected response type
+        success: function (response) {
+            if (response) {
+                // Update session hours using pre-calculated data
+                //  updateAttendancePieChart(response.present, response.absent, response.late, response.early);
+                renderAttendanceCompareChart(response);
+
+            } else {
+                console.error("Invalid data received");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching session data: ", error);
+        }
+    });
+}
+
 // Example of passing dynamic data as a JSON object
 var jsonData = {
     "you": [16, 3, 3, 2],      // Data for "You"
@@ -687,7 +709,7 @@ var jsonData = {
 };
 
 // Call the function with the dynamic data (this can be done on the fly)
-renderAttendanceCompareChart(jsonData);
+//renderAttendanceCompareChart(jsonData);
 
 // linechart1
 
