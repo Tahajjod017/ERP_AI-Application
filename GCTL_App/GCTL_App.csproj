@@ -64,7 +64,7 @@
     <Folder Include="Views\LeadSources\" />
     <Folder Include="wwwroot\img\companyImages\" />
     <Folder Include="wwwroot\js\pages\ProjectManagements\" />
-    <Folder Include="wwwroot\uploads\employee\signatures\" />
+    <Folder Include="wwwroot\media\company\logo\" />
 
   </ItemGroup>
 
@@ -81,7 +81,7 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Update="wwwroot\uploads\employee\images\MdShefain.jpg">
+    <Content Update="wwwroot\media\employee\images\MdShefain.jpg">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
