@@ -80,6 +80,7 @@ using GCTL.Service.MasterSetup.EmployeeTypes;
 using GCTL.Service.MasterSetup.EmploymentNatures;
 using GCTL.Service.MasterSetup.Gender;
 using GCTL.Service.MasterSetup.Grades;
+using GCTL.Service.MasterSetup.LeadActivityType;
 using GCTL.Service.MasterSetup.LeadSource;
 using GCTL.Service.MasterSetup.LeadStatus;
 using GCTL.Service.MasterSetup.LeadStatuses;
@@ -297,6 +298,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeadDetailsService, LeadDetailsService>();
             services.AddScoped<IPriorityService, PriorityService>();
             services.AddScoped<ILeadsActivityService, LeadsActivityService>();
+            services.AddScoped<ILeadActivityTypeService, LeadActivityTypeService>();
             #endregion
         }
     }

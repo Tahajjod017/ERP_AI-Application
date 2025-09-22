@@ -1,14 +1,14 @@
 ﻿(function ($) {
-    $.leadStatus = function (options) {
+    $.leadActivityType = function (options) {
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            form: '#leadStatus-form',
-            saveBtn: '#leadStatus-saveBtn',
-            editBtn: '#leadStatus-editBtn',
-            resetBtn: '#leadStatus-resetBtn',
-            bulkDelBtn: '#leadStatus-bulkDelBtn',
-            singleDeleteBtn: '#leadStatus-singleDelBtn',
+            form: '#leadActivityType-form',
+            saveBtn: '#leadActivityType-saveBtn',
+            editBtn: '#leadActivityType-editBtn',
+            resetBtn: '#leadActivityType-resetBtn',
+            bulkDelBtn: '#leadActivityType-bulkDelBtn',
+            singleDeleteBtn: '#leadActivityType-singleDelBtn',
         }, options);
 
         var gridUrl = settings.baseUrl + "/GetAll";
@@ -19,27 +19,28 @@
         var uniqueNameUrl = settings.baseUrl + '/CheckNameUnique';
         $(() => {
 
-            $('#leadStatus-saveBtn').on('click', function (e) {
+            $('#leadActivityType-saveBtn').on('click', function (e) {
                 e.preventDefault();
                 debugger;
-                var token = $('#leadStatus-form input[name="__RequestVerificationToken"]').val();
-                const isSpecial = $("#IsSpecial").is(":checked");
-                showDev(isSpecial);
-                var formData = {
-                    __RequestVerificationToken: token,
-                    LeadStatusID: $('#LeadStatusID').val(),
-                    LeadStatusName: $('#LeadStatusName').val(),
-                    IsSpecial: isSpecial,
-                }
+                var token = $('#leadActivityType-form input[name="__RequestVerificationToken"]').val();
 
+                var formData = {
+                    
+                    __RequestVerificationToken: token,
+                    LeadActivityTypeID: $('#LeadActivityTypeID').val(),
+                    LeadActivityName: $('#LeadActivityName').val(),
+                    LeadActivityIcon: $('#LeadActivityIcon').val(),
+                    UseFor: $('#UseFor').val(),
+                }
+                showDev(formData);
                 validateName();
 
-                var id = $('#leadStatus-form #LeadStatusID').val();
+                var id = $('#leadActivityType-form #LeadActivityTypeID').val();
                 var url = '';
                 if (id > 0) {
-                    url = '/LeadStatuses/Update';
+                    url = '/LeadActivityTypes/Update';
                 } else {
-                    url = '/LeadStatuses/Create';
+                    url = '/LeadActivityTypes/Create';
                 }
 
                 $.ajax({
@@ -50,6 +51,7 @@
                         if (data.isSuccess) {
                             toastr.success(data.message);
                             clear();
+                            choiceManager.resetAllChoices();
                         } else {
                             toastr.info(data.message);
                         }
@@ -61,23 +63,28 @@
             });
 
 
-            $(document).on('click', '#leadStatus-edit', function (e) {
+            $(document).on('click', '#leadActivityType-edit', function (e) {
                 e.preventDefault();
 
                 var id = $(this).data('id');
 
-
                 $.ajax({
-                    url: '/LeadStatuses/GetById',
+                    url: '/LeadActivityTypes/GetById',
                     method: 'GET',
                     data: { id: id },
                     success: function (response) {
                         if (response.isSuccess) {
+                            debugger;
                             var data = response.data;
-                            $('#leadStatus-form #LeadStatusID').val(data.leadStatusID);
-                            $('#leadStatus-form #LeadStatusName').val(data.leadStatusName);
+                            $('#leadActivityType-form #LeadActivityTypeID').val(data.leadActivityTypeID);
+                            $('#leadActivityType-form #LeadActivityName').val(data.leadActivityName);
+                            $('#leadActivityType-form #LeadActivityIcon').val(data.leadActivityIcon);
+                            //$('#leadActivityType-form #UseFor').val(data.useFor);
 
-                            $('#leadStatus-form #leadStatus-saveBtn').text('Update');
+                            choiceManager.setChoiceValue('UseFor', data.useFor)
+                            //$('#leadActivityType-form #UseFor').val(data.useFor);
+                            
+                            $('#leadActivityType-form #leadActivityType-saveBtn').text('Update');
                         } else {
                             toastr.warning(response.message);
                         }
@@ -87,18 +94,18 @@
 
 
 
-            $("#leadStatus-delSel").on('click', function () {
-                var selectedItems = $(".leadStatus-selectItem:checked");
+            $("#leadActivityType-delSel").on('click', function () {
+                var selectedItems = $(".leadActivityType-selectItem:checked");
                 var selectedIds = [];
 
                 selectedItems.each(function () {
                     selectedIds.push($(this).data('id'));
                 });
-
+                
                 if (selectedIds.length > 0) {
                     showDeleteModal(function () {
                         $.ajax({
-                            url: '/LeadStatuses/SoftDelete',
+                            url: '/LeadActivityTypes/SoftDelete',
                             method: 'POST',
                             data: { ids: selectedIds },
                             success: function (response) {
@@ -119,18 +126,17 @@
                 }
             });
 
-            $(document).on('click', '#leadStatus-single-delete', function () {
+            $(document).on('click', '#leadActivityType-single-delete', function () {
+                debugger;
                 var id = $(this).data('id');
-
-
+                showDev(id)
                 if (id) {
                     showDeleteModal(function () {
                         $.ajax({
-                            url: '/LeadStatuses/SoftDelete',
+                            url: '/LeadActivityTypes/SoftDelete',
                             method: 'POST',
-                            data: { ids: [id] },
+                            data: { Ids: [id] },
                             success: function (response) {
-
                                 if (response.isSuccess) {
                                     toastr.success(response.message);
                                     clear();
@@ -151,13 +157,13 @@
 
 
 
-            $('#leadStatus-resetBtn').on('click', function () {
+            $('#leadActivityType-resetBtn').on('click', function () {
                 clear();
             })
 
             function clear() {
-                $('#leadStatus-form')[0].reset();
-                $('#LeadStatusID').val('0');
+                $('#leadActivityType-form')[0].reset();
+                $('#LeadActivityTypeID').val('0');
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -165,27 +171,27 @@
                         $(this).css('border-color', '#ccc');
                     }
                 });
-                $('#leadStatus-form #leadStatus-saveBtn').text('Save');
-                $("#leadStatus-check-all").prop('checked', false);
-                $('.leadStatus-selectItem').prop('checked', false);
+                $('#leadActivityType-form #leadActivityType-saveBtn').text('Save');
+                $("#leadActivityType-check-all").prop('checked', false);
+                $('.leadActivityType-selectItem').prop('checked', false);
                 loadTableData();
                 toggleBulkActions();
-                $('#leadStatus-check-all').prop('checked', false).prop('indeterminate', false);
+                $('#leadActivityType-check-all').prop('checked', false).prop('indeterminate', false);
             }
 
 
-            $('#LeadStatusName').on('input', function () {
+            $('#LeadActivityName').on('input', function () {
                 validateName();
             });
 
 
             function validateName() {
-                var name = $('#LeadStatusName').val().trim();
+                var name = $('#LeadActivityName').val().trim();
 
                 if (name === '') {
-                    $('#LeadStatusName').css('border', '1px solid red');
+                    $('#LeadActivityName').css('border', '1px solid red');
                 } else {
-                    $('#LeadStatusName').css('border', '1px solid #ccc');
+                    $('#LeadActivityName').css('border', '1px solid #ccc');
                 }
             }
 
@@ -195,20 +201,20 @@
             });
 
             function checkNameUnique() {
-                $('#LeadStatusName').on('input', function () {
+                $('#LeadActivityName').on('input', function () {
                     var value = $(this).val();
 
                     $.ajax({
-                        url: '/LeadStatuses/CheckNameUnique',
+                        url: '/LeadActivityTypes/CheckNameUnique',
                         type: 'POST',
                         data: { name: value },
                         success: function (response) {
                             if (response === true) {
                                 $('#nameError').hide();
-                                $('input[name="LeadStatusName"]').removeClass('is-invalid');
+                                $('input[name="LeadActivityName"]').removeClass('is-invalid');
                             } else {
                                 $('#nameError').text(response).show();
-                                $('input[name="LeadStatusName"]').addClass('is-invalid');
+                                $('input[name="LeadActivityName"]').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
@@ -223,38 +229,38 @@
 
 
             $(document).ready(function () {
-                $('#leadStatus-check-all').on('change', function () {
+                $('#leadActivityType-check-all').on('change', function () {
                     var isChecked = $(this).prop('checked');
-                    $('.leadStatus-selectItem').prop('checked', isChecked);
+                    $('.leadActivityType-selectItem').prop('checked', isChecked);
 
                     toggleBulkActions();
                 });
 
-                $(document).on('change', '.leadStatus-selectItem', function () {
+                $(document).on('change', '.leadActivityType-selectItem', function () {
                     toggleBulkActions();
                 });
             });
 
             function toggleBulkActions() {
-                const allItems = $('.leadStatus-selectItem');
-                const checkedItems = $('.leadStatus-selectItem:checked');
+                const allItems = $('.leadActivityType-selectItem');
+                const checkedItems = $('.leadActivityType-selectItem:checked');
 
                 const allChecked = allItems.length === checkedItems.length;
                 const someChecked = checkedItems.length > 0 && !allChecked;
 
-                $('#leadStatus-check-all').prop('checked', allChecked);
-                $('#leadStatus-check-all').prop('indeterminate', someChecked);
+                $('#leadActivityType-check-all').prop('checked', allChecked);
+                $('#leadActivityType-check-all').prop('indeterminate', someChecked);
 
                 if (checkedItems.length > 1) {
-                    $('#leadStatus-bulkSelectActions').removeClass('d-none');
-                    $('#leadStatus-searchBox').addClass('d-none');
-                    $('.leadStatus-bulkDelete').addClass('disabled');
-                    $('.leadStatus-bulkEdit').addClass('disabled');
+                    $('#leadActivityType-bulkSelectActions').removeClass('d-none');
+                    $('#leadActivityType-searchBox').addClass('d-none');
+                    $('.leadActivityType-bulkDelete').addClass('disabled');
+                    $('.leadActivityType-bulkEdit').addClass('disabled');
                 } else {
-                    $('#leadStatus-bulkSelectActions').addClass('d-none');
-                    $('#leadStatus-searchBox').removeClass('d-none');
-                    $('.leadStatus-bulkDelete').removeClass('disabled');
-                    $('.leadStatus-bulkEdit').removeClass('disabled');
+                    $('#leadActivityType-bulkSelectActions').addClass('d-none');
+                    $('#leadActivityType-searchBox').removeClass('d-none');
+                    $('.leadActivityType-bulkDelete').removeClass('disabled');
+                    $('.leadActivityType-bulkEdit').removeClass('disabled');
                 }
             }
 
@@ -266,7 +272,7 @@
         var currentPage = 1;
         var pageSize = 5;
 
-        $('#leadStatus-pageSizeSelect').on('change', function () {
+        $('#leadActivityType-pageSizeSelect').on('change', function () {
             var selectedSize = $(this).val();
 
             if (selectedSize) {
@@ -280,26 +286,26 @@
         $(document).ready(function () {
             loadTableData();
 
-            $("#leadStatus-searchInput").on("input", function () {
+            $("#leadActivityType-searchInput").on("input", function () {
                 currentPage = 1;
                 loadTableData();
             });
 
-            $("#leadStatus-prevPageBtn").on('click', function () {
+            $("#leadActivityType-prevPageBtn").on('click', function () {
                 if (currentPage > 1) {
                     currentPage--;
                     loadTableData();
                 }
             });
 
-            $("#leadStatus-nextPageBtn").on('click', function () {
+            $("#leadActivityType-nextPageBtn").on('click', function () {
                 currentPage++;
                 loadTableData();
             });
         });
 
 
-        let currentSortColumn = 'LeadStatusName';
+        let currentSortColumn = 'LeadActivityName';
         let currentSortOrder = 'asc';
 
         $('th.sort').on('click', function () {
@@ -334,10 +340,10 @@
 
 
         function loadTableData(sortColumn, sortOrder) {
-            var searchTerm = $("#leadStatus-searchInput").val();
+            var searchTerm = $("#leadActivityType-searchInput").val();
 
             $.ajax({
-                url: '/LeadStatuses/GetAll',
+                url: '/LeadActivityTypes/GetAll',
                 method: 'GET',
                 data: {
                     pageNumber: currentPage,
@@ -347,7 +353,8 @@
                     sortOrder: sortOrder
                 },
                 success: function (response) {
-                    var tableBody = $("#leadStatus-tBody");
+                    showDev(response);
+                    var tableBody = $("#leadActivityType-tBody");
                     tableBody.empty();
                     if (response.data.length > 0) {
                         response.data.forEach(function (item, index) {
@@ -355,14 +362,16 @@
                             tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input leadStatus-selectItem" data-id="${item.leadStatusID}" />
+                                <input type="checkbox" class="form-check-input leadActivityType-selectItem" data-id="${item.leadActivityTypeID}" />
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.leadStatusName}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.leadActivityName}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.leadActivityIcon}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.useFor}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 leadStatus-bulkDelete" href="#!" id="leadStatus-edit" data-id="${item.leadStatusID}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 leadStatus-bulkEdit" href="#!" id="leadStatus-single-delete" data-id="${item.leadStatusID}"><span class="fas fa-trash"></span></a>
+                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 leadActivityType-bulkDelete" href="#!" id="leadActivityType-edit" data-id="${item.leadActivityTypeID}"><i class="fas fa-edit"></i></a>
+                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 leadActivityType-bulkEdit" href="#!" id="leadActivityType-single-delete" data-id="${item.leadActivityTypeID}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -374,8 +383,8 @@
 
                     var paginationInfo = response.paginationInfo;
 
-                    $("#leadStatus-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-                    $("#leadStatus-totalCount").text(`(${paginationInfo.totalItems})`);
+                    $("#leadActivityType-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                    $("#leadActivityType-totalCount").text(`(${paginationInfo.totalItems})`);
 
                     updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
                 },
@@ -386,7 +395,7 @@
         }
 
         function updatePagination(pageNumbers, currentPage, totalPages) {
-            const paginationLinks = $("#leadStatus-paginationLinks");
+            const paginationLinks = $("#leadActivityType-paginationLinks");
             paginationLinks.empty();
             // Window size (number of pages before/after the current page)
             const windowSize = 1;
@@ -412,8 +421,8 @@
                 paginationLinks.append(addEllipsis(), createPageButton(totalPages));
             }
             // Disable or enable previous/next buttons
-            $("#leadStatus-prevPageBtn").prop('disabled', currentPage === 1);
-            $("#leadStatus-nextPageBtn").prop('disabled', currentPage === totalPages);
+            $("#leadActivityType-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#leadActivityType-nextPageBtn").prop('disabled', currentPage === totalPages);
         }
 
         $(document).on('click', '.page-btn', function () {

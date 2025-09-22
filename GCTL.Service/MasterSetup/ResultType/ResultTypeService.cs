@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.Grade;
 using GCTL.Core.ViewModels.MasterSetup.ResultType;
@@ -165,7 +166,7 @@ namespace GCTL.Service.MasterSetup.ResultType
                         Message = "No data found to delete."
                     };
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<List<ResultTypeVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<ResultTypeVM>>(JsonConvert.SerializeObject(data,JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.ResultTypeID).ToList();
                 foreach (var item in data)
                 {
