@@ -42,13 +42,25 @@
                             <input class="form-control datetimepicker flatpickr-input caiCon" id="dateRange2" type="text" placeholder="@Html.SmartLocalize("Select Date Range")" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
                         </div>
                     </div>
-                    <select class="form-select choiceDD mb-0" id="customerType" name="customerType" required>
-                        @* <option value="">@Html.SmartLocalize("Customer Type")</option>
-                        @foreach (var item in ViewBag.ServiceTypeDD)
-                        {
-                            <option value="@item.Value">@item.Text.ToUpper()</option>
-                        } *@
-                    </select>
+                    <div class="me-3">
+                        <select class="form-select choiceDD mb-0" id="customerType" name="customerType" required>
+                            <option value="">@Html.SmartLocalize("Customer Type")</option>
+                            @foreach (var item in ViewBag.ServiceTypeDD)
+                            {
+                                <option value="@item.Value">@item.Text.ToUpper()</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="me-3" style="min-width: 175px;">
+                        <select class="form-select choiceDD mb-0" id="LeadStatus" required>
+                            <option value="">@Html.SmartLocalize("Status")</option>
+                            @foreach (var item in ViewBag.LeadStatus2)
+                            {
+                                <option value="@item.Text">@item.Text.ToUpper()</option>
+                            }
+                        </select>
+                    </div>
 
                     <div class="dropdown me-3">
                         <div class="input-group">
@@ -64,7 +76,7 @@
                         </div>
                     </div>
                     <div class="dropdown">
-                        <div><button class="btn btn-outline-secondary"><i class="fa-solid fa-file-arrow-down"></i> PDF</button></div>
+                        <div><button class="btn btn-outline-secondary" id="downloadPDF"><i class="fa-solid fa-file-arrow-down"></i> PDF</button></div>
                     </div>
 
                 </div>

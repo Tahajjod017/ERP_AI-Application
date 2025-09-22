@@ -63,6 +63,190 @@
         font-size: 12px !important;
         line-height: 1.4 !important;
     }
+
+/* toaster shoing modal */
+    /* ====== Toaster ====== */
+    #customToaster {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50px);
+        min-width: 280px;
+        max-width: 350px;
+        background: #fff;
+        color: #333;
+        font-weight: 600;
+        font-size: 18px;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        text-align: center;
+        opacity: 0;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        z-index: 9999;
+    }
+
+        #customToaster.show-toast {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #customToaster.hide-toast {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-50px);
+        }
+
+        #customToaster img.toast-icon {
+            width: 60px;
+            height: 60px;
+        }
+
+        #customToaster .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #2196f3;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+    @@keyframes spin {
+        0%
+
+    {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+    }
+
+    /* ====== Confirmation Modal ====== */
+    #customConfirmModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        display: none;
+    }
+
+        #customConfirmModal.active {
+            display: flex;
+        }
+
+        #customConfirmModal .modal-content {
+            background: #fff;
+            padding: 30px 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            display:flex;
+            align-items:center;
+        }
+
+        #customConfirmModal .confirm-icon {
+            width: 60px;
+            height: 60px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+            #customConfirmModal .confirm-icon.spin {
+                animation: spinIcon 1.5s linear infinite;
+            }
+    @@keyframes spinIcon {
+        0% {transform: rotate(0deg);}
+        100% {transform: rotate(360deg);}
+    }
+
+    }
+
+    #customConfirmModal .confirm-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    #customConfirmModal .confirm-message {
+        font-size: 16px;
+        color: #555;
+    }
+
+    #customConfirmModal .confirm-actions {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    #customConfirmModal .confirm-btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        color: #fff;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+        #customConfirmModal .confirm-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+    #customConfirmModal .confirm-btn-yes {
+        background-color: #4caf50;
+    }
+
+    #customConfirmModal .confirm-btn-no {
+        background-color: #f44336;
+    }
+
+    /* Demo buttons */
+    .pro-btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        margin: 10px;
+        cursor: pointer;
+        color: #fff;
+        font-size: 16px;
+    }
+
+    .pro-btn-success {
+        background-color: #4caf50;
+    }
+
+    .pro-btn-error {
+        background-color: #f44336;
+    }
+
+    .pro-btn-info {
+        background-color: #2196f3;
+    }
+
+    .pro-btn-warning {
+        background-color: #ff9800;
+    }
+
+    .pro-btn-alert {
+        background-color: #9c27b0;
+    }
 </style>
     <div class="pb-1">
         <div class="row align-items-center justify-content-between g-3 mb-2">
@@ -114,9 +298,9 @@
                                             </div>
                                         </div>
                                         <div>
-                                        <span class="badge badge-phoenix badge-phoenix-success me-2">Success @Model.SuccessPercentage%</span>
-                                        <span class="badge badge-phoenix badge-phoenix-danger me-2">Lost @Model.LostPercentage%</span>
-                                        <span class="badge badge-phoenix badge-phoenix-secondary">Cancel @Model.CancelPercentage%</span>
+                                        <span class="badge badge-phoenix badge-phoenix-success me-2">Success <span id="successPercentage">0</span>%</span>
+                                        <span class="badge badge-phoenix badge-phoenix-danger me-2">Lost <span id="lostPercentage">0</span>%</span>
+                                        <span class="badge badge-phoenix badge-phoenix-secondary">Cancel <span id="cancelPercentage">0</span>%</span>
                                         </div>
                                     </div>
                                     <div class="progress mb-2 px-3 bg-white" style="height:25px">
@@ -230,9 +414,7 @@
                                     <span>@Model.Created</span>
                                 </td>
                             </tr>
-                            @if ( Model.ClosingDate != null)
-                            {
-                                <tr class="text-center align-middle">
+                                <tr class="text-center align-middle d-none" id="closingDateDiv">
                                     <td class="d-flex align-items-center my-2">
                                         <div class="d-flex bg-warning-subtle rounded-circle flex-center me-2" style="width:26px; height:26px;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -251,10 +433,9 @@
                                     <td class="align-middle text-center px-2">:</td>
 
                                     <td class="align-middle text-start">
-                                        <span>@Model.ClosingDate</span>
+                                    <span id="closingDateResult"></span>
                                     </td>
                                 </tr>
-                            }
                             </table>
                         </div>
                     </div>
@@ -366,7 +547,7 @@
                             @foreach (var item in ViewBag.LeadActivityTypes2)
                             {
                                 <button id="@item.LeadActivityName"
-                                        class="btn btn-phoenix-secondary rounded-pill mx-1 special-btn option-btn"
+                                        class="d-flex justify-content-center align-items-center btn btn-phoenix-secondary rounded-pill mx-1 special-btn option-btn"
                                         type="button"
                                         data-id="@item.LeadActivityTypeID">
                                     <span class="fs-7 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
@@ -376,7 +557,7 @@
                                 
                             }
 
-                            <div><button class="btn btn-outline-danger rounded-pill d-none" id="restoreBtn2" >Restore</button></div>
+                            <div><button class="btn btn-outline-danger rounded-pill d-none" id="restoreBtn2" >Restart</button></div>
                         </div>
 
                     </div>
@@ -423,6 +604,22 @@
             </div>
         </div>
     </div>
+
+<!--customer message showing modal which will popup on the center for few times -->
+<div id="customToaster" class="hide-toast"></div>
+
+<!-- Confirmation Modal -->
+<div id="customConfirmModal">
+    <div class="modal-content">
+        <img id="modalIcon" class="confirm-icon" alt="Icon">
+        <h2 class="confirm-title">Confirmation</h2>
+        <p id="confirmMessage" class="confirm-message">Message</p>
+        <div class="confirm-actions">
+            <button id="confirmYes" class="confirm-btn confirm-btn-yes">Yes</button>
+            <button id="confirmNo" class="confirm-btn confirm-btn-no">No</button>
+        </div>
+    </div>
+</div>
 
 <!-- Preview Modal -->
 <div class="modal fade" id="filePreviewModal" tabindex="-1" aria-hidden="true">
@@ -541,5 +738,6 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"></script>
 
+    <script src="~/js/pages/CRM/customeToaster.js"></script>
     <script src="~/js/pages/CRM/lead_details.js"></script>
 }
