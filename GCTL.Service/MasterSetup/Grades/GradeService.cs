@@ -169,7 +169,7 @@ namespace GCTL.Service.MasterSetup.Grades
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<GradeVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<GradeVM>>(JsonConvert.SerializeObject(data,JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.GradeID).ToList();
 
                 foreach (var item in data)

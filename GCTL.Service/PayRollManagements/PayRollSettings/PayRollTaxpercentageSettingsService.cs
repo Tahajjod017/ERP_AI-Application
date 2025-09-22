@@ -75,7 +75,7 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
 
                     return true;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     await _genericRepository.RollbackTransactionAsync();
                     //throw ex;
@@ -115,7 +115,7 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
 
                     return true;
                 }
-                catch(Exception ex)
+                catch(Exception)
                 {
                     await _genericRepository.RollbackTransactionAsync();
                     return false;
@@ -139,7 +139,7 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
                         TaxPercentage = data.TaxPercentage,
                     };
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     
                     throw; // Rethrow or return an error-specific response

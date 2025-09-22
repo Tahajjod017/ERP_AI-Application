@@ -62,6 +62,7 @@
   <ItemGroup>
     <Folder Include="ViewModels\ProjectManagements\" />
     <Folder Include="Views\LeadSources\" />
+    <Folder Include="Views\LeadActivityTypes\" />
     <Folder Include="wwwroot\img\companyImages\" />
     <Folder Include="wwwroot\js\pages\ProjectManagements\" />
     <Folder Include="wwwroot\uploads\employee\signatures\" />
