@@ -494,7 +494,6 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 // Fix to pass only the hour part as a string.  
                 ShiftStartTime = shiftStartTime.HasValue ? shiftStartTime.Value.ToOrgTimeString(_localizationContext): null,// need localization then pass time according to user
                 EarlyStartTime = firstPunch < shiftStartTime ? firstPunch.ToOrgTime(_localizationContext) : null,
-
             };
         }
 
