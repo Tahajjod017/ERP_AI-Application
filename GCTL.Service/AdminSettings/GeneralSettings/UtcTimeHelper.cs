@@ -82,6 +82,58 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
                 var utc = zoned.ToInstant().ToDateTimeUtc();
                 return utc.ToString("HH:mm", CultureInfo.InvariantCulture);
             }
+            public static string ConvertUtcDateTimeToLocalHHmm(DateTime utcDateTime, ILocalizationContext ctx)
+            {
+                // Ensure the input is treated as UTC
+                if (utcDateTime.Kind != DateTimeKind.Utc)
+                    utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+
+                var instant = Instant.FromDateTimeUtc(utcDateTime);
+                var localZoned = instant.InZone(ctx.Zone);
+                var local = localZoned.ToDateTimeUnspecified();
+                //return localZoned.ToDateTimeUnspecified().ToString("HH:mm", CultureInfo.InvariantCulture);
+                return local.ToString(ctx.TimePattern, CultureInfo.InvariantCulture);
+            }
+
+            public static TimeOnly ConvertUtcDateTimeToLocalTimeOnly(DateTime utcDateTime, ILocalizationContext ctx)
+            {
+                if (utcDateTime.Kind != DateTimeKind.Utc)
+                    utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+
+                var instant = Instant.FromDateTimeUtc(utcDateTime);
+                var localZoned = instant.InZone(ctx.Zone);
+                var local = localZoned.ToDateTimeUnspecified();
+
+                return new TimeOnly(local.Hour, local.Minute, local.Second, local.Millisecond);
+            }
+            public static DateTime ToUtcDateTime(TimeOnly time)
+            {
+                var today = DateTime.UtcNow.Date; // আজকের তারিখ
+                return new DateTime(today.Year, today.Month, today.Day,
+                                    time.Hour, time.Minute, time.Second,
+                                    DateTimeKind.Utc);
+            }
+
+            // Helper: TimeOnly(UTC 24h) -> Local TimeOnly
+            public static TimeOnly ConvertUtcTimeOnlyToLocal(TimeOnly utcTime, ILocalizationContext ctx)
+            {
+                var today = DateOnly.FromDateTime(DateTime.UtcNow);
+                //var utcDateTime = utcTime.ToDateTime(today, DateTimeKind.Utc);
+                var utcDateTime = ToUtcDateTime(utcTime);
+                return ConvertUtcDateTimeToLocalTimeOnly(utcDateTime, ctx);
+            }
+
+            // Helper: Directly format as string in user's pattern
+            public static string ConvertUtcTimeOnlyToLocalFormatted(TimeOnly utcTime, ILocalizationContext ctx)
+            {
+                var localTime = ConvertUtcTimeOnlyToLocal(utcTime, ctx);
+                var pattern = ctx.TimePattern ?? "HH:mm"; // fallback 24h
+                var culture =  CultureInfo.InvariantCulture;
+
+                return localTime.ToString(pattern, culture);
+            }
+
+
         }
 
     }
