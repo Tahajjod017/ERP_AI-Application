@@ -23,6 +23,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence
         public string? ShiftStartTime { get; set; }
 
         public string? CheckInTime { get; set; }
+        public bool HasCheckIn { get; set; }
         public string? CheckInShiftTime { get; set; } // 
 
         public string? CheckOutTime { get; set; }

@@ -13,6 +13,14 @@
 //    // Update time every second
 //    setInterval(updateTime, 1000);
 //});
+// date rangr
+$(document).ready(function () {
+    generateTimeline();
+    //fetchPunchActivityData();
+    AttendancePieChar();
+    renderAttendanceBarChartController();
+    renderAttendanceComparetController();
+});
 
 const FORMATS = [
     // ── YYYY/MM/DD (slashes) — 12-hour
@@ -293,8 +301,15 @@ function toHHmm(raw) {
     const s = String(raw).trim();
     const m = moment(s, ["h:mm A", "hh:mm A", "H:mm", "HH:mm"], true);
     if (m.isValid()) return m.format("HH:mm");
-    const n = parseInt(s, 10);
-    if (!isNaN(n)) return String(n).padStart(2, "0") + ":00";
+
+    // Handle numeric input like 9.5 → "09:30"
+    const num = parseFloat(s);
+    if (!isNaN(num)) {
+        const hours = Math.floor(num);
+        const minutes = Math.round((num - hours) * 60);
+        return String(hours).padStart(2, "0") + ":" + String(minutes).padStart(2, "0");
+    }
+
     return null;
 }
 
@@ -306,26 +321,15 @@ function parseDurationToMinutes(str) {
 }
 
 // Function to fetch pre-calculated data from the backend and update session details
-function fetchSessionData() {
-    $.ajax({
-        url: '/EmployeesAttendance/GetAttendanceProgressBar',  // Your backend endpoint to fetch the pre-calculated session data
-        type: 'GET',  // HTTP method (GET, POST, etc.)
-        dataType: 'json',  // Expected response type
-        success: function (response) {
-            if (response) {
-                // Update session hours using pre-calculated data
-                updateSessionHours(response);
-                // Update progress bars with session details
-                updateProgressBars(response);
-            } else {
-                console.error("Invalid data received");
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching session data: ", error);
-        }
-    });
+// Utilities (optional): loading state দেখাতে চাইলে এগুলো ব্যবহার করুন
+function setLoading(isLoading) {
+    const bars = document.getElementById("progressBarsContainer"); // নিজের আইডি বসান
+    if (!bars) return;
+    bars.style.opacity = isLoading ? "0.5" : "1";
 }
+
+// Core: প্রি-ক্যালকুলেটেড ডেটা ফেচ করে UI আপডেট
+
 
 // Function to update session hours with pre-calculated values from the backend
 function updateSessionHours(data) {
@@ -364,8 +368,9 @@ function updateProgressBars(data) {
     const shiftRaw = data.shiftStartTime ?? data.shiftStartHour;
 
     if (earlyRaw) {
+      
         // --- Requirement: if earlyStartTime exists, render 9 hours in 30-min steps ---
-        const startStr = toHHmm(earlyRaw) || "09:00";
+        const startStr = toHHmm(earlyRaw) || "00:00";
         let t = moment(startStr, "HH:mm");
         // First tick at start
         timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
@@ -374,9 +379,11 @@ function updateProgressBars(data) {
             t = t.clone().add(30, 'minutes');
             timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
         }
-    } else {
+    }
+    else {
+       
         // --- Requirement: if earlyStartTime exists, render 9 hours in 30-min steps ---
-        const startStr = toHHmm(shiftRaw) || "09:00";
+        const startStr = toHHmm(shiftRaw) || "00:00";
         let t = moment(startStr, "HH:mm");
         // First tick at start
         timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
@@ -409,9 +416,60 @@ function getProgressBarColor(type) {
 }
 
 // Call the fetchSessionData function when the page is ready
-$(document).ready(function () {
-    fetchSessionData();  // Fetch the pre-calculated data from the backend
-});
+//$(document).ready(function () {
+//    fetchSessionData();  // Fetch the pre-calculated data from the backend
+//   // fetchSessionDataFromDate();
+//});
+
+function fetchSessionData(dateStr) {
+    const input = document.getElementById("dateRangePicker");
+    const selectedDate = dateStr || (input ? input.value : "");
+
+    if (!selectedDate) return; // তারিখ না থাকলে কল না দেই
+
+    $.ajax({
+        url: "/EmployeesAttendance/GetAttendanceProgressBar",
+        type: "GET",
+        dataType: "json",
+        data: { date: selectedDate }, // Backend এ d/m/Y ধরেই পাঠাচ্ছি
+
+        success: function (response) {
+            if (response) {
+                // আপনার বিদ্যমান ফাংশন—আগে থেকেই আছে ধরে নিচ্ছি
+                updateSessionHours(response);
+                updateProgressBars(response);
+                const $badgeBox = $("#statusBadge");
+                const $checkInText = $("#checkInText");
+
+                const hasCheckIn = !!response.hasCheckIn;
+                const production = response.productionTime || response.productiveHours || "";
+                const checkInTime = response.checkInTime || "";
+
+                if (hasCheckIn) {
+                    $badgeBox.html(
+                        `<div class="badge text-bg-success mb-3 px-5 py-2">
+                     Production: ${production}
+                   </div>`
+                    );
+                    $checkInText.text(checkInTime ? `Punch In at ${checkInTime}` : "");
+                } else {
+                    $badgeBox.html(
+                        `<div class="badge text-bg-danger mb-3 px-5 py-2">Absent</div>`
+                    );
+                    $checkInText.text("");
+                }
+            } else {
+                console.error("Invalid data received");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching session data:", error);
+        },
+        complete: function () {
+            setLoading(false);
+        }
+    });
+}
 
 
 // Use jQuery's ready function to ensure the DOM is fully loaded
@@ -441,23 +499,32 @@ $(document).ready(function () {
 
 let timelineData = []; 
 // Function to fetch punch activity data from the server
-function fetchPunchActivityData() {
-    $.getJSON(`/EmployeesAttendance/GetEmployeeAttendanceActivity`, function (data) {
-        // data is already an array like [{type, time, description}, ...]
-        timelineData = data;
-        generateTimeline();
+function fetchPunchActivityData(dateStr) {
+    const input = document.getElementById("dateRangePicker");
+    const selectedDate = dateStr || (input ? input.value : "");
+    if (!selectedDate) return; 
 
-    });
+    $.getJSON(`/EmployeesAttendance/GetEmployeeAttendanceActivity`,
+        { date: selectedDate },   // query string parameter হিসেবে পাঠানো হবে
+        function (data) {
+            // data is already an array like [{type, time, description}, ...]
+            timelineData = Array.isArray(data) ? data : [];
+            generateTimeline(timelineData);
+        }
+    );
 }
 
 
 // Function to generate the timeline dynamically
 function generateTimeline() {
     const timelineContainer = document.getElementById('timelineContainer');
+    timelineContainer.innerHTML = "";
+
+    const items = Array.isArray(data) ? data : timelineData;
 
     // Loop through the timeline data and create timeline items
-    timelineData.forEach(item => {
-        debugger
+    items.forEach(item => {
+ 
         // Create the timeline item container
         const timelineItem = document.createElement('div');
         timelineItem.classList.add('timeline-item', 'position-relative');
@@ -514,12 +581,24 @@ function generateTimeline() {
 }
 
 // Call the function to generate the timeline when the page is ready
-$(document).ready(function () {
-    generateTimeline();
-    fetchPunchActivityData();
-    AttendancePieChar();
-    renderAttendanceBarChartController();
-    renderAttendanceComparetController();
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("dateRangePicker");
+
+
+    const fp = flatpickr(input, {
+        dateFormat: "d/m/Y",
+        defaultDate: new Date(),
+     
+        onReady: function (selectedDates, dateStr) {
+            fetchSessionData(dateStr || this.input.value);
+            fetchPunchActivityData(dateStr || this.input.value);
+        },
+   
+        onChange: function (selectedDates, dateStr) {
+            fetchSessionData(dateStr);
+            fetchPunchActivityData(dateStr);
+        }
+    });
 });
 
 
