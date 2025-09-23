@@ -167,13 +167,13 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
             var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.StartTime.Value, _localizationContext);
             var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.EndTime.Value, _localizationContext);
 
-            int? inPunchCountFromMin = (model.EarlyInTimeHour * 60) + model.EarlyInTimeMinute;
-            int? outPunchCountToMin = (model.EarlyOutTimeHour * 60) + model.EarlyOutTimeMinute;
-            int? graceTime = (model.GraceTimeHour * 60) + model.GraceTimeMinute;
-            int? minimumWorkingTime = (model.MinimumWorkingTimeHour * 60) + model.MinimumWorkingTimeMinute;
-            int? minimumRequiredOvertime = (model.MinimumRequiredOvertimeHour * 60) + model.MinimumRequiredOvertimeMinute;
-            int? maximumAllowedOvertime = (model.MaximumAllowedOvertimeHour * 60) + model.MaximumAllowedOvertimeMinute;
-            int? mealBreakTime = (model.MealBreakTimeHour * 60) + model.MealBreakTimeMinute;
+            int? inPunchCountFromMin = (model.EarlyInTimeHour * 60 ?? 0) + model.EarlyInTimeMinute;
+            int? outPunchCountToMin = (model.EarlyOutTimeHour * 60 ?? 0) + model.EarlyOutTimeMinute;
+            int? graceTime = (model.GraceTimeHour * 60 ?? 0) + model.GraceTimeMinute;
+            int? minimumWorkingTime = (model.MinimumWorkingTimeHour * 60 ?? 0) + model.MinimumWorkingTimeMinute;
+            int? minimumRequiredOvertime = (model.MinimumRequiredOvertimeHour * 60 ?? 0) + model.MinimumRequiredOvertimeMinute;
+            int? maximumAllowedOvertime = (model.MaximumAllowedOvertimeHour * 60 ?? 0) + model.MaximumAllowedOvertimeMinute;
+            int? mealBreakTime = (model.MealBreakTimeHour * 60 ?? 0) + model.MealBreakTimeMinute;
 
             try
             {
@@ -276,13 +276,13 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
             var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateStartTime.Value, _localizationContext);
             var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateEndTime.Value, _localizationContext);
 
-            int? inPunchCountFromMin = (model.UpdateEarlyInTimeHour * 60) + model.UpdateEarlyInTimeMinute;
-            int? outPunchCountToMin = (model.UpdateEarlyOutTimeHour * 60) + model.UpdateEarlyOutTimeMinute;
-            int? graceTime = (model.UpdateGraceTimeHour * 60) + model.UpdateGraceTimeMinute;
-            int? minimumWorkingTime = (model.UpdateMinimumWorkingTimeHour * 60) + model.UpdateMinimumWorkingTimeMinute;
-            int? minimumRequiredOvertime = (model.UpdateMinimumRequiredOvertimeHour * 60) + model.UpdateMinimumRequiredOvertimeMinute;
-            int? maximumAllowedOvertime = (model.UpdateMaximumAllowedOvertimeHour * 60) + model.UpdateMaximumAllowedOvertimeMinute;
-            int? mealBreakTime = (model.UpdateMealBreakTimeHour * 60) + model.UpdateMealBreakTimeMinute;
+            int? inPunchCountFromMin = (model.UpdateEarlyInTimeHour * 60 ?? 0) + model.UpdateEarlyInTimeMinute;
+            int? outPunchCountToMin = (model.UpdateEarlyOutTimeHour * 60 ?? 0) + model.UpdateEarlyOutTimeMinute;
+            int? graceTime = (model.UpdateGraceTimeHour * 60 ?? 0) + model.UpdateGraceTimeMinute;
+            int? minimumWorkingTime = (model.UpdateMinimumWorkingTimeHour * 60 ?? 0) + model.UpdateMinimumWorkingTimeMinute;
+            int? minimumRequiredOvertime = (model.UpdateMinimumRequiredOvertimeHour * 60 ?? 0) + model.UpdateMinimumRequiredOvertimeMinute;
+            int? maximumAllowedOvertime = (model.UpdateMaximumAllowedOvertimeHour * 60 ?? 0) + model.UpdateMaximumAllowedOvertimeMinute;
+            int? mealBreakTime = (model.UpdateMealBreakTimeHour * 60 ?? 0) + model.UpdateMealBreakTimeMinute;
 
             try
             {
@@ -476,8 +476,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     ShiftName = x.ShiftName ?? "-",
                     OrganizationID = x.OrganizationID,
                     OrganizationName = x.Organization != null ? x.Organization.OrganizationName ?? "-" : "-",
-                    //StartTime = x.StartTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(x.StartTime.Value, _localizationContext) : null,
-                    //EndTime = x.EndTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(x.EndTime.Value, _localizationContext) : null,
+                    StartTime = x.StartTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(x.StartTime.Value, _localizationContext) : null,
+                    EndTime = x.EndTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(x.EndTime.Value, _localizationContext) : null,
                     IsLateCount = x.IsLateCount,
                     IsAutomaticORManualBreakTime = x.IsAutomaticORManualBreakTime,
                     IsMealBreakCompulsaryOrComplementaryDeductWithShift = x.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
