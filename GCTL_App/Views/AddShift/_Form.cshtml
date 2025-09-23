@@ -68,11 +68,11 @@
                             </div>
 
                             <div class="col-md-6 d-none" id="addShift-GraceTimeDiv">
-                                <label class="form-label" asp-for="GraceTime">@Html.SmartLocalize("Grace Time")</label>
+                                <label class="form-label" for="GraceTime">@Html.SmartLocalize("Grace Time")</label>
                                 <div class="input-group">
-                                    <input class="form-control" type="number" asp-for="GraceTime" placeholder="@Html.SmartLocalize("Hour")" />
+                                    <input class="form-control" type="number" asp-for="GraceTimeHour" placeholder="@Html.SmartLocalize("Hour")" />
                                     <span class="input-group-text">Hour</span>
-                                    <input class="form-control" type="number" asp-for="GraceTime" placeholder="@Html.SmartLocalize("Minute")" />
+                                    <input class="form-control" type="number" asp-for="GraceTimeMinute" placeholder="@Html.SmartLocalize("Minute")" />
                                     <span class="input-group-text">Minute</span>
                                 </div>
                             </div>
@@ -150,9 +150,9 @@
                                 <div class="mb-3">
                                     <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Break Time")</label>
                                     <div class="input-group">
-                                        <input class="form-control" asp-for="MealBreakTime" type="number" placeholder="@Html.SmartLocalize("Hour")" />
+                                        <input class="form-control" asp-for="MealBreakTimeHour" type="number" placeholder="@Html.SmartLocalize("Hour")" />
                                         <span class="input-group-text">Hour</span>
-                                        <input class="form-control" asp-for="MealBreakTime" type="number" placeholder="@Html.SmartLocalize("Minute")" />
+                                        <input class="form-control" asp-for="MealBreakTimeMinute" type="number" placeholder="@Html.SmartLocalize("Minute")" />
                                         <span class="input-group-text">Minute</span>
                                     </div>
                                 </div>
@@ -220,9 +220,9 @@
                                 <div class="mb-3">
                                     <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Minimum working time eligable for overtime")</label>
                                     <div class="input-group">
-                                        <input class="form-control" asp-for="MinimumWorkingTime" type="number" placeholder="@Html.SmartLocalize("Hour")" />
+                                        <input class="form-control" asp-for="MinimumWorkingTimeHour" type="number" placeholder="@Html.SmartLocalize("Hour")" />
                                         <span class="input-group-text">Hour</span>
-                                        <input class="form-control" asp-for="MinimumWorkingTime" type="number" placeholder="@Html.SmartLocalize("Minute")" />
+                                        <input class="form-control" asp-for="MinimumWorkingTimeMinute" type="number" placeholder="@Html.SmartLocalize("Minute")" />
                                         <span class="input-group-text">Minute</span>
                                     </div>
                                 </div>
@@ -232,9 +232,9 @@
                                 <div class="mb-4">
                                     <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Minimum Required Overtime")</label>
                                     <div class="input-group">
-                                        <input class="form-control" asp-for="MinimumRequiredOvertime" type="number" placeholder="@Html.SmartLocalize("Hour")" />
+                                        <input class="form-control" asp-for="MinimumRequiredOvertimeHour" type="number" placeholder="@Html.SmartLocalize("Hour")" />
                                         <span class="input-group-text">Hour</span>
-                                        <input class="form-control" asp-for="MinimumRequiredOvertime" type="number" placeholder="@Html.SmartLocalize("Minute")" />
+                                        <input class="form-control" asp-for="MinimumRequiredOvertimeMinute" type="number" placeholder="@Html.SmartLocalize("Minute")" />
                                         <span class="input-group-text">Minute</span>
                                     </div>
                                 </div>
@@ -244,9 +244,9 @@
                                 <div class="mb-1">
                                     <label class="form-label" for="organizerSingle">@Html.SmartLocalize("Maximum Allowed Overtime")</label>
                                     <div class="input-group">
-                                        <input class="form-control" asp-for="MaximumAllowedOvertime" type="number" placeholder="@Html.SmartLocalize("Hour")" />
+                                        <input class="form-control" asp-for="MaximumAllowedOvertimeHour" type="number" placeholder="@Html.SmartLocalize("Hour")" />
                                         <span class="input-group-text">Hour</span>
-                                        <input class="form-control" asp-for="MaximumAllowedOvertime" type="number" placeholder="@Html.SmartLocalize("Minute")" />
+                                        <input class="form-control" asp-for="MaximumAllowedOvertimeMinute" type="number" placeholder="@Html.SmartLocalize("Minute")" />
                                         <span class="input-group-text">Minute</span>
                                     </div>
                                 </div>

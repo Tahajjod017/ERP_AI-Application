@@ -729,8 +729,6 @@
 
 
 
-
-
             // #region CoreUI Multiselect with Pagination + Search (fixed)
             //let page = 1;
             //let term = '';
@@ -927,13 +925,10 @@
             // #endregion
 
 
-
-
         });
 
 
-
-
+        // #region convertUtcTimeOnlyToLocal
         function convertUtcTimeOnlyToLocal(timeString) {
             if (!timeString) return "-";
 
@@ -952,7 +947,10 @@
             // Convert to local time string
             return utcDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
+        // #endregion
+        
 
+        // #region loadTableData
         var currentPage = 1;
         var pageSize = 5;
 
@@ -988,8 +986,6 @@
             });
         });
 
-
-        // #region loadTableData
         let currentSortColumn = 'ShiftID';
         let currentSortOrder = 'desc';
 
@@ -1058,8 +1054,8 @@
                                     </td>
                                     <td class="startTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startTime ?? '-'}</td>
                                     <td class="endTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.endTime ?? '-'}</td>
-                                    <td class="graceTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.graceTime ?? '-'}</td>
-                                    <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTime ?? '-'}</td>
+                                    <td class="graceTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.graceTimeHour ?? '-'}</td>
+                                    <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTimeHour ?? '-'}</td>
                                     <td class="text-end align-middle white-space-nowrap pe-3">
                                         <div class="row g-3">
                                             <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2" id="addShift-editBtn" data-id="${item.shiftID}"><i class="fas fa-edit text-black"></i></a>
@@ -1130,4 +1126,3 @@
     }
     // #endregion
 }(jQuery));
-
