@@ -65,19 +65,19 @@
 
                         <div class="col-md-6">
                             <div class="row">
-                                <div class="col-md-6 d-inline-flex align-items-center mb-3">
+                                <div class="col-md-6 d-inline-flex align-items-center">
                                     <label class="form-check-label me-2" asp-for="UpdateIsFlexibleInTime">@Html.SmartLocalize("Restrict early In Time")</label>
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input mt-2" type="checkbox" asp-for="UpdateIsFlexibleInTime">
+                                        <input class="form-check-input" type="checkbox" asp-for="UpdateIsFlexibleInTime">
                                     </div>
                                 </div>
 
                                 <div class="col-md-6 d-none" id="addShift-UpdatePunchCountFromDiv">
-                                    <label class="form-label" asp-for="UpdatePunchCountFrom">@Html.SmartLocalize("In Punch Count Before Shift")</label>
+                                    <label class="form-label" id="UpdatePunchCountFrom">@Html.SmartLocalize("In Punch Count Before Shift")</label>
                                     <div class="input-group">
-                                        <input class="form-control" asp-for="UpdatePunchCountFrom" type="number" placeholder="Hours">
+                                        <input class="form-control" asp-for="UpdateEarlyInTimeHour" type="number" placeholder="Hours">
                                         <span class="input-group-text">Hour</span>
-                                        <input class="form-control" asp-for="UpdatePunchCountFrom" type="number" placeholder="Minutes">
+                                        <input class="form-control" asp-for="UpdateEarlyInTimeMinute" type="number" placeholder="Minutes">
                                         <span class="input-group-text">Minute</span>
                                     </div>
                                 </div>
@@ -87,18 +87,18 @@
                         <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-6 d-inline-flex align-items-center">
-                                    <label class="form-check-label me-2" for="UpdateIsFlexibleOutTime">@Html.SmartLocalize("Restrict Late Out Time")</label>
+                                    <label class="form-check-label me-2" asp-for="UpdateIsFlexibleOutTime">@Html.SmartLocalize("Restrict Late Out Time")</label>
                                     <div class="form-check form-switch ">
-                                        <input class="form-check-input mt-2" type="checkbox" id="UpdateIsFlexibleOutTime">
+                                        <input class="form-check-input" type="checkbox" asp-for="UpdateIsFlexibleOutTime">
                                     </div>
                                 </div>
 
                                 <div class="col-md-6 d-none" id="addShift-UpdatePunchCountOutDiv">
                                     <label class="form-label" for="PunchCountOut">@Html.SmartLocalize("Out Punch Count After Shift")</label>
                                     <div class="input-group">
-                                        <input class="form-control" id="UpdateOutTimeHour" type="number" placeholder="Hours">
+                                        <input class="form-control" asp-for="UpdateEarlyOutTimeHour" type="number" placeholder="Hours">
                                         <span class="input-group-text">Hour</span>
-                                        <input class="form-control" id="UpdateOutTimeMinute" type="number" placeholder="Minutes">
+                                        <input class="form-control" asp-for="UpdateEarlyOutTimeMinute" type="number" placeholder="Minutes">
                                         <span class="input-group-text">Minute</span>
                                     </div>
                                 </div>

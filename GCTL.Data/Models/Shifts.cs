@@ -59,7 +59,11 @@ public partial class Shifts
 
     public bool IsFlexibleInTime { get; set; }
 
-    public TimeOnly? PunchCountFrom { get; set; }
+    public int? InPunchCountFromMin { get; set; }
+
+    public bool IsFlexibleOutTime { get; set; }
+
+    public int? OutPunchCountToMin { get; set; }
 
     public virtual ICollection<Attendance> Attendance { get; set; } = new List<Attendance>();
 
