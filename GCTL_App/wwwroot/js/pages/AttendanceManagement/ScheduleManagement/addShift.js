@@ -207,6 +207,7 @@
                     UpdateEndTime: $('#UpdateEndTime').val(),
                     UpdateIsLateCount: $('#UpdateIsLateCount').prop('checked'),
                     UpdateIsFlexibleInTime: $('#UpdateIsFlexibleInTime').prop('checked'),
+                    UpdateIsFlexibleOutTime: $('#UpdateIsFlexibleOutTime').prop('checked'),
                     UpdatePunchCountFrom: $('#UpdatePunchCountFrom').val(),
                     UpdateIsAutomaticORManualBreakTime: $('#UpdateIsAutomaticORManualBreakTime').prop('checked'),
                     UpdateIsMBCompulsaryOrComplementaryDeductWithShift: $('input[name=UpdateIsMBCompulsaryOrComplementaryDeductWithShift]:checked').val() === "true",
@@ -334,14 +335,16 @@
                                 $('#addShift-UpdateAllowOvertime').removeClass('d-none');
                                 $('#addShift-UpdateDisableOvertime').addClass('d-none');
                             }
-                            $(settings.updateform).find('#UpdateGraceTime').val(data.updateGraceTime);
-                            $(settings.updateform).find('#UpdatePunchCountFrom').val(data.updatePunchCountFrom);
-                            $(settings.updateform).find('#UpdateMinimumWorkingTime').val(data.updateMinimumWorkingTime);
-                            $(settings.updateform).find('#UpdateMinimumRequiredOvertime').val(data.updateMinimumRequiredOvertime);
-                            $(settings.updateform).find('#UpdateMaximumAllowedOvertime').val(data.updateMaximumAllowedOvertime);
-                            $(settings.updateform).find('#UpdateMealBreakTime').val(data.updateMealBreakTime);
-
-                            $(settings.form).find(settings.saveBtn).text('Update');
+                            $(settings.updateform).find('#UpdateGraceTimeHour').val(data.updateGraceTimeHour);
+                            $(settings.updateform).find('#UpdateGraceTimeMinute').val(data.updateGraceTimeMinute);
+                            $(settings.updateform).find('#UpdateMinimumWorkingTimeHour').val(data.updateMinimumWorkingTimeHour);
+                            $(settings.updateform).find('#UpdateMinimumWorkingTimeMinute').val(data.updateMinimumWorkingTimeMinute);
+                            $(settings.updateform).find('#UpdateMinimumRequiredOvertimeHour').val(data.updateMinimumRequiredOvertimeHour);
+                            $(settings.updateform).find('#UpdateMinimumRequiredOvertimeMinute').val(data.updateMinimumRequiredOvertimeMinute);
+                            $(settings.updateform).find('#UpdateMaximumAllowedOvertimeHour').val(data.updateMaximumAllowedOvertimeHour);
+                            $(settings.updateform).find('#UpdateMaximumAllowedOvertimeMinute').val(data.updateMaximumAllowedOvertimeMinute);
+                            $(settings.updateform).find('#UpdateMealBreakTimeHour').val(data.updateMealBreakTimeHour);
+                            $(settings.updateform).find('#UpdateMealBreakTimeMinute').val(data.updateMealBreakTimeMinute);
                         } else {
                             toastr.warning(response.message);
                         }
@@ -439,6 +442,80 @@
                 loadTableData();
                 toggleBulkActions();
                 $('#addShift-check-all').prop('checked', false).prop('indeterminate', false);
+            }
+            // #endregion
+
+
+            // #region Clear up on Uncheck in Edit Modal
+            $('#editShiftModal').on('hide.bs.modal', function () {
+                $('#addShift-Updateform')[0].reset();
+            });
+
+            $('#UpdateIsLateCount').on('change', function () {
+                clearUpLateCount();
+            });
+
+            $('#UpdateIsFlexibleInTime').on('change', function () {
+                clearUpRestrictInTime();
+            });
+
+            $('#UpdateIsFlexibleOutTime').on('change', function () {
+                clearUpRestrictOutTime();
+            });
+
+            $('#UpdateIsAutomaticORManualBreakTime').on('change', function () {
+                clearUpBreakTime();
+            });
+
+            $('#UpdateIsAllowStartAndEndTime').on('change', function () {
+                clearUpMealBreakStartEndTime();
+            });
+
+            $('#UpdateIsAllowOvertime').on('change', function () {
+                clearUpOverTime();
+            });
+
+            function clearUpLateCount() {
+                if (!$('#UpdateIsLateCount').is(':checked')) {
+                    $('#UpdateGraceTimeHour').val('');
+                    $('#UpdateGraceTimeMinute').val('');
+                }
+            }
+
+            function clearUpRestrictInTime() {
+                if (!$('#UpdateIsFlexibleInTime').is(':checked')) {
+                    $('#UpdateEarlyInTimeHour').val('');
+                    $('#UpdateEarlyInTimeMinute').val('');
+                }
+            }
+
+            function clearUpBreakTime() {
+                if (!$('#UpdateIsAutomaticORManualBreakTime').is(':checked')) {
+                    $('#UpdateMealBreakTimeHour').val('');
+                    $('#UpdateMealBreakTimeMinute').val('');
+                    $('#addShift-Complementary').prop('checked', true);
+                    $('#UpdateIsAllowStartAndEndTime').prop('checked', false);
+                    $('#UpdateMealBreakStartTime')[0]._flatpickr.clear();
+                    $('#UpdateMealBreakEndTime')[0]._flatpickr.clear(); 
+                }
+            }
+
+            function clearUpMealBreakStartEndTime() {
+                if (!$('#UpdateIsAllowStartAndEndTime').is(':checked')) {
+                    $('#UpdateMealBreakStartTime')[0]._flatpickr.clear();
+                    $('#UpdateMealBreakEndTime')[0]._flatpickr.clear(); 
+                }
+            }
+
+            function clearUpOverTime() {
+                if (!$('#UpdateIsAllowOvertime').is(':checked')) {
+                    $('#UpdateMinimumWorkingTimeHour').val('');
+                    $('#UpdateMinimumWorkingTimeMinute').val('');
+                    $('#UpdateMinimumRequiredOvertimeHour').val('');
+                    $('#UpdateMinimumRequiredOvertimeMinute').val('');
+                    $('#UpdateMaximumAllowedOvertimeHour').val('');
+                    $('#UpdateMaximumAllowedOvertimeMinute').val('');
+                }
             }
             // #endregion
 
