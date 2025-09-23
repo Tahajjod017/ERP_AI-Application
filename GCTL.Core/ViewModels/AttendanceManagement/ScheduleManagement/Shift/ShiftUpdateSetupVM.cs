@@ -38,15 +38,15 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 
         public bool UpdateIsAllowOvertime { get; set; }
 
-        public TimeOnly? UpdateGraceTime { get; set; }
+        public int? UpdateGraceTime { get; set; }
 
-        public TimeOnly? UpdateMinimumWorkingTime { get; set; }
+        public int? UpdateMinimumWorkingTime { get; set; }
 
-        public TimeOnly? UpdateMinimumRequiredOvertime { get; set; }
+        public int? UpdateMinimumRequiredOvertime { get; set; }
 
-        public TimeOnly? UpdateMaximumAllowedOvertime { get; set; }
+        public int? UpdateMaximumAllowedOvertime { get; set; }
 
-        public TimeOnly? UpdateMealBreakTime { get; set; }
+        public int? UpdateMealBreakTime { get; set; }
 
         public bool UpdateIsFlexibleInTime { get; set; }
 
