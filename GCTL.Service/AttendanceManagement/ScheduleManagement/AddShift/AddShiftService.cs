@@ -161,7 +161,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
         public async Task<bool> AddAsync(ShiftsSetupVM model)
         {
             await _genericRepository.BeginTransactionAsync();
-            
+
             var userTimeZone = _localizationContext.Zone;  // Assuming _localizationContext is your ILocalizationContext
 
             var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.StartTime.Value, _localizationContext);
@@ -193,7 +193,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         existingEntity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
                         existingEntity.MealBreakTime = model.MealBreakTime;
                         existingEntity.IsFlexibleInTime = model.IsFlexibleInTime;
-                        existingEntity.PunchCountFrom = model.PunchCountFrom;
 
                         existingEntity.CreatedAt = DateTime.Now;
                         existingEntity.CreatedBy = model.CreatedBy;
@@ -227,7 +226,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         entity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
                         entity.MealBreakTime = model.MealBreakTime;
                         entity.IsFlexibleInTime = model.IsFlexibleInTime;
-                        entity.PunchCountFrom = model.PunchCountFrom;
                         entity.CreatedAt = DateTime.Now;
                         entity.CreatedBy = model.CreatedBy ?? null;
                         entity.LIP = model.LIP;
@@ -430,7 +428,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 };
             }
 
-            if(pageSize == 0)
+            if (pageSize == 0)
             {
                 pageSize = await query.CountAsync();
                 pageNumber = 1;
@@ -461,7 +459,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     MaximumAllowedOvertime = x.MaximumAllowedOvertime,
                     MealBreakTime = x.MealBreakTime,
                     IsFlexibleInTime = x.IsFlexibleInTime,
-                    PunchCountFrom = x.PunchCountFrom
                 });
 
             return result;

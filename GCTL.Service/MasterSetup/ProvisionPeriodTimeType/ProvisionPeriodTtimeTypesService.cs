@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.Grade;
 using GCTL.Core.ViewModels.MasterSetup.ProvisionPeriodTtimeTypes;
@@ -165,7 +166,7 @@ namespace GCTL.Service.MasterSetup.ProvisionPeriodTimeType
                         Message = "No data found to delete."
                     };
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<List<ProvisionPeriodTtimeTypesVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<ProvisionPeriodTtimeTypesVM>>(JsonConvert.SerializeObject(data,JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.ProvisionPeriodTtimeTypeID).ToList();
                 foreach (var item in data)
                 {

@@ -55,7 +55,15 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 
         public bool IsFlexibleInTime { get; set; }
 
-        public TimeOnly? PunchCountFrom { get; set; }
+        public int? EarlyInTimeHour { get; set; }
+
+        public int? EarlyInTimeMinute { get; set; }
+
+        public bool IsFlexibleOutTime { get; set; }
+
+        public int? EarlyOutTimeHour { get; set; }
+
+        public int? EarlyOutTimeMinute { get; set; }
 
 
         public IList<OrganizationsVM>? OrganizationsVMs { get; set; } = new List<OrganizationsVM>();

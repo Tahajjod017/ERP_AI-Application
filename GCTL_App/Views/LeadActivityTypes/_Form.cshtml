@@ -1,0 +1,68 @@
+﻿
+@model GCTL.Core.ViewModels.MasterSetup.LeadActivityType.LeadActivityTypeVM
+
+<div class="card">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("Add Lead Activity Type")</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body mt-3">
+        <form asp-action="Create" asp-controller="LeadActivityTypes" method="post" enctype="multipart/form-data" id="leadActivityType-form">
+            @Html.AntiForgeryToken()
+            <div class="col-sm-12 col-md-12 mb-4">
+                <input type="hidden" asp-for="LeadActivityTypeID" />
+
+                <div class="flatpickr-input-container mb-3">
+                    <div class="form-floating">
+                        <input class="form-control" asp-for="LeadActivityName" type="text" placeholder="@Html.SmartLocalize("Activity Name")" />
+                        <label asp-for="LeadActivityName">@Html.SmartLocalize("Lead Activity Types Name") <span style="color: red;">*</span></label>
+                    </div>
+                    <span id="nameError" class="text-danger" style="display:none;"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col col-xl-6 pe-xl-0">
+                        <div class="flatpickr-input-container">
+                            <div class="form-floating">
+                                <input class="form-control" asp-for="LeadActivityIcon" type="text" placeholder="@Html.SmartLocalize("Activity Icon")" />
+                                <label asp-for="LeadActivityIcon">@Html.SmartLocalize("Activity Icon") <span style="color: red;">*</span></label>
+                            </div>
+                            <span id="nameError" class="text-danger" style="display:none;"></span>
+                        </div>
+                    </div>
+                    <div class="col col-xl-6">
+                        <div class="flatpickr-input-container">
+                            <div class="form-floating form-floating-advance-select">
+                                <label class="form-label" for="UseFor" >@Html.SmartLocalize("Activity Type") </label>
+                                <select class="form-select choiceDD"
+                                        id="UseFor"
+                                        name="UseFor"
+                                        asp-items="ViewBag.ActivityTypes"
+                                        required>
+                                    <option value="">@Html.SmartLocalize("Select Type")...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+            </div>
+
+            <div class="col-12 mb-4">
+                <div class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <button type="reset" class="btn btn-phoenix-primary px-5" id="leadActivityType-resetBtn">@Html.SmartLocalize("Reset")</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="leadActivityType-saveBtn">@Html.SmartLocalize("Save")</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

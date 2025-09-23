@@ -110,6 +110,18 @@ namespace GCTL.Service.CRM.LeadsActivities
                     }
                 }
 
+                // Filter by CustomerTypeID
+                if (CustomerTypeID.HasValue && CustomerTypeID.Value > 0)
+                {
+                    query = query.Where(u => u.Lead.Customer.CustomerAddresses.First().AddressTypeID == CustomerTypeID.Value);
+                }
+
+                // Filter by LeadStatusID
+                if (!string.IsNullOrEmpty(LeadStatusID))
+                {
+                    query = query.Where(u => u.Lead.LeadStatus.LeadStatusName== LeadStatusID);
+                }
+
 
                 var totalSearchItem = await query.CountAsync();
 
@@ -190,64 +202,121 @@ namespace GCTL.Service.CRM.LeadsActivities
                         page.Size(PageSizes.A4);
                         page.Margin(2, Unit.Centimetre);
                         page.PageColor(Colors.White);
-                        page.DefaultTextStyle(x => x.FontSize(8));
+                        page.DefaultTextStyle(x => x.FontSize(9));
 
+                        // -------------------
+                        // Header
+                        // -------------------
                         page.Header()
-                        .Text("Lead Activities (Upcoming)")
-                        .SemiBold().FontSize(18).FontColor(Colors.Blue.Medium);
-
-                        page.Content().Table(table =>
-                        {
-                            table.ColumnsDefinition(columns =>
+                            .Element(header =>
                             {
-                                columns.ConstantColumn(40);
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn(2);
+                                header
+                                    .PaddingBottom(5)
+                                    .BorderBottom(1)
+                                    .BorderColor(Colors.Grey.Lighten2)
+                                    .Row(row =>
+                                    {
+                                        row.RelativeItem()
+                                            .Text("Lead Activities (Upcoming)")
+                                            .FontSize(16)
+                                            .SemiBold()
+                                            .FontColor(Colors.Blue.Medium);
+
+                                        row.ConstantItem(100)
+                                            .AlignRight()
+                                            .Text(DateTime.Now.ToString("dd-MM-yyyy"))
+                                            .FontSize(9)
+                                            .FontColor(Colors.Grey.Darken2);
+                                    });
                             });
 
-                            table.Header(header =>
+                        // -------------------
+                        // Table content
+                        // -------------------
+                        page.Content()
+                            .Table(table =>
                             {
-                                header.Cell().Element(CellStyle).Text("SL");
-                                header.Cell().Element(CellStyle).Text("Lead Name");
-                                header.Cell().Element(CellStyle).Text("Customer Name");
-                                header.Cell().Element(CellStyle).Text("Service Type");
-                                header.Cell().Element(CellStyle).Text("Date & Time");
-                                header.Cell().Element(CellStyle).Text("Note");
-                                header.Cell().Element(CellStyle).Text("Owner Name");
+                                // Column definitions
+                                table.ColumnsDefinition(columns =>
+                                {
+                                    columns.ConstantColumn(40);  // SL
+                                    columns.RelativeColumn(2);   // Lead Name
+                                    columns.RelativeColumn(2);   // Customer Name
+                                    columns.RelativeColumn(2);   // Service Type
+                                    columns.RelativeColumn(2);   // Date & Time
+                                    columns.RelativeColumn(3);   // Note
+                                    columns.RelativeColumn(2);   // Owner Name
+                                });
+
+                                // Table header (repeats on each page)
+                                table.Header(header =>
+                                {
+                                    header.Cell().Element(HeaderCell).Text("SL");
+                                    header.Cell().Element(HeaderCell).Text("Lead Name");
+                                    header.Cell().Element(HeaderCell).Text("Customer Name");
+                                    header.Cell().Element(HeaderCell).Text("Service Type");
+                                    header.Cell().Element(HeaderCell).Text("Date & Time");
+                                    header.Cell().Element(HeaderCell).Text("Note");
+                                    header.Cell().Element(HeaderCell).Text("Owner Name");
+                                });
+
+                                // Table rows
+                                int serial = 1;
+                                bool isAlternate = false;
+                                foreach (var activity in upcomingActivities)
+                                {
+                                    isAlternate = !isAlternate;
+
+                                    table.Cell().Element(c => BodyCell(c, isAlternate)).Text(serial++.ToString());
+                                    table.Cell().Element(c => BodyCell(c, isAlternate)).Text(activity.LeadName);
+                                    table.Cell().Element(c => BodyCell(c, isAlternate)).Text(activity.CustomerName);
+                                    table.Cell().Element(c => BodyCell(c, isAlternate)).Text(activity.ActivityType);
+                                    table.Cell().Element(c => BodyCell(c, isAlternate))
+                                         .Text(activity.ActivityDateTime?.ToString("dd-MM-yyyy HH:mm") ?? "");
+                                    table.Cell().Element(c => BodyCell(c, isAlternate))
+                                         .Text(activity.ActivityNote ?? "").WrapAnywhere();
+                                    table.Cell().Element(c => BodyCell(c, isAlternate)).Text(activity.LeadOwner);
+                                }
+
+                                // -------------------
+                                // Styles
+                                // -------------------
+                                IContainer HeaderCell(IContainer container) =>
+                                     container
+                                         .Background(Colors.Grey.Lighten3)
+                                         .PaddingVertical(5)
+                                         .PaddingHorizontal(3)
+                                         .BorderBottom(1)
+                                         .BorderColor(Colors.Grey.Lighten2);
+                                         //.Text(text =>
+                                         //{
+                                         //    //text.SemiBold();
+                                         //}
+                                         //);
+
+                                IContainer BodyCell(IContainer container, bool alternate) =>
+                                    container
+                                        .Background(alternate ? Colors.Grey.Lighten5 : Colors.White)
+                                        .PaddingVertical(4)
+                                        .PaddingHorizontal(3)
+                                        .BorderBottom(1)
+                                        .BorderColor(Colors.Grey.Lighten2);
                             });
-                            int serial = 1;
-                            foreach (var activity in upcomingActivities)
-                            {
-                             
-                                table.Cell().Element(CellStyle).Text(serial++.ToString());
-                                table.Cell().Element(CellStyle).Text(activity.LeadName);
-                                table.Cell().Element(CellStyle).Text(activity.CustomerName);
-                                table.Cell().Element(CellStyle).Text(activity.ActivityType);
-                                table.Cell().Element(CellStyle).Text(activity.ActivityDateTime?.ToString("dd-MM-yyyy HH:mm:ss") ?? "");
-                                table.Cell().Element(CellStyle).Text(activity.ActivityNote);
-                                table.Cell().Element(CellStyle).Text(activity.LeadOwner);
-                
-                               
-                            }
 
-                            IContainer CellStyle(IContainer container) =>
-                                container.PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Grey.Lighten2);
-
-                        });
-
+                        // -------------------
+                        // Footer
+                        // -------------------
                         page.Footer()
-                        .AlignCenter()
-                        .Text(x =>
-                        {
-                            x.Span("Generated on: ").SemiBold();
-                            x.Span(DateTime.Now.ToString("dd-MM-yyyy HH:mm"));
-                        });
+                            .AlignCenter()
+                            .Text(x =>
+                            {
+                                x.Span("Generated on: ").SemiBold();
+                                x.Span(DateTime.Now.ToString("dd-MM-yyyy HH:mm"));
+                                //x.Span($"   Page {page.CurrentPageNumber} of {page.TotalPages}");
+                            });
                     });
                 });
+
                 var pdfBytes = document.GeneratePdf();
 
                 return pdfBytes;

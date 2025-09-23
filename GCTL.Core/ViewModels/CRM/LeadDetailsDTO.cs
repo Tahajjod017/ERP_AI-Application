@@ -22,5 +22,6 @@ namespace GCTL.Core.ViewModels.CRM
         public decimal? LeadProbability { get; set; }
         public string? LeadOwner { get; set; }
         public string? File { get; set; }
+        public int? CustomerAddreeTypeId { get; set; }
     }
 }

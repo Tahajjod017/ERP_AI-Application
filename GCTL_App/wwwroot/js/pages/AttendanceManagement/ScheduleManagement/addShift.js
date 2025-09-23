@@ -98,7 +98,7 @@
 
 
 
-            
+
             //$(settings.addform).on('submit', function () {
             //    $(this).find('input[required], select[required], textarea[required]').each(function () {
             //        if (!$(this).valid()) {
@@ -108,7 +108,7 @@
             //        }
             //    });
             //});
-            
+
             //$('input[required], select[required], textarea[required]').on('keyup change', function () {
             //    if ($(this).valid()) {
             //        $(this).removeClass('is-invalid');
@@ -159,7 +159,7 @@
                     type: 'POST',
                     data: formData,
                     beforeSend: function () {
-                        showLoadingIndicator(); 
+                        showLoadingIndicator();
                     },
                     success: function (response) {
                         const allFields = ["OrganizationIDs", "ShiftName", "StartTime", "EndTime"];
@@ -278,9 +278,9 @@
                             }
                             $(settings.updateform).find('#UpdateIsFlexibleInTime').prop('checked', data.updateIsFlexibleInTime);
                             if ($('#UpdateIsFlexibleInTime').is(':checked')) {
-                                $('#addShift-UpdatePunchCountFromDiv').addClass('d-none');
-                            } else {
                                 $('#addShift-UpdatePunchCountFromDiv').removeClass('d-none');
+                            } else {
+                                $('#addShift-UpdatePunchCountFromDiv').addClass('d-none');
                             }
                             $(settings.updateform).find('#UpdateIsAutomaticORManualBreakTime').prop('checked', data.updateIsAutomaticORManualBreakTime);
                             if ($('#UpdateIsAutomaticORManualBreakTime').is(':checked')) {
@@ -316,7 +316,7 @@
                             $(settings.updateform).find('#UpdateMinimumWorkingTime').val(data.updateMinimumWorkingTime);
                             $(settings.updateform).find('#UpdateMinimumRequiredOvertime').val(data.updateMinimumRequiredOvertime);
                             $(settings.updateform).find('#UpdateMaximumAllowedOvertime').val(data.updateMaximumAllowedOvertime);
-                            $(settings.updateform).find('#UpdateMealBreakTime').val(data.updateMealBreakTime);                            
+                            $(settings.updateform).find('#UpdateMealBreakTime').val(data.updateMealBreakTime);
 
                             $(settings.form).find(settings.saveBtn).text('Update');
                         } else {
@@ -429,7 +429,7 @@
                 $('#OrganizationIDs').on('hidden.coreui.multi-select', function () {
                     checkNameUnique();
                     //validateCompany();
-                });                
+                });
             });
 
             function checkNameUnique() {
@@ -450,7 +450,7 @@
                     url: uniqueNameUrl,
                     type: 'POST',
                     data: {
-                        id: orgId, 
+                        id: orgId,
                         name: name
                     },
                     success: function (response) {
@@ -527,10 +527,14 @@
                 e.preventDefault();
 
                 if ($(this).is(':checked')) {
-                    $('#addShift-PunchCountFromDiv').addClass('d-none');
-                } else {
                     $('#addShift-PunchCountFromDiv').removeClass('d-none');
+                } else {
+                    $('#addShift-PunchCountFromDiv').addClass('d-none');
                 }
+            });
+
+            $('#IsFlexibleOutTime').on('change', function () {
+                $('#addShift-PunchCountOutDiv').toggleClass('d-none', !this.checked);
             });
 
             $('#IsAutomaticORManualBreakTime').on('change', function (e) {
@@ -580,7 +584,9 @@
                 enableTime: true,       // ✅ Enables time selection (hours & minutes)
                 noCalendar: true,       // ✅ Hides the calendar view, showing only the time picker
                 dateFormat: "H:i",      // h = 12-hour, H = 24-hour, i = minutes, K = AM/PM
-                time_24hr: true,        // ✅ Uses 24-hour time format (00:00–23:59 instead of 12-hour AM/PM)
+                altInput: true,         // Creates a hidden input for display
+                altFormat: "h:i K",     // Shown to user (12-hour with AM/PM)
+                time_24hr: false,        // ✅ Uses 24-hour time format (00:00–23:59 instead of 12-hour AM/PM)
                 disableMobile: true,    // ✅ Prevents the native mobile date/time picker
                 allowInput: true,        // optional: lets user leave it blank
                 clickOpens: true,        // opens on click only
@@ -604,6 +610,17 @@
                 //}
             });
 
+            $(".timepicker-24hr").flatpickr({
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                disableMobile: true,
+                allowInput: true,
+                clickOpens: true,
+                defaultDate: null,
+            });
+
             //$(".timepicker-12hr").each(function () {
             //    const selected = this._flatpickr.selectedDates[0];
             //    if (selected) {
@@ -616,13 +633,17 @@
 
             // #region Toggols
             $(document).ready(function () {
-                
+
                 $('#UpdateIsLateCount').on('change', function () {
                     $('#addShift-UpdateGraceTimeDiv').toggleClass('d-none', !this.checked);
                 });
 
                 $('#UpdateIsFlexibleInTime').on('change', function () {
-                    $('#addShift-UpdatePunchCountFromDiv').toggleClass('d-none', this.checked);
+                    $('#addShift-UpdatePunchCountFromDiv').toggleClass('d-none', !this.checked);
+                });
+
+                $('#UpdateIsFlexibleOutTime').on('change', function () {
+                    $('#addShift-UpdatePunchCountOutDiv').toggleClass('d-none', !this.checked);
                 });
 
                 $('#UpdateIsAutomaticORManualBreakTime').on('change', function () {
@@ -890,9 +911,9 @@
             //    rebindScroll();
             //});
             // #endregion
-            
-            
-            
+
+
+
 
         });
 

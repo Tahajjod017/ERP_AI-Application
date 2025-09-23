@@ -72,7 +72,7 @@ namespace GCTL.Service.MasterSetup.Currency
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await _genericRepository.RollbackTransactionAsync();
                 //throw ex;
