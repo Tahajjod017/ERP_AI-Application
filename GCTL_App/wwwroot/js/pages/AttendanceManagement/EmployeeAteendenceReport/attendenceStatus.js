@@ -440,10 +440,12 @@ function fetchSessionData(dateStr) {
                 updateProgressBars(response);
                 const $badgeBox = $("#statusBadge");
                 const $checkInText = $("#checkInText");
+                const $totalHoursBox = $("#totalHoursBox");
 
                 const hasCheckIn = !!response.hasCheckIn;
                 const production = response.productionTime || response.productiveHours || "";
                 const checkInTime = response.checkInTime || "";
+                const totalWorkingHours = response.totalWorkingHours || "";
 
                 if (hasCheckIn) {
                     $badgeBox.html(
@@ -458,6 +460,18 @@ function fetchSessionData(dateStr) {
                     );
                     $checkInText.text("");
                 }
+
+                $totalHoursBox.html(`
+            <div class="mb-2 pb-2">
+                <span class="avatar avatar-sm mb-2">
+                    <i class="ti ti-clock-stop"></i>
+                </span>
+                <h3 class="mb-2">${production} / 
+                    <span class="fs-20 text-gray-5">${totalWorkingHours}</span>
+                </h3>
+                <p class="fw-medium text-truncate">Total Hours Today</p>
+            </div>
+        `);
             } else {
                 console.error("Invalid data received");
             }
@@ -588,6 +602,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const fp = flatpickr(input, {
         dateFormat: "d/m/Y",
         defaultDate: new Date(),
+        disable: [
+            function (date) {
+                return date > new Date();
+            }
+        ],
      
         onReady: function (selectedDates, dateStr) {
             fetchSessionData(dateStr || this.input.value);
