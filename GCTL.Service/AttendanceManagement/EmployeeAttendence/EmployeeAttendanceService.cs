@@ -131,14 +131,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     StatusID = x.StatusID,
                     StatusName = x.Status?.StatusName ?? "-",
                     AttendanceDate = x.AttendanceDate.ToString("yyyy-MM-dd") ?? "-",
-                    // CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
-                    CheckInTime = x.CheckInTime.HasValue
-                                    ? TimeConversionHelper.ConvertDateTimeToUtcHHmm(x.CheckInTime.Value, _localizationContext)  // Convert UTC to local
-                                    : "-",
 
-                   // CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
-                    CheckOutTime = x.CheckOutTime.HasValue
-                                    ? TimeConversionHelper.ConvertDateTimeToUtcHHmm(x.CheckOutTime.Value, _localizationContext)  // Convert UTC to local
+                    CheckInTime = x.CheckInTime.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(x.CheckInTime.Value, DateTimeKind.Utc),_localizationContext): "-",
+
+                    // CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
+                    CheckOutTime = x.CheckOutTime.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(x.CheckOutTime.Value, DateTimeKind.Utc), _localizationContext)  // Convert UTC to local
                                     : "-",
                     //LateHour = x.LateHour.HasValue ? x.LateHour.Value.ToString("F2") : "-",
                     LateHour = FormatTime(x.LateTimeMinutes),
