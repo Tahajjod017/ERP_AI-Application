@@ -167,6 +167,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
             var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.StartTime.Value, _localizationContext);
             var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.EndTime.Value, _localizationContext);
 
+            int? inPunchCountFromMin = (model.EarlyInTimeHour * 60) + model.EarlyInTimeMinute;
+            int? outPunchCountToMin = (model.EarlyOutTimeHour * 60) + model.EarlyOutTimeMinute;
+
             try
             {
                 foreach (var organizationID in model.OrganizationIDs)
@@ -193,6 +196,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         existingEntity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
                         existingEntity.MealBreakTime = model.MealBreakTime;
                         existingEntity.IsFlexibleInTime = model.IsFlexibleInTime;
+                        existingEntity.InPunchCountFromMin = inPunchCountFromMin;
+                        existingEntity.IsFlexibleOutTime = model.IsFlexibleOutTime;
+                        existingEntity.OutPunchCountToMin = outPunchCountToMin;
 
                         existingEntity.CreatedAt = DateTime.Now;
                         existingEntity.CreatedBy = model.CreatedBy;
@@ -226,6 +232,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         entity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
                         entity.MealBreakTime = model.MealBreakTime;
                         entity.IsFlexibleInTime = model.IsFlexibleInTime;
+                        entity.InPunchCountFromMin = inPunchCountFromMin;
+                        entity.IsFlexibleOutTime = model.IsFlexibleOutTime;
+                        entity.OutPunchCountToMin = outPunchCountToMin;
+
                         entity.CreatedAt = DateTime.Now;
                         entity.CreatedBy = model.CreatedBy ?? null;
                         entity.LIP = model.LIP;
@@ -287,7 +297,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 entity.MaximumAllowedOvertime = model.UpdateMaximumAllowedOvertime;
                 entity.MealBreakTime = model.UpdateMealBreakTime;
                 entity.IsFlexibleInTime = model.UpdateIsFlexibleInTime;
-                entity.PunchCountFrom = model.UpdatePunchCountFrom;
+                entity.IsFlexibleOutTime = model.UpdateIsFlexibleOutTime;
 
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -323,8 +333,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     UpdateShiftID = data.ShiftID,
                     UpdateShiftName = data.ShiftName,
                     UpdateOrganizationID = data.OrganizationID,
-                    UpdateStartTime = data.StartTime,
-                    UpdateEndTime = data.EndTime,
+                    UpdateStartTime = data.StartTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(data.StartTime.Value, _localizationContext) : null,
+                    UpdateEndTime = data.EndTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(data.EndTime.Value, _localizationContext) : null,
                     UpdateIsLateCount = data.IsLateCount,
                     UpdateIsAutomaticORManualBreakTime = data.IsAutomaticORManualBreakTime,
                     UpdateIsMBCompulsaryOrComplementaryDeductWithShift = data.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
@@ -338,7 +348,11 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     UpdateMaximumAllowedOvertime = data.MaximumAllowedOvertime,
                     UpdateMealBreakTime = data.MealBreakTime,
                     UpdateIsFlexibleInTime = data.IsFlexibleInTime,
-                    UpdatePunchCountFrom = data.PunchCountFrom,
+                    UpdateEarlyInTimeHour = data.InPunchCountFromMin / 60,
+                    UpdateEarlyInTimeMinute = data.InPunchCountFromMin % 60,
+                    UpdateIsFlexibleOutTime = data.IsFlexibleOutTime,
+                    UpdateEarlyOutTimeHour = data.OutPunchCountToMin / 60,
+                    UpdateEarlyOutTimeMinute = data.OutPunchCountToMin % 60
                 };
             }
             catch (Exception ex)
@@ -442,8 +456,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     ShiftName = x.ShiftName ?? "-",
                     OrganizationID = x.OrganizationID,
                     OrganizationName = x.Organization != null ? x.Organization.OrganizationName ?? "-" : "-",
-                    //StartTime = x.StartTime.HasValue ? x.StartTime.Value.ToString("hh\\:mm") : "-",
-                    //StartTime = x.StartTime,
                     StartTime = x.StartTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(x.StartTime.Value, _localizationContext) : null,
                     EndTime = x.EndTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(x.EndTime.Value, _localizationContext) : null,
                     IsLateCount = x.IsLateCount,
@@ -459,6 +471,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     MaximumAllowedOvertime = x.MaximumAllowedOvertime,
                     MealBreakTime = x.MealBreakTime,
                     IsFlexibleInTime = x.IsFlexibleInTime,
+                    IsFlexibleOutTime = x.IsFlexibleOutTime
                 });
 
             return result;

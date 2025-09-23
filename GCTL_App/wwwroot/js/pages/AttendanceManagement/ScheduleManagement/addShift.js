@@ -132,7 +132,11 @@
                     EndTime: $('#EndTime').val(),
                     IsLateCount: $('#IsLateCount').prop('checked'),
                     IsFlexibleInTime: $('#IsFlexibleInTime').prop('checked'),
-                    PunchCountFrom: $('#PunchCountFrom').val(),
+                    EarlyInTimeHour: $('#EarlyInTimeHour').val(),
+                    EarlyInTimeMinute: $('#EarlyInTimeMinute').val(),
+                    IsFlexibleOutTime: $('#IsFlexibleOutTime').prop('checked'),
+                    EarlyOutTimeHour: $('#EarlyOutTimeHour').val(),
+                    EarlyOutTimeMinute: $('#EarlyOutTimeMinute').val(),
                     IsAutomaticORManualBreakTime: $('#IsAutomaticORManualBreakTime').prop('checked'),
                     IsMealBreakCompulsaryOrComplementaryDeductWithShift: $('input[name=IsMealBreakCompulsaryOrComplementaryDeductWithShift]:checked').val() === "true",
                     IsAllowStartAndEndTime: $('#IsAllowStartAndEndTime').prop('checked'),
@@ -268,8 +272,8 @@
                             $(settings.updateform).find('#UpdateShiftID').val(data.updateShiftID);
                             $(settings.updateform).find('#UpdateShiftName').val(data.updateShiftName);
                             $(settings.updateform).find('#UpdateOrganizationID').val(data.updateOrganizationID).trigger('change');
-                            $(settings.updateform).find('#UpdateStartTime').val(data.updateStartTime);
-                            $(settings.updateform).find('#UpdateEndTime').val(data.updateEndTime);
+                            $(settings.updateform).find('#UpdateStartTime')[0]._flatpickr.setDate(data.updateStartTime); 
+                            $(settings.updateform).find('#UpdateEndTime')[0]._flatpickr.setDate(data.updateEndTime); 
                             $(settings.updateform).find('#UpdateIsLateCount').prop('checked', data.updateIsLateCount);
                             if ($('#UpdateIsLateCount').is(':checked')) {
                                 $('#addShift-UpdateGraceTimeDiv').removeClass('d-none');
@@ -282,6 +286,16 @@
                             } else {
                                 $('#addShift-UpdatePunchCountFromDiv').addClass('d-none');
                             }
+                            $(settings.updateform).find('#UpdateEarlyInTimeHour').val(data.updateEarlyInTimeHour);
+                            $(settings.updateform).find('#UpdateEarlyInTimeMinute').val(data.updateEarlyInTimeMinute);
+                            $(settings.updateform).find('#UpdateIsFlexibleOutTime').prop('checked', data.updateIsFlexibleOutTime);
+                            if ($('#UpdateIsFlexibleOutTime').is(':checked')) {
+                                $('#addShift-UpdatePunchCountOutDiv').removeClass('d-none');
+                            } else {
+                                $('#addShift-UpdatePunchCountOutDiv').addClass('d-none');
+                            }
+                            $(settings.updateform).find('#UpdateEarlyOutTimeHour').val(data.updateEarlyOutTimeHour);
+                            $(settings.updateform).find('#UpdateEarlyOutTimeMinute').val(data.updateEarlyOutTimeMinute);
                             $(settings.updateform).find('#UpdateIsAutomaticORManualBreakTime').prop('checked', data.updateIsAutomaticORManualBreakTime);
                             if ($('#UpdateIsAutomaticORManualBreakTime').is(':checked')) {
                                 $('#addShift-UpdateBreakTimeDiv').removeClass('d-none');
@@ -299,8 +313,8 @@
                                 $('#addShift-UpdateAllowStartEndTime').removeClass('d-none');
                                 $('#addShift-UpdateDenyStartEndTime').addClass('d-none');
                             }
-                            $(settings.updateform).find('#UpdateMealBreakStartTime').val(data.updateMealBreakStartTime);
-                            $(settings.updateform).find('#UpdateMealBreakEndTime').val(data.updateMealBreakEndTime);
+                            $(settings.updateform).find('#UpdateMealBreakStartTime')[0]._flatpickr.setDate(data.updateMealBreakStartTime); 
+                            $(settings.updateform).find('#UpdateMealBreakEndTime')[0]._flatpickr.setDate(data.updateMealBreakEndTime); 
                             $(settings.updateform).find('#UpdateIsAllowOvertime').prop('checked', data.updateIsAllowOvertime);
                             if ($('#UpdateIsAllowOvertime').is(':checked')) {
                                 $('#addShift-UpdateOvertimeDiv').removeClass('d-none');

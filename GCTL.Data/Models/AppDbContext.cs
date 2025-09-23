@@ -4375,6 +4375,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.IsFlexibleInTime).HasDefaultValue(true);
+            entity.Property(e => e.IsFlexibleOutTime).HasDefaultValue(true);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.ShiftName).HasMaxLength(20);
