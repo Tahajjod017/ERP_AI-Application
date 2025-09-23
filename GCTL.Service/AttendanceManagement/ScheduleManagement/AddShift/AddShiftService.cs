@@ -167,13 +167,13 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
             var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.StartTime.Value, _localizationContext);
             var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.EndTime.Value, _localizationContext);
 
-            int? inPunchCountFromMin = (model.EarlyInTimeHour * 60 ?? 0) + model.EarlyInTimeMinute;
-            int? outPunchCountToMin = (model.EarlyOutTimeHour * 60 ?? 0) + model.EarlyOutTimeMinute;
-            int? graceTime = (model.GraceTimeHour * 60 ?? 0) + model.GraceTimeMinute;
-            int? minimumWorkingTime = (model.MinimumWorkingTimeHour * 60 ?? 0) + model.MinimumWorkingTimeMinute;
-            int? minimumRequiredOvertime = (model.MinimumRequiredOvertimeHour * 60 ?? 0) + model.MinimumRequiredOvertimeMinute;
-            int? maximumAllowedOvertime = (model.MaximumAllowedOvertimeHour * 60 ?? 0) + model.MaximumAllowedOvertimeMinute;
-            int? mealBreakTime = (model.MealBreakTimeHour * 60 ?? 0) + model.MealBreakTimeMinute;
+            int? inPunchCountFromMin = (model.EarlyInTimeHour * 60 ?? 0) + model.EarlyInTimeMinute ?? 0;
+            int? outPunchCountToMin = (model.EarlyOutTimeHour * 60 ?? 0) + model.EarlyOutTimeMinute ?? 0;
+            int? graceTime = (model.GraceTimeHour * 60 ?? 0) + model.GraceTimeMinute ?? 0;
+            int? minimumWorkingTime = (model.MinimumWorkingTimeHour * 60 ?? 0) + model.MinimumWorkingTimeMinute ?? 0;
+            int? minimumRequiredOvertime = (model.MinimumRequiredOvertimeHour * 60 ?? 0) + model.MinimumRequiredOvertimeMinute ?? 0;
+            int? maximumAllowedOvertime = (model.MaximumAllowedOvertimeHour * 60 ?? 0) + model.MaximumAllowedOvertimeMinute ?? 0;
+            int? mealBreakTime = (model.MealBreakTimeHour * 60 ?? 0) + model.MealBreakTimeMinute ?? 0;
 
             try
             {
@@ -276,13 +276,13 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
             var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateStartTime.Value, _localizationContext);
             var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateEndTime.Value, _localizationContext);
 
-            int? inPunchCountFromMin = (model.UpdateEarlyInTimeHour * 60 ?? 0) + model.UpdateEarlyInTimeMinute;
-            int? outPunchCountToMin = (model.UpdateEarlyOutTimeHour * 60 ?? 0) + model.UpdateEarlyOutTimeMinute;
-            int? graceTime = (model.UpdateGraceTimeHour * 60 ?? 0) + model.UpdateGraceTimeMinute;
-            int? minimumWorkingTime = (model.UpdateMinimumWorkingTimeHour * 60 ?? 0) + model.UpdateMinimumWorkingTimeMinute;
-            int? minimumRequiredOvertime = (model.UpdateMinimumRequiredOvertimeHour * 60 ?? 0) + model.UpdateMinimumRequiredOvertimeMinute;
-            int? maximumAllowedOvertime = (model.UpdateMaximumAllowedOvertimeHour * 60 ?? 0) + model.UpdateMaximumAllowedOvertimeMinute;
-            int? mealBreakTime = (model.UpdateMealBreakTimeHour * 60 ?? 0) + model.UpdateMealBreakTimeMinute;
+            int? inPunchCountFromMin = (model.UpdateEarlyInTimeHour * 60 ?? 0) + model.UpdateEarlyInTimeMinute ?? 0;
+            int? outPunchCountToMin = (model.UpdateEarlyOutTimeHour * 60 ?? 0) + model.UpdateEarlyOutTimeMinute ?? 0;
+            int? graceTime = (model.UpdateGraceTimeHour * 60 ?? 0) + model.UpdateGraceTimeMinute ?? 0;
+            int? minimumWorkingTime = (model.UpdateMinimumWorkingTimeHour * 60 ?? 0) + model.UpdateMinimumWorkingTimeMinute ?? 0;
+            int? minimumRequiredOvertime = (model.UpdateMinimumRequiredOvertimeHour * 60 ?? 0) + model.UpdateMinimumRequiredOvertimeMinute ?? 0;
+            int? maximumAllowedOvertime = (model.UpdateMaximumAllowedOvertimeHour * 60 ?? 0) + model.UpdateMaximumAllowedOvertimeMinute ?? 0;
+            int? mealBreakTime = (model.UpdateMealBreakTimeHour * 60 ?? 0) + model.UpdateMealBreakTimeMinute ?? 0;
 
             try
             {
