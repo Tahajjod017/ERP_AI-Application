@@ -1,6 +1,8 @@
-﻿using GCTL.Core.Repository;
+﻿using Bogus.DataSets;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
+using GCTL.Service.FileHandler;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Mathematics;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions;
@@ -14,10 +16,12 @@ namespace GCTL.Service.CRM.LeadsActivities
     public class LeadsActivityService : ILeadsActivityService
     {
         private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
+        private readonly IPdfFileHandler _pdfFileHandlerService;
 
-        public LeadsActivityService(IGenericRepository<LeadDetails> leadDetailsRepository)
+        public LeadsActivityService(IGenericRepository<LeadDetails> leadDetailsRepository, IPdfFileHandler pdfFileHandlerService)
         {
             _leadDetailsRepository = leadDetailsRepository;
+            _pdfFileHandlerService = pdfFileHandlerService;
         }
 
         public async Task<ReturnDataView<LeadDetailsDTO>> GetUpcomingActivityList(
@@ -177,154 +181,19 @@ namespace GCTL.Service.CRM.LeadsActivities
         {
             try
             {
-                var upcomingActivities = await _leadDetailsRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.UtcNow)
-                   .OrderBy(u => u.ActivityDateTime)
-                   .Select(u => new
-                   {
-                       LeadName = u.Lead.LeadName,
-                       ActivityType = u.LeadActivityType.LeadActivityName,
-                       ActivityNote = u.ActivityNote,
-                       ActivityDateTime = u.ActivityDateTime,
-                       CreatedAt = u.CreatedAt,
-                       LeadID = u.LeadID,
-                       CustomerName = u.Lead.Customer.FullName,
-                       LeadStage = u.Lead.LeadStatus.LeadStatusName,
-                       LeadPriority = u.Lead.Priority.PriorityName,
-                       LeadSource = u.Lead.LeadStatus.LeadStatusName,
-                       LeadProbability = u.Lead.ProbabilityPercentage,
-                       LeadOwner = u.Lead.LeadOwner.FirstName + " " + u.Lead.LeadOwner.LastName,
-                   }).ToListAsync();
-
-                var document = Document.Create(container =>
-                {
-                    container.Page(page =>
-                    {
-                        page.Size(PageSizes.A4);
-                        page.Margin(2, Unit.Centimetre);
-                        page.PageColor(Colors.White);
-                        page.DefaultTextStyle(x => x.FontSize(9));
-
-                        // -------------------
-                        // Header
-                        // -------------------
-                        page.Header()
-                            .Element(header =>
-                            {
-                                header
-                                    .PaddingBottom(5)
-                                    .BorderBottom(1)
-                                    .BorderColor(Colors.Grey.Lighten2)
-                                    .Row(row =>
-                                    {
-                                        row.RelativeItem()
-                                            .Text("Lead Activities (Upcoming)")
-                                            .FontSize(16)
-                                            .SemiBold()
-                                            .FontColor(Colors.Blue.Medium);
-
-                                        row.ConstantItem(100)
-                                            .AlignRight()
-                                            .Text(DateTime.Now.ToString("dd-MM-yyyy"))
-                                            .FontSize(9)
-                                            .FontColor(Colors.Grey.Darken2);
-                                    });
-                            });
-
-                        // -------------------
-                        // Table content
-                        // -------------------
-                        page.Content()
-                            .Table(table =>
-                            {
-                                // Column definitions
-                                table.ColumnsDefinition(columns =>
-                                {
-                                    columns.ConstantColumn(40);  // SL
-                                    columns.RelativeColumn(2);   // Lead Name
-                                    columns.RelativeColumn(2);   // Customer Name
-                                    columns.RelativeColumn(2);   // Service Type
-                                    columns.RelativeColumn(2);   // Date & Time
-                                    columns.RelativeColumn(3);   // Note
-                                    columns.RelativeColumn(2);   // Owner Name
-                                });
-
-                                // Table header (repeats on each page)
-                                table.Header(header =>
-                                {
-                                    header.Cell().Element(HeaderCell).Text("SL");
-                                    header.Cell().Element(HeaderCell).Text("Lead Name");
-                                    header.Cell().Element(HeaderCell).Text("Customer Name");
-                                    header.Cell().Element(HeaderCell).Text("Service Type");
-                                    header.Cell().Element(HeaderCell).Text("Date & Time");
-                                    header.Cell().Element(HeaderCell).Text("Note");
-                                    header.Cell().Element(HeaderCell).Text("Owner Name");
-                                });
-
-                                // Table rows
-                                int serial = 1;
-                                bool isAlternate = false;
-                                foreach (var activity in upcomingActivities)
-                                {
-                                    isAlternate = !isAlternate;
-
-                                    table.Cell().Element(c => BodyCell(c, isAlternate)).Text(serial++.ToString());
-                                    table.Cell().Element(c => BodyCell(c, isAlternate)).Text(activity.LeadName);
-                                    table.Cell().Element(c => BodyCell(c, isAlternate)).Text(activity.CustomerName);
-                                    table.Cell().Element(c => BodyCell(c, isAlternate)).Text(activity.ActivityType);
-                                    table.Cell().Element(c => BodyCell(c, isAlternate))
-                                         .Text(activity.ActivityDateTime?.ToString("dd-MM-yyyy HH:mm") ?? "");
-                                    table.Cell().Element(c => BodyCell(c, isAlternate))
-                                         .Text(activity.ActivityNote ?? "").WrapAnywhere();
-                                    table.Cell().Element(c => BodyCell(c, isAlternate)).Text(activity.LeadOwner);
-                                }
-
-                                // -------------------
-                                // Styles
-                                // -------------------
-                                IContainer HeaderCell(IContainer container) =>
-                                     container
-                                         .Background(Colors.Grey.Lighten3)
-                                         .PaddingVertical(5)
-                                         .PaddingHorizontal(3)
-                                         .BorderBottom(1)
-                                         .BorderColor(Colors.Grey.Lighten2);
-                                         //.Text(text =>
-                                         //{
-                                         //    //text.SemiBold();
-                                         //}
-                                         //);
-
-                                IContainer BodyCell(IContainer container, bool alternate) =>
-                                    container
-                                        .Background(alternate ? Colors.Grey.Lighten5 : Colors.White)
-                                        .PaddingVertical(4)
-                                        .PaddingHorizontal(3)
-                                        .BorderBottom(1)
-                                        .BorderColor(Colors.Grey.Lighten2);
-                            });
-
-                        // -------------------
-                        // Footer
-                        // -------------------
-                        page.Footer()
-                            .AlignCenter()
-                            .Text(x =>
-                            {
-                                x.Span("Generated on: ").SemiBold();
-                                x.Span(DateTime.Now.ToString("dd-MM-yyyy HH:mm"));
-                                //x.Span($"   Page {page.CurrentPageNumber} of {page.TotalPages}");
-                            });
-                    });
-                });
+                var activityDataSource = new ActivityDocumentDataSource(_leadDetailsRepository);
+                var activities = await activityDataSource.GetUpCommingActivity();
+                var document =new ActivityDocument(activities, _pdfFileHandlerService);
 
                 var pdfBytes = document.GeneratePdf();
-
                 return pdfBytes;
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 return new byte[0];
             }
-            
         }
+
+
     }
 }
