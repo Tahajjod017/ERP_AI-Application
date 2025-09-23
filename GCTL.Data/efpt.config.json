@@ -626,6 +626,10 @@
       {
          "Name": "[dbo].[sp_InsertOrUpdateShifts]",
          "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_ProcessPunch]",
+         "ObjectType": 1
       }
    ],
    "UiHint": null,

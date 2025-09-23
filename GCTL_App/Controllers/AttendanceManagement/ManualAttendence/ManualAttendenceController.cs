@@ -562,7 +562,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 
                     if (record.GraceTime.HasValue)
                     {
-                        var graceSpan = record.GraceTime.Value.ToTimeSpan();
+                        TimeSpan graceSpan = TimeSpan.FromMinutes((double)record.GraceTime);
+                        //var graceSpan = record.GraceTime.Value.ToTimeSpan();
                         if (firstPunchTime > shiftStart + graceSpan)
                         {
                             var lateBy = (firstPunchTime - shiftStart).TotalMinutes;
@@ -590,7 +591,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                     var lastPunchTime = ParseFlexibleTime(record.PunchData.Last().Time);
 
                     var workDuration = lastPunchTime - firstPunchTime;
-                    var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
+                    //var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
+                    TimeSpan minWorkSpan = TimeSpan.FromMinutes((double)record.MinimumWorkHour);
 
                     if (workDuration < minWorkSpan)
                     {
