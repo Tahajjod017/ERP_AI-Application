@@ -32,14 +32,14 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" asp-for="UpdateStartTime">@Html.SmartLocalize("Start Time")</label>
-                                <input class="form-control timepicker-12hr" asp-for="UpdateStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" >
+                                <input class="form-control timepicker-12hr" asp-for="UpdateStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" asp-for="UpdateEndTime">@Html.SmartLocalize("End Time")</label>
-                                <input class="form-control timepicker-12hr" asp-for="UpdateEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" >
+                                <input class="form-control timepicker-12hr" asp-for="UpdateEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
                             </div>
                         </div>
 
@@ -61,32 +61,24 @@
                         </div>
 
                         <div class="col-md-6">
-
                         </div>
 
                         <div class="col-md-6">
                             <div class="row">
-                                <div class="col-md-6 d-inline-flex align-items-center">
+                                <div class="col-md-6 d-inline-flex align-items-center mb-3">
                                     <label class="form-check-label me-2" asp-for="UpdateIsFlexibleInTime">@Html.SmartLocalize("Restrict early In Time")</label>
-                                    <div class="form-check form-switch ">
+                                    <div class="form-check form-switch">
                                         <input class="form-check-input mt-2" type="checkbox" asp-for="UpdateIsFlexibleInTime">
                                     </div>
-                                    @* <label class="form-check-label me-2" asp-for="UpdateIsFlexibleInTime">@Html.SmartLocalize("Enable Flexible In Time")</label> *@
                                 </div>
 
-                                @* <div class="col-md-6 d-none" id="addShift-UpdatePunchCountFromDiv">
-                                    <label class="form-label" asp-for="UpdatePunchCountFrom">@Html.SmartLocalize("Punch Count From")</label>
-                                    <input class="form-control  timepicker-12hr" asp-for="UpdatePunchCountFrom" type="text" placeholder="@Html.SmartLocalize("hour : minute")" />
-                                </div> *@
                                 <div class="col-md-6 d-none" id="addShift-UpdatePunchCountFromDiv">
                                     <label class="form-label" asp-for="UpdatePunchCountFrom">@Html.SmartLocalize("In Punch Count Before Shift")</label>
                                     <div class="input-group">
-                                        <input class="form-control" asp-for="UpdatePunchCountFrom" type="number" />
-                                        <select class="form-select">
-                                            <option value="" disabled>-- Select --</option>
-                                            <option value="">Minute</option>
-                                            <option value="">Hour</option>
-                                        </select>
+                                        <input class="form-control" asp-for="UpdatePunchCountFrom" type="number" placeholder="Hours">
+                                        <span class="input-group-text">Hour</span>
+                                        <input class="form-control" asp-for="UpdatePunchCountFrom" type="number" placeholder="Minutes">
+                                        <span class="input-group-text">Minute</span>
                                     </div>
                                 </div>
                             </div>
@@ -102,14 +94,12 @@
                                 </div>
 
                                 <div class="col-md-6 d-none" id="addShift-UpdatePunchCountOutDiv">
-                                    <label class="form-label" for="UpdatePunchCountOut">@Html.SmartLocalize("Out Punch Count After Shift")</label>
+                                    <label class="form-label" for="PunchCountOut">@Html.SmartLocalize("Out Punch Count After Shift")</label>
                                     <div class="input-group">
-                                        <input class="form-control" id="UpdatePunchCountOut" type="number" />
-                                        <select class="form-select">
-                                            <option value="" disabled>-- Select --</option>
-                                            <option value="">Minute</option>
-                                            <option value="">Hour</option>
-                                        </select>
+                                        <input class="form-control" id="UpdateOutTimeHour" type="number" placeholder="Hours">
+                                        <span class="input-group-text">Hour</span>
+                                        <input class="form-control" id="UpdateOutTimeMinute" type="number" placeholder="Minutes">
+                                        <span class="input-group-text">Minute</span>
                                     </div>
                                 </div>
                             </div>
@@ -174,14 +164,14 @@
                                     <div class="col-md-3 me-4">
                                         <div class="mb-3">
                                             <label class="form-label" asp-for="UpdateMealBreakStartTime">@Html.SmartLocalize("Start Time")</label>
-                                            <input class="form-control timepicker-12hr" asp-for="UpdateMealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" >
+                                            <input class="form-control timepicker-12hr" asp-for="UpdateMealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
                                         </div>
                                     </div>
 
                                     <div class="col-md-3">
                                         <div class="">
                                             <label class="form-label" asp-for="UpdateMealBreakEndTime">@Html.SmartLocalize("End Time")</label>
-                                            <input class="form-control timepicker-12hr" asp-for="UpdateMealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")" >
+                                            <input class="form-control timepicker-12hr" asp-for="UpdateMealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
                                         </div>
                                     </div>
                                 </div>
