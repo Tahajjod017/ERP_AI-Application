@@ -57,6 +57,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory;
         private readonly IEmailService  emailService;
         private readonly ILocalizationContext _localizationContext;
+       
         public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory, IEmailService emailService, ILocalizationContext localizationContext) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
@@ -575,7 +576,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
 
         //Save Code
-            public async Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM)
+            public async Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM, string url)
         {
 
             if (entityVM == null)
@@ -665,7 +666,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 // Process if we got an approver in self-approval flow
                 if (approvalPersonId.HasValue)
                 {
-                    return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, true);
+                    return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, true,url);
                 }
             }
 
@@ -695,7 +696,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             {
                 return new CommonReturnViewModel { Success = false, Message = "No valid approver found." };
             }
-            return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, false);
+            return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, false,url);
 
         }
 
@@ -705,7 +706,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         // Max Perday Validation Partial
 
         //
-        private async Task<CommonReturnViewModel> ProcessLeaveApplicationAsync( LeaveApplicationsRequestVM entityVM,int approvalPersonId,ApprovalSettings approvalSettings,dynamic offf,List<(int? id, bool isDesignation)> approvalFlow,bool isSelfApproval
+        private async Task<CommonReturnViewModel> ProcessLeaveApplicationAsync( LeaveApplicationsRequestVM entityVM,int approvalPersonId,ApprovalSettings approvalSettings,dynamic offf,List<(int? id, bool isDesignation)> approvalFlow,bool isSelfApproval,string url
         )
         {
             await leaveRequest.BeginTransactionAsync();
@@ -846,7 +847,45 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         x.OrganizationName,x.LogoLink,x.FaviconLink,
                         x.Address, x.FullAddress,x.EmailAddress ,CountryName=x.Country.CountryName
                         , x.Phone}).FirstOrDefaultAsync();
-                if(orgainfo==null)
+                var parts = orgainfo.Address.Split(',');
+                var formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
+                //string logoPath;
+                //if(!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
+                //{
+                //    logoPath = $"{url}/media/company/logo/{orgainfo.LogoLink}";
+                //} else
+                //{
+                //    var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
+                //         ? "?": orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
+
+                //    // ui-avatars lets you specify size, colors, etc.
+                //    logoPath = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
+                //}
+
+                // Get full path to the logo file without IWebHostEnvironment
+                var logoFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "media", "company", orgainfo.LogoLink);
+
+                // Check if file exists and convert to Base64
+                string logoBase64;
+                if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink) && System.IO.File.Exists(logoFilePath))
+                {
+                    var imageBytes = await System.IO.File.ReadAllBytesAsync(logoFilePath);
+                    var extension = Path.GetExtension(logoFilePath).Replace(".", "").ToLower();
+                    logoBase64 = $"data:image/{extension};base64,{Convert.ToBase64String(imageBytes)}";
+                }
+                else
+                {
+                    // Fallback to UI Avatars
+                    var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
+                        ? "?" : orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
+                    logoBase64 = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
+                }
+
+
+
+
+                //var logoPath = $"/media/company/logo/{orgainfo.LogoLink}";
+                if (orgainfo==null)
                 {
                     return new CommonReturnViewModel
                     {
@@ -878,9 +917,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 {
                     totalDays = (entityVM.ToDate.Value.DayNumber - entityVM.FromDate.Value.DayNumber) + 1;
                 }
-
-               // Build email model
-               int leaveApplicationID = sequence;
+               
+                // Build email model
+                int leaveApplicationID = sequence;
                 var emailModel = new EmailVM
                 {
                     To = applicantData?.Email ?? applicantData?.OfficeEmail,
@@ -1048,14 +1087,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 <table width=""100%"">
                     <tr>
                         <td align=""left"">
-                            <img src=""https://gctlsecurity.com/pub/static/frontend/CLS/Security/en_US/images/logo.png"" alt=""Company Logo"">
+                            <img src=""{logoBase64}"" alt=""Company Logo"">
                         </td>
                         <td align=""right"">
-                            House-42(5th Floor) Road-10,<br>
-                            Sector-4, Uttara, Dhaka-1230,<br>
-                            Bangladesh<br>
-                            info@gctlinfosys.com<br>
-                            +88 01795-788488
+
+                              {formattedAddress}<br>
+                            {orgainfo.CountryName}<br>
+                            {orgainfo.EmailAddress}<br>
+                            {orgainfo.Phone}
                         </td>
                     </tr>
                 </table>
@@ -1079,7 +1118,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         <td style=""width:33%; position:relative;"">
           <div style=""width:20px;height:20px;background:#008000;border-radius:50%;margin:auto;""></div>
           <p style=""margin:5px 0 0;font-weight:bold;color:#008000;"">Leave Submitted</p>
-          <p style=""margin:0;font-size:12px;color:#555;"">Sep 16, 2025 - 10:00 AM</p>
+          <p style=""margin:0;font-size:12px;color:#555;"">{DateTime.Now:dd MMM yyyy - hh:mm tt}</p>
         </td>
         <!-- Connector -->
         <td style=""width:5%;""><hr style=""border:none;border-top:2px solid #e0e0e0;""></td>

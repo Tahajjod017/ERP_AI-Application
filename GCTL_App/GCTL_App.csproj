@@ -65,7 +65,6 @@
     <Folder Include="Views\LeadActivityTypes\" />
     <Folder Include="wwwroot\img\companyImages\" />
     <Folder Include="wwwroot\js\pages\ProjectManagements\" />
-    <Folder Include="wwwroot\media\company\logo\" />
 
   </ItemGroup>
 

@@ -19,7 +19,7 @@ namespace GCTL.Service.AttendanceManagement
         private readonly IGenericRepository<EmailSettings> _emailSettings;
         private readonly IConfiguration _configuration;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfo;
-
+   
 
         public EmailService(IGenericRepository<EmailSettings> genericRepository, IGenericRepository<EmailSettings> emailSettings, IConfiguration configuration, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo) : base(genericRepository)
         {
