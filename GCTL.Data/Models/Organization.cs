@@ -65,6 +65,8 @@ public partial class Organization
 
     public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
 
+    public virtual ICollection<AttendancePolicies> AttendancePolicies { get; set; } = new List<AttendancePolicies>();
+
     public virtual ICollection<BenefitTypes> BenefitTypes { get; set; } = new List<BenefitTypes>();
 
     public virtual ICollection<Benefits> Benefits { get; set; } = new List<Benefits>();

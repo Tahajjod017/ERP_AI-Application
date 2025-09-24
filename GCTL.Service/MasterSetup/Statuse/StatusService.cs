@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers.Jsonserialize;
 
 namespace GCTL.Service.MasterSetup.Statuse
 {
@@ -69,7 +70,7 @@ namespace GCTL.Service.MasterSetup.Statuse
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await _genericRepository.RollbackTransactionAsync();
                 //throw ex;
@@ -167,7 +168,7 @@ namespace GCTL.Service.MasterSetup.Statuse
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<StatusVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<StatusVM>>(JsonConvert.SerializeObject(data,JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.StatusID).ToList();
 
                 foreach (var item in data)

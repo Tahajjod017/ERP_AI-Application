@@ -1,4 +1,8 @@
-﻿$('document').ready(function () {
+﻿$(function () {
+    let links = {
+        generatePDF: '/LeadsActivities/GeneratePDF',
+    }
+
     let ids = {
         leadID: "#leadID",
         leadName: "#leadName",
@@ -13,6 +17,7 @@
         selectedID: '#selectedID',
         leadOwnerId: '#leadOwnerId',
         itemPerPage: '#pageElementSize',
+        pdfDownloadBtn: '#downloadPDF',
     }
 
     let typingTimer;
@@ -26,7 +31,7 @@
         }, delay);
     });
 
-    $("#pageElementSize, #dateRange2, #customerType").on("change", function () {
+    $("#pageElementSize, #dateRange2, #customerType, #LeadStatus").on("change", function () {
         clearTimeout(typingTimer);
         typingTimer = setTimeout(async function () {
             loadProcessedTable();
@@ -35,7 +40,6 @@
 
 
     function updatePaginationApprove(totalCount, page, size) {
-        debugger;
         const totalPages = Math.ceil(totalCount / size);
         const pagination = $('#pageNumber');
         pagination.empty();
@@ -61,8 +65,9 @@
 
     $('#pageNumber').off('click', '.page-link').on('click', '.page-link', function (e) {
         e.preventDefault();
+        debugger;
         const selectedPage = parseInt($(this).data('page'));
-        const totalPages = Math.ceil($('#resignProcessed').data('total') / $('#pageElementSize').val());
+        const totalPages = Math.ceil($('#LeadsActivities').data('total') / $('#pageElementSize').val());
         if (selectedPage >= 1 && selectedPage <= totalPages) {
             $('#pageNumber').data('page', selectedPage);
             loadProcessedTable();
@@ -74,55 +79,94 @@
     // ====================
 
 
+
     const statusColors = {
-        "contacted": "badge-phoenix-info",
-        "new": "badge-phoenix-primary",
-        "not contacted": "badge-phoenix-warning",
+        "pdf": "badge-phoenix-info",
+        "jpg": "badge-phoenix-primary",
+        "xl": "badge-phoenix-warning",
         "nurturing": "badge-phoenix-secondary",
         "qualified": "badge-phoenix-success",
         "unqualified": "badge-phoenix-danger"
     };
-
     function getStatusBadgeClass(status) {
-        return statusColors[status.trim().toLowerCase()] || "badge-secondary";
+        return statusColors[status.trim().toLowerCase()] || "badge-phoenix-secondary";
     }
+
+    // =========================
+    // preview
+    //============================
+    function previewFile(fileUrl) {
+        let ext = fileUrl.split('.').pop().toLowerCase();
+        let container = document.getElementById("filePreviewContainer");
+        container.innerHTML = ""; // reset
+
+        if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
+            // Image preview
+            container.innerHTML = `<img src="${fileUrl}" class="img-fluid" alt="preview">`;
+        }
+        else if (ext === "pdf") {
+            container.innerHTML = `<iframe src="${fileUrl}" 
+                           style="width:100%;height:500px" frameborder="0"></iframe>`;
+        }
+        else {
+            // Not supported ? force download
+            window.open(fileUrl, "_blank");
+            return;
+        }
+
+        // Show modal
+        let modal = new bootstrap.Modal(document.getElementById('filePreviewModal'));
+        modal.show();
+    }
+    window.previewFile = previewFile;
     function loadProcessedTable() {
         debugger;
         var page = $('#pageNumber').data('page');
-        //var size = $('#resignProcessed').data('size');
         var size = $('#pageElementSize').val();
         var search = $('#dataSearch').val();
         var sort = $('#resignProcessed').data('sort');
         var dir = $('#resignProcessed').data('dir');
         var dateRange = $('#dateRange2').val();
+        var customerID = $('#customerType').val();
+        var statusID = $('#LeadStatus').val();
 
         $.ajax({
             url: '/LeadsActivities/GetUpcomingActivities',
             type: 'POST',
             data: {
-                dateRange: dateRange,
-                pageNumber: page,
-                itemPerPage: size,
-                search: search,
-                sortColumn: sort,
-                sortDirection: dir
+                DateRange: dateRange,
+                PageNumber: page,
+                ItemPerPage: size,
+                Search: search,
+                SortColumn: sort,
+                SortDirection: dir,
+                CustomerTypeID: customerID,
+                LeadStatusID: statusID
             },
             success: function (response) {
                 
-                showDev(response)
-                debugger;
                 var tbody = $('#processed-resignation-body');
                 tbody.empty();
                 let itemsPerPage = parseInt($('#pageElementSize').val()) || 10;
-
                 let page = parseInt($('#pageNumber').data('page')) || 1;
+                
 
 
                 let pageOffset = (page - 1) * itemsPerPage;
 
                 $.each(response.data, function (index, item) {
+                    let fileCell = "-"; // default
+                    if (item.file && item.file.length > 0) {
+                        const extension = item.file.split('.').pop();
+                        let statusBadge = getStatusBadgeClass(extension);
+                        fileCell = `<a href="javascript:void(0)" 
+                       onclick="previewFile('${item.file}')" 
+                       class="badge badge-phoenix ${statusBadge} fs-9">
+                       ${extension}
+                    </a>`;
+                    }
+                    
                     const dt = new Date(item.activityDateTime);
-
                     // Format Date (dd-mm-yyyy)
                     const datePart = dt.toLocaleDateString('en-GB').replace(/\//g, '-');
 
@@ -138,8 +182,10 @@
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${item.leadName}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadActivityType}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="3">${datePart} ${time}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.activityNote}</td>
-                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.activityNote}</td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">
+                            ${item.activityNote.length > 25 ? item.activityNote.substring(0, 25) + "..." : item.activityNote}
+                        </td>
+                        <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${fileCell}</td>
                         <td class="department align-middle white-space-nowrap ps-4 fw-semibold text-body py-1" data-column="4">${item.leadOwner}</td>
            
                         <td class="status align-middle white-space-nowrap pe-0 ps-2 d-flex justify-content-center" data-column="11">
@@ -147,8 +193,8 @@
                         </td>
                     </tr>
                 `);
-                });
-
+                }); 
+                
                 //DynamicTable.applyColumnVisibilityToNewRows(document.getElementById('resignProcessed'), 'resignProcessed');
 
                 DynamicTableDrag.refreshTableSettings('LeadsActivities');
@@ -235,5 +281,21 @@
         }
     });
 
-
+    $(ids.pdfDownloadBtn).on('click', function () {
+        fetch(links.generatePDF, { method: "POST" })
+            .then(res => res.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "report.pdf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(() => {
+                toastr.error("Error crating PDF");
+            });
+    });
 });

@@ -53,6 +53,10 @@ public partial class Attendance
 
     public int? BreakTimeMinutes { get; set; }
 
+    public int? EarlyOutTimeMinutes { get; set; }
+
+    public int? LateOutTimeMinutes { get; set; }
+
     public virtual ICollection<AttendanceLog> AttendanceLog { get; set; } = new List<AttendanceLog>();
 
     public virtual Employees CreatedByNavigation { get; set; }

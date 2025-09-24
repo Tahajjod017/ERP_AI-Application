@@ -215,7 +215,8 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
 
                     if (record.GraceTime.HasValue)
                     {
-                        var graceSpan = record.GraceTime.Value.ToTimeSpan();
+                        TimeSpan graceSpan = TimeSpan.FromMinutes((double)record.GraceTime);
+                        //var graceSpan = record.GraceTime.Value.ToTimeSpan();
                         if (firstPunchTime > shiftStart + graceSpan)
                         {
                             var lateBy = (firstPunchTime - shiftStart).TotalMinutes;
@@ -239,7 +240,9 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                     var firstPunchTime = DateTime.ParseExact(record.PunchData.First().Time, "hh:mm tt", null).TimeOfDay;
                     var lastPunchTime = DateTime.ParseExact(record.PunchData.Last().Time, "hh:mm tt", null).TimeOfDay;
                     var workDuration = lastPunchTime - firstPunchTime;
-                    var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
+
+                    TimeSpan minWorkSpan = TimeSpan.FromMinutes((double)record.MinimumWorkHour);
+                    //var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
 
                     if (workDuration < minWorkSpan)
                     {
@@ -355,7 +358,8 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
 
                 if (record.GraceTime.HasValue)
                 {
-                    var graceSpan = record.GraceTime.Value.ToTimeSpan();
+                    TimeSpan graceSpan = TimeSpan.FromMinutes((double)record.GraceTime);
+                    //var graceSpan = record.GraceTime.Value.ToTimeSpan();
 
                     if (firstPunchTime > shiftStart + graceSpan)
                     {
@@ -378,7 +382,9 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                 var firstPunchTime = DateTime.ParseExact(record.PunchData.First().Time, "hh:mm tt", null).TimeOfDay;
                 var lastPunchTime = DateTime.ParseExact(record.PunchData.Last().Time, "hh:mm tt", null).TimeOfDay;
                 var workDuration = lastPunchTime - firstPunchTime;
-                var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
+
+                TimeSpan minWorkSpan = TimeSpan.FromMinutes((double)record.MinimumWorkHour);
+                //var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
 
                 if (workDuration < minWorkSpan)
                 {

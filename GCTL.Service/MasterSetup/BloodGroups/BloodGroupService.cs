@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.BloodGroup;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.BloodGroup;
+using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GCTL.Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.MasterSetup.BloodGroups
 {
@@ -91,7 +92,7 @@ namespace GCTL.Service.MasterSetup.BloodGroups
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<BloodGroupVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<BloodGroupVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.BloodGroupName = model.BloodGroupName;
                 entity.UpdatedAt = DateTime.Now;
@@ -101,7 +102,7 @@ namespace GCTL.Service.MasterSetup.BloodGroups
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<BloodGroupVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<BloodGroupVM>(JsonConvert.SerializeObject(entity,JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Blood Group", ActionName.DataUpdated, beforeEntity, afterEntity, entity.BloodGroupID, model);
 
                 await _genericRepository.CommitTransactionAsync();

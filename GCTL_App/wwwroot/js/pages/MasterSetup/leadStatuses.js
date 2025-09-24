@@ -21,13 +21,15 @@
 
             $('#leadStatus-saveBtn').on('click', function (e) {
                 e.preventDefault();
-
+                debugger;
                 var token = $('#leadStatus-form input[name="__RequestVerificationToken"]').val();
-
+                const isSpecial = $("#IsSpecial").is(":checked");
+                showDev(isSpecial);
                 var formData = {
                     __RequestVerificationToken: token,
                     LeadStatusID: $('#LeadStatusID').val(),
                     LeadStatusName: $('#LeadStatusName').val(),
+                    IsSpecial: isSpecial,
                 }
 
                 validateName();

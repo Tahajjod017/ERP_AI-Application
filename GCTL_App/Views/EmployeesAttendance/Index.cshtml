@@ -3,6 +3,25 @@
 @{
     
 }
+<style>
+    .flatpickr-input[readonly] {
+        background-color: #ffffffc1;
+    }
+
+    .input-icon-end {
+        position: relative;
+    }
+
+        .input-icon-end .flatpickr-icon {
+            position: absolute;
+            right: .75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none; /* ক্লিক ইনপুটেই যাবে */
+            font-size: 1.1rem;
+        }
+
+</style>
  <!-- Breadcrumb -->
 <div class="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
     <div class="my-auto mb-2">
@@ -31,6 +50,15 @@
                 </a>
             </div>
         </div> *@
+        <div class="me-2 mb-2">
+            <div class="">
+                <div class="input-icon-end position-relative">
+                    <input class="form-control datetimepicker flatpickr-input" id="dateRangePicker" type="text" placeholder="d/m/y ">
+                    <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                </div>
+            </div>
+        </div>
+      
         <div class="me-2 mb-2">
             <div class="dropdown">
                 <a href="javascript:void(0);" class="dropdown-toggle btn btn-white d-inline-flex align-items-center"
@@ -69,10 +97,13 @@
 <partial name="_MonthlyAttendanceStatus" /> 
 <partial name="_AttendanceStatus" />
 
-<script>
 
-</script>
 @section Scripts {
 
     <script src="~/js/pages/attendancemanagement/employeeateendencereport/attendencestatus.js"></script>
+    <script>
+             
+    </script>
+
+});
 }

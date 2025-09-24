@@ -16,15 +16,16 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
         Task<PaginationService<Attendance, EmployeeAttendenceVM>.PaginationResult<EmployeeAttendenceVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null, int? employeeId = null, int? statusID = null, string? sortId = "");
         Task<EmployeeAttendenceVM> GetAttendanceDetailsAsync(int employeeId);
-        Task<EmployeeAttendenceVM> GetAttendanceProgressBarAsync(int employeeId);
-        Task<List<PunchActivityDto>> GetEmployeePunchActivityAsync(int userId);
-        Task<TimeOnly?> GetEmployeeFirstPunchInTimeAsync(int userId);
+        Task<EmployeeAttendenceVM> GetAttendanceProgressBarAsync(int employeeId,DateTime? date);
+        Task<List<PunchActivityDto>> GetEmployeePunchActivityAsync(int userId,DateTime date);
+        Task<TimeOnly?> GetEmployeeFirstPunchInTimeAsync(int userId, DateTime date);
         Task<EmployeeStatusReportVM> GetEmployeeStatusReport(int employeeId, int? organizationId, int? organizationBranchId);
         Task<AttendanceYearlyChartDTO> GetEmployeeStatusReportYearlyChart(
             int employeeId, int? organizationId, int? organizationBranchId);
         Task<(double totalWorkingHours, string totalWorkedHours)> GetTotalHoursForWeek(int employeeId, int? organizationId, int? organizationBranchId);
         Task<(double totalWorkingHours, string totalWorkedHours)> GetTotalHoursForMonth(int employeeId, int? organizationId, int? organizationBranchId);
         Task<IActionResult> CalculateWorkingHours(int attendanceId);
+        Task<AttendanceCompareChartDTO> GetEmployeeStatusReportCompareThisMonth(int employeeId, int? organizationId, int? organizationBranchId);
 
     }
 }
