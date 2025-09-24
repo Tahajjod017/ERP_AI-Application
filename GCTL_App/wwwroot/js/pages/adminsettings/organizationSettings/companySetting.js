@@ -157,6 +157,9 @@ $(document).on('click', '#confirmDeleteBtn', function () {
     }
 });
 //edit
+// placeholder (same as your default img)
+const PLACEHOLDER = '/img/logo-small.svg';
+
 $(document).on('click', '#edit_organization_settingBtn', function () {
     var holidaySettingID = $(this).data('id');
     $('#edit_organization_setting').modal('show'); // Show the delete confirmation modal
@@ -186,6 +189,29 @@ $(document).on('click', '#edit_organization_settingBtn', function () {
                 $('#LatitudeEdit').val(response.data.latitude);
                 $('#LongitudeEdit').val(response.data.longitude);
 
+                const logoUrl = response.data.logoLink ? `/media/company/logo/${encodeURIComponent(response.data.logoLink)}` : PLACEHOLDER;
+                const favUrl = response.data.faviconLink ? `/media/company/fevicon/${encodeURIComponent(response.data.faviconLink)}` : PLACEHOLDER;
+
+                // set previews
+                $('#logoPreviewEdit').attr('src', logoUrl);
+                $('#faviconPreviewEdit').attr('src', favUrl);
+
+                // store existing names (so server keeps them if no new upload)
+                $('#ExistingLogoLink').val(response.data.logoLink || '');
+                $('#ExistingFaviconLink').val(response.data.faviconLink || '');
+
+                // show X buttons only if there is an existing image
+                $('#clearLogo').toggle(!!response.data.logoLink);
+                $('#clearFavicon').toggle(!!response.data.faviconLink);
+
+                // reset remove flags
+                $('#RemoveLogo').val('false');
+                $('#RemoveFavicon').val('false');
+
+                // clear file inputs (avoid stale file objects)
+                $('#logoUploadEdit').val('');
+                $('#faviconUploadEdit').val('');
+
                 choiceManager.setChoiceValue('CountryIDEdit', response.data.countryID);
                 // Initialize the datepicker for the edit form
                
@@ -207,34 +233,109 @@ $(document).on('click', '#edit_organization_settingBtn', function () {
     /* $('#confirmDeleteBtn').data('id', approvalSettingID); /*/// Store the approvalSettingID on the "Yes, Delete" button
 
 });
+// change previews on new selection
+$('#logoUploadEdit').on('change', function (e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!/\.(jpe?g|png)$/i.test(file.name)) {
+        $('#logoWarningEdit').text('Only .jpg, .jpeg, .png are allowed.').show();
+        this.value = '';
+        return;
+    }
+    $('#logoWarningEdit').hide();
+    $('#logoPreviewEdit').attr('src', URL.createObjectURL(file));
+    $('#clearLogo').show();
+    // uploading a new file cancels any "remove" intent
+    $('#RemoveLogo').val('false');
+});
 
-$('#companySettingsFormEdit').submit(function (event) {
-    event.preventDefault(); // Prevent default form submission
+$('#faviconUploadEdit').on('change', function (e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!/\.(jpe?g|png)$/i.test(file.name)) {
+        $('#faviconWarningEdit').text('Only .jpg, .jpeg, .png are allowed.').show();
+        this.value = '';
+        return;
+    }
+    $('#faviconWarningEdit').hide();
+    $('#faviconPreviewEdit').attr('src', URL.createObjectURL(file));
+    $('#clearFavicon').show();
+    $('#RemoveFavicon').val('false');
+});
 
-    var formData = $(this).serialize(); // Serialize the form data
+// clear to remove existing image (without picking a new one)
+$('#clearLogo').on('click', function () {
+    $('#logoPreviewEdit').attr('src', PLACEHOLDER);
+    $('#logoUploadEdit').val('');            // ensure no new file is sent
+    $('#ExistingLogoLink').val('');          // don't keep old file name
+    $('#RemoveLogo').val('true');            // tell server to delete existing
+    $(this).hide();
+});
 
-    // Append the approvalSettingID to the form data
-    // formData += '&approvalSettingID=' + weekendSettingID;
+$('#clearFavicon').on('click', function () {
+    $('#faviconPreviewEdit').attr('src', PLACEHOLDER);
+    $('#faviconUploadEdit').val('');
+    $('#ExistingFaviconLink').val('');
+    $('#RemoveFavicon').val('true');
+    $(this).hide();
+});
+//$('#companySettingsFormEdit').submit(function (event) {
+//    event.preventDefault(); // Prevent default form submission
 
-    // Send the data via AJAX
+//    var formData = $(this).serialize(); // Serialize the form data
+
+//    // Append the approvalSettingID to the form data
+//    // formData += '&approvalSettingID=' + weekendSettingID;
+
+//    // Send the data via AJAX
+//    $.ajax({
+//        url: '/CompanySettings/Updates', // Adjust URL if necessary
+//        type: 'POST',
+//        data: formData,
+//        success: function (response) {
+//            if (response.isSuccess) {
+//                // Handle success
+//                toastr.success('Company setting updated successfully!');
+//                $('#edit_organization_setting').modal('hide'); // Hide the modal
+//                loadTableData();
+//            } else {
+//                // Handle failure
+//                toastr.error('Failed to update Company setting: ' + response.message);
+//            }
+//        },
+//        error: function (xhr, status, error) {
+//            // Handle AJAX errors
+//            toastr.error('Error: ' + error);
+//        }
+//    });
+//});
+$('#companySettingsFormEdit').on('submit', function (e) {
+    e.preventDefault();
+
+    const form = this;
+    const fd = new FormData(form); // includes files + all fields
+
+    // If you use ASP.NET Anti-Forgery:
+    const token = $('input[name="__RequestVerificationToken"]', form).val();
+
     $.ajax({
-        url: '/CompanySettings/Updates', // Adjust URL if necessary
+        url: '/CompanySettings/Updates',
         type: 'POST',
-        data: formData,
+        data: fd,
+        processData: false,   // IMPORTANT: don't transform FormData into a query string
+        contentType: false,   // IMPORTANT: let the browser set multipart/form-data
+        headers: token ? { 'RequestVerificationToken': token } : {},
         success: function (response) {
             if (response.isSuccess) {
-                // Handle success
-                toastr.success('Company setting updated successfully!');
-                $('#edit_organization_setting').modal('hide'); // Hide the modal
-                loadTableData();
+                toastr.success(response.message || 'Company setting updated successfully!');
+                $('#edit_organization_setting').modal('hide');
+                if (typeof loadTableData === 'function') loadTableData();
             } else {
-                // Handle failure
-                toastr.error('Failed to update Company setting: ' + response.message);
+                toastr.error(response.message || 'Failed to update Company setting.');
             }
         },
         error: function (xhr, status, error) {
-            // Handle AJAX errors
-            toastr.error('Error: ' + error);
+            toastr.error('Error: ' + (xhr.responseJSON?.message || error));
         }
     });
 });
