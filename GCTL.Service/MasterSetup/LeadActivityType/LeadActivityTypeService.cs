@@ -45,6 +45,7 @@ namespace GCTL.Service.MasterSetup.LeadActivityType
                     entityToRestore.LMAC = model.LMAC;
 
                     entityToRestore.DeletedAt = null;
+                    entityToRestore.DeletedBy = null;
                     entityToRestore.UpdatedAt = DateTime.Now;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
