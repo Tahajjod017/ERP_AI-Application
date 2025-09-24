@@ -841,8 +841,19 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 }
                 // for email 
 
-                var orgainfo = await _organizationRepository.AllActive().Include(x => x.EmployeeOfficeInfo.Where(x => x.EmployeeID == entityVM.EmployeeID)).Select(x => new {x.OrganizationName,x.LogoLink,x.FaviconLink, x.Address, x.EmailAddress }).FirstOrDefaultAsync();
-
+                var orgainfo = await _organizationRepository.AllActive().Include(x=>x.Country).Include(x => x.EmployeeOfficeInfo.Where(x => x.EmployeeID == entityVM.EmployeeID))
+                    .Select(x => new {
+                        x.OrganizationName,x.LogoLink,x.FaviconLink,
+                        x.Address, x.FullAddress,x.EmailAddress ,CountryName=x.Country.CountryName
+                        , x.Phone}).FirstOrDefaultAsync();
+                if(orgainfo==null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success=false,
+                        Message="Organization Info does not exists"
+                    };
+                }
                 var allEmployeeData = await (from emp in employee.AllActive()
                                              join empOff in empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
                                                  on emp.EmployeeID equals empOff.EmployeeID
@@ -868,92 +879,389 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     totalDays = (entityVM.ToDate.Value.DayNumber - entityVM.FromDate.Value.DayNumber) + 1;
                 }
 
-                // Build email model
-                int leaveApplicationID = sequence;
+               // Build email model
+               int leaveApplicationID = sequence;
                 var emailModel = new EmailVM
                 {
-                    To = approverData?.Email ?? approverData?.OfficeEmail,
+                    To = applicantData?.Email ?? applicantData?.OfficeEmail,
                     //To="siam.mbstubritto12@gmail.com",
                     Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
-        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;'>
-            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; margin: -20px -20px 20px -20px;'>
-                <h2 style='margin: 0; font-size: 24px;'>Leave Application Request</h2>
-            </div>
-            
-            <p style='color: #333; font-size: 16px;'>Dear {approverData?.FirstName} {approverData?.LastName},</p>
-            
-            <p style='color: #333; font-size: 16px; line-height: 1.6;'>
-                <strong>{applicantData?.FirstName} {applicantData?.LastName}</strong> 
-                ({applicantData?.DesignationName}, {applicantData?.DepartmentName}) has applied for leave.
-            </p>
-            
-            <div style='background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;'>
-                <h3 style='color: #667eea; margin-top: 0;'>Leave Details:</h3>
-                <table style='width: 100%; border-collapse: collapse;'>
+  <!DOCTYPE html>
+<html>
+<head>
+    <meta charset=""UTF-8"">
+    <title>HR Leave Request</title>
+    <style>
+        /* Reset styles */
+        body, table, td, p, a, li, h1, h2 {{
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            margin: 0;
+            padding: 0;
+        }}
+        body {{
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 20px;
+            color: #333333;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }}
+        table {{
+            border-collapse: collapse;
+        }}
+
+        /* Main container */
+        .email-container {{
+            max-width: 600px;
+            margin: auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }}
+
+        /* Header */
+        .header-bg {{
+            position: relative;
+            background-color: #3252ff;
+            background-image: linear-gradient(to bottom right, #080301 120px, transparent 0);
+            background-repeat: no-repeat;
+            background-size: 140px 140px;
+            padding: 25px 30px;
+            color: #ffffff;
+        }}
+        .header-bg img {{
+            display: block;
+            border: 0;
+            outline: none;
+            text-decoration: none;
+            max-width: 200px;
+            height: auto;
+        }}
+        .header-bg td {{
+            font-size: 13px;
+            line-height: 18px;
+            text-align: right;
+            color: #ffffff;
+        }}
+
+        /* Content */
+        .content {{
+            padding: 20px 30px;
+        }}
+        .content p {{
+            margin-bottom: 10px;
+        }}
+        .content h2 {{
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #3252ff;
+        }}
+
+        /* Tables for info */
+        .info-table {{
+            width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+
+        }}
+        .info-table th, .info-table td {{
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+
+        }}
+        .info-table th {{
+           background-color: #f4f4f4; 
+            font-weight: bold;
+         			width:50%;
+        }}
+
+        /* Approval timeline */
+        .timeline {{
+            width: 100%;
+            margin-top: 20px;
+        }}
+        .timeline td {{
+            vertical-align: top;
+        }}
+        .timeline-dot {{
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-top: 3px;
+        }}
+        .timeline-line {{
+            width: 2px;
+            height: 30px;
+            background-color: #e0e0e0;
+            margin-left: 6px;
+        }}
+      		/* Section backgrounds */
+.section-header {{
+    background-color: #3252ff; /* Blue header */
+    color: #ffffff;
+}}
+.section-greeting {{
+    background-color: #f9f9f9; /* light grey */
+}}
+.section-timeline {{
+    background-color: #eef4ff; /* soft blue */
+}}
+.section-info {{
+    background-color: #ffffff; /* white card */
+}}
+.section-footer {{
+    background-color: #000; /* footer grey */
+}}
+.section-button {{
+    padding-top: 0;
+}}
+
+        /* Footer */
+        .footer {{
+            text-align: center;
+            padding: 20px 30px;
+            font-size: 13px;
+            color: #fff;
+        }}
+        /* Responsive */
+        @media only screen and (max-width: 600px) {{
+            .header-bg td {{
+                display: block;
+                text-align: center;
+                margin-bottom: 10px;
+            }}
+            .header-bg img {{
+                margin: auto;
+            }}
+        }}
+    </style>
+</head>
+<body>
+    <table class=""email-container"">
+        <!-- Header -->
+        <tr>
+            <td class=""header-bg"">
+                <table width=""100%"">
                     <tr>
-                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>From Date:</td>
-                        <td style='padding: 8px 0; color: #333;'>{entityVM.FromDate:dd MMM yyyy}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>To Date:</td>
-                        <td style='padding: 8px 0; color: #333;'>{entityVM.ToDate:dd MMM yyyy}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>Total Days:</td>
-                        <td style='padding: 8px 0; color: #333;'>{totalDays}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>Leave Type:</td>
-                        <td style='padding: 8px 0; color: #333;'>{leaveName}</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px 0; font-weight: bold; color: #555; vertical-align: top;'>Reason:</td>
-                        <td style='padding: 8px 0; color: #333;'>{entityVM.Reason}</td>
+                        <td align=""left"">
+                            <img src=""https://gctlsecurity.com/pub/static/frontend/CLS/Security/en_US/images/logo.png"" alt=""Company Logo"">
+                        </td>
+                        <td align=""right"">
+                            House-42(5th Floor) Road-10,<br>
+                            Sector-4, Uttara, Dhaka-1230,<br>
+                            Bangladesh<br>
+                            info@gctlinfosys.com<br>
+                            +88 01795-788488
+                        </td>
                     </tr>
                 </table>
-            </div>
-            
-            <p style='color: #333; font-size: 16px; line-height: 1.6;'>
-                Please log in to the HRM system to review and approve this request.
-            </p>
-            
-            <div style='text-align: center; margin: 30px 0;'>
- <a href=""https://localhost:7086/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}""
-               style=""display: inline-block; padding: 12px 24px; background: #007bff; color: #fff; text-decoration: none; border-radius: 6px;"">
-               🔐 LOGIN TO HRM
+            </td>
+        </tr>
+
+        <!-- Greeting -->
+        <tr>
+            <td class=""content section-greeting"">
+                <p>Dear HR Team,</p>
+                <p>This is an automated leave request submitted by an employee. Please find the details below:</p>
+            </td>
+        </tr>
+      		<!-- Approval Timeline (Horizontal) -->
+<tr>
+  <td class=""content section-timeline"">
+    <h2>Approval Status Timeline</h2>
+    <table width=""100%"" style=""text-align:center; margin-top:20px;"">
+      <tr>
+        <!-- Step 1 -->
+        <td style=""width:33%; position:relative;"">
+          <div style=""width:20px;height:20px;background:#008000;border-radius:50%;margin:auto;""></div>
+          <p style=""margin:5px 0 0;font-weight:bold;color:#008000;"">Leave Submitted</p>
+          <p style=""margin:0;font-size:12px;color:#555;"">Sep 16, 2025 - 10:00 AM</p>
+        </td>
+        <!-- Connector -->
+        <td style=""width:5%;""><hr style=""border:none;border-top:2px solid #e0e0e0;""></td>
+        <!-- Step 2 -->
+        <td style=""width:33%; position:relative;"">
+          <div style=""width:20px;height:20px;background:#ffc107;border-radius:50%;margin:auto;""></div>
+          <p style=""margin:5px 0 0;font-weight:bold;color:#ffc107;"">Pending Manager Approval</p>
+          <p style=""margin:0;font-size:12px;color:#555;"">Sep 16, 2025 - 10:05 AM</p>
+        </td>
+        <!-- Connector -->
+        <td style=""width:5%;""><hr style=""border:none;border-top:2px solid #e0e0e0;""></td>
+        <!-- Step 3 -->
+        <td style=""width:33%; position:relative;"">
+          <div style=""width:20px;height:20px;background:#e0e0e0;border-radius:50%;margin:auto;""></div>
+          <p style=""margin:5px 0 0;font-weight:bold;color:#555;"">Leave Approved</p>
+          <p style=""margin:0;font-size:12px;color:#888;"">(Waiting update)</p>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+
+
+        <!-- Employee Info -->
+        <tr>
+            <td class=""content section-info"">
+                <h2>Employee Information</h2>
+                <table class=""info-table"" style=""margin-bottom: 10px;"">
+                    <tr>
+                        <th>Name</th>
+                        <td>{applicantData.FirstName} {applicantData.LastName}</td>
+                    </tr>
+                    <tr>
+                        <th>Department</th>
+                        <td>{applicantData.DepartmentName}</td>
+                    </tr>
+                    <tr>
+                        <th>Position Title</th>
+                        <td>{applicantData.DesignationName}</td>
+                    </tr>
+                </table>
+
+                <h2>Leave Details</h2>
+                <table class=""info-table"">
+                    <tr>
+                        <th>Type of Leave</th>
+                        <td>{leaveName}</td>
+                    </tr>
+                    <tr>
+                        <th>Start Date</th>
+                        <td>{entityVM.FromDate:dd MMM yyyy}</td>
+                    </tr>
+                    <tr>
+                        <th>End Date</th>
+                        <td>{entityVM.ToDate:dd MMM yyyy}</td>
+                    </tr>
+                    <tr>
+                        <th>Reason</th>
+                        <td>{entityVM.Reason}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+
+
+
+
+<!-- Button Info -->
+<tr>
+    <td class=""content section-button"">
+
+        <!-- Buttons -->
+        <div style=""margin-bottom: 15px; text-align: center;"">
+            <a href=""https://example.com/accept?request_id=123"" 
+               style=""display: inline-block; padding: 10px 20px; margin-right: 20px; background-color:#fff;border:1px solid #28a745;color:#28a745; text-decoration: none; border-radius: 5px; font-weight: bold;"">
+               Accept
             </a>
-
-
-                <br/><br/>
-<!--
-           <a href='https://localhost:7086/LeaveApprovalDecline/Index?leaveApplicationID={leaveApplicationID}' 
-          style='display: inline-block; padding: 12px 24px; background: #6f42c1; color: #fff; text-decoration: none; border-radius: 6px; margin: 0 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;'>
-           📋 Approvals
-        </a>
--->
-            </div>
-            
-            <div style='background: #e9ecef; padding: 15px; border-radius: 6px; margin: 20px 0;'>
-                <p style='margin: 0; color: #6c757d; font-size: 14px; text-align: center;'>
-                    <strong>Quick Actions:</strong> After logging in, you can directly access the leave approval page using the link above.
-                </p>
-            </div>
-            
-            <div style='border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px;'>
-                <p style='color: #333; font-size: 16px; margin-bottom: 5px;'>Best Regards,</p>
-                <p style='color: #667eea; font-weight: bold; font-size: 16px; margin: 0;'>HRM System</p>
-                <p style='color: #6c757d; font-size: 14px; margin: 5px 0 0 0;'>Human Resource Management</p>
-            </div>
+            <a href=""https://example.com/deny?request_id=123"" 
+               style=""display: inline-block; padding: 10px 20px; background-color: #fff; color:#dc3545;border:1px solid #dc3545; text-decoration: none; border-radius: 5px; font-weight: bold;"">
+               Deny
+            </a>
         </div>
+      		<p>If you need to modify applied date, kindly change by <a href=""https://localhost:7086/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}"">clicking this link</a> </p>
+    </td>
+</tr>
+<!-- Footer -->
+<tr>
+  <td class=""footer section-footer"" align=""center"" style=""text-align:center;"">
+    <p>© Gctlinfosys 2025. All rights reserved.</p>
+
+
+  </td>
+</tr>
+
+
+
+    </table>
+</body>
+</html>
     "
                 };
+
+
 
                 // Send using EmailService (SMTP uses applicant’s org config)
                 await emailService.SendEmailLeaveRequest(emailModel, entityVM.EmployeeID);
 
-                //
 
+
+                var Body = $@"
+                        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;'>
+                            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; margin: -20px -20px 20px -20px;'>
+                                <h2 style='margin: 0; font-size: 24px;'>Leave Application Request</h2>
+                            </div>
+
+                            <p style='color: #333; font-size: 16px;'>Dear {approverData?.FirstName} {approverData?.LastName},</p>
+
+                            <p style='color: #333; font-size: 16px; line-height: 1.6;'>
+                                <strong>{applicantData?.FirstName} {applicantData?.LastName}</strong> 
+                                ({applicantData?.DesignationName}, {applicantData?.DepartmentName}) has applied for leave.
+                            </p>
+
+                            <div style='background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;'>
+                                <h3 style='color: #667eea; margin-top: 0;'>Leave Details:</h3>
+                                <table style='width: 100%; border-collapse: collapse;'>
+                                    <tr>
+                                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>From Date:</td>
+                                        <td style='padding: 8px 0; color: #333;'>{entityVM.FromDate:dd MMM yyyy}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>To Date:</td>
+                                        <td style='padding: 8px 0; color: #333;'>{entityVM.ToDate:dd MMM yyyy}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>Total Days:</td>
+                                        <td style='padding: 8px 0; color: #333;'>{totalDays}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>Leave Type:</td>
+                                        <td style='padding: 8px 0; color: #333;'>{leaveName}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style='padding: 8px 0; font-weight: bold; color: #555; vertical-align: top;'>Reason:</td>
+                                        <td style='padding: 8px 0; color: #333;'>{entityVM.Reason}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <p style='color: #333; font-size: 16px; line-height: 1.6;'>
+                                Please log in to the HRM system to review and approve this request.
+                            </p>
+
+                            <div style='text-align: center; margin: 30px 0;'>
+                 <a href=""https://localhost:7086/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}""
+                               style=""display: inline-block; padding: 12px 24px; background: #007bff; color: #fff; text-decoration: none; border-radius: 6px;"">
+                               🔐 LOGIN TO HRM
+                            </a>
+
+
+                                <br/><br/>
+                <!--
+                           <a href='https://localhost:7086/LeaveApprovalDecline/Index?leaveApplicationID={leaveApplicationID}' 
+                          style='display: inline-block; padding: 12px 24px; background: #6f42c1; color: #fff; text-decoration: none; border-radius: 6px; margin: 0 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;'>
+                           📋 Approvals
+                        </a>
+                -->
+                            </div>
+
+                            <div style='background: #e9ecef; padding: 15px; border-radius: 6px; margin: 20px 0;'>
+                                <p style='margin: 0; color: #6c757d; font-size: 14px; text-align: center;'>
+                                    <strong>Quick Actions:</strong> After logging in, you can directly access the leave approval page using the link above.
+                                </p>
+                            </div>
+
+                            <div style='border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px;'>
+                                <p style='color: #333; font-size: 16px; margin-bottom: 5px;'>Best Regards,</p>
+                                <p style='color: #667eea; font-weight: bold; font-size: 16px; margin: 0;'>HRM System</p>
+                                <p style='color: #6c757d; font-size: 14px; margin: 5px 0 0 0;'>Human Resource Management</p>
+                            </div>
+                        </div>
+                    ";
 
                 await leaveRequest.CommitTransactionAsync();
 
