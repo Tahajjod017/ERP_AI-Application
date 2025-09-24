@@ -312,7 +312,7 @@
                             } else {
                                 $('#addShift-UpdateBreakTimeDiv').addClass('d-none');
                             }
-                            $(settings.updateform).find('#UpdateIsMBCompulsaryOrComplementaryDeductWithShift').val(data.updateIsMBCompulsaryOrComplementaryDeductWithShift);
+                            $(settings.updateform).find('input[name="UpdateIsMBCompulsaryOrComplementaryDeductWithShift"][value="' + data.updateIsMBCompulsaryOrComplementaryDeductWithShift + '"]').prop('checked', true);
                             $(settings.updateform).find('#UpdateIsAllowStartAndEndTime').prop('checked', data.updateIsAllowStartAndEndTime);
                             if ($('#UpdateIsAllowStartAndEndTime').is(':checked')) {
                                 $('#addShift-UpdateStartEndTimeDiv').removeClass('d-none');
@@ -446,9 +446,124 @@
             // #endregion
 
 
+            // #region Clear up on Uncheck
+            $('#IsLateCount').on('change', function (e) {
+                e.preventDefault();
+
+                clearLateCount();
+            });
+
+            function clearLateCount() {
+                if ($('#IsLateCount').is(':checked')) {
+                    $('#addShift-GraceTimeDiv').removeClass('d-none');
+                } else {
+                    $('#addShift-GraceTimeDiv').addClass('d-none');
+                    $('#GraceTimeHour').val('');
+                    $('#GraceTimeMinute').val('');
+                }
+            }
+
+            $('#IsFlexibleInTime').on('change', function () {
+                clearRestrictInTime();
+            });
+
+            function clearRestrictInTime() {
+                
+                if ($('#IsFlexibleInTime').is(':checked')) {
+                    $('#addShift-PunchCountFromDiv').removeClass('d-none');
+                } else {
+                    $('#addShift-PunchCountFromDiv').addClass('d-none');
+                    $('#EarlyInTimeHour').val('');
+                    $('#EarlyInTimeMinute').val('');
+                }
+            }
+
+            $('#IsFlexibleOutTime').on('change', function () {
+                clearRestrictOutTime();
+            });
+
+            function clearRestrictOutTime() {
+
+                if ($('#IsFlexibleOutTime').is(':checked')) {
+                    $('#addShift-PunchCountOutDiv').removeClass('d-none');
+                    $('#EarlyOutTimeHour').val('');
+                    $('#EarlyOutTimeMinute').val('');
+                } else {
+                    $('#addShift-PunchCountOutDiv').addClass('d-none');
+                }
+            }
+
+            $('#IsAutomaticORManualBreakTime').on('change', function () {
+                clearBreakTime();
+            });
+
+            function clearBreakTime() {
+                
+                if ($('#IsAutomaticORManualBreakTime').is(':checked')) {
+                    $('#addShift-BreakTimeDiv').removeClass('d-none');
+                } else {
+                    $('#addShift-BreakTimeDiv').addClass('d-none');
+                    $('#MealBreakTimeHour').val('');
+                    $('#MealBreakTimeMinute').val('');
+                    $('#addShift-Complementary').prop('checked', true);
+                    $('#IsAllowStartAndEndTime').prop('checked', false);
+                    clearMealBreakStartEndTime();
+                }
+            }
+
+            $('#IsAllowStartAndEndTime').on('change', function () {
+                clearMealBreakStartEndTime();
+            });
+
+            function clearMealBreakStartEndTime() {
+                
+                if ($('#IsAllowStartAndEndTime').is(':checked')) {
+                    $('#addShift-StartEndTimeDiv').removeClass('d-none');
+                    $('#addShift-AllowStartEndTime').addClass('d-none');
+                    $('#addShift-DenyStartEndTime').removeClass('d-none');
+                } else {
+                    $('#addShift-StartEndTimeDiv').addClass('d-none');
+                    $('#addShift-AllowStartEndTime').removeClass('d-none');
+                    $('#addShift-DenyStartEndTime').addClass('d-none');
+                    $('#MealBreakStartTime')[0]._flatpickr.clear();
+                    $('#MealBreakEndTime')[0]._flatpickr.clear();
+                }
+            }
+
+            $('#IsAllowOvertime').on('change', function () {
+                clearOverTime();
+            });
+
+            function clearOverTime() {
+                
+                if ($('#IsAllowOvertime').is(':checked')) {
+                    $('#addShift-OvertimeDiv').removeClass('d-none');
+                    $('#addShift-AllowOvertime').addClass('d-none');
+                    $('#addShift-DisableOvertime').removeClass('d-none');
+                } else {
+                    $('#addShift-OvertimeDiv').addClass('d-none');
+                    $('#addShift-AllowOvertime').removeClass('d-none');
+                    $('#addShift-DisableOvertime').addClass('d-none');
+                    $('#MinimumWorkingTimeHour').val('');
+                    $('#MinimumWorkingTimeMinute').val('');
+                    $('#MinimumRequiredOvertimeHour').val('');
+                    $('#MinimumRequiredOvertimeMinute').val('');
+                    $('#MaximumAllowedOvertimeHour').val('');
+                    $('#MaximumAllowedOvertimeMinute').val('');
+                }
+            }
+            // #endregion
+
+
             // #region Clear up on Uncheck in Edit Modal
             $('#editShiftModal').on('hide.bs.modal', function () {
-                $('#addShift-Updateform')[0].reset();
+                $(settings.updateform)[0].reset();
+                clearUpLateCount();
+                clearUpRestrictInTime();
+                clearUpRestrictOutTime();
+                clearUpBreakTime();
+                clearUpMealBreakStartEndTime();
+                clearUpOverTime();
             });
 
             $('#UpdateIsLateCount').on('change', function () {
@@ -489,11 +604,17 @@
                 }
             }
 
+            function clearUpRestrictOutTime() {
+                if (!$('#UpdateIsFlexibleOutTime').is(':checked')) {
+                    $('#UpdateEarlyOutTimeHour').val('');
+                    $('#UpdateEarlyOutTimeMinute').val('');
+                }
+            }
+
             function clearUpBreakTime() {
                 if (!$('#UpdateIsAutomaticORManualBreakTime').is(':checked')) {
                     $('#UpdateMealBreakTimeHour').val('');
                     $('#UpdateMealBreakTimeMinute').val('');
-                    $('#addShift-Complementary').prop('checked', true);
                     $('#UpdateIsAllowStartAndEndTime').prop('checked', false);
                     $('#UpdateMealBreakStartTime')[0]._flatpickr.clear();
                     $('#UpdateMealBreakEndTime')[0]._flatpickr.clear(); 
@@ -609,73 +730,6 @@
                     $('#addShift-tBody .addShift-bulkEdit').removeClass('disabled');
                 }
             }
-            // #endregion
-
-
-            // #region IsLatCount, IsAutomaticORManualBreakTime, IsAllowStartAndEndTime, IsAllowOvertime on change
-            $('#IsLateCount').on('change', function (e) {
-                e.preventDefault();
-
-                if ($(this).is(':checked')) {
-                    $('#addShift-GraceTimeDiv').removeClass('d-none');
-                } else {
-                    $('#addShift-GraceTimeDiv').addClass('d-none');
-                }
-            });
-
-            $('#IsFlexibleInTime').on('change', function (e) {
-                e.preventDefault();
-
-                if ($(this).is(':checked')) {
-                    $('#addShift-PunchCountFromDiv').removeClass('d-none');
-                } else {
-                    $('#addShift-PunchCountFromDiv').addClass('d-none');
-                }
-            });
-
-            $('#IsFlexibleOutTime').on('change', function () {
-                $('#addShift-PunchCountOutDiv').toggleClass('d-none', !this.checked);
-            });
-
-            $('#IsAutomaticORManualBreakTime').on('change', function (e) {
-                e.preventDefault();
-
-                if ($(this).is(':checked')) {
-                    $('#addShift-BreakTimeDiv').removeClass('d-none');
-                } else {
-                    $('#addShift-BreakTimeDiv').addClass('d-none');
-                }
-            });
-
-
-            $('#IsAllowStartAndEndTime').on('change', function (e) {
-                e.preventDefault();
-
-                if ($(this).is(':checked')) {
-                    $('#addShift-StartEndTimeDiv').removeClass('d-none');
-                    $('#addShift-AllowStartEndTime').addClass('d-none');
-                    $('#addShift-DenyStartEndTime').removeClass('d-none');
-                } else {
-                    $('#addShift-StartEndTimeDiv').addClass('d-none');
-                    $('#addShift-AllowStartEndTime').removeClass('d-none');
-                    $('#addShift-DenyStartEndTime').addClass('d-none');
-                }
-            });
-
-
-            $('#IsAllowOvertime').on('change', function (e) {
-                e.preventDefault();
-
-                if ($(this).is(':checked')) {
-                    $('#addShift-OvertimeDiv').removeClass('d-none');
-                    $('#addShift-AllowOvertime').addClass('d-none');
-                    $('#addShift-DisableOvertime').removeClass('d-none');
-                } else {
-                    $('#addShift-OvertimeDiv').addClass('d-none');
-                    $('#addShift-AllowOvertime').removeClass('d-none');
-                    $('#addShift-DisableOvertime').addClass('d-none');
-                }
-            });
             // #endregion
 
 
