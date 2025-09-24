@@ -167,31 +167,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     ? query.OrderByDescending(orderByExpression)
                     : query.OrderBy(orderByExpression);
 
-                //
-                //var data = await query.ToListAsync(); // Load all into memory
-
-                // Apply Period calculation manually for sorting
-                //if (currentSortColumn?.ToLower() == "period")
-                //{
-                //    data = currentSortOrder == "desc"
-                //        ? data.OrderByDescending(b =>
-                //            b.IsFullDay
-                //                ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
-                //                : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
-                //                    ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours
-                //                    : 0).ToList()
-                //        : data.OrderBy(b =>
-                //            b.IsFullDay
-                //                ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
-                //                : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
-                //                    ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours
-                //                    : 0).ToList();
-                //}
+                
 
                 // For approver Step
                 var approvalStepsMap = await leaveBaseApprovalHistory.AllActive().GroupBy(x => x.LeaveApplicationID).ToDictionaryAsync(g => g.Key, g => g.Select(x => x.ApprovalStep ?? 0).ToList());
                 var result = await PaginationService<LeaveApplications, LeaveApplicationsList>.GetPaginatedData(
-
 
                     query,
                     pageNumber,
@@ -860,6 +840,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, lwpEntity, lwpEntity.LeaveApplicationID, entityVM);
                 }
                 // for email 
+
+                var orgainfo = await _organizationRepository.AllActive().Include(x => x.EmployeeOfficeInfo.Where(x => x.EmployeeID == entityVM.EmployeeID)).Select(x => new {x.OrganizationName,x.LogoLink,x.FaviconLink, x.Address, x.EmailAddress }).FirstOrDefaultAsync();
+
                 var allEmployeeData = await (from emp in employee.AllActive()
                                              join empOff in empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
                                                  on emp.EmployeeID equals empOff.EmployeeID
@@ -890,7 +873,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 var emailModel = new EmailVM
                 {
                     To = approverData?.Email ?? approverData?.OfficeEmail,
-                    
+                    //To="siam.mbstubritto12@gmail.com",
                     Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;'>
@@ -967,7 +950,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 };
 
                 // Send using EmailService (SMTP uses applicant’s org config)
-                await emailService.SendEmailAsync(emailModel, entityVM.EmployeeID);
+                await emailService.SendEmailLeaveRequest(emailModel, entityVM.EmployeeID);
 
                 //
 

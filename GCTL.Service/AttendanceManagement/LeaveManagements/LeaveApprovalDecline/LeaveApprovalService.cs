@@ -1138,35 +1138,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                 // Email notification
 
-                //  var approvalDepartment = await empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation).Where(x => x.EmployeeID == approvalPersonId)
-                //.Select(x => new { x.OfficeEmail, x.Department.DepartmentName, x.Designation.DesignationName }).FirstOrDefaultAsync();
-                //var applicantNameEmail = await employee.AllActive()
-                //    .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
-                //    .Select(x => new { x.FirstName, x.LastName, x.Email }).FirstOrDefaultAsync();
-
-                //var applicantDepartment = await empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
-                //    .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
-                //    .Select(x => new
-                //    {
-                //        x.OfficeEmail,
-                //        DepartmentName = x.Department.DepartmentName,
-                //        DesignationName = x.Designation.DesignationName
-                //    }).FirstOrDefaultAsync();
-
-                //// Approver info
-                //var approverNameEmail = await employee.AllActive()
-                //    .Where(x => x.EmployeeID == approvalPersonId)
-                //    .Select(x => new { x.FirstName, x.LastName, x.Email })
-                //    .FirstOrDefaultAsync();
-
-                //var approverDepartment = await empoffi.AllActive().Include(x=>x.Department).Include(x=>x.Designation)
-                //    .Where(x => x.EmployeeID == approvalPersonId)
-                //    .Select(x => new
-                //    {
-                //        x.OfficeEmail,
-                //        DepartmentName = x.Department.DepartmentName,
-                //        DesignationName = x.Designation.DesignationName
-                //    }).FirstOrDefaultAsync();
+            
 
 
                 var allEmployeeData = await (from emp in employee.AllActive()
@@ -1302,7 +1274,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                 //
 
-                await emailService.SendEmailAsync(emailModel, entityVM.EmployeeIDEdit);
+                await emailService.SendEmailLeaveRequest(emailModel, entityVM.EmployeeIDEdit);
                 await leaveRequest.CommitTransactionAsync();
                 return new CommonReturnViewModel
                 {
