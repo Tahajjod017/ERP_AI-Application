@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 namespace GCTL_App.Controllers.CRM
 {
-    [Authorize]
+    //[Authorize]
     public class CRMController : BaseController
     {
         private readonly ILeadCreateService _leadCreateService;
@@ -58,7 +58,7 @@ namespace GCTL_App.Controllers.CRM
 
             SetSmartPageCode(605000);
 
-            ViewBag.ServiceTypeDD = new SelectList(_addressTypeService.AllActive().Where(u => u.AddressTypeName == "billing" || u.AddressTypeName == "company").Select(e => new { e.AddressTypeID, e.AddressTypeName }), "AddressTypeID", "AddressTypeName");
+            ViewBag.ServiceTypeDD = new SelectList(_addressTypeService.AllActive().Where(u => u.AddressTypeName == "individual" || u.AddressTypeName == "company").Select(e => new { e.AddressTypeID, e.AddressTypeName }), "AddressTypeID", "AddressTypeName");
             return View();
         }
 
@@ -149,7 +149,7 @@ namespace GCTL_App.Controllers.CRM
             if (ModelState.IsValid)
             {
                 if (leadUpdateVM.LeadID != 0)
-                {
+                {   
                     var result = await _leadCreateService.EditLead(leadUpdateVM);
                     return Ok(result);
                 }

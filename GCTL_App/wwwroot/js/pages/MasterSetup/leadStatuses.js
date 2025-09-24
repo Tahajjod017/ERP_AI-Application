@@ -65,7 +65,7 @@
                 e.preventDefault();
 
                 var id = $(this).data('id');
-
+                
 
                 $.ajax({
                     url: '/LeadStatuses/GetById',
@@ -76,7 +76,10 @@
                             var data = response.data;
                             $('#leadStatus-form #LeadStatusID').val(data.leadStatusID);
                             $('#leadStatus-form #LeadStatusName').val(data.leadStatusName);
-
+                            if (data.isSpecial == true) {
+                                $("#IsSpecial").prop("checked", true);
+                            }
+                            $("#")
                             $('#leadStatus-form #leadStatus-saveBtn').text('Update');
                         } else {
                             toastr.warning(response.message);
@@ -359,6 +362,7 @@
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.leadStatusName}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.isSpecial}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 leadStatus-bulkDelete" href="#!" id="leadStatus-edit" data-id="${item.leadStatusID}"><i class="fas fa-edit"></i></a>

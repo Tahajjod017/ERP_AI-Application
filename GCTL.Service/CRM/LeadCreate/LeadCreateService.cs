@@ -62,7 +62,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 if (!items.Any())
                 {
                     var addressTypes = new List<AddressTypes>();
-                    var listItem = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    var listItem = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
 
                     foreach (var typeName in listItem)
                     {
@@ -82,8 +82,8 @@ namespace GCTL.Service.CRM.LeadCreate
                 // Fetch country
                 var countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == customerVM.CountryId);
 
-                // Fetch billing address type
-                var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "billing");
+                // Fetch individual address type
+                var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "individual");
 
                 // Create customer (individual)
                 customerObj = new Customers()
@@ -178,7 +178,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 if (!items.Any())
                 {
                     var addressTypes = new List<AddressTypes>();
-                    var listItem = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    var listItem = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
 
                     foreach (var typeName in listItem)
                     {
@@ -289,7 +289,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 if (!items.Any())
                 {
                     var addressTypes = new List<AddressTypes>();
-                    var listItem = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    var listItem = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
 
                     foreach (var typeName in listItem)
                     {
@@ -455,7 +455,7 @@ namespace GCTL.Service.CRM.LeadCreate
             var items = await _addressTypesRepository.GetAllAsync();
             if (!items.Any())
             {
-                var listItems = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                var listItems = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
                 List<AddressTypes> newAddressTypes = new List<AddressTypes>();
 
                 foreach (var item in listItems)
@@ -484,7 +484,7 @@ namespace GCTL.Service.CRM.LeadCreate
             {
                 // Get the customer address
                 var individualAddressObj = await _customerAddressesRepository.FirstOrDefaultAsync(
-                    u => u.CustomerAddressID == leadsVM.CustomerId);
+                    u => u.CustomerID == leadsVM.CustomerId);
 
                 // Create lead
                 var leadObj = new Leads()
@@ -634,7 +634,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 var addressTypes = await _addressTypesRepository.GetAllAsync();
                 if (!addressTypes.Any())
                 {
-                    var listItems = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    var listItems = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
                     List<AddressTypes> newAddressTypes = new List<AddressTypes>();
 
                     foreach (var item in listItems)
@@ -765,7 +765,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 var addressTypes = await _addressTypesRepository.GetAllAsync();
                 if (!addressTypes.Any())
                 {
-                    var listItems = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    var listItems = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
                     List<AddressTypes> newAddressTypes = new List<AddressTypes>();
 
                     foreach (var item in listItems)
