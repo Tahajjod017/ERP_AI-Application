@@ -284,7 +284,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 return null;
             }
 
-            await leaveRequest.BeginTransactionAsync();
             try
             {
                 var data = await leaveRequest.GetByIdAsync(leaveApplicationID);
@@ -858,7 +857,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         #endregion
 
 
-        public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM)
+        public async Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationApprovalModifyVM entityVM, string url)
         {
             if (entityVM == null)
             {
@@ -1162,8 +1161,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 var approverData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == approvalPersonId);
 
                 var leaveName = await leaveTypesRepository.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit).Select(x => x.LeaveTypeName).FirstOrDefaultAsync();
-                // Calculate total days (inclusive)
-                // Calculate total days (inclusive)
+               
                 int totalDays = 0;
 
                 if (entityVM.FromDateEdit.HasValue && entityVM.ToDateEdit.HasValue)
@@ -1205,39 +1203,22 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                }).FirstOrDefaultAsync();
                 var parts = orgainfo.Address.Split(',');
                 var formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
-                //string logoPath;
-                //if(!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
-                //{
-                //    logoPath = $"{url}/media/company/logo/{orgainfo.LogoLink}";
-                //} else
-                //{
-                //    var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
-                //         ? "?": orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
 
-                //    // ui-avatars lets you specify size, colors, etc.
-                //    logoPath = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
-                //}
+                string logourl;
 
-                // Get full path to the logo file without IWebHostEnvironment
-                var logoFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "media", "company", orgainfo.LogoLink);
-
-                // Check if file exists and convert to Base64
-                string logoBase64;
-                if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink) && System.IO.File.Exists(logoFilePath))
+                if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
                 {
-                    var imageBytes = await System.IO.File.ReadAllBytesAsync(logoFilePath);
-                    var extension = Path.GetExtension(logoFilePath).Replace(".", "").ToLower();
-                    logoBase64 = $"data:image/{extension};base64,{Convert.ToBase64String(imageBytes)}";
+                    // Make absolute path from domain + relative path
+                    logourl = $"http://usasoft.xyz/media/company/logo/{orgainfo.LogoLink}";
                 }
                 else
                 {
                     // Fallback to UI Avatars
                     var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
                         ? "?" : orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
-                    logoBase64 = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
+
+                    logourl = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
                 }
-
-
 
 
                 //var logoPath = $"/media/company/logo/{orgainfo.LogoLink}";
@@ -1253,7 +1234,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 //
                 var emailModel = new EmailVM
                 {
-                    To = applicantData.Email,
+                    To = applicantData?.Email ?? applicantData?.OfficeEmail,
 
                     Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
@@ -1418,7 +1399,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 <table width=""100%"">
                     <tr>
                         <td align=""left"">
-                            <img src=""{logoBase64}"" alt=""Company Logo"">
+                            <img src=""{logourl}"" alt=""Company Logo"">
                         </td>
                         <td align=""right"">
 
@@ -1533,7 +1514,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                Deny
             </a>
         </div>
-      		<p>If you need to modify applied date, kindly change by <a href=""https://localhost:7086/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{entityVM.LeaveApplicationID}"">clicking this link</a> </p>
+      		<p>If you need to modify applied date, kindly change by <a href=""{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{entityVM.LeaveApplicationID}"">clicking this link</a> </p>
     </td>
 </tr>
 <!-- Footer -->
