@@ -18,7 +18,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 {
     public interface ILeaveRequestService
     {
-        Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM);
+        Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM,string url);
         Task<CommonReturnViewModel> UpdateLeaveRequestAsynce(LeaveApplicationEditVM entityVM);
         Task<LeaveApplicationEditVM> GetLeaveRequestByIdAsync(int leaveApplicationID);
         Task<CommonReturnViewModel> SoftDeleteLeaveRequest(DeleteRequestVM deleteRequestVM);

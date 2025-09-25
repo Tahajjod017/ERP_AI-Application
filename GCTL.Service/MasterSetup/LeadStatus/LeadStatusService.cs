@@ -32,6 +32,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                     var entityToRestore = existingEntity.FirstOrDefault();
 
                     entityToRestore.LeadStatusName = model.LeadStatusName;
+                    entityToRestore.IsSpecial = model.IsSpecial;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
                     entityToRestore.LIP = model.LIP;
@@ -48,6 +49,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                 {
                     GCTL.Data.Models.LeadStatuses entity = new GCTL.Data.Models.LeadStatuses();
                     entity.LeadStatusName = model.LeadStatusName;
+                    entity.IsSpecial = model.IsSpecial;
                     entity.CreatedAt = DateTime.Now;
                     entity.CreatedBy = model.CreatedBy;
                     entity.LIP = model.LIP;
@@ -92,6 +94,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                 {
                     LeadStatusID = x.LeadStatusID,
                     LeadStatusName = x.LeadStatusName ?? "-",
+                    IsSpecial = x.IsSpecial,
                 });
         }
         #endregion
@@ -120,6 +123,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                 {
                     LeadStatusID = data.LeadStatusID,
                     LeadStatusName = data.LeadStatusName,
+                    IsSpecial = data.IsSpecial,
                 };
             }
             catch (Exception ex)
@@ -146,6 +150,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                 //var beforeEntity = JsonConvert.DeserializeObject<LeadStatusVM>(JsonConvert.SerializeObject(entity));
 
                 entity.LeadStatusName = model.LeadStatusName;
+                entity.IsSpecial = model.IsSpecial;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
                 entity.LIP = model.LIP;
