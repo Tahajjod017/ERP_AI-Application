@@ -26,12 +26,14 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         private readonly IGenericRepository<Statuses> status;
         private ILeaveRequestService  leaveRequestService;
         private ILeaveApprovalService leaveApprovalService;
-        public LeaveRequestController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, ILeaveApprovalService leaveApprovalService = null) : base(translateService, userProfileService)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public LeaveRequestController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, ILeaveApprovalService leaveApprovalService = null, IWebHostEnvironment webHostEnvironment = null) : base(translateService, userProfileService)
         {
             this.leaveType = leaveType;
             this.status = status;
             this.leaveRequestService = leaveRequestService;
             this.leaveApprovalService = leaveApprovalService;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task< IActionResult> Index()
@@ -113,8 +115,12 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         [HttpPost]
         public async Task<IActionResult> SaveLeaveRequest(LeaveApplicationsRequestVM model)
         {
+            var param = GetLocalHostStr();
+            
             if (!ModelState.IsValid)
             {
+
+                
 
                 var errorMessages = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
                 return Ok(new CommonReturnViewModel
@@ -124,8 +130,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                     Errors = errorMessages
                 });
             }
-           
-            var data = await leaveRequestService.SaveLeaveRequestAsync(model);
+            string url = $"{this.Request.Scheme}://{this.Request.Host.Value.ToString()}{this.Request.PathBase.Value.ToString()}"; //
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var data = await leaveRequestService.SaveLeaveRequestAsync(model, url);
             return Ok(data);
 
 
