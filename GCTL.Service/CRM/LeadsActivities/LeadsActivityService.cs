@@ -33,7 +33,8 @@ namespace GCTL.Service.CRM.LeadsActivities
             string dateRange,
             int? userID,
             int? CustomerTypeID, 
-            string? LeadStatusID
+            string? LeadStatusID,
+            int? ActivityTypeID
             )   // current user ID
         {
             try
@@ -124,6 +125,10 @@ namespace GCTL.Service.CRM.LeadsActivities
                 if (!string.IsNullOrEmpty(LeadStatusID))
                 {
                     query = query.Where(u => u.Lead.LeadStatus.LeadStatusName== LeadStatusID);
+                }
+                if (ActivityTypeID > 0)
+                {
+                    query = query.Where(u => u.LeadActivityTypeID == ActivityTypeID);
                 }
 
 

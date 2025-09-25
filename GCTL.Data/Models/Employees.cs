@@ -515,6 +515,20 @@ public partial class Employees
 
     public virtual ICollection<LeadDetails> LeadDetailsUpdatedByNavigation { get; set; } = new List<LeadDetails>();
 
+    public virtual ICollection<LeadProjectTeamMembers> LeadProjectTeamMembersCreatedByNavigation { get; set; } = new List<LeadProjectTeamMembers>();
+
+    public virtual ICollection<LeadProjectTeamMembers> LeadProjectTeamMembersDeletedByNavigation { get; set; } = new List<LeadProjectTeamMembers>();
+
+    public virtual ICollection<LeadProjectTeamMembers> LeadProjectTeamMembersEmployee { get; set; } = new List<LeadProjectTeamMembers>();
+
+    public virtual ICollection<LeadProjectTeamMembers> LeadProjectTeamMembersUpdatedByNavigation { get; set; } = new List<LeadProjectTeamMembers>();
+
+    public virtual ICollection<LeadProjectTeams> LeadProjectTeamsCreatedByNavigation { get; set; } = new List<LeadProjectTeams>();
+
+    public virtual ICollection<LeadProjectTeams> LeadProjectTeamsDeletedByNavigation { get; set; } = new List<LeadProjectTeams>();
+
+    public virtual ICollection<LeadProjectTeams> LeadProjectTeamsUpdatedByNavigation { get; set; } = new List<LeadProjectTeams>();
+
     public virtual ICollection<LeadServices> LeadServicesCreatedByNavigation { get; set; } = new List<LeadServices>();
 
     public virtual ICollection<LeadServices> LeadServicesDeletedByNavigation { get; set; } = new List<LeadServices>();

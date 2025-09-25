@@ -34,11 +34,7 @@ namespace GCTL_App.Controllers.CRM
         private readonly ILeadDetailsService _leadDetailsService;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-
         private readonly IGenericRepository<Services> _serviceTypeRepository;
-        //private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
-        //private readonly IGenericRepository<Customers> _customersRepository;
-        //private readonly IGenericRepository<Country> _countryRepository;
         public LeadDetailsController(IWebHostEnvironment webHostEnvironment, IGenericRepository<LeadDetails> leadDetailsRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Leads> leadsRepository) : base(translateService, userProfileService)
         {
             _leadCreateService = leadCreateService;
@@ -53,8 +49,6 @@ namespace GCTL_App.Controllers.CRM
             _serviceTypeRepository = serviceTypeRepository;
             _leadsRepository = leadsRepository;
         }
-
-
 
         public async Task<IActionResult> Index(int? id)
         {
@@ -131,7 +125,6 @@ namespace GCTL_App.Controllers.CRM
         }
 
 
-        // update source field value 
         [HttpPost]
         public async Task<IActionResult> UpdateLeadValue([FromForm] DetailsLeadUpdateVM detailsLeadUpdateVM)
         {

@@ -16,5 +16,6 @@ namespace GCTL.Core.ViewModels
         public string? DateRange { get; set; }
         public int? CustomerTypeID { get; set; }
         public string? LeadStatusID { get; set; }
+        public int? ActivityTypeID { get; set; }
     }
 }

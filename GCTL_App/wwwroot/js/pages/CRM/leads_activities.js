@@ -8,6 +8,7 @@
         leadName: "#leadName",
         leadStatusID: '#leadStatusID',
         leadSourceID: '#leadSourceID',
+        ActivityTypeID: '#ActivityType',
         leadPriorityID: '#leadPriorityID',
         approximateDealValue: '#approximateDealValue',
         probabilityPercentage: '#probabilityPercentage',
@@ -31,7 +32,7 @@
         }, delay);
     });
 
-    $("#pageElementSize, #dateRange2, #customerType, #LeadStatus").on("change", function () {
+    $("#pageElementSize, #dateRange2, #customerType, #LeadStatus, #ActivityType").on("change", function () {
         clearTimeout(typingTimer);
         typingTimer = setTimeout(async function () {
             loadProcessedTable();
@@ -134,7 +135,8 @@
         var dateRange = $('#dateRange2').val();
         var customerID = $('#customerType').val();
         var statusID = $('#LeadStatus').val();
-
+        var ActivityType = $('#ActivityType').val();
+        showDev(ActivityType);
         $.ajax({
             url: '/LeadsActivities/GetUpcomingActivities',
             type: 'POST',
@@ -146,7 +148,8 @@
                 SortColumn: sort,
                 SortDirection: dir,
                 CustomerTypeID: customerID,
-                LeadStatusID: statusID
+                LeadStatusID: statusID,
+                ActivityTypeID: ActivityType,
             },
             success: function (response) {
                 
