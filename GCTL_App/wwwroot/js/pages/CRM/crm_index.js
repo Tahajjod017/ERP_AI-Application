@@ -238,6 +238,7 @@
 
     $("#editBtn").on("click", function (e) {
         e.preventDefault();
+        debugger;
         const data = {
             LeadID: $("#leadID").val(),
             LeadName: $("#leadName").val() || "",
@@ -250,48 +251,46 @@
             LeadDescription: $("#descriptionText").val(),
             ServiceTypeIds: $("#serviceTypes").val(),
         };
-        //showDev(data);
+        showDev(data);
         if (validation()) {
-            $.ajax({
-                url: '/CRM/EditLeadData',
-                method: 'POST',
-                data: JSON.stringify(data),
-                contentType: "application/json; charset=utf-8",
+        $.ajax({
+            url: '/CRM/EditLeadData',
+            method: 'POST',
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
 
-                success: function (response) {
+            success: function (response) {
 
-                    if (response.success) {
-                        loadProcessedTable();
-                        toastr.success(response.message);
-                        // HIDE modal
-                        var myModalEl = document.getElementById('editModal');
-                        var modal = bootstrap.Modal.getInstance(myModalEl);
-                        modal.hide();
-                    } else {
-                        toastr.error(response.message || "Failed to create lead");
-                    }
-                },
-                error: function (xhr) {
-                    toastr.error("Error creating lead");
+                if (response.success) {
+                    loadProcessedTable();
+                    toastr.success(response.message);
+                    // HIDE modal
+                    var myModalEl = document.getElementById('editModal');
+                    var modal = bootstrap.Modal.getInstance(myModalEl);
+                    modal.hide();
+                } else {
+                    toastr.error(response.message || "Failed to create lead");
                 }
-            });
+            },
+            error: function (xhr) {
+                toastr.error("Error creating lead");
+            }
+        });
         }
-    })
+    });
 
 
     // ===============
     // lead validation
     // =================
-
     function validation() {
         let requiredField = [
-            ids.leadName,
-            ids.leadPriorityID,
-            ids.leadSourceID,
-            ids.leadStatusID,
-            ids.leadOwnerId
+            '#leadOwnerId',
+            '#leadSourceID',
+            '#leadStatusID',
+            '#leadName',
+            '#leadPriorityID'
         ];
-
         let isValid = true;
 
         requiredField.forEach(function (selector) {
@@ -314,6 +313,38 @@
 
         return isValid;
     }
+
+    //function validation() {
+    //    let requiredField = [
+    //        ids.leadName,
+    //        ids.leadPriorityID,
+    //        ids.leadSourceID,
+    //        ids.leadStatusID,
+    //        ids.leadOwnerId
+    //    ];
+
+    //    let isValid = true;
+
+    //    requiredField.forEach(function (selector) {
+    //        let el = $(selector);
+    //        let value = el.val() ? el.val().trim() : '';
+    //        let target = el;
+
+    //        // Special case for Choices.js (hidden select)
+    //        if (el.closest('.choices').length > 0) {
+    //            target = el.closest('.choices').find('.choices__inner');
+    //        }
+
+    //        if (value === '' || value === null) {
+    //            target.css('border', '1px solid red');
+    //            isValid = false;
+    //        } else {
+    //            target.css('border', '1px solid #ccc'); // reset valid field
+    //        }
+    //    });
+
+    //    return isValid;
+    //}
 
     // #region Choice with Pagination + Infinite Scroll (server-side search only)
     const selectEl = document.getElementById('leadOwnerId');

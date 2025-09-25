@@ -65,7 +65,7 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadActivityTypes = _leadActivityTypesRepository.AllActive().Where(e => e.UseFor == "General").Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
             ViewBag.LeadActivityTypes2 = _leadActivityTypesRepository.AllActive().Where(e => e.UseFor == "Won" || e.UseFor == "Lost").Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
-            ViewBag.LeadStatus = new SelectList(_leadStatusesRepository.AllActive().Where(u => u.LeadStatusName != "Won" && u.LeadStatusName != "Lost").Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
+            ViewBag.LeadStatus = new SelectList(_leadStatusesRepository.AllActive().Where(u => u.IsSpecial != true).Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
             ViewBag.LeadPriorities = new SelectList(_prioritiesRepository.AllActive().Select(e => new { e.PriorityID, e.PriorityName }), "PriorityID", "PriorityName");
 
 
