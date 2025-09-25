@@ -21,8 +21,6 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline
 {
 
-
-
     public class LeaveApprovalService : AppService<LeaveApplications>, ILeaveApprovalService
     {
         private readonly IGenericRepository<LeaveApplications> leaveRequest;
@@ -46,7 +44,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
             this.empoffi = empoffi;
             this.leaveRequestService = leaveRequestService;
             this.leaveBalance = leaveBalance;
-
             this.leaveTypesRepository = leaveTypesRepository;
             this.leaveBaseAprovalHistory = leaveBaseAprovalHistory;
             this.status = status;
