@@ -1,0 +1,20 @@
+﻿<div class="row">
+    <div class="col-12 text-end">
+        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+            @if (ViewBag.CanExportPermission == true)
+            {
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-phoenix-secondary dropdown-toggle" style="margin-right: 81px;" data-bs-toggle="dropdown" aria-expanded="false">
+                        Export <i class="fa-solid fa-file-export"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><span data-feather="download"></span> PDF</a></li>
+                        <li><a class="dropdown-item" href="/AddTeam/ExportToExcel"><span data-feather="download"></span> Excel</a></li>
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<div class="col-12 row flex gy-3 pb-3 border-top" id="showTeam">
+</div>

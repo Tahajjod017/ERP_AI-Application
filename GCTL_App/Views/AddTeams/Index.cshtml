@@ -1,0 +1,50 @@
+﻿@model GCTL_App.ViewModels.AddTeam.AddTeamPageVM
+
+@{
+    ViewData["Title"] = @ViewBag.AddNewTeam;
+}
+
+<style>
+    #addTeam-edit:hover span {
+        text-decoration: underline;
+        color: blue;
+    }
+</style>
+
+<nav class="mb-3 crm-deals-breadcrumb" aria-label="breadcrumb">
+    <ol class="breadcrumb mb-0">
+        @* <li class="breadcrumb-item"><a asp-action="Index" asp-controller="ViewAllTeam">@ViewBag.ViewAllTeam</a></li> *@
+        <li class="breadcrumb-item active"><h2>@ViewBag.AddNewTeam</h2></li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-12">
+        <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis border-top">
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 mx-lg-n4">
+    <div class="row g-4">
+        <div class="col-md-8">
+            <partial name="_Form" model="Model.Setup" />
+        </div>
+
+        <div class="col-md-12">
+            <partial name="_Table" />
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfirmDelete" />
+
+@* <script>
+    window.employeeChoicesData = @Html.Raw(JsonConvert.SerializeObject(
+        ((SelectList)ViewBag.EmployeeDD).Select(x => new { Value = x.Value, Text = x.Text })
+    ));
+</script> *@
+
+@section Scripts{
+<script src="~/js/pages/mastersetup/addteam.js"></script>
+}

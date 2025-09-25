@@ -488,6 +488,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Lead].[LeadProjectTeamMembers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadProjectTeams]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Lead].[Leads]",
          "ObjectType": 0
       },
