@@ -197,6 +197,8 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
             if (entity == null)
                 return null;
 
+          
+
             // Map to ViewModel
             var model = new CompanySettingsVM
             {
@@ -215,7 +217,7 @@ namespace GCTL.Service.AdminSettings.OrganizationSettings.CompanyService
                 PostCode = entity.PostCode,
                 Latitude = entity.Latitude?.ToString(),
                 Longitude = entity.Longitude?.ToString(),
-
+                
 
                 //CreatedAt = entity.CreatedAt,
                 CreatedBy = entity.CreatedBy,

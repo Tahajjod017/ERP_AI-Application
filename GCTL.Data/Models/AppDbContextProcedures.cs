@@ -264,5 +264,52 @@ namespace GCTL.Data.Models
 
             return _;
         }
+
+        public virtual async Task<List<sp_ProcessPunchResult>> sp_ProcessPunchAsync(int? enroll_id, DateTime? cHECKTIME, string deviceSN, string sourceType, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "enroll_id",
+                    Value = enroll_id ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "CHECKTIME",
+                    Scale = 7,
+                    Value = cHECKTIME ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.DateTime2,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "DeviceSN",
+                    Size = 50,
+                    Value = deviceSN ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.VarChar,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "SourceType",
+                    Size = 20,
+                    Value = sourceType ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.VarChar,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryToListAsync<sp_ProcessPunchResult>("EXEC @returnValue = [dbo].[sp_ProcessPunch] @enroll_id = @enroll_id, @CHECKTIME = @CHECKTIME, @DeviceSN = @DeviceSN, @SourceType = @SourceType", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
     }
 }

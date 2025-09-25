@@ -27,6 +27,8 @@ public partial class LeadStatuses
 
     public int? DeletedBy { get; set; }
 
+    public bool? IsSpecial { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

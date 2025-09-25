@@ -131,14 +131,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     StatusID = x.StatusID,
                     StatusName = x.Status?.StatusName ?? "-",
                     AttendanceDate = x.AttendanceDate.ToString("yyyy-MM-dd") ?? "-",
-                    // CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
-                    CheckInTime = x.CheckInTime.HasValue
-                                    ? TimeConversionHelper.ConvertDateTimeToUtcHHmm(x.CheckInTime.Value, _localizationContext)  // Convert UTC to local
-                                    : "-",
 
-                   // CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
-                    CheckOutTime = x.CheckOutTime.HasValue
-                                    ? TimeConversionHelper.ConvertDateTimeToUtcHHmm(x.CheckOutTime.Value, _localizationContext)  // Convert UTC to local
+                    CheckInTime = x.CheckInTime.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(x.CheckInTime.Value, DateTimeKind.Utc),_localizationContext): "-",
+
+                    // CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
+                    CheckOutTime = x.CheckOutTime.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(x.CheckOutTime.Value, DateTimeKind.Utc), _localizationContext)  // Convert UTC to local
                                     : "-",
                     //LateHour = x.LateHour.HasValue ? x.LateHour.Value.ToString("F2") : "-",
                     LateHour = FormatTime(x.LateTimeMinutes),
@@ -218,7 +215,10 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             var productionTime = currentTime - checkInTime;
 
             // Convert 'TimeOnly?' to 'TimeSpan?' before applying the null-coalescing operator
-            var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+
+
+            //var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+            TimeSpan mealBreakTime = TimeSpan.FromMinutes((double)shift.MealBreakTime);
             var actualTotalWorkingTime = shiftEndTime - shiftStartTime - mealBreakTime;
 
             // Limit the production time to the shift working hours (excluding break time)
@@ -269,13 +269,17 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             };
         }
 
-        public async Task<EmployeeAttendenceVM> GetAttendanceProgressBarAsync(int userId)
+        public async Task<EmployeeAttendenceVM> GetAttendanceProgressBarAsync(int userId, DateTime? date)
         {
-            var today = DateTime.UtcNow;
+            var getDate = date ?? DateTime.UtcNow;
+
+            var selectedDate = getDate;
+
+            /// first punch 
 
             // Get today's attendance record
             var attendanceDataId = await _genericRepository.AllActive()
-                .Where(a => a.EmployeeID == userId && a.AttendanceDate == DateOnly.FromDateTime(today))
+                .Where(a => a.EmployeeID == userId && a.AttendanceDate == DateOnly.FromDateTime(selectedDate))
                 .FirstOrDefaultAsync();
 
             if (attendanceDataId == null)
@@ -294,7 +298,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             var attendanceLogs = await _genericAttendanceLog.AllActive()
                 .Where(log => log.AttendanceID == attendanceDataId.AttendanceID
-                             && log.CHECKTIME_UTC.Value.Date == today.Date)
+                             && log.CHECKTIME_UTC.Value.Date == selectedDate.Date)
                 .OrderBy(log => log.CHECKTIME_UTC)
                 .ToListAsync();
 
@@ -312,16 +316,18 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 };
             }
 
+
+
             var shift = await _genericRepositoryShift.All()
                 .Where(s => s.ShiftID == attendanceDataId.ShiftID)
                 .FirstOrDefaultAsync();
 
             var shiftStartTime = shift?.StartTime.HasValue == true
-                ? DateTime.Today.Add(shift.StartTime.Value.ToTimeSpan())
+                ? selectedDate.Date.Add(shift.StartTime.Value.ToTimeSpan())
                 : (DateTime?)null;
 
             var shiftEndTime = shift?.EndTime.HasValue == true
-                ? DateTime.Today.Add(shift.EndTime.Value.ToTimeSpan())
+                ? selectedDate.Date.Add(shift.EndTime.Value.ToTimeSpan())
                 : (DateTime?)null;
 
             int totalRegularMinutes = 0;
@@ -332,6 +338,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             var sessionTimeline = new List<SessionData>();
             var firstPunch = attendanceLogs.First().CHECKTIME_UTC.Value;
+
+            var firstPunchLocalString = firstPunch.ToOrgTime(_localizationContext);
 
             int shiftDurationMinutes = 0;
             if (shiftStartTime.HasValue && shiftEndTime.HasValue)
@@ -344,7 +352,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 if (firstPunch > shiftStartTime.Value)
                 {
                     var lateMinutes = (int)(firstPunch - shiftStartTime.Value).TotalMinutes;
-                    if (shift.GraceTime.HasValue && lateMinutes > shift.GraceTime.Value.ToTimeSpan().TotalMinutes)
+                    TimeSpan graceTime = TimeSpan.FromMinutes((double)shift.GraceTime);
+                    //if (shift.GraceTime.HasValue && lateMinutes > shift.GraceTime.Value.ToTimeSpan().TotalMinutes)
+                    if (shift.GraceTime.HasValue && lateMinutes > graceTime.TotalMinutes)
                     {
                         totalLateMinutes = lateMinutes;
                         sessionTimeline.Add(new SessionData
@@ -481,11 +491,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 LateHours = FormatTime(totalLateMinutes),
                 EarlyHours = FormatTime(totalEarlyMinutes),
                 SessionTimeline = sessionTimeline,
-
+                CheckInTime =firstPunchLocalString,
+                HasCheckIn = firstPunchLocalString != null,
                 // Fix to pass only the hour part as a string.  
-                ShiftStartTime = shiftStartTime.HasValue ? shiftStartTime.Value.ToOrgTimeString(_localizationContext): "-",// need localization then pass time according to user
+                ShiftStartTime = shiftStartTime.HasValue ? shiftStartTime.Value.ToOrgTimeString(_localizationContext): null,// need localization then pass time according to user
                 EarlyStartTime = firstPunch < shiftStartTime ? firstPunch.ToOrgTime(_localizationContext) : null,
-
             };
         }
 
@@ -495,13 +505,13 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             return $"{(int)timeSpan.TotalHours:D2}h {timeSpan.Minutes:D2}m";
         }
 
-        public async Task<IActionResult> GetEmployeePunchTimeline(int userId)
+        public async Task<IActionResult> GetEmployeePunchTimeline(int userId,DateTime date)
         {
-
+            var getDate = date;
             var punches = await _genericAttendanceLog.All()
                 .Where(x => x.DeletedAt == null &&
                             x.Attendance.EmployeeID == userId &&
-                            x.PunchTime.Date == DateTime.Today)
+                            x.PunchTime.Date == getDate.Date)
                 .OrderBy(x => x.PunchTime)
                 .Select(x => x.PunchTime.ToString("HH:mm"))
                 .ToListAsync();
@@ -509,9 +519,10 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             return new JsonResult(new { punches }); // Replace 'Json' with 'JsonResult'
         }
 
-        public async Task<List<PunchActivityDto>> GetEmployeePunchActivityAsync(int userId)
+        public async Task<List<PunchActivityDto>> GetEmployeePunchActivityAsync(int userId, DateTime date)
         {
-            var today = DateTime.Today;
+            var getDate = date;
+            var today = getDate.Date;
             var tomorrow = today.AddDays(1);
 
             // Pull only PunchTime from DB
@@ -553,9 +564,10 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
         
 
-        public async Task<TimeOnly?> GetEmployeeFirstPunchInTimeAsync(int userId)
+        public async Task<TimeOnly?> GetEmployeeFirstPunchInTimeAsync(int userId , DateTime date)
         {
-            var today = DateTime.Today;
+            var getDate = date;
+            var today = getDate.Date;
             var tomorrow = today.AddDays(1);
 
             // Pull the first PunchTime from DB  
@@ -949,7 +961,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             double totalWorkingHours = 0;
             var shiftStartTime = shifts.StartTime;
             var shiftEndTime = shifts.EndTime;
-            var mealBreakTime = shifts.MealBreakTime.HasValue ? shifts.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+            
+            TimeSpan mealBreakTime = TimeSpan.FromMinutes((double)shifts.MealBreakTime);
+            //var mealBreakTime = shifts.MealBreakTime.HasValue ? shifts.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
 
             double dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime)?.TotalHours ?? 0;
 
@@ -1031,7 +1045,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             var shiftStartTime = shift.StartTime;
             var shiftEndTime = shift.EndTime;
-            var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+
+            TimeSpan mealBreakTime = TimeSpan.FromMinutes((double)shift.MealBreakTime);
+            //var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
 
             double dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime)?.TotalHours ?? 0;
 

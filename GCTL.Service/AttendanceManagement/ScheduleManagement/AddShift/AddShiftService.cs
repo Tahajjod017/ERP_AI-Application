@@ -161,11 +161,19 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
         public async Task<bool> AddAsync(ShiftsSetupVM model)
         {
             await _genericRepository.BeginTransactionAsync();
-            
+
             var userTimeZone = _localizationContext.Zone;  // Assuming _localizationContext is your ILocalizationContext
 
             var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.StartTime.Value, _localizationContext);
             var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.EndTime.Value, _localizationContext);
+
+            int? inPunchCountFromMin = (model.EarlyInTimeHour * 60 ?? 0) + model.EarlyInTimeMinute ?? 0;
+            int? outPunchCountToMin = (model.EarlyOutTimeHour * 60 ?? 0) + model.EarlyOutTimeMinute ?? 0;
+            int? graceTime = (model.GraceTimeHour * 60 ?? 0) + model.GraceTimeMinute ?? 0;
+            int? minimumWorkingTime = (model.MinimumWorkingTimeHour * 60 ?? 0) + model.MinimumWorkingTimeMinute ?? 0;
+            int? minimumRequiredOvertime = (model.MinimumRequiredOvertimeHour * 60 ?? 0) + model.MinimumRequiredOvertimeMinute ?? 0;
+            int? maximumAllowedOvertime = (model.MaximumAllowedOvertimeHour * 60 ?? 0) + model.MaximumAllowedOvertimeMinute ?? 0;
+            int? mealBreakTime = (model.MealBreakTimeHour * 60 ?? 0) + model.MealBreakTimeMinute ?? 0;
 
             try
             {
@@ -187,11 +195,15 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         existingEntity.MealBreakStartTime = model.MealBreakStartTime;
                         existingEntity.MealBreakEndTime = model.MealBreakEndTime;
                         existingEntity.IsAllowOvertime = model.IsAllowOvertime;
-                        existingEntity.GraceTime = model.GraceTime;
-                        existingEntity.MinimumWorkingTime = model.MinimumWorkingTime;
-                        existingEntity.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
-                        existingEntity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
-                        existingEntity.MealBreakTime = model.MealBreakTime;
+                        existingEntity.GraceTime = graceTime;
+                        existingEntity.MinimumWorkingTime = minimumWorkingTime;
+                        existingEntity.MinimumRequiredOvertime = minimumRequiredOvertime;
+                        existingEntity.MaximumAllowedOvertime = maximumAllowedOvertime;
+                        existingEntity.MealBreakTime = mealBreakTime;
+                        existingEntity.IsFlexibleInTime = model.IsFlexibleInTime;
+                        existingEntity.InPunchCountFromMin = inPunchCountFromMin;
+                        existingEntity.IsFlexibleOutTime = model.IsFlexibleOutTime;
+                        existingEntity.OutPunchCountToMin = outPunchCountToMin;
 
                         existingEntity.CreatedAt = DateTime.Now;
                         existingEntity.CreatedBy = model.CreatedBy;
@@ -219,11 +231,16 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         entity.MealBreakStartTime = model.MealBreakStartTime;
                         entity.MealBreakEndTime = model.MealBreakEndTime;
                         entity.IsAllowOvertime = model.IsAllowOvertime;
-                        entity.GraceTime = model.GraceTime;
-                        entity.MinimumWorkingTime = model.MinimumWorkingTime;
-                        entity.MinimumRequiredOvertime = model.MinimumRequiredOvertime;
-                        entity.MaximumAllowedOvertime = model.MaximumAllowedOvertime;
-                        entity.MealBreakTime = model.MealBreakTime;
+                        entity.GraceTime = graceTime;
+                        entity.MinimumWorkingTime = minimumWorkingTime;
+                        entity.MinimumRequiredOvertime = minimumRequiredOvertime;
+                        entity.MaximumAllowedOvertime = maximumAllowedOvertime;
+                        entity.MealBreakTime = mealBreakTime;
+                        entity.IsFlexibleInTime = model.IsFlexibleInTime;
+                        entity.InPunchCountFromMin = inPunchCountFromMin;
+                        entity.IsFlexibleOutTime = model.IsFlexibleOutTime;
+                        entity.OutPunchCountToMin = outPunchCountToMin;
+
                         entity.CreatedAt = DateTime.Now;
                         entity.CreatedBy = model.CreatedBy ?? null;
                         entity.LIP = model.LIP;
@@ -259,6 +276,14 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
             var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateStartTime.Value, _localizationContext);
             var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateEndTime.Value, _localizationContext);
 
+            int? inPunchCountFromMin = (model.UpdateEarlyInTimeHour * 60 ?? 0) + model.UpdateEarlyInTimeMinute ?? 0;
+            int? outPunchCountToMin = (model.UpdateEarlyOutTimeHour * 60 ?? 0) + model.UpdateEarlyOutTimeMinute ?? 0;
+            int? graceTime = (model.UpdateGraceTimeHour * 60 ?? 0) + model.UpdateGraceTimeMinute ?? 0;
+            int? minimumWorkingTime = (model.UpdateMinimumWorkingTimeHour * 60 ?? 0) + model.UpdateMinimumWorkingTimeMinute ?? 0;
+            int? minimumRequiredOvertime = (model.UpdateMinimumRequiredOvertimeHour * 60 ?? 0) + model.UpdateMinimumRequiredOvertimeMinute ?? 0;
+            int? maximumAllowedOvertime = (model.UpdateMaximumAllowedOvertimeHour * 60 ?? 0) + model.UpdateMaximumAllowedOvertimeMinute ?? 0;
+            int? mealBreakTime = (model.UpdateMealBreakTimeHour * 60 ?? 0) + model.UpdateMealBreakTimeMinute ?? 0;
+
             try
             {
                 var entity = await _genericRepository.GetByIdAsync(model.UpdateShiftID);
@@ -279,11 +304,15 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 entity.MealBreakStartTime = model.UpdateMealBreakStartTime.ToTimeOnly();
                 entity.MealBreakEndTime = model.UpdateMealBreakEndTime.ToTimeOnly();
                 entity.IsAllowOvertime = model.UpdateIsAllowOvertime;
-                entity.GraceTime = model.UpdateGraceTime;
-                entity.MinimumWorkingTime = model.UpdateMinimumWorkingTime;
-                entity.MinimumRequiredOvertime = model.UpdateMinimumRequiredOvertime;
-                entity.MaximumAllowedOvertime = model.UpdateMaximumAllowedOvertime;
-                entity.MealBreakTime = model.UpdateMealBreakTime;
+                entity.GraceTime = graceTime;
+                entity.MinimumWorkingTime = minimumWorkingTime;
+                entity.MinimumRequiredOvertime = minimumRequiredOvertime;
+                entity.MaximumAllowedOvertime = maximumAllowedOvertime;
+                entity.MealBreakTime = mealBreakTime;
+                entity.IsFlexibleInTime = model.UpdateIsFlexibleInTime;
+                entity.InPunchCountFromMin = inPunchCountFromMin;
+                entity.IsFlexibleOutTime = model.UpdateIsFlexibleOutTime;
+                entity.OutPunchCountToMin = outPunchCountToMin;
 
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -319,8 +348,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     UpdateShiftID = data.ShiftID,
                     UpdateShiftName = data.ShiftName,
                     UpdateOrganizationID = data.OrganizationID,
-                    UpdateStartTime = data.StartTime,
-                    UpdateEndTime = data.EndTime,
+                    UpdateStartTime = data.StartTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(data.StartTime.Value, _localizationContext) : null,
+                    UpdateEndTime = data.EndTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(data.EndTime.Value, _localizationContext) : null,
                     UpdateIsLateCount = data.IsLateCount,
                     UpdateIsAutomaticORManualBreakTime = data.IsAutomaticORManualBreakTime,
                     UpdateIsMBCompulsaryOrComplementaryDeductWithShift = data.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
@@ -328,11 +357,22 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     UpdateMealBreakStartTime = data.MealBreakStartTime?.ToString("hh:mm tt"),
                     UpdateMealBreakEndTime = data.MealBreakEndTime?.ToString("hh:mm tt"),
                     UpdateIsAllowOvertime = data.IsAllowOvertime,
-                    UpdateGraceTime = data.GraceTime,
-                    UpdateMinimumWorkingTime = data.MinimumWorkingTime,
-                    UpdateMinimumRequiredOvertime = data.MinimumRequiredOvertime,
-                    UpdateMaximumAllowedOvertime = data.MaximumAllowedOvertime,
-                    UpdateMealBreakTime = data.MealBreakTime,
+                    UpdateGraceTimeHour = data.GraceTime / 60,
+                    UpdateGraceTimeMinute = data.GraceTime % 60,
+                    UpdateMinimumWorkingTimeHour = data.MinimumWorkingTime / 60,
+                    UpdateMinimumWorkingTimeMinute = data.MinimumWorkingTime % 60,
+                    UpdateMinimumRequiredOvertimeHour = data.MinimumRequiredOvertime / 60,
+                    UpdateMinimumRequiredOvertimeMinute = data.MinimumRequiredOvertime % 60,
+                    UpdateMaximumAllowedOvertimeHour = data.MaximumAllowedOvertime / 60,
+                    UpdateMaximumAllowedOvertimeMinute = data.MaximumAllowedOvertime % 60,
+                    UpdateMealBreakTimeHour = data.MealBreakTime / 60,
+                    UpdateMealBreakTimeMinute = data.MealBreakTime % 60,
+                    UpdateIsFlexibleInTime = data.IsFlexibleInTime,
+                    UpdateEarlyInTimeHour = data.InPunchCountFromMin / 60,
+                    UpdateEarlyInTimeMinute = data.InPunchCountFromMin % 60,
+                    UpdateIsFlexibleOutTime = data.IsFlexibleOutTime,
+                    UpdateEarlyOutTimeHour = data.OutPunchCountToMin / 60,
+                    UpdateEarlyOutTimeMinute = data.OutPunchCountToMin % 60
                 };
             }
             catch (Exception ex)
@@ -398,7 +438,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
 
 
         #region GetAllAsync
-        public async Task<PaginationService<Shifts, ShiftsSetupVM>.PaginationResult<ShiftsSetupVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ShiftID", string sortOrder = "desc", int? organizationID = null)
+        public async Task<PaginationService<Shifts, ShiftsListVM>.PaginationResult<ShiftsListVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ShiftID", string sortOrder = "desc", int? organizationID = null)
         {
             var query = _genericRepository.AllActive().AsNoTracking().Include(x => x.Organization).Where(x => x.DeletedAt == null);
 
@@ -422,24 +462,22 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 };
             }
 
-            if(pageSize == 0)
+            if (pageSize == 0)
             {
                 pageSize = await query.CountAsync();
                 pageNumber = 1;
             }
 
-            var result = await PaginationService<Shifts, ShiftsSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
+            var result = await PaginationService<Shifts, ShiftsListVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
                 term => x => EF.Functions.Like(x.ShiftName, $"%{term}%"),
-                x => new ShiftsSetupVM
+                x => new ShiftsListVM
                 {
                     ShiftID = x.ShiftID,
                     ShiftName = x.ShiftName ?? "-",
                     OrganizationID = x.OrganizationID,
                     OrganizationName = x.Organization != null ? x.Organization.OrganizationName ?? "-" : "-",
-                    //StartTime = x.StartTime.HasValue ? x.StartTime.Value.ToString("hh\\:mm") : "-",
-                    //StartTime = x.StartTime,
-                    StartTime = x.StartTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(x.StartTime.Value, _localizationContext) : null,
-                    EndTime = x.EndTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(x.EndTime.Value, _localizationContext) : null,
+                    StartTime = x.StartTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(x.StartTime.Value, _localizationContext) : null,
+                    EndTime = x.EndTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(x.EndTime.Value, _localizationContext) : null,
                     IsLateCount = x.IsLateCount,
                     IsAutomaticORManualBreakTime = x.IsAutomaticORManualBreakTime,
                     IsMealBreakCompulsaryOrComplementaryDeductWithShift = x.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
@@ -447,11 +485,13 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     MealBreakStartTime = x.MealBreakStartTime,
                     MealBreakEndTime = x.MealBreakEndTime,
                     IsAllowOvertime = x.IsAllowOvertime,
-                    GraceTime = x.GraceTime,
-                    MinimumWorkingTime = x.MinimumWorkingTime,
-                    MinimumRequiredOvertime = x.MinimumRequiredOvertime,
-                    MaximumAllowedOvertime = x.MaximumAllowedOvertime,
-                    MealBreakTime = x.MealBreakTime,
+                    GraceTimeHour = x.GraceTime,
+                    MinimumWorkingTimeHour = x.MinimumWorkingTime,
+                    MinimumRequiredOvertimeHour = x.MinimumRequiredOvertime,
+                    MaximumAllowedOvertimeHour = x.MaximumAllowedOvertime,
+                    MealBreakTimeHour = x.MealBreakTime,
+                    IsFlexibleInTime = x.IsFlexibleInTime,
+                    IsFlexibleOutTime = x.IsFlexibleOutTime
                 });
 
             return result;

@@ -19,7 +19,7 @@ namespace GCTL.Service.AttendanceManagement
         private readonly IGenericRepository<EmailSettings> _emailSettings;
         private readonly IConfiguration _configuration;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfo;
-
+   
 
         public EmailService(IGenericRepository<EmailSettings> genericRepository, IGenericRepository<EmailSettings> emailSettings, IConfiguration configuration, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfo) : base(genericRepository)
         {
@@ -71,6 +71,71 @@ namespace GCTL.Service.AttendanceManagement
             }
         }
 
+        #region  leave Request
+        #region  leave Request
+        public async Task SendEmailLeaveRequest(EmailVM model, int? empId)
+        {
+            var employee = await _employeeOfficeInfo.AllActive()
+                .FirstOrDefaultAsync(x => x.EmployeeID == empId);
+            if (employee == null) return;
+
+            var emailConfig = await _emailSettings.AllActive()
+                .FirstOrDefaultAsync(x => x.OrganizationID == employee.OrganizationID);
+            if (emailConfig == null)
+                throw new InvalidOperationException("Email settings not configured in database.");
+
+            using (var smtpClient = new SmtpClient(emailConfig.Host, emailConfig.Port))
+            {
+                smtpClient.EnableSsl = emailConfig.IsSSLRequired;
+                smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtpClient.UseDefaultCredentials = emailConfig.IsDefaultCredential;
+
+                if (!emailConfig.IsDefaultCredential)
+                {
+                    smtpClient.Credentials = new NetworkCredential(emailConfig.UserName, emailConfig.Password);
+                }
+
+                if (string.IsNullOrEmpty(model.To))
+                    throw new ArgumentNullException(nameof(model.To), "Recipient email address is required.");
+
+                try
+                {
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress(emailConfig.UserName, "HR System"), // ✅ Safe From
+                        Subject = model.Subject ?? "Leave Application",
+                        Body = !string.IsNullOrEmpty(model.Body)
+                                ? model.Body
+                                : BuildEmailBodyLeaveRequest(model), // fallback only if needed
+                        IsBodyHtml = true
+                    };
+
+                    mailMessage.To.Add(model.To);
+
+                    await smtpClient.SendMailAsync(mailMessage);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"Email send failed: {ex.Message}", ex);
+                }
+            }
+        }
+        #endregion
+
+        #endregion
+
+
+        #region LeaveRequest Body 
+        private string BuildEmailBodyLeaveRequest(EmailVM model)
+        {
+            return $@"
+                
+
+
+            ";
+        }
+
+        #endregion
 
 
         #region BuildEmailBody
