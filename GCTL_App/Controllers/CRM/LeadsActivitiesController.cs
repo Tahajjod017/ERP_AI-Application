@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.MasterSetup.LeadStatuses;
 using GCTL.Data.Models;
+using GCTL.Service.CRM;
 using GCTL.Service.CRM.LeadsActivities;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
@@ -18,19 +19,46 @@ namespace GCTL_App.Controllers.CRM
         public readonly IGenericRepository<LeadStatuses> _leadStatusesRepository;
         private readonly IGenericRepository<AddressTypes> _addressTypeService;
 
+
         public LeadsActivitiesController(ITranslateService translateService, IUserProfileService userProfileService, ILeadsActivityService activityService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Services> servicesRepository, IGenericRepository<AddressTypes> addressTypeService) : base(translateService, userProfileService)
         {
             _activityService = activityService;
             _leadStatusesRepository = leadStatusesRepository;
             _addressTypeService = addressTypeService;
+
         }
 
         public IActionResult Index()
         {
+
             ViewBag.LeadStatus2 = new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
             ViewBag.ServiceTypeDD = new SelectList(_addressTypeService.AllActive().Where(u => u.AddressTypeName == "billing" || u.AddressTypeName == "company").Select(e => new { e.AddressTypeID, e.AddressTypeName }), "AddressTypeID", "AddressTypeName");
             return View();
         }
+        public async Task<bool> SendEmailWithPdf(byte[] pdfBytes)
+        {
+            try
+            {
+                var emailService = new EmailService1();
+
+                string receiverEmail = "debanjandevelopment@gmail.com";
+                string subject = "Hello from Gmail SMTP";
+                string body = "<h2>This email is sent using EmailService with PDF attachment!</h2>";
+
+                // Pass PDF as attachment
+                await emailService.SendEmailAsync(receiverEmail, subject, body, pdfBytes, "report.pdf");
+
+                Console.WriteLine("✅ Email sent successfully with PDF!");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Email sending failed: {ex.Message}");
+                return false;
+            }
+        }
+
+
 
         [HttpPost]
         public async Task<IActionResult> GetUpcomingActivities([FromForm] UpcomingActivityVM model)
@@ -65,7 +93,9 @@ namespace GCTL_App.Controllers.CRM
         [HttpPost]
         public async Task<IActionResult> GeneratePDF()
         {
+
             var pdfBytes = await _activityService.GeneratePDF();
+            await SendEmailWithPdf(pdfBytes);
             return File(pdfBytes, "application/pdf", "report.pdf");
         }
     }
