@@ -131,6 +131,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                 });
             }
             string url = $"{this.Request.Scheme}://{this.Request.Host.Value.ToString()}{this.Request.PathBase.Value.ToString()}"; //
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
             var data = await leaveRequestService.SaveLeaveRequestAsync(model, url);
             return Ok(data);
 

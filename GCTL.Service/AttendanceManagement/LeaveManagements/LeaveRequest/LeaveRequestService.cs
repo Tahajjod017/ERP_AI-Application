@@ -863,7 +863,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 //}
 
                 // Get full path to the logo file without IWebHostEnvironment
-                var logoFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "media", "company", orgainfo.LogoLink);
+               // var logoFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "media", "company", orgainfo.LogoLink);
+
+                var logoFilePath = Path.Combine( Directory.GetCurrentDirectory(), "wwwroot", "media","company", "logo",  orgainfo.LogoLink);
+
+               // var logoUrl = $"{baseUrl}/media/company/logo/{orgainfo.LogoLink}";
+                //var logoUrl = $"http://usasoft.xyz/media/employee/images/OsamaBinLaden.jpg";
+                var logoUrl = $"https://gctlsecurity.com/pub/static/frontend/CLS/Security/en_US/images/logo.png";
+
 
                 // Check if file exists and convert to Base64
                 string logoBase64;
@@ -881,7 +888,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     logoBase64 = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
                 }
 
-
+                var tt = $"https://gctlsecurity.com/pub/static/frontend/CLS/Security/en_US/images/logo.png";
+                //var tt = $"http://usasoft.xyz/media/employee/images/AamirKhan.jpg";
 
 
                 //var logoPath = $"/media/company/logo/{orgainfo.LogoLink}";
@@ -1087,7 +1095,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 <table width=""100%"">
                     <tr>
                         <td align=""left"">
-                            <img src=""{logoBase64}"" alt=""Company Logo"">
+                            <img src=""{tt}"" alt=""Company Logo"">
+                          
                         </td>
                         <td align=""right"">
 
