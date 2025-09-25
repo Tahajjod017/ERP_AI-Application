@@ -962,7 +962,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             var shiftStartTime = shifts.StartTime;
             var shiftEndTime = shifts.EndTime;
             
-            TimeSpan mealBreakTime = TimeSpan.FromMinutes((double)shifts.MealBreakTime);
+            var mealBreakTime = TimeSpan.FromMinutes((double)shifts.MealBreakTime);
             //var mealBreakTime = shifts.MealBreakTime.HasValue ? shifts.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
 
             double dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime)?.TotalHours ?? 0;
