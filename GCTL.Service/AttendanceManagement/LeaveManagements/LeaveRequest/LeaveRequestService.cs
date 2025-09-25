@@ -231,7 +231,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 return null;
             }
 
-            await leaveRequest.BeginTransactionAsync();
             try
             {
                 var data = await leaveRequest.GetByIdAsync(leaveApplicationID);
@@ -849,50 +848,23 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         , x.Phone}).FirstOrDefaultAsync();
                 var parts = orgainfo.Address.Split(',');
                 var formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
-                //string logoPath;
-                //if(!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
-                //{
-                //    logoPath = $"{url}/media/company/logo/{orgainfo.LogoLink}";
-                //} else
-                //{
-                //    var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
-                //         ? "?": orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
+                string logourl;
 
-                //    // ui-avatars lets you specify size, colors, etc.
-                //    logoPath = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
-                //}
-
-                // Get full path to the logo file without IWebHostEnvironment
-               // var logoFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "media", "company", orgainfo.LogoLink);
-
-                var logoFilePath = Path.Combine( Directory.GetCurrentDirectory(), "wwwroot", "media","company", "logo",  orgainfo.LogoLink);
-
-               // var logoUrl = $"{baseUrl}/media/company/logo/{orgainfo.LogoLink}";
-                //var logoUrl = $"http://usasoft.xyz/media/employee/images/OsamaBinLaden.jpg";
-                var logoUrl = $"https://gctlsecurity.com/pub/static/frontend/CLS/Security/en_US/images/logo.png";
-
-
-                // Check if file exists and convert to Base64
-                string logoBase64;
-                if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink) && System.IO.File.Exists(logoFilePath))
+                if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
                 {
-                    var imageBytes = await System.IO.File.ReadAllBytesAsync(logoFilePath);
-                    var extension = Path.GetExtension(logoFilePath).Replace(".", "").ToLower();
-                    logoBase64 = $"data:image/{extension};base64,{Convert.ToBase64String(imageBytes)}";
+                    // Make absolute path from domain + relative path
+                    logourl = $"http://usasoft.xyz/media/company/logo/{orgainfo.LogoLink}";
                 }
                 else
                 {
                     // Fallback to UI Avatars
                     var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
                         ? "?" : orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
-                    logoBase64 = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
+
+                    logourl = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
                 }
 
-                var tt = $"https://gctlsecurity.com/pub/static/frontend/CLS/Security/en_US/images/logo.png";
-                //var tt = $"http://usasoft.xyz/media/employee/images/AamirKhan.jpg";
-
-
-                //var logoPath = $"/media/company/logo/{orgainfo.LogoLink}";
+              
                 if (orgainfo==null)
                 {
                     return new CommonReturnViewModel
@@ -928,10 +900,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                
                 // Build email model
                 int leaveApplicationID = sequence;
+                var data = await GetLeaveRequestByIdAsync(leaveApplicationID);
+                Console.WriteLine(data);
                 var emailModel = new EmailVM
                 {
                     To = applicantData?.Email ?? applicantData?.OfficeEmail,
-                    //To="siam.mbstubritto12@gmail.com",
                     Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
   <!DOCTYPE html>
@@ -1095,7 +1068,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 <table width=""100%"">
                     <tr>
                         <td align=""left"">
-                            <img src=""{tt}"" alt=""Company Logo"">
+                            <img src=""{logourl}"" alt=""Company Logo"">
                           
                         </td>
                         <td align=""right"">
@@ -1201,17 +1174,18 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
     <td class=""content section-button"">
 
         <!-- Buttons -->
-        <div style=""margin-bottom: 15px; text-align: center;"">
-            <a href=""https://example.com/accept?request_id=123"" 
-               style=""display: inline-block; padding: 10px 20px; margin-right: 20px; background-color:#fff;border:1px solid #28a745;color:#28a745; text-decoration: none; border-radius: 5px; font-weight: bold;"">
-               Accept
-            </a>
-            <a href=""https://example.com/deny?request_id=123"" 
-               style=""display: inline-block; padding: 10px 20px; background-color: #fff; color:#dc3545;border:1px solid #dc3545; text-decoration: none; border-radius: 5px; font-weight: bold;"">
-               Deny
-            </a>
-        </div>
-      		<p>If you need to modify applied date, kindly change by <a href=""https://localhost:7086/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}"">clicking this link</a> </p>
+     <div style=""margin-bottom: 15px; text-align: center;"">
+    <a href=""{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=true""
+       style=""display: inline-block; padding: 10px 20px; margin-right: 20px; background-color:#fff;border:1px solid #28a745;color:#28a745; text-decoration: none; border-radius: 5px; font-weight: bold;"">
+       Accept
+    </a>
+    <a href=""{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=false""
+       style=""display: inline-block; padding: 10px 20px; background-color: #fff; color:#dc3545;border:1px solid #dc3545; text-decoration: none; border-radius: 5px; font-weight: bold;"">
+       Deny
+    </a>
+</div>
+
+      		<p>If you need to modify applied date, kindly change by <a href=""{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}"">clicking this link</a> </p>
     </td>
 </tr>
 <!-- Footer -->
@@ -1231,85 +1205,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
     "
                 };
 
-
-
                 // Send using EmailService (SMTP uses applicant’s org config)
                 await emailService.SendEmailLeaveRequest(emailModel, entityVM.EmployeeID);
 
 
 
-                var Body = $@"
-                        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;'>
-                            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; margin: -20px -20px 20px -20px;'>
-                                <h2 style='margin: 0; font-size: 24px;'>Leave Application Request</h2>
-                            </div>
-
-                            <p style='color: #333; font-size: 16px;'>Dear {approverData?.FirstName} {approverData?.LastName},</p>
-
-                            <p style='color: #333; font-size: 16px; line-height: 1.6;'>
-                                <strong>{applicantData?.FirstName} {applicantData?.LastName}</strong> 
-                                ({applicantData?.DesignationName}, {applicantData?.DepartmentName}) has applied for leave.
-                            </p>
-
-                            <div style='background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;'>
-                                <h3 style='color: #667eea; margin-top: 0;'>Leave Details:</h3>
-                                <table style='width: 100%; border-collapse: collapse;'>
-                                    <tr>
-                                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>From Date:</td>
-                                        <td style='padding: 8px 0; color: #333;'>{entityVM.FromDate:dd MMM yyyy}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>To Date:</td>
-                                        <td style='padding: 8px 0; color: #333;'>{entityVM.ToDate:dd MMM yyyy}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>Total Days:</td>
-                                        <td style='padding: 8px 0; color: #333;'>{totalDays}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style='padding: 8px 0; font-weight: bold; color: #555;'>Leave Type:</td>
-                                        <td style='padding: 8px 0; color: #333;'>{leaveName}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style='padding: 8px 0; font-weight: bold; color: #555; vertical-align: top;'>Reason:</td>
-                                        <td style='padding: 8px 0; color: #333;'>{entityVM.Reason}</td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <p style='color: #333; font-size: 16px; line-height: 1.6;'>
-                                Please log in to the HRM system to review and approve this request.
-                            </p>
-
-                            <div style='text-align: center; margin: 30px 0;'>
-                 <a href=""https://localhost:7086/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}""
-                               style=""display: inline-block; padding: 12px 24px; background: #007bff; color: #fff; text-decoration: none; border-radius: 6px;"">
-                               🔐 LOGIN TO HRM
-                            </a>
-
-
-                                <br/><br/>
-                <!--
-                           <a href='https://localhost:7086/LeaveApprovalDecline/Index?leaveApplicationID={leaveApplicationID}' 
-                          style='display: inline-block; padding: 12px 24px; background: #6f42c1; color: #fff; text-decoration: none; border-radius: 6px; margin: 0 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;'>
-                           📋 Approvals
-                        </a>
-                -->
-                            </div>
-
-                            <div style='background: #e9ecef; padding: 15px; border-radius: 6px; margin: 20px 0;'>
-                                <p style='margin: 0; color: #6c757d; font-size: 14px; text-align: center;'>
-                                    <strong>Quick Actions:</strong> After logging in, you can directly access the leave approval page using the link above.
-                                </p>
-                            </div>
-
-                            <div style='border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px;'>
-                                <p style='color: #333; font-size: 16px; margin-bottom: 5px;'>Best Regards,</p>
-                                <p style='color: #667eea; font-weight: bold; font-size: 16px; margin: 0;'>HRM System</p>
-                                <p style='color: #6c757d; font-size: 14px; margin: 5px 0 0 0;'>Human Resource Management</p>
-                            </div>
-                        </div>
-                    ";
+            
 
                 await leaveRequest.CommitTransactionAsync();
 
@@ -2181,7 +2082,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 throw;
             }
         }
-
+   
         #endregion
     }
 }

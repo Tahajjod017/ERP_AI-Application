@@ -614,9 +614,9 @@ $(document).ready(function () {
     // Handle form submit
     $('body').on('submit', '#LeaveRequestForm', function (e) {
         e.preventDefault();
-
+        
         var $form = $(this);
-
+        var $saveButton = $form.find('#ApplyLeaveSubmitButton'); 
         if (!$form.valid()) {
 
             return false;
@@ -654,6 +654,7 @@ $(document).ready(function () {
             dataType: 'json',
             beforeSend: function ()
             {
+                $saveButton.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
                 showLoadingIndicator();
             },
             success: function (response) {
@@ -683,6 +684,7 @@ $(document).ready(function () {
             error: function () {
                 toastr.error("An unexpected error occurred.");
             }, complete: function () {
+                $saveButton.prop('disabled', false).html('Apply Leave');
                 hideLoadingIndicator();
             }
         });
@@ -761,7 +763,7 @@ $(document).ready(function () {
     //
     $(document).on('click', '#ApplyLeaveSubmitButtonUpdate', function (e) {
         e.preventDefault();
-
+        var $saveButton = $(this); // 🔑 reference the clicked button
         var model = {
             LeaveApplicationID: parseInt($('#LeaveApplicationID').val()) || 0,
             EmployeeIDEdit: parseInt($('#EmployeeIDEdit').val()) || null,
@@ -786,6 +788,13 @@ $(document).ready(function () {
             type: 'POST',
             data: JSON.stringify(model),
             contentType: 'application/json',
+            beforeSend: function () {
+                // show spinner
+                $saveButton
+                    .prop('disabled', true)
+                    .html('<i class="fa fa-spinner fa-spin"></i> Updating...');
+                showLoadingIndicator();
+            },
             success: function (response) {
 
                 if (response.success) {
@@ -798,6 +807,10 @@ $(document).ready(function () {
             error: function (xhr, status, error) {
                 console.error("Update Error:", error);
                 toastr.error("An unexpected error occurred while updating the leave request.");
+            }, complete: function () {
+                // restore button
+                $saveButton.prop('disabled', false).html('Update Apply');
+                hideLoadingIndicator();
             }
         });
     });

@@ -59,8 +59,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                 ViewBag.OrganizationDD = new SelectList(companies, "Id", "Name");
             }
 
-            //ViewBag.DepartmentDD = new SelectList(await leaveRequestService.GetDepartments(), "Id", "Name");
-            // Departments dropdown
             var departments = await leaveRequestService.GetDepartments();
             if (departments.Count == 1)
             {
@@ -130,7 +128,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                     Errors = errorMessages
                 });
             }
-            string url = $"{this.Request.Scheme}://{this.Request.Host.Value.ToString()}{this.Request.PathBase.Value.ToString()}"; //
+            string url = $"{this.Request.Scheme}://{this.Request.Host.Value.ToString()}{this.Request.PathBase.Value.ToString()}";
             var baseUrl = $"{Request.Scheme}://{Request.Host}";
             var data = await leaveRequestService.SaveLeaveRequestAsync(model, url);
             return Ok(data);
