@@ -19,5 +19,6 @@ namespace GCTL.Data.Models
         Task<int> Prc_GetEmployeesPagedAsync(int? pageNumber, int? pageSize, string searchTerm, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_GetAllEmployeeShiftsResult>> sp_GetAllEmployeeShiftsAsync(int? pageNumber, int? pageSize, string searchTerm, int? daysToShow, DateOnly? startDate, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_InsertOrUpdateShiftsAsync(DataTable shiftInputs, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<sp_ProcessPunchResult>> sp_ProcessPunchAsync(int? enroll_id, DateTime? cHECKTIME, string deviceSN, string sourceType, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
     }
 }

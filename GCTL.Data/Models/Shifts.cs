@@ -47,19 +47,23 @@ public partial class Shifts
 
     public int? DeletedBy { get; set; }
 
-    public TimeOnly? GraceTime { get; set; }
-
-    public TimeOnly? MinimumWorkingTime { get; set; }
-
-    public TimeOnly? MinimumRequiredOvertime { get; set; }
-
-    public TimeOnly? MaximumAllowedOvertime { get; set; }
-
-    public TimeOnly? MealBreakTime { get; set; }
-
     public bool IsFlexibleInTime { get; set; }
 
-    public TimeOnly? PunchCountFrom { get; set; }
+    public int? InPunchCountFromMin { get; set; }
+
+    public bool IsFlexibleOutTime { get; set; }
+
+    public int? OutPunchCountToMin { get; set; }
+
+    public int? GraceTime { get; set; }
+
+    public int? MinimumWorkingTime { get; set; }
+
+    public int? MinimumRequiredOvertime { get; set; }
+
+    public int? MaximumAllowedOvertime { get; set; }
+
+    public int? MealBreakTime { get; set; }
 
     public virtual ICollection<Attendance> Attendance { get; set; } = new List<Attendance>();
 

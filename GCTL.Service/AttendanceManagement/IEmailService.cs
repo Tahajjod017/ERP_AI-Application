@@ -10,5 +10,6 @@ namespace GCTL.Service.AttendanceManagement
     public interface IEmailService
     {
         Task SendEmailAsync(EmailVM model, int? orgId);
+        Task SendEmailLeaveRequest(EmailVM model, int? orgId);
     }
 }

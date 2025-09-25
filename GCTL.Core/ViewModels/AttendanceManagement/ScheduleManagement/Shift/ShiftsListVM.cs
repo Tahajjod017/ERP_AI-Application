@@ -1,7 +1,6 @@
 ﻿using GCTL.Core.ViewModels.MasterSetup.Organizations;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -9,25 +8,19 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 {
-    public class ShiftsSetupVM : BaseViewModel
+    public class ShiftsListVM : BaseViewModel
     {
         public int ShiftID { get; set; }
 
-        [Required(ErrorMessage = "{0} is required!"), Display(Name = "Shift Name")]
         public string ShiftName { get; set; }
 
         public int? OrganizationID { get; set; }
 
-        [Required(ErrorMessage = "{0} is required!"), Display(Name = "Organization")]
-        public List<int>? OrganizationIDs { get; set; }
-
         public string? OrganizationName { get; set; }
 
-        [Required(ErrorMessage = "{0} is required!"), Display(Name = "Start Time")]
-        public TimeOnly? StartTime { get; set; }
+        public string? StartTime { get; set; }
 
-        [Required(ErrorMessage = "{0} is required!"), Display(Name = "End Time")]
-        public TimeOnly? EndTime { get; set; }
+        public string? EndTime { get; set; }
 
         public bool IsLateCount { get; set; }
 

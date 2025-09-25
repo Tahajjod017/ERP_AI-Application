@@ -215,7 +215,10 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             var productionTime = currentTime - checkInTime;
 
             // Convert 'TimeOnly?' to 'TimeSpan?' before applying the null-coalescing operator
-            var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+
+
+            //var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+            TimeSpan mealBreakTime = TimeSpan.FromMinutes((double)shift.MealBreakTime);
             var actualTotalWorkingTime = shiftEndTime - shiftStartTime - mealBreakTime;
 
             // Limit the production time to the shift working hours (excluding break time)
@@ -349,7 +352,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 if (firstPunch > shiftStartTime.Value)
                 {
                     var lateMinutes = (int)(firstPunch - shiftStartTime.Value).TotalMinutes;
-                    if (shift.GraceTime.HasValue && lateMinutes > shift.GraceTime.Value.ToTimeSpan().TotalMinutes)
+                    TimeSpan graceTime = TimeSpan.FromMinutes((double)shift.GraceTime);
+                    //if (shift.GraceTime.HasValue && lateMinutes > shift.GraceTime.Value.ToTimeSpan().TotalMinutes)
+                    if (shift.GraceTime.HasValue && lateMinutes > graceTime.TotalMinutes)
                     {
                         totalLateMinutes = lateMinutes;
                         sessionTimeline.Add(new SessionData
@@ -956,7 +961,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             double totalWorkingHours = 0;
             var shiftStartTime = shifts.StartTime;
             var shiftEndTime = shifts.EndTime;
-            var mealBreakTime = shifts.MealBreakTime.HasValue ? shifts.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+            
+            TimeSpan mealBreakTime = TimeSpan.FromMinutes((double)shifts.MealBreakTime);
+            //var mealBreakTime = shifts.MealBreakTime.HasValue ? shifts.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
 
             double dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime)?.TotalHours ?? 0;
 
@@ -1038,7 +1045,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
 
             var shiftStartTime = shift.StartTime;
             var shiftEndTime = shift.EndTime;
-            var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
+
+            TimeSpan mealBreakTime = TimeSpan.FromMinutes((double)shift.MealBreakTime);
+            //var mealBreakTime = shift.MealBreakTime.HasValue ? shift.MealBreakTime.Value.ToTimeSpan() : TimeSpan.Zero;
 
             double dailyWorkingHours = (shiftEndTime - shiftStartTime - mealBreakTime)?.TotalHours ?? 0;
 

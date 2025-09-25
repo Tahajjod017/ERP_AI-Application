@@ -81,6 +81,14 @@ namespace GCTL_App.Controllers
 
             return Ok(new { LocalHostUrl = url });
         }
+        
+        public string GetLocalHostStr()
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            string url = $"{request.Scheme}://{request.Host}";
+
+            return url;
+        }
 
         public string GetEmployeePictureURL(bool thumb = false)
         {

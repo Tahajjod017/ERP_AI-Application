@@ -104,10 +104,15 @@
             // Image preview
             container.innerHTML = `<img src="${fileUrl}" class="img-fluid" alt="preview">`;
         }
-        else if (ext === "pdf") {
-            container.innerHTML = `<iframe src="${fileUrl}" 
-                           style="width:100%;height:500px" frameborder="0"></iframe>`;
+        //else if (ext === "pdf") {
+        //    container.innerHTML = `<iframe src="${fileUrl}"
+        //                   style="width:100%;height:500px" frameborder="0"></iframe>`;
+            //}
+        if (ext === "pdf") {
+            window.open(fileUrl, "_blank");
+            return; 
         }
+
         else {
             // Not supported ? force download
             window.open(fileUrl, "_blank");
