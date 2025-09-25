@@ -54,6 +54,8 @@ namespace GCTL_App.Controllers.CRM
             _leadsRepository = leadsRepository;
         }
 
+
+
         public async Task<IActionResult> Index(int? id)
         {
 
