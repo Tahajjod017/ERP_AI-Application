@@ -9,6 +9,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
 {
     public interface IAppsAttendanceService
     {
-        Task<bool> AttendanceFromApps(PunchDataRequestVM model);
+        Task<PunchResultVM> AttendanceFromApps(PunchDataRequestVM model);
     }
 }

@@ -5,6 +5,7 @@ using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.APIControllers
@@ -40,9 +41,24 @@ namespace GCTL_App.Controllers.APIControllers
         {
             try
             {
-                await _attendanceService.AttendanceFromApps(request);
+                var result = await _attendanceService.AttendanceFromApps(request);
 
-                return Ok(new { isSuccess = true, message = "Punch data saved successfully" });
+                if (result == null)
+                    return StatusCode(500, new { isSuccess = false, message = "No data returned from stored procedure." });
+
+                return Ok(new
+                {
+                    inTime = result.InTime,
+                    outTime = result.OutTime,
+                    imageUrl = "",
+                    message = "Punch data saved successfully",
+                    attendenceList = result.AttendenceListVMs.Select(a => new
+                    {
+                        slno = a.SlNo,
+                        attendenceType = a.AttendenceType,
+                        attDateANDTime = a.PunchTime
+                    })
+                });
             }
             catch (Exception ex)
             {

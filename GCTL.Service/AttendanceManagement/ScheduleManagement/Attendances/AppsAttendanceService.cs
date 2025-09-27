@@ -26,22 +26,37 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
 
 
         #region AttendanceFromApps
-        public async Task<bool> AttendanceFromApps(PunchDataRequestVM model)
+        public async Task<PunchResultVM> AttendanceFromApps(PunchDataRequestVM model)
         {
             try
             {
                 if (model == null)
-                    return false;
+                    return null;
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@enroll_id", model.EmployeeId);
-                parameters.Add("@CHECKTIME", model.CheckInTime);
+                parameters.Add("@CHECKTIME", DateTime.UtcNow);
                 parameters.Add("@DeviceSN", model.DeviceInfo);
-                parameters.Add("@SourceType", model.SourceType);
+                parameters.Add("@SourceType", "Apps");
+                parameters.Add("@Latitude", model.Latitude);
+                parameters.Add("@Longitude", model.Longitude);
 
-                var result = await _dbConnection.ExecuteAsync("[HRM_DB_GCTL].[dbo].[sp_ProcessPunch]", parameters, commandType: CommandType.StoredProcedure);
+                //var result = await _dbConnection.ExecuteAsync("[HRM_DB_GCTL].[dbo].[sp_ProcessPunch]", parameters, commandType: CommandType.StoredProcedure);
 
-                return result > 0;
+                //return result > 0;
+                //var result = await _dbConnection.QuerySingleOrDefaultAsync<PunchResultVM>("[HRM_DB_GCTL].[dbo].[sp_ProcessPunch]", parameters, commandType: CommandType.StoredProcedure);
+
+                //return result;
+
+                using var multi = await _dbConnection.QueryMultipleAsync("[HRM_DB_GCTL].[dbo].[sp_ProcessPunch]", parameters, commandType: CommandType.StoredProcedure );
+
+                var punchResult = await multi.ReadFirstOrDefaultAsync<PunchResultVM>();
+                if (punchResult == null) return null;
+
+                var attendanceList = (await multi.ReadAsync<AttendenceListVM>()).ToList();
+                punchResult.AttendenceListVMs = attendanceList;
+
+                return punchResult;
             }
             catch (Exception ex)
             {

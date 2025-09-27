@@ -33,6 +33,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
     public virtual DbSet<Attendance> Attendance { get; set; }
@@ -200,6 +201,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<MenuTab> MenuTab { get; set; }
 
     public virtual DbSet<MessageContent> MessageContent { get; set; }
+
+    public virtual DbSet<MobileApps> MobileApps { get; set; }
 
     public virtual DbSet<OTPSettings> OTPSettings { get; set; }
 
@@ -567,13 +570,14 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
- .HasDiscriminator<string>("Discriminator")
- .HasValue<ApplicationUser>("ApplicationUser");
+         .HasDiscriminator<string>("Discriminator")
+         .HasValue<ApplicationUser>("ApplicationUser");
+
         modelBuilder.Entity<ApplicationUser>()
-        .HasOne(u => u.Employees)
-        .WithMany(e => e.AspNetUsers)
-        .HasForeignKey(u => u.EmployeeId)
-        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+                .HasOne(u => u.Employees)
+                .WithMany(e => e.AspNetUsers)
+                .HasForeignKey(u => u.EmployeeId)
+                .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -3548,6 +3552,40 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.MessageContentUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__MessageCo__Updat__15FA39EE");
+        });
+
+        modelBuilder.Entity<MobileApps>(entity =>
+        {
+            entity.HasKey(e => e.MobileAppID).HasName("PK__MobileAp__0D2CD98EE81EA581");
+
+            entity.ToTable("MobileApps", "Settings");
+
+            entity.Property(e => e.AppVersion)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.MobileAppsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__MobileApp__Creat__4BA21D88");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.MobileAppsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__MobileApp__Delet__4E7E8A33");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.MobileApps)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__MobileApp__Organ__4AADF94F");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.MobileAppsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__MobileApp__Updat__4C9641C1");
         });
 
         modelBuilder.Entity<OTPSettings>(entity =>

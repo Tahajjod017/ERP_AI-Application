@@ -595,6 +595,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Settings].[MobileApps]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Settings].[Percentages]",
          "ObjectType": 0
       },
