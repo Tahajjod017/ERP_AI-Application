@@ -1,18 +1,12 @@
-﻿using GCTL.Core.ViewModels;
-using GCTL.Core.ViewModels.CRM;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using GCTL.Core.ViewModels.CRM;
+using Microsoft.AspNetCore.Mvc.Rendering;
 namespace GCTL.Service.CRM.AddTeam
 {
     public interface IAddTeamService
     {
         #region CRUD
-        Task<bool> AddNewTeam(AddTeamVM model);
-        Task<bool> UpdateNewTeam(AddTeamVM model);
+        //Task<bool> AddNewTeam(AddTeamVM model);
+        //Task<bool> UpdateNewTeam(AddTeamVM model);
         //Task<bool> SoftDeleteAsync(BaseViewModel model, List<int> ids);
         //Task<bool> DeleteNewTeam(int id);
         //Task<AddTeamVM> GetNewTeam(int id);
@@ -22,7 +16,7 @@ namespace GCTL.Service.CRM.AddTeam
 
 
         //#region Others
-        //Task<IEnumerable<CommonSelectVM>> GetEmployees();
+        public Task<IEnumerable<SelectListItem>> GetCustomers();
         //Task<bool> IsNameUniqueAsync(string name);
         //string GetLocalIP();
         //string GetMacAddress();

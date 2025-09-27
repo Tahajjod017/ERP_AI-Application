@@ -12,13 +12,15 @@ namespace GCTL.Core.ViewModels.CRM
     {
         public int TeamID { get; set; }
 
-        [Required(ErrorMessage = "{0} is Required"), DisplayName("Team Name")]
+        [Required(ErrorMessage = "{0} is Required"), DisplayName("Generated ID")]
+        public int? GeneratedID { get; set; }
+        [Required(ErrorMessage = "Team Name is Required"), DisplayName("Team Name")]
         public string TeamName { get; set; }
-        public int EmpId { get; set; }
-        public List<int>? EmployeeId { get; set; }
-        public string? EmployeeName { get; set; }
-        public int TeamMemberID { get; set; }
-        public string? GeneratedID { get; set; }
+        //public int EmpId { get; set; }
+        public List<int>? EmployeeIds { get; set; }
+        //public string? EmployeeName { get; set; }
+        //public int TeamMemberID { get; set; }
+        //public string? GeneratedID { get; set; }
 
         //public virtual AspNetUsers CreatedByNavigation { get; set; }
 

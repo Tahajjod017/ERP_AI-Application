@@ -14,164 +14,164 @@ namespace GCTL.Service.CRM.AddTeam
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<LeadProjectTeams> _teamsRepository;
         private readonly IGenericRepository<LeadProjectTeamMembers> _teamMembersRepository;
-        private readonly IGenericRepository<Customers> _employeesRepository;
+        private readonly IGenericRepository<Customers> _customerRepository;
         private readonly IGenericRepository<ReportContent> _reportContent;
 
-        public AddTeamService(IGenericRepository<LeadProjectTeams> teamsRepository, IGenericRepository<LeadProjectTeamMembers> teamMembersRepository, IGenericRepository<Customers> employeesRepository, IUserInfoService userInfoService, IGenericRepository<EmployeeOfficeInfo> emplooyeeOfficeInfoRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<ReportContent> reportContent) : base(teamsRepository)
+        public AddTeamService(IGenericRepository<LeadProjectTeams> teamsRepository, IGenericRepository<LeadProjectTeamMembers> teamMembersRepository, IGenericRepository<Customers> employeesRepository, IUserInfoService userInfoService, IGenericRepository<EmployeeOfficeInfo> emplooyeeOfficeInfoRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<ReportContent> reportContent, IGenericRepository<Customers> customerRepository) : base(teamsRepository)
         {
             _teamsRepository = teamsRepository;
             _teamMembersRepository = teamMembersRepository;
-            _employeesRepository = employeesRepository;
             _userInfoService = userInfoService;
             _reportContent = reportContent;
+            _customerRepository = customerRepository;
         }
         #endregion
 
 
-        #region AddNewTeam
-        public async Task<bool> AddNewTeam(AddTeamVM model)
-        {
-            await _teamsRepository.BeginTransactionAsync();
-            try
-            {
-                LeadProjectTeams entity = new LeadProjectTeams();
-                entity.LPTeamGID = model.GeneratedID;
-                entity.LeadProjectTeamName = model.TeamName;
-                entity.CreatedAt = DateTime.Now;
-                entity.CreatedBy = model.CreatedBy;
+        //#region AddNewTeam
+        //public async Task<bool> AddNewTeam(AddTeamVM model)
+        //{
+        //    await _teamsRepository.BeginTransactionAsync();
+        //    try
+        //    {
+        //        LeadProjectTeams entity = new LeadProjectTeams();
+        //        entity.LPTeamGID = model.GeneratedID;
+        //        entity.LeadProjectTeamName = model.TeamName;
+        //        entity.CreatedAt = DateTime.Now;
+        //        entity.CreatedBy = model.CreatedBy;
 
-                await _teamsRepository.AddAsync(entity);
-                //await _userInfoService.ActionLogBVMAsync("Add Team", ActionName.DataAdd, null, entity, entity.LeadProjectTeamID, model);
+        //        await _teamsRepository.AddAsync(entity);
+        //        //await _userInfoService.ActionLogBVMAsync("Add Team", ActionName.DataAdd, null, entity, entity.LeadProjectTeamID, model);
 
-                if (model.EmployeeId != null && model.EmployeeId.Any())
-                {
-                    foreach (var employeeId in model.EmployeeId)
-                    {
-                        LeadProjectTeamMembers teamMembers = new LeadProjectTeamMembers();
-                        teamMembers.LeadProjectTeamID = entity.LeadProjectTeamID;
-                        teamMembers.EmployeeID = employeeId;
-                        teamMembers.CreatedAt = DateTime.Now;
-                        teamMembers.CreatedBy = model.CreatedBy;
+        //        if (model.EmployeeId != null && model.EmployeeId.Any())
+        //        {
+        //            foreach (var employeeId in model.EmployeeId)
+        //            {
+        //                LeadProjectTeamMembers teamMembers = new LeadProjectTeamMembers();
+        //                teamMembers.LeadProjectTeamID = entity.LeadProjectTeamID;
+        //                teamMembers.EmployeeID = employeeId;
+        //                teamMembers.CreatedAt = DateTime.Now;
+        //                teamMembers.CreatedBy = model.CreatedBy;
 
-                        await _teamMembersRepository.AddAsync(teamMembers);
-                        //await _userInfoService.ActionLogBVMAsync("Add Team", ActionName.DataAdd, null, teamMembers, teamMembers.TeamMemberID, model);
-                    }
-                }
-                else
-                {
-                    LeadProjectTeamMembers teamMembers = new LeadProjectTeamMembers();
-                    teamMembers.LeadProjectTeamID = entity.LeadProjectTeamID;
-                    teamMembers.CreatedAt = DateTime.Now;
-                    teamMembers.CreatedBy = model.CreatedBy;
-                    await _teamMembersRepository.AddAsync(teamMembers);
-                    //await _userInfoService.ActionLogBVMAsync("Add Team", ActionName.DataAdd, null, entity, entity.LeadProjectTeamID, model);
-                }
+        //                await _teamMembersRepository.AddAsync(teamMembers);
+        //                //await _userInfoService.ActionLogBVMAsync("Add Team", ActionName.DataAdd, null, teamMembers, teamMembers.TeamMemberID, model);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            LeadProjectTeamMembers teamMembers = new LeadProjectTeamMembers();
+        //            teamMembers.LeadProjectTeamID = entity.LeadProjectTeamID;
+        //            teamMembers.CreatedAt = DateTime.Now;
+        //            teamMembers.CreatedBy = model.CreatedBy;
+        //            await _teamMembersRepository.AddAsync(teamMembers);
+        //            //await _userInfoService.ActionLogBVMAsync("Add Team", ActionName.DataAdd, null, entity, entity.LeadProjectTeamID, model);
+        //        }
 
-                await _teamsRepository.CommitTransactionAsync();
+        //        await _teamsRepository.CommitTransactionAsync();
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                await _teamsRepository.RollbackTransactionAsync();
-                return false;
-            }
-        }
-        #endregion
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await _teamsRepository.RollbackTransactionAsync();
+        //        return false;
+        //    }
+        //}
+        //#endregion
 
 
-        #region UpdateNewTeam
-        public async Task<bool> UpdateNewTeam(AddTeamVM model)
-        {
-            await _teamsRepository.BeginTransactionAsync();
-            try
-            {
-                var entity = await _teamsRepository.GetByIdAsync(model.TeamID);
-                if (entity == null)
-                {
-                    return false;
-                }
+        //#region UpdateNewTeam
+        //public async Task<bool> UpdateNewTeam(AddTeamVM model)
+        //{
+        //    await _teamsRepository.BeginTransactionAsync();
+        //    try
+        //    {
+        //        var entity = await _teamsRepository.GetByIdAsync(model.TeamID);
+        //        if (entity == null)
+        //        {
+        //            return false;
+        //        }
 
-                var beforeEntity = JsonConvert.DeserializeObject<AddTeamVM>(JsonConvert.SerializeObject(entity));
+        //        var beforeEntity = JsonConvert.DeserializeObject<AddTeamVM>(JsonConvert.SerializeObject(entity));
 
-                entity.LPTeamGID = model.GeneratedID;
-                entity.LeadProjectTeamName = model.TeamName;
-                entity.UpdatedAt = DateTime.Now;
-                entity.UpdatedBy = model.UpdatedBy;
-                entity.LIP = model.LIP;
-                entity.LMAC = model.LMAC;
+        //        entity.LPTeamGID = model.GeneratedID;
+        //        entity.LeadProjectTeamName = model.TeamName;
+        //        entity.UpdatedAt = DateTime.Now;
+        //        entity.UpdatedBy = model.UpdatedBy;
+        //        entity.LIP = model.LIP;
+        //        entity.LMAC = model.LMAC;
 
-                await _teamsRepository.UpdateAsync(entity);
-                var afterEntity = JsonConvert.DeserializeObject<AddTeamVM>(JsonConvert.SerializeObject(entity));
-                //await _userInfoService.ActionLogBVMAsync("Add Team", ActionName.DataUpdated, beforeEntity, afterEntity, entity.LeadProjectTeamID, model);
+        //        await _teamsRepository.UpdateAsync(entity);
+        //        var afterEntity = JsonConvert.DeserializeObject<AddTeamVM>(JsonConvert.SerializeObject(entity));
+        //        //await _userInfoService.ActionLogBVMAsync("Add Team", ActionName.DataUpdated, beforeEntity, afterEntity, entity.LeadProjectTeamID, model);
 
-                // Soft Remove existing team members
-                var existingMembers = await _teamMembersRepository.AllActive().Where(x => x.LeadProjectTeamID == model.TeamID).ToListAsync();
-                if (existingMembers != null && existingMembers.Any())
-                {
-                    foreach (var member in existingMembers)
-                    {
-                        member.DeletedAt = DateTime.Now;
-                        member.DeletedBy = model.DeletedBy;
-                        member.UpdatedAt = DateTime.Now;
-                        member.UpdatedBy = model.UpdatedBy;
-                    }
+        //        // Soft Remove existing team members
+        //        var existingMembers = await _teamMembersRepository.AllActive().Where(x => x.LeadProjectTeamID == model.TeamID).ToListAsync();
+        //        if (existingMembers != null && existingMembers.Any())
+        //        {
+        //            foreach (var member in existingMembers)
+        //            {
+        //                member.DeletedAt = DateTime.Now;
+        //                member.DeletedBy = model.DeletedBy;
+        //                member.UpdatedAt = DateTime.Now;
+        //                member.UpdatedBy = model.UpdatedBy;
+        //            }
 
-                    await _teamMembersRepository.UpdateRangeAsync(existingMembers);
-                }
+        //            await _teamMembersRepository.UpdateRangeAsync(existingMembers);
+        //        }
 
-                if (model.EmployeeId != null && model.EmployeeId.Any())
-                {
-                    foreach (var employeeId in model.EmployeeId)
-                    {
-                        // Find previous member to check IsTeamHead
-                        var previousMember = existingMembers.FirstOrDefault(x => x.EmployeeID == employeeId);
-                        var isTeamHead = previousMember?.IsTeamHead ?? false;
+        //        if (model.EmployeeId != null && model.EmployeeId.Any())
+        //        {
+        //            foreach (var employeeId in model.EmployeeId)
+        //            {
+        //                // Find previous member to check IsTeamHead
+        //                var previousMember = existingMembers.FirstOrDefault(x => x.EmployeeID == employeeId);
+        //                var isTeamHead = previousMember?.IsTeamHead ?? false;
 
-                        // Check for a soft-deleted team member with the same LeadProjectTeamID and EmployeeID
-                        var existingSoftDeleted = await _teamMembersRepository.All().FirstOrDefaultAsync(tm => tm.LeadProjectTeamID == model.TeamID && tm.EmployeeID == employeeId && tm.DeletedAt != null);
+        //                // Check for a soft-deleted team member with the same LeadProjectTeamID and EmployeeID
+        //                var existingSoftDeleted = await _teamMembersRepository.All().FirstOrDefaultAsync(tm => tm.LeadProjectTeamID == model.TeamID && tm.EmployeeID == employeeId && tm.DeletedAt != null);
 
-                        if (existingSoftDeleted != null)
-                        {
-                            // Restore the soft-deleted team member
-                            existingSoftDeleted.DeletedAt = null;
-                            existingSoftDeleted.DeletedBy = null;
-                            existingSoftDeleted.UpdatedAt = DateTime.Now;
-                            existingSoftDeleted.UpdatedBy = model.UpdatedBy;
-                            existingSoftDeleted.IsTeamHead = isTeamHead;
+        //                if (existingSoftDeleted != null)
+        //                {
+        //                    // Restore the soft-deleted team member
+        //                    existingSoftDeleted.DeletedAt = null;
+        //                    existingSoftDeleted.DeletedBy = null;
+        //                    existingSoftDeleted.UpdatedAt = DateTime.Now;
+        //                    existingSoftDeleted.UpdatedBy = model.UpdatedBy;
+        //                    existingSoftDeleted.IsTeamHead = isTeamHead;
 
-                            await _teamMembersRepository.UpdateAsync(existingSoftDeleted);
-                            //await _userInfoService.ActionLogBVMAsync("Action Takens", ActionName.DataUpdated, null, existingSoftDeleted, existingSoftDeleted.TeamMemberID, model);
-                        }
-                        else
-                        {
-                            // Add new team member
-                            var newMember = new LeadProjectTeamMembers
-                            {
-                                LeadProjectTeamID = model.TeamID,
-                                EmployeeID = employeeId,
-                                IsTeamHead = isTeamHead,
-                                CreatedAt = DateTime.Now,
-                                CreatedBy = model.UpdatedBy
-                            };
+        //                    await _teamMembersRepository.UpdateAsync(existingSoftDeleted);
+        //                    //await _userInfoService.ActionLogBVMAsync("Action Takens", ActionName.DataUpdated, null, existingSoftDeleted, existingSoftDeleted.TeamMemberID, model);
+        //                }
+        //                else
+        //                {
+        //                    // Add new team member
+        //                    var newMember = new LeadProjectTeamMembers
+        //                    {
+        //                        LeadProjectTeamID = model.TeamID,
+        //                        EmployeeID = employeeId,
+        //                        IsTeamHead = isTeamHead,
+        //                        CreatedAt = DateTime.Now,
+        //                        CreatedBy = model.UpdatedBy
+        //                    };
 
-                            await _teamMembersRepository.AddAsync(newMember);
-                            //await _userInfoService.ActionLogBVMAsync("Action Takens", ActionName.DataUpdated, null, newMember, newMember.TeamMemberID, model);
-                        }
-                    }
-                }
+        //                    await _teamMembersRepository.AddAsync(newMember);
+        //                    //await _userInfoService.ActionLogBVMAsync("Action Takens", ActionName.DataUpdated, null, newMember, newMember.TeamMemberID, model);
+        //                }
+        //            }
+        //        }
 
-                await _teamsRepository.CommitTransactionAsync();
+        //        await _teamsRepository.CommitTransactionAsync();
 
-                return true;
-            }
-            catch
-            {
-                await _teamsRepository.RollbackTransactionAsync();
-                return false;
-            }
-        }
-        #endregion
+        //        return true;
+        //    }
+        //    catch
+        //    {
+        //        await _teamsRepository.RollbackTransactionAsync();
+        //        return false;
+        //    }
+        //}
+        //#endregion
 
 
         //#region GetByTeamIdAsync
@@ -198,27 +198,27 @@ namespace GCTL.Service.CRM.AddTeam
         //#endregion
 
 
-        //#region GetEmployees
-        //public async Task<IEnumerable<SelectListItem>> GetEmployees()
-        //{
-        //    var result = await (from emp in _employeesRepository.AllActive()
+        //#region GetCustomers
+        public async Task<IEnumerable<SelectListItem>> GetCustomers()
+        {
+            var result = await (from emp in _customerRepository.AllActive()
 
-        //                            //where !emp.EmployeeCode.StartsWith("DEV")
+                                    //where !emp.EmployeeCode.StartsWith("DEV")
 
-        //                        join empOi in _emplooyeeOfficeInfoRepository.AllActive() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
-        //                        from empOi in empOiGroup.DefaultIfEmpty()
+                                join empOi in _customerRepository.AllActive() on emp.CustomerID equals empOi.CustomerID into empOiGroup
+                                from empOi in empOiGroup.DefaultIfEmpty()
 
-        //                        //join des in _designationRepository.AllActive() on empOi.DesignationID equals des.DesignationID into desGroup
-        //                        //from des in desGroup.DefaultIfEmpty()
+                                    //join des in _designationRepository.AllActive() on empOi.DesignationID equals des.DesignationID into desGroup
+                                    //from des in desGroup.DefaultIfEmpty()
 
-        //                        select new SelectListItem
-        //                        {
-        //                            Value = emp.EmployeeID,
-        //                            Text = $"{emp.FirstName} {emp.LastName} ({des.DesignationName})"
-        //                        }).ToListAsync();
+                                select new SelectListItem
+                                {
+                                    Value = emp.CustomerID.ToString(),
+                                    Text = $"{emp.FullName}"
+                                }).ToListAsync();
 
-        //    return result;
-        //}
+            return result;
+        }
         //#endregion
 
 
