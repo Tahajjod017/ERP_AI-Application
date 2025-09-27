@@ -22,13 +22,15 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         private readonly IGenericRepository<Statuses> status;
         private ILeaveRequestService leaveRequestService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
-        public LeaveApprovalDeclineController(ITranslateService translateService, IUserProfileService userProfileService, ILeaveApprovalService leaveApprovalService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, IGenericRepository<GCTL.Data.Models.Employees> employee) : base(translateService, userProfileService)
+        private readonly AppDbContext appDb;
+        public LeaveApprovalDeclineController(ITranslateService translateService, IUserProfileService userProfileService, ILeaveApprovalService leaveApprovalService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, IGenericRepository<GCTL.Data.Models.Employees> employee, AppDbContext appDb) : base(translateService, userProfileService)
         {
             this.leaveApprovalService = leaveApprovalService;
             this.leaveType = leaveType;
             this.status = status;
             this.leaveRequestService = leaveRequestService;
             this.employee = employee;
+            this.appDb = appDb;
         }
 
 
@@ -103,10 +105,45 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
         #region accept/declien from  email 
 
+        
         [HttpGet("LeaveApprovalDeclineRoute/Action")]
-        public async Task<IActionResult> LeaveApprovalActionAsync(int leaveId, int approverId, bool isApproved)
+        public async Task<IActionResult> LeaveApprovalActionAsync(int leaveId, int approverId, bool isApproved, string secrectCode)
         {
             var data = await leaveApprovalService.GetLeaveRequestByIdAsync(leaveId);
+
+            if (data == null)
+            {
+                return Content("Leave request not found.");
+            }
+
+            // Check secrect code
+            if (string.IsNullOrEmpty(data.SecrectCode) || data.SecrectCode != secrectCode)
+            {
+                return Content("You are not an authorized person to approve this leave.");
+            }
+
+            // Check 24 hours expiration
+            if (data.SecrectCodeDateTime.HasValue && data.SecrectCodeDateTime.Value.AddHours(24) < DateTime.UtcNow)
+            {
+                return Content("This approval link has expired. You can no longer approve or decline this leave.");
+            }
+
+            var employeeId = await appDb.Users
+                .Where(u => u.EmployeeId == approverId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
+
+            if (employeeId == 0)
+            {
+                return Content("You are not an authorized person.");
+            }
+            if (leaveId == 0)
+            {
+                string emailHtml = "<p style='color:red'>Invalid Leave ID</p>";
+                return Content(emailHtml, "text/html");
+            }
+            if (!data.ApprovalPersonID.HasValue || data.ApprovalPersonID != approverId)
+            {
+                return Content("Approver not found.");
+            }
 
             var entityVM = new LeaveApplicationApprovalModifyVM
             {
@@ -136,6 +173,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
             return Content($"<p style='color:{color}; font-weight:bold; text-align:center;'>{responseMessage}</p>", "text/html");
         }
+
         #endregion
 
         #region  Update Leave request in Approval Side
