@@ -4,6 +4,7 @@ using GCTL.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -18,11 +19,13 @@ namespace GCTL_App.Controllers.APIControllers
         #region Repositories & Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly AppDbContext _context;
 
-        public AuthController(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public AuthController(UserManager<ApplicationUser> userManager, IConfiguration configuration, AppDbContext context)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _context = context;
         }
         #endregion
 
@@ -31,23 +34,45 @@ namespace GCTL_App.Controllers.APIControllers
         [HttpPost("AppsLogin")]
         public async Task<IActionResult> AppsLogin([FromBody] LoginVM model)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-                return Unauthorized(new { message = "Invalid credentials" });
-
-            var authClaims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-            var token = GetToken(authClaims);
-
-            return Ok(new
+            try
             {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                expiration = token.ValidTo
-            });
+                var user = await _context.Users
+                    .Include(u => u.Employees)
+                    .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
+                    .Include(eoi => eoi.Organization)
+                    .ThenInclude(o => o.MobileApps)
+                    .FirstOrDefaultAsync(u => u.UserName == model.Username);
+                if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
+                    return Unauthorized(new { statusCode = 404, message = "Invalid credentials" });
+
+                var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
+
+                var token = GetToken(authClaims);
+
+                return Ok(new
+                {
+                    id = user.EmployeeId,
+                    username = user.UserName,
+                    password = "",
+                    type = "User",
+                    firstName = user.Employees?.FirstName,
+                    lastName = user.Employees?.LastName,
+                    employeeId = user.Employees?.EmployeeCode,
+                    role = "User",
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo,
+                    appVersion = user.Organization?.MobileApps?.FirstOrDefault()?.AppVersion ?? "1.0.0",
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { message = ex.Message });
+                throw;
+            }
         }
         #endregion
 

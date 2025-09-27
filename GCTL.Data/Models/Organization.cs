@@ -109,6 +109,8 @@ public partial class Organization
 
     public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
 
+    public virtual ICollection<MobileApps> MobileApps { get; set; } = new List<MobileApps>();
+
     public virtual ICollection<OTPSettings> OTPSettings { get; set; } = new List<OTPSettings>();
 
     public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();

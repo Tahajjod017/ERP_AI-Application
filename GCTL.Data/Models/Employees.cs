@@ -655,6 +655,12 @@ public partial class Employees
 
     public virtual ICollection<MessageContent> MessageContentUpdatedByNavigation { get; set; } = new List<MessageContent>();
 
+    public virtual ICollection<MobileApps> MobileAppsCreatedByNavigation { get; set; } = new List<MobileApps>();
+
+    public virtual ICollection<MobileApps> MobileAppsDeletedByNavigation { get; set; } = new List<MobileApps>();
+
+    public virtual ICollection<MobileApps> MobileAppsUpdatedByNavigation { get; set; } = new List<MobileApps>();
+
     public virtual Country Nationality { get; set; }
 
     public virtual ICollection<OTPSettings> OTPSettingsCreatedByNavigation { get; set; } = new List<OTPSettings>();
