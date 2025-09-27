@@ -1,0 +1,211 @@
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest.EmailTemplateVM
+@{
+   var year = DateTime.Now.Year;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>HR Leave Request</title>
+    <style>
+        body, table, td, p, a, li, h1, h2 {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 20px;
+            color: #333333;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .header-bg {
+            position: relative;
+            background-color: #3252ff;
+            background-image: linear-gradient(to bottom right, #080301 120px, transparent 0);
+            background-repeat: no-repeat;
+            background-size: 140px 140px;
+            padding: 25px 30px;
+            color: #ffffff;
+        }
+
+            .header-bg img {
+                display: block;
+                max-width: 200px;
+                height: auto;
+            }
+
+            .header-bg td {
+                font-size: 13px;
+                line-height: 18px;
+                text-align: right;
+                color: #ffffff;
+            }
+
+        .content {
+            padding: 20px 30px;
+        }
+
+            .content h2 {
+                font-size: 18px;
+                margin-bottom: 10px;
+                color: #3252ff;
+            }
+
+        .info-table {
+            width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+        }
+
+            .info-table th, .info-table td {
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                text-align: left;
+            }
+
+            .info-table th {
+                background-color: #f4f4f4;
+                font-weight: bold;
+                width: 40%;
+            }
+
+        .footer {
+            text-align: center;
+            padding: 20px 30px;
+            font-size: 13px;
+            color: #fff;
+            background-color: #000;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .btn-accept {
+            background-color: #fff;
+            border: 1px solid #28a745;
+            color: #28a745;
+            margin-right: 20px;
+        }
+
+        .btn-deny {
+            background-color: #fff;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <table class="email-container">
+        <!-- Header -->
+        <tr>
+            <td class="header-bg">
+                <table width="100%">
+                    <tr>
+                        <td align="left">
+                            <img src="@Model.LogoUrl" alt="Company Logo">
+                        </td>
+                        <td align="right">
+                            @Html.Raw(Model.FormattedAddress)<br>
+                            @Model.CountryName<br>
+                            @Model.Email<br>
+                            @Model.Phone
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Greeting -->
+        <tr>
+            <td class="content" style="background-color:#f9f9f9;">
+                <p>Dear HR Team,</p>
+                <p>This is an automated leave request submitted by an employee. Please find the details below:</p>
+            </td>
+        </tr>
+
+        <!-- Employee Info -->
+        <tr>
+            <td class="content">
+                <h2>Employee Information</h2>
+                <table class="info-table" style="margin-bottom: 10px;">
+                    <tr>
+                        <th>Name</th>
+                        <td>@Model.ApplicantName</td>
+                    </tr>
+                    <tr>
+                        <th>Department</th>
+                        <td>@Model.Department</td>
+                    </tr>
+                    <tr>
+                        <th>Position Title</th>
+                        <td>@Model.Designation</td>
+                    </tr>
+                </table>
+
+                <h2>Leave Details</h2>
+                <table class="info-table">
+                    <tr>
+                        <th>Type of Leave</th>
+                        <td>@Model.LeaveName</td>
+                    </tr>
+                    <tr>
+                        <th>Start Date</th>
+                        <td>@Model.FromDate?.ToString("dd MMM yyyy")</td>
+                    </tr>
+                    <tr>
+                        <th>End Date</th>
+                        <td>@Model.ToDate?.ToString("dd MMM yyyy")</td>
+                    </tr>
+                    <tr>
+                        <th>Reason</th>
+                        <td>@Model.Reason</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Buttons -->
+        <tr>
+            <td class="content" style="text-align:center;">
+                <a href="@Model.AcceptUrl" class="btn btn-accept">Accept</a>
+                <a href="@Model.DenyUrl" class="btn btn-deny">Deny</a>
+                <p style="margin-top:15px;">
+                    If you need to modify the applied date, kindly change it by
+                    <a href="@Model.ModifyLink">clicking this link</a>.
+                </p>
+            </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+            <td class="footer">
+                <p>© Gctlinfosys @year. All rights reserved.</p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

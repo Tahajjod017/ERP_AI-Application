@@ -1087,28 +1087,58 @@ function getBadgeClass(status) {
 // #endregion
 
 // #region 🟡 Get Status Text Based on Approver Steps & Timing
+//function getStatusText(item) {
+//    const rawStatus = item.statusName?.trim().toUpperCase();
+//    const isNewStatus = !rawStatus || rawStatus === 'NEW';
+//    if (item.approverStep === 1 || item.approverStep === 2) {
+//        return 'OnGoing';
+//    } else if (item.approverStep === 3) {
+//        return 'APPROVED';
+//    }
+  
+//    if (isNewStatus && item.applicationDate) {
+       
+//        const applicationDate = new Date(item.applicationDate);
+//        const now = new Date();
+//        const hoursPassed = (now - applicationDate) / (1000 * 60 * 60);
+
+//        if (hoursPassed >= 24) {
+//            return 'Waiting for Approval';
+//        }
+//        return 'New';
+//    }
+//    return rawStatus || '<i class="text-success"></i> New';
+//}
+
 function getStatusText(item) {
     const rawStatus = item.statusName?.trim().toUpperCase();
-    const isNewStatus = !rawStatus || rawStatus === 'NEW';
-    if (item.approverStep === 1 || item.approverStep === 2) {
-        return 'OnGoing';
-    } else if (item.approverStep === 3) {
-        return 'APPROVED';
-    }
-  
-    if (isNewStatus && item.applicationDate) {
-       
-        const applicationDate = new Date(item.applicationDate);
-        const now = new Date();
-        const hoursPassed = (now - applicationDate) / (1000 * 60 * 60);
-
-        if (hoursPassed >= 24) {
-            return 'Waiting for Approval';
-        }
+    if (!rawStatus) {
         return 'New';
     }
-    return rawStatus || '<i class="text-success"></i> New';
+    else if (rawStatus === 'DECLINED') {
+        return 'DECLINED';
+    }
+    else if (rawStatus === 'APPROVED' && item.isFinalApproved) {
+        return 'APPROVED';
+    }
+    else if (rawStatus === 'APPROVED' && !item.isFinalApproved) {
+        return 'ONGOING';
+    }
+    const isNewStatus = !rawStatus;
+    if (isNewStatus && item.applicationDate) {
+        const applicationDate = new Date(item.applicationDate);
+        const now = new Date();
+        const hoursPassed = (now - applicationDate) / (1000 * 60 * 60); 
+
+        if (hoursPassed >= 24) {
+            return 'WAITING FOR APPROVAL';
+        }
+        return 'NEW';
+    }
+
+    return rawStatus;
 }
+
 // #endregion
 
 // #region 🟠 Check Whether to Show Info Icon

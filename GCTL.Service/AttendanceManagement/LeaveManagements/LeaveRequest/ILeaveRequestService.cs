@@ -58,7 +58,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         Task<List<PersonLeaveStepVM>> GetByPersonLeaveStepVM(int leaveApplicationID);
         #endregion
 
-
     }
 
 
