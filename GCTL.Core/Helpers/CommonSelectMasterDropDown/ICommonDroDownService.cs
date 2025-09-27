@@ -10,5 +10,7 @@ namespace GCTL.Core.Helpers.CommonSelectMasterDropDown
     public interface ICommonDroDownService
     {
         Task<List<CommonDropDownVM>> GetAllOrganizationsAsync();
+        Task<string> RenderViewToStringAsync<TModel>(string viewName, TModel model);
+
     }
 }

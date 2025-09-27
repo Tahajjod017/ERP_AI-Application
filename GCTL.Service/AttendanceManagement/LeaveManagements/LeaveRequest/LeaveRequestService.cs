@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.CommonSelectMasterDropDown;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.ActionLogVM;
@@ -27,6 +28,7 @@ using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 using System.Web.Razor.Generator;
 using static Dapper.SqlMapper;
 using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
@@ -57,8 +59,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory;
         private readonly IEmailService  emailService;
         private readonly ILocalizationContext _localizationContext;
-       
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory, IEmailService emailService, ILocalizationContext localizationContext) : base(leaveRequest)
+        private readonly ICommonDroDownService commonDroDownService;
+
+        //
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory, IEmailService emailService, ILocalizationContext localizationContext, ICommonDroDownService commonDroDownService) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -80,6 +84,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.leaveBaseApprovalHistory = leaveBaseApprovalHistory;
             this.emailService = emailService;
             _localizationContext = localizationContext;
+            this.commonDroDownService = commonDroDownService;
         }
 
         #region  Get Data All  Leave  Requyest
@@ -203,7 +208,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
-                        ApproverStep = approvalStepsMap.ContainsKey(b.LeaveApplicationID) ? approvalStepsMap[b.LeaveApplicationID] : new List<int>()
+                        ApproverStep = approvalStepsMap.ContainsKey(b.LeaveApplicationID) ? approvalStepsMap[b.LeaveApplicationID] : new List<int>(),
+                        IsFinalApproved=b.IsFinalApproved,
 
                     });
 
@@ -383,7 +389,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
                 existingBalance.LIP = entityVM.LIP;
                 existingBalance.LMAC = entityVM.LMAC;
-                existingBalance.UpdatedAt = DateTime.Now;
+                existingBalance.UpdatedAt = DateTime.UtcNow;
                 existingBalance.UpdatedBy = entityVM.UpdatedBy;
 
                 await leaveBalances.UpdateAsync(existingBalance);
@@ -398,7 +404,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     TakenPartialHours = entityVM.IsFullDay ? 0 : CalculatePartialHours(entityVM.PartialFromTime, entityVM.PartialToTime),
                     TotalLeave = leaveDaysFromConfig.LeaveDays,
                     ApplicableYear = leaveDaysFromConfig.ApplicableYear,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     CreatedBy = entityVM.CreatedBy,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC
@@ -413,7 +419,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 StatusID = approvedStatusId.Value,
                 ApproverNote = "SELF APPROVED",
                 LeaveTypeID = entityVM.LeaveTypeID,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 CreatedBy = entityVM.CreatedBy,
                 LIP = entityVM.LIP,
                 LMAC = entityVM.LMAC,
@@ -804,7 +810,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                 GroupApplicationID = sequence > 0 ? sequence : 0,
                                 ApprovalPersonID = approvalPersonId,
                                 SecrectCode = Guid.NewGuid().ToString(),
-                                SecrectCodeDateTime = DateTime.Now,
+                                SecrectCodeDateTime = DateTime.UtcNow,
                             };
 
                             await leaveRequest.AddAsync(partial);
@@ -843,7 +849,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         GroupApplicationID = sequence > 0 ? sequence : 0,
                         ApprovalPersonID = approvalPersonId,
                         SecrectCode = Guid.NewGuid().ToString(),
-                        SecrectCodeDateTime = DateTime.Now,
+                        SecrectCodeDateTime = DateTime.UtcNow,
                     };
 
                     await leaveRequest.AddAsync(lwpEntity);
@@ -863,26 +869,26 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
                 if (orgainfo != null && !string.IsNullOrWhiteSpace(orgainfo.Address))
                 {
+                    //var parts = orgainfo.Address.Split(',');
+                    string addressWithCommas = orgainfo.Address.Replace("\r\n", ",")
+                                               .Replace("\n", ",")
+                                               .Replace("\r", ",");
+
+                    // Split by comma
                     var parts = orgainfo.Address.Split(',');
                     formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
                 }
                 else
                 {
-                    formattedAddress = "No address available"; // fallback text
+                    formattedAddress = "No address available"; 
                 }
-
-                //var parts = orgainfo.Address.Split(',');
-                //var formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
                 string logourl;
-
                 if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
                 {
-                    // Make absolute path from domain + relative path
                     logourl = $"http://usasoft.xyz/media/company/logo/{orgainfo.LogoLink}";
                 }
                 else
                 {
-                    // Fallback to UI Avatars
                     var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
                         ? "?" : orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
 
@@ -927,9 +933,40 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 int leaveApplicationID = sequence;
                 var data = await GetLeaveRequestByIdAsync(leaveApplicationID);
                 Console.WriteLine(data);
+
+                var model = new EmailTemplateVM
+                {
+                    LogoUrl = logourl,
+                    FormattedAddress = formattedAddress ?? "No address available",
+                    CountryName = orgainfo.CountryName ?? "No country",
+                    Email = orgainfo.EmailAddress ?? "No email",
+                    Phone = orgainfo.Phone ?? "No phone",
+                    RecipientName = applicantData.FirstName + " " + applicantData.LastName,
+                    StatusMessage = "This is an automated leave request submitted by an employee.",
+                    ApplicantName = applicantData.FirstName + " " + applicantData.LastName,
+                    Department = applicantData.DepartmentName,
+                    Designation = applicantData.DesignationName,
+                    LeaveName = leaveName,
+                    FromDate = entityVM.FromDate,
+                    ToDate = entityVM.ToDate,
+                    Reason = entityVM.Reason,
+                    AcceptUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=true&secrectCode={secrectCode}",
+                    DenyUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=false&secrectCode={secrectCode}",
+                    ModifyLink = $"{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}"
+                };
+
+                //var emailBody = await commonDroDownService.RenderViewToStringAsync("LeaveRequest/LeaveRequestEmail", model);
+
+                //var emailModel33 = new EmailVM
+                //{
+                //    To = applicantData?.Email ?? applicantData?.OfficeEmail,
+                //    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
+                //    Body = emailBody
+                //};
+
                 var emailModel = new EmailVM
                 {
-                    To = applicantData?.Email ?? applicantData?.OfficeEmail,
+                    To = approverData?.Email ?? approverData?.OfficeEmail,
                     Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
   <!DOCTYPE html>

@@ -23,6 +23,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public string? ApplicationDateForTable { get; set; }
         public DateTime? ApplicationDate { get; set; }
         public List<int> ApproverStep { get; set; }
+        public bool? IsFinalApproved { get; set; }
     }
 }
 

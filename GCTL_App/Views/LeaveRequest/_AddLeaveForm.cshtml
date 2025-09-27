@@ -16,7 +16,7 @@
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label req" for="organizerSingle">Name</label>
-                    <select class="form-select choiceDD" asp-for="EmployeeID" required>
+                    <select class="form-select choiceDD" asp-for="EmployeeID"  readonly required>
 
                         <option value="">Select Employee</option>
                     </select>
@@ -26,7 +26,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label req">Leave Type</label>
-                    <select class="form-select choiceDD" asp-for="LeaveTypeID" required asp-items="@ViewBag.LeaveTypeDD as SelectList">
+                    <select class="form-select choiceDD" asp-for="LeaveTypeID"  required asp-items="@ViewBag.LeaveTypeDD as SelectList">
                         <option value="">Select Leave</option>
                     </select>
                     <span asp-validation-for="LeaveTypeID" class="text-danger small"></span>
