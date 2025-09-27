@@ -6,11 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GCTL.Data.Models
 {
-    public partial class GetPaginatedEmployeeAttendanceResult
+    public partial class bbResult
     {
-        public int? EmployeeID { get; set; }
-        public DateOnly AttendanceDate { get; set; }
-        [StringLength(1)]
-        public string AttendanceStatus { get; set; }
     }
 }

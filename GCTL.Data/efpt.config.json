@@ -619,6 +619,10 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[bb]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[GetPaginatedEmployeeAttendance]",
          "ObjectType": 1
       },
@@ -631,6 +635,10 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[sp_InsertOrUpdateShifts]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[sp_ProcessPunch]",
          "ObjectType": 1
       }
@@ -640,6 +648,7 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
+   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -647,6 +656,7 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
@@ -658,5 +668,6 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false
+   "UseT4": false,
+   "UseT4Split": false
 }

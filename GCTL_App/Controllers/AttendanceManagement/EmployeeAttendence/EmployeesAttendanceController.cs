@@ -55,7 +55,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.EmployeeAttendence
                 //ViewData["ProductionTime"] = getEmployeeTotalHoursRelated2.ProductiveHours;
                 ViewData["ProductionTimeMinute"] = getEmployeeTotalHoursRelated.ProductionTimeMinute;
                // ViewData["CheckInTime"] = getEmployeeTotalHoursRelated.CheckInTime; 
-              //  ViewData["CheckInTime"] = getEmployeeFirstPunch; 
+               //ViewData["CheckInTime"] = getEmployeeFirstPunch; 
                 //ViewBag.ProductionTime = getEmployeeTotalHoursRelated.ProductionTime;
                 ViewData["Overtime"] = getEmployeeTotalHoursRelated.Overtime;
                 ViewData["TotalWorkingHours"] = getEmployeeTotalHoursRelated.TotalWorkingHours;

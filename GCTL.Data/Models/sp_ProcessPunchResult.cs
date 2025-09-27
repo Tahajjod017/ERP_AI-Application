@@ -6,11 +6,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GCTL.Data.Models
 {
-    public partial class GetPaginatedEmployeeAttendanceResult
+    public partial class sp_ProcessPunchResult
     {
-        public int? EmployeeID { get; set; }
-        public DateOnly AttendanceDate { get; set; }
-        [StringLength(1)]
-        public string AttendanceStatus { get; set; }
+        public bool? InTime { get; set; }
+        public bool? OutTime { get; set; }
     }
 }
