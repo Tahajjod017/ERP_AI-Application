@@ -327,7 +327,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     IsHolidayCountedAsLeave = subsequent?.IsHolidayCountedAsLeave ?? false,
                     IsWeekendCountedAsLeave = subsequent?.IsWeekendCountedAsLeave ?? false,
                     AvailableLeaveDays = availableLeaveDays,
-
+                    ApprovalPersonID = data.ApprovalPersonID,
                 };
                 return entityVM;
             }
@@ -1234,7 +1234,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 //
                 var emailModel = new EmailVM
                 {
-                    To = applicantData?.Email ?? applicantData?.OfficeEmail,
+                    To = toEmail,
 
                     Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"

@@ -904,7 +904,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 Console.WriteLine(data);
                 var emailModel = new EmailVM
                 {
-                    To = applicantData?.Email ?? applicantData?.OfficeEmail,
+                    To = approverData?.Email ?? approverData?.OfficeEmail,
                     Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
   <!DOCTYPE html>
