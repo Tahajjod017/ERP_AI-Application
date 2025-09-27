@@ -727,6 +727,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 if (remainingDays > 0 && strictLeaveTypes.Contains(leaveTypeName))
                 return new CommonReturnViewModel { Success = false, Message = $"{leaveTypeName} cannot be adjusted from other leave types." };
                 int sequence = 0;
+                string secrectCode = string.Empty;
                 if (usedDays > 0)
                 {
                     var entity = new LeaveApplications
@@ -746,13 +747,18 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         Reason = entityVM.Reason,
                         ApprovalPersonID = approvalPersonId,
                         IsFinalApproved = isSelfApproval ? true : false,
+
+                        SecrectCode =Guid.NewGuid().ToString(),
+                        SecrectCodeDateTime = DateTime.UtcNow,
+                         
+
                         LIP = entityVM.LIP,
                         LMAC = entityVM.LMAC
                     };
 
                     await leaveRequest.AddAsync(entity);
                     sequence = entity.LeaveApplicationID;
-
+                    secrectCode = entity.SecrectCode;
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
                 }
 
@@ -796,11 +802,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                 LIP = entityVM.LIP,
                                 LMAC = entityVM.LMAC,
                                 GroupApplicationID = sequence > 0 ? sequence : 0,
-                                ApprovalPersonID = approvalPersonId
+                                ApprovalPersonID = approvalPersonId,
+                                SecrectCode = Guid.NewGuid().ToString(),
+                                SecrectCodeDateTime = DateTime.Now,
                             };
 
                             await leaveRequest.AddAsync(partial);
                             sequence = partial.LeaveApplicationID;
+                            secrectCode = partial.SecrectCode;
                             await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, partial, partial.LeaveApplicationID, entityVM);
 
                             remainingDays -= usedFallback;
@@ -832,11 +841,14 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         LIP = entityVM.LIP,
                         LMAC = entityVM.LMAC,
                         GroupApplicationID = sequence > 0 ? sequence : 0,
-                        ApprovalPersonID = approvalPersonId
+                        ApprovalPersonID = approvalPersonId,
+                        SecrectCode = Guid.NewGuid().ToString(),
+                        SecrectCodeDateTime = DateTime.Now,
                     };
 
                     await leaveRequest.AddAsync(lwpEntity);
                     sequence=lwpEntity.LeaveApplicationID;
+                    secrectCode = lwpEntity.SecrectCode;
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, lwpEntity, lwpEntity.LeaveApplicationID, entityVM);
                 }
                 // for email 
@@ -846,8 +858,21 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         x.OrganizationName,x.LogoLink,x.FaviconLink,
                         x.Address, x.FullAddress,x.EmailAddress ,CountryName=x.Country.CountryName
                         , x.Phone}).FirstOrDefaultAsync();
-                var parts = orgainfo.Address.Split(',');
-                var formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
+
+                string formattedAddress = string.Empty;
+
+                if (orgainfo != null && !string.IsNullOrWhiteSpace(orgainfo.Address))
+                {
+                    var parts = orgainfo.Address.Split(',');
+                    formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
+                }
+                else
+                {
+                    formattedAddress = "No address available"; // fallback text
+                }
+
+                //var parts = orgainfo.Address.Split(',');
+                //var formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
                 string logourl;
 
                 if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
@@ -904,7 +929,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 Console.WriteLine(data);
                 var emailModel = new EmailVM
                 {
-                    To = approverData?.Email ?? approverData?.OfficeEmail,
+                    To = applicantData?.Email ?? applicantData?.OfficeEmail,
                     Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
   <!DOCTYPE html>
@@ -1072,11 +1097,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                           
                         </td>
                         <td align=""right"">
-
-                              {formattedAddress}<br>
-                            {orgainfo.CountryName}<br>
-                            {orgainfo.EmailAddress}<br>
-                            {orgainfo.Phone}
+                           {formattedAddress ?? "No address available"}<br>
+                         {orgainfo.CountryName ?? "No country"}<br>
+                        {orgainfo.EmailAddress ?? "No email"}<br>
+                        {orgainfo.Phone ?? "No phone"}
                         </td>
                     </tr>
                 </table>
@@ -1175,11 +1199,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         <!-- Buttons -->
      <div style=""margin-bottom: 15px; text-align: center;"">
-    <a href=""{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=true""
+    <a href=""{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=true&secrectCode={secrectCode}""
        style=""display: inline-block; padding: 10px 20px; margin-right: 20px; background-color:#fff;border:1px solid #28a745;color:#28a745; text-decoration: none; border-radius: 5px; font-weight: bold;"">
        Accept
     </a>
-    <a href=""{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=false""
+    <a href=""{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=false&secrectCode={secrectCode}""
        style=""display: inline-block; padding: 10px 20px; background-color: #fff; color:#dc3545;border:1px solid #dc3545; text-decoration: none; border-radius: 5px; font-weight: bold;"">
        Deny
     </a>

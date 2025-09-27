@@ -57,6 +57,10 @@ public partial class LeaveApplications
 
     public int? ApprovalStage { get; set; }
 
+    public string SecrectCode { get; set; }
+
+    public DateTime? SecrectCodeDateTime { get; set; }
+
     public virtual Employees ApprovalPerson { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
