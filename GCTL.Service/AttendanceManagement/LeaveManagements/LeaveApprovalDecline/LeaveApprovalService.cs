@@ -328,6 +328,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     IsWeekendCountedAsLeave = subsequent?.IsWeekendCountedAsLeave ?? false,
                     AvailableLeaveDays = availableLeaveDays,
                     ApprovalPersonID = data.ApprovalPersonID,
+                    SecrectCode = data.SecrectCode,
+                    SecrectCodeDateTime = data.SecrectCodeDateTime,
                 };
                 return entityVM;
             }
@@ -996,10 +998,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     approvalPersonId = null;
                     isFinalApproval = entityVM.Approved;
                 }
-
-
-                //
-
                
                 // Get status IDs
                 int? leavStatusApproved = await GetIdByNameAsync("APPROVED");
@@ -1014,7 +1012,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         Message = "Approval or decline must be selected."
                     };
                 }
-
+                string secrectCode=string.Empty;
                 // Update full-day or partial-day
                 entity.IsFullDay = entityVM.IsFullDayEdit;
                 if (entityVM.IsFullDayEdit)
@@ -1074,6 +1072,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         existingBalance.LMAC = entityVM.LMAC;
                         existingBalance.UpdatedAt = DateTime.Now;
                         existingBalance.UpdatedBy = entityVM.UpdatedBy;
+                        
                         await leaveBalance.UpdateAsync(existingBalance);
                     }
                     else
@@ -1103,10 +1102,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 entity.LMAC = entityVM.LMAC;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = entityVM.UpdatedBy;
-                entity.IsFinalApproved = isFinalApproval; // Save isFinalApproval to entity
+                entity.IsFinalApproved = isFinalApproval; 
                 entity.ApprovalStage=approvalStep;
+                entity.SecrectCode = Guid.NewGuid().ToString();
+                entity.SecrectCodeDateTime = DateTime.UtcNow;
                 await leaveRequest.UpdateAsync(entity);
-
+                secrectCode=entity.SecrectCode;
                 // Save approval history
                 var leaveBase = new LeaveBaseApprovalHistory
                 {
@@ -1170,24 +1171,24 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 }
                 string toEmail;
                 string statusMessage;
-                if (statusId == leavStatusDecline)
+                string name=string.Empty;
+                bool isApplicant = statusId == leavStatusDecline || isFinalApproval;
+                if (isApplicant)
                 {
-                    // Notify applicant if declined
-                    toEmail = applicantData?.Email ?? applicantData?.OfficeEmail ?? string.Empty;
-                    statusMessage = "Your leave request has been declined.";
-                }
-                else if (isFinalApproval)
-                {
-                    // Notify applicant if final approval (approved)
-                    toEmail = applicantData?.Email ?? applicantData?.OfficeEmail ?? string.Empty;
-                    statusMessage = "Your leave request has been approved.";
+                    // Applicant receives final approval/decline
+                    toEmail = applicantData.Email ?? applicantData.OfficeEmail ?? string.Empty;
+                    statusMessage = statusId == leavStatusDecline
+                        ? "Your leave request has been declined."
+                        : "Your leave request has been approved.";
+                    name = $"{applicantData?.FirstName} {applicantData?.LastName}"; //({applicantData?.DesignationName}, {applicantData?.DepartmentName}
                 }
                 else
                 {
-                    // Notify next approver for intermediate steps
+                    name="HR Team";
                     toEmail = approverData?.Email ?? approverData?.OfficeEmail ?? string.Empty;
-                    statusMessage = $"{applicantData?.FirstName} {applicantData?.LastName} has applied for leave. Please review.";
+                    statusMessage = $"This is an automated leave request submitted by an employee. Please find the details below:";
                 }
+  
 
                 var orgainfo = await _organizationRepository.AllActive().Include(x => x.Country).Include(x => x.EmployeeOfficeInfo.Where(x => x.EmployeeID == entityVM.EmployeeIDEdit))
                .Select(x => new {
@@ -1197,15 +1198,20 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                    x.Address,
                    x.FullAddress,
                    x.EmailAddress,
-                   CountryName = x.Country.CountryName
-                   ,
+                   CountryName = x.Country.CountryName ,
                    x.Phone
                }).FirstOrDefaultAsync();
-                var parts = orgainfo.Address.Split(',');
-                var formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
-
+                string formattedAddress = string.Empty;
+                if (orgainfo != null && !string.IsNullOrWhiteSpace(orgainfo.Address))
+                {
+                    var parts = orgainfo.Address.Split(',');
+                    formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
+                }
+                else
+                {
+                    formattedAddress = "No address available"; 
+                }
                 string logourl;
-
                 if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
                 {
                     // Make absolute path from domain + relative path
@@ -1213,15 +1219,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 }
                 else
                 {
-                    // Fallback to UI Avatars
                     var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
                         ? "?" : orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
-
                     logourl = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
                 }
-
-
-                //var logoPath = $"/media/company/logo/{orgainfo.LogoLink}";
                 if (orgainfo == null)
                 {
                     return new CommonReturnViewModel
@@ -1230,11 +1231,34 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         Message = "Organization Info does not exists"
                     };
                 }
-
+                string buttonHtml = string.Empty;
                 //
+                if (!isApplicant)
+                {
+                    buttonHtml = $@"
+                    <tr>
+                        <td class=""content section-button"">
+                            <div style=""margin-bottom: 15px; text-align: center;"">
+                               <a href=""{url}/LeaveApprovalDeclineRoute/Action?leaveId={entityVM.LeaveApplicationID}&approverId={approvalPersonId}&isApproved=true&secrectCode={secrectCode}""
+                                style=""display: inline-block; padding: 10px 20px; margin-right: 20px; background-color:#fff;border:1px solid #28a745;color:#28a745; text-decoration: none; border-radius: 5px; font-weight: bold;"">
+                                Accept
+                             </a>
+                             <a href=""{url}/LeaveApprovalDeclineRoute/Action?leaveId={entityVM.LeaveApplicationID}&approverId={approvalPersonId}&isApproved=false&secrectCode={secrectCode}""
+                                style=""display: inline-block; padding: 10px 20px; background-color: #fff; color:#dc3545;border:1px solid #dc3545; text-decoration: none; border-radius: 5px; font-weight: bold;"">
+                                Deny
+                             </a>
+                            </div>
+                            <p>If you need to modify applied date, kindly change by 
+                               <a href=""{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{entityVM.LeaveApplicationID}"">clicking this link</a>
+                            </p>
+                        </td>
+                    </tr>";
+                }
+
+
                 var emailModel = new EmailVM
                 {
-                    To = toEmail,
+                    To = applicantData.Email,  //toemail
 
                     Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
@@ -1402,11 +1426,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                             <img src=""{logourl}"" alt=""Company Logo"">
                         </td>
                         <td align=""right"">
-
-                              {formattedAddress}<br>
-                            {orgainfo.CountryName}<br>
-                            {orgainfo.EmailAddress}<br>
-                            {orgainfo.Phone}
+                          {formattedAddress ?? "No address available"}<br>
+                         {orgainfo.CountryName ?? "No country"}<br>
+                        {orgainfo.EmailAddress ?? "No email"}<br>
+                        {orgainfo.Phone ?? "No phone"}
                         </td>
                     </tr>
                 </table>
@@ -1416,8 +1439,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
         <!-- Greeting -->
         <tr>
             <td class=""content section-greeting"">
-                <p>Dear HR Team,</p>
-                <p>This is an automated leave request submitted by an employee. Please find the details below:</p>
+                <p>Dear {name},</p>
+                <p>{statusMessage}</p>
             </td>
         </tr>
       		<!-- Approval Timeline (Horizontal) -->
@@ -1501,21 +1524,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
 <!-- Button Info -->
 <tr>
-    <td class=""content section-button"">
-
-        <!-- Buttons -->
-        <div style=""margin-bottom: 15px; text-align: center;"">
-            <a href=""https://example.com/accept?request_id=123"" 
-               style=""display: inline-block; padding: 10px 20px; margin-right: 20px; background-color:#fff;border:1px solid #28a745;color:#28a745; text-decoration: none; border-radius: 5px; font-weight: bold;"">
-               Accept
-            </a>
-            <a href=""https://example.com/deny?request_id=123"" 
-               style=""display: inline-block; padding: 10px 20px; background-color: #fff; color:#dc3545;border:1px solid #dc3545; text-decoration: none; border-radius: 5px; font-weight: bold;"">
-               Deny
-            </a>
-        </div>
-      		<p>If you need to modify applied date, kindly change by <a href=""{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{entityVM.LeaveApplicationID}"">clicking this link</a> </p>
-    </td>
+      
+  
+{buttonHtml}
 </tr>
 <!-- Footer -->
 <tr>
