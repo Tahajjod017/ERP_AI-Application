@@ -1,48 +1,36 @@
 ﻿@model GCTL.Core.ViewModels.CRM.AddTeamVM
 
 <div class="row">
-    <div class="col-xl-12">
-        <form class="row g-3 mb-6" asp-action="Create" asp-controller="AddTeam" method="post" enctype="multipart/form-data" id="addTeam-form">
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="TeamID" />
+    <input type="hidden" asp-for="TeamID"/>
+    <div class="flatpickr-input-container col-md-4">
+        <div class="form-floating">
+            <input class="form-control" type="text" placeholder="@Html.SmartLocalize("Generated ID")" readonly/>
+            <label>@Html.SmartLocalize("Generated ID") <span style="color: red;">*</span></label>
+        </div>
+        <span id="nameError" class="text-danger" style="display:none;"></span>
+    </div>
+    <div class="flatpickr-input-container col-md-4">
+        <div class="form-floating">
+            <input class="form-control" type="text" asp-for="TeamName" placeholder="@Html.SmartLocalize("Team Name")" />
+            <label class="req" asp-for="TeamName"></label>
+        </div>
+        <span id="nameError" class="text-danger" style="display:none;"></span>
+    </div>
+    <div class="flatpickr-input-container col-md-4">
+        <div class="mb-3">
+            <div class="form-floating">
+                <select class="form-multi-select coreUiDD" asp-for="EmployeeIds" asp-items="@ViewBag.OrganizationDD as SelectList"
+                        id="OrganizationIDs"
+                        multiple
+                        data-coreui-selection-type="counter"
+                        data-coreui-search="true"
+                        data-coreui-placeholder="@Html.SmartLocalize("Select Organization")..." required>
+                </select>                
+                @* <span asp-validation-for="EmployeeIds" id="OrganizationIDsError" class="text-danger" style="display:none;"></span> *@
 
-            <div class="col-sm-6 col-md-6">
-                <div class="form-floating">
-                    <input class="form-control bg-light" asp-for="GeneratedID" type="text" autocomplete="off" readonly />
-                    <label asp-for="GeneratedID">@ViewBag.GeneratedID</label>
-                </div>
             </div>
-
-            <div class="col-sm-6 col-md-6">
-            </div>
-
-            <div class="col-sm-6 col-md-6">
-                <div class="form-floating">
-                    <input class="form-control" asp-for="TeamName" type="text" placeholder="Team Name" autocomplete="off" />
-                    <label asp-for="TeamName">@ViewBag.TeamName <span style="color: red;">*</span></label>
-                </div>
-            </div>
-
-            <div class="col-6">
-                <div class="form-floating form-floating-advance-select">
-                    <label>@ViewBag.AddTeamMember</label>
-                    <select class="form-select" asp-for="EmployeeId" asp-items="@ViewBag.EmployeeDD as SelectList" multiple="multiple">
-                        <option value="">@ViewBag.SelectEmployee</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-12 gy-6">
-                <div class="row g-3 justify-content-end">
-                    <div class="col-auto">
-                        <button type="reset" class="btn btn-phoenix-primary px-5" id="addTeam-resetBtn">@ViewBag.Reset</button>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="addTeam-saveBtn">@ViewBag.Save</button>
-                    </div>
-                </div>
-            </div>
-        </form>
+           
+        </div>
     </div>
 </div>
 

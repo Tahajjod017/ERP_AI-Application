@@ -1,22 +1,15 @@
-﻿using GCTL.Core.Repository;
-using GCTL.Core.ViewModels;
-using GCTL.Core.ViewModels.CRM;
-using GCTL.Data.Models;
-using GCTL.Service.AccessPermissions;
-using GCTL.Service.ActionLogAudit;
-using GCTL.Service.CRM.AddTeam;
+﻿using GCTL.Service.CRM.AddTeam;
 using GCTL.Service.Language;
-using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AddTeam;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.CRM
 {
     public class AddTeamsController : BaseController
     {
         #region Services & Repositories
+
         private readonly ITranslateService _translationService;
         private readonly IAddTeamService _addTeamService;
 
@@ -25,7 +18,6 @@ namespace GCTL_App.Controllers.CRM
             _translationService = translateService;
             _addTeamService = addTeamService;
         }
-
 
         #endregion
 
@@ -36,31 +28,9 @@ namespace GCTL_App.Controllers.CRM
         {
             AddTeamPageVM model = new AddTeamPageVM();
 
-            //ViewBag.EmployeeDD = new SelectList(await _addTeamService.GetEmployees(), "Id", "Name");
-
-            #region Language Setup
-            var languageCode = HttpContext.Items["Language"] as string ?? "en";
-            int PageCode = 340000; // Unique page code for team translations
-
-            //// Adding translations for all labels
-            ViewBag.Save = _translationService.GetTranslationInd("Save", (PageCode++).ToString(), languageCode);
-            ViewBag.Reset = _translationService.GetTranslationInd("Reset", (PageCode++).ToString(), languageCode);
-            ViewBag.TeamName = _translationService.GetTranslationInd("Team Name", (PageCode++).ToString(), languageCode);
-            ViewBag.AddTeamMember = _translationService.GetTranslationInd("Add Team Member", (PageCode++).ToString(), languageCode);
-            ViewBag.SelectEmployee = _translationService.GetTranslationInd("Select Employee", (PageCode++).ToString(), languageCode);
-            ViewBag.AddNewTeam = _translationService.GetTranslationInd("Add New Team", (PageCode++).ToString(), languageCode);
-            ViewBag.ViewAllTeam = _translationService.GetTranslationInd("View All Team", (PageCode++).ToString(), languageCode);
-            ViewBag.GeneratedID = _translationService.GetTranslationInd("Generated ID", (PageCode++).ToString(), languageCode);
-            // Additional translations for table or delete confirmation (if needed)
-            ViewBag.Delete = _translationService.GetTranslationInd("Delete", (PageCode++).ToString(), languageCode);
-            ViewBag.Action = _translationService.GetTranslationInd("Action", (PageCode++).ToString(), languageCode);
-            //#endregion
-
-            //ViewBag.CanExportPermission = await _accessControlService.HasPermissionAsync(4038, "Export");
-
             return View(model);
         }
-        #endregion
+
 
 
         //#region GetAll
