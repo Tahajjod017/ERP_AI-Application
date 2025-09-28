@@ -96,35 +96,44 @@ $(document).ready(function () {
 
     // Add new row
     $(document).on('click', '.addRow', function () {
-        const $container = $(this).closest('.houseRentContainer');
-        let index = $container.find(".houseRentRow").length;
+        let container = $(this).closest('.houseRentContainer');
+        let rows = container.find('.houseRentRow');
+        let newIndex = rows.length;
 
-        $.ajax({
-            url: '/PayRollEmpBenefitsUpdate/GetHouseRentAllowanceRow',
-            type: 'GET',
-            data: { index: index },
-            success: function (response) {
+        // Clone first row
+        let newRow = rows.first().clone();
 
-                $container.find('.addRow').closest('div.col-lg-12').remove();
+        // Clear input values
+        newRow.find('input').val('');
+        newRow.find('select').val('');
+        newRow.find('.percentRate').hide();
+        newRow.find('.fixedRate').hide();
 
-                // Append new row with X button
-                $container.append(response);
-
-                const $newRow = $container.find('.houseRentRow').last();
-                $newRow.find('.removeRow').show(); // make sure X button is visible
-                $newRow.find('.fixedPercentageSelect').val('Fixed').trigger('change');
-            },
-            error: function () {
-                toastr.error("Failed to add new row.");
+        // Update name attributes with new index
+        newRow.find('[name]').each(function () {
+            let name = $(this).attr('name');
+            if (name) {
+                let updatedName = name.replace(/BenefitSetups\[\d+\]/, `BenefitSetups[${newIndex}]`);
+                $(this).attr('name', updatedName);
             }
         });
+
+        
+
+        newRow.find('.addRow')
+            .removeClass('addRow btn-outline-primary')
+            .addClass('removeRow btn-outline-danger')
+            .text('X');
+
+        // Append new row
+        container.append(newRow);
+        FixedValue();
     });
 
     // Remove row
     $(document).on('click', '.removeRow', function () {
         $(this).closest('.houseRentRow').remove();
     });
-
 
     // Initailly Loaded
 

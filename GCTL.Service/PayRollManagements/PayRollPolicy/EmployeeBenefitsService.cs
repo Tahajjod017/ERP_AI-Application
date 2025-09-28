@@ -136,6 +136,54 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
 
 
 
+        public class BenefitSetupVM
+        {
+            public int? BenefitSetupID { get; set; }
+            public decimal? SalaryMin { get; set; }
+            public decimal? SalaryMax { get; set; }
+            public int? CalculationTypeID { get; set; }
+            public decimal? Value { get; set; }
+        }
+
+        public class BenefitVM
+        {
+            public int BenefitID { get; set; }
+            public int? OrganizationID { get; set; }
+            public int? BenefitTypeID { get; set; }
+            public string BenefitTypeName { get; set; } // optional for display
+            public bool? IsActive { get; set; }
+            public DateTime? EffectiveDate { get; set; }
+
+            public List<BenefitSetupVM> BenefitSetups { get; set; } = new List<BenefitSetupVM>();
+        }
+        //public async Task<List<BenefitVM>> GetBenefitsWithSetupsAsync(int organizationId)
+        //{
+        //    var data = await _benefitsRepository.AllActive()
+        //        .Include(b => b.BenefitSetups) // include related setups
+        //        .Include(b => b.BenefitType)   // include type for name
+        //        .Where(b => b.OrganizationID == organizationId)
+        //        .ToListAsync();
+
+        //    var result = data.Select(b => new BenefitVM
+        //    {
+        //        BenefitID = b.BenefitID,
+        //        OrganizationID = b.OrganizationID,
+        //        BenefitTypeID = b.BenefitTypeID,
+        //        BenefitTypeName = b.BenefitType != null ? b.BenefitType.BenefitTypeName : "",
+        //        IsActive = b.IsActive,
+        //        EffectiveDate = b.EffectiveDate,
+        //        BenefitSetups = b.BenefitSetups.Select(s => new BenefitSetupVM
+        //        {
+        //            BenefitSetupID = s.BenefitSetupID,
+        //            SalaryMin = s.SalaryMin,
+        //            SalaryMax = s.SalaryMax,
+        //            CalculationTypeID = s.CalculationTypeID,
+        //            Value = s.Value
+        //        }).ToList()
+        //    }).ToList();
+
+        //    return result;
+        //}
 
         #region  Old Benefits 
 
