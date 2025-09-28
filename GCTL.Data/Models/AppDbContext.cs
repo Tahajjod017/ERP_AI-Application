@@ -33,8 +33,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
-    public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
+    public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
     public virtual DbSet<Attendance> Attendance { get; set; }
 
@@ -307,6 +307,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A2BD3C9DBD");
@@ -572,36 +573,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<ApplicationUser>()
          .HasDiscriminator<string>("Discriminator")
          .HasValue<ApplicationUser>("ApplicationUser");
+
         modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.Employees)
                 .WithMany(e => e.AspNetUsers)
                 .HasForeignKey(u => u.EmployeeId)
                 .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
-
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.Organization)
-                .WithMany(o => o.AspNetUsers)
-                .HasForeignKey(u => u.OrganizationID)
-                .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
-        modelBuilder.Entity<ApplicationUser>()
-                .HasOne(u => u.TenantInfo)
-                .WithMany(t => t.AspNetUsers)
-                .HasForeignKey(u => u.TenantInfoId)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-        
-        modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.Organization)
-                .WithMany(o => o.AspNetRoles)
-                .HasForeignKey(r => r.OrganizationID)
-                .IsRequired(false)
-                .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
-        modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.TenantInfo)
-                .WithMany(t => t.AspNetRoles)
-                .HasForeignKey(r => r.TenantInfoId)
-                .IsRequired(false)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
-
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -4503,8 +4480,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.IsFlexibleInTime).HasDefaultValue(true);
-            entity.Property(e => e.IsFlexibleOutTime).HasDefaultValue(true);
+            entity.Property(e => e.IsRestrictFlexibleInTime).HasDefaultValue(true);
+            entity.Property(e => e.IsRestrictFlexibleOutTime).HasDefaultValue(true);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.ShiftName).HasMaxLength(20);

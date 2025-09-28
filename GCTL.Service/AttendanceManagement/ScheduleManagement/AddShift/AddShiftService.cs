@@ -200,9 +200,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         existingEntity.MinimumRequiredOvertime = minimumRequiredOvertime;
                         existingEntity.MaximumAllowedOvertime = maximumAllowedOvertime;
                         existingEntity.MealBreakTime = mealBreakTime;
-                        existingEntity.IsFlexibleInTime = model.IsFlexibleInTime;
+                        existingEntity.IsRestrictFlexibleInTime = model.IsRestrictFlexibleInTime;
                         existingEntity.InPunchCountFromMin = inPunchCountFromMin;
-                        existingEntity.IsFlexibleOutTime = model.IsFlexibleOutTime;
+                        existingEntity.IsRestrictFlexibleOutTime = model.IsRestrictFlexibleOutTime;
                         existingEntity.OutPunchCountToMin = outPunchCountToMin;
 
                         existingEntity.CreatedAt = DateTime.Now;
@@ -236,9 +236,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         entity.MinimumRequiredOvertime = minimumRequiredOvertime;
                         entity.MaximumAllowedOvertime = maximumAllowedOvertime;
                         entity.MealBreakTime = mealBreakTime;
-                        entity.IsFlexibleInTime = model.IsFlexibleInTime;
+                        entity.IsRestrictFlexibleInTime = model.IsRestrictFlexibleInTime;
                         entity.InPunchCountFromMin = inPunchCountFromMin;
-                        entity.IsFlexibleOutTime = model.IsFlexibleOutTime;
+                        entity.IsRestrictFlexibleOutTime = model.IsRestrictFlexibleOutTime;
                         entity.OutPunchCountToMin = outPunchCountToMin;
 
                         entity.CreatedAt = DateTime.Now;
@@ -309,9 +309,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 entity.MinimumRequiredOvertime = minimumRequiredOvertime;
                 entity.MaximumAllowedOvertime = maximumAllowedOvertime;
                 entity.MealBreakTime = mealBreakTime;
-                entity.IsFlexibleInTime = model.UpdateIsFlexibleInTime;
+                entity.IsRestrictFlexibleInTime = model.UpdateIsRestrictFlexibleInTime;
                 entity.InPunchCountFromMin = inPunchCountFromMin;
-                entity.IsFlexibleOutTime = model.UpdateIsFlexibleOutTime;
+                entity.IsRestrictFlexibleOutTime = model.UpdateIsRestrictFlexibleOutTime;
                 entity.OutPunchCountToMin = outPunchCountToMin;
 
                 entity.UpdatedAt = DateTime.Now;
@@ -367,10 +367,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     UpdateMaximumAllowedOvertimeMinute = data.MaximumAllowedOvertime % 60,
                     UpdateMealBreakTimeHour = data.MealBreakTime / 60,
                     UpdateMealBreakTimeMinute = data.MealBreakTime % 60,
-                    UpdateIsFlexibleInTime = data.IsFlexibleInTime,
+                    UpdateIsRestrictFlexibleInTime = data.IsRestrictFlexibleInTime,
                     UpdateEarlyInTimeHour = data.InPunchCountFromMin / 60,
                     UpdateEarlyInTimeMinute = data.InPunchCountFromMin % 60,
-                    UpdateIsFlexibleOutTime = data.IsFlexibleOutTime,
+                    UpdateIsRestrictFlexibleOutTime = data.IsRestrictFlexibleOutTime,
                     UpdateEarlyOutTimeHour = data.OutPunchCountToMin / 60,
                     UpdateEarlyOutTimeMinute = data.OutPunchCountToMin % 60
                 };
@@ -490,8 +490,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     MinimumRequiredOvertimeHour = x.MinimumRequiredOvertime,
                     MaximumAllowedOvertimeHour = x.MaximumAllowedOvertime,
                     MealBreakTimeHour = x.MealBreakTime,
-                    IsFlexibleInTime = x.IsFlexibleInTime,
-                    IsFlexibleOutTime = x.IsFlexibleOutTime
+                    IsRestrictFlexibleInTime = x.IsRestrictFlexibleInTime,
+                    IsRestrictFlexibleOutTime = x.IsRestrictFlexibleOutTime
                 });
 
             return result;

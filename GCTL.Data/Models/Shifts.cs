@@ -47,11 +47,11 @@ public partial class Shifts
 
     public int? DeletedBy { get; set; }
 
-    public bool IsFlexibleInTime { get; set; }
+    public bool IsRestrictFlexibleInTime { get; set; }
 
     public int? InPunchCountFromMin { get; set; }
 
-    public bool IsFlexibleOutTime { get; set; }
+    public bool IsRestrictFlexibleOutTime { get; set; }
 
     public int? OutPunchCountToMin { get; set; }
 

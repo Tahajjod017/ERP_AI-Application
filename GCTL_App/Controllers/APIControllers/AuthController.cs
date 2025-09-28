@@ -1,5 +1,4 @@
 ﻿using GCTL.Core.ViewModels.APIViewModels;
-using GCTL.Core.ViewModels.Login;
 using GCTL.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
