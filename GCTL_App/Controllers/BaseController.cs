@@ -57,7 +57,7 @@ namespace GCTL_App.Controllers
                 }
             }
 
-            var url = _httpContextAccessor.HttpContext.Request.Scheme + "://" + _httpContextAccessor.HttpContext.Request.Host + "/uploads/employee/images/";
+            var url = _httpContextAccessor.HttpContext.Request.Scheme + "://" + _httpContextAccessor.HttpContext.Request.Host + "/media/employee/images/";
             
 
 
@@ -94,11 +94,11 @@ namespace GCTL_App.Controllers
         {
             if (thumb)
             {
-                return _httpContextAccessor.HttpContext.Request.Scheme + "://" + _httpContextAccessor.HttpContext.Request.Host + "/uploads/employee/images/thumbs/";
+                return _httpContextAccessor.HttpContext.Request.Scheme + "://" + _httpContextAccessor.HttpContext.Request.Host + "/media/employee/images/thumbs/";
 
             }
 
-            return _httpContextAccessor.HttpContext.Request.Scheme + "://" + _httpContextAccessor.HttpContext.Request.Host + "/uploads/employee/images/";
+            return _httpContextAccessor.HttpContext.Request.Scheme + "://" + _httpContextAccessor.HttpContext.Request.Host + "/media/employee/images/";
         }
 
         // Helper method to get base URL

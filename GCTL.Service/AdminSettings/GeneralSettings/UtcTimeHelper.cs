@@ -95,6 +95,20 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
                 return local.ToString(ctx.TimePattern, CultureInfo.InvariantCulture);
             }
 
+            public static string ConvertUtcToUserLocalizedDateTimeString(DateTime utcDateTime, ILocalizationContext ctx)
+            {
+                // Ensure the input is treated as UTC
+                if (utcDateTime.Kind != DateTimeKind.Utc)
+                    utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+
+                var instant = Instant.FromDateTimeUtc(utcDateTime);
+                var userZonedDateTime = instant.InZone(ctx.Zone);
+
+                // Format the DateTime using the user's localization pattern
+                return userZonedDateTime.ToString(ctx.DateTimePattern, CultureInfo.InvariantCulture);
+            }
+
+
             public static TimeOnly ConvertUtcDateTimeToLocalTimeOnly(DateTime utcDateTime, ILocalizationContext ctx)
             {
                 if (utcDateTime.Kind != DateTimeKind.Utc)
@@ -108,7 +122,7 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             }
             public static DateTime ToUtcDateTime(TimeOnly time)
             {
-                var today = DateTime.UtcNow.Date; // আজকের তারিখ
+                var today = DateTime.UtcNow.Date; 
                 return new DateTime(today.Year, today.Month, today.Day,
                                     time.Hour, time.Minute, time.Second,
                                     DateTimeKind.Utc);
