@@ -64,7 +64,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                         }
 
                         // Generate GUID for unique file name
-                        string uniqueLogoFileName = Guid.NewGuid().ToString() + Path.GetExtension(logoFileName);
+                        string uniqueLogoFileName = model.OrganizationName.Replace(" ", "_").ToLower() + "_logo" + Path.GetExtension(logoFileName);
 
                         // Define the file path
                         logoFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "media", "company","logo", uniqueLogoFileName);
@@ -112,7 +112,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                         }
 
                         // Generate GUID for unique file name
-                        string uniqueFaviconFileName = Guid.NewGuid().ToString() + Path.GetExtension(faviconFileName);
+                        string uniqueFaviconFileName = model.OrganizationName.Replace(" ", "_").ToLower() + "_favicon" + Path.GetExtension(faviconFileName);
 
                         // Define the file path
                         faviconFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "media", "company", "fevicon", uniqueFaviconFileName);
@@ -212,7 +212,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                         return Json(new { isSuccess = false, message = "Invalid file type for logo. Only .jpg, .jpeg, .png are allowed." });
 
                     // Save new
-                    string newLogoFileName = Guid.NewGuid() + Path.GetExtension(logoFileName);
+                    string newLogoFileName = model.OrganizationName.Replace(" ", "_").ToLower() + "_logo" + Path.GetExtension(logoFileName);
                     string logoFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "media", "company", "logo", newLogoFileName);
                     CreateDirectoryIfNotExists(Path.GetDirectoryName(logoFilePath));
                     using (var stream = new FileStream(logoFilePath, FileMode.Create))
@@ -248,7 +248,7 @@ namespace GCTL_App.Controllers.AdminSettings.CompanySettings
                     if (!IsValidImageExtension(faviconFileName))
                         return Json(new { isSuccess = false, message = "Invalid file type for favicon. Only .jpg, .jpeg, .png are allowed." });
 
-                    string newFaviconFileName = Guid.NewGuid() + Path.GetExtension(faviconFileName);
+                    string newFaviconFileName = model.OrganizationName.Replace(" ", "_").ToLower() + "_favicon" + Path.GetExtension(faviconFileName); ;
                     string faviconFilePath = Path.Combine(_webHostEnvironment.WebRootPath, "media", "company", "fevicon", newFaviconFileName);
                     CreateDirectoryIfNotExists(Path.GetDirectoryName(faviconFilePath));
                     using (var stream = new FileStream(faviconFilePath, FileMode.Create))

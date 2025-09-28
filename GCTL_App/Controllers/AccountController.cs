@@ -85,6 +85,12 @@ namespace GCTL_App.Controllers
                 var user2 = await _Db.Users
                             .Include(u => u.Employees)  // Make sure to include the Employee to check IsActive and DeletedAt
                             .FirstOrDefaultAsync(u => u.Employees.Email == model.Email);
+                if (user2 == null)
+                {
+                    ViewData["ErrorEmailMessage"] = "No account found with this email.";
+                    ModelState.AddModelError("Email", "No account found with this email.");
+                    return View(model); // Return to the view with the error
+                }
                 // Step 1: Attempt login
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
 
@@ -188,7 +194,9 @@ namespace GCTL_App.Controllers
                 }
                 else
                 {
-                    ViewData["ErrorMessage"] = "Invalid login attempt.";
+                    ViewData["ErrorPasswordMessage"] = "Incorrect password.";
+                    ModelState.AddModelError("Password", "Incorrect password.");
+                   // ViewData["ErrorMessage"] = "Invalid login attempt.";
                     return View(model);
                 }
             }

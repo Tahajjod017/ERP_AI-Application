@@ -479,13 +479,14 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 });
             }
 
+            
             string FormatTime(int minutes) => $"{minutes / 60}h {minutes % 60}m";
 
             return new EmployeeAttendenceVM
             {
                 //TotalWorkingHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes + totalLateMinutes + totalEarlyMinutes),
                 TotalWorkingHours = FormatTime(shiftDurationMinutes),
-                ProductiveHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes + totalEarlyMinutes),
+                ProductiveHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes),
                 BreakHours = FormatTime(totalBreakMinutes),
                 Overtime = FormatTime(totalOvertimeMinutes),
                 LateHours = FormatTime(totalLateMinutes),

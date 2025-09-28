@@ -196,7 +196,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     b => new LeaveApplicationsList
                     {
                         //ApplicationDateForTable = b.CreatedAt.HasValue ? TimeConversionHelper.ConvertDateTimeToUtcHHmm(b.CreatedAt.Value, _localizationContext) : "",
-                        ApplicationDateForTable = b.CreatedAt.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(b.CreatedAt.Value, DateTimeKind.Utc), _localizationContext) : "-",
+                        ApplicationDateForTable = b.CreatedAt.HasValue ? TimeConversionHelper.ConvertUtcToUserLocalizedDateTimeString(DateTime.SpecifyKind(b.CreatedAt.Value, DateTimeKind.Utc), _localizationContext) : "-",
                         ApplicationDate = b.CreatedAt,
                         LeaveApplicationID = b.LeaveApplicationID,
                         StatusName = !string.IsNullOrEmpty(b.Status?.StatusName) ? b.Status.StatusName : "",
