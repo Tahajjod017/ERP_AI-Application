@@ -131,10 +131,10 @@
                     StartTime: $('#StartTime').val(),
                     EndTime: $('#EndTime').val(),
                     IsLateCount: $('#IsLateCount').prop('checked'),
-                    IsFlexibleInTime: $('#IsFlexibleInTime').prop('checked'),
+                    IsRestrictFlexibleInTime: $('#IsRestrictFlexibleInTime').prop('checked'),
                     EarlyInTimeHour: $('#EarlyInTimeHour').val(),
                     EarlyInTimeMinute: $('#EarlyInTimeMinute').val(),
-                    IsFlexibleOutTime: $('#IsFlexibleOutTime').prop('checked'),
+                    IsRestrictFlexibleOutTime: $('#IsRestrictFlexibleOutTime').prop('checked'),
                     EarlyOutTimeHour: $('#EarlyOutTimeHour').val(),
                     EarlyOutTimeMinute: $('#EarlyOutTimeMinute').val(),
                     IsAutomaticORManualBreakTime: $('#IsAutomaticORManualBreakTime').prop('checked'),
@@ -206,8 +206,8 @@
                     UpdateStartTime: $('#UpdateStartTime').val(),
                     UpdateEndTime: $('#UpdateEndTime').val(),
                     UpdateIsLateCount: $('#UpdateIsLateCount').prop('checked'),
-                    UpdateIsFlexibleInTime: $('#UpdateIsFlexibleInTime').prop('checked'),
-                    UpdateIsFlexibleOutTime: $('#UpdateIsFlexibleOutTime').prop('checked'),
+                    UpdateIsRestrictFlexibleInTime: $('#UpdateIsRestrictFlexibleInTime').prop('checked'),
+                    UpdateIsRestrictFlexibleOutTime: $('#UpdateIsRestrictFlexibleOutTime').prop('checked'),
                     UpdatePunchCountFrom: $('#UpdatePunchCountFrom').val(),
                     UpdateIsAutomaticORManualBreakTime: $('#UpdateIsAutomaticORManualBreakTime').prop('checked'),
                     UpdateIsMBCompulsaryOrComplementaryDeductWithShift: $('input[name=UpdateIsMBCompulsaryOrComplementaryDeductWithShift]:checked').val() === "true",
@@ -290,16 +290,16 @@
                             } else {
                                 $('#addShift-UpdateGraceTimeDiv').addClass('d-none');
                             }
-                            $(settings.updateform).find('#UpdateIsFlexibleInTime').prop('checked', data.updateIsFlexibleInTime);
-                            if ($('#UpdateIsFlexibleInTime').is(':checked')) {
+                            $(settings.updateform).find('#UpdateIsRestrictFlexibleInTime').prop('checked', data.updateIsRestrictFlexibleInTime);
+                            if ($('#UpdateIsRestrictFlexibleInTime').is(':checked')) {
                                 $('#addShift-UpdatePunchCountFromDiv').removeClass('d-none');
                             } else {
                                 $('#addShift-UpdatePunchCountFromDiv').addClass('d-none');
                             }
                             $(settings.updateform).find('#UpdateEarlyInTimeHour').val(data.updateEarlyInTimeHour);
                             $(settings.updateform).find('#UpdateEarlyInTimeMinute').val(data.updateEarlyInTimeMinute);
-                            $(settings.updateform).find('#UpdateIsFlexibleOutTime').prop('checked', data.updateIsFlexibleOutTime);
-                            if ($('#UpdateIsFlexibleOutTime').is(':checked')) {
+                            $(settings.updateform).find('#UpdateIsRestrictFlexibleOutTime').prop('checked', data.updateIsRestrictFlexibleOutTime);
+                            if ($('#UpdateIsRestrictFlexibleOutTime').is(':checked')) {
                                 $('#addShift-UpdatePunchCountOutDiv').removeClass('d-none');
                             } else {
                                 $('#addShift-UpdatePunchCountOutDiv').addClass('d-none');
@@ -463,13 +463,13 @@
                 }
             }
 
-            $('#IsFlexibleInTime').on('change', function () {
+            $('#IsRestrictFlexibleInTime').on('change', function () {
                 clearRestrictInTime();
             });
 
             function clearRestrictInTime() {
                 
-                if ($('#IsFlexibleInTime').is(':checked')) {
+                if ($('#IsRestrictFlexibleInTime').is(':checked')) {
                     $('#addShift-PunchCountFromDiv').removeClass('d-none');
                 } else {
                     $('#addShift-PunchCountFromDiv').addClass('d-none');
@@ -478,13 +478,13 @@
                 }
             }
 
-            $('#IsFlexibleOutTime').on('change', function () {
+            $('#IsRestrictFlexibleOutTime').on('change', function () {
                 clearRestrictOutTime();
             });
 
             function clearRestrictOutTime() {
 
-                if ($('#IsFlexibleOutTime').is(':checked')) {
+                if ($('#IsRestrictFlexibleOutTime').is(':checked')) {
                     $('#addShift-PunchCountOutDiv').removeClass('d-none');
                     $('#EarlyOutTimeHour').val('');
                     $('#EarlyOutTimeMinute').val('');
@@ -570,11 +570,11 @@
                 clearUpLateCount();
             });
 
-            $('#UpdateIsFlexibleInTime').on('change', function () {
+            $('#UpdateIsRestrictFlexibleInTime').on('change', function () {
                 clearUpRestrictInTime();
             });
 
-            $('#UpdateIsFlexibleOutTime').on('change', function () {
+            $('#UpdateIsRestrictFlexibleOutTime').on('change', function () {
                 clearUpRestrictOutTime();
             });
 
@@ -598,14 +598,14 @@
             }
 
             function clearUpRestrictInTime() {
-                if (!$('#UpdateIsFlexibleInTime').is(':checked')) {
+                if (!$('#UpdateIsRestrictFlexibleInTime').is(':checked')) {
                     $('#UpdateEarlyInTimeHour').val('');
                     $('#UpdateEarlyInTimeMinute').val('');
                 }
             }
 
             function clearUpRestrictOutTime() {
-                if (!$('#UpdateIsFlexibleOutTime').is(':checked')) {
+                if (!$('#UpdateIsRestrictFlexibleOutTime').is(':checked')) {
                     $('#UpdateEarlyOutTimeHour').val('');
                     $('#UpdateEarlyOutTimeMinute').val('');
                 }
@@ -792,11 +792,11 @@
                     $('#addShift-UpdateGraceTimeDiv').toggleClass('d-none', !this.checked);
                 });
 
-                $('#UpdateIsFlexibleInTime').on('change', function () {
+                $('#UpdateIsRestrictFlexibleInTime').on('change', function () {
                     $('#addShift-UpdatePunchCountFromDiv').toggleClass('d-none', !this.checked);
                 });
 
-                $('#UpdateIsFlexibleOutTime').on('change', function () {
+                $('#UpdateIsRestrictFlexibleOutTime').on('change', function () {
                     $('#addShift-UpdatePunchCountOutDiv').toggleClass('d-none', !this.checked);
                 });
 
