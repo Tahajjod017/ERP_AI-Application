@@ -93,13 +93,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
             {
                 if (ModelState.IsValid)
                 {
-                    //// userInfoService.SetUserInfo(model, User, HttpContext);
-                    //var uniqueName = await _assignDefaultShiftService.IsNameUniqueAsync(model.ActionTakenName);
-                    //if (!uniqueName)
-                    //{
-                    //    return Json(new { isSuccess = false, message = "This name already exists!" });
-                    //}
-
                     await _assignDefaultShiftService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ShiftID });
                 }

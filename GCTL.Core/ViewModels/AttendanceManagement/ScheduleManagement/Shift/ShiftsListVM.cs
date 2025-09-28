@@ -56,13 +56,13 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 
         public int? MealBreakTimeMinute { get; set; }
 
-        public bool IsFlexibleInTime { get; set; }
+        public bool IsRestrictFlexibleInTime { get; set; }
 
         public int? EarlyInTimeHour { get; set; }
 
         public int? EarlyInTimeMinute { get; set; }
 
-        public bool IsFlexibleOutTime { get; set; }
+        public bool IsRestrictFlexibleOutTime { get; set; }
 
         public int? EarlyOutTimeHour { get; set; }
 

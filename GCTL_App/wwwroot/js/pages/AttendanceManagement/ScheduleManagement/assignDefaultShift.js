@@ -20,6 +20,8 @@
         var updateEmpShift = settings.baseUrl + "/UpdateEmpShift";
         var checkConflictsUrl = settings.baseUrl + '/CheckConflicts';
         $(() => {
+            
+            
 
 
             // #region Save
@@ -229,6 +231,7 @@
                     choiceShift.destroy();
                 }
 
+                selectSingleOrg();
                 initOrganizationDD();
                 initChoices();
 
@@ -558,6 +561,21 @@
             }
             document.addEventListener('DOMContentLoaded', initChoices);
             initChoices();
+
+
+            function selectSingleOrg() {
+                var $select = $('#OrganizationID');
+
+                // Count the number of options excluding the placeholder (empty value)
+                var $realOptions = $select.find('option').filter(function () {
+                    return $(this).val() !== '';
+                });
+
+                if ($realOptions.length === 1) {
+                    $realOptions.prop('selected', true);
+                    $select.trigger('change');
+                }
+            }
             // #endregion
 
 

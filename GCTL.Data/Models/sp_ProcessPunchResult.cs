@@ -8,7 +8,5 @@ namespace GCTL.Data.Models
 {
     public partial class sp_ProcessPunchResult
     {
-        public bool? InTime { get; set; }
-        public bool? OutTime { get; set; }
     }
 }
