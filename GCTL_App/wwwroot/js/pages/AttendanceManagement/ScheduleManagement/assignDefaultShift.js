@@ -27,7 +27,7 @@
             // #region Save
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
-                $(settings.saveBtn).prop('disabled', true);
+                $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
                 const token = $('#assignDefaultShift-addForm input[name="__RequestVerificationToken"]').val();
 
@@ -55,9 +55,11 @@
                         } else {
                             postDefaultShift(url, formData);
                         }
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     },
                     error: function (err) {
                         console.error('Conflict check failed:', err);
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     }
                 });
             });

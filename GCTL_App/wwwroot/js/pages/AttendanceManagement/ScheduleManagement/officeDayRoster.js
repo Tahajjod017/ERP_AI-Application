@@ -36,6 +36,8 @@
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
 
+                //$(settings.saveBtn).prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
+                $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
                 const token = $('#rosterInOfficeDays-form input[name="__RequestVerificationToken"]').val();
 
                 const formData = {
@@ -71,9 +73,11 @@
                         } else {
                             toastr.info(response.message);
                         }
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     },
                     error: function (err) {
                         console.error('Conflict check failed:', err);
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     }
                 });
             });

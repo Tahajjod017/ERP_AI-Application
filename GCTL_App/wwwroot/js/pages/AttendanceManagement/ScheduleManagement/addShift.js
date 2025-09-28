@@ -120,7 +120,7 @@
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
 
-                $(settings.saveBtn).prop('disabled', true);
+                $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
                 var token = $('#addShift-Addform input[name="__RequestVerificationToken"]').val();
 
@@ -178,15 +178,16 @@
                         } else {
                             toastr.info(response.message);
                         }
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     },
                     error: function (err) {
                         console.log(err);
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     },
                     complete: function () {
                         hideLoadingIndicator();
                     }
                 });
-                $(settings.saveBtn).prop('disabled', false);
             });
             // #endregion
 

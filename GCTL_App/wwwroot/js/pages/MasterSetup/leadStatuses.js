@@ -21,7 +21,9 @@
 
             $('#leadStatus-saveBtn').on('click', function (e) {
                 e.preventDefault();
-                debugger;
+
+                $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+
                 var token = $('#leadStatus-form input[name="__RequestVerificationToken"]').val();
                 const isSpecial = $("#IsSpecial").is(":checked");
                 showDev(isSpecial);
@@ -53,9 +55,11 @@
                         } else {
                             toastr.info(data.message);
                         }
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     },
                     error: function (err) {
                         console.log(err);
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     }
                 });
             });
