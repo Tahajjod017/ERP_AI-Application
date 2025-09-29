@@ -66,6 +66,9 @@ using GCTL.Service.Employees.EmployeeTermination;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmpTransfer;
 using GCTL.Service.FileHandler;
+using GCTL.Service.Finance.BaseAccount;
+using GCTL.Service.Finance.SecondTab;
+using GCTL.Service.Finance.ThirdTab;
 using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.ImageFileHandler;
 using GCTL.Service.Language;
@@ -185,6 +188,9 @@ namespace GCTL_App.Extensions
             services.AddScoped<IAssignSpiralPatternService, AssignSpiralPatternService>();
             services.AddScoped<IEmployeeShiftViewService, EmployeeShiftViewService>();
             services.AddScoped<IAppsAttendanceService, AppsAttendanceService>();
+            services.AddScoped<IBaseAccountService, BaseAccountService>();
+            services.AddScoped<ISecondTabService, SecondTabService>();
+            services.AddScoped<IThirdTabService, ThirdTabService>();
             #endregion
 
 

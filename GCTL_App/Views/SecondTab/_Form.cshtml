@@ -1,0 +1,40 @@
+﻿@model GCTL.Core.ViewModels.Finance.SecondTabVM.CreateSecondTabVM
+
+<div class="row">
+    <form asp-action="Create" asp-controller="SecondTab" method="post" enctype="multipart/form-data" id="secondTab-form">
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label" asp-for="BaseAccountID">@Html.SmartLocalize("Base Account")</label>
+                <select class="form-select" asp-for="BaseAccountID" asp-items="@ViewBag.BaseAccountDD as SelectList">
+                    <option value="">@Html.SmartLocalize("Select Base Account")...</option>
+                </select>
+                <span asp-validation-for="BaseAccountID" id="BaseAccountIDError" class="text-danger" style="display:none;"></span>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label" for="">First Layer Account Name</label>
+                <input class="form-control" id="" type="text" placeholder="" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label" for="">Code</label>
+                <input class="form-control" id="" type="text" placeholder="code can be 0-9" />
+            </div>
+        </div>
+
+
+        <div class="col-12 mb-3">
+            <div class="row g-3 justify-content-end">
+                <div class="col-auto">
+                    <button class="btn btn-phoenix-primary px-5">Cancel</button>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary px-5 px-sm-15">Create</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

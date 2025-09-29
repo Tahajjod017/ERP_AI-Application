@@ -1,0 +1,44 @@
+﻿@model GCTL.Core.ViewModels.Finance.BaseAccountVM.CreateBaseAccountVM
+
+<div class="row">
+    <form asp-action="Create" asp-controller="MasterSetup" method="post" enctype="multipart/form-data" id="baseAccount-form">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="BaseAccountID" />
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label" asp-for="BaseAccountName">Name</label>
+                <input class="form-control" type="text" asp-for="BaseAccountName" />
+                <span asp-validation-for="BaseAccountName" id="BaseAccountNameError" class="text-danger" style="display:none;"></span>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label" asp-for="BaseAccountCode">Code</label>
+                <input class="form-control" type="text" asp-for="BaseAccountCode" />
+                <span asp-validation-for="BaseAccountCode" id="BaseAccountCodeError" class="text-danger" style="display:none;"></span>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label" asp-for="Description">Description</label>
+                <textarea class="form-control" type="text" asp-for="Description"></textarea>
+                <span asp-validation-for="Description" id="DescriptionError" class="text-danger" style="display:none;"></span>
+            </div>
+        </div>
+
+        <div class="col-md-12 mb-3">
+            <div class="row g-3 justify-content-end">
+                <div class="col-auto">
+                    <button type="reset" class="btn btn-phoenix-primary px-5" id="baseAccount-resetBtn">@Html.SmartLocalize("Reset")</button>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary px-5 px-sm-15" id="baseAccount-saveBtn">@Html.SmartLocalize("Save")</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

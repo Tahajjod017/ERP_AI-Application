@@ -26,6 +26,10 @@ namespace GCTL.Service.CommonService
         Task<List<CommonSelectVM>> GetSpiralPatterns();
 
         Task<List<CommonSelectVM>> GetSpiralPatternsByOrgPatternType(int orgId, int? typeId);
+
+        Task<List<CommonSelectVM>> GetBaseAccounts();
+
+        Task<List<CommonSelectVM>> GetAccountClass();
         #endregion
 
 

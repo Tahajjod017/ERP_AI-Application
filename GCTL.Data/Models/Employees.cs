@@ -149,6 +149,12 @@ public partial class Employees
 
     public virtual ICollection<Attendance> AttendanceUpdatedByNavigation { get; set; } = new List<Attendance>();
 
+    public virtual ICollection<BaseAccounts> BaseAccountsCreatedByNavigation { get; set; } = new List<BaseAccounts>();
+
+    public virtual ICollection<BaseAccounts> BaseAccountsDeletedByNavigation { get; set; } = new List<BaseAccounts>();
+
+    public virtual ICollection<BaseAccounts> BaseAccountsUpdatedByNavigation { get; set; } = new List<BaseAccounts>();
+
     public virtual ICollection<BenefitSetups> BenefitSetupsCreatedByNavigation { get; set; } = new List<BenefitSetups>();
 
     public virtual ICollection<BenefitSetups> BenefitSetupsDeletedByNavigation { get; set; } = new List<BenefitSetups>();
@@ -180,6 +186,12 @@ public partial class Employees
     public virtual ICollection<CalculationTypes> CalculationTypesDeletedByNavigation { get; set; } = new List<CalculationTypes>();
 
     public virtual ICollection<CalculationTypes> CalculationTypesUpdatedByNavigation { get; set; } = new List<CalculationTypes>();
+
+    public virtual ICollection<Classes> ClassesCreatedByNavigation { get; set; } = new List<Classes>();
+
+    public virtual ICollection<Classes> ClassesDeletedByNavigation { get; set; } = new List<Classes>();
+
+    public virtual ICollection<Classes> ClassesUpdatedByNavigation { get; set; } = new List<Classes>();
 
     public virtual ICollection<CompanyBranchAddresses> CompanyBranchAddressesCreatedByNavigation { get; set; } = new List<CompanyBranchAddresses>();
 
@@ -491,6 +503,12 @@ public partial class Employees
 
     public virtual ICollection<Grade> GradeUpdatedByNavigation { get; set; } = new List<Grade>();
 
+    public virtual ICollection<Groups> GroupsCreatedByNavigation { get; set; } = new List<Groups>();
+
+    public virtual ICollection<Groups> GroupsDeletedByNavigation { get; set; } = new List<Groups>();
+
+    public virtual ICollection<Groups> GroupsUpdatedByNavigation { get; set; } = new List<Groups>();
+
     public virtual ICollection<Holidays> HolidaysCreatedByNavigation { get; set; } = new List<Holidays>();
 
     public virtual ICollection<Holidays> HolidaysDeletedByNavigation { get; set; } = new List<Holidays>();
@@ -642,6 +660,12 @@ public partial class Employees
     public virtual ICollection<Localizations> LocalizationsDeletedByNavigation { get; set; } = new List<Localizations>();
 
     public virtual ICollection<Localizations> LocalizationsUpdatedByNavigation { get; set; } = new List<Localizations>();
+
+    public virtual ICollection<MainAccounts> MainAccountsCreatedByNavigation { get; set; } = new List<MainAccounts>();
+
+    public virtual ICollection<MainAccounts> MainAccountsDeletedByNavigation { get; set; } = new List<MainAccounts>();
+
+    public virtual ICollection<MainAccounts> MainAccountsUpdatedByNavigation { get; set; } = new List<MainAccounts>();
 
     public virtual MaritalStatus MaritalStatus { get; set; }
 
@@ -891,6 +915,12 @@ public partial class Employees
 
     public virtual ICollection<Statuses> StatusesUpdatedByNavigation { get; set; } = new List<Statuses>();
 
+    public virtual ICollection<SubAccounts> SubAccountsCreatedByNavigation { get; set; } = new List<SubAccounts>();
+
+    public virtual ICollection<SubAccounts> SubAccountsDeletedByNavigation { get; set; } = new List<SubAccounts>();
+
+    public virtual ICollection<SubAccounts> SubAccountsUpdatedByNavigation { get; set; } = new List<SubAccounts>();
+
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryApprovalPerson { get; set; } = new List<TerminationApprovalHistory>();
 
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryCreatedByNavigation { get; set; } = new List<TerminationApprovalHistory>();
@@ -922,6 +952,12 @@ public partial class Employees
     public virtual ICollection<TrainingYears> TrainingYearsDeletedByNavigation { get; set; } = new List<TrainingYears>();
 
     public virtual ICollection<TrainingYears> TrainingYearsUpdatedByNavigation { get; set; } = new List<TrainingYears>();
+
+    public virtual ICollection<TransactionAccounts> TransactionAccountsCreatedByNavigation { get; set; } = new List<TransactionAccounts>();
+
+    public virtual ICollection<TransactionAccounts> TransactionAccountsDeletedByNavigation { get; set; } = new List<TransactionAccounts>();
+
+    public virtual ICollection<TransactionAccounts> TransactionAccountsUpdatedByNavigation { get; set; } = new List<TransactionAccounts>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 
