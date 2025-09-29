@@ -12,6 +12,13 @@
         opacity: 1;
         transition: opacity 0.5s ease-in-out; /* Smooth fade-in/out */
     }
+
+    #password.is-invalid {
+        background-position: right 2.5rem center;
+    }
+
+
+
 </style>
 @* @await Html.PartialAsync("_Alerts") *@
 @* @if (!string.IsNullOrEmpty(ViewData["ErrorMessage"] as string))
