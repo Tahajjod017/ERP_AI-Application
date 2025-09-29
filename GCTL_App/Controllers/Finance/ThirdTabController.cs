@@ -71,11 +71,18 @@ namespace GCTL_App.Controllers.Finance
                     {
                         return Json(new { isSuccess = false, message = $"{model.GroupName} already exists!" });
                     }
+
+                    var uniqueCode = await _thirdTabService.IsCodeUniqueAsync(model.GroupCode, model.GroupID);
+                    if (!uniqueCode)
+                    {
+                        return Json(new { isSuccess = false, message = $"{model.GroupCode} already exists!" });
+                    }
+
                     await _thirdTabService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully." });
                 }
 
-                var orderedKeys = new[] { "GroupName", "BaseAccountCode" };
+                var orderedKeys = new[] { "ClassID", "GroupName", "GroupCode" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -111,11 +118,18 @@ namespace GCTL_App.Controllers.Finance
                     {
                         return Json(new { isSuccess = false, message = $"{model.GroupName} already exists!" });
                     }
+
+                    var uniqueCode = await _thirdTabService.IsCodeUniqueAsync(model.GroupCode, model.GroupID);
+                    if (!uniqueCode)
+                    {
+                        return Json(new { isSuccess = false, message = $"{model.GroupCode} already exists!" });
+                    }
+
                     await _thirdTabService.UpdateAsync(model);
                     return Json(new { isSuccess = true, message = "Updated Successfully." });
                 }
 
-                var orderedKeys = new[] { "BaseAccountCode", "GroupName" };
+                var orderedKeys = new[] { "ClassID", "GroupName", "GroupCode" };
                 foreach (var key in orderedKeys)
                 {
                     if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
@@ -205,6 +219,30 @@ namespace GCTL_App.Controllers.Finance
                 if (!isUnique)
                 {
                     return Json(new { isSuccess = false, message = $"{name} already exists." });
+                }
+                return Json(true);
+            }
+            catch (Exception ex)
+            {
+                return Json("Error occurred: " + ex.Message);
+            }
+        }
+        #endregion
+
+
+        #region CheckCodeUnique
+        [HttpPost]
+        public async Task<IActionResult> CheckCodeUnique(string code)
+        {
+            try
+            {
+                if (code == null || code == "")
+                    return Json(true);
+
+                bool isUnique = await _thirdTabService.IsCodeUniqueAsync(code);
+                if (!isUnique)
+                {
+                    return Json(new { isSuccess = false, message = $"{code} already exists." });
                 }
                 return Json(true);
             }

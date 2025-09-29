@@ -24,6 +24,7 @@ namespace GCTL.Service.Finance.ThirdTab
 
         #region Others
         Task<bool> IsNameUniqueAsync(string name, int id, int? excludeId = null);
+        Task<bool> IsCodeUniqueAsync(string name, int? excludeId = null);
         #endregion
     }
 }

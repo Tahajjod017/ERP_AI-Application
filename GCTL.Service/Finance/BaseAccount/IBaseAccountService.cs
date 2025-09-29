@@ -24,6 +24,7 @@ namespace GCTL.Service.Finance.BaseAccount
 
         #region Others
         Task<bool> IsNameUniqueAsync(string name, int? excludeId = null);
+        Task<bool> IsCodeUniqueAsync(string name, int? excludeId = null);
         #endregion
     }
 }

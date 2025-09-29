@@ -42,7 +42,7 @@ namespace GCTL.Service.Finance.SecondTab
                     exixtingEntity.ClassCode = model.ClassCode;
                     exixtingEntity.ClassName = model.ClassName;
                     exixtingEntity.Description = model.Description;
-                    exixtingEntity.BaseAccountID = model.BaseAccountID;
+                    exixtingEntity.BaseAccountID = (int)model.BaseAccountID;
 
                     exixtingEntity.CreatedAt = DateTime.UtcNow;
                     exixtingEntity.CreatedBy = model.CreatedBy;
@@ -63,7 +63,7 @@ namespace GCTL.Service.Finance.SecondTab
                     entity.ClassCode = model.ClassCode;
                     entity.ClassName = model.ClassName;
                     entity.Description = model.Description;
-                    entity.BaseAccountID = model.BaseAccountID;
+                    entity.BaseAccountID = (int)model.BaseAccountID;
 
                     entity.CreatedAt = DateTime.UtcNow;
                     entity.CreatedBy = model.CreatedBy;
@@ -94,7 +94,7 @@ namespace GCTL.Service.Finance.SecondTab
             {
                 await _genericRepository.BeginTransactionAsync();
 
-                var entity = await _genericRepository.GetByIdAsync(model.BaseAccountID);
+                var entity = await _genericRepository.GetByIdAsync(model.ClassID);
                 if (entity == null)
                     return false;
 
@@ -133,13 +133,14 @@ namespace GCTL.Service.Finance.SecondTab
         {
             try
             {
-                var query = _genericRepository.AllActive();
+                var query = _genericRepository.AllActive().Include(x => x.BaseAccount).Where(x => x.DeletedAt == null && x.DeletedBy == null);
 
                 if (!string.IsNullOrEmpty(sortColumn))
                 {
                     query = sortColumn switch
                     {
                         "ClassID" => sortOrder == "desc" ? query.OrderByDescending(x => x.ClassID) : query.OrderBy(x => x.ClassID),
+                        "BaseAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.BaseAccount.BaseAccountName) : query.OrderBy(x => x.BaseAccount.BaseAccountName),
                         "ClassCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.ClassCode) : query.OrderBy(x => x.ClassCode),
                         "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.ClassName) : query.OrderBy(x => x.ClassName),
                         "Description" => sortOrder == "desc" ? query.OrderByDescending(x => x.Description) : query.OrderBy(x => x.Description),
@@ -153,6 +154,7 @@ namespace GCTL.Service.Finance.SecondTab
                     {
                         ClassID = x.ClassID,
                         BaseAccountID = x.BaseAccountID,
+                        BaseAccountName = x.BaseAccount.BaseAccountName ?? "-",
                         ClassCode = x.ClassCode ?? "-",
                         ClassName = x.ClassName ?? "-",
                         Description = x.Description ?? "-"
@@ -255,6 +257,30 @@ namespace GCTL.Service.Finance.SecondTab
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while checking the Class name uniqueness.", ex);
+            }
+        }
+        #endregion
+
+
+        #region IsCodeUniqueAsync
+        public async Task<bool> IsCodeUniqueAsync(string code, int? excludeId = null)
+        {
+            try
+            {
+                var query = _genericRepository.AllActive();
+
+                if (excludeId.HasValue)
+                {
+                    query = query.Where(x => x.ClassID != excludeId.Value);
+                }
+
+                var exists = await query.AnyAsync(x => x.ClassCode == code);
+
+                return !exists;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while checking the Base Account code uniqueness.", ex);
             }
         }
         #endregion

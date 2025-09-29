@@ -63,6 +63,13 @@ namespace GCTL_App.Controllers.Finance
                     {
                         return Json(new { isSuccess = false, message = $"{model.BaseAccountName} already exists!" });
                     }
+
+                    var uniqueCode = await _baseAccountService.IsCodeUniqueAsync(model.BaseAccountCode, model.BaseAccountID);
+                    if (!uniqueCode)
+                    {
+                        return Json(new { isSuccess = false, message = $"{model.BaseAccountCode} already exists!" });
+                    }
+
                     await _baseAccountService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully." });
                 }
@@ -103,6 +110,13 @@ namespace GCTL_App.Controllers.Finance
                     {
                         return Json(new { isSuccess = false, message = $"{model.BaseAccountName} already exists!" });
                     }
+
+                    var uniqueCode = await _baseAccountService.IsCodeUniqueAsync(model.BaseAccountCode, model.BaseAccountID);
+                    if (!uniqueCode)
+                    {
+                        return Json(new { isSuccess = false, message = $"{model.BaseAccountCode} already exists!" });
+                    }
+
                     await _baseAccountService.UpdateAsync(model);
                     return Json(new { isSuccess = true, message = "Updated Successfully." });
                 }
@@ -197,6 +211,30 @@ namespace GCTL_App.Controllers.Finance
                 if (!isUnique)
                 {
                     return Json(new { isSuccess = false, message = $"{name} already exists." });
+                }
+                return Json(true);
+            }
+            catch (Exception ex)
+            {
+                return Json("Error occurred: " + ex.Message);
+            }
+        }
+        #endregion
+
+
+        #region CheckCodeUnique
+        [HttpPost]
+        public async Task<IActionResult> CheckCodeUnique(string code)
+        {
+            try
+            {
+                if (code == null || code == "")
+                    return Json(true);
+
+                bool isUnique = await _baseAccountService.IsCodeUniqueAsync(code);
+                if (!isUnique)
+                {
+                    return Json(new { isSuccess = false, message = $"{code} already exists." });
                 }
                 return Json(true);
             }

@@ -2,7 +2,10 @@
 
 <div class="row">
     <form asp-action="Create" asp-controller="ThirdTab" method="post" enctype="multipart/form-data" id="thirdTab-form">
-        
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="GroupID" />
+
         <div class="col-md-6">
             <div class="mb-3">
                 <label class="form-label" asp-for="ClassID">@Html.SmartLocalize("First Layer Account")</label>
@@ -15,25 +18,33 @@
 
         <div class="col-md-6">
             <div class="mb-3">
-                <label class="form-label" for="">Second Layer Account Name</label>
-                <input class="form-control" id="" type="text" placeholder="" />
+                <label class="form-label" asp-for="GroupName">@Html.SmartLocalize("Second Layer Account Name")</label>
+                <input class="form-control" asp-for="GroupName" type="text" placeholder="@Html.SmartLocalize("Second Layer Account Name")" />
+                <span asp-validation-for="GroupName" id="GroupNameError" class="text-danger" style="display:none;"></span>
             </div>
         </div>
         <div class="col-md-6">
             <div class="mb-3">
-                <label class="form-label" for="">Code</label>
-                <input class="form-control" id="" type="text" placeholder="" />
+                <label class="form-label" asp-for="GroupCode">@Html.SmartLocalize("Code")</label>
+                <input class="form-control" asp-for="GroupCode" type="text" />
+                <span asp-validation-for="GroupCode" id="GroupCodeError" class="text-danger" style="display:none;"></span>
             </div>
         </div>
 
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label class="form-label" asp-for="Description">@Html.SmartLocalize("Description")</label>
+                <textarea class="form-control" asp-for="Description"></textarea>
+            </div>
+        </div>
 
         <div class="col-12 mb-3">
             <div class="row g-3 justify-content-end">
                 <div class="col-auto">
-                    <button class="btn btn-phoenix-primary px-5">Cancel</button>
+                    <button type="reset" class="btn btn-phoenix-primary px-5" id="thirdTab-resetBtn">@Html.SmartLocalize("Reset")</button>
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-primary px-5 px-sm-15">Create</button>
+                    <button type="submit" class="btn btn-primary px-5 px-sm-15" id="thirdTab-saveBtn">@Html.SmartLocalize("Save")</button>
                 </div>
             </div>
         </div>

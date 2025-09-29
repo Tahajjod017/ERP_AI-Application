@@ -3,13 +3,13 @@
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            addform: '#baseAccount-form',
-            updateform: '#baseAccount-Updateform',
-            saveBtn: '#baseAccount-saveBtn',
-            editBtn: '#baseAccount-editBtn',
-            resetBtn: '#baseAccount-resetBtn',
-            bulkDelBtn: '#baseAccount-bulkDelBtn',
-            singleDeleteBtn: '#baseAccount-singleDelBtn',
+            addform: '#secondTab-form',
+            updateform: '#secondTab-Updateform',
+            saveBtn: '#secondTab-saveBtn',
+            editBtn: '#secondTab-editBtn',
+            resetBtn: '#secondTab-resetBtn',
+            bulkDelBtn: '#secondTab-bulkDelBtn',
+            singleDeleteBtn: '#secondTab-singleDelBtn',
         }, options);
 
         var getAllUrl = settings.baseUrl + "/GetAll";
@@ -18,6 +18,7 @@
         var updateUrl = settings.baseUrl + "/Update";
         var deleteUrl = settings.baseUrl + "/Delete";
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
+        var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
 
         $(() => {
 
@@ -49,21 +50,17 @@
 
                 $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
-                //if (!$(settings.addform).valid()) {
-                //    $(settings.saveBtn).prop('disabled', false).html('Save');
-                //    return; 
-                //}
-
-                var token = $('#baseAccount-form input[name="__RequestVerificationToken"]').val();
+                var token = $('#secondTab-form input[name="__RequestVerificationToken"]').val();
                 var formData = {
                     __RequestVerificationToken: token,
+                    ClassID: $('#ClassID').val(),
                     BaseAccountID: $('#BaseAccountID').val(),
-                    BaseAccountName: $('#BaseAccountName').val(),
-                    BaseAccountCode: $('#BaseAccountCode').val(),
+                    ClassName: $('#ClassName').val(),
+                    ClassCode: $('#ClassCode').val(),
                     Description: $('#Description').val(),
                 }
 
-                var id = $(settings.addform).find('#BaseAccountID').val();
+                var id = $(settings.addform).find('#ClassID').val();
                 var url = '';
                 var type = '';
                 if (id > 0) {
@@ -82,7 +79,7 @@
                         showLoadingIndicator();
                     },
                     success: function (response) {
-                        const allFields = ['BaseAccountName', 'BaseAccountCode'];
+                        const allFields = ['BaseAccountID', 'ClassName', 'ClassCode'];
 
                         allFields.forEach(function (fieldId) {
                             validateField(fieldId, response);
@@ -109,10 +106,10 @@
 
 
             // #region Edit
-            $(document).on('click', '#baseAccount-edit', function (e) {
+            $(document).on('click', '#secondTab-edit', function (e) {
                 e.preventDefault();
 
-                $('.baseAccount-edit').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+                $('.secondTab-edit').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
 
                 var id = $(this).data('id');
 
@@ -123,16 +120,17 @@
                     success: function (response) {
                         if (response.isSuccess) {
                             var data = response.data;
-                            $('#baseAccount-form #BaseAccountID').val(data.baseAccountID);
-                            $('#baseAccount-form #BaseAccountCode').val(data.baseAccountCode);
-                            $('#baseAccount-form #BaseAccountName').val(data.baseAccountName);
-                            $('#baseAccount-form #Description').val(data.description);
+                            $('#secondTab-form #ClassID').val(data.classID);
+                            baseAccountDD.setChoiceByValue(data.baseAccountID.toString());
+                            $('#secondTab-form #ClassCode').val(data.classCode);
+                            $('#secondTab-form #ClassName').val(data.className);
+                            $('#secondTab-form #Description').val(data.description);
 
-                            $('#baseAccount-form #BaseAccount-saveBtn').text('Update');
+                            $('#secondTab-form #BaseAccount-saveBtn').text('Update');
                         } else {
                             toastr.warning(response.message);
                         }
-                        $('.baseAccount-edit').prop('disabled', false).html('<i class="fas fa-edit"></i>');
+                        $('.secondTab-edit').prop('disabled', false).html('<i class="fas fa-edit"></i>');
                     }
                 });
             });
@@ -140,8 +138,8 @@
 
 
             // #region Delete
-            $("#baseAccount-delSel").on('click', function () {
-                var selectedItems = $(".baseAccount-selectItem:checked");
+            $("#secondTab-delSel").on('click', function () {
+                var selectedItems = $(".secondTab-selectItem:checked");
                 var selectedIds = [];
 
                 selectedItems.each(function () {
@@ -157,8 +155,8 @@
                             success: function (response) {
                                 if (response.isSuccess) {
                                     toastr.success(response.message);
-                                    $("#baseAccount-check-all").prop('checked', false);
-                                    $('.baseAccount-selectItem').prop('checked', false);
+                                    $("#secondTab-check-all").prop('checked', false);
+                                    $('.secondTab-selectItem').prop('checked', false);
                                     clear();
                                 } else {
                                     toastr.error(response.message);
@@ -174,7 +172,7 @@
                 }
             });
 
-            $(document).on('click', '#baseAccount-single-delete', function () {
+            $(document).on('click', '#secondTab-single-delete', function () {
                 var id = $(this).data('id');
 
                 if (id) {
@@ -186,7 +184,7 @@
                             success: function (response) {
                                 if (response.isSuccess) {
                                     toastr.success(response.message);
-                                    $("#baseAccount-check-all").prop('checked', false);
+                                    $("#secondTab-check-all").prop('checked', false);
                                     clear();
                                 } else {
                                     toastr.error(response.message);
@@ -205,14 +203,16 @@
 
 
             // #region Clear
-            $(settings.resetBtn).on('click', function () {
+            $(settings.resetBtn).on('click', function (e) {
+                e.preventDefault();
+
                 clear();
             });
 
             function clear() {
                 $(settings.addform)[0].reset();
-                $('#BaseAccountID').val('0');
-                resetValidation(['BaseAccountName', 'BaseAccountCode']);
+                $('#ClassID').val('0');
+                resetValidation(['BaseAccountID', 'ClassName', 'ClassCode']);
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -221,23 +221,31 @@
                     }
                 });
                 $(settings.addform).find(settings.saveBtn).text('Save');
-                $("#baseAccount-check-all").prop('checked', false);
-                $('.baseAccount-selectItem').prop('checked', false);
+                $("#secondTab-check-all").prop('checked', false);
+                $('.secondTab-selectItem').prop('checked', false);
+
+                if (baseAccountDD) {
+                    baseAccountDD.destroy();
+                }
+
+                initBaseAccountDD();
 
                 loadTableData();
                 toggleBulkActions();
-                $('#baseAccount-check-all').prop('checked', false).prop('indeterminate', false);
+                $('#secondTab-check-all').prop('checked', false).prop('indeterminate', false);
             }
             // #endregion
 
 
+            var typingTimer;
+            var doneTypingInterval = 500; // Wait 500ms after user stops typing
             // #region checkNameUnique
             $(document).ready(function () {
                 checkNameUnique();
             });
 
             function checkNameUnique() {
-                $('#BaseAccountName').on('input', function () {
+                $('#ClassName').on('input', function () {
                     var value = $(this).val();
 
                     $.ajax({
@@ -246,11 +254,11 @@
                         data: { name: value },
                         success: function (response) {
                             if (response.isSuccess === true) {
-                                $('#BaseAccountNameError').hide();
-                                $('input[name="BaseAccountName"]').removeClass('is-invalid');
+                                $('#ClassNameError').hide();
+                                $('input[name="ClassName"]').removeClass('is-invalid');
                             } else {
-                                $('#BaseAccountNameError').text(response.message).show();
-                                $('input[name="BaseAccountName"]').addClass('is-invalid');
+                                $('#ClassNameError').text(response.message).show();
+                                $('input[name="ClassName"]').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
@@ -259,6 +267,46 @@
                     });
                 });
             }
+            // #endregion
+
+
+            // #region checkCodeUnique
+            $('#ClassCode').on('input', function () {
+                clearTimeout(typingTimer);
+                var value = $(this).val();
+
+                // Clear error immediately when input is empty
+                if (!value) {
+                    $('#ClassCodeError').hide();
+                    $('#ClassCode').removeClass('is-invalid');
+                    return;
+                }
+
+                typingTimer = setTimeout(function () {
+                    $.ajax({
+                        url: checkCodeUniqueUrl,
+                        type: 'POST',
+                        data: { code: value },
+                        success: function (response) {
+                            if (response.isSuccess == true || response === true) {
+                                $('#ClassCodeError').hide();
+                                $('#ClassCode').removeClass('is-invalid');
+                            } else {
+                                $('#ClassCodeError').text(response.message).show();
+                                $('#ClassCode').addClass('is-invalid');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.log("Error occurred while checking code uniqueness: " + error);
+                        }
+                    });
+                }, doneTypingInterval);
+            });
+
+            // Clear timer when user is still typing
+            $('#ClassCode').on('keydown', function () {
+                clearTimeout(typingTimer);
+            });
             // #endregion
 
 
@@ -277,38 +325,38 @@
 
             // #region toggle table checkbox
             $(document).ready(function () {
-                $('#baseAccount-check-all').on('change', function () {
+                $('#secondTab-check-all').on('change', function () {
                     var isChecked = $(this).prop('checked');
-                    $('.baseAccount-selectItem').prop('checked', isChecked);
+                    $('.secondTab-selectItem').prop('checked', isChecked);
 
                     toggleBulkActions();
                 });
 
-                $(document).on('change', '.baseAccount-selectItem', function () {
+                $(document).on('change', '.secondTab-selectItem', function () {
                     toggleBulkActions();
                 });
             });
 
             function toggleBulkActions() {
-                const allItems = $('.baseAccount-selectItem');
-                const checkedItems = $('.baseAccount-selectItem:checked');
+                const allItems = $('.secondTab-selectItem');
+                const checkedItems = $('.secondTab-selectItem:checked');
 
                 const allChecked = allItems.length === checkedItems.length;
                 const someChecked = checkedItems.length > 0 && !allChecked;
 
-                $('#baseAccount-check-all').prop('checked', allChecked);
-                $('#baseAccount-check-all').prop('indeterminate', someChecked);
+                $('#secondTab-check-all').prop('checked', allChecked);
+                $('#secondTab-check-all').prop('indeterminate', someChecked);
 
                 if (checkedItems.length > 1) {
-                    $('#baseAccount-bulkSelectActions').removeClass('d-none');
-                    $('#baseAccount-searchBox').addClass('d-none');
-                    $('.baseAccount-bulkDelete').addClass('disabled');
-                    $('.baseAccount-bulkEdit').addClass('disabled');
+                    $('#secondTab-bulkSelectActions').removeClass('d-none');
+                    $('#secondTab-searchBox').addClass('d-none');
+                    $('.secondTab-bulkDelete').addClass('disabled');
+                    $('.secondTab-bulkEdit').addClass('disabled');
                 } else {
-                    $('#baseAccount-bulkSelectActions').addClass('d-none');
-                    $('#baseAccount-searchBox').removeClass('d-none');
-                    $('.baseAccount-bulkDelete').removeClass('disabled');
-                    $('.baseAccount-bulkEdit').removeClass('disabled');
+                    $('#secondTab-bulkSelectActions').addClass('d-none');
+                    $('#secondTab-searchBox').removeClass('d-none');
+                    $('.secondTab-bulkDelete').removeClass('disabled');
+                    $('.secondTab-bulkEdit').removeClass('disabled');
                 }
             }
             // #endregion
@@ -322,7 +370,7 @@
         var currentPage = 1;
         var pageSize = 5;
 
-        $('#baseAccount-pageSizeSelect').on('change', function () {
+        $('#secondTab-pageSizeSelect').on('change', function () {
             var selectedSize = $(this).val();
 
             if (selectedSize) {
@@ -336,26 +384,26 @@
         $(document).ready(function () {
             loadTableData();
 
-            $("#baseAccount-searchInput").on("input", function () {
+            $("#secondTab-searchInput").on("input", function () {
                 currentPage = 1;
                 loadTableData();
             });
 
-            $("#baseAccount-prevPageBtn").on('click', function () {
+            $("#secondTab-prevPageBtn").on('click', function () {
                 if (currentPage > 1) {
                     currentPage--;
                     loadTableData();
                 }
             });
 
-            $("#baseAccount-nextPageBtn").on('click', function () {
+            $("#secondTab-nextPageBtn").on('click', function () {
                 currentPage++;
                 loadTableData();
             });
         });
 
 
-        let currentSortColumn = 'baseAccountName';
+        let currentSortColumn = 'secondTabName';
         let currentSortOrder = 'asc';
 
         $('th.sort').on('click', function () {
@@ -389,7 +437,7 @@
         }
 
         function loadTableData(sortColumn, sortOrder) {
-            var searchTerm = $("#baseAccount-searchInput").val();
+            var searchTerm = $("#secondTab-searchInput").val();
 
             $.ajax({
                 url: getAllUrl,
@@ -402,7 +450,7 @@
                     sortOrder: sortOrder
                 },
                 success: function (response) {
-                    var tableBody = $("#baseAccount-tBody");
+                    var tableBody = $("#secondTab-tBody");
                     tableBody.empty();
                     if (response.data.length > 0) {
                         response.data.forEach(function (item, index) {
@@ -410,15 +458,16 @@
                             tableBody.append(`
                                 <tr class="position-static">
                                     <td class="text-center text-middle align-middle" style="width: 5%;">
-                                        <input type="checkbox" class="form-check-input baseAccount-selectItem" data-id="${item.baseAccountID}" />
+                                        <input type="checkbox" class="form-check-input secondTab-selectItem" data-id="${item.classID}" />
                                     </td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.baseAccountName}</td>
-                                    <td class="align-middle white-space-nowrap ps-0">${item.baseAccountCode}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.className}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.classCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.description}</td>
                                     <td class="align-middle text-end white-space-nowrap pe-2">
                                         <div class="row g-3">
-                                            <a href="#!" class="btn btn-outline-light btn-icon me-2 baseAccount-edit" id="baseAccount-edit" data-id="${item.baseAccountID}"><i class="fas fa-edit text-black"></i></a>
-                                            <a href="#!" class="btn btn-outline-light btn-icon baseAccount-single-delete" id="baseAccount-single-delete" data-id="${item.baseAccountID}"><i class="far fa-trash-alt text-black"></i></a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon me-2 secondTab-edit" id="secondTab-edit" data-id="${item.classID}"><i class="fas fa-edit text-black"></i></a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon secondTab-single-delete" id="secondTab-single-delete" data-id="${item.classID}"><i class="far fa-trash-alt text-black"></i></a>
                                         </div>
                                     </td>
                                 </tr>
@@ -430,8 +479,8 @@
 
                     var paginationInfo = response.paginationInfo;
 
-                    $("#baseAccount-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-                    $("#baseAccount-totalCount").text(`(${paginationInfo.totalItems})`);
+                    $("#secondTab-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                    $("#secondTab-totalCount").text(`(${paginationInfo.totalItems})`);
 
                     updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
                 },
@@ -442,7 +491,7 @@
         }
 
         function updatePagination(pageNumbers, currentPage, totalPages) {
-            const paginationLinks = $("#baseAccount-paginationLinks");
+            const paginationLinks = $("#secondTab-paginationLinks");
             paginationLinks.empty();
             // Window size (number of pages before/after the current page)
             const windowSize = 1;
@@ -468,8 +517,8 @@
                 paginationLinks.append(addEllipsis(), createPageButton(totalPages));
             }
             // Disable or enable previous/next buttons
-            $("#baseAccount-prevPageBtn").prop('disabled', currentPage === 1);
-            $("#baseAccount-nextPageBtn").prop('disabled', currentPage === totalPages);
+            $("#secondTab-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#secondTab-nextPageBtn").prop('disabled', currentPage === totalPages);
         }
 
         $(document).on('click', '.page-btn', function () {

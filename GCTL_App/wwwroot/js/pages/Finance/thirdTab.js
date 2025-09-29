@@ -18,6 +18,7 @@
         var updateUrl = settings.baseUrl + "/Update";
         var deleteUrl = settings.baseUrl + "/Delete";
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
+        var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
 
         $(() => {
 
@@ -49,21 +50,17 @@
 
                 $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
-                //if (!$(settings.addform).valid()) {
-                //    $(settings.saveBtn).prop('disabled', false).html('Save');
-                //    return; 
-                //}
-
                 var token = $('#baseAccount-form input[name="__RequestVerificationToken"]').val();
                 var formData = {
                     __RequestVerificationToken: token,
-                    BaseAccountID: $('#BaseAccountID').val(),
-                    BaseAccountName: $('#BaseAccountName').val(),
-                    BaseAccountCode: $('#BaseAccountCode').val(),
+                    GroupID: $('#GroupID').val(),
+                    ClassID: $('#ClassID').val(),
+                    GroupName: $('#GroupName').val(),
+                    GroupCode: $('#GroupCode').val(),
                     Description: $('#Description').val(),
                 }
 
-                var id = $(settings.addform).find('#BaseAccountID').val();
+                var id = $(settings.addform).find('#GroupID').val();
                 var url = '';
                 var type = '';
                 if (id > 0) {
@@ -82,13 +79,13 @@
                         showLoadingIndicator();
                     },
                     success: function (response) {
-                        const allFields = ['BaseAccountName', 'BaseAccountCode'];
+                        const allFields = ['ClassID', 'GroupName', 'GroupCode'];
 
                         allFields.forEach(function (fieldId) {
                             validateField(fieldId, response);
                         });
 
-                        if (response.isSuccess) {
+                        if (response.isSuccess == true) {
                             clear();
                             toastr.success(response.message);
                         } else {
@@ -123,9 +120,10 @@
                     success: function (response) {
                         if (response.isSuccess) {
                             var data = response.data;
-                            $('#baseAccount-form #BaseAccountID').val(data.baseAccountID);
-                            $('#baseAccount-form #BaseAccountCode').val(data.baseAccountCode);
-                            $('#baseAccount-form #BaseAccountName').val(data.baseAccountName);
+                            $('#baseAccount-form #GroupID').val(data.groupID);
+                            classDD.setChoiceByValue(data.classID.toString());
+                            $('#baseAccount-form #GroupName').val(data.groupName);
+                            $('#baseAccount-form #GroupCode').val(data.groupCode);
                             $('#baseAccount-form #Description').val(data.description);
 
                             $('#baseAccount-form #BaseAccount-saveBtn').text('Update');
@@ -205,14 +203,16 @@
 
 
             // #region Clear
-            $(settings.resetBtn).on('click', function () {
+            $(settings.resetBtn).on('click', function (e) {
+                e.preventDefault();
+
                 clear();
             });
 
             function clear() {
                 $(settings.addform)[0].reset();
-                $('#BaseAccountID').val('0');
-                resetValidation(['BaseAccountName', 'BaseAccountCode']);
+                $('#GroupID').val('0');
+                resetValidation(['ClassID', 'GroupName', 'GroupCode']);
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -231,6 +231,8 @@
             // #endregion
 
 
+            var typingTimer;
+            var doneTypingInterval = 500; // Wait 500ms after user stops typing
             // #region checkNameUnique
             $(document).ready(function () {
                 checkNameUnique();
@@ -259,6 +261,46 @@
                     });
                 });
             }
+            // #endregion
+
+
+            // #region checkCodeUnique
+            $('#GroupCode').on('input', function () {
+                clearTimeout(typingTimer);
+                var value = $(this).val();
+
+                // Clear error immediately when input is empty
+                if (!value) {
+                    $('#GroupCodeError').hide();
+                    $('#GroupCode').removeClass('is-invalid');
+                    return;
+                }
+
+                typingTimer = setTimeout(function () {
+                    $.ajax({
+                        url: checkCodeUniqueUrl,
+                        type: 'POST',
+                        data: { code: value },
+                        success: function (response) {
+                            if (response.isSuccess == true || response === true) {
+                                $('#GroupCodeError').hide();
+                                $('#GroupCode').removeClass('is-invalid');
+                            } else {
+                                $('#GroupCodeError').text(response.message).show();
+                                $('#GroupCode').addClass('is-invalid');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.log("Error occurred while checking code uniqueness: " + error);
+                        }
+                    });
+                }, doneTypingInterval);
+            });
+
+            // Clear timer when user is still typing
+            $('#GroupCode').on('keydown', function () {
+                clearTimeout(typingTimer);
+            });
             // #endregion
 
 
@@ -410,15 +452,17 @@
                             tableBody.append(`
                                 <tr class="position-static">
                                     <td class="text-center text-middle align-middle" style="width: 5%;">
-                                        <input type="checkbox" class="form-check-input baseAccount-selectItem" data-id="${item.baseAccountID}" />
+                                        <input type="checkbox" class="form-check-input baseAccount-selectItem" data-id="${item.groupID}" />
                                     </td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.baseAccountName}</td>
-                                    <td class="align-middle white-space-nowrap ps-0">${item.baseAccountCode}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.className}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.groupName}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.groupCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.description}</td>
                                     <td class="align-middle text-end white-space-nowrap pe-2">
                                         <div class="row g-3">
-                                            <a href="#!" class="btn btn-outline-light btn-icon me-2 baseAccount-edit" id="baseAccount-edit" data-id="${item.baseAccountID}"><i class="fas fa-edit text-black"></i></a>
-                                            <a href="#!" class="btn btn-outline-light btn-icon baseAccount-single-delete" id="baseAccount-single-delete" data-id="${item.baseAccountID}"><i class="far fa-trash-alt text-black"></i></a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon me-2 baseAccount-edit" id="baseAccount-edit" data-id="${item.groupID}"><i class="fas fa-edit text-black"></i></a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon baseAccount-single-delete" id="baseAccount-single-delete" data-id="${item.groupID}"><i class="far fa-trash-alt text-black"></i></a>
                                         </div>
                                     </td>
                                 </tr>

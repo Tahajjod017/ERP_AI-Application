@@ -20,6 +20,6 @@ namespace GCTL.Core.ViewModels.Finance.SecondTabVM
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "{0} is required!"), Display(Name = "Base Account")]
-        public int BaseAccountID { get; set; }
+        public int? BaseAccountID { get; set; }
     }
 }

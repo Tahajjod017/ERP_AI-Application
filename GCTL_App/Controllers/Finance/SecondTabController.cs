@@ -1,8 +1,6 @@
 ﻿using GCTL.Core.Helpers;
-using GCTL.Core.ViewModels.Finance.BaseAccountVM;
 using GCTL.Core.ViewModels.Finance.SecondTabVM;
 using GCTL.Service.CommonService;
-using GCTL.Service.Finance.BaseAccount;
 using GCTL.Service.Finance.SecondTab;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
@@ -68,16 +66,23 @@ namespace GCTL_App.Controllers.Finance
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _secondTabService.IsNameUniqueAsync(model.ClassName, model.BaseAccountID);
+                    var uniqueName = await _secondTabService.IsNameUniqueAsync(model.ClassName, (int)model.BaseAccountID);
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = $"{model.ClassName} already exists!" });
                     }
+
+                    var uniqueCode = await _secondTabService.IsCodeUniqueAsync(model.ClassCode, model.ClassID);
+                    if (!uniqueCode)
+                    {
+                        return Json(new { isSuccess = false, message = $"{model.ClassCode} already exists!" });
+                    }
+
                     await _secondTabService.AddAsync(model);
                     return Json(new { isSuccess = true, message = "Saved Successfully." });
                 }
 
-                var orderedKeys = new[] { "ClassName", "BaseAccountCode" };
+                var orderedKeys = new[] { "BaseAccountID", "ClassName", "ClassCode" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -113,11 +118,18 @@ namespace GCTL_App.Controllers.Finance
                     {
                         return Json(new { isSuccess = false, message = $"{model.ClassName} already exists!" });
                     }
+
+                    var uniqueCode = await _secondTabService.IsCodeUniqueAsync(model.ClassCode, model.ClassID);
+                    if (!uniqueCode)
+                    {
+                        return Json(new { isSuccess = false, message = $"{model.ClassCode} already exists!" });
+                    }
+
                     await _secondTabService.UpdateAsync(model);
                     return Json(new { isSuccess = true, message = "Updated Successfully." });
                 }
 
-                var orderedKeys = new[] { "BaseAccountCode", "ClassName" };
+                var orderedKeys = new[] { "BaseAccountID", "BaseAccountCode", "ClassName" };
                 foreach (var key in orderedKeys)
                 {
                     if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
@@ -168,7 +180,7 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region SoftDelete
-        [Permission("Delete", "SecondTab")]
+        //[Permission("Delete", "SecondTab")]
         [HttpDelete]
         public async Task<IActionResult> Delete(DeleteRequestVM requestVM)
         {
@@ -207,6 +219,30 @@ namespace GCTL_App.Controllers.Finance
                 if (!isUnique)
                 {
                     return Json(new { isSuccess = false, message = $"{name} already exists." });
+                }
+                return Json(true);
+            }
+            catch (Exception ex)
+            {
+                return Json("Error occurred: " + ex.Message);
+            }
+        }
+        #endregion
+
+
+        #region CheckCodeUnique
+        [HttpPost]
+        public async Task<IActionResult> CheckCodeUnique(string code)
+        {
+            try
+            {
+                if (code == null || code == "")
+                    return Json(true);
+
+                bool isUnique = await _secondTabService.IsCodeUniqueAsync(code);
+                if (!isUnique)
+                {
+                    return Json(new { isSuccess = false, message = $"{code} already exists." });
                 }
                 return Json(true);
             }
