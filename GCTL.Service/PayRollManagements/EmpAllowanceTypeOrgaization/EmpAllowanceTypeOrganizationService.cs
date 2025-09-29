@@ -144,10 +144,7 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 {
                     OrganizationID = orgId,
                     EmployeeAllowanceTypeName = EntityVM.EmployeeAllowanceTypeName.Trim(),
-
-                    //ApplyOnBasicSalary = EntityVM.ApplyOnBasicSalary,   
-                    //ApplyOnGrossSalary = EntityVM.ApplyOnGrossSalary,
-
+                    IsApplyOnGrossSalary = EntityVM.IsApplyOnGrossSalary,   
                     LIP = EntityVM.LIP,
                     LMAC = EntityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -214,6 +211,8 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
         #endregion
 
         #region Update Data
+
+
         public async Task<CommonReturnViewModel> UpdateAsync(EmpAllowanceTypeOrganizationSaveVM EntityVM)
         {
 
@@ -259,13 +258,10 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 {
                     entity.OrganizationID = item;
                     entity.EmployeeAllowanceTypeName = EntityVM.EmployeeAllowanceTypeName.Trim();
-
-                    //entity.ApplyOnBasicSalary=EntityVM.ApplyOnBasicSalary;
-                    //entity.ApplyOnGrossSalary=EntityVM.ApplyOnGrossSalary;
-
+                    entity.IsApplyOnGrossSalary = EntityVM.IsApplyOnGrossSalary;
                     entity.LIP = EntityVM.LIP;
                     entity.LMAC = EntityVM.LMAC;
-                    entity.UpdatedAt = DateTime.Now;
+                    entity.UpdatedAt = DateTime.UtcNow;
                     entity.UpdatedBy = EntityVM.UpdatedBy;
                 }
                 await empAllowanceTypes.UpdateAsync(entity);
@@ -282,6 +278,7 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                await _userInfoService.ActionLogExceptionAsync("Allowance Type", ex, EntityVM.EmployeeAllowanceTypeID, EntityVM, ActionName.Error);
                 await empAllowanceTypes.RollbackTransactionAsync();
                 return new CommonReturnViewModel
                 {
@@ -290,6 +287,9 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                 };
             }
         }
+
+
+
 
         #endregion
 
@@ -316,7 +316,7 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
 
                 foreach (var item in data)
                 {
-                    item.DeletedAt = DateTime.Now;
+                    item.DeletedAt = DateTime.UtcNow;
                     item.DeletedBy = requestVM.DeletedBy;
                     item.LIP = requestVM.LIP;
                     item.LMAC = requestVM.LMAC;

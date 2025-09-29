@@ -47,6 +47,8 @@
 
     //
     $(document).on('click', '#OrganizationBenefitsType-edit', function () {
+
+        debugger
         var id = $(this).data('id');
         if (!id) {
             toastr.error("Id Not Found")
@@ -58,6 +60,7 @@
             success: function (res) {
                 if (res.success) {
                     d = res.data;
+                    debugger
                     $('#BenefitTypeID').val(d.benefitTypeID);
                     $('#OrganizationIDs').val(d.organizatonID).each(function () {
                         coreui.MultiSelect.getInstance(this)?.update();

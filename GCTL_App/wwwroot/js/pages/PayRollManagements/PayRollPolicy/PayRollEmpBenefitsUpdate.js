@@ -216,18 +216,18 @@ $(document).ready(function () {
                                                     <div class="col-lg-4 col-md-6 col-sm-12">
                                                         <label class="form-label">Min Salary</label>
                                                         <input type="text" class="form-control"
-               name="Benefits[${i}].BenefitSetups[0].SalaryMin" 
+               name="Benefits[${i}].BenefitSetups[0].SalaryMin"
                placeholder="Enter Min Salary" />
                                                     </div>
                                                     <div class="col-lg-4 col-md-6 col-sm-12">
                                                         <label class="form-label">Max Salary</label>
                                                        <input type="text" class="form-control"
-               name="Benefits[${i}].BenefitSetups[0].SalaryMax" 
+               name="Benefits[${i}].BenefitSetups[0].SalaryMax"
                placeholder="Enter Max Salary" />
                                                     </div>
                                                                          <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
                                 <!-- Hidden CalculationTypeID -->
-                              
+
 
 
                                 <div class="input-group mb-3">
@@ -291,13 +291,16 @@ $(document).ready(function () {
                 FixedValue();
             },
             error: function (err) {
-                toastr.error('Failed to fetch allowance types');
+                //toastr.error('Failed to fetch allowance types');
                 console.error(err);
             }
         });
     }
 
+    //
 
+    
+    //
 
     // End Iniatially Loaded 
 
