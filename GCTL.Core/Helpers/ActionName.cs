@@ -23,6 +23,7 @@ namespace GCTL.Core.Helpers
         public const string PasswordChanged = "Password Changed";
         public const string AccountDelete = "Account Delete";
         public const string AccountRestore = "AccountRestore";
+        public const string  Error = "Error";
 
 
 
