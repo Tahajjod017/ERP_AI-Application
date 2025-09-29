@@ -60,12 +60,12 @@ namespace GCTL.Service.Employees.EmployeeContact
                                   {
                                       EmployeeEmeContactID = ec.EmployeeEmeContactID,
                                       EmployeePersonalId = (int)ec.EmployeeID,
-                                      ContactName = ec.ContactName ?? "-",
-                                      Relationship = ec.Relationship ?? "-",
-                                      ContactNumber = ec.ContactNumber ?? "-",
-                                      ContactEmail = ec.ContactEmail ?? "-",
-                                      PersonalEmail = emp.Email ?? "-",
-                                      PersonalPhone = emp.MobileNumber ?? "-",
+                                      ContactName = ec.ContactName ?? "",
+                                      Relationship = ec.Relationship ?? "",
+                                      ContactNumber = ec.ContactNumber ?? "",
+                                      ContactEmail = ec.ContactEmail ?? "",
+                                      PersonalEmail = emp.Email ?? "",
+                                      PersonalPhone = emp.MobileNumber ?? "",
                                       IsActive = true
                                   }).ToListAsync();
 
