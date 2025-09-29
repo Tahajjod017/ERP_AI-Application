@@ -738,7 +738,7 @@
             $(".timepicker-12hr").flatpickr({
                 enableTime: true,       // ✅ Enables time selection (hours & minutes)
                 noCalendar: true,       // ✅ Hides the calendar view, showing only the time picker
-                dateFormat: "H:i",      // h = 12-hour, H = 24-hour, i = minutes, K = AM/PM
+                dateFormat: "H:i",      // h = 12-hour, H = 24-hour, i = minutes, K = AM/PM in
                 altInput: true,         // Creates a hidden input for display
                 altFormat: "h:i K",     // Shown to user (12-hour with AM/PM)
                 time_24hr: false,        // ✅ Uses 24-hour time format (00:00–23:59 instead of 12-hour AM/PM)

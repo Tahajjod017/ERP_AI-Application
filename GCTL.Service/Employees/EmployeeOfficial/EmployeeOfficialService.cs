@@ -40,20 +40,20 @@ namespace GCTL.Service.Employees.EmployeeOfficial
             result.Success = true;
 
 
-            if (
+            //if (
 
-                string.IsNullOrEmpty(model.OfficeEmail) ||
-                string.IsNullOrEmpty(model.OfficePhone) ||
-                string.IsNullOrEmpty(model.AppointmentLetterNo) ||
-                string.IsNullOrEmpty(model.AttendanceId)
+            //    string.IsNullOrEmpty(model.OfficeEmail) ||
+            //    string.IsNullOrEmpty(model.OfficePhone) ||
+            //    string.IsNullOrEmpty(model.AppointmentLetterNo) ||
+            //    string.IsNullOrEmpty(model.AttendanceId)
 
 
-               )
-            {
-                result.Success = false;
-                result.Message = "Please fill out the form.";
-            }
-            else if (!IsValidEmail(model.OfficeEmail))
+            //   )
+            //{
+            //    result.Success = false;
+            //    result.Message = "Please fill out the form.";
+            //}
+            if (!IsValidEmail(model.OfficeEmail))
             {
                 result.Success = false;
                 result.Message = "Please enter a valid email address.";
@@ -136,8 +136,13 @@ namespace GCTL.Service.Employees.EmployeeOfficial
 
         private bool IsValidEmail(string email)
         {
-            var emailRegex = new Regex(@"^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$");
-            return emailRegex.IsMatch(email);
+            if (email != null)
+            {
+                var emailRegex = new Regex(@"^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$");
+                return emailRegex.IsMatch(email);
+            }
+            return true;
+            
         }
 
         #endregion
@@ -351,7 +356,7 @@ namespace GCTL.Service.Employees.EmployeeOfficial
             {
                 model.EmployeeOfficeId = empOfficial.EmployeeOfficeId ?? string.Empty;
                 model.EmployeeOfficeInfoID = empOfficial.EmployeeOfficeInfoID;
-                model.OrganizationID = empOfficial.OrganizationID;
+                model.OrganizationID = (int)empOfficial.OrganizationID;
                 model.OrganizationBranchID = empOfficial.OrganizationBranchID;
                 model.DepartmentID = empOfficial.DepartmentID;
                 model.DesignationID = empOfficial.DesignationID;
@@ -363,7 +368,7 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                 model.OfficePhone = empOfficial.OfficePhone ?? string.Empty;
                 model.OfficeEmail = empOfficial.OfficeEmail ?? string.Empty;
                 model.AttendanceId = empOfficial.AttendanceId ?? string.Empty;
-                model.EmploymentStatusId = empOfficial.EmploymentStatusId;
+                model.EmploymentStatusId = (int)empOfficial.EmploymentStatusId;
                 model.AppointmentLetterNo = empOfficial.AppointmentLetterNo ?? string.Empty;
                 model.AppointmentLetterIssueDate = empOfficial.AppointmentLetterIssueDate;
                 model.JoiningDate = empOfficial.JoiningDate;
@@ -399,65 +404,65 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                 if (empPersonal != null)
                 {
                     model.EmployeePersonalId = empPersonal.EmployeeID;
-                    model.PersonalEmail = empPersonal.Email ?? "-";
-                    model.PersonalPhone = empPersonal.MobileNumber ?? "-";
+                    model.PersonalEmail = empPersonal.Email ?? "";
+                    model.PersonalPhone = empPersonal.MobileNumber ?? "";
                 }
 
                 //if (empOfficial != null)
                 //{
-                    model.EmployeeOfficeId = empOfficial?.EmployeeOfficeId ?? "-";
+                    model.EmployeeOfficeId = empOfficial?.EmployeeOfficeId ?? "";
                     model.EmployeeOfficeInfoID = empOfficial?.EmployeeOfficeInfoID;
                     model.OrganizationID = empOfficial?.OrganizationID;
-                    model.OrganizationName = empOfficial?.Organization?.OrganizationName ?? "-";
+                    model.OrganizationName = empOfficial?.Organization?.OrganizationName ?? "";
 
                     model.OrganizationBranchID = empOfficial?.OrganizationBranchID;
-                    model.OrganizationBranchName = empOfficial?.OrganizationBranch?.OrganizationBranchName ?? "-";
+                    model.OrganizationBranchName = empOfficial?.OrganizationBranch?.OrganizationBranchName ?? "";
 
                     model.DepartmentID = empOfficial?.DepartmentID;
-                    model.DepartmentName = empOfficial?.Department?.DepartmentName ?? "-";
+                    model.DepartmentName = empOfficial?.Department?.DepartmentName ?? "";
 
                     model.DesignationID = empOfficial?.DesignationID;
-                    model.DesignationName = empOfficial?.Designation?.DesignationName ?? "-";
+                    model.DesignationName = empOfficial?.Designation?.DesignationName ?? "";
 
                     model.EmployeeTypeID = empOfficial?.EmployeeTypeID;
-                    model.EmployeeTypeName = empOfficial?.EmployeeType?.EmployeeTypeName ?? "-";
+                    model.EmployeeTypeName = empOfficial?.EmployeeType?.EmployeeTypeName ?? "";
 
                     model.EmploymentNatureID = empOfficial?.EmploymentNatureID;
-                    model.EmploymentNatureName = empOfficial?.EmploymentNature?.EmploymentNatureName ?? "-";
+                    model.EmploymentNatureName = empOfficial?.EmploymentNature?.EmploymentNatureName ?? "";
 
                     model.SeniorSupervisorId = empOfficial?.SeniorSupervisorId;
                     model.SeniorSupervisorName = empOfficial?.SeniorSupervisor != null
                         ? $"{empOfficial?.SeniorSupervisor.FirstName ?? ""} {empOfficial?.SeniorSupervisor.LastName ?? ""}".Trim()
-                        : "-";
+                        : "";
 
                     model.ImmediateSupervisorId = empOfficial?.ImmediateSupervisorId;
                     model.ImmediateSupervisorName = empOfficial?.ImmediateSupervisor != null
                         ? $"{empOfficial?.ImmediateSupervisor.FirstName ?? ""} {empOfficial?.ImmediateSupervisor.LastName ?? ""}".Trim()
-                        : "-";
+                        : "";
 
                     model.HeadOfDepartmentId = empOfficial?.HeadOfDepartmentId;
                     model.HeadOfDepartmentName = empOfficial?.HeadOfDepartment != null
                         ? $"{empOfficial?.HeadOfDepartment.FirstName ?? ""} {empOfficial?.HeadOfDepartment.LastName ?? ""}".Trim()
-                        : "-";
+                        : "";
 
-                    model.OfficePhone = empOfficial?.OfficePhone ?? "-";
-                    model.OfficeEmail = empOfficial?.OfficeEmail ?? "-";
-                    model.AttendanceId = empOfficial?.AttendanceId ?? "-";
+                    model.OfficePhone = empOfficial?.OfficePhone ?? "";
+                    model.OfficeEmail = empOfficial?.OfficeEmail ?? "";
+                    model.AttendanceId = empOfficial?.AttendanceId ?? "";
 
                     model.EmploymentStatusId = empOfficial?.EmploymentStatusId;
-                    model.EmploymentStatusName = empOfficial?.EmploymentStatus?.StatusName ?? "-";
+                    model.EmploymentStatusName = empOfficial?.EmploymentStatus?.StatusName ?? "";
 
-                    model.AppointmentLetterNo = empOfficial?.AppointmentLetterNo ?? "-";
+                    model.AppointmentLetterNo = empOfficial?.AppointmentLetterNo ?? "";
                     model.AppointmentLetterIssueDate = empOfficial?.AppointmentLetterIssueDate ?? default;
                     model.JoiningDate = empOfficial?.JoiningDate ?? default;
 
                     model.ProvisionPeriodStartDate = empOfficial?.ProvisionPeriodStartDate ?? default;
                     model.ProvisionPeriod = empOfficial?.ProvisionPeriod ?? 0;
                     model.ProvisionPeriodTtimeTypeID = empOfficial?.ProvisionPeriodTtimeTypeID;
-                    model.ProvisionPeriodTtimeTypeName = empOfficial?.ProvisionPeriodTtimeType?.ProvisionPeriodTtimeTypeName ?? "-";
+                    model.ProvisionPeriodTtimeTypeName = empOfficial?.ProvisionPeriodTtimeType?.ProvisionPeriodTtimeTypeName ?? "";
 
                     model.ConfirmationDate = empOfficial?.ConfirmationDate ?? default;
-                    model.ConfirmationLetterNo = empOfficial?.ConfirmationLetterNo ?? "-";
+                    model.ConfirmationLetterNo = empOfficial?.ConfirmationLetterNo ?? "";
                     model.ContractEndDate = empOfficial?.ContractEndDate ?? default;
                // }
 

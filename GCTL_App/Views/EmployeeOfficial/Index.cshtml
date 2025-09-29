@@ -77,7 +77,7 @@
 
 
                                                     <div class="form-floating form-floating-advance-select mb-2">
-                                                        <label asp-for="OrganizationID">@Html.SmartLocalize("Choose Organization")</label>
+                                                        <label asp-for="OrganizationID" class="req">@Html.SmartLocalize("Choose Organization")</label>
                                                         <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
                                                             <option value="">@Html.SmartLocalize("Select Organization")</option>
                                                         </select>

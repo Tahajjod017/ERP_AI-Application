@@ -16,7 +16,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeOfficial
 
         public string? EmployeeOfficeId { get; set; }
 
-        public int? OrganizationID { get; set; }
+        public int OrganizationID { get; set; }
 
         public int? OrganizationBranchID { get; set; }
 
@@ -34,15 +34,15 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeOfficial
 
         public int? HeadOfDepartmentId { get; set; }
 
-        public string OfficePhone { get; set; }
+        public string? OfficePhone { get; set; }
 
-        public string OfficeEmail { get; set; }
+        public string? OfficeEmail { get; set; }
 
-        public string AttendanceId { get; set; }
+        public string? AttendanceId { get; set; }
 
-        public int? EmploymentStatusId { get; set; }
+        public int EmploymentStatusId { get; set; }
 
-        public string AppointmentLetterNo { get; set; }
+        public string? AppointmentLetterNo { get; set; }
 
         public DateOnly? AppointmentLetterIssueDate { get; set; }
 
@@ -56,7 +56,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeOfficial
 
         public DateOnly? ConfirmationDate { get; set; }
 
-        public string ConfirmationLetterNo { get; set; }
+        public string? ConfirmationLetterNo { get; set; }
 
         public DateOnly? ContractEndDate { get; set; }
     }

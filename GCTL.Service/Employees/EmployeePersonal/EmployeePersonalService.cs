@@ -29,9 +29,10 @@ namespace GCTL.Service.Employees.EmployeePersonal
         private readonly IGenericRepository<BloodGroup> _natioanlityRepository;
         private readonly IGenericRepository<MaritalStatus> _maritalSatausRepository;
         private readonly IGenericRepository<Country> _countryRepository;
+        private readonly IGenericRepository<Statuses> _statusRepository;
         private readonly IImageFileHandlerService _imageFileHandlerService;
 
-        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository, IGenericRepository<Country> countryRepository, IImageFileHandlerService imageFileHandlerService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IGenericRepository<BloodGroup> natioanlityRepository, IGenericRepository<MaritalStatus> maritalSatausRepository)
+        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository, IGenericRepository<Country> countryRepository, IImageFileHandlerService imageFileHandlerService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IGenericRepository<BloodGroup> natioanlityRepository, IGenericRepository<MaritalStatus> maritalSatausRepository, IGenericRepository<Statuses> statusRepository)
         {
             _employeePersonalRepository = employeePersonalRepository;
             _countryRepository = countryRepository;
@@ -42,6 +43,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
             _bloodGroupRepository = bloodGroupRepository;
             _natioanlityRepository = natioanlityRepository;
             _maritalSatausRepository = maritalSatausRepository;
+            _statusRepository = statusRepository;
         }
 
         #region Save Method
@@ -49,13 +51,14 @@ namespace GCTL.Service.Employees.EmployeePersonal
         {
             var result = new CommonReturnViewModel();
 
-            
+            await _employeeOfficialRepository.BeginTransactionAsync();
 
 
             try
             {
                 if (model == null)
                 {
+                    await _employeeOfficialRepository.RollbackTransactionAsync();
                     result.Success = false;
                     result.Message = "Invalid input data.";
                     return result;
@@ -134,6 +137,17 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
 
                     await _employeePersonalRepository.AddAsync(employee);
+
+                    var activeStatus = await _statusRepository.AllActive().Where(e => e.StatusName.ToLower() == "active").FirstOrDefaultAsync();
+
+                    var empOffice = new EmployeeOfficeInfo()
+                    {
+                        EmploymentStatusId = activeStatus != null ? activeStatus.StatusID : null,
+                        EmployeeID = employee != null ?  employee.EmployeeID : null,
+
+
+                    };
+                    await _employeeOfficialRepository.AddAsync(empOffice);
                 }
                 else
                 {
@@ -144,6 +158,8 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
                     if (employee == null)
                     {
+                        await _employeeOfficialRepository.RollbackTransactionAsync();
+
                         result.Success = false;
                         result.Message = "Employee not found.";
                         return result;
@@ -196,9 +212,11 @@ namespace GCTL.Service.Employees.EmployeePersonal
                    
 
                     await _employeePersonalRepository.UpdateAsync(employee);
+
                 }
 
-               
+
+                await _employeeOfficialRepository.CommitTransactionAsync();
 
                 result.Success = true;
                 result.Message = "Employee personal information saved successfully.";
@@ -207,6 +225,8 @@ namespace GCTL.Service.Employees.EmployeePersonal
             }
             catch (Exception ex)
             {
+                await _employeeOfficialRepository.RollbackTransactionAsync();
+
                 // Ideally log the error (e.g., with ILogger)
                 result.Success = false;
                 result.Message = $"An error occurred: {ex.Message}";
@@ -387,42 +407,42 @@ namespace GCTL.Service.Employees.EmployeePersonal
                 .Where(e => e.EmployeeID == id)
                 .Select(e => new EmployeePersonalGetViewModel
                 {
-                    FirstName = e.FirstName ?? "-",
-                    LastName = e.LastName ?? "-",
-                    MobileNumber = e.MobileNumber ?? "-",
-                    Email = e.Email ?? "-",
-                    FatherName = e.FatherName ?? "-",
-                    MotherName = e.MotherName ?? "-",
+                    FirstName = e.FirstName ?? "",
+                    LastName = e.LastName ?? "",
+                    MobileNumber = e.MobileNumber ?? "",
+                    Email = e.Email ?? "",
+                    FatherName = e.FatherName ?? "",
+                    MotherName = e.MotherName ?? "",
                     GenderID = e.GenderID,
-                    TIN = e.TIN ?? "-",
+                    TIN = e.TIN ?? "",
                     ReligionID = e.ReligionID,
                     DateOfBirth = e.DateOfBirth,
-                    BirthCertificateNo = e.BirthCertificateNo ?? "-",
+                    BirthCertificateNo = e.BirthCertificateNo ?? "",
                     BloodGroupID = e.BloodGroupID,
                     NationalityID = e.NationalityID,
                   
-                    NID = e.NID ?? "-",
+                    NID = e.NID ?? "",
                     MaritalStatusID = e.MaritalStatusID,
-                    AboutEmployee = e.AboutEmployee ?? "-",
+                    AboutEmployee = e.AboutEmployee ?? "",
                     CountryID = e.CountryID,
-                    State = e.State ?? "-",
-                    City = e.City ?? "-",
-                    HouseNo = e.HouseNo ?? "-",
-                    RoadNo = e.RoadNo ?? "-",
-                    PostalCode = e.PostalCode ?? "-",
+                    State = e.State ?? "",
+                    City = e.City ?? "",
+                    HouseNo = e.HouseNo ?? "",
+                    RoadNo = e.RoadNo ?? "",
+                    PostalCode = e.PostalCode ?? "",
                     EmployeeID = e.EmployeeID,
-                    EmployeeImageFileName = e.EmployeeImageFileName ?? "-",
-                    EmployeeSignatureFileName = e.EmployeeSignatureFileName ?? "-",
+                    EmployeeImageFileName = e.EmployeeImageFileName ?? "",
+                    EmployeeSignatureFileName = e.EmployeeSignatureFileName ?? "",
                     HasUser = e.HasUser,
-                    EmployeeCode = e.EmployeeCode ?? "-",
+                    EmployeeCode = e.EmployeeCode ?? "",
 
-                    BloodGroupName = e.BloodGroup != null ? e.BloodGroup.BloodGroupName : "-",
-                    NationalityName = e.Nationality != null ? e.Nationality.CountryName : "-",
-                    CountryName = e.Country != null ? e.Country.CountryName : "-",
-                    Nationality = e.Country != null ? e.Country.CountryName : "-",
-                    GenderName = e.Gender != null ? e.Gender.GenderName : "-",
-                    ReligionName = e.Religion != null ? e.Religion.ReligionName : "-",
-                    MaritalStatusName = e.MaritalStatus != null ? e.MaritalStatus.MaritalStatusName : "-",
+                    BloodGroupName = e.BloodGroup != null ? e.BloodGroup.BloodGroupName : "",
+                    NationalityName = e.Nationality != null ? e.Nationality.CountryName : "",
+                    CountryName = e.Country != null ? e.Country.CountryName : "",
+                    Nationality = e.Country != null ? e.Country.CountryName : "",
+                    GenderName = e.Gender != null ? e.Gender.GenderName : "",
+                    ReligionName = e.Religion != null ? e.Religion.ReligionName : "",
+                    MaritalStatusName = e.MaritalStatus != null ? e.MaritalStatus.MaritalStatusName : "",
 
                 })
                 .FirstOrDefaultAsync();

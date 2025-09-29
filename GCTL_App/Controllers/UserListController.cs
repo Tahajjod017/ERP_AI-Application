@@ -44,6 +44,7 @@ namespace GCTL_NBR.Controllers
 
             var query = _userManager.Users
                                     .Include(u => u.Employees)
+                                    .ThenInclude(u => u.EmployeeOfficeInfoEmployee)
                                     .Where(u => u.Employees.EmployeeID != null &&
                                      !excludedCodes.Contains(u.Employees.EmployeeCode)&& u.Employees.IsActive==true) 
                                     .AsQueryable();
@@ -72,7 +73,7 @@ namespace GCTL_NBR.Controllers
                     Id = u.Id,
                     EmployeeCode = u.Employees.EmployeeCode ?? "-",
                     EmployeeName = (u.Employees.FirstName +" "+u.Employees.LastName).Trim() ?? "-",
-                    Email = u.Email ?? "-",
+                    Email = u.Employees.EmployeeOfficeInfoEmployee.Where(x=>x.EmployeeID==u.EmployeeId).Select(x=>x.OfficeEmail).FirstOrDefault() ?? "-",
                     DefaultPass = u.DefaultPass ?? "",
                     //IsActive =  u.DeletedAt == null ? "Active" : "Inactive",
                     //UserName = u.UserName ?? "-",

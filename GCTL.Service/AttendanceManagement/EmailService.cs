@@ -96,7 +96,7 @@ namespace GCTL.Service.AttendanceManagement
                 }
 
                 if (string.IsNullOrEmpty(model.To))
-                    throw new ArgumentNullException(nameof(model.To), "Recipient email address is required.");
+                    throw new ArgumentNullException(nameof(model.To), "Recipient email address is required.");  
 
                 try
                 {

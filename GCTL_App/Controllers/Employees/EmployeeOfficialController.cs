@@ -40,9 +40,11 @@ namespace GCTL_App.Controllers.Employees
 
         private readonly IEmployeeOfficialService _employeeOfficialService;
         private readonly IElementPermissionService _elementPermissionService;
+        private readonly AppDbContext _Db;
+        private readonly UserManager<ApplicationUser> _userManager;
 
 
-        public EmployeeOfficialController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IEmployeeOfficialService employeeOfficialService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<ProvisionPeriodTtimeTypes> provisionPeriodTtimeTypesRepository, IEmployeeNavigationService employeeNavigationService, IGenericRepository<UserManager<ApplicationUser>> userManagerRepository, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<RoleManager<ApplicationRole>> roleManagerRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<RoleModulePermissions> rolePermissionRepository, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
+        public EmployeeOfficialController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<OrganizationBranches> branchRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<EmployeeType> employeeTypeRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<EmploymentNature> employmentNatureRepository, IGenericRepository<Statuses> employeeStatusRepository, IEmployeeOfficialService employeeOfficialService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<ProvisionPeriodTtimeTypes> provisionPeriodTtimeTypesRepository, IEmployeeNavigationService employeeNavigationService, IGenericRepository<UserManager<ApplicationUser>> userManagerRepository, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<RoleManager<ApplicationRole>> roleManagerRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<RoleModulePermissions> rolePermissionRepository, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IElementPermissionService elementPermissionService, AppDbContext db, UserManager<ApplicationUser> userManager) : base(translateService, userProfileService)
         {
             _employeeRepository = employeeRepository;
             _branchRepository = branchRepository;
@@ -63,6 +65,8 @@ namespace GCTL_App.Controllers.Employees
             _rolePermissionRepository = rolePermissionRepository;
             _menuTabRepository = menuTabRepository;
             _elementPermissionService = elementPermissionService;
+            _Db = db;
+            _userManager = userManager;
         }
 
         #endregion
@@ -219,8 +223,31 @@ namespace GCTL_App.Controllers.Employees
         [HttpPost]
         public async Task< IActionResult> Index(EmployeeOfficialPostViewModel model)
         {
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                        );
+
+                var messages = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .SelectMany(x => x.Value.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+
+                return Json(new { success = false, errors = errors, message = messages });
+            }
+
             if (ModelState.IsValid)
             {
+
+                
+
                 var chkDuplicate = await _employeeOfficialService.CheckValidEmployeeInfo(model);
 
                 if (!chkDuplicate.Success)
@@ -248,12 +275,18 @@ namespace GCTL_App.Controllers.Employees
                     {
                         return Ok(result);
                     }
+                    if (result.Success)
+                    {
+                        await SyncUserEmailFromEmployeeAsync(model.EmployeeOfficeInfoID);
+                    }
 
                     return Ok(result);
                 }
 
                 
             }
+
+           
 
             return Ok(new { success = false, message = "ModelState Is Not Valid!" });
            
@@ -262,6 +295,84 @@ namespace GCTL_App.Controllers.Employees
 
         #endregion
 
+        #region SyncUserEmailFromEmployeeAsync
+        private async Task<JsonResult> SyncUserEmailFromEmployeeAsync(int? employeeOfficeInfoId)
+        {
+            try
+            {
+                // Load the employee
+                var employee = await _employeeOfficialRepository
+                    .FirstOrDefaultAsync(e => e.EmployeeOfficeInfoID == employeeOfficeInfoId && e.DeletedAt == null);
+
+                if (employee == null)
+                    return new JsonResult(new { success = false, message = "Employee not found." });
+
+                // Find the linked Identity user
+                var appUser = await _Db.Users.FirstOrDefaultAsync(u => u.EmployeeId == employee.EmployeeID);
+                if (appUser == null)
+                    return new JsonResult(new { success = true, message = "No linked identity user. Skipped email sync." });
+
+                // Source of truth for email (same fallback you use on create)
+                var newEmail = string.IsNullOrWhiteSpace(employee.OfficeEmail)
+                    ? "default@gmail.com"
+                    : employee.OfficeEmail.Trim();
+
+                // If nothing changed, bail early
+                var sameEmail = string.Equals(appUser.Email, newEmail, StringComparison.OrdinalIgnoreCase);
+                var sameUserName = string.Equals(appUser.UserName, newEmail, StringComparison.OrdinalIgnoreCase);
+                if (sameEmail && sameUserName)
+                    return new JsonResult(new { success = true, message = "No changes needed." });
+
+                // Ensure the email isn't already taken by a different Identity user
+                var existingByEmail = await _userManager.FindByEmailAsync(newEmail);
+                if (existingByEmail != null && existingByEmail.Id != appUser.Id)
+                    return new JsonResult(new
+                    {
+                        success = false,
+                        message = "That email address is already in use by another account.",
+                        errors = new[] { "Email already taken." }
+                    });
+
+                var allErrors = new List<string>();
+
+                // If you require reconfirmation when an email changes:
+                appUser.EmailConfirmed = false;
+
+                // Update Email via UserManager (handles normalization)
+                var setEmail = await _userManager.SetEmailAsync(appUser, newEmail);
+                if (!setEmail.Succeeded)
+                    allErrors.AddRange(setEmail.Errors.Select(e => e.Description));
+
+                // If you use email as username too, update it as well
+                var setUserName = await _userManager.SetUserNameAsync(appUser, newEmail);
+                if (!setUserName.Succeeded)
+                    allErrors.AddRange(setUserName.Errors.Select(e => e.Description));
+
+                if (allErrors.Count > 0)
+                {
+                    return new JsonResult(new
+                    {
+                        success = false,
+                        message = "Failed to sync user email/username.",
+                        errors = allErrors
+                    });
+                }
+
+                // Optional: rotate security stamp
+                await _userManager.UpdateSecurityStampAsync(appUser);
+
+                // Optional: trigger a confirmation email flow here if you have it wired
+                // await _emailSender.SendEmailConfirmationAsync(appUser, tokenLink);
+
+                return new JsonResult(new { success = true, message = "User email/username synced successfully." });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+        }
+
+        #endregion
 
         #region Form Edit page
 
@@ -281,9 +392,14 @@ namespace GCTL_App.Controllers.Employees
 
             if (!result.Success)
             {
+
                 return Ok(result);
             }
-
+            if (result.Success)
+            {
+                
+                await SyncUserEmailFromEmployeeAsync(model.EmployeeOfficeInfoID);
+            }
             return Ok(result);
 
         }
@@ -330,7 +446,7 @@ namespace GCTL_App.Controllers.Employees
             {
                 model.EmployeeOfficeId = empOfficial.EmployeeOfficeId ?? string.Empty;
                 model.EmployeeOfficeInfoID = empOfficial.EmployeeOfficeInfoID;
-                model.OrganizationID = empOfficial.OrganizationID;
+                model.OrganizationID = empOfficial.OrganizationID ?? 0;
                 model.OrganizationBranchID = empOfficial.OrganizationBranchID;
                 model.DepartmentID = empOfficial.DepartmentID;
                 model.DesignationID = empOfficial.DesignationID;
@@ -342,7 +458,7 @@ namespace GCTL_App.Controllers.Employees
                 model.OfficePhone = empOfficial.OfficePhone ?? string.Empty;
                 model.OfficeEmail = empOfficial.OfficeEmail ?? string.Empty;
                 model.AttendanceId = empOfficial.AttendanceId ?? string.Empty;
-                model.EmploymentStatusId = empOfficial.EmploymentStatusId;
+                model.EmploymentStatusId = empOfficial.EmploymentStatusId ?? 0;
                 model.AppointmentLetterNo = empOfficial.AppointmentLetterNo ?? string.Empty;
                 model.AppointmentLetterIssueDate = empOfficial.AppointmentLetterIssueDate;
                 model.JoiningDate = empOfficial.JoiningDate;

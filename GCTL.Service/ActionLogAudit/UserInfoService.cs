@@ -32,8 +32,6 @@ namespace GCTL.Service.ActionLogAudit
                 var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
                 var email = user.FindFirstValue(ClaimTypes.Email);
                 var userEmail = user.Identity.IsAuthenticated ? user.FindFirstValue(ClaimTypes.Email) : "Unknown";
-               // var employeUser = _context.Users.FirstOrDefault(u => u.Employee.EmployeeCode == userEmail);
-
                 var employeeId = _context.Users .Where(u => u.Email == email).Select(u => u.EmployeeId).FirstOrDefault();
                 model.UserId = userId;
                 model.UserEmail = email;
@@ -80,7 +78,7 @@ namespace GCTL.Service.ActionLogAudit
                 UserEmail = entityVM.UserEmail,
                 LIP = entityVM.LIP,
                 LMAC = entityVM.LMAC,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 TargetType = tergetType,
                 TargetID = targetID
 
@@ -113,7 +111,7 @@ namespace GCTL.Service.ActionLogAudit
                     UserEmail = entityVM.UserEmail,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     TargetType = targetType,
                     TargetID = targetIds[i]
                 });
@@ -124,7 +122,46 @@ namespace GCTL.Service.ActionLogAudit
         }
 
         #endregion
+        public async Task ActionLogExceptionAsync(string targetType, Exception exception, int? targetId, BaseViewModel entityVM,string actionName)
+        {
+            try
+            {
+                var jsonSettings = new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                };
 
+                // Serialize exception details
+                var exceptionDetails = new
+                {
+                    exception.Message,
+                    exception.StackTrace,
+                    InnerException = exception.InnerException?.Message
+                };
+
+                var log = new ActionLogs
+                {
+                    CreatedBy = entityVM?.CreatedBy,
+                    UserEmail = entityVM?.UserEmail,
+                    LIP = entityVM?.LIP,
+                    LMAC = entityVM?.LMAC,
+                    ActionName =actionName, 
+                    ActionBefore = null,
+                    ActionAfter = JsonConvert.SerializeObject(exceptionDetails, jsonSettings),
+                    CreatedAt = DateTime.UtcNow,
+                    TargetType = targetType,
+                    TargetID = targetId
+                };
+
+                await _context.ActionLogs.AddAsync(log);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception logEx)
+            {
+                // Optional: fallback logging
+                Console.WriteLine("Failed to log exception: " + logEx.Message);
+            }
+        }
 
 
     }
