@@ -13,10 +13,16 @@ namespace GCTL.Core.ViewModels.Finance.ThirdTabVM
 
         public int? ClassID { get; set; }
 
+        public string? ClassName { get; set; }
+
         public string? GroupCode { get; set; }
 
         public string? GroupName { get; set; }
 
         public string? Description { get; set; }
+
+        public int? BaseAccountID { get; set; }
+
+        public string? BaseAccountName { get; set; }
     }
 }

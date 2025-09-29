@@ -18,5 +18,7 @@ namespace GCTL.Core.ViewModels.Finance.SecondTabVM
         public string? Description { get; set; }
 
         public int? BaseAccountID { get; set; }
+
+        public string? BaseAccountName { get; set; }
     }
 }

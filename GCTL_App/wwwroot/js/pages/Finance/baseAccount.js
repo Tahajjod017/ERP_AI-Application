@@ -18,6 +18,7 @@
         var updateUrl = settings.baseUrl + "/Update";
         var deleteUrl = settings.baseUrl + "/Delete";
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
+        var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
 
         $(() => {
 
@@ -205,7 +206,9 @@
 
 
             // #region Clear
-            $(settings.resetBtn).on('click', function () {
+            $(settings.resetBtn).on('click', function (e) {
+                e.preventDefault();
+
                 clear();
             });
 
@@ -232,33 +235,85 @@
 
 
             // #region checkNameUnique
-            $(document).ready(function () {
-                checkNameUnique();
-            });
+            var typingTimer;
+            var doneTypingInterval = 500; // Wait 500ms after user stops typing
 
-            function checkNameUnique() {
-                $('#BaseAccountName').on('input', function () {
-                    var value = $(this).val();
+            $('#BaseAccountName').on('input', function () {
+                clearTimeout(typingTimer);
+                var value = $(this).val();
 
+                // Clear error immediately when input is empty
+                if (!value) {
+                    $('#BaseAccountNameError').hide();
+                    $('#BaseAccountName').removeClass('is-invalid');
+                    return;
+                }
+
+                typingTimer = setTimeout(function () {
                     $.ajax({
                         url: checkNameUniqueUrl,
                         type: 'POST',
                         data: { name: value },
                         success: function (response) {
-                            if (response.isSuccess === true) {
+                            if (response.isSuccess == true || response === true) {
                                 $('#BaseAccountNameError').hide();
-                                $('input[name="BaseAccountName"]').removeClass('is-invalid');
+                                $('#BaseAccountName').removeClass('is-invalid');
                             } else {
                                 $('#BaseAccountNameError').text(response.message).show();
-                                $('input[name="BaseAccountName"]').addClass('is-invalid');
+                                $('#BaseAccountName').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
                             console.log("Error occurred while checking name uniqueness: " + error);
                         }
                     });
-                });
-            }
+                }, doneTypingInterval);
+            });
+
+            // Clear timer when user is still typing
+            $('#BaseAccountName').on('keydown', function () {
+                clearTimeout(typingTimer);
+            });
+            // #endregion
+
+
+            // #region checkCodeUnique
+            $('#BaseAccountCode').on('input', function () {
+                clearTimeout(typingTimer);
+                var value = $(this).val();
+
+                // Clear error immediately when input is empty
+                if (!value) {
+                    $('#BaseAccountCodeError').hide();
+                    $('#BaseAccountCode').removeClass('is-invalid');
+                    return;
+                }
+
+                typingTimer = setTimeout(function () {
+                    $.ajax({
+                        url: checkCodeUniqueUrl,
+                        type: 'POST',
+                        data: { code: value },
+                        success: function (response) {
+                            if (response.isSuccess == true || response === true) {
+                                $('#BaseAccountCodeError').hide();
+                                $('#BaseAccountCode').removeClass('is-invalid');
+                            } else {
+                                $('#BaseAccountCodeError').text(response.message).show();
+                                $('#BaseAccountCode').addClass('is-invalid');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.log("Error occurred while checking code uniqueness: " + error);
+                        }
+                    });
+                }, doneTypingInterval);
+            });
+
+            // Clear timer when user is still typing
+            $('#BaseAccountCode').on('keydown', function () {
+                clearTimeout(typingTimer);
+            });
             // #endregion
 
 

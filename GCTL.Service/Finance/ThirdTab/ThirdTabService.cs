@@ -1,7 +1,6 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.Finance.SecondTabVM;
 using GCTL.Core.ViewModels.Finance.ThirdTabVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -134,13 +133,15 @@ namespace GCTL.Service.Finance.ThirdTab
         {
             try
             {
-                var query = _genericRepository.AllActive();
+                var query = _genericRepository.AllActive().Include(x => x.Class).ThenInclude(x => x.BaseAccount).Where(x => x.DeletedAt == null && x.DeletedBy == null);
 
                 if (!string.IsNullOrEmpty(sortColumn))
                 {
                     query = sortColumn switch
                     {
                         "GroupID" => sortOrder == "desc" ? query.OrderByDescending(x => x.GroupID) : query.OrderBy(x => x.GroupID),
+                        "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Class.ClassName) : query.OrderBy(x => x.Class.ClassName),
+                        "BaseAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Class.BaseAccount.BaseAccountName) : query.OrderBy(x => x.Class.BaseAccount.BaseAccountName),
                         "GroupCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.GroupCode) : query.OrderBy(x => x.GroupCode),
                         "GroupName" => sortOrder == "desc" ? query.OrderByDescending(x => x.GroupName) : query.OrderBy(x => x.GroupName),
                         "Description" => sortOrder == "desc" ? query.OrderByDescending(x => x.Description) : query.OrderBy(x => x.Description),
@@ -154,6 +155,9 @@ namespace GCTL.Service.Finance.ThirdTab
                     {
                         GroupID = x.GroupID,
                         ClassID = x.ClassID,
+                        ClassName = x.Class.ClassName ?? "-",
+                        BaseAccountID = x.Class.BaseAccount.BaseAccountID,
+                        BaseAccountName = x.Class.BaseAccount.BaseAccountName ?? "-",
                         GroupCode = x.GroupCode ?? "-",
                         GroupName = x.GroupName ?? "-",
                         Description = x.Description ?? "-"
@@ -256,6 +260,30 @@ namespace GCTL.Service.Finance.ThirdTab
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while checking the Class name uniqueness.", ex);
+            }
+        }
+        #endregion
+
+
+        #region IsCodeUniqueAsync
+        public async Task<bool> IsCodeUniqueAsync(string code, int? excludeId = null)
+        {
+            try
+            {
+                var query = _genericRepository.AllActive();
+
+                if (excludeId.HasValue)
+                {
+                    query = query.Where(x => x.GroupID != excludeId.Value);
+                }
+
+                var exists = await query.AnyAsync(x => x.GroupCode == code);
+
+                return !exists;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while checking the Base Account code uniqueness.", ex);
             }
         }
         #endregion

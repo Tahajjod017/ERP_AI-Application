@@ -2,7 +2,6 @@
 using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.Finance.BaseAccountVM;
-using GCTL.Core.ViewModels.MasterSetup.Country;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
@@ -233,7 +232,7 @@ namespace GCTL.Service.Finance.BaseAccount
         #endregion
 
 
-        #region Others
+        #region IsNameUniqueAsync
         public async Task<bool> IsNameUniqueAsync(string name, int? excludeId = null)
         {
             try
@@ -253,6 +252,30 @@ namespace GCTL.Service.Finance.BaseAccount
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while checking the Base Account name uniqueness.", ex);
+            }
+        }
+        #endregion
+
+
+        #region IsCodeUniqueAsync
+        public async Task<bool> IsCodeUniqueAsync(string code, int? excludeId = null)
+        {
+            try
+            {
+                var query = _genericRepository.AllActive();
+
+                if (excludeId.HasValue)
+                {
+                    query = query.Where(x => x.BaseAccountID != excludeId.Value);
+                }
+
+                var exists = await query.AnyAsync(x => x.BaseAccountCode == code);
+
+                return !exists;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while checking the Base Account code uniqueness.", ex);
             }
         }
         #endregion
