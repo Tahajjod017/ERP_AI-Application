@@ -223,8 +223,31 @@ namespace GCTL_App.Controllers.Employees
         [HttpPost]
         public async Task< IActionResult> Index(EmployeeOfficialPostViewModel model)
         {
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                        );
+
+                var messages = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .SelectMany(x => x.Value.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+
+                return Json(new { success = false, errors = errors, message = messages });
+            }
+
             if (ModelState.IsValid)
             {
+
+                
+
                 var chkDuplicate = await _employeeOfficialService.CheckValidEmployeeInfo(model);
 
                 if (!chkDuplicate.Success)
@@ -263,6 +286,8 @@ namespace GCTL_App.Controllers.Employees
                 
             }
 
+           
+
             return Ok(new { success = false, message = "ModelState Is Not Valid!" });
            
         }
@@ -270,7 +295,7 @@ namespace GCTL_App.Controllers.Employees
 
         #endregion
 
-        #region
+        #region SyncUserEmailFromEmployeeAsync
         private async Task<JsonResult> SyncUserEmailFromEmployeeAsync(int? employeeOfficeInfoId)
         {
             try
@@ -421,7 +446,7 @@ namespace GCTL_App.Controllers.Employees
             {
                 model.EmployeeOfficeId = empOfficial.EmployeeOfficeId ?? string.Empty;
                 model.EmployeeOfficeInfoID = empOfficial.EmployeeOfficeInfoID;
-                model.OrganizationID = empOfficial.OrganizationID;
+                model.OrganizationID = empOfficial.OrganizationID ?? 0;
                 model.OrganizationBranchID = empOfficial.OrganizationBranchID;
                 model.DepartmentID = empOfficial.DepartmentID;
                 model.DesignationID = empOfficial.DesignationID;
@@ -433,7 +458,7 @@ namespace GCTL_App.Controllers.Employees
                 model.OfficePhone = empOfficial.OfficePhone ?? string.Empty;
                 model.OfficeEmail = empOfficial.OfficeEmail ?? string.Empty;
                 model.AttendanceId = empOfficial.AttendanceId ?? string.Empty;
-                model.EmploymentStatusId = empOfficial.EmploymentStatusId;
+                model.EmploymentStatusId = empOfficial.EmploymentStatusId ?? 0;
                 model.AppointmentLetterNo = empOfficial.AppointmentLetterNo ?? string.Empty;
                 model.AppointmentLetterIssueDate = empOfficial.AppointmentLetterIssueDate;
                 model.JoiningDate = empOfficial.JoiningDate;
