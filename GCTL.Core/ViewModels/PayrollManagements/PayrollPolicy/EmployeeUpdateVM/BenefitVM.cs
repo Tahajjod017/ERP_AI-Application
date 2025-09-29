@@ -30,4 +30,34 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM
     }
 
 
+    #region for get 
+    public class CommonSelectVMM
+    {
+        public int? Id { get; set; }
+        public string? Name { get; set; }
+        public List<EmpBenefitVMM>? EmpBenefitVMM { get; set; } = new List<EmpBenefitVMM>();
+    }
+
+    public class EmpBenefitVMM
+    {
+        public int BenefitID { get; set; }
+        public int? OrganizationID { get; set; }
+        public int? BenefitTypeID { get; set; }
+        public string? BenefitTypeName { get; set; }
+        public bool? IsActive { get; set; }
+        public DateTime? EffectiveDate { get; set; }
+        public List<EmpBenefitSetupVMM> BenefitSetups { get; set; } = new List<EmpBenefitSetupVMM>();
+    }
+
+    public class EmpBenefitSetupVMM
+    {
+        public int? BenefitSetupID { get; set; }
+        public decimal? SalaryMin { get; set; }
+        public decimal? SalaryMax { get; set; }
+        public int? CalculationTypeID { get; set; }
+        public decimal? Value { get; set; }
+    }
+
+    #endregion
+
 }
