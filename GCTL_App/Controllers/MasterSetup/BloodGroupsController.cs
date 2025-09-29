@@ -90,7 +90,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Create
-        //[Permission("Create", "BloodGroups")]
+        [Permission("Create", "BloodGroups")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(BloodGroupVM model)

@@ -16,6 +16,30 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[COA].[BaseAccounts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[Classes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[Groups]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[MainAccounts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[SubAccounts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[TransactionAccounts]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Customer].[Addresses]",
          "ObjectType": 0
       },

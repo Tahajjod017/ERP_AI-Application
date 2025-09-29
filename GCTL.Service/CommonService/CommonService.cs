@@ -39,6 +39,8 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<SpiralWeeklyPatternDetails> _spiralWeeklyPatternDetails;
         private readonly IGenericRepository<SpiralBioWeeklyPatternDetails> _spiralBioWeeklyPatternDetails;
         private readonly IGenericRepository<SpiralMonthlyPatternDetails> _spiralMonthlyPatternDetails;
+        private readonly IGenericRepository<BaseAccounts> _baseAccounts;
+        private readonly IGenericRepository<Classes> _classes;
 
         public CommonService(
             IGenericRepository<Organization> organization,
@@ -58,7 +60,9 @@ namespace GCTL.Service.CommonService
             IGenericRepository<SpiralPatternAssignList> spiralPatternAssignList,
             IGenericRepository<SpiralWeeklyPatternDetails> spiralWeeklyPatternDetails,
             IGenericRepository<SpiralBioWeeklyPatternDetails> spiralBioWeeklyPatternDetails,
-            IGenericRepository<SpiralMonthlyPatternDetails> spiralMonthlyPatternDetails)
+            IGenericRepository<SpiralMonthlyPatternDetails> spiralMonthlyPatternDetails,
+            IGenericRepository<BaseAccounts> baseAccounts,
+            IGenericRepository<Classes> classes)
         {
             _organization = organization;
             _organizationBranches = organizationBranches;
@@ -78,6 +82,8 @@ namespace GCTL.Service.CommonService
             _spiralWeeklyPatternDetails = spiralWeeklyPatternDetails;
             _spiralBioWeeklyPatternDetails = spiralBioWeeklyPatternDetails;
             _spiralMonthlyPatternDetails = spiralMonthlyPatternDetails;
+            _baseAccounts = baseAccounts;
+            _classes = classes;
         }
         #endregion
 
@@ -284,6 +290,34 @@ namespace GCTL.Service.CommonService
                 .ToList();
 
             return allPatterns;
+        }
+        #endregion
+
+
+        #region GetBranches
+        public async Task<List<CommonSelectVM>> GetBaseAccounts()
+        {
+            var result = await _baseAccounts.AllActive().AsNoTracking().Select(x => new CommonSelectVM
+            {
+                Id = x.BaseAccountID,
+                Name = x.BaseAccountName ?? "-"
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+
+        #region GetBranches
+        public async Task<List<CommonSelectVM>> GetAccountClass()
+        {
+            var result = await _classes.AllActive().AsNoTracking().Select(x => new CommonSelectVM
+            {
+                Id = x.ClassID,
+                Name = x.ClassName ?? "-"
+            }).ToListAsync();
+
+            return result;
         }
         #endregion
 
