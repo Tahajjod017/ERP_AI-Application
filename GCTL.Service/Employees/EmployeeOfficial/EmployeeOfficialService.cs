@@ -40,20 +40,20 @@ namespace GCTL.Service.Employees.EmployeeOfficial
             result.Success = true;
 
 
-            if (
+            //if (
 
-                string.IsNullOrEmpty(model.OfficeEmail) ||
-                string.IsNullOrEmpty(model.OfficePhone) ||
-                string.IsNullOrEmpty(model.AppointmentLetterNo) ||
-                string.IsNullOrEmpty(model.AttendanceId)
+            //    string.IsNullOrEmpty(model.OfficeEmail) ||
+            //    string.IsNullOrEmpty(model.OfficePhone) ||
+            //    string.IsNullOrEmpty(model.AppointmentLetterNo) ||
+            //    string.IsNullOrEmpty(model.AttendanceId)
 
 
-               )
-            {
-                result.Success = false;
-                result.Message = "Please fill out the form.";
-            }
-            else if (!IsValidEmail(model.OfficeEmail))
+            //   )
+            //{
+            //    result.Success = false;
+            //    result.Message = "Please fill out the form.";
+            //}
+            if (!IsValidEmail(model.OfficeEmail))
             {
                 result.Success = false;
                 result.Message = "Please enter a valid email address.";
@@ -136,8 +136,13 @@ namespace GCTL.Service.Employees.EmployeeOfficial
 
         private bool IsValidEmail(string email)
         {
-            var emailRegex = new Regex(@"^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$");
-            return emailRegex.IsMatch(email);
+            if (email != null)
+            {
+                var emailRegex = new Regex(@"^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$");
+                return emailRegex.IsMatch(email);
+            }
+            return true;
+            
         }
 
         #endregion
@@ -351,7 +356,7 @@ namespace GCTL.Service.Employees.EmployeeOfficial
             {
                 model.EmployeeOfficeId = empOfficial.EmployeeOfficeId ?? string.Empty;
                 model.EmployeeOfficeInfoID = empOfficial.EmployeeOfficeInfoID;
-                model.OrganizationID = empOfficial.OrganizationID;
+                model.OrganizationID = (int)empOfficial.OrganizationID;
                 model.OrganizationBranchID = empOfficial.OrganizationBranchID;
                 model.DepartmentID = empOfficial.DepartmentID;
                 model.DesignationID = empOfficial.DesignationID;
@@ -363,7 +368,7 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                 model.OfficePhone = empOfficial.OfficePhone ?? string.Empty;
                 model.OfficeEmail = empOfficial.OfficeEmail ?? string.Empty;
                 model.AttendanceId = empOfficial.AttendanceId ?? string.Empty;
-                model.EmploymentStatusId = empOfficial.EmploymentStatusId;
+                model.EmploymentStatusId = (int)empOfficial.EmploymentStatusId;
                 model.AppointmentLetterNo = empOfficial.AppointmentLetterNo ?? string.Empty;
                 model.AppointmentLetterIssueDate = empOfficial.AppointmentLetterIssueDate;
                 model.JoiningDate = empOfficial.JoiningDate;
