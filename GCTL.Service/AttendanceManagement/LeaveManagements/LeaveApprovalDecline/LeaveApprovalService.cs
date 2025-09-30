@@ -1014,7 +1014,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     if (!hasSecond && !hasThird)
                     {
                         approvalPersonId = entityVM.CreatedBy;
-                        isFinalApproval = true;
+                        if (entityVM.Approved)
+                        {
+                            isFinalApproval = true;
+                        }
+
                     }
                     else
                     {
@@ -1028,7 +1032,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     if (!hasThird)
                     {
                         approvalPersonId = entityVM.CreatedBy;
-                        isFinalApproval = true;
+                        if(entityVM.Approved)
+                        {
+                            isFinalApproval = true;
+                        }
+                      
                     }
                     else
                     {

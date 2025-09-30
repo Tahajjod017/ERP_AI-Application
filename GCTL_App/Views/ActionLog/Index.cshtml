@@ -1,8 +1,9 @@
 ﻿@using Newtonsoft.Json
-@* @{
-    var today = DateTime.Now.Date;
-    var twoDayesAgo = today.AddDays(-2);
-} *@
+
+@{
+    var threeDaysAgo = DateTime.Today.AddDays(-3).ToString("yyyy-MM-dd");
+    var today = DateTime.Today.ToString("yyyy-MM-dd");
+}
 <style>
     .modal-header {
         display: flex;
@@ -69,7 +70,7 @@
 
             <div class="col">
                 <div class="form-floating">
-                    <input class="form-control  datetimepicker" id="FromDate" type="date" />   @* value="@twoDayesAgo.ToString("yyyy-MM-dd")" *@
+                    <input class="form-control  datetimepicker" id="FromDate" type="date"  value="@threeDaysAgo"/>   @* value="@twoDayesAgo.ToString("yyyy-MM-dd")" *@
                     <label for="FromDate">@Html.SmartLocalize("From Date")</label>
                 </div>
             </div>
@@ -79,7 +80,7 @@
                 <div class="form-floating">
 
 
-                    <input class="form-control  datetimepicker" id="ToDate" type="date" />  @*  value="@today.ToString("yyyy-MM-dd")" *@
+                    <input class="form-control  datetimepicker" id="ToDate" type="date"  value="@today"/>  @*  value="@today.ToString("yyyy-MM-dd")" *@
                     <label for="ToDate">@Html.SmartLocalize("To Date")</label>
                 </div>
             </div>
