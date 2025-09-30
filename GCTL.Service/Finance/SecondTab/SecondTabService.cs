@@ -240,23 +240,26 @@ namespace GCTL.Service.Finance.SecondTab
         #endregion
 
 
-        #region Others
-        public async Task<bool> IsNameUniqueAsync(string name, int baseAccountId, int? excludeId = null)
+        #region IsNameUniqueAsync
+        public async Task<bool> IsNameUniqueAsync(string name, int? excludeId = null)
         {
             try
             {
                 name = name.ToLower();
+                var query = _genericRepository.AllActive();
 
-                var query = _genericRepository.AllActive().Include(x => x.BaseAccount);
+                if (excludeId.HasValue)
+                {
+                    query = query.Where(x => x.ClassID != excludeId.Value);
+                }
 
-                var exists = await query.AnyAsync(x =>
-                    x.ClassName != null && x.ClassName.ToLower() == name);
+                var exists = await query.AnyAsync(x => x.ClassName.ToLower() == name);
 
                 return !exists;
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while checking the Class name uniqueness.", ex);
+                throw new Exception("An error occurred while checking the Base Account name uniqueness.", ex);
             }
         }
         #endregion

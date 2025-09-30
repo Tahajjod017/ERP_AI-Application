@@ -66,7 +66,7 @@ namespace GCTL_App.Controllers.Finance
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _thirdTabService.IsNameUniqueAsync(model.GroupName, model.ClassID);
+                    var uniqueName = await _thirdTabService.IsNameUniqueAsync(model.GroupName, model.GroupID);
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = $"{model.GroupName} already exists!" });
@@ -113,7 +113,7 @@ namespace GCTL_App.Controllers.Finance
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _thirdTabService.IsNameUniqueAsync(model.GroupName, model.ClassID, model.GroupID);
+                    var uniqueName = await _thirdTabService.IsNameUniqueAsync(model.GroupName, model.GroupID);
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = $"{model.GroupName} already exists!" });

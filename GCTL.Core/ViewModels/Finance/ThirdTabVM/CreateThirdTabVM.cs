@@ -12,7 +12,7 @@ namespace GCTL.Core.ViewModels.Finance.ThirdTabVM
         public int GroupID { get; set; }
 
         [Required(ErrorMessage = "{0} is required!"), Display(Name = "Class Name")]
-        public int ClassID { get; set; }
+        public int? ClassID { get; set; }
 
         [Required(ErrorMessage = "{0} is required!"), Display(Name = "Group Code")]
         public string GroupCode { get; set; }

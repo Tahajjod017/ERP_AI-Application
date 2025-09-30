@@ -236,7 +236,7 @@
 
             // #region checkNameUnique
             var typingTimer;
-            var doneTypingInterval = 500; // Wait 500ms after user stops typing
+            var doneTypingInterval = 100; // Wait 500ms after user stops typing
 
             $('#BaseAccountName').on('input', function () {
                 clearTimeout(typingTimer);

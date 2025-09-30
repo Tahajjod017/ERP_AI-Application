@@ -42,7 +42,7 @@ namespace GCTL.Service.Finance.ThirdTab
                     exixtingEntity.GroupCode = model.GroupCode;
                     exixtingEntity.GroupName = model.GroupName;
                     exixtingEntity.Description = model.Description;
-                    exixtingEntity.ClassID = model.ClassID;
+                    exixtingEntity.ClassID = (int)model.ClassID;
 
                     exixtingEntity.CreatedAt = DateTime.UtcNow;
                     exixtingEntity.CreatedBy = model.CreatedBy;
@@ -63,7 +63,7 @@ namespace GCTL.Service.Finance.ThirdTab
                     entity.GroupCode = model.GroupCode;
                     entity.GroupName = model.GroupName;
                     entity.Description = model.Description;
-                    entity.ClassID = model.ClassID;
+                    entity.ClassID = (int)model.ClassID;
 
                     entity.CreatedAt = DateTime.UtcNow;
                     entity.CreatedBy = model.CreatedBy;
@@ -243,23 +243,26 @@ namespace GCTL.Service.Finance.ThirdTab
         #endregion
 
 
-        #region Others
-        public async Task<bool> IsNameUniqueAsync(string name, int id, int? excludeId = null)
+        #region IsNameUniqueAsync
+        public async Task<bool> IsNameUniqueAsync(string name, int? excludeId = null)
         {
             try
             {
                 name = name.ToLower();
+                var query = _genericRepository.AllActive();
 
-                var query = _genericRepository.AllActive().Include(x => x.Class);
+                if (excludeId.HasValue)
+                {
+                    query = query.Where(x => x.GroupID != excludeId.Value);
+                }
 
-                var exists = await query.AnyAsync(x =>
-                    x.GroupName != null && x.GroupName.ToLower() == name);
+                var exists = await query.AnyAsync(x => x.GroupName.ToLower() == name);
 
                 return !exists;
             }
             catch (Exception ex)
             {
-                throw new Exception("An error occurred while checking the Class name uniqueness.", ex);
+                throw new Exception("An error occurred while checking the Base Account name uniqueness.", ex);
             }
         }
         #endregion
