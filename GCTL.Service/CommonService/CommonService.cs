@@ -41,6 +41,7 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<SpiralMonthlyPatternDetails> _spiralMonthlyPatternDetails;
         private readonly IGenericRepository<BaseAccounts> _baseAccounts;
         private readonly IGenericRepository<Classes> _classes;
+        private readonly IGenericRepository<Groups> _groups;
 
         public CommonService(
             IGenericRepository<Organization> organization,
@@ -62,7 +63,8 @@ namespace GCTL.Service.CommonService
             IGenericRepository<SpiralBioWeeklyPatternDetails> spiralBioWeeklyPatternDetails,
             IGenericRepository<SpiralMonthlyPatternDetails> spiralMonthlyPatternDetails,
             IGenericRepository<BaseAccounts> baseAccounts,
-            IGenericRepository<Classes> classes)
+            IGenericRepository<Classes> classes,
+            IGenericRepository<Groups> groups)
         {
             _organization = organization;
             _organizationBranches = organizationBranches;
@@ -84,6 +86,7 @@ namespace GCTL.Service.CommonService
             _spiralMonthlyPatternDetails = spiralMonthlyPatternDetails;
             _baseAccounts = baseAccounts;
             _classes = classes;
+            _groups = groups;
         }
         #endregion
 
@@ -311,16 +314,51 @@ namespace GCTL.Service.CommonService
         #region GetBranches
         public async Task<List<CommonSelectVM>> GetAccountClass()
         {
-            var result = await _classes.AllActive().AsNoTracking().Select(x => new CommonSelectVM
+            var result = await _classes.AllActive().Include(x => x.BaseAccount).AsNoTracking().Select(x => new CommonSelectVM
             {
                 Id = x.ClassID,
-                Name = x.ClassName ?? "-"
+                Name = x.ClassName ?? "-",
+                GroupName = x.BaseAccount.BaseAccountName ?? "-"
             }).ToListAsync();
 
             return result;
         }
         #endregion
 
+
+        #region GetBranches
+        public async Task<List<CommonSelectVM>> GetAccountGroup()
+        {
+            var result = await _groups.AllActive().Include(x => x.Class).AsNoTracking().Select(x => new CommonSelectVM
+            {
+                Id = x.GroupID,
+                Name = x.GroupName ?? "-",
+                GroupName = x.Class.ClassName ?? "-"
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
+        #endregion
+
+
+        #region GetAccountGroupByClassId
+        public async Task<List<CommonSelectVM>> GetAccountGroupByClassId(int id)
+        {
+            var data = await _groups.AllActive()
+                .Where(x => x.ClassID == id)
+                .Include(x => x.Class)
+                .AsNoTracking()
+                .Select(x => new CommonSelectVM
+            {
+                Id = x.GroupID,
+                Name = $"{x.GroupCode}-{x.GroupName}" ?? "-",
+                GroupName = x.Class.ClassName ?? "-"
+            }).ToListAsync();
+
+            return data;
+        }
         #endregion
 
 

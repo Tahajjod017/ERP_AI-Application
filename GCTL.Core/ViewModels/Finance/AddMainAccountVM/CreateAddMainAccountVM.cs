@@ -11,7 +11,10 @@ namespace GCTL.Core.ViewModels.Finance.AddMainAccountVM
     {
         public int MainAccountID { get; set; }
 
-        [Required(ErrorMessage = "{0} is required!"), Display(Name = "Group Name")]
+        [Required(ErrorMessage = "Select a {0}!"), Display(Name = "Class Name")]
+        public int? ClassID { get; set; }
+
+        [Required(ErrorMessage = "Select a {0}!"), Display(Name = "Group Name")]
         public int? GroupID { get; set; }
 
         [Required(ErrorMessage = "{0} is required!"), StringLength(10, ErrorMessage = "{0} must be at most {1} characters long."), Display(Name = "Main Account Code")]
