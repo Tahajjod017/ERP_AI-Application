@@ -1234,7 +1234,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 if (isApplicant)
                 {
                     // Applicant receives final approval/decline
-                    toEmail = applicantData.Email ?? applicantData.OfficeEmail ?? string.Empty;
+                    toEmail = applicantData.OfficeEmail ?? applicantData.Email ?? string.Empty;
                     statusMessage = statusId == leavStatusDecline
                         ? "Your leave request has been declined."
                         : "Your leave request has been approved.";
@@ -1243,7 +1243,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 else
                 {
                     name="HR Team";
-                    toEmail = approverData?.Email ?? approverData?.OfficeEmail ?? string.Empty;
+                    toEmail = approverData?.OfficeEmail ?? approverData?.Email ?? string.Empty;
                     statusMessage = $"This is an automated leave request submitted by an employee. Please find the details below:";
                 }
   
