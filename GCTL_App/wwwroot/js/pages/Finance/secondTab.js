@@ -238,35 +238,44 @@
 
 
             var typingTimer;
-            var doneTypingInterval = 500; // Wait 500ms after user stops typing
+            var doneTypingInterval = 100; // Wait 500ms after user stops typing
             // #region checkNameUnique
-            $(document).ready(function () {
-                checkNameUnique();
-            });
+            $('#ClassName').on('input', function () {
+                clearTimeout(typingTimer);
+                var value = $(this).val();
 
-            function checkNameUnique() {
-                $('#ClassName').on('input', function () {
-                    var value = $(this).val();
+                // Clear error immediately when input is empty
+                if (!value) {
+                    $('#ClassNameError').hide();
+                    $('#ClassName').removeClass('is-invalid');
+                    return;
+                }
 
+                typingTimer = setTimeout(function () {
                     $.ajax({
                         url: checkNameUniqueUrl,
                         type: 'POST',
                         data: { name: value },
                         success: function (response) {
-                            if (response.isSuccess === true) {
+                            if (response.isSuccess == true || response === true) {
                                 $('#ClassNameError').hide();
-                                $('input[name="ClassName"]').removeClass('is-invalid');
+                                $('#ClassName').removeClass('is-invalid');
                             } else {
                                 $('#ClassNameError').text(response.message).show();
-                                $('input[name="ClassName"]').addClass('is-invalid');
+                                $('#ClassName').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
                             console.log("Error occurred while checking name uniqueness: " + error);
                         }
                     });
-                });
-            }
+                }, doneTypingInterval);
+            });
+
+            // Clear timer when user is still typing
+            $('#ClassName').on('keydown', function () {
+                clearTimeout(typingTimer);
+            });
             // #endregion
 
 

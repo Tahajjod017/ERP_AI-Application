@@ -1,31 +1,31 @@
 ﻿@model GCTL.Core.ViewModels.Finance.BaseAccountVM.CreateBaseAccountVM
 
-<div class="row">
-    <form asp-action="Create" asp-controller="MasterSetup" method="post" enctype="multipart/form-data" id="baseAccount-form">
+<form asp-action="Create" asp-controller="MasterSetup" method="post" enctype="multipart/form-data" id="baseAccount-form">
+    <div class="row">
         @Html.AntiForgeryToken()
 
         <input type="hidden" asp-for="BaseAccountID" />
 
         <div class="col-md-6">
             <div class="mb-3">
-                <label class="form-label" asp-for="BaseAccountName">Name</label>
-                <input class="form-control" type="text" asp-for="BaseAccountName" />
+                <label class="form-label" asp-for="BaseAccountName">@Html.SmartLocalize("Base Account Name")<span style="color:red;">&nbsp;*</span></label>
+                <input class="form-control" type="text" asp-for="BaseAccountName" placeholder="@Html.SmartLocalize("Input Base Account Name")" />
                 <span asp-validation-for="BaseAccountName" id="BaseAccountNameError" class="text-danger" style="display:none;"></span>
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="mb-3">
-                <label class="form-label" asp-for="BaseAccountCode">Code</label>
-                <input class="form-control" type="text" asp-for="BaseAccountCode" />
+                <label class="form-label" asp-for="BaseAccountCode">@Html.SmartLocalize("Base Account Code")<span style="color:red;">&nbsp;*</span></label>
+                <input class="form-control" type="text" asp-for="BaseAccountCode" placeholder="@Html.SmartLocalize("Input Base Account Code")" />
                 <span asp-validation-for="BaseAccountCode" id="BaseAccountCodeError" class="text-danger" style="display:none;"></span>
             </div>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="mb-3">
-                <label class="form-label" asp-for="Description">Description</label>
-                <textarea class="form-control" type="text" asp-for="Description"></textarea>
+                <label class="form-label" asp-for="Description">@Html.SmartLocalize("Description")</label>
+                <textarea class="form-control" type="text" asp-for="Description" placeholder="@Html.SmartLocalize("Input Description")"></textarea>
                 <span asp-validation-for="Description" id="DescriptionError" class="text-danger" style="display:none;"></span>
             </div>
         </div>
@@ -40,5 +40,5 @@
                 </div>
             </div>
         </div>
-    </form>
-</div>
+    </div>
+</form>
