@@ -269,6 +269,10 @@ namespace GCTL_App.Controllers.Employees
                     {
                         return Ok(result);
                     }
+                    if (result.Success)
+                    {
+                        await SyncUserEmailFromEmployeeAsync(model.EmployeeOfficeInfoID);
+                    }
 
                     return Ok(result);
                 }
@@ -280,10 +284,7 @@ namespace GCTL_App.Controllers.Employees
                     {
                         return Ok(result);
                     }
-                    if (result.Success)
-                    {
-                        await SyncUserEmailFromEmployeeAsync(model.EmployeeOfficeInfoID);
-                    }
+                    
 
                     return Ok(result);
                 }
