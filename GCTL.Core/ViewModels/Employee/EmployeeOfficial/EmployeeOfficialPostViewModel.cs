@@ -36,7 +36,7 @@ namespace GCTL.Core.ViewModels.Employee.EmployeeOfficial
 
         public string? OfficePhone { get; set; }
 
-        public string? OfficeEmail { get; set; }
+        public string OfficeEmail { get; set; }
 
         public string? AttendanceId { get; set; }
 

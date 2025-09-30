@@ -265,6 +265,7 @@
         const requiredSelects = [
             { name: "EmployeePersonalId", label: "Employee" },
             { name: "OrganizationID", label: "Organization" },
+            { name: "EmploymentStatusId", label: "Status" },
             //{ name: "OrganizationBranchID", label: "Branch" },
             //{ name: "EmployeeTypeID", label: "Employee Type" },
             //{ name: "DepartmentID", label: "Department" },
@@ -276,7 +277,7 @@
         // Required input fields
         const requiredInputs = [
             //{ name: "OfficePhone", label: "Office Phone" },
-            //{ name: "OfficeEmail", label: "Office Email", type: "email" },
+            { name: "OfficeEmail", label: "Office Email", type: "email" },
             //{ name: "AttendanceId", label: "Attendance ID" },
             //{ name: "JoiningDate", label: "Joining Date" },
             //{ name: "AppointmentLetterNo", label: "Appointment Letter No" },
@@ -301,6 +302,7 @@
 
             if ($input.length === 0) {
                 console.error("Could not find input field: " + field.name);
+                
                 return;
             }
 
@@ -309,6 +311,7 @@
 
             if (!value) {
                 showError(field.name, field.label + " is required.");
+                toastr.warning(field.name, field.label + " is required.");
                 isValid = false;
             } else if (field.type === "email" && !isValidEmail(value)) {
                 showError(field.name, "Invalid email format.");

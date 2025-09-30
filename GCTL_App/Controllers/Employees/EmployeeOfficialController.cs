@@ -233,10 +233,15 @@ namespace GCTL_App.Controllers.Employees
                             kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
                         );
 
+                //var messages = ModelState
+                //    .Where(x => x.Value.Errors.Count > 0)
+                //    .SelectMany(x => x.Value.Errors)
+                //    .Select(e => e.ErrorMessage)
+                //    .ToList();
+
                 var messages = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
-                    .SelectMany(x => x.Value.Errors)
-                    .Select(e => e.ErrorMessage)
+                    .SelectMany(x => x.Value.Errors.Select(e => $"{x.Key}: {e.ErrorMessage}"))
                     .ToList();
 
 
