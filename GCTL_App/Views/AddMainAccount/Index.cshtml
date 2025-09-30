@@ -1,0 +1,186 @@
+﻿@{
+    ViewData["Title"] = @Html.SmartLocalize("Add Main Account");
+}
+
+<ul class="nav nav-underline fs-9">
+    <li class="nav-item"><a class="nav-link active" href="/AddMainAccount/Index">@Html.SmartLocalize("Add Main Account")</a></li>
+    <li class="nav-item"><a class="nav-link" href="/AddSubAccount/Index">@Html.SmartLocalize("Add Sub Account")</a></li>
+    <li class="nav-item"><a class="nav-link" href="/TransactionAccount/Index">@Html.SmartLocalize("Transaction Account")</a></li>
+</ul>
+
+<div class="tab-content mt-3">
+    <div class="tab-pane fade show active">
+        <div class="row">
+            <div class="col-md-4 bg-body-emphasis p-2">
+                <div class="">
+                    <form action="" class="row">
+                        <div class="col-md-12">
+                            <div class="my-3">
+                                <select class="form-select" id="" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                    <option value="">Select Base Account</option>
+                                    <optgroup label="Assets">
+                                        <option value="00">Fixed Assets</option>
+                                        <option value="01" selected>Current Assets</option>
+                                    </optgroup>
+                                    <optgroup label="Equity">
+                                        <option value="">Equity & Reserves</option>
+                                    </optgroup>
+                                    <optgroup label="Revenues">
+                                        <option value="">Revenues / Sales Income</option>
+                                    </optgroup>
+                                    <optgroup label="Liabilities">
+                                        <option value="">Liabilities & Provisions</option>
+                                    </optgroup>
+                                    <optgroup label="Expenses">
+                                        <option value="00">FOperating Expenses / Cost of Goods Sold (COGS)</option>
+                                        <option value="">Overheads & Administrative Expenses</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="d-grid">
+                    <ul class="nav chat-thread-tab flex-column list">
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2  active" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-1" role="tab" aria-selected="true">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">10-Cash & Bank</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">Current Assets</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2  active" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-1" role="tab" aria-selected="true">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">12- Receivables (customers)</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">Current Assets</p>
+                                    </div>
+
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item read border-bottom bg-body" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2  active" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-1" role="tab" aria-selected="true">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">14- Inventory (supply chain stock)</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">Current Assets</p>
+                                    </div>
+
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2  active" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-1" role="tab" aria-selected="true">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">16- Other Current Assets (prepaid, deposits)</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">Current Assets</p>
+                                    </div>
+
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2  active" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-1" role="tab" aria-selected="true">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">17- Taxes Receivable</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">Current Assets</p>
+                                    </div>
+
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="">
+                    <table class="table">
+
+                        <tbody>
+                            <tr>
+                                <td>Raw Materials</td>
+                                <td>1400</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Work in Progress</td>
+                                <td>1410</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Finished Goods</td>
+                                <td>1420</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Trading Goods (for resale)</td>
+                                <td>1430</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Spare Parts</td>
+                                <td>1440</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>RMA Temporary Stock</td>
+                                <td>1450</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Goods in Transit</td>
+                                <td>1460</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3">
+                                    <form action="" class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="">Name</label>
+                                                <input class="form-control" id="" type="email" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="">Code</label>
+                                                <input class="form-control" id="" type="email" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <div class="row g-3 justify-content-end">
+                                                <div class="col-auto">
+                                                    <button class="btn btn-primary px-5 px-sm-15">Add</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
