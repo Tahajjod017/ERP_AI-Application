@@ -55,6 +55,7 @@ $(document).ready(function () {
 
     // Function to populate the rest of the approval settings after data is loaded
     function setApprovalSettings(data) {
+
         // Setting values for other fields
         $('#chkFirstEdit').prop('checked', true);
         choiceManager.enableChoice('selFirstEdit');
@@ -69,6 +70,7 @@ $(document).ready(function () {
         }
 
         if (data.isEnableThirdApproval === 'on') {
+
             $('#chkThirdEdit').prop('checked', true);
             choiceManager.enableChoice('selThirdEdit');
             choiceManager.setChoiceValue('selThirdEdit', data.thirdApprovalID);
@@ -80,7 +82,7 @@ $(document).ready(function () {
             $('#chkSelfApprovalEdit').prop('checked', true);
             choiceManager.disableChoice('selSelfApprovalEdit');
         } else {
-            $('#chkThirdEdit').prop('checked', false);
+            $('#chkSelfApprovalEdit').prop('checked', false);
             choiceManager.setChoiceValue('selSelfApprovalEdit', data.selfExceptionApprovalID);
         }
     }
@@ -184,7 +186,7 @@ $(document).ready(function () {
                     form.trigger("reset");  // Reset the form after successful submission
                     $('#edit_approval_setting').modal('hide');  // Close the modal
                     loadTableData();  // Reload the table data if needed
-                    populateOptions();  // Re-populate any necessary dropdowns or options
+                    //populateOptions();  // Re-populate any necessary dropdowns or options
                     theChoicDp();  // Update any custom dropdown or options
                 } else {
                     toastr.error(response.message, 'Error');
