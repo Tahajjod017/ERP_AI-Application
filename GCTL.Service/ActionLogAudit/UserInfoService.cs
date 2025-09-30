@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Security.Claims;
 using System.Text;
@@ -18,9 +19,11 @@ namespace GCTL.Service.ActionLogAudit
     public class UserInfoService : IUserInfoService
     {
         private readonly AppDbContext _context;
-        public UserInfoService(AppDbContext context)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public UserInfoService(AppDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #region  Base View Model 
@@ -130,7 +133,15 @@ namespace GCTL.Service.ActionLogAudit
                 {
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 };
-
+                if (entityVM == null)
+                {
+                    var user = _httpContextAccessor.HttpContext?.User;
+                    if (user?.Identity?.IsAuthenticated == true)
+                    {
+                        entityVM = new BaseViewModel();
+                        SetUserInfo(entityVM, user, _httpContextAccessor.HttpContext);
+                    }
+                }
                 // Serialize exception details
                 var exceptionDetails = new
                 {

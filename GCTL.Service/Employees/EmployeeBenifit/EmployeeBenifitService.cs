@@ -4,12 +4,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.Helpers;
 using GCTL.Core.Helpers.Entity;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeBenifit;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM;
 using GCTL.Data.Models;
+using GCTL.Service.ActionLogAudit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,8 +26,8 @@ namespace GCTL.Service.Employees.EmployeeBenifit
         private readonly IGenericRepository<Benefits> benefits;
         private readonly IGenericRepository<BenefitTypes> benefitTypesRepository;
         private readonly IGenericRepository<BenefitSetups> benefitSetupRepository;
-
-        public EmployeeBenifitService(IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Benefits> benefits = null, IGenericRepository<BenefitTypes> benefitTypesRepository = null, IGenericRepository<BenefitSetups> benefitSetupRepository = null)
+        private readonly IUserInfoService userInfoService;
+        public EmployeeBenifitService(IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Benefits> benefits = null, IGenericRepository<BenefitTypes> benefitTypesRepository = null, IGenericRepository<BenefitSetups> benefitSetupRepository = null, IUserInfoService userInfoService = null)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
             _employeeRepository = employeeRepository;
@@ -34,6 +36,7 @@ namespace GCTL.Service.Employees.EmployeeBenifit
             this.benefits = benefits;
             this.benefitTypesRepository = benefitTypesRepository;
             this.benefitSetupRepository = benefitSetupRepository;
+            this.userInfoService = userInfoService;
         }
 
 
@@ -234,7 +237,7 @@ namespace GCTL.Service.Employees.EmployeeBenifit
 
         public async Task<List<CommonSelectVMM>> SelectAsync(int id)
         {
-           
+            List<CommonSelectVMM> result = new List<CommonSelectVMM>();
             try
             {
                 
@@ -253,7 +256,7 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                     .ToListAsync();
 
                 // Structure: BenefitType -> Benefits -> BenefitSetups
-                var result = benefitTypes.Select(bt => new CommonSelectVMM
+                 result = benefitTypes.Select(bt => new CommonSelectVMM
                 {
                     Id = bt.BenefitTypeID,
                     Name = bt.BenefitTypeName,
@@ -283,7 +286,7 @@ namespace GCTL.Service.Employees.EmployeeBenifit
             catch (Exception ex)
             {
                 // Optional: log the exception using your logging service
-                // await _userInfoService.ActionLogExceptionAsync("Allowance Type", ex, result, new BaseViewModel());
+                 await userInfoService.ActionLogExceptionAsync("Employee Benefit", ex, id, new BaseViewModel(),ActionName.Error);
 
                 // Return empty list or rethrow depending on your choice
                 Console.WriteLine(ex); // for debugging

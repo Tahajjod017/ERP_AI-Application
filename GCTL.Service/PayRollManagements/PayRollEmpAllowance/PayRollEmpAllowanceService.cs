@@ -2,6 +2,7 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM;
+using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -28,13 +29,19 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
         private readonly IGenericRepository<CalculationTypes> calculationTypesRepository;
         private readonly IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup;
         private readonly IGenericRepository<EmployeeAllowanceTypes> empalowanceTypesRepository;
-        public PayRollEmpAllowanceService(IGenericRepository<EmployeeAllowances> empAllowance, IUserInfoService userInfoService, IGenericRepository<CalculationTypes> calculationTypesRepository, IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup, IGenericRepository<EmployeeAllowanceTypes> empalowanceTypesRepository) : base(empAllowance)
+        private readonly IGenericRepository<BenefitTypes> benefitTypesRepository;
+        private readonly IGenericRepository<Benefits> benefitsRepository;
+        private readonly IGenericRepository<BenefitSetups> benefitSetupsRepository;
+        public PayRollEmpAllowanceService(IGenericRepository<EmployeeAllowances> empAllowance, IUserInfoService userInfoService, IGenericRepository<CalculationTypes> calculationTypesRepository, IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup, IGenericRepository<EmployeeAllowanceTypes> empalowanceTypesRepository, IGenericRepository<BenefitTypes> benefitTypesRepository , IGenericRepository<Benefits> benefitsRepository , IGenericRepository<BenefitSetups> benefitSetupsRepository ) : base(empAllowance)
         {
             this.empAllowance = empAllowance;
             this.userInfoService = userInfoService;
             this.calculationTypesRepository = calculationTypesRepository;
             this.empAlowanceSetup = empAlowanceSetup;
             this.empalowanceTypesRepository = empalowanceTypesRepository;
+            this.benefitTypesRepository = benefitTypesRepository;
+            this.benefitsRepository = benefitsRepository;
+            this.benefitSetupsRepository = benefitSetupsRepository;
         }
 
         public async Task<CommonReturnViewModel> GetPayRollEmpAllowanceByIdAsync()
@@ -381,34 +388,137 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
 
         #region Get Allowance Type 
 
-        public async Task<List<CommonSelectVM>> SelectAsync(int id)
+        //public async Task<List<CommonSelectVM>> SelectAsync(int id)
+        //{
+        //    try
+        //    {
+        //        var data = await empalowanceTypesRepository
+        //            .AllActive()
+        //            .Where(x => x.OrganizationID == id).ToListAsync(); 
+
+        //        if (data == null || !data.Any())
+        //        {
+        //            return new List<CommonSelectVM>(); 
+        //        }
+
+        //        var result = data.Select(x => new CommonSelectVM
+        //        {
+        //            Id = x.EmployeeAllowanceTypeID, // Assuming this is the unique ID
+        //            Name = x.EmployeeAllowanceTypeName
+        //        }).ToList();
+
+        //        return result;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex.Message);
+        //        throw;
+        //    }
+        //}
+
+
+        public async Task<List<CommonSelectVMM>> SelectAsync(int id)
         {
             try
             {
-                var data = await empalowanceTypesRepository
+                // Get all allowance types for the organization
+                var allowanceTypes = await empalowanceTypesRepository
                     .AllActive()
-                    .Where(x => x.OrganizationID == id).ToListAsync(); 
+                    .Where(x => x.OrganizationID == id && x.IsApplyOnGrossSalary == true)
+                    .ToListAsync();
 
-                if (data == null || !data.Any())
-                {
-                    return new List<CommonSelectVM>(); 
-                }
+                // Get all employee allowances with their setups
+                var empAllowances3 = await empAllowance // or your EmployeeAllowances repository
+                    .AllActive()
+                    .Include(a => a.EmployeeAllowanceSetup)
+                    .Include(a => a.EmployeeAllowanceType)
+                    .Where(a => a.OrganizationID == id)
+                    .ToListAsync();
 
-                var result = data.Select(x => new CommonSelectVM
+                // Structure: AllowanceType -> EmployeeAllowances -> EmployeeAllowanceSetups
+                var result = allowanceTypes.Select(at => new CommonSelectVMM
                 {
-                    Id = x.EmployeeAllowanceTypeID, // Assuming this is the unique ID
-                    Name = x.EmployeeAllowanceTypeName
+                    Id = at.EmployeeAllowanceTypeID,
+                    Name = at.EmployeeAllowanceTypeName,
+                    EmpAllowanceVMM = empAllowances3
+                        .Where(ea => ea.EmployeeAllowanceTypeID == at.EmployeeAllowanceTypeID)
+                        .Select(ea => new EmpAllowanceVMM
+                        {
+                            EmployeeAllowanceID = ea.EmployeeAllowanceID,
+                            OrganizationID = ea.OrganizationID,
+                            EmployeeAllowanceTypeID = ea.EmployeeAllowanceTypeID,
+                            EmployeeAllowanceTypeName = ea.EmployeeAllowanceType?.EmployeeAllowanceTypeName ?? "",
+                            IsActive = ea.IsActive,
+                            EffectiveDate = null, // EffectiveDate is in EmployeeAllowanceSetup, not EmployeeAllowances
+                            EmployeeAllowanceSetups = ea.EmployeeAllowanceSetup
+                                .Select(s => new EmpAllowanceSetupVMM
+                                {
+                                    EmployeeAllowanceSetupID = s.EmployeeAllowanceSetupID,
+                                    SalaryMin = s.SalaryMin,
+                                    SalaryMax = s.SalaryMax,
+                                    CalculationTypeID = s.CalculationTypeID,
+                                    Value = s.Value,
+                                    EffectiveDate = s.EffectiveDate 
+                                }).ToList()
+                        }).ToList()
                 }).ToList();
 
                 return result;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                throw;
+                // Log the exception
+                await userInfoService.ActionLogExceptionAsync("Employee Allowance", ex, id, new BaseViewModel(), ActionName.Error);
+
+                Console.WriteLine(ex);
+                return new List<CommonSelectVMM>();
             }
         }
-        
+
+        //public async Task<List<CommonSelectVMM>> SelectAsync(int id)
+        //{
+        //    // Get all benefit types for the organization
+        //    var benefitTypes = await empalowanceTypesRepository
+        //        .AllActive()
+        //        .Where(x => x.OrganizationID == id && x.IsApplyOnGrossSalary == true)
+        //        .ToListAsync();
+
+        //    // Get all benefits with their setups
+        //    var benefits = await benefitsRepository
+        //        .AllActive()
+        //        .Include(b => b.BenefitSetups)
+        //        .Include(b => b.BenefitType)
+        //        .Where(b => b.OrganizationID == id)
+        //        .ToListAsync();
+
+        //    // Structure: BenefitType -> Benefits -> BenefitSetups
+        //    var result = benefitTypes.Select(bt => new CommonSelectVMM
+        //    {
+        //        Id = bt.EmployeeAllowanceTypeID,
+        //        Name = bt.EmployeeAllowanceTypeName,
+        //        EmpBenefitVMM = empAllowance
+        //            .wh(b => b.EmployeeAllowanceTypeID == bt.EmployeeAllowanceTypeID)
+        //            .Select(b => new EmpBenefitVMM
+        //            {
+        //                BenefitID = b.BenefitID,
+        //                OrganizationID = b.OrganizationID,
+        //                BenefitTypeID = b.BenefitTypeID,
+        //                BenefitTypeName = b.BenefitType != null ? b.BenefitType.BenefitTypeName : "",
+        //                IsActive = b.IsActive,
+        //                EffectiveDate = b.EffectiveDate,
+        //                BenefitSetups = b.BenefitSetups.Select(s => new EmpBenefitSetupVMM
+        //                {
+        //                    BenefitSetupID = s.BenefitSetupID,
+        //                    SalaryMin = s.SalaryMin,
+        //                    SalaryMax = s.SalaryMax,
+        //                    CalculationTypeID = s.CalculationTypeID,
+        //                    Value = s.Value
+        //                }).ToList()
+        //            }).ToList()
+        //    }).ToList();
+
+        //    return result;
+        //}
         #endregion
     }
 }
