@@ -1,6 +1,6 @@
 ﻿
 $(document).ready(function () {
-    
+    var percentageOptionsHtml = $("#percentageOptionsTemplate").html();
  
     FixedValue();
     initializeFlatpickr();
@@ -144,280 +144,321 @@ $(document).ready(function () {
         }
         loadAllowanceTypes(id);
     });
-        function loadAllowanceTypes(id) {
-            $.ajax({
-                url: '/PayRollEmployeesAllowance/SelectAllowanceTypeAsync', 
-                type: 'GET',
-                data: { id: id },
-                dataType: 'json',
-                success: function (res) {
-                    console.log("Allowance Types Fetched:", res);
 
-                    let accordionHtml = '';
+    function loadAllowanceTypes(id) {
+        $.ajax({
+            url: '/PayRollEmployeesAllowance/SelectAllowanceTypeAsync',
+            type: 'GET',
+            data: { id: id },
+            dataType: 'json',
+            success: function (res) {
+                console.log("Allowance Types Fetched:", res);
 
-                    if (res && res.length > 0) {
-                        accordionHtml += '<div class="accordion" id="accordionAllowance">';
+                let accordionHtml = '';
 
-                        res.forEach(function (item, i) {
-                            let collapseId = `collapse-${i}`;
-                            let headingId = `heading-${i}`;
-                            let isFirst = i === 0;
-                            let buttonClass = isFirst ? "accordion-button" : "accordion-button collapsed";
-                            let collapseClass = isFirst ? "accordion-collapse collapse show" : "accordion-collapse collapse";
-                            let ariaExpanded = isFirst.toString();
+                if (res && res.length > 0) {
+                    accordionHtml += '<div class="accordion" id="accordionAllowance">';
 
-                            accordionHtml += `
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="${headingId}">
-                                <button class="${buttonClass}" type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#${collapseId}"
-                                        aria-expanded="${ariaExpanded}"
-                                        aria-controls="${collapseId}">
-                                    ${item.name}
-                                </button>
-                            </h2>
+                    res.forEach(function (item, i) {
+                        let collapseId = `collapse-${i}`;
+                        let headingId = `heading-${i}`;
+                        let isFirst = i === 0;
+                        let buttonClass = isFirst ? "accordion-button" : "accordion-button collapsed";
+                        let collapseClass = isFirst ? "accordion-collapse collapse show" : "accordion-collapse collapse";
+                        let ariaExpanded = isFirst.toString();
 
-                            <div id="${collapseId}" class="${collapseClass}" aria-labelledby="${headingId}">
-                                <div class="accordion-body">
+                        // Check if employee allowance exists for this type
+                        let hasAllowance = item.empAllowanceVMM && item.empAllowanceVMM.length > 0;
+                        let allowance = hasAllowance ? item.empAllowanceVMM[0] : null;
 
-                                    <div class="card shadow-sm rounded-3 mb-1 houseRentRow">
-                                        <div class="card-body">
-                                            <div class="houseRentContainer">
-                                                <div class="row">
-                                                    <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                                        <input type="hidden" name="HouseRentAllowances[${i}].EmployeeAllowanceTypeID" value="${item.id}" />
+                        // Get allowance info
+                        let allowanceId = allowance ? allowance.employeeAllowanceID : 0;
+                        let effectiveDate = allowance ? allowance.effectiveDate || '' : '';
+                        let isActive = allowance ? allowance.isActive : false;
+                        let allowanceSetups = allowance && allowance.employeeAllowanceSetups ? allowance.employeeAllowanceSetups : [];
 
-                                                        <label class="form-label">Effective Date</label>
-                                                        <div class="input-icon-end position-relative">
-                                                            <input class="form-control ps-6 flatpickr-input"
-                                                                   name="HouseRentAllowances[${i}].EffectiveDate"
-                                                                   type="text" readonly placeholder="Select Month">
-                                                            <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                                        <div class="form-check form-switch mt-4">
-                                                            <input class="form-check-input" type="checkbox" name="HouseRentAllowances[${i}].IsActive">
-                                                            <label class="form-check-label ms-2">Active</label>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                        accordionHtml += `
+              <div class="accordion-item">
+                  <h2 class="accordion-header" id="${headingId}">
+                      <button class="${buttonClass}" type="button"
+                              data-bs-toggle="collapse"
+                              data-bs-target="#${collapseId}"
+                              aria-expanded="${ariaExpanded}"
+                              aria-controls="${collapseId}">
+                          ${item.name}
+                      </button>
+                  </h2>
 
-                                                <div class="row g-3 houseRentRow">
-                                                    <div class="col-lg-4 col-md-6 col-sm-12">
-                                                        <label class="form-label">Min Salary</label>
-                                                        <input type="text" class="form-control" name="HouseRentAllowances[${i}].SalaryMin" placeholder="Enter Min Salary" />
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-6 col-sm-12">
-                                                        <label class="form-label">Max Salary</label>
-                                                        <input type="text" class="form-control" name="HouseRentAllowances[${i}].SalaryMax" placeholder="Enter Max Salary" />
-                                                    </div>
-                                                    <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
-                                                     <input type="hidden" name="HouseRentAllowances[${i}].CalculationTypeID" />
-                                                        <div class="input-group mb-3">
-                                                            <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
-                                                                <option value="">Select One</option>
-                                                                <option value="Fixed">Fixed</option>
-                                                                <option value="Percentage">Percentage</option>
-                                                            </select>
+                  <div id="${collapseId}" class="${collapseClass}" aria-labelledby="${headingId}">
+                      <div class="accordion-body">
 
-                                                            <div class="percentRate" style="display: none;">
-                                                                <label class="form-label">Percentage(%)</label>
-                                                                <select class="form-select choiceDD"  style="max-width:185px;">
-                                                                    <option value="">Select %</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="fixedRate" style="display: none;">
-                                                                <label class="form-label">Fixed</label>
-                                                                <input type="text" class="form-control" name="HouseRentAllowances[${i}].Value" placeholder="Enter Fixed Rate" style="max-width: 185px;">
-                                                            </div>
+                          <div class="card shadow-sm rounded-3 mb-1">
+                              <div class="card-body">
+                                  <div class="row">
+                                      <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                          <input type="hidden" name="Allowances[${i}].EmployeeAllowanceTypeID" value="${item.id}" />
+                                          <input type="hidden" name="Allowances[${i}].EmployeeAllowanceID" value="${allowanceId}" />
 
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-1 px-0 col-md-1 col-sm-1">
-                                                        <button type="button" class="btn btn-primary px-3 mt-4 addRow">
-                                                            <i class="bi bi-plus-circle"></i>+
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                          <label class="form-label">Effective Date</label>
+                                          <div class="input-icon-end position-relative">
+                                              <input class="form-control ps-6 flatpickr-input"
+                                                     name="Allowances[${i}].EffectiveDate"
+                                                     type="text" 
+                                                     readonly 
+                                                     placeholder="Select Month"
+                                                     value="${effectiveDate}">
+                                              <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+                                          </div>
+                                      </div>
+                                      <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                          <div class="form-check form-switch mt-4">
+                                              <input class="form-check-input" 
+                                                     type="checkbox" 
+                                                     name="Allowances[${i}].IsActive"
+                                                     ${isActive ? 'checked' : ''}>
+                                              <label class="form-check-label ms-2">Active</label>
+                                          </div>
+                                      </div>
+                                  </div>`;
 
-                                            </div>
-                                            <div class="row g-3 justify-content-end">
-                                                <div class="col-auto">
-                                                    <button class="btn btn-primary px-5 PayRollEmpAllowanceSave">Save</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                        // Generate rows for allowance setups
+                        if (allowanceSetups.length > 0) {
+                            allowanceSetups.forEach(function (setup, setupIndex) {
+                                let calculationType = setup.calculationTypeID || '';
+                                let setupValue = setup.value || '';
 
-                                </div>
-                            </div>
-                        </div>`;
-                        });
+                                accordionHtml += `
+                                  <div class="row g-3">
+                                      <div class="col-lg-4 col-md-6 col-sm-12">
+                                          <label class="form-label">Min Salary</label>
+                                          <input type="text" 
+                                                 class="form-control"
+                                                 name="Allowances[${i}].EmployeeAllowanceSetups[${setupIndex}].SalaryMin"
+                                                 value="${setup.salaryMin || ''}" />
+                                      </div>
+                                      <div class="col-lg-4 col-md-6 col-sm-12">
+                                          <label class="form-label">Max Salary</label>
+                                          <input type="text" 
+                                                 class="form-control"
+                                                 name="Allowances[${i}].EmployeeAllowanceSetups[${setupIndex}].SalaryMax"
+                                                 value="${setup.salaryMax || ''}" />
+                                      </div>
+                                      <div class="col-lg-3 col-md-3 col-sm-12">
+                                          <div class="input-group mb-3">
+                                              <input type="hidden" 
+                                                     name="Allowances[${i}].EmployeeAllowanceSetups[${setupIndex}].CalculationTypeID" 
+                                                     value="${calculationType}" 
+                                                     class="calculationTypeHidden" />
+                                              
+                                              <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
+                                                  <option value="">Select One</option>
+                                                  <option value="1" ${calculationType == 1 ? 'selected' : ''}>Fixed</option>
+                                                  <option value="2" ${calculationType == 2 ? 'selected' : ''}>Percentage</option>
+                                              </select>
 
-                        accordionHtml += '</div>';
+                                              <div class="percentRate" style="display: ${calculationType == 2 ? 'block' : 'none'};">
+                                                  <label class="form-label">Percentage(%)</label>
+                                                  <select class="form-select choiceDD percentInput"
+                                                          name="Allowances[${i}].EmployeeAllowanceSetups[${setupIndex}].Value"
+                                                          style="max-width:185px;">
+                                                      <option value="">Select %</option>
+                                                      ${percentageOptionsHtml}
+                                                  </select>
+                                              </div>
 
-                    } else {
-                        accordionHtml = '<p class="text-warning">No allowance types found for this organization.</p>';
-                    }
+                                              <div class="fixedRate" style="display: ${calculationType == 1 ? 'block' : 'none'};">
+                                                  <label class="form-label">Fixed</label>
+                                                  <input type="text" 
+                                                         class="form-control fixedInput"
+                                                         name="Allowances[${i}].EmployeeAllowanceSetups[${setupIndex}].Value"
+                                                         value="${calculationType == 1 ? setupValue : ''}"
+                                                         style="max-width: 185px;">
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>`;
+                            });
+                        }
 
-                    $('#EmployeeAllowanceAccordion').html(accordionHtml);
-                    initializeFlatpickr();
-                    FixedValue();
-                },
-                error: function (err) {
-                    toastr.error('Failed to fetch allowance types');
-                    console.error(err);
+                        accordionHtml += `
+                                  <div class="row g-3 justify-content-end">
+                                      <div class="col-auto">
+                                          <button class="btn btn-primary px-5 PayRollEmpAllowancesSave">Save</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+
+                      </div>
+                  </div>
+              </div>`;
+                    });
+
+                    accordionHtml += '</div>';
+
+                } else {
+                    accordionHtml = '<p class="text-warning">No Allowances found for this organization.</p>';
                 }
-            });
-        }
+
+                $('#EmployeeAllowanceAccordion').html(accordionHtml);
+                initializeFlatpickr();
+                FixedValue();
+
+                // Set selected percentage values after DOM is ready
+                if (res && res.length > 0) {
+                    res.forEach(function (item, i) {
+                        let allowance = item.empAllowanceVMM && item.empAllowanceVMM.length > 0 ? item.empAllowanceVMM[0] : null;
+                        let allowanceSetups = allowance && allowance.employeeAllowanceSetups ? allowance.employeeAllowanceSetups : [];
+
+                        allowanceSetups.forEach(function (setup, setupIndex) {
+                            if (setup.calculationTypeID == 2 && setup.value) {
+                                $(`select[name="Allowances[${i}].EmployeeAllowanceSetups[${setupIndex}].Value"]`).val(setup.value);
+                            }
+                        });
+                    });
+                }
+
+            },
+            error: function (err) {
+                console.error(err);
+            }
+        });
+    }
+
+  
+
+        //function loadAllowanceTypes(id) {
+        //    $.ajax({
+        //        url: '/PayRollEmployeesAllowance/SelectAllowanceTypeAsync', 
+        //        type: 'GET',
+        //        data: { id: id },
+        //        dataType: 'json',
+        //        success: function (res) {
+        //            console.log("Allowance Types Fetched:", res);
+
+        //            let accordionHtml = '';
+
+        //            if (res && res.length > 0) {
+        //                accordionHtml += '<div class="accordion" id="accordionAllowance">';
+
+        //                res.forEach(function (item, i) {
+        //                    let collapseId = `collapse-${i}`;
+        //                    let headingId = `heading-${i}`;
+        //                    let isFirst = i === 0;
+        //                    let buttonClass = isFirst ? "accordion-button" : "accordion-button collapsed";
+        //                    let collapseClass = isFirst ? "accordion-collapse collapse show" : "accordion-collapse collapse";
+        //                    let ariaExpanded = isFirst.toString();
+
+        //                    accordionHtml += `
+        //                <div class="accordion-item">
+        //                    <h2 class="accordion-header" id="${headingId}">
+        //                        <button class="${buttonClass}" type="button"
+        //                                data-bs-toggle="collapse"
+        //                                data-bs-target="#${collapseId}"
+        //                                aria-expanded="${ariaExpanded}"
+        //                                aria-controls="${collapseId}">
+        //                            ${item.name}
+        //                        </button>
+        //                    </h2>
+
+        //                    <div id="${collapseId}" class="${collapseClass}" aria-labelledby="${headingId}">
+        //                        <div class="accordion-body">
+
+        //                            <div class="card shadow-sm rounded-3 mb-1 houseRentRow">
+        //                                <div class="card-body">
+        //                                    <div class="houseRentContainer">
+        //                                        <div class="row">
+        //                                            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+        //                                                <input type="hidden" name="HouseRentAllowances[${i}].EmployeeAllowanceTypeID" value="${item.id}" />
+
+        //                                                <label class="form-label">Effective Date</label>
+        //                                                <div class="input-icon-end position-relative">
+        //                                                    <input class="form-control ps-6 flatpickr-input"
+        //                                                           name="HouseRentAllowances[${i}].EffectiveDate"
+        //                                                           type="text" readonly placeholder="Select Month">
+        //                                                    <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
+        //                                                </div>
+        //                                            </div>
+        //                                            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+        //                                                <div class="form-check form-switch mt-4">
+        //                                                    <input class="form-check-input" type="checkbox" name="HouseRentAllowances[${i}].IsActive">
+        //                                                    <label class="form-check-label ms-2">Active</label>
+        //                                                </div>
+        //                                            </div>
+        //                                        </div>
+
+        //                                        <div class="row g-3 houseRentRow">
+        //                                            <div class="col-lg-4 col-md-6 col-sm-12">
+        //                                                <label class="form-label">Min Salary</label>
+        //                                                <input type="text" class="form-control" name="HouseRentAllowances[${i}].SalaryMin" placeholder="Enter Min Salary" />
+        //                                            </div>
+        //                                            <div class="col-lg-4 col-md-6 col-sm-12">
+        //                                                <label class="form-label">Max Salary</label>
+        //                                                <input type="text" class="form-control" name="HouseRentAllowances[${i}].SalaryMax" placeholder="Enter Max Salary" />
+        //                                            </div>
+        //                                            <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
+        //                                             <input type="hidden" name="HouseRentAllowances[${i}].CalculationTypeID" />
+        //                                                <div class="input-group mb-3">
+        //                                                    <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
+        //                                                        <option value="">Select One</option>
+        //                                                        <option value="Fixed">Fixed</option>
+        //                                                        <option value="Percentage">Percentage</option>
+        //                                                    </select>
+
+        //                                                    <div class="percentRate" style="display: none;">
+        //                                                        <label class="form-label">Percentage(%)</label>
+        //                                                        <select class="form-select choiceDD"  style="max-width:185px;">
+        //                                                            <option value="">Select %</option>
+        //                                                        </select>
+        //                                                    </div>
+        //                                                    <div class="fixedRate" style="display: none;">
+        //                                                        <label class="form-label">Fixed</label>
+        //                                                        <input type="text" class="form-control" name="HouseRentAllowances[${i}].Value" placeholder="Enter Fixed Rate" style="max-width: 185px;">
+        //                                                    </div>
+
+        //                                                </div>
+        //                                            </div>
+        //                                            <div class="col-lg-1 px-0 col-md-1 col-sm-1">
+        //                                                <button type="button" class="btn btn-primary px-3 mt-4 addRow">
+        //                                                    <i class="bi bi-plus-circle"></i>+
+        //                                                </button>
+        //                                            </div>
+        //                                        </div>
+
+        //                                    </div>
+        //                                    <div class="row g-3 justify-content-end">
+        //                                        <div class="col-auto">
+        //                                            <button class="btn btn-primary px-5 PayRollEmpAllowanceSave">Save</button>
+        //                                        </div>
+        //                                    </div>
+        //                                </div>
+        //                            </div>
+
+        //                        </div>
+        //                    </div>
+        //                </div>`;
+        //                });
+
+        //                accordionHtml += '</div>';
+
+        //            } else {
+        //                accordionHtml = '<p class="text-warning">No allowance types found for this organization.</p>';
+        //            }
+
+        //            $('#EmployeeAllowanceAccordion').html(accordionHtml);
+        //            initializeFlatpickr();
+        //            FixedValue();
+        //        },
+        //        error: function (err) {
+        //            toastr.error('Failed to fetch allowance types');
+        //            console.error(err);
+        //        }
+        //    });
+        //}
 
 
-    //
-    // Function to generate dynamic row HTML
-    //function getHouseRentRowHtml(allowanceIndex, rowIndex) {
-    //    return `
-    //<div class="row g-3 houseRentRow" data-allowance-index="${allowanceIndex}" data-row-index="${rowIndex}">
-    //    <div class="col-lg-4 col-md-6 col-sm-12">
-    //        <label class="form-label">Min Salary</label>
-    //        <input type="text" class="form-control" name="HouseRentAllowances[${allowanceIndex}][${rowIndex}].SalaryMin" placeholder="Enter Min Salary" />
-    //    </div>
-    //    <div class="col-lg-4 col-md-6 col-sm-12">
-    //        <label class="form-label">Max Salary</label>
-    //        <input type="text" class="form-control" name="HouseRentAllowances[${allowanceIndex}][${rowIndex}].SalaryMax" placeholder="Enter Max Salary" />
-    //    </div>
-    //    <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
-    //        <input type="hidden" name="HouseRentAllowances[${allowanceIndex}][${rowIndex}].CalculationTypeID" />
-    //        <div class="input-group mb-3">
-    //            <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
-    //                <option value="">Select One</option>
-    //                <option value="Fixed">Fixed</option>
-    //                <option value="Percentage">Percentage</option>
-    //            </select>
-    //            <div class="percentRate" style="display: none;">
-    //                <label class="form-label">Percentage(%)</label>
-    //                <select class="form-select choiceDD" style="max-width:185px;">
-    //                    <option value="">Select %</option>
-    //                </select>
-    //            </div>
-    //            <div class="fixedRate" style="display: none;">
-    //                <label class="form-label">Fixed</label>
-    //                <input type="text" class="form-control" name="HouseRentAllowances[${allowanceIndex}][${rowIndex}].Value" placeholder="Enter Fixed Rate" style="max-width: 185px;">
-    //            </div>
-    //        </div>
-    //    </div>
-    //    <div class="col-lg-1 px-0 col-md-1 col-sm-1">
-    //        <button type="button" class="btn btn-primary px-3 mt-4 addRow">
-    //            <i class="bi bi-plus-circle"></i>+
-    //        </button>
-    //    </div>
-    //</div>`;
-    //    initializeFlatpickr();
-    //    FixedValue();
-    //}
-
-    // Main function
-    //function loadAllowanceTypes(id) {
-    //    $.ajax({
-    //        url: '/PayRollEmployeesAllowance/SelectAllowanceTypeAsync',
-    //        type: 'GET',
-    //        data: { id: id },
-    //        dataType: 'json',
-    //        success: function (res) {
-    //            console.log("Allowance Types Fetched:", res);
-
-    //            let accordionHtml = '';
-
-    //            if (res && res.length > 0) {
-    //                accordionHtml += '<div class="accordion" id="accordionAllowance">';
-
-    //                res.forEach(function (item, i) {
-    //                    let collapseId = `collapse-${i}`;
-    //                    let headingId = `heading-${i}`;
-    //                    let isFirst = i === 0;
-    //                    let buttonClass = isFirst ? "accordion-button" : "accordion-button collapsed";
-    //                    let collapseClass = isFirst ? "accordion-collapse collapse show" : "accordion-collapse collapse";
-    //                    let ariaExpanded = isFirst.toString();
-
-    //                    accordionHtml += `
-    //            <div class="accordion-item">
-    //                <h2 class="accordion-header" id="${headingId}">
-    //                    <button class="${buttonClass}" type="button"
-    //                            data-bs-toggle="collapse"
-    //                            data-bs-target="#${collapseId}"
-    //                            aria-expanded="${ariaExpanded}"
-    //                            aria-controls="${collapseId}">
-    //                        ${item.name}
-    //                    </button>
-    //                </h2>
-                  
-    //                <div id="${collapseId}" class="${collapseClass}" aria-labelledby="${headingId}">
-    //                    <div class="accordion-body">
-    //                        <div class="card shadow-sm rounded-3 mb-1">
-    //                            <div class="card-body">
-    //                                <div class="houseRentContainer">
-    //                                    <div class="row">
-    //                                        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-    //                                            <input type="hidden" name="HouseRentAllowances[${i}].EmployeeAllowanceTypeID" value="${item.id}" />
-                                               
-    //                                            <label class="form-label">Effective Date</label>
-    //                                            <div class="input-icon-end position-relative">
-    //                                                <input class="form-control ps-6 flatpickr-input"
-    //                                                       name="HouseRentAllowances[${i}].EffectiveDate"
-    //                                                       type="text" readonly placeholder="Select Month">
-    //                                                <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-    //                                            </div>
-    //                                        </div>
-    //                                        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-    //                                            <div class="form-check form-switch mt-4">
-    //                                                <input class="form-check-input" type="checkbox" name="HouseRentAllowances[${i}].IsActive">
-    //                                                <label class="form-check-label ms-2">Active</label>
-    //                                            </div>
-    //                                        </div>
-    //                                    </div>
-    //                                   ${getHouseRentRowHtml(i, 0)}
-                                
-    //                        </div>
-    //                                </div>
-    //                                <div class="row g-3 justify-content-end">
-    //                                    <div class="col-auto">
-    //                                        <button class="btn btn-primary px-5 PayRollEmpAllowanceSave">Save</button>
-    //                                    </div>
-    //                                </div>
-    //                            </div>
-    //                        </div>
-    //                    </div>
-    //                </div>
-    //            </div>`;
-    //                });
-
-    //                accordionHtml += '</div>';
-
-    //            } else {
-    //                accordionHtml = '<p class="text-warning">No allowance types found for this organization.</p>';
-    //            }
-
-    //            $('#EmployeeAllowanceAccordion').html(accordionHtml);
-    //            initializeFlatpickr();
-    //            FixedValue();
-    //        },
-    //        error: function (err) {
-    //            toastr.error('Failed to fetch allowance types');
-    //            console.error(err);
-    //        }
-    //    });
-    //}
-
-    //// Add Row Click Handler (Dynamic)
-    //$(document).on('click', '.addRow', function () {
-    //    let container = $(this).closest('.houseRentContainer');
-    //    let allowanceIndex = container.find('[name^="HouseRentAllowances"]').first().attr('name').match(/\d+/)[0];
-    //    let rowCount = container.find('.houseRentRow').length;
-    //    container.append(getHouseRentRowHtml(allowanceIndex, rowCount));
-    //});
-
-    //
+  
+    
 
     // End Iniatially Loaded 
 
