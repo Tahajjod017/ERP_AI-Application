@@ -233,10 +233,15 @@ namespace GCTL_App.Controllers.Employees
                             kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
                         );
 
+                //var messages = ModelState
+                //    .Where(x => x.Value.Errors.Count > 0)
+                //    .SelectMany(x => x.Value.Errors)
+                //    .Select(e => e.ErrorMessage)
+                //    .ToList();
+
                 var messages = ModelState
                     .Where(x => x.Value.Errors.Count > 0)
-                    .SelectMany(x => x.Value.Errors)
-                    .Select(e => e.ErrorMessage)
+                    .SelectMany(x => x.Value.Errors.Select(e => $"{x.Key}: {e.ErrorMessage}"))
                     .ToList();
 
 
@@ -488,17 +493,7 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public IActionResult GetEmployeeSupDDbyComp(int id, int empID)
         {
-            //var result = _employeeRepository.AllActive()
-            //    .Where(e => e.EmployeeID != empID && e.EmployeeOfficeInfoEmployee.OrganizationId == id)
-            //    .Include(e => e.EmployeeOfficeInfoEmployee)
-            //    .Select(e => new
-            //    {
-            //        id = e.EmployeeID,
-            //        FullName = $"{e.FirstName} {e.LastName}"
-            //    })
-            //    .ToList();
-
-            //return Ok(result);
+           
 
 
             var employeeList = (from emp in _employeeRepository.AllActive()
@@ -522,7 +517,6 @@ namespace GCTL_App.Controllers.Employees
 
             var a = _departmentRepository.AllActive().Where(e=>e.DepartmentID == id).Select(u=>u.DepartmentHeadEmpID).FirstOrDefault();
 
-            //var a = _employeeRepository.AllActive().Where(e => e.EmployeeID != id).Select(e => new { id = e.EmployeeID, FullName = e.FirstName + " " + e.LastName }).ToList();
 
             return Ok(a);
         }

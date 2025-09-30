@@ -30,6 +30,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<Organization> _organizationRepository;
         private readonly IElementPermissionService _elementPermissionService;
         private readonly IGenericRepository<Percentages> percentagesService;
+
         public EmployeeBenifitController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<Organization> organizationRepository, IElementPermissionService elementPermissionService, IGenericRepository<Percentages> percentagesService = null) : base(translateService, userProfileService)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
