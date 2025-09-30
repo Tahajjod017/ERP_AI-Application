@@ -1,0 +1,181 @@
+﻿@{
+    ViewData["Title"] = @Html.SmartLocalize("Transaction Account");
+}
+
+<ul class="nav nav-underline fs-9">
+    <li class="nav-item"><a class="nav-link" href="/AddMainAccount/Index">@Html.SmartLocalize("Add Main Account")</a></li>
+    <li class="nav-item"><a class="nav-link" href="/AddSubAccount/Index">@Html.SmartLocalize("Add Sub Account")</a></li>
+    <li class="nav-item"><a class="nav-link active" href="/TransactionAccount/Index">@Html.SmartLocalize("Transaction Account")</a></li>
+</ul>
+
+<div class="tab-content mt-3">
+    <div class="tab-pane fade show active">
+        <div class="row">
+            <div class="col-md-4 bg-body-emphasis p-2">
+                <div class="">
+                    <form action="" class="row">
+                        <div class="col-md-12">
+                            <div class="my-3">
+                                <select class="form-select" id="" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                    <option value="">Select Base Account</option>
+                                    <optgroup label="Fixed Assets">
+                                        <option value="00">Intangible Assets</option>
+                                        <option value="01">Tangible Assets</option>
+                                        <option value="02">Financial Assets</option>
+                                        <option value="05">Depreciation Accumulated</option>
+                                    </optgroup>
+                                    <optgroup label="Current Assets">
+                                        <option value="10">Cash & Bank</option>
+                                        <option value="12">Receivables</option>
+                                        <optgroup label="Inventory (supply chain stock)">
+                                            <option value="142001" selected>Finished Goods – Warehouse A</option>
+                                            <option value="142002">Finished Goods – Warehouse B</option>
+                                        </optgroup>
+                                        <option value="16">Other Current Assets (prepaid, deposits)</option>
+                                        <option value="17">Taxes Receivable</option>
+                                    </optgroup>
+                                    <optgroup label="Liabilities">
+                                        <option value="20">Trade Payables</option>
+                                        <option value="21">Other Current Liabilities</option>
+                                        <option value="22">Intangible</option>
+                                    </optgroup>
+                                    <optgroup label="Equity & Reserves">
+                                        <option value="30">Share Capital</option>
+                                        <option value="31">Capital Reserves</option>
+                                        <option value="32">Retained Earnings</option>
+                                    </optgroup>
+                                    <optgroup label="Revenues / Sales Income">
+                                        <option value="40">Domestic Sales</option>
+                                        <option value="41">Export Sales</option>
+                                        <option value="42">Adjustments & Deductions</option>
+                                    </optgroup>
+                                    <optgroup label="Operating Expenses">
+                                        <option value="50">Cost of Goods Sold</option>
+                                        <option value="51">Procurement & Supplier Costs</option>
+                                        <option value="52">Logistics & Transportation</option>
+                                    </optgroup>
+                                    <optgroup label="Overheads & Administrative">
+                                        <option value="60">Personnel Costs</option>
+                                        <option value="61">Rent & Utilities</option>
+                                        <option value="62">IT & Systems</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="d-grid">
+                    <ul class="nav chat-thread-tab flex-column list">
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2  active" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-1" role="tab" aria-selected="true">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">Cash in Hand</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">Current Assets</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2  active" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-1" role="tab" aria-selected="true">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">Bank Current Account</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">Current Assets</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2  active" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-1" role="tab" aria-selected="true">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">Accounts Receivable (Domestic)</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">Current Assets</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2  active" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-1" role="tab" aria-selected="true">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">Raw Materials</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">Current Assets</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2  active" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-1" role="tab" aria-selected="true">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">Finished Goods</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">Current Assets</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="">
+                    <table class="table">
+
+                        <tbody>
+                            <tr>
+                                <td>Stock for Invoice #SO-2025-1001</td>
+                                <td>14200100001</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Stock for Delivery #DN-2025-0005</td>
+                                <td>14200100002</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3">
+                                    <form action="" class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="">Name</label>
+                                                <input class="form-control" id="" type="email" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="">Code</label>
+                                                <input class="form-control" id="" type="email" placeholder="" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <div class="row g-3 justify-content-end">
+                                                <div class="col-auto">
+                                                    <button class="btn btn-primary px-5 px-sm-15">Add</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
