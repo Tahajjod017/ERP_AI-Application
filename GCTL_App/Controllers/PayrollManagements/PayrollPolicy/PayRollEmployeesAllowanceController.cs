@@ -8,6 +8,7 @@ using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.PayRollManagements.PayRollPolicy;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -17,6 +18,7 @@ using System.Security.Claims;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 {
+    [Authorize]
     public class PayRollEmployeesAllowanceController : BaseController
     {
         private readonly IGenericRepository<Organization> organization;

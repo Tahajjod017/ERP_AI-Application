@@ -9,6 +9,7 @@ using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,7 +20,7 @@ using System.Security.Claims;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 {
-   
+    [Authorize]
     public class LeaveRequestController : BaseController
     {
         private readonly IGenericRepository<LeaveTypes> leaveType;
@@ -47,7 +48,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
             ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive().Where(x=>x.IsActive==true), "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive().Where(x=>x.StatusName== "APPROVED" || x.StatusName== "DECLINED"), "StatusID", "StatusName");
-           // ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
             var companies = await leaveRequestService.GetCompanies();
 
             if (companies.Count == 1)
@@ -69,7 +69,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                 ViewBag.DepartmentDD = new SelectList(departments, "Id", "Name");
             }
 
-            // Employees list (if you want a dropdown or grouped display, just assign it directly)
             ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
             ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
 
@@ -128,8 +127,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                     Errors = errorMessages
                 });
             }
-            string url = $"{this.Request.Scheme}://{this.Request.Host.Value.ToString()}{this.Request.PathBase.Value.ToString()}";
-            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            //string url = $"{this.Request.Scheme}://{this.Request.Host.Value.ToString()}{this.Request.PathBase.Value.ToString()}";
+            //var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            string url = $"{Request.Scheme}://{Request.Host.Value}";
             var data = await leaveRequestService.SaveLeaveRequestAsync(model, url);
             return Ok(data);
 

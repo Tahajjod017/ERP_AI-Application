@@ -194,10 +194,7 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
                     EmployeeAllowanceTypeID = data.EmployeeAllowanceTypeID,
                     OrganizationID = data.OrganizationID,
                     EmployeeAllowanceTypeName = data.EmployeeAllowanceTypeName,
-
-                    //ApplyOnGrossSalary = data.ApplyOnGrossSalary,
-                    //ApplyOnBasicSalary = data.ApplyOnBasicSalary,
-
+                    IsApplyOnGrossSalary = data.IsApplyOnGrossSalary,
 
                 };
                 return result;
@@ -278,7 +275,7 @@ namespace GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                await _userInfoService.ActionLogExceptionAsync("Allowance Type", ex, EntityVM.EmployeeAllowanceTypeID, EntityVM, ActionName.Error);
+                await _userInfoService.ActionLogExceptionAsync("Allowance Type", ex, EntityVM.EmployeeAllowanceTypeID, ActionName.Error);
                 await empAllowanceTypes.RollbackTransactionAsync();
                 return new CommonReturnViewModel
                 {
