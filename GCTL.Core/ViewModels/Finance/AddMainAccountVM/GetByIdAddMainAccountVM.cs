@@ -11,6 +11,8 @@ namespace GCTL.Core.ViewModels.Finance.AddMainAccountVM
     {
         public int MainAccountID { get; set; }
 
+        public int? ClassID { get; set; }
+
         public int? GroupID { get; set; }
 
         public string? GroupName { get; set; }

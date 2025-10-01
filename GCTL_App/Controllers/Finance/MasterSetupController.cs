@@ -98,7 +98,7 @@ namespace GCTL_App.Controllers.Finance
         #region Update
         [Permission("Edit", "MasterSetup")]
         [ValidateAntiForgeryToken]
-        [HttpPut]
+        [HttpPost]
         public async Task<IActionResult> Update(UpdateBaseAccountVM model)
         {
             try

@@ -46,7 +46,7 @@
                 var type = '';
                 if (id > 0) {
                     url = updateUrl;
-                    type = 'PUT'
+                    type = 'POST'
                 } else {
                     url = createUrl;
                     type = 'POST'
@@ -105,6 +105,9 @@
                             $('#addMainAccount-form #MainAccountCode').val(data.mainAccountCode);
                             $('#addMainAccount-form #MainAccountName').val(data.mainAccountName);
                             $('#addMainAccount-form #Description').val(data.description);
+                            accountClassDD.setChoiceByValue(data.classID.toString());
+
+                            getAccountGroupByClassId(data.classID, data.groupID);
 
                             $('#addMainAccount-form #BaseAccount-saveBtn').text('Update');
                         } else {
@@ -188,57 +191,73 @@
 
                 var id = $(this).val();
 
+                getAccountGroupByClassId(id);
+            });
+
+            function getAccountGroupByClassId(classId, selectedGroupId = null) {
                 $.ajax({
                     url: getGroupByClassIdUrl,
                     type: 'GET',
-                    data: { id: id },
+                    data: { id: classId },
                     success: function (result) {
                         $('.chat-thread-tab').empty();
+
+                        $('.chat-thread-tab')
+                            .append(`<div class="row">
+                            <div class="col-md-12">
+                                <label class="form-label"><strong>Select a Group</strong><span style="color:red;">*&nbsp;</span></label>
+                            </div>
+                            <span asp-validation-for="GroupID" id="GroupIDError" class="text-danger" style="display:none;"></span>
+                        </div>`);
 
                         if (result.length === 0) {
                             $('.chat-thread-tab').append('<li class="nav-item text-center">No Data Found</li>');
                         } else {
                             result.forEach(function (item) {
                                 var listItem = `
-                                    <li class="nav-item read border-bottom" role="presentation">
-                                        <a class="nav-link d-flex align-items-center justify-content-center p-2" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-${item.id}" role="tab" aria-selected="false" data-group-id="${item.id}">
-                                            <div class="flex-1 d-sm-none d-xl-block">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <h5 class="text-body fw-normal name text-nowrap">${item.name}</h5>
-                                                </div>
-                                                <div class="d-flex justify-content-between">
-                                                    <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">${item.groupName}</p>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                `;
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-${item.id}" role="tab" aria-selected="false" data-group-id="${item.id}">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">${item.name}</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">${item.groupName}</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    `;
 
                                 $('.chat-thread-tab').append(listItem);
                             });
 
+                            // Click handler
                             $('.chat-thread-tab .nav-link').on('click', function () {
-                                // Remove 'active' class from all <a> tags
                                 $('.chat-thread-tab .nav-link').removeClass('active');
-
-                                // Add 'active' class to the clicked <a> tag
                                 $(this).addClass('active');
 
-                                // Optionally, you can also highlight the parent <li> by adding a custom class
-                                $(this).closest('li').siblings().removeClass('selected'); // Remove from all siblings
-                                $(this).closest('li').addClass('selected'); // Add to the clicked li
+                                $(this).closest('li').siblings().removeClass('selected');
+                                $(this).closest('li').addClass('selected');
 
-                                // Set the GroupID in the hidden input field
-                                var groupId = $(this).data('group-id'); 
-                                $('#GroupID').val(groupId); 
+                                var groupId = $(this).data('group-id');
+                                $('#GroupID').val(groupId);
                             });
+
+                            // 🔽 If editing, auto-select the group
+                            if (selectedGroupId) {
+                                const target = $(`.chat-thread-tab .nav-link[data-group-id="${selectedGroupId}"]`);
+                                if (target.length) {
+                                    target.trigger('click'); // Triggers the same click handler
+                                }
+                            }
                         }
                     },
                     error: function () {
                         console.error('Something went wrong!');
                     }
                 });
-            });
+            }
             // #endregion
 
 
@@ -263,6 +282,7 @@
                 $(settings.addform).find(settings.saveBtn).text('Save');
                 $("#addMainAccount-check-all").prop('checked', false);
                 $('.addMainAccount-selectItem').prop('checked', false);
+                $('.chat-thread-tab').empty();
 
                 if (accountClassDD) {
                     accountClassDD.destroy();
@@ -509,6 +529,8 @@
                                     <td class="text-center text-middle align-middle" style="width: 5%;">
                                         <input type="checkbox" class="form-check-input addMainAccount-selectItem" data-id="${item.mainAccountID}" />
                                     </td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.className}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.groupName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.description}</td>
