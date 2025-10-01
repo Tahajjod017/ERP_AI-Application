@@ -27,6 +27,8 @@
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
 
+                $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+
                 var form = $(settings.saveForm);
                 var formData = form.serialize();
 
@@ -46,9 +48,11 @@
                             });
                             toastr.info(response.message);
                         }
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     },
                     error: function (err) {
                         console.error('Conflict check failed:', err);
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     }
                 });
             });

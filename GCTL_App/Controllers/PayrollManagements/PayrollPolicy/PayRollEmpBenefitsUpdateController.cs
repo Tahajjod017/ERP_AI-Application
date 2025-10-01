@@ -6,6 +6,7 @@ using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using System.Security.Claims;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 {
+    [Authorize]
     public class PayRollEmpBenefitsUpdateController : BaseController
     {
 
@@ -73,6 +75,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
                 throw;
             }
         }
+        
 
         #endregion
 

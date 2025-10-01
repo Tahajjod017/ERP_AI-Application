@@ -17,8 +17,6 @@ public partial class EmployeeAllowanceSetup
 
     public decimal? Value { get; set; }
 
-    public DateTime? EffectiveDate { get; set; }
-
     public string LIP { get; set; }
 
     public string LMAC { get; set; }

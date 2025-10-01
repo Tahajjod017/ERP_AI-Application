@@ -31,7 +31,5 @@ public partial class ServiceYears
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeBaseBenefits> EmployeeBaseBenefits { get; set; } = new List<EmployeeBaseBenefits>();
-
     public virtual Employees UpdatedByNavigation { get; set; }
 }

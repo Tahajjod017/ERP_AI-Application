@@ -969,39 +969,92 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 }
 
                 // Determine approval step and finality
-                bool hasFirst = approvalSettings.FirstApprovalID.HasValue;
-                bool hasSecond = approvalSettings.SecondApprovalID.HasValue && approvalSettings.IsEnableSecondApproval;
-                bool hasThird = approvalSettings.ThirdApprovalID.HasValue && approvalSettings.IsEnableThirdApproval;
+               // bool hasFirst = approvalSettings.FirstApprovalID.HasValue;
+               // bool hasSecond = approvalSettings.SecondApprovalID.HasValue && approvalSettings.IsEnableSecondApproval;
+               // bool hasThird = approvalSettings.ThirdApprovalID.HasValue && approvalSettings.IsEnableThirdApproval;
 
                 bool isFinalApproval = false;
                 int? approvalPersonId = null;
                 int approvalStep = 0;
 
+                //if (isFirstApprover)
+                //{
+                //    approvalStep = 1;
+                //    approvalPersonId = hasSecond ? resolvedSecond : entityVM.CreatedBy;
+                //    isFinalApproval = !hasSecond && !hasThird && entityVM.Approved;
+                //}
+                //else if (isSecondApprover)
+                //{
+                //    approvalStep = 2;
+                //    approvalPersonId = hasThird ? resolvedThird : entityVM.CreatedBy; 
+                //    isFinalApproval = !hasThird && entityVM.Approved;
+                //}
+                //else if (isThirdApprover)
+                //{
+                //    approvalStep = 3;
+                //    approvalPersonId = resolvedThird; // Last in chain
+                //    isFinalApproval = entityVM.Approved;
+                //}
+                //else if (allowSelfApprover && approvalSettings.AllowSelfApproval.HasValue && approvalSettings.AllowSelfApproval.Value)
+                //{
+                //    approvalStep = 4;
+                //    approvalPersonId = null;
+                //    isFinalApproval = entityVM.Approved;
+                //}
+
+
+
+                bool hasFirst = approvalSettings.FirstApprovalID.HasValue && resolvedFirst != null && resolvedFirst != 0;
+                bool hasSecond = approvalSettings.SecondApprovalID.HasValue && approvalSettings.IsEnableSecondApproval && resolvedSecond != null && resolvedSecond != 0;
+                bool hasThird = approvalSettings.ThirdApprovalID.HasValue && approvalSettings.IsEnableThirdApproval && resolvedThird != null && resolvedThird != 0;
                 if (isFirstApprover)
                 {
                     approvalStep = 1;
-                    approvalPersonId = hasSecond ? resolvedSecond : entityVM.CreatedBy;
-                    isFinalApproval = !hasSecond && !hasThird && entityVM.Approved;
+                  
+                    if (!hasSecond && !hasThird)
+                    {
+                        approvalPersonId = entityVM.CreatedBy;
+                        if (entityVM.Approved)
+                        {
+                            isFinalApproval = true;
+                        }
+
+                    }
+                    else
+                    {
+                       
+                        approvalPersonId = hasSecond ? resolvedSecond : (hasThird ? resolvedThird : null);
+                    }
                 }
                 else if (isSecondApprover)
                 {
                     approvalStep = 2;
-                    approvalPersonId = hasThird ? resolvedThird : entityVM.CreatedBy; // Next approver or null if final
-                    isFinalApproval = !hasThird && entityVM.Approved;
+                    if (!hasThird)
+                    {
+                        approvalPersonId = entityVM.CreatedBy;
+                        if(entityVM.Approved)
+                        {
+                            isFinalApproval = true;
+                        }
+                      
+                    }
+                    else
+                    {
+                        approvalPersonId = resolvedThird;
+                    }
                 }
                 else if (isThirdApprover)
                 {
                     approvalStep = 3;
-                    approvalPersonId = resolvedThird; // Last in chain
-                    isFinalApproval = entityVM.Approved;
+                    approvalPersonId = entityVM.CreatedBy; 
+                    isFinalApproval = true; 
                 }
-                else if (allowSelfApprover && approvalSettings.AllowSelfApproval.HasValue && approvalSettings.AllowSelfApproval.Value)
+                else if (allowSelfApprover && approvalSettings.AllowSelfApproval == true)
                 {
                     approvalStep = 4;
-                    approvalPersonId = null;
-                    isFinalApproval = entityVM.Approved;
+                    approvalPersonId = null; 
+                    isFinalApproval = true;
                 }
-               
                 // Get status IDs
                 int? leavStatusApproved = await GetIdByNameAsync("APPROVED");
                 int? leavStatusDecline = await GetIdByNameAsync("DECLINED");
@@ -1016,7 +1069,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     };
                 }
                 string secrectCode=string.Empty;
-                // Update full-day or partial-day
                 entity.IsFullDay = entityVM.IsFullDayEdit;
                 if (entityVM.IsFullDayEdit)
                 {
@@ -1034,7 +1086,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     entity.PartialToTime = entityVM.PartialToTimeEdit;
                 }
 
-                // Update leave balance only if final approval
                 if (isFinalApproval && entityVM.Approved)
                 {
                     var leaveDaysFromConfig = await leaveTypesRepository.AllActive()
@@ -1073,7 +1124,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                        
                         existingBalance.LIP = entityVM.LIP;
                         existingBalance.LMAC = entityVM.LMAC;
-                        existingBalance.UpdatedAt = DateTime.Now;
+                        existingBalance.UpdatedAt = DateTime.UtcNow;
                         existingBalance.UpdatedBy = entityVM.UpdatedBy;
                         
                         await leaveBalance.UpdateAsync(existingBalance);
@@ -1088,7 +1139,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                             TakenPartialHours = entityVM.IsFullDayEdit ? 0 : CalculatePartialHours(entityVM.PartialFromTimeEdit, entityVM.PartialToTimeEdit),
                             TotalLeave = leaveDaysFromConfig.LeaveDays,
                             ApplicableYear = leaveDaysFromConfig.ApplicableYear,
-                            CreatedAt = DateTime.Now,
+                            CreatedAt = DateTime.UtcNow,
                             CreatedBy = entityVM.CreatedBy,
                             LIP = entityVM.LIP,
                             LMAC = entityVM.LMAC
@@ -1162,7 +1213,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                                              }).ToListAsync();
 
                 var applicantData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == entityVM.EmployeeIDEdit);
-                var approverData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == approvalPersonId);
+               
+                
+               var approverData  = allEmployeeData.FirstOrDefault(x => x.EmployeeID == approvalPersonId);
+                
+               
 
                 var leaveName = await leaveTypesRepository.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit).Select(x => x.LeaveTypeName).FirstOrDefaultAsync();
                
@@ -1179,7 +1234,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 if (isApplicant)
                 {
                     // Applicant receives final approval/decline
-                    toEmail = applicantData.Email ?? applicantData.OfficeEmail ?? string.Empty;
+                    toEmail = applicantData.OfficeEmail ?? applicantData.Email ?? string.Empty;
                     statusMessage = statusId == leavStatusDecline
                         ? "Your leave request has been declined."
                         : "Your leave request has been approved.";
@@ -1188,7 +1243,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 else
                 {
                     name="HR Team";
-                    toEmail = approverData?.Email ?? approverData?.OfficeEmail ?? string.Empty;
+                    toEmail = approverData?.OfficeEmail ?? approverData?.Email ?? string.Empty;
                     statusMessage = $"This is an automated leave request submitted by an employee. Please find the details below:";
                 }
   

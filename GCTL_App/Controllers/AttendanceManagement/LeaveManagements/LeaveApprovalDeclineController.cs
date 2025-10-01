@@ -7,6 +7,7 @@ using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveApproval;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ using System.Security.Claims;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 {
+    [Authorize]
     public class LeaveApprovalDeclineController : BaseController
     {
         private readonly ILeaveApprovalService leaveApprovalService;
@@ -103,78 +105,78 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         #endregion
 
 
-        #region accept/declien from  email 
+        //#region accept/declien from  email 
 
         
-        [HttpGet("LeaveApprovalDeclineRoute/Action")]
-        public async Task<IActionResult> LeaveApprovalActionAsync(int leaveId, int approverId, bool isApproved, string secrectCode)
-        {
-            var data = await leaveApprovalService.GetLeaveRequestByIdAsync(leaveId);
+        //[HttpGet("LeaveApprovalDeclineRoute/Action")]
+        //public async Task<IActionResult> LeaveApprovalActionAsync(int leaveId, int approverId, bool isApproved, string secrectCode)
+        //{
+        //    var data = await leaveApprovalService.GetLeaveRequestByIdAsync(leaveId);
 
-            if (data == null)
-            {
-                return Content("Leave request not found.");
-            }
+        //    if (data == null)
+        //    {
+        //        return Content("Leave request not found.");
+        //    }
 
-            // Check secrect code
-            if (string.IsNullOrEmpty(data.SecrectCode) || data.SecrectCode != secrectCode)
-            {
-                return Content("You are not an authorized person to approve this leave.");
-            }
+        //    // Check secrect code
+        //    if (string.IsNullOrEmpty(data.SecrectCode) || data.SecrectCode != secrectCode)
+        //    {
+        //        return Content("You are not an authorized person to approve this leave.");
+        //    }
 
-            // Check 24 hours expiration
-            if (data.SecrectCodeDateTime.HasValue && data.SecrectCodeDateTime.Value.AddHours(24) < DateTime.UtcNow)
-            {
-                return Content("This approval link has expired. You can no longer approve or decline this leave.");
-            }
+        //    // Check 24 hours expiration
+        //    if (data.SecrectCodeDateTime.HasValue && data.SecrectCodeDateTime.Value.AddHours(24) < DateTime.UtcNow)
+        //    {
+        //        return Content("This approval link has expired. You can no longer approve or decline this leave.");
+        //    }
 
-            var employeeId = await appDb.Users
-                .Where(u => u.EmployeeId == approverId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
+        //    var employeeId = await appDb.Users
+        //        .Where(u => u.EmployeeId == approverId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
 
-            if (employeeId == 0)
-            {
-                return Content("You are not an authorized person.");
-            }
-            if (leaveId == 0)
-            {
-                string emailHtml = "<p style='color:red'>Invalid Leave ID</p>";
-                return Content(emailHtml, "text/html");
-            }
-            if (!data.ApprovalPersonID.HasValue || data.ApprovalPersonID != approverId)
-            {
-                return Content("Approver not found.");
-            }
+        //    if (employeeId == 0)
+        //    {
+        //        return Content("You are not an authorized person.");
+        //    }
+        //    if (leaveId == 0)
+        //    {
+        //        string emailHtml = "<p style='color:red'>Invalid Leave ID</p>";
+        //        return Content(emailHtml, "text/html");
+        //    }
+        //    if (!data.ApprovalPersonID.HasValue || data.ApprovalPersonID != approverId)
+        //    {
+        //        return Content("Approver not found.");
+        //    }
 
-            var entityVM = new LeaveApplicationApprovalModifyVM
-            {
-                LeaveApplicationID = leaveId,
-                UpdatedBy = approverId,
-                Approved = isApproved,
-                CreatedBy = approverId,
-                DeletedBy = approverId,
-                EmployeeIDEdit = data.EmployeeIDEdit,
-                LeaveTypeIDEdit = data.LeaveTypeIDEdit,
-                IsFullDayEdit = data.IsFullDayEdit,
-                ReasonEdit = data.ReasonEdit,
-                FromDateEdit = data.FromDateEdit,
-                ToDateEdit = data.ToDateEdit,
-                TotalAppliedDays = (int)data.Period,
-                ApprovalNote = isApproved ? "Approved via email link" : "Declined via email link"
-            };
+        //    var entityVM = new LeaveApplicationApprovalModifyVM
+        //    {
+        //        LeaveApplicationID = leaveId,
+        //        UpdatedBy = approverId,
+        //        Approved = isApproved,
+        //        CreatedBy = approverId,
+        //        DeletedBy = approverId,
+        //        EmployeeIDEdit = data.EmployeeIDEdit,
+        //        LeaveTypeIDEdit = data.LeaveTypeIDEdit,
+        //        IsFullDayEdit = data.IsFullDayEdit,
+        //        ReasonEdit = data.ReasonEdit,
+        //        FromDateEdit = data.FromDateEdit,
+        //        ToDateEdit = data.ToDateEdit,
+        //        TotalAppliedDays = (int)data.Period,
+        //        ApprovalNote = isApproved ? "Approved via email link" : "Declined via email link"
+        //    };
 
-            string url = $"{Request.Scheme}://{Request.Host.Value}";
-            var result = await leaveApprovalService.UpdateLeaveRequestAsynce(entityVM, url);
+        //    string url = $"{Request.Scheme}://{Request.Host.Value}";
+        //    var result = await leaveApprovalService.UpdateLeaveRequestAsynce(entityVM, url);
 
-            string responseMessage = result.Success
-                ? (isApproved ? "Leave request approved successfully." : "Leave request declined successfully.")
-                : $"Operation failed: {result.Message}";
+        //    string responseMessage = result.Success
+        //        ? (isApproved ? "Leave request approved successfully." : "Leave request declined successfully.")
+        //        : $"Operation failed: {result.Message}";
 
-            string color = isApproved ? "#28a745" : "#dc3545";
+        //    string color = isApproved ? "#28a745" : "#dc3545";
 
-            return Content($"<p style='color:{color}; font-weight:bold; text-align:center;'>{responseMessage}</p>", "text/html");
-        }
+        //    return Content($"<p style='color:{color}; font-weight:bold; text-align:center;'>{responseMessage}</p>", "text/html");
+        //}
 
-        #endregion
+        //#endregion
 
         #region  Update Leave request in Approval Side
         [Route("LeaveApprovalDeclineRoute/UpdateRequestAsync")]
@@ -188,7 +190,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                 {
                     return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
                 }
-                string url = $"{this.Request.Scheme}://{this.Request.Host.Value.ToString()}{this.Request.PathBase.Value.ToString()}";
+                //string domain = Request.Host.Host;
+                //string url = $"{this.Request.Scheme}://{this.Request.Host.Value.ToString()}{this.Request.PathBase.Value.ToString()}";
+                string url = $"{Request.Scheme}://{Request.Host.Value}";
                 var data = await leaveApprovalService.UpdateLeaveRequestAsynce(entityVM,url);
                 return Json(data);
             }

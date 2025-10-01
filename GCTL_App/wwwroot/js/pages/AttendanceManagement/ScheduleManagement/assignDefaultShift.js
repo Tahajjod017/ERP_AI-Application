@@ -20,12 +20,14 @@
         var updateEmpShift = settings.baseUrl + "/UpdateEmpShift";
         var checkConflictsUrl = settings.baseUrl + '/CheckConflicts';
         $(() => {
+            
+            
 
 
             // #region Save
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
-                $(settings.saveBtn).prop('disabled', true);
+                $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
                 const token = $('#assignDefaultShift-addForm input[name="__RequestVerificationToken"]').val();
 
@@ -53,9 +55,11 @@
                         } else {
                             postDefaultShift(url, formData);
                         }
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     },
                     error: function (err) {
                         console.error('Conflict check failed:', err);
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     }
                 });
             });
@@ -229,6 +233,7 @@
                     choiceShift.destroy();
                 }
 
+                selectSingleOrg();
                 initOrganizationDD();
                 initChoices();
 
@@ -558,6 +563,21 @@
             }
             document.addEventListener('DOMContentLoaded', initChoices);
             initChoices();
+
+
+            function selectSingleOrg() {
+                var $select = $('#OrganizationID');
+
+                // Count the number of options excluding the placeholder (empty value)
+                var $realOptions = $select.find('option').filter(function () {
+                    return $(this).val() !== '';
+                });
+
+                if ($realOptions.length === 1) {
+                    $realOptions.prop('selected', true);
+                    $select.trigger('change');
+                }
+            }
             // #endregion
 
 

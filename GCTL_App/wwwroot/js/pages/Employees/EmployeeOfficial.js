@@ -264,7 +264,8 @@
         // Required select fields
         const requiredSelects = [
             { name: "EmployeePersonalId", label: "Employee" },
-            //{ name: "OrganizationID", label: "Organization" },
+            { name: "OrganizationID", label: "Organization" },
+            { name: "EmploymentStatusId", label: "Status" },
             //{ name: "OrganizationBranchID", label: "Branch" },
             //{ name: "EmployeeTypeID", label: "Employee Type" },
             //{ name: "DepartmentID", label: "Department" },
@@ -275,12 +276,12 @@
 
         // Required input fields
         const requiredInputs = [
-            { name: "OfficePhone", label: "Office Phone" },
+            //{ name: "OfficePhone", label: "Office Phone" },
             { name: "OfficeEmail", label: "Office Email", type: "email" },
-            { name: "AttendanceId", label: "Attendance ID" },
-            { name: "JoiningDate", label: "Joining Date" },
-            { name: "AppointmentLetterNo", label: "Appointment Letter No" },
-            { name: "ConfirmationLetterNo", label: "Confirmation Letter No" }
+            //{ name: "AttendanceId", label: "Attendance ID" },
+            //{ name: "JoiningDate", label: "Joining Date" },
+            //{ name: "AppointmentLetterNo", label: "Appointment Letter No" },
+            //{ name: "ConfirmationLetterNo", label: "Confirmation Letter No" }
         ];
 
         // Validate select fields
@@ -290,6 +291,7 @@
 
             if (!value || value.trim() === "") {
                 showError(field.name, field.label + " is required.");
+                toastr.warning(field.name, field.label + " is required.");
                 isValid = false;
             }
         });
@@ -300,6 +302,7 @@
 
             if ($input.length === 0) {
                 console.error("Could not find input field: " + field.name);
+                
                 return;
             }
 
@@ -308,6 +311,7 @@
 
             if (!value) {
                 showError(field.name, field.label + " is required.");
+                toastr.warning(field.name, field.label + " is required.");
                 isValid = false;
             } else if (field.type === "email" && !isValidEmail(value)) {
                 showError(field.name, "Invalid email format.");
@@ -376,7 +380,7 @@
                     debugger
                     if (response.success) {
                         toastr.success(response.message)
-                        window.location.href = '/EmployeeSalary/Index/'+ response.data; 
+                        window.location.href = '/EmployeeOfficial/Index/'+ response.data; 
                     } else {
                         toastr.warning(response.message)
                     }
@@ -564,9 +568,12 @@
 
     // Function to populate Choices.js dropdowns
     function populateChoicesDropdowns(response) {
+
+        showDev(response,' dd cc')
+
         const dropdownMappings = [
             { instance: organizationChoices, value: response.organizationID },
-            { instance: branchChoices, value: response.organizationBranchID },
+          //  { instance: branchChoices, value: response.organizationBranchID },
             { instance: employeeTypeChoices, value: response.employeeTypeID },
             { instance: departmentChoices, value: response.departmentID },
             { instance: designationChoices, value: response.designationID },
@@ -584,6 +591,7 @@
         choiceManager.setChoiceValue('HeadOfDepartmentId', response.headOfDepartmentId);
         choiceManager.setChoiceValue('ImmediateSupervisorId', response.immediateSupervisorId);
         choiceManager.setChoiceValue('SeniorSupervisorId', response.seniorSupervisorId);
+        choiceManager.setChoiceValue('OrganizationBranchID', response.organizationBranchID);
 
 
         dropdownMappings.forEach(mapping => {
@@ -899,5 +907,23 @@
 
 
     //#endregion
+
+
+    const lastInt = getLastIntFromUrl();
+    
+    if (lastInt) {
+
+        showDev(lastInt, 'last id')
+
+        employeeChoices.setChoiceByValue(lastInt.toString());
+
+        LoadEmployeeOfficData(lastInt)
+    }
+    
+
+    function getLastIntFromUrl() {
+        const parts = window.location.pathname.split('/').filter(Boolean).reverse();
+        return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
+    }
 
 });

@@ -31,5 +31,5 @@ public partial class AspNetRoles
 
     public virtual TenantInfo TenantInfo { get; set; }
 
-    public virtual ICollection<ApplicationUser> User { get; set; } = new List<ApplicationUser>();
+    public virtual ICollection<AspNetUsers> User { get; set; } = new List<AspNetUsers>();
 }

@@ -223,8 +223,36 @@ namespace GCTL_App.Controllers.Employees
         [HttpPost]
         public async Task< IActionResult> Index(EmployeeOfficialPostViewModel model)
         {
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                        );
+
+                //var messages = ModelState
+                //    .Where(x => x.Value.Errors.Count > 0)
+                //    .SelectMany(x => x.Value.Errors)
+                //    .Select(e => e.ErrorMessage)
+                //    .ToList();
+
+                var messages = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .SelectMany(x => x.Value.Errors.Select(e => $"{x.Key}: {e.ErrorMessage}"))
+                    .ToList();
+
+
+                return Json(new { success = false, errors = errors, message = messages });
+            }
+
             if (ModelState.IsValid)
             {
+
+                
+
                 var chkDuplicate = await _employeeOfficialService.CheckValidEmployeeInfo(model);
 
                 if (!chkDuplicate.Success)
@@ -263,6 +291,8 @@ namespace GCTL_App.Controllers.Employees
 
                 
             }
+
+           
 
             return Ok(new { success = false, message = "ModelState Is Not Valid!" });
            
@@ -422,7 +452,7 @@ namespace GCTL_App.Controllers.Employees
             {
                 model.EmployeeOfficeId = empOfficial.EmployeeOfficeId ?? string.Empty;
                 model.EmployeeOfficeInfoID = empOfficial.EmployeeOfficeInfoID;
-                model.OrganizationID = empOfficial.OrganizationID;
+                model.OrganizationID = empOfficial.OrganizationID ?? 0;
                 model.OrganizationBranchID = empOfficial.OrganizationBranchID;
                 model.DepartmentID = empOfficial.DepartmentID;
                 model.DesignationID = empOfficial.DesignationID;
@@ -434,7 +464,7 @@ namespace GCTL_App.Controllers.Employees
                 model.OfficePhone = empOfficial.OfficePhone ?? string.Empty;
                 model.OfficeEmail = empOfficial.OfficeEmail ?? string.Empty;
                 model.AttendanceId = empOfficial.AttendanceId ?? string.Empty;
-                model.EmploymentStatusId = empOfficial.EmploymentStatusId;
+                model.EmploymentStatusId = empOfficial.EmploymentStatusId ?? 0;
                 model.AppointmentLetterNo = empOfficial.AppointmentLetterNo ?? string.Empty;
                 model.AppointmentLetterIssueDate = empOfficial.AppointmentLetterIssueDate;
                 model.JoiningDate = empOfficial.JoiningDate;
@@ -464,17 +494,7 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public IActionResult GetEmployeeSupDDbyComp(int id, int empID)
         {
-            //var result = _employeeRepository.AllActive()
-            //    .Where(e => e.EmployeeID != empID && e.EmployeeOfficeInfoEmployee.OrganizationId == id)
-            //    .Include(e => e.EmployeeOfficeInfoEmployee)
-            //    .Select(e => new
-            //    {
-            //        id = e.EmployeeID,
-            //        FullName = $"{e.FirstName} {e.LastName}"
-            //    })
-            //    .ToList();
-
-            //return Ok(result);
+           
 
 
             var employeeList = (from emp in _employeeRepository.AllActive()
@@ -498,7 +518,6 @@ namespace GCTL_App.Controllers.Employees
 
             var a = _departmentRepository.AllActive().Where(e=>e.DepartmentID == id).Select(u=>u.DepartmentHeadEmpID).FirstOrDefault();
 
-            //var a = _employeeRepository.AllActive().Where(e => e.EmployeeID != id).Select(e => new { id = e.EmployeeID, FullName = e.FirstName + " " + e.LastName }).ToList();
 
             return Ok(a);
         }

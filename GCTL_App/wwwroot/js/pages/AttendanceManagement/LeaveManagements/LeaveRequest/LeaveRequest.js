@@ -623,7 +623,11 @@ $(document).ready(function () {
         }
         var available = parseFloat($('#LeaveDays').val()) || 0;
         var applied = parseFloat($('#TotalAppliedDays').val()) || 0;
-
+        var leaveType = $('#LeaveTypeID').val();
+        if (!leaveType) {
+            toastr.error("Please select a leave type before applying.");
+            return false;
+        }
         if (applied > available && !exceedConfirmed) {
             const message = `You have ${available} day(s) available, but you tried to apply for ${applied} day(s).
         So, your exceed leave will be deducted from Annual Leave. `;
@@ -1087,41 +1091,19 @@ function getBadgeClass(status) {
 // #endregion
 
 // #region 🟡 Get Status Text Based on Approver Steps & Timing
-//function getStatusText(item) {
-//    const rawStatus = item.statusName?.trim().toUpperCase();
-//    const isNewStatus = !rawStatus || rawStatus === 'NEW';
-//    if (item.approverStep === 1 || item.approverStep === 2) {
-//        return 'OnGoing';
-//    } else if (item.approverStep === 3) {
-//        return 'APPROVED';
-//    }
-  
-//    if (isNewStatus && item.applicationDate) {
-       
-//        const applicationDate = new Date(item.applicationDate);
-//        const now = new Date();
-//        const hoursPassed = (now - applicationDate) / (1000 * 60 * 60);
 
-//        if (hoursPassed >= 24) {
-//            return 'Waiting for Approval';
-//        }
-//        return 'New';
-//    }
-//    return rawStatus || '<i class="text-success"></i> New';
-//}
 
 function getStatusText(item) {
     const rawStatus = item.statusName?.trim().toUpperCase();
-    if (!rawStatus) {
-        return 'New';
-    }
-    else if (rawStatus === 'DECLINED') {
+     if (rawStatus === 'DECLINED') {
         return 'DECLINED';
     }
-    else if (rawStatus === 'APPROVED' && item.isFinalApproved) {
+     else if (rawStatus === 'APPROVED' && item.isFinalApproved)
+     {
         return 'APPROVED';
     }
-    else if (rawStatus === 'APPROVED' && !item.isFinalApproved) {
+     else if (rawStatus === 'APPROVED' && !item.isFinalApproved)
+     {
         return 'ONGOING';
     }
     const isNewStatus = !rawStatus;
@@ -1130,7 +1112,8 @@ function getStatusText(item) {
         const now = new Date();
         const hoursPassed = (now - applicationDate) / (1000 * 60 * 60); 
 
-        if (hoursPassed >= 24) {
+        if (hoursPassed >= 24)
+        {
             return 'WAITING FOR APPROVAL';
         }
         return 'NEW';

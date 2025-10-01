@@ -1,5 +1,95 @@
 ﻿@using GCTL.Core.ViewModels.Employee.EmployeeNavigtion
 @model GCTL.Core.ViewModels.Employee.EmployeeBenifit.EmployeeBenifitPostViewModel
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<select id="percentageOptionsTemplate" style="display:none">
+    @if (ViewBag.PercenatageDD != null)
+    {
+        foreach (SelectListItem item in (SelectList)ViewBag.PercenatageDD)
+        {
+            <option value="@item.Value">@item.Text</option>
+        }
+    }
+</select>
+<style>
+    .flatpickr-monthSelect-months {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+        gap: 10px; /* Space between months */
+        margin: 10px 1px 3px 1px;
+    }
+
+    /* Styling for individual months */
+    .flatpickr-monthSelect-month {
+        background: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: #393939;
+        cursor: pointer;
+        display: flex; /* Use flexbox to center the text inside the month */
+        justify-content: center;
+        padding: 10px;
+        position: relative;
+        text-align: center;
+        width: 100%; /* Make sure it takes full width of the column */
+    }
+
+        /* Disabled month styling */
+        .flatpickr-monthSelect-month.flatpickr-disabled {
+            color: #eee;
+        }
+
+            .flatpickr-monthSelect-month.flatpickr-disabled:hover,
+            .flatpickr-monthSelect-month.flatpickr-disabled:focus {
+                cursor: not-allowed;
+                background: none !important;
+            }
+
+    /* Dark theme adjustments */
+    .flatpickr-monthSelect-theme-dark {
+        background: #3f4458;
+    }
+
+        .flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+            .flatpickr-monthSelect-theme-dark .flatpickr-monthSelect-month.selected {
+                background-color: #80cbc4;
+                color: #fff;
+                border-color: #80cbc4;
+            }
+
+    /* Styling for today’s month */
+    .flatpickr-monthSelect-month.today {
+        border-color: #959ea9;
+    }
+
+    .flatpickr-monthSelect-month.selected,
+    .flatpickr-monthSelect-month.startRange,
+    .flatpickr-monthSelect-month.endRange {
+        background-color: #569ff7;
+        box-shadow: none;
+        color: #fff;
+        border-color: #569ff7;
+    }
+
+    /* Range selection */
+    .flatpickr-monthSelect-month.startRange {
+        border-radius: 50px 0 0 50px;
+    }
+
+    .flatpickr-monthSelect-month.endRange {
+        border-radius: 0 50px 50px 0;
+    }
+
+    .flatpickr-monthSelect-month.inRange {
+        border-radius: 0;
+        box-shadow: -5px 0 0 #e6e6e6, 5px 0 0 #e6e6e6;
+    }
+</style>
 <div class="mb-9">
     <div class="row align-items-center justify-content-between g-3 ">
         <div class="col-auto">
@@ -50,68 +140,11 @@
 
                             @await Html.PartialAsync("Employee/_EmployeeNavigation", ViewBag.Navigation as EmployeeNavigationViewModel)
 
-                            <!--
-
-            <ul class="nav nav-underline fs-9 deal-details scrollbar flex-nowrap w-100 py-2 mb-2 mx-2" id="myTab" role="tablist">
-                <li class="nav-item text-nowrap me-2" role="presentation" id="headingPInfo">
-                    <a class="nav-link " href="/EmployeePersonal/index" role="tab" aria-selected="true" aria-controls="empPersonalInfo">
-                        <span class="fa-solid fa-user me-2 tab-icon-color"></span>@Html.SmartLocalize("Personal Info.")
-                    </a>
-                </li>
-                <li class="nav-item text-nowrap me-2" role="presentation" id="headingEmpOfficialInfo">
-                    <a class="nav-link" href="/EmployeeOfficial/index" role="tab" aria-selected="false" aria-controls="empOfficialInfo">
-                        <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Official Info.")
-                    </a>
-                </li>
-                <li class="nav-item text-nowrap me-2" role="presentation" id="headingempPayroleInfo">
-                    <a class="nav-link active" href="/EmployeeSalary/index" role="tab" aria-selected="false" aria-controls="empPayroleInfo">
-                        <span class="fa-solid fa-file-alt me-2 tab-icon-color"></span>@Html.SmartLocalize("Payroll Info.")
-                    </a>
-                </li>
-                <li class="nav-item text-nowrap me-2" role="presentation" id="headingAdditionalInfo">
-                    <a class="nav-link" href="/EmployeeAdditional/index" role="tab" aria-selected="false" aria-controls="additionalInfo">
-                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Additional Info.")
-                    </a>
-                </li>
-                <li class="nav-item text-nowrap me-2" role="presentation" id="headingeducationInfo">
-                    <a class="nav-link" href="/EmployeeEducation/index" role="tab" aria-selected="false" aria-controls="educationInfo">
-                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Education Info.")
-                    </a>
-                </li>
-                <li class="nav-item text-nowrap me-2" role="presentation" id="headingTranningInfo">
-                    <a class="nav-link" href="/EmployeeTraining/index" role="tab" aria-selected="false" aria-controls="tranningInfo">
-                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Training Info.")
-                    </a>
-                </li>
-                <li class="nav-item text-nowrap me-2" role="presentation" id="headingFamilyInfo">
-                    <a class="nav-link" href="/EmployeeFamily/index" role="tab" aria-selected="false" aria-controls="familyInfo">
-                        <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Family Info.")
-                    </a>
-                </li>
-                <li class="nav-item text-nowrap me-2" role="presentation" id="headingemmerhencyContactInfo">
-                    <a class="nav-link " href="/EmployeeContact/index" role="tab" aria-selected="false" aria-controls="emmerhencyContactInfo"> <span class="fa-solid fa-square-check me-2 tab-icon-color"></span>@Html.SmartLocalize("Emergency Contact")</a>
-                </li>
-            </ul>
-
-            -->
+            
 
                             <div class="card tab-content bg-white accordion" id="myTabContent">
                                 <div class="tab-pane fade show active p-2" role="tabpanel" id="empPayroleInfo" aria-labelledby="empPayroleInfo">
                                     <div class="px-25">
-
-                                        <!--
-                        <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link" id="empSalary-tab" href="/EmployeeSalary/index" role="tab" aria-controls="tab-empSalary" aria-selected="true">@Html.SmartLocalize("Employee Salary Settings")</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link active" id="empBenefits-tab" href="#" role="tab" aria-controls="tab-empBenefits" aria-selected="false" tabindex="-1">@Html.SmartLocalize("Employee Benefits")</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link" id="empAllowance-tab" href="/EmployeeAllowance/index" role="tab" aria-controls="tab-empAllowance" aria-selected="false" tabindex="-1">@Html.SmartLocalize("Employee Allowance")</a>
-                            </li>
-                        </ul>
-                        -->
 
                                         <div class="tab-content mt-3" id="myTabContent">
                                             <div class="tab-pane fade show active" id="tab-empBenefits" role="tabpanel" aria-labelledby="empBenefits-tab">
@@ -128,131 +161,23 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-
                                                             <div class="col-md-6">
                                                                 <div class="mb-3">
 
                                                                     <label>@Html.SmartLocalize("Organization")</label>
-                                                                    <select class="form-select choiceDD" asp-for="OrganizationID" id="organizationDD" asp-items="@ViewBag.OrganizationDD as SelectList" disabled>
+                                                                    <select class="form-select choiceDD" asp-for="OrganizationID" id="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList" disabled>
                                                                         <option value="">@Html.SmartLocalize("No Organization Selected")</option>
                                                                     </select>
 
-
-
-
-
                                                                 </div>
                                                             </div>
 
+                                                            <div class="card">
 
-                                                            <div class="col-md-6">
-                                                                <div class="mb-3">
-                                                                    <div class="content-head d-flex justify-content-between align-items-center">
-                                                                        <label asp-for="HealthInsurance">@Html.SmartLocalize("Health Insurance")</label>
-                                                                        <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="IsHealthInsuranceEnabled" id="healthInsuranceSwitch">
-                                                                        </div>
-                                                                    </div>
-                                                                    <input asp-for="HealthInsurance" class="form-control" type="text" placeholder="@Html.SmartLocalize("Ex: 500 tk Per Month")" />
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="mb-3">
-                                                                    <div class="content-head d-flex justify-content-between align-items-center">
-                                                                        <label asp-for="PerformanceBonus">@Html.SmartLocalize("Performance Bonus")</label>
-                                                                        <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="IsPerformanceBonusEnabled" id="performanceBonusSwitch">
-                                                                        </div>
-                                                                    </div>
-                                                                    <input asp-for="PerformanceBonus" class="form-control" type="text" placeholder="@Html.SmartLocalize("Ex: 10,000 tk Yearly")" />
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="mb-3">
-                                                                    <div class="content-head d-flex justify-content-between align-items-center">
-                                                                        <label asp-for="YearlyEndBonusTypeID">@Html.SmartLocalize("Yearly End Bonus")</label>
-                                                                        <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="IsYearlyEndBonusTypeIDEnabled" id="yearlyEndBonusSwitch">
-                                                                        </div>
-                                                                    </div>
-                                                                    <select class="form-select" asp-for="YearlyEndBonusTypeID" asp-items="@ViewBag.YearlyEndBonusTypeDD as SelectList">
-                                                                        <option value="">@Html.SmartLocalize("Select one...")</option>
-                                                                    </select>
-                                                                </div>
+                                                                <div id="EmployeeAllowanceAccordion"></div>
                                                             </div>
 
-
-
-
-                                                            <div class="col-md-12">
-                                                                <div class="mb-3">
-                                                                    <div class="content-head d-flex justify-content-between align-items-center border-bottom">
-                                                                        <h5>@Html.SmartLocalize("Festival Bonus")</h5>
-                                                                        <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="IsFastivalBonusPercentageEnabled" id="festivalBonusSwitch">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                <div class="mb-3">
-                                                                    <label asp-for="FastivalBonusPercentage">@Html.SmartLocalize("Festival Bonus Rate")</label>
-
-
-                                                                    <select class="form-select" id="festivalBonusRateSelect" asp-for="FastivalBonusPercentage" asp-items="@ViewBag.FastivalBonusPercentageDD as SelectList">
-                                                                        <option value="">@Html.SmartLocalize("Select %")</option>
-                                                                    </select>
-
-
-                                                                </div>
-                                                            </div>
-
-
-
-                                                            <div class="col-lg-12">
-                                                                <div class="mb-3">
-                                                                    <div class="content-head d-flex justify-content-between border-bottom">
-                                                                        <h5>@Html.SmartLocalize("Provident Fund")</h5>
-                                                                        <div class="form-check form-switch">
-                                                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="IsProvidantFundEnabled" id="providentFundSwitch1">
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                <div class="mb-3">
-                                                                    <label asp-for="ProvidantFundEmployeePercentage">@Html.SmartLocalize("Employee Contribution")</label>
-                                                                    <select asp-for="ProvidantFundEmployeePercentage" asp-items="ViewBag.PFEmployeeContributionDD" class="form-select mb-3" id="employeeContributionSelect">
-                                                                        <option value="">@Html.SmartLocalize("Select %")</option>
-                                                                    </select>
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                <div class="mb-3">
-                                                                    <label asp-for="ProvidantFundOrganizationPercentage">@Html.SmartLocalize("Organization Contribution")</label>
-                                                                    <select asp-for="ProvidantFundOrganizationPercentage" asp-items="ViewBag.PFOrgContributionDD" class="form-select mb-3" id="organizationContributionSelect">
-                                                                        <option value="">@Html.SmartLocalize("Select %")</option>
-                                                                    </select>
-
-                                                                </div>
-                                                            </div>
-
-
-
-
-
-                                                            <div class="col-lg-6 col-md-6 col-sm-12">
-                                                                <div class="mb-3">
-                                                                    <label asp-for="ServiceYearID">@Html.SmartLocalize("Minimum Service Year")</label>
-
-
-                                                                    <select class="form-select" asp-for="ServiceYearID" id="serviceYearSelect" asp-items="@ViewBag.ServiceYearDD as SelectList">
-                                                                        <option value="">@Html.SmartLocalize("Select Year...")</option>
-                                                                    </select>
-
-                                                                </div>
-                                                            </div>
+                                                           
                                                             <div class="col-12">
                                                                 <div class="row g-3 justify-content-end">
                                                                     <div class="col-auto">
@@ -268,6 +193,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                       
                                     </div>
                                 </div>
                             </div>
@@ -288,4 +214,9 @@
     <script src="~/js/pages/employees/employeevalidator.js"></script>
     <script src="~/js/pages/employees/employeebenifit.js"></script>
     <script src="~/js/pages/employees/employeetabchange.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 }
+
+   

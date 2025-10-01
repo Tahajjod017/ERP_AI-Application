@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Security.Claims;
 using System.Text;
@@ -18,9 +19,11 @@ namespace GCTL.Service.ActionLogAudit
     public class UserInfoService : IUserInfoService
     {
         private readonly AppDbContext _context;
-        public UserInfoService(AppDbContext context)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public UserInfoService(AppDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #region  Base View Model 
@@ -32,8 +35,6 @@ namespace GCTL.Service.ActionLogAudit
                 var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
                 var email = user.FindFirstValue(ClaimTypes.Email);
                 var userEmail = user.Identity.IsAuthenticated ? user.FindFirstValue(ClaimTypes.Email) : "Unknown";
-               // var employeUser = _context.Users.FirstOrDefault(u => u.Employee.EmployeeCode == userEmail);
-
                 var employeeId = _context.Users .Where(u => u.Email == email).Select(u => u.EmployeeId).FirstOrDefault();
                 model.UserId = userId;
                 model.UserEmail = email;
@@ -80,7 +81,7 @@ namespace GCTL.Service.ActionLogAudit
                 UserEmail = entityVM.UserEmail,
                 LIP = entityVM.LIP,
                 LMAC = entityVM.LMAC,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 TargetType = tergetType,
                 TargetID = targetID
 
@@ -90,6 +91,7 @@ namespace GCTL.Service.ActionLogAudit
         }
 
         
+
 
         public async Task ActionLogDeleteAsync<T>(string targetType, string actionName, List<T> beforeList, List<T> afterList, List<int?> targetIds, BaseViewModel entityVM)
         {
@@ -113,7 +115,7 @@ namespace GCTL.Service.ActionLogAudit
                     UserEmail = entityVM.UserEmail,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     TargetType = targetType,
                     TargetID = targetIds[i]
                 });
@@ -123,6 +125,119 @@ namespace GCTL.Service.ActionLogAudit
             await _context.SaveChangesAsync();
         }
 
+        #endregion
+
+        #region Without BaseViewModel
+
+        public async Task ActionLogDeleteAsync<T>(string targetType, string actionName, List<T> beforeList, List<T> afterList, List<int?> targetIds)
+        {
+            var logs = new List<ActionLogs>();
+
+            // Move serializerSettings outside the loop to create it only once
+            var serializerSettings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                MaxDepth = 32 // Optional: Add depth limit for better performance
+            };
+            var entityVM = new BaseViewModel();
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user?.Identity?.IsAuthenticated == true)
+            {
+                SetUserInfo(entityVM, user, _httpContextAccessor.HttpContext);
+            }
+            for (int i = 0; i < targetIds.Count; i++)
+            {
+                logs.Add(new ActionLogs
+                {
+                    CreatedBy = entityVM.CreatedBy,
+                    ActionName = actionName,
+                    ActionBefore = beforeList != null ? JsonConvert.SerializeObject(beforeList[i], serializerSettings) : null,
+                    ActionAfter = afterList != null ? JsonConvert.SerializeObject(afterList[i], serializerSettings) : null,
+                    UserEmail = entityVM.UserEmail,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC,
+                    CreatedAt = DateTime.UtcNow,
+                    TargetType = targetType,
+                    TargetID = targetIds[i]
+                });
+            }
+
+            await _context.ActionLogs.AddRangeAsync(logs);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ActionLogAsync<T>(string tergetType, string actionName, T before, T after, int? targetID)
+        {
+            var jsonSettings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            var entityVM = new BaseViewModel();
+            var user = _httpContextAccessor.HttpContext?.User;
+            if (user?.Identity?.IsAuthenticated == true)
+            {
+                SetUserInfo(entityVM, user, _httpContextAccessor.HttpContext);
+            }
+            var log = new ActionLogs
+            {
+                CreatedBy = entityVM.CreatedBy,
+                ActionName = actionName,
+                ActionBefore = JsonConvert.SerializeObject(before, jsonSettings),
+                ActionAfter = JsonConvert.SerializeObject(after, jsonSettings),
+                UserEmail = entityVM.UserEmail,
+                LIP = entityVM.LIP,
+                LMAC = entityVM.LMAC,
+                CreatedAt = DateTime.UtcNow,
+                TargetType = tergetType,
+                TargetID = targetID
+
+            };
+            await _context.ActionLogs.AddAsync(log);
+            await _context.SaveChangesAsync();
+        }
+        public async Task ActionLogExceptionAsync(string targetType, Exception exception, int? targetId, string actionName)
+        {
+            try
+            {
+                var jsonSettings = new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                };
+                var entityVM = new BaseViewModel();
+                var user = _httpContextAccessor.HttpContext?.User;
+                if (user?.Identity?.IsAuthenticated == true)
+                {
+                    SetUserInfo(entityVM, user, _httpContextAccessor.HttpContext);
+                }
+                var exceptionDetails = new
+                {
+                    exception.Message,
+                    exception.StackTrace,
+                    InnerException = exception.InnerException?.Message
+                };
+
+                var log = new ActionLogs
+                {
+                    CreatedBy = entityVM?.CreatedBy,
+                    UserEmail = entityVM?.UserEmail,
+                    LIP = entityVM?.LIP,
+                    LMAC = entityVM?.LMAC,
+                    ActionName = actionName,
+                    ActionBefore = null,
+                    ActionAfter = JsonConvert.SerializeObject(exceptionDetails, jsonSettings),
+                    CreatedAt = DateTime.UtcNow,
+                    TargetType = targetType,
+                    TargetID = targetId
+                };
+
+                await _context.ActionLogs.AddAsync(log);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception logEx)
+            {
+                Console.WriteLine("Failed to log exception: " + logEx.Message);
+            }
+        }
         #endregion
 
 

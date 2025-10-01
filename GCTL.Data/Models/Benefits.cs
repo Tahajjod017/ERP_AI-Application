@@ -41,6 +41,8 @@ public partial class Benefits
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<EmployeeBaseBenefits> EmployeeBaseBenefits { get; set; } = new List<EmployeeBaseBenefits>();
+
     public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }

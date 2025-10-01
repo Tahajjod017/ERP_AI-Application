@@ -6,6 +6,7 @@ using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeBenifit;
 using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Language;
+using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -22,18 +23,15 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<ServiceYears> _serviceYearsRepository;
         private readonly IEmployeeBenifitService _employeeBenifitService;
         private readonly IEmployeeNavigationService _employeeNavigationService;
-
-
         private readonly UserManager<ApplicationUser> _userManagerRepository2;
         private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
         private readonly IGenericRepository<RoleModulePermissions> _rolePermissionRepository;
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
-
         private readonly IGenericRepository<Organization> _organizationRepository;
-
         private readonly IElementPermissionService _elementPermissionService;
+        private readonly IGenericRepository<Percentages> percentagesService;
 
-        public EmployeeBenifitController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<Organization> organizationRepository, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
+        public EmployeeBenifitController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<Organization> organizationRepository, IElementPermissionService elementPermissionService, IGenericRepository<Percentages> percentagesService = null) : base(translateService, userProfileService)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
             _employeeBenifitService = employeeBenifitService;
@@ -47,6 +45,7 @@ namespace GCTL_App.Controllers.Employees
             _roleManagerRepository2 = roleManagerRepository2;
             _organizationRepository = organizationRepository;
             _elementPermissionService = elementPermissionService;
+            this.percentagesService = percentagesService;
         }
 
         #endregion
@@ -77,7 +76,7 @@ namespace GCTL_App.Controllers.Employees
 
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "PayrollInfo" , "EmployeeBenefits");
                 ViewBag.Navigation = navigationModel;
-
+                ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
                 bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
 
                 if (!hasEmployeePermission)
@@ -125,55 +124,55 @@ namespace GCTL_App.Controllers.Employees
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
-            ViewBag.YearlyEndBonusTypeDD = new SelectList(_yearlyEndBonusTypesRepository.AllActive().Select(e => new { e.YearlyEndBonusTypeID, e.YearlyEndBonusTypeName }), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
+            //ViewBag.YearlyEndBonusTypeDD = new SelectList(_yearlyEndBonusTypesRepository.AllActive().Select(e => new { e.YearlyEndBonusTypeID, e.YearlyEndBonusTypeName }), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
 
-            ViewBag.ServiceYearDD = new SelectList(_serviceYearsRepository.AllActive().Select(e => new { e.ServiceYearID, e.ServiceYearName }), "ServiceYearID", "ServiceYearName");
+            //ViewBag.ServiceYearDD = new SelectList(_serviceYearsRepository.AllActive().Select(e => new { e.ServiceYearID, e.ServiceYearName }), "ServiceYearID", "ServiceYearName");
 
-            ViewBag.FastivalBonusPercentageDD = new SelectList(new List<SelectListItem>
-                {
-                    new SelectListItem { Value = "35.00", Text = "35 %" },
-                    new SelectListItem { Value = "40.00", Text = "40 %" },
-                    new SelectListItem { Value = "45.00", Text = "45 %" },
-                    new SelectListItem { Value = "50.00", Text = "50 %" },
-                    new SelectListItem { Value = "60.00", Text = "60 %" },
-                    new SelectListItem { Value = "70.00", Text = "70 %" },
-                    new SelectListItem { Value = "100.00", Text = "100 %" }
-                }, "Value", "Text");
+            //ViewBag.FastivalBonusPercentageDD = new SelectList(new List<SelectListItem>
+            //    {
+            //        new SelectListItem { Value = "35.00", Text = "35 %" },
+            //        new SelectListItem { Value = "40.00", Text = "40 %" },
+            //        new SelectListItem { Value = "45.00", Text = "45 %" },
+            //        new SelectListItem { Value = "50.00", Text = "50 %" },
+            //        new SelectListItem { Value = "60.00", Text = "60 %" },
+            //        new SelectListItem { Value = "70.00", Text = "70 %" },
+            //        new SelectListItem { Value = "100.00", Text = "100 %" }
+            //    }, "Value", "Text");
 
-            ViewBag.BonusDependsOnDD = new SelectList(new[]
-                {
-                    new { Value = "Gross Salary", Text = "Gross Salary" },
-                    new { Value = "Basic Salary", Text = "Basic Salary" }
-                }, "Value", "Text");
-
-
-            ViewBag.PFEmployeeContributionDD = new SelectList(new[]
-                {
-                    new { Value = "5.00", Text = "5 %" },
-                    new { Value = "6.00", Text = "6 %" },
-                    new { Value = "7.00", Text = "7 %" },
-                    new { Value = "8.00", Text = "8 %" },
-                    new { Value = "9.00", Text = "9 %" },
-                    new { Value = "10.00", Text = "10 %" }
-                }, "Value", "Text");
+            //ViewBag.BonusDependsOnDD = new SelectList(new[]
+            //    {
+            //        new { Value = "Gross Salary", Text = "Gross Salary" },
+            //        new { Value = "Basic Salary", Text = "Basic Salary" }
+            //    }, "Value", "Text");
 
 
-            ViewBag.PFOrgContributionDD = new SelectList(new[]
-                {
-                    new { Value = "5.00", Text = "5 %" },
-                    new { Value = "6.00", Text = "6 %" },
-                    new { Value = "7.00", Text = "7 %" },
-                    new { Value = "8.00", Text = "8 %" },
-                    new { Value = "9.00", Text = "9 %" },
-                    new { Value = "10.00", Text = "10 %" }
-                }, "Value", "Text");
+            //ViewBag.PFEmployeeContributionDD = new SelectList(new[]
+            //    {
+            //        new { Value = "5.00", Text = "5 %" },
+            //        new { Value = "6.00", Text = "6 %" },
+            //        new { Value = "7.00", Text = "7 %" },
+            //        new { Value = "8.00", Text = "8 %" },
+            //        new { Value = "9.00", Text = "9 %" },
+            //        new { Value = "10.00", Text = "10 %" }
+            //    }, "Value", "Text");
 
 
-            ViewBag.PFDependsOnDD = new SelectList(new[]
-                {
-                    new { Value = "Gross Salary", Text = "Gross Salary" },
-                    new { Value = "Basic Salary", Text = "Basic Salary" }
-                }, "Value", "Text");
+            //ViewBag.PFOrgContributionDD = new SelectList(new[]
+            //    {
+            //        new { Value = "5.00", Text = "5 %" },
+            //        new { Value = "6.00", Text = "6 %" },
+            //        new { Value = "7.00", Text = "7 %" },
+            //        new { Value = "8.00", Text = "8 %" },
+            //        new { Value = "9.00", Text = "9 %" },
+            //        new { Value = "10.00", Text = "10 %" }
+            //    }, "Value", "Text");
+
+
+            //ViewBag.PFDependsOnDD = new SelectList(new[]
+            //    {
+            //        new { Value = "Gross Salary", Text = "Gross Salary" },
+            //        new { Value = "Basic Salary", Text = "Basic Salary" }
+            //    }, "Value", "Text");
 
 
             #endregion
@@ -235,7 +234,7 @@ namespace GCTL_App.Controllers.Employees
             catch (Exception ex)
             {
                 // Log the exception (use your logging framework, e.g., Serilog, NLog)
-                return Json(new { success = false, message = "An error occurred while fetching employee benefits." });
+                return Json(new { success = false, message = ex.Message });
             }
         }
 
@@ -286,7 +285,25 @@ namespace GCTL_App.Controllers.Employees
             }
         }
 
+        #region Get Allowance Type according to Organization
+        [Route("EmployeeBenifitController/SelectAllowanceTypeAsync")]
+        [HttpGet]
+        public async Task<IActionResult> SelectAsync(int id)
+        {
+            try
+            {
+                var data = await _employeeBenifitService.SelectAsync(id);
+                return Json(data);
+            }
+            catch (Exception)
+            {
 
+                throw;
+            }
+        }
+
+
+        #endregion
 
     }
 }

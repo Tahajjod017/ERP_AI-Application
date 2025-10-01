@@ -2,6 +2,7 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM;
+using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -28,13 +29,19 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
         private readonly IGenericRepository<CalculationTypes> calculationTypesRepository;
         private readonly IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup;
         private readonly IGenericRepository<EmployeeAllowanceTypes> empalowanceTypesRepository;
-        public PayRollEmpAllowanceService(IGenericRepository<EmployeeAllowances> empAllowance, IUserInfoService userInfoService, IGenericRepository<CalculationTypes> calculationTypesRepository, IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup, IGenericRepository<EmployeeAllowanceTypes> empalowanceTypesRepository) : base(empAllowance)
+        private readonly IGenericRepository<BenefitTypes> benefitTypesRepository;
+        private readonly IGenericRepository<Benefits> benefitsRepository;
+        private readonly IGenericRepository<BenefitSetups> benefitSetupsRepository;
+        public PayRollEmpAllowanceService(IGenericRepository<EmployeeAllowances> empAllowance, IUserInfoService userInfoService, IGenericRepository<CalculationTypes> calculationTypesRepository, IGenericRepository<EmployeeAllowanceSetup> empAlowanceSetup, IGenericRepository<EmployeeAllowanceTypes> empalowanceTypesRepository, IGenericRepository<BenefitTypes> benefitTypesRepository , IGenericRepository<Benefits> benefitsRepository , IGenericRepository<BenefitSetups> benefitSetupsRepository ) : base(empAllowance)
         {
             this.empAllowance = empAllowance;
             this.userInfoService = userInfoService;
             this.calculationTypesRepository = calculationTypesRepository;
             this.empAlowanceSetup = empAlowanceSetup;
             this.empalowanceTypesRepository = empalowanceTypesRepository;
+            this.benefitTypesRepository = benefitTypesRepository;
+            this.benefitsRepository = benefitsRepository;
+            this.benefitSetupsRepository = benefitSetupsRepository;
         }
 
         public async Task<CommonReturnViewModel> GetPayRollEmpAllowanceByIdAsync()
@@ -60,7 +67,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                     EmployeeAllowanceTypeID = entity.EmployeeAllowanceTypeID,
                     EmployeeAllowanceTypeName=entity.EmployeeAllowanceType.EmployeeAllowanceTypeName,
                     IsActive = entity.IsActive,
-                    EffectiveDate = entity.EmployeeAllowanceSetup.FirstOrDefault()?.EffectiveDate,
+                    EffectiveDate = entity.EffectiveDate,
                     HouseRentAllowances = entity.EmployeeAllowanceSetup.Select(x => new HouseRentAllowanceDetailGetVM
                     {
                         SalaryMin = x.SalaryMin,
@@ -68,7 +75,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                         Value = x.Value,
                         CalculationTypeID = x.CalculationTypeID,
                         CalculationType = x.CalculationTypeID == 1 ? "Fixed" : "Percentage",
-                        EffectiveDate = x.EffectiveDate
                     }).ToList()
                 }).ToList();
 
@@ -118,6 +124,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                     OrganizationID = entityVM.OrganizationID,
                     IsActive = entityVM.IsActive,
                     EmployeeAllowanceTypeID=entityVM.EmployeeAllowanceTypeID,
+                    EffectiveDate = entityVM.EffectiveDate,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -131,7 +138,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                     CalculationTypeID =item.CalculationTypeID,
                     SalaryMax = item.SalaryMax,
                     SalaryMin = item.SalaryMin,
-                    EffectiveDate = entityVM.EffectiveDate,
                     Value = item.Value,
                     EmployeeAllowanceID= EmployeeAllowanceID,
                     LIP= entityVM.LIP,
@@ -222,7 +228,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                 entity.LMAC = entityVM.LMAC;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = entityVM.UpdatedBy;
-
+                entity.EffectiveDate = entityVM.EffectiveDate;
                 await empAllowance.UpdateAsync(entity);
 
                 // 3. Update HouseRentAllowances
@@ -244,7 +250,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                     SalaryMin = item.SalaryMin,
                     SalaryMax = item.SalaryMax,
                     Value = item.Value,
-                    EffectiveDate = entityVM.EffectiveDate,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.Now,
@@ -381,34 +386,68 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
 
         #region Get Allowance Type 
 
-        public async Task<List<CommonSelectVM>> SelectAsync(int id)
+        
+
+
+        public async Task<List<CommonSelectVMM>> SelectAsync(int id)
         {
+            //var result = new List<CommonSelectVMM>();
             try
             {
-                var data = await empalowanceTypesRepository
+                // Get all allowance types for the organization
+                var allowanceTypes = await empalowanceTypesRepository
                     .AllActive()
-                    .Where(x => x.OrganizationID == id).ToListAsync(); 
+                    .Where(x => x.OrganizationID == id && x.IsApplyOnGrossSalary == true)
+                    .ToListAsync();
 
-                if (data == null || !data.Any())
-                {
-                    return new List<CommonSelectVM>(); 
-                }
+                // Get all employee allowances with their setups
+                var empAllowances3 = await empAllowance // or your EmployeeAllowances repository
+                    .AllActive()
+                    .Include(a => a.EmployeeAllowanceSetup)
+                    .Include(a => a.EmployeeAllowanceType)
+                    .Where(a => a.OrganizationID == id)
+                    .ToListAsync();
 
-                var result = data.Select(x => new CommonSelectVM
+                // Structure: AllowanceType -> EmployeeAllowances -> EmployeeAllowanceSetups
+                var result = allowanceTypes.Select(at => new CommonSelectVMM
                 {
-                    Id = x.EmployeeAllowanceTypeID, // Assuming this is the unique ID
-                    Name = x.EmployeeAllowanceTypeName
+                    Id = at.EmployeeAllowanceTypeID,
+                    Name = at.EmployeeAllowanceTypeName,
+                    EmpAllowanceVMM = empAllowances3
+                        .Where(ea => ea.EmployeeAllowanceTypeID == at.EmployeeAllowanceTypeID)
+                        .Select(ea => new EmpAllowanceVMM
+                        {
+                            EmployeeAllowanceID = ea.EmployeeAllowanceID,
+                            OrganizationID = ea.OrganizationID,
+                            EmployeeAllowanceTypeID = ea.EmployeeAllowanceTypeID,
+                            EmployeeAllowanceTypeName = ea.EmployeeAllowanceType?.EmployeeAllowanceTypeName ?? "",
+                            IsActive = ea.IsActive,
+                            EffectiveDate = ea.EffectiveDate, 
+                            EmployeeAllowanceSetups = ea.EmployeeAllowanceSetup
+                                .Select(s => new EmpAllowanceSetupVMM
+                                {
+                                    EmployeeAllowanceSetupID = s.EmployeeAllowanceSetupID,
+                                    SalaryMin = s.SalaryMin,
+                                    SalaryMax = s.SalaryMax,
+                                    CalculationTypeID = s.CalculationTypeID,
+                                    Value = s.Value,
+                                }).ToList()
+                        }).ToList()
                 }).ToList();
 
                 return result;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
-                throw;
+                // Log the exception
+                await userInfoService.ActionLogExceptionAsync("Employee Allowance", ex, id, ActionName.Error);
+
+                Console.WriteLine(ex);
+                return new List<CommonSelectVMM>();
             }
         }
-        
+
+       
         #endregion
     }
 }

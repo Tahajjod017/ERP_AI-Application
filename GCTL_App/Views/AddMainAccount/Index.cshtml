@@ -1,0 +1,189 @@
+﻿@model GCTL.Core.ViewModels.Finance.AddMainAccountVM.CreateAddMainAccountVM
+
+@{
+    ViewData["Title"] = @Html.SmartLocalize("Add Main Account");
+    var accountClassDD = ViewBag.AccountClassDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+}
+
+<style>
+    /* Highlight active link */
+    .chat-thread-tab .nav-link.active {
+        background-color: #f0f0f0; /* Or any color you prefer */
+        color: #007bff; /* Highlight the text */
+    }
+
+    /* Highlight selected li */
+    .chat-thread-tab li.selected {
+        background-color: #e9ecef; /* Lighter background for the selected item */
+        border-left: 4px solid #007bff; /* Optional: Add a left border for better visibility */
+    }
+</style>
+
+<ul class="nav nav-underline fs-9">
+    <li class="nav-item"><a class="nav-link active" href="/AddMainAccount/Index">@Html.SmartLocalize("Add Main Account")</a></li>
+    <li class="nav-item"><a class="nav-link" href="/AddSubAccount/Index">@Html.SmartLocalize("Add Sub Account")</a></li>
+    <li class="nav-item"><a class="nav-link" href="/TransactionAccount/Index">@Html.SmartLocalize("Transaction Account")</a></li>
+</ul>
+
+<div class="tab-content mt-3">
+    <div class="tab-pane fade show active">
+        <div class="row">
+            <div class="col-md-4 bg-body-emphasis p-2">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="my-3">
+                            <label class="form-label" asp-for="ClassID">@Html.SmartLocalize("Select Class")<span style="color:red;">*&nbsp;</span></label>
+                            <select class="form-select" asp-for="ClassID">
+                                <option value="">@Html.SmartLocalize("Select Class")...</option>
+                                @foreach (var group in accountClassDD.GroupBy(e => e.GroupName))
+                                {
+                                    <optgroup label="@group.Key">
+                                        @foreach (var emp in group)
+                                        {
+                                            <option value="@emp.Id">@emp.Name</option>
+                                        }
+                                    </optgroup>
+                                }
+                            </select>
+                            <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <ul class="nav chat-thread-tab flex-column list">
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <form asp-controller="AddMainAccount" asp-action="Create" method="post" enctype="multipart/form-data" id="addMainAccount-form">
+                    <div class="row">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" asp-for="MainAccountID" />
+                        <input type="hidden" asp-for="GroupID" />
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" asp-for="MainAccountName">@Html.SmartLocalize("Main Account Name")<span style="color:red;">*&nbsp;</span></label>
+                                <input class="form-control" asp-for="MainAccountName" type="text" placeholder="@Html.SmartLocalize("Input Main Account Name")" />
+                                <span asp-validation-for="MainAccountName" id="MainAccountNameError" class="text-danger" style="display:none;"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" asp-for="MainAccountCode">@Html.SmartLocalize("Main Account Code")<span style="color:red;">*&nbsp;</span></label>
+                                <input class="form-control" asp-for="MainAccountCode" type="text" placeholder="@Html.SmartLocalize("Input Main Account Code")" />
+                                <span asp-validation-for="MainAccountCode" id="MainAccountCodeError" class="text-danger" style="display:none;"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label" asp-for="Description">@Html.SmartLocalize("Description")</label>
+                                <textarea class="form-control" type="text" asp-for="Description" placeholder="@Html.SmartLocalize("Input Description")"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-12 mb-4">
+                            <div class="row g-3 justify-content-end">
+                                <div class="col-auto">
+                                    <button type="reset" class="btn btn-phoenix-primary px-5" id="addMainAccount-resetBtn">@Html.SmartLocalize("Reset")</button>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-primary px-5 px-sm-15" id="addMainAccount-saveBtn">@Html.SmartLocalize("Save")</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="card-body py-0 scrollbar to-do-list-body">
+                    <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+                        <div class="row g-3 justify-content-between align-items-end mb-4">
+                            <div class="col-12 col-sm-auto">
+                                <div class="d-flex align-items-center me-3" style="width: auto;">
+                                    <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                                    <div style="width: 100%;">
+                                        <select id="addMainAccount-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                            <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                                            <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                                            <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                                            <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                                            <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-auto">
+                                <div class="d-flex align-items-center">
+                                    <div class="d-none me-3" id="addMainAccount-bulkSelectActions">
+                                        <div class="position-relative">
+                                            <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="addMainAccount-delSel">@Html.SmartLocalize("Delete")</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="search-box me-3" id="addMainAccount-searchBox">
+                                        <form class="position-relative" id="addMainAccount-searchForm">
+                                            <input class="form-control search-input search" id="addMainAccount-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                                            <span class="fas fa-search search-box-icon"></span>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive ms-n1 ps-1 scrollbar">
+                            <table class="table fs-9 mb-0 border-top border-translucent">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                                            <input type="checkbox" class="form-check-input" id="addMainAccount-check-all" />
+                                        </th>
+                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ClassName">@Html.SmartLocalize("Class Name")</th>
+                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="GroupName">@Html.SmartLocalize("Group Name")</th>
+                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="MainAccountName">@Html.SmartLocalize("Main Account Name")</th>
+                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="MainAccountCode">@Html.SmartLocalize("Main Account Code")</th>
+                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Description">@Html.SmartLocalize("Description")</th>
+                                        <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Action")</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="addMainAccount-tBody">
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                            <div class="d-flex">
+                                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="addMainAccount-paginationInfo"></p>
+                                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                            </div>
+                            <div class="d-flex">
+                                <button class="page-link" data-list-pagination="prev" id="addMainAccount-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                                <ul class="mb-0 pagination" id="addMainAccount-paginationLinks"></ul>
+                                <button class="page-link pe-0" data-list-pagination="next" id="addMainAccount-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfirmDelete" />
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="~/js/pages/finance/addmainaccount.js"></script>
+    <script>
+        $(function () {
+            var options = {
+                baseUrl: '@Url.Action("", "AddMainAccount")'
+            };
+            options.load = () => { };
+            $.addmainaccount(options);
+        });
+    </script>
+}

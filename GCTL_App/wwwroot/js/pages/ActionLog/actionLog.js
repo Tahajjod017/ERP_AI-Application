@@ -133,13 +133,16 @@ $('th.sort').on('click', function () {
     loadTableData(currentSortColumn, currentSortOrder);
 });
 
+// Whenever any filter changes, reload the table
+$('#FromDate, #ToDate, #TargetTypeDD, #ActionNameDD, #UserNameDD').on('change', function () {
+    loadTableData(currentSortColumn, currentSortOrder);
+});
+
+
 function loadTableData(currentSortColumn, currentSortOrder) {
     var searchTerm = $("#searchInput").val();
     var fromDate = $('#FromDate').val();
     var toDate = $('#ToDate').val();
-    //var fromDate = $('#FromDate').val() || new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
-    //var toDate = $('#ToDate').val() || new Date().toISOString().split('T')[0];
-
     var tergetType = $("#TargetTypeDD").val();
 
     var actionName = $('#ActionNameDD').val();
@@ -243,28 +246,20 @@ $(document).on('click', '.view-changes1', function () {
             $('#userEmail').text(response.userEmail);
             $('#userName').text(`${response.employeeUserName} (${response.employeeID})`);
             const createdDate = new Date(response.createdAt);
-
-            // Convert and format
             const day = String(createdDate.getDate()).padStart(2, '0');
             const month = String(createdDate.getMonth() + 1).padStart(2, '0');
             const year = createdDate.getFullYear();
-
             let hours = createdDate.getHours();
             const minutes = String(createdDate.getMinutes()).padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
             hours = hours ? hours : 12;
-
             const formattedTime = `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
             const formattedDate = `${day}/${month}/${year} ${formattedTime}`;
-
-
-
             $('#createdAt').text(formattedDate);
-            $('#TargetID').text(response.targetID);
-            $('#TargetType').text(response.targetType);
+            $('#TargetID').text(`${response?.targetID || ''}(Primary Key)`);
+            $('#TargetType').text(`${response.targetType} (Page Title)` );
             $('#ActionName').text(response.actionName);
-            //
             renderKeyValueTable(beforeData, afterData);
             $('#actionDetailModal').modal('show');
         },

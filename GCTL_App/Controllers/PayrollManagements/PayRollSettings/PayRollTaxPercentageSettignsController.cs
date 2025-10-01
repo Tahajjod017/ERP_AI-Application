@@ -11,6 +11,7 @@ using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.BloodGroup;
 using GCTL_App.ViewModels.PayRollManagements.PayRollSettings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Client;
@@ -18,6 +19,7 @@ using Microsoft.Identity.Client;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
 {
+    [Authorize]
     public class PayRollTaxPercentageSettignsController : BaseController
     {
         private readonly IPayRollTaxperCentangeSettingsService payRollTaxperCentangeSettingsService;
