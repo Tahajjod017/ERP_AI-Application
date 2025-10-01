@@ -267,5 +267,16 @@ namespace GCTL_App.Controllers.Finance
             return Json(result);
         }
         #endregion
+
+
+        #region GenerateNextCodeAsync
+        [Route("AddSubAccount/GenerateNextCodeAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GenerateNextCodeAsync(int mainAccId)
+        {
+            var result = await _addSubAccountService.GenerateNextCodeAsync(mainAccId);
+            return Json(result);
+        }
+        #endregion
     }
 }

@@ -20,11 +20,13 @@ namespace GCTL.Service.Finance.AddSubAccount
         #region Repositories & Services
         public readonly IGenericRepository<SubAccounts> _genericRepository;
         private readonly IUserInfoService _userInfoService;
+        private readonly IGenericRepository<MainAccounts> _mainAccounts;
 
-        public AddSubAccountService(IGenericRepository<SubAccounts> genericRepository, IUserInfoService userInfoService) : base(genericRepository)
+        public AddSubAccountService(IGenericRepository<SubAccounts> genericRepository, IUserInfoService userInfoService, IGenericRepository<MainAccounts> mainAccounts) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
+            _mainAccounts = mainAccounts;
         }
         #endregion
 
@@ -35,6 +37,9 @@ namespace GCTL.Service.Finance.AddSubAccount
             try
             {
                 await _genericRepository.BeginTransactionAsync();
+
+                var generatedSubAccountCode = await GenerateNextCodeAsync((int)model.MainAccountID);
+                model.SubAccountCode = generatedSubAccountCode;
 
                 var exixtingEntity = await _genericRepository.FirstOrDefaultAsync(x => x.SubAccountName.ToLower() == model.SubAccountName.ToLower() && x.DeletedAt != null);
                 if (exixtingEntity != null)
@@ -302,6 +307,47 @@ namespace GCTL.Service.Finance.AddSubAccount
             {
                 throw new Exception("An error occurred while checking the Add Sub Account code uniqueness.", ex);
             }
+        }
+        #endregion
+
+
+        #region GenerateNextCodeAsync
+        public async Task<string> GenerateNextCodeAsync(int mainAccId)
+        {
+            var mainAcc = await _mainAccounts.All().Where(x => x.MainAccountID == mainAccId).FirstOrDefaultAsync();
+
+            if (mainAcc == null)
+            {
+                throw new Exception("Main Account not found.");
+            }
+
+            var prefix = mainAcc.MainAccountCode;
+
+            var result = await _genericRepository.All()
+                .Where(x => x.MainAccountID == mainAccId)
+                .AsNoTracking()
+                .OrderByDescending(x => x.SubAccountCode)
+                .FirstOrDefaultAsync();
+
+            // If no SubAccountCode exists, start with "0001"
+            if (result == null)
+            {
+                return prefix + "0001";  // "01010001"
+            }
+
+            // Step 3: Extract the numeric part from the last SubAccountCode
+            var lastCode = result.SubAccountCode;  // E.g., "01010003"
+            var lastCodeNumericPart = lastCode.Substring(4);  // E.g., "0003"
+
+            // Step 4: Increment the numeric part
+            int lastCodeNumber = int.Parse(lastCodeNumericPart);  // E.g., 3 from "0003"
+            var newCodeNumber = lastCodeNumber + 1;  // E.g., 4
+
+            // Ensure the new numeric part is 4 digits long with leading zeros
+            var newCodeNumberPadded = newCodeNumber.ToString("D4");  // E.g., "0004"
+
+            // Step 5: Return the new SubAccountCode by combining the prefix and new numeric part
+            return prefix + newCodeNumberPadded;
         }
         #endregion
     }

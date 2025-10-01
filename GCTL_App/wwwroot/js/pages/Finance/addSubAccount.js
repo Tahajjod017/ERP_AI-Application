@@ -21,7 +21,7 @@
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
         var getGroupByClassIdUrl = settings.baseUrl + "/GetAccountGroupByClassId";
         var getMainAccByClassIdGroupIdUrl = settings.baseUrl + "/GetMainAccByClassIdGroupId";
-        var generateNextCodeUrl = settings.baseUrl + "/generateNextCode";
+        var generateNextCodeUrl = settings.baseUrl + "/GenerateNextCodeAsync";
 
         $(() => {
 
@@ -303,7 +303,7 @@
                             result.forEach(function (item) {
                                 var listItem = `
                         <li class="nav-item read border-bottom" role="presentation">
-                            <a class="nav-link d-flex align-items-center justify-content-center p-2" href="#tab-thread-${item.id}" role="tab" aria-selected="false" data-mainaccount-id="${item.id}" data-mainaccount-name="${item.name}">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2" href="#tab-thread-${item.id}" role="tab" aria-selected="false" data-mainaccount-id="${item.id}">
                                 <div class="flex-1 d-sm-none d-xl-block">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <h5 class="text-body fw-normal name text-nowrap">${item.name}</h5>
@@ -328,9 +328,8 @@
                                 $(this).closest('li').addClass('selected');
 
                                 var mainAccountID = $(this).data('mainaccount-id');
-                                var mainAccountCode = $(this).data('mainaccount-name');
                                 $('#MainAccountID').val(mainAccountID);
-                                $('#SubAccountCode').val(mainAccountCode.split('-')[0].trim());
+                                generateNextCode(mainAccountID);
                             });
 
                             // 🔽 If editing, auto-select the group
@@ -351,14 +350,14 @@
 
 
             // #region generateNextCode
-            function generateNextCode (mainAccountCode) {
+            function generateNextCode(mainAccountID) {
 
                 $.ajax({
                     url: generateNextCodeUrl,
                     type: 'GET',
-                    data: {id : mainAccountCode},
+                    data: { mainAccId: mainAccountID },
                     success: function (result) {
-
+                        $('#SubAccountCode').val(result);
                     },
                     error: function () {
                         console.error('Error generating next code!');

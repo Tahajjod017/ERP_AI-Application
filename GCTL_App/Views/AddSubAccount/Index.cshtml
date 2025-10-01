@@ -32,40 +32,36 @@
             <div class="col-md-4 bg-body-emphasis p-2">
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="mb-1">
-                            <label class="form-label" asp-for="ClassID">@Html.SmartLocalize("Select Class")<span style="color:red;">*&nbsp;</span></label>
-                            <select class="form-select" asp-for="ClassID">
-                                <option value="">@Html.SmartLocalize("Select Class")...</option>
-                                @foreach (var group in accountClassDD.GroupBy(e => e.GroupName))
-                                {
-                                    <optgroup label="@group.Key">
-                                        @foreach (var emp in group)
-                                        {
-                                            <option value="@emp.Id">@emp.Name</option>
-                                        }
-                                    </optgroup>
-                                }
-                            </select>
-                            <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
-                        </div>
+                        <label class="form-label" asp-for="ClassID">@Html.SmartLocalize("Select Class")<span style="color:red;">*&nbsp;</span></label>
+                        <select class="form-select" asp-for="ClassID">
+                            <option value="">@Html.SmartLocalize("Select Class")...</option>
+                            @foreach (var group in accountClassDD.GroupBy(e => e.GroupName))
+                            {
+                                <optgroup label="@group.Key">
+                                    @foreach (var emp in group)
+                                    {
+                                        <option value="@emp.Id">@emp.Name</option>
+                                    }
+                                </optgroup>
+                            }
+                        </select>
+                        <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
                     </div>
                     <div class="col-md-12">
-                        <div class="mb-1">
-                            <label class="form-label" asp-for="GroupID">@Html.SmartLocalize("Select Group")<span style="color:red;">*&nbsp;</span></label>
-                            <select class="form-select" asp-for="GroupID">
-                                <option value="">@Html.SmartLocalize("Select Group")...</option>
-                                @foreach (var group in accountGroupDD.GroupBy(e => e.GroupName))
-                                {
-                                    <optgroup label="@group.Key">
-                                        @foreach (var emp in group)
-                                        {
-                                            <option value="@emp.Id">@emp.Name</option>
-                                        }
-                                    </optgroup>
-                                }
-                            </select>
-                            <span asp-validation-for="GroupID" id="GroupIDError" class="text-danger" style="display:none;"></span>
-                        </div>
+                        <label class="form-label" asp-for="GroupID">@Html.SmartLocalize("Select Group")<span style="color:red;">*&nbsp;</span></label>
+                        <select class="form-select" asp-for="GroupID">
+                            <option value="">@Html.SmartLocalize("Select Group")...</option>
+                            @foreach (var group in accountGroupDD.GroupBy(e => e.GroupName))
+                            {
+                                <optgroup label="@group.Key">
+                                    @foreach (var emp in group)
+                                    {
+                                        <option value="@emp.Id">@emp.Name</option>
+                                    }
+                                </optgroup>
+                            }
+                        </select>
+                        <span asp-validation-for="GroupID" id="GroupIDError" class="text-danger" style="display:none;"></span>
                     </div>
                 </div>
 
@@ -76,7 +72,7 @@
             </div>
             <div class="col-md-8">
                 <form asp-controller="AddSubAccount" asp-action="Create" method="post" enctype="multipart/form-data" id="addSubAccount-form">
-                    <div class="row">
+                    <div class="row pt-2">
 
                         @Html.AntiForgeryToken()
 
