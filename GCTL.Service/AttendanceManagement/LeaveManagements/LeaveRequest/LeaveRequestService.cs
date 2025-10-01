@@ -195,7 +195,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                       EF.Functions.Like(b.ToDate.ToString(), $"%{term}%"),
                     b => new LeaveApplicationsList
                     {
-                        //ApplicationDateForTable = b.CreatedAt.HasValue ? TimeConversionHelper.ConvertDateTimeToUtcHHmm(b.CreatedAt.Value, _localizationContext) : "",
                         ApplicationDateForTable = b.CreatedAt.HasValue ? TimeConversionHelper.ConvertUtcToUserLocalizedDateTimeString(DateTime.SpecifyKind(b.CreatedAt.Value, DateTimeKind.Utc), _localizationContext) : "-",
                         ApplicationDate = b.CreatedAt,
                         LeaveApplicationID = b.LeaveApplicationID,
@@ -309,8 +308,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #region  Save Leave Reqest
 
-        //Today Taskk  
-
+        
         // StatusID according to Name 
         private async Task<int?> GetIdByNameAsync(string name)
         {
@@ -1270,9 +1268,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 await emailService.SendEmailLeaveRequest(emailModel, entityVM.EmployeeID);
 
 
-
-            
-
                 await leaveRequest.CommitTransactionAsync();
 
                 return new CommonReturnViewModel
@@ -2132,7 +2127,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         ApproverStep = lb.ApprovalStep ?? 0,
                         ApprovarPerson = e.FirstName + " " + e.LastName ?? string.Empty,
                         StatusName = statusName.StatusName ?? string.Empty,
-                        ApprovedOrDeclineDate =DateTimeHelpers.FormatDateTime(lb.CreatedAt),
+                        //ApprovedOrDeclineDate =DateTimeHelpers.FormatDateTime(lb.CreatedAt),
+                        ApprovedOrDeclineDate = lb.CreatedAt.HasValue ? TimeConversionHelper.ConvertUtcToUserLocalizedDateTimeString(DateTime.SpecifyKind(lb.CreatedAt.Value, DateTimeKind.Utc), _localizationContext) : "-",
 
                     }).OrderBy(X=>X.ApproverStep).ToListAsync();
 
