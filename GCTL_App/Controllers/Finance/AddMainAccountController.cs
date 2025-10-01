@@ -252,9 +252,9 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region GetAccountGroupByClassId
-        public async Task<IActionResult> GetAccountGroupByClassId(int id)
+        public async Task<IActionResult> GetAccountGroupByClassId(int classId)
         {
-            var result = await _commonService.GetAccountGroupByClassId(id);
+            var result = await _commonService.GetAccountGroupByClassId(classId);
             return Json(result);
         }
         #endregion

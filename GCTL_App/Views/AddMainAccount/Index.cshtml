@@ -75,7 +75,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" asp-for="MainAccountCode">@Html.SmartLocalize("Main Account Code")<span style="color:red;">*&nbsp;</span></label>
-                                <input class="form-control" asp-for="MainAccountCode" type="text" placeholder="@Html.SmartLocalize("Input Account Code")" />
+                                <input class="form-control" asp-for="MainAccountCode" type="text" placeholder="@Html.SmartLocalize("Input Main Account Code")" />
                                 <span asp-validation-for="MainAccountCode" id="MainAccountCodeError" class="text-danger" style="display:none;"></span>
                             </div>
                         </div>
@@ -141,11 +141,11 @@
                                         <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
                                             <input type="checkbox" class="form-check-input" id="addMainAccount-check-all" />
                                         </th>
-                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="MainAccountName">@Html.SmartLocalize("Class Name")</th>
-                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="MainAccountName">@Html.SmartLocalize("Group Name")</th>
+                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ClassName">@Html.SmartLocalize("Class Name")</th>
+                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="GroupName">@Html.SmartLocalize("Group Name")</th>
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="MainAccountName">@Html.SmartLocalize("Main Account Name")</th>
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="MainAccountCode">@Html.SmartLocalize("Main Account Code")</th>
-                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Symbol">@Html.SmartLocalize("Description")</th>
+                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Description">@Html.SmartLocalize("Description")</th>
                                         <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Action")</th>
                                     </tr>
                                 </thead>

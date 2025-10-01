@@ -108,6 +108,7 @@
                             $('#secondTab-form #Description').val(data.description);
 
                             $('#secondTab-form #BaseAccount-saveBtn').text('Update');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                         } else {
                             toastr.warning(response.message);
                         }

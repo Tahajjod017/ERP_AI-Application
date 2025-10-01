@@ -130,6 +130,7 @@
                             $('#baseAccount-form #Description').val(data.description);
 
                             $('#baseAccount-form #BaseAccount-saveBtn').text('Update');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                         } else {
                             toastr.warning(response.message);
                         }
