@@ -4,7 +4,6 @@ using GCTL.Service.CommonService;
 using GCTL.Service.Finance.AddMainAccount;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
-using GCTL_App.ViewModels.Finance.ChartOfAccount;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -104,7 +103,7 @@ namespace GCTL_App.Controllers.Finance
         #region Update
         //[Permission("Edit", "AddMainAccount")]
         [ValidateAntiForgeryToken]
-        [HttpPut]
+        [HttpPost]
         public async Task<IActionResult> Update(UpdateAddMainAccountVM model)
         {
             try

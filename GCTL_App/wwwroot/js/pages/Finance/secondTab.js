@@ -23,25 +23,6 @@
         $(() => {
 
 
-            // #region Frontend Validataion
-            //$(settings.saveBtn).on('click', function () {
-            //    debugger
-            //    $(settings.addform).find('input[required], select[required], textarea[required]').each(function () {
-            //        debugger
-            //        if (!$(settings.addform).valid()) {
-            //            $(settings.addform).addClass('is-invalid');
-            //        } else {
-            //            $(settings.addform).removeClass('is-invalid');
-            //        }
-            //    });
-            //});
-            //// Remove red border when user fixes input
-            //$('input[required], select[required], textarea[required]').on('keyup change', function () {
-            //    if ($(settings.addform).valid()) {
-            //        $(settings.addform).removeClass('is-invalid');
-            //    }
-            //});
-            // #endregion
 
 
             // #region Save 
@@ -65,7 +46,7 @@
                 var type = '';
                 if (id > 0) {
                     url = updateUrl;
-                    type = 'PUT'
+                    type = 'POST'
                 } else {
                     url = createUrl;
                     type = 'POST'

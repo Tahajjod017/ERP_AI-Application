@@ -69,7 +69,7 @@
                 var type = '';
                 if (id > 0) {
                     url = updateUrl;
-                    type = 'PUT'
+                    type = 'POST'
                 } else {
                     url = createUrl;
                     type = 'POST'

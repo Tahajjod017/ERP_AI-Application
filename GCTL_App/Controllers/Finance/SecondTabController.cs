@@ -106,7 +106,7 @@ namespace GCTL_App.Controllers.Finance
         #region Update
         //[Permission("Edit", "SecondTab")]
         [ValidateAntiForgeryToken]
-        [HttpPut]
+        [HttpPost]
         public async Task<IActionResult> Update(UpdateSecondTabVM model)
         {
             try
