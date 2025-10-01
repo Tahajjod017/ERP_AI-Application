@@ -1,15 +1,15 @@
 ﻿(function ($) {
-    $.baseAccount = function (options) {
+    $.addmainaccount = function (options) {
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            addform: '#baseAccount-form',
-            updateform: '#baseAccount-Updateform',
-            saveBtn: '#baseAccount-saveBtn',
-            editBtn: '#baseAccount-editBtn',
-            resetBtn: '#baseAccount-resetBtn',
-            bulkDelBtn: '#baseAccount-bulkDelBtn',
-            singleDeleteBtn: '#baseAccount-singleDelBtn',
+            addform: '#addMainAccount-form',
+            updateform: '#addMainAccount-Updateform',
+            saveBtn: '#addMainAccount-saveBtn',
+            editBtn: '#addMainAccount-editBtn',
+            resetBtn: '#addMainAccount-resetBtn',
+            bulkDelBtn: '#addMainAccount-bulkDelBtn',
+            singleDeleteBtn: '#addMainAccount-singleDelBtn',
         }, options);
 
         var getAllUrl = settings.baseUrl + "/GetAll";
@@ -19,29 +19,9 @@
         var deleteUrl = settings.baseUrl + "/Delete";
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
+        var getGroupByClassIdUrl = settings.baseUrl + "/GetAccountGroupByClassId";
 
         $(() => {
-
-
-            // #region Frontend Validataion
-            //$(settings.saveBtn).on('click', function () {
-            //    debugger
-            //    $(settings.addform).find('input[required], select[required], textarea[required]').each(function () {
-            //        debugger
-            //        if (!$(settings.addform).valid()) {
-            //            $(settings.addform).addClass('is-invalid');
-            //        } else {
-            //            $(settings.addform).removeClass('is-invalid');
-            //        }
-            //    });
-            //});
-            //// Remove red border when user fixes input
-            //$('input[required], select[required], textarea[required]').on('keyup change', function () {
-            //    if ($(settings.addform).valid()) {
-            //        $(settings.addform).removeClass('is-invalid');
-            //    }
-            //});
-            // #endregion
 
 
             // #region Save 
@@ -50,21 +30,18 @@
 
                 $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
-                //if (!$(settings.addform).valid()) {
-                //    $(settings.saveBtn).prop('disabled', false).html('Save');
-                //    return; 
-                //}
-
-                var token = $('#baseAccount-form input[name="__RequestVerificationToken"]').val();
+                var token = $('#addMainAccount-form input[name="__RequestVerificationToken"]').val();
                 var formData = {
                     __RequestVerificationToken: token,
-                    BaseAccountID: $('#BaseAccountID').val(),
-                    BaseAccountName: $('#BaseAccountName').val(),
-                    BaseAccountCode: $('#BaseAccountCode').val(),
+                    MainAccountID: $('#MainAccountID').val(),
+                    ClassID: $('#ClassID').val(),
+                    GroupID: $('#GroupID').val(),
+                    MainAccountName: $('#MainAccountName').val(),
+                    MainAccountCode: $('#MainAccountCode').val(),
                     Description: $('#Description').val(),
                 }
 
-                var id = $(settings.addform).find('#BaseAccountID').val();
+                var id = $(settings.addform).find('#MainAccountID').val();
                 var url = '';
                 var type = '';
                 if (id > 0) {
@@ -83,7 +60,7 @@
                         showLoadingIndicator();
                     },
                     success: function (response) {
-                        const allFields = ['BaseAccountName', 'BaseAccountCode'];
+                        const allFields = ['ClassID', 'GroupID', 'MainAccountName', 'MainAccountCode'];
 
                         allFields.forEach(function (fieldId) {
                             validateField(fieldId, response);
@@ -110,10 +87,10 @@
 
 
             // #region Edit
-            $(document).on('click', '#baseAccount-edit', function (e) {
+            $(document).on('click', '#addMainAccount-edit', function (e) {
                 e.preventDefault();
 
-                $('.baseAccount-edit').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+                $('.addMainAccount-edit').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
 
                 var id = $(this).data('id');
 
@@ -124,16 +101,20 @@
                     success: function (response) {
                         if (response.isSuccess) {
                             var data = response.data;
-                            $('#baseAccount-form #BaseAccountID').val(data.baseAccountID);
-                            $('#baseAccount-form #BaseAccountCode').val(data.baseAccountCode);
-                            $('#baseAccount-form #BaseAccountName').val(data.baseAccountName);
-                            $('#baseAccount-form #Description').val(data.description);
+                            $('#addMainAccount-form #MainAccountID').val(data.mainAccountID);
+                            $('#addMainAccount-form #MainAccountCode').val(data.mainAccountCode);
+                            $('#addMainAccount-form #MainAccountName').val(data.mainAccountName);
+                            $('#addMainAccount-form #Description').val(data.description);
+                            accountClassDD.setChoiceByValue(data.classID.toString());
 
-                            $('#baseAccount-form #BaseAccount-saveBtn').text('Update');
+                            getAccountGroupByClassId(data.classID, data.groupID);
+
+                            $('#addMainAccount-form #BaseAccount-saveBtn').text('Update');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                         } else {
                             toastr.warning(response.message);
                         }
-                        $('.baseAccount-edit').prop('disabled', false).html('<i class="fas fa-edit"></i>');
+                        $('.addMainAccount-edit').prop('disabled', false).html('<i class="fas fa-edit"></i>');
                     }
                 });
             });
@@ -141,8 +122,8 @@
 
 
             // #region Delete
-            $("#baseAccount-delSel").on('click', function () {
-                var selectedItems = $(".baseAccount-selectItem:checked");
+            $("#addMainAccount-delSel").on('click', function () {
+                var selectedItems = $(".addMainAccount-selectItem:checked");
                 var selectedIds = [];
 
                 selectedItems.each(function () {
@@ -158,8 +139,8 @@
                             success: function (response) {
                                 if (response.isSuccess) {
                                     toastr.success(response.message);
-                                    $("#baseAccount-check-all").prop('checked', false);
-                                    $('.baseAccount-selectItem').prop('checked', false);
+                                    $("#addMainAccount-check-all").prop('checked', false);
+                                    $('.addMainAccount-selectItem').prop('checked', false);
                                     clear();
                                 } else {
                                     toastr.error(response.message);
@@ -175,7 +156,7 @@
                 }
             });
 
-            $(document).on('click', '#baseAccount-single-delete', function () {
+            $(document).on('click', '#addMainAccount-single-delete', function () {
                 var id = $(this).data('id');
 
                 if (id) {
@@ -187,7 +168,7 @@
                             success: function (response) {
                                 if (response.isSuccess) {
                                     toastr.success(response.message);
-                                    $("#baseAccount-check-all").prop('checked', false);
+                                    $("#addMainAccount-check-all").prop('checked', false);
                                     clear();
                                 } else {
                                     toastr.error(response.message);
@@ -205,6 +186,82 @@
             // #endregion
 
 
+            // #region GetAccountGroupByClassId
+            $('#ClassID').on('change', function (e) {
+                e.preventDefault();
+
+                var id = $(this).val();
+
+                getAccountGroupByClassId(id);
+            });
+
+            function getAccountGroupByClassId(classId, selectedGroupId = null) {
+                $.ajax({
+                    url: getGroupByClassIdUrl,
+                    type: 'GET',
+                    data: { id: classId },
+                    success: function (result) {
+                        $('.chat-thread-tab').empty();
+
+                        $('.chat-thread-tab')
+                            .append(`<div class="row">
+                            <div class="col-md-12">
+                                <label class="form-label"><strong>Select a Group</strong><span style="color:red;">*&nbsp;</span></label>
+                            </div>
+                            <span asp-validation-for="GroupID" id="GroupIDError" class="text-danger" style="display:none;"></span>
+                        </div>`);
+
+                        if (result.length === 0) {
+                            $('.chat-thread-tab').append('<li class="nav-item text-center">No Data Found</li>');
+                        } else {
+                            result.forEach(function (item) {
+                                var listItem = `
+                        <li class="nav-item read border-bottom" role="presentation">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-${item.id}" role="tab" aria-selected="false" data-group-id="${item.id}">
+                                <div class="flex-1 d-sm-none d-xl-block">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="text-body fw-normal name text-nowrap">${item.name}</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">${item.groupName}</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    `;
+
+                                $('.chat-thread-tab').append(listItem);
+                            });
+
+                            // Click handler
+                            $('.chat-thread-tab .nav-link').on('click', function () {
+                                $('.chat-thread-tab .nav-link').removeClass('active');
+                                $(this).addClass('active');
+
+                                $(this).closest('li').siblings().removeClass('selected');
+                                $(this).closest('li').addClass('selected');
+
+                                var groupId = $(this).data('group-id');
+                                $('#GroupID').val(groupId);
+                            });
+
+                            // 🔽 If editing, auto-select the group
+                            if (selectedGroupId) {
+                                const target = $(`.chat-thread-tab .nav-link[data-group-id="${selectedGroupId}"]`);
+                                if (target.length) {
+                                    target.trigger('click'); // Triggers the same click handler
+                                }
+                            }
+                        }
+                    },
+                    error: function () {
+                        console.error('Something went wrong!');
+                    }
+                });
+            }
+            // #endregion
+
+
             // #region Clear
             $(settings.resetBtn).on('click', function (e) {
                 e.preventDefault();
@@ -214,8 +271,8 @@
 
             function clear() {
                 $(settings.addform)[0].reset();
-                $('#BaseAccountID').val('0');
-                resetValidation(['BaseAccountName', 'BaseAccountCode']);
+                $('#MainAccountID').val('0');
+                resetValidation(['MainAccountName', 'MainAccountCode']);
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -224,13 +281,32 @@
                     }
                 });
                 $(settings.addform).find(settings.saveBtn).text('Save');
-                $("#baseAccount-check-all").prop('checked', false);
-                $('.baseAccount-selectItem').prop('checked', false);
+                $("#addMainAccount-check-all").prop('checked', false);
+                $('.addMainAccount-selectItem').prop('checked', false);
+                $('.chat-thread-tab').empty();
+
+                if (accountClassDD) {
+                    accountClassDD.destroy();
+                }
+                initAccountClassDD();
 
                 loadTableData();
                 toggleBulkActions();
-                $('#baseAccount-check-all').prop('checked', false).prop('indeterminate', false);
+                $('#addMainAccount-check-all').prop('checked', false).prop('indeterminate', false);
             }
+            // #endregion
+
+
+            // #region Dropdowns
+            function initAccountClassDD() {
+                accountClassDD = new Choices('#ClassID', {
+                    removeItemButton: true,
+                    shouldSort: false,
+                    placeholderValue: 'Select Class...'
+                });
+            }
+            document.addEventListener('DOMContentLoaded', initAccountClassDD);
+            initAccountClassDD();
             // #endregion
 
 
@@ -238,14 +314,14 @@
             var typingTimer;
             var doneTypingInterval = 100; // Wait 500ms after user stops typing
 
-            $('#BaseAccountName').on('input', function () {
+            $('#MainAccountName').on('input', function () {
                 clearTimeout(typingTimer);
                 var value = $(this).val();
 
                 // Clear error immediately when input is empty
                 if (!value) {
-                    $('#BaseAccountNameError').hide();
-                    $('#BaseAccountName').removeClass('is-invalid');
+                    $('#MainAccountNameError').hide();
+                    $('#MainAccountName').removeClass('is-invalid');
                     return;
                 }
 
@@ -256,11 +332,11 @@
                         data: { name: value },
                         success: function (response) {
                             if (response.isSuccess == true || response === true) {
-                                $('#BaseAccountNameError').hide();
-                                $('#BaseAccountName').removeClass('is-invalid');
+                                $('#MainAccountNameError').hide();
+                                $('#MainAccountName').removeClass('is-invalid');
                             } else {
-                                $('#BaseAccountNameError').text(response.message).show();
-                                $('#BaseAccountName').addClass('is-invalid');
+                                $('#MainAccountNameError').text(response.message).show();
+                                $('#MainAccountName').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
@@ -271,21 +347,21 @@
             });
 
             // Clear timer when user is still typing
-            $('#BaseAccountName').on('keydown', function () {
+            $('#MainAccountName').on('keydown', function () {
                 clearTimeout(typingTimer);
             });
             // #endregion
 
 
             // #region checkCodeUnique
-            $('#BaseAccountCode').on('input', function () {
+            $('#MainAccountCode').on('input', function () {
                 clearTimeout(typingTimer);
                 var value = $(this).val();
 
                 // Clear error immediately when input is empty
                 if (!value) {
-                    $('#BaseAccountCodeError').hide();
-                    $('#BaseAccountCode').removeClass('is-invalid');
+                    $('#MainAccountCodeError').hide();
+                    $('#MainAccountCode').removeClass('is-invalid');
                     return;
                 }
 
@@ -296,11 +372,11 @@
                         data: { code: value },
                         success: function (response) {
                             if (response.isSuccess == true || response === true) {
-                                $('#BaseAccountCodeError').hide();
-                                $('#BaseAccountCode').removeClass('is-invalid');
+                                $('#MainAccountCodeError').hide();
+                                $('#MainAccountCode').removeClass('is-invalid');
                             } else {
-                                $('#BaseAccountCodeError').text(response.message).show();
-                                $('#BaseAccountCode').addClass('is-invalid');
+                                $('#MainAccountCodeError').text(response.message).show();
+                                $('#MainAccountCode').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
@@ -311,7 +387,7 @@
             });
 
             // Clear timer when user is still typing
-            $('#BaseAccountCode').on('keydown', function () {
+            $('#MainAccountCode').on('keydown', function () {
                 clearTimeout(typingTimer);
             });
             // #endregion
@@ -319,38 +395,38 @@
 
             // #region toggle table checkbox
             $(document).ready(function () {
-                $('#baseAccount-check-all').on('change', function () {
+                $('#addMainAccount-check-all').on('change', function () {
                     var isChecked = $(this).prop('checked');
-                    $('.baseAccount-selectItem').prop('checked', isChecked);
+                    $('.addMainAccount-selectItem').prop('checked', isChecked);
 
                     toggleBulkActions();
                 });
 
-                $(document).on('change', '.baseAccount-selectItem', function () {
+                $(document).on('change', '.addMainAccount-selectItem', function () {
                     toggleBulkActions();
                 });
             });
 
             function toggleBulkActions() {
-                const allItems = $('.baseAccount-selectItem');
-                const checkedItems = $('.baseAccount-selectItem:checked');
+                const allItems = $('.addMainAccount-selectItem');
+                const checkedItems = $('.addMainAccount-selectItem:checked');
 
                 const allChecked = allItems.length === checkedItems.length;
                 const someChecked = checkedItems.length > 0 && !allChecked;
 
-                $('#baseAccount-check-all').prop('checked', allChecked);
-                $('#baseAccount-check-all').prop('indeterminate', someChecked);
+                $('#addMainAccount-check-all').prop('checked', allChecked);
+                $('#addMainAccount-check-all').prop('indeterminate', someChecked);
 
                 if (checkedItems.length > 1) {
-                    $('#baseAccount-bulkSelectActions').removeClass('d-none');
-                    $('#baseAccount-searchBox').addClass('d-none');
-                    $('.baseAccount-bulkDelete').addClass('disabled');
-                    $('.baseAccount-bulkEdit').addClass('disabled');
+                    $('#addMainAccount-bulkSelectActions').removeClass('d-none');
+                    $('#addMainAccount-searchBox').addClass('d-none');
+                    $('.addMainAccount-bulkDelete').addClass('disabled');
+                    $('.addMainAccount-bulkEdit').addClass('disabled');
                 } else {
-                    $('#baseAccount-bulkSelectActions').addClass('d-none');
-                    $('#baseAccount-searchBox').removeClass('d-none');
-                    $('.baseAccount-bulkDelete').removeClass('disabled');
-                    $('.baseAccount-bulkEdit').removeClass('disabled');
+                    $('#addMainAccount-bulkSelectActions').addClass('d-none');
+                    $('#addMainAccount-searchBox').removeClass('d-none');
+                    $('.addMainAccount-bulkDelete').removeClass('disabled');
+                    $('.addMainAccount-bulkEdit').removeClass('disabled');
                 }
             }
             // #endregion
@@ -364,7 +440,7 @@
         var currentPage = 1;
         var pageSize = 5;
 
-        $('#baseAccount-pageSizeSelect').on('change', function () {
+        $('#addMainAccount-pageSizeSelect').on('change', function () {
             var selectedSize = $(this).val();
 
             if (selectedSize) {
@@ -378,26 +454,26 @@
         $(document).ready(function () {
             loadTableData();
 
-            $("#baseAccount-searchInput").on("input", function () {
+            $("#addMainAccount-searchInput").on("input", function () {
                 currentPage = 1;
                 loadTableData();
             });
 
-            $("#baseAccount-prevPageBtn").on('click', function () {
+            $("#addMainAccount-prevPageBtn").on('click', function () {
                 if (currentPage > 1) {
                     currentPage--;
                     loadTableData();
                 }
             });
 
-            $("#baseAccount-nextPageBtn").on('click', function () {
+            $("#addMainAccount-nextPageBtn").on('click', function () {
                 currentPage++;
                 loadTableData();
             });
         });
 
 
-        let currentSortColumn = 'baseAccountName';
+        let currentSortColumn = 'addMainAccountName';
         let currentSortOrder = 'asc';
 
         $('th.sort').on('click', function () {
@@ -431,7 +507,7 @@
         }
 
         function loadTableData(sortColumn, sortOrder) {
-            var searchTerm = $("#baseAccount-searchInput").val();
+            var searchTerm = $("#addMainAccount-searchInput").val();
 
             $.ajax({
                 url: getAllUrl,
@@ -444,7 +520,7 @@
                     sortOrder: sortOrder
                 },
                 success: function (response) {
-                    var tableBody = $("#baseAccount-tBody");
+                    var tableBody = $("#addMainAccount-tBody");
                     tableBody.empty();
                     if (response.data.length > 0) {
                         response.data.forEach(function (item, index) {
@@ -452,15 +528,17 @@
                             tableBody.append(`
                                 <tr class="position-static">
                                     <td class="text-center text-middle align-middle" style="width: 5%;">
-                                        <input type="checkbox" class="form-check-input baseAccount-selectItem" data-id="${item.baseAccountID}" />
+                                        <input type="checkbox" class="form-check-input addMainAccount-selectItem" data-id="${item.mainAccountID}" />
                                     </td>
-                                    <td class="align-middle white-space-nowrap ps-0">${item.baseAccountName}</td>
-                                    <td class="align-middle white-space-nowrap ps-0">${item.baseAccountCode}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.className}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.groupName}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.mainAccountName}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.mainAccountCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.description}</td>
                                     <td class="align-middle text-end white-space-nowrap pe-2">
                                         <div class="row g-3">
-                                            <a href="#!" class="btn btn-outline-light btn-icon me-2 baseAccount-edit" id="baseAccount-edit" data-id="${item.baseAccountID}"><i class="fas fa-edit text-black"></i></a>
-                                            <a href="#!" class="btn btn-outline-light btn-icon baseAccount-single-delete" id="baseAccount-single-delete" data-id="${item.baseAccountID}"><i class="far fa-trash-alt text-black"></i></a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon me-2 addMainAccount-edit" id="addMainAccount-edit" data-id="${item.mainAccountID}"><i class="fas fa-edit text-black"></i></a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon addMainAccount-single-delete" id="addMainAccount-single-delete" data-id="${item.mainAccountID}"><i class="far fa-trash-alt text-black"></i></a>
                                         </div>
                                     </td>
                                 </tr>
@@ -472,8 +550,8 @@
 
                     var paginationInfo = response.paginationInfo;
 
-                    $("#baseAccount-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-                    $("#baseAccount-totalCount").text(`(${paginationInfo.totalItems})`);
+                    $("#addMainAccount-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                    $("#addMainAccount-totalCount").text(`(${paginationInfo.totalItems})`);
 
                     updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
                 },
@@ -484,7 +562,7 @@
         }
 
         function updatePagination(pageNumbers, currentPage, totalPages) {
-            const paginationLinks = $("#baseAccount-paginationLinks");
+            const paginationLinks = $("#addMainAccount-paginationLinks");
             paginationLinks.empty();
             // Window size (number of pages before/after the current page)
             const windowSize = 1;
@@ -510,8 +588,8 @@
                 paginationLinks.append(addEllipsis(), createPageButton(totalPages));
             }
             // Disable or enable previous/next buttons
-            $("#baseAccount-prevPageBtn").prop('disabled', currentPage === 1);
-            $("#baseAccount-nextPageBtn").prop('disabled', currentPage === totalPages);
+            $("#addMainAccount-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#addMainAccount-nextPageBtn").prop('disabled', currentPage === totalPages);
         }
 
         $(document).on('click', '.page-btn', function () {

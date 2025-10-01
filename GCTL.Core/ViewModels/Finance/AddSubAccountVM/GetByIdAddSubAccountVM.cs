@@ -13,6 +13,10 @@ namespace GCTL.Core.ViewModels.Finance.AddSubAccountVM
 
         public int? MainAccountID { get; set; }
 
+        public int? ClassID { get; set; }
+
+        public int? GroupID { get; set; }
+
         public string? MainAccountName { get; set; }
 
         public string? SubAccountCode { get; set; }

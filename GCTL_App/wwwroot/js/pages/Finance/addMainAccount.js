@@ -110,6 +110,7 @@
                             getAccountGroupByClassId(data.classID, data.groupID);
 
                             $('#addMainAccount-form #BaseAccount-saveBtn').text('Update');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                         } else {
                             toastr.warning(response.message);
                         }
@@ -189,16 +190,16 @@
             $('#ClassID').on('change', function (e) {
                 e.preventDefault();
 
-                var id = $(this).val();
+                var classId = $(this).val();
 
-                getAccountGroupByClassId(id);
+                getAccountGroupByClassId(classId);
             });
 
             function getAccountGroupByClassId(classId, selectedGroupId = null) {
                 $.ajax({
                     url: getGroupByClassIdUrl,
                     type: 'GET',
-                    data: { id: classId },
+                    data: { classId: classId },
                     success: function (result) {
                         $('.chat-thread-tab').empty();
 

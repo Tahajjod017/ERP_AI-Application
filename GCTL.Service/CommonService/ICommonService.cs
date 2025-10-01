@@ -33,7 +33,9 @@ namespace GCTL.Service.CommonService
 
         Task<List<CommonSelectVM>> GetAccountGroup();
 
-        Task<List<CommonSelectVM>> GetAccountGroupByClassId(int id);
+        Task<List<CommonSelectVM>> GetAccountGroupByClassId(int classId);
+
+        Task<List<CommonSelectVM>> GetMainAccByClassIdGroupId(int classId, int? GroupId);
         #endregion
                        
 
