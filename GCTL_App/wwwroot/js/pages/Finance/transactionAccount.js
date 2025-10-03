@@ -1,15 +1,15 @@
 ﻿(function ($) {
-    $.addmainaccount = function (options) {
+    $.transactionaccount = function (options) {
         // Default options
         var settings = $.extend({
             baseUrl: '/',
-            addform: '#addMainAccount-form',
-            updateform: '#addMainAccount-Updateform',
-            saveBtn: '#addMainAccount-saveBtn',
-            editBtn: '#addMainAccount-editBtn',
-            resetBtn: '#addMainAccount-resetBtn',
-            bulkDelBtn: '#addMainAccount-bulkDelBtn',
-            singleDeleteBtn: '#addMainAccount-singleDelBtn',
+            addform: '#trxAccount-form',
+            updateform: '#trxAccount-Updateform',
+            saveBtn: '#trxAccount-saveBtn',
+            editBtn: '#trxAccount-editBtn',
+            resetBtn: '#trxAccount-resetBtn',
+            bulkDelBtn: '#trxAccount-bulkDelBtn',
+            singleDeleteBtn: '#trxAccount-singleDelBtn',
         }, options);
 
         var getAllUrl = settings.baseUrl + "/GetAll";
@@ -20,8 +20,14 @@
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
         var getGroupByClassIdUrl = settings.baseUrl + "/GetAccountGroupByClassId";
+        var getMainAccByClassIdGroupIdUrl = settings.baseUrl + "/GetMainAccByClassIdGroupId";
+        var getSubAccByClassIdGroupIdMainAccIdUrl = settings.baseUrl + "/GetSubAccByClassIdGroupIdMainAccId";
+        var generateNextCodeUrl = settings.baseUrl + "/GenerateNextCodeAsync";
 
         $(() => {
+
+
+
 
 
             // #region Save 
@@ -30,18 +36,20 @@
 
                 $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
-                var token = $('#addMainAccount-form input[name="__RequestVerificationToken"]').val();
+                var token = $('#trxAccount-form input[name="__RequestVerificationToken"]').val();
                 var formData = {
                     __RequestVerificationToken: token,
-                    MainAccountID: $('#MainAccountID').val(),
+                    TrxAccID: $('#TrxAccID').val(),
+                    SubAccountID: $('#SubAccountID').val(),
                     ClassID: $('#ClassID').val(),
                     GroupID: $('#GroupID').val(),
-                    MainAccountName: $('#MainAccountName').val(),
-                    MainAccountCode: $('#MainAccountCode').val(),
+                    MainAccountID: $('#MainAccountID').val(),
+                    TrxAccName: $('#TrxAccName').val(),
+                    TrxAccCode: $('#TrxAccCode').val(),
                     Description: $('#Description').val(),
                 }
 
-                var id = $(settings.addform).find('#MainAccountID').val();
+                var id = $(settings.addform).find('#TrxAccID').val();
                 var url = '';
                 var type = '';
                 if (id > 0) {
@@ -60,7 +68,7 @@
                         showLoadingIndicator();
                     },
                     success: function (response) {
-                        const allFields = ['ClassID', 'GroupID', 'MainAccountName', 'MainAccountCode'];
+                        const allFields = ['ClassID', 'GroupID', 'MainAccountID', 'SubAccountID', 'TrxAccName', 'TrxAccCode'];
 
                         allFields.forEach(function (fieldId) {
                             validateField(fieldId, response);
@@ -87,43 +95,44 @@
 
 
             // #region Edit
-            $(document).on('click', '#addMainAccount-edit', function (e) {
+            $(document).on('click', settings.editBtn, async function (e) {
                 e.preventDefault();
 
-                $('.addMainAccount-edit').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+                $('.trxAccount-edit').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
 
                 var id = $(this).data('id');
+                try {
+                    const response = await $.get(getByIdUrl, { id });
+                    if (response.isSuccess == true) {
+                        const data = response.data;
 
-                $.ajax({
-                    url: getByIdUrl,
-                    method: 'GET',
-                    data: { id: id },
-                    success: function (response) {
-                        if (response.isSuccess) {
-                            var data = response.data;
-                            $('#addMainAccount-form #MainAccountID').val(data.mainAccountID);
-                            $('#addMainAccount-form #MainAccountCode').val(data.mainAccountCode);
-                            $('#addMainAccount-form #MainAccountName').val(data.mainAccountName);
-                            $('#addMainAccount-form #Description').val(data.description);
-                            accountClassDD.setChoiceByValue(data.classID.toString());
+                        $('#trxAccount-form #TrxAccID').val(data.trxAccID);
+                        $('#trxAccount-form #TrxAccCode').val(data.trxAccCode);
+                        $('#trxAccount-form #TrxAccName').val(data.trxAccName);
+                        $('#trxAccount-form #Description').val(data.description);
+                        accountClassDD.setChoiceByValue(data.classID.toString());
 
-                            getAccountGroupByClassId(data.classID, data.groupID);
+                        await getAccountGroupByClassId(data.classID);  // Wait for group options to load
+                        await accountGroupDD.setChoiceByValue(data.groupID.toString());  // Now set group
+                        await mainAccDD.setChoiceByValue(data.mainAccountID.toString());  // Now set group
 
-                            $('#addMainAccount-form #BaseAccount-saveBtn').text('Update');
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        } else {
-                            toastr.warning(response.message);
-                        }
-                        $('.addMainAccount-edit').prop('disabled', false).html('<i class="fas fa-edit"></i>');
+                        getSubAccByClassIdGroupIdMainAccId(data.classID, data.groupID, data.mainAccountID, data.subAccountID);
+
+                        $('#trxAccount-form #trxAccount-saveBtn').text('Update');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        toastr.warning(response.message);
                     }
-                });
-            });
+                } catch (error) {
+                    console.error("Edit load failed:", error);
+                }
+            })
             // #endregion
 
 
             // #region Delete
-            $("#addMainAccount-delSel").on('click', function () {
-                var selectedItems = $(".addMainAccount-selectItem:checked");
+            $("#trxAccount-delSel").on('click', function () {
+                var selectedItems = $(".trxAccount-selectItem:checked");
                 var selectedIds = [];
 
                 selectedItems.each(function () {
@@ -139,8 +148,8 @@
                             success: function (response) {
                                 if (response.isSuccess) {
                                     toastr.success(response.message);
-                                    $("#addMainAccount-check-all").prop('checked', false);
-                                    $('.addMainAccount-selectItem').prop('checked', false);
+                                    $("#trxAccount-check-all").prop('checked', false);
+                                    $('.trxAccount-selectItem').prop('checked', false);
                                     clear();
                                 } else {
                                     toastr.error(response.message);
@@ -156,7 +165,7 @@
                 }
             });
 
-            $(document).on('click', '#addMainAccount-single-delete', function () {
+            $(document).on('click', '#trxAccount-single-delete', function () {
                 var id = $(this).data('id');
 
                 if (id) {
@@ -168,7 +177,7 @@
                             success: function (response) {
                                 if (response.isSuccess) {
                                     toastr.success(response.message);
-                                    $("#addMainAccount-check-all").prop('checked', false);
+                                    $("#trxAccount-check-all").prop('checked', false);
                                     clear();
                                 } else {
                                     toastr.error(response.message);
@@ -190,25 +199,185 @@
             $('#ClassID').on('change', function (e) {
                 e.preventDefault();
 
-                var id = $(this).val();
+                var classId = $(this).val();
 
-                getAccountGroupByClassId(id);
+                getAccountGroupByClassId(classId);
             });
 
-            function getAccountGroupByClassId(classId, selectedGroupId = null) {
+
+            function getAccountGroupByClassId(classId) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: getGroupByClassIdUrl,
+                        type: 'GET',
+                        data: {
+                            classId: classId,
+                        },
+                        success: function (results) {
+                            if (!accountGroupDD) return resolve();
+
+                            const select = document.getElementById('GroupID');
+
+                            // Destroy existing Choices instance
+                            if (accountGroupDD) {
+                                accountGroupDD.destroy();
+                                accountGroupDD = null;
+                            }
+
+                            // Clear old options
+                            select.innerHTML = '<option value="">Select Group...</option>';
+
+                            // Group data
+                            const grouped = {};
+                            results.forEach(sp => {
+                                const group = sp.groupName || 'No Group Found';
+                                if (!grouped[group]) {
+                                    grouped[group] = [];
+                                }
+                                grouped[group].push(sp);
+                            });
+
+                            // Build optgroups
+                            for (const group in grouped) {
+                                const optgroup = document.createElement('optgroup');
+                                optgroup.label = group;
+
+                                grouped[group].forEach(sp => {
+                                    const option = document.createElement('option');
+                                    option.value = sp.id;
+                                    option.text = sp.name;
+                                    optgroup.appendChild(option);
+                                });
+
+                                select.appendChild(optgroup);
+                            }
+
+                            // Re-initialize Choices.js
+                            accountGroupDD = new Choices(select, {
+                                removeItemButton: true,
+                                shouldSort: false,
+                                placeholderValue: 'Select Group...'
+                            });
+
+                            resolve();
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error loading data:', error);
+                            reject(error);
+                        }
+                    });
+                })
+            }
+            // #endregion
+
+
+            // #region GetMainAccByClassIdGroupId
+            $('#GroupID').on('change', function (e) {
+                e.preventDefault();
+
+                var classId = $('#ClassID').val();
+                var groupId = $(this).val();
+
+                getMainAccByClassIdGroupId(classId, groupId);
+            });
+
+
+            function getMainAccByClassIdGroupId(classId, groupId) {
+                return new Promise((resolve, reject) => {
+                    $.ajax({
+                        url: getMainAccByClassIdGroupIdUrl,
+                        type: 'GET',
+                        data: {
+                            classId: classId,
+                            groupId: groupId
+                        },
+                        success: function (results) {
+                            if (!mainAccDD) return resolve();
+
+                            const select = document.getElementById('MainAccountID');
+
+                            // Destroy existing Choices instance
+                            if (mainAccDD) {
+                                mainAccDD.destroy();
+                                mainAccDD = null;
+                            }
+
+                            // Clear old options
+                            select.innerHTML = '<option value="">Select Main Account...</option>';
+
+                            // Group data
+                            const grouped = {};
+                            results.forEach(sp => {
+                                const group = sp.groupName || 'No Main Account Found';
+                                if (!grouped[group]) {
+                                    grouped[group] = [];
+                                }
+                                grouped[group].push(sp);
+                            });
+
+                            // Build optgroups
+                            for (const group in grouped) {
+                                const optgroup = document.createElement('optgroup');
+                                optgroup.label = group;
+
+                                grouped[group].forEach(sp => {
+                                    const option = document.createElement('option');
+                                    option.value = sp.id;
+                                    option.text = sp.name;
+                                    optgroup.appendChild(option);
+                                });
+
+                                select.appendChild(optgroup);
+                            }
+
+                            // Re-initialize Choices.js
+                            mainAccDD = new Choices(select, {
+                                removeItemButton: true,
+                                shouldSort: false,
+                                placeholderValue: 'Select Main Account...'
+                            });
+
+                            resolve();
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error loading data:', error);
+                            reject(error);
+                        }
+                    });
+                })
+            }
+            // #endregion
+
+
+            // #region GetSubAccByClassIdGroupIdMainAccId
+            $('#MainAccountID').on('change', function (e) {
+                e.preventDefault();
+
+                var classId = $('#ClassID').val();
+                var groupId = $('#GroupID').val();
+                var mainAccId = $(this).val();
+
+                getSubAccByClassIdGroupIdMainAccId(classId, groupId, mainAccId);
+            });
+
+            function getSubAccByClassIdGroupIdMainAccId(classId, groupId = null, mainAccId = null, subAccountId = null, ) {
                 $.ajax({
-                    url: getGroupByClassIdUrl,
+                    url: getSubAccByClassIdGroupIdMainAccIdUrl,
                     type: 'GET',
-                    data: { id: classId },
+                    data: {
+                        classId: classId,
+                        groupId: groupId,
+                        mainAccId: mainAccId
+                    },
                     success: function (result) {
                         $('.chat-thread-tab').empty();
 
                         $('.chat-thread-tab')
                             .append(`<div class="row">
                             <div class="col-md-12">
-                                <label class="form-label"><strong>Select a Group</strong><span style="color:red;">*&nbsp;</span></label>
+                                <label class="form-label"><strong>Select a Sub Account</strong><span style="color:red;">*&nbsp;</span></label>
                             </div>
-                            <span asp-validation-for="GroupID" id="GroupIDError" class="text-danger" style="display:none;"></span>
+                            <span asp-validation-for="SubAccountID" id="SubAccountIDError" class="text-danger" style="display:none;"></span>
                         </div>`);
 
                         if (result.length === 0) {
@@ -216,19 +385,19 @@
                         } else {
                             result.forEach(function (item) {
                                 var listItem = `
-                        <li class="nav-item read border-bottom" role="presentation">
-                            <a class="nav-link d-flex align-items-center justify-content-center p-2" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-${item.id}" role="tab" aria-selected="false" data-group-id="${item.id}">
-                                <div class="flex-1 d-sm-none d-xl-block">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="text-body fw-normal name text-nowrap">${item.name}</h5>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">${item.groupName}</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                    `;
+                                    <li class="nav-item read border-bottom" role="presentation">
+                                        <a class="nav-link d-flex align-items-center justify-content-center p-2" href="#tab-thread-${item.id}" role="tab" aria-selected="false" data-subaccount-id="${item.id}">
+                                            <div class="flex-1 d-sm-none d-xl-block">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <h5 class="text-body fw-normal name text-nowrap">${item.name}</h5>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">${item.groupName}</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                `;
 
                                 $('.chat-thread-tab').append(listItem);
                             });
@@ -241,13 +410,14 @@
                                 $(this).closest('li').siblings().removeClass('selected');
                                 $(this).closest('li').addClass('selected');
 
-                                var groupId = $(this).data('group-id');
-                                $('#GroupID').val(groupId);
+                                var subAccountId = $(this).data('subaccount-id');
+                                $('#SubAccountID').val(subAccountId);
+                                generateNextCode(subAccountId);
                             });
 
                             // 🔽 If editing, auto-select the group
-                            if (selectedGroupId) {
-                                const target = $(`.chat-thread-tab .nav-link[data-group-id="${selectedGroupId}"]`);
+                            if (subAccountId) {
+                                const target = $(`.chat-thread-tab .nav-link[data-subaccount-id="${subAccountId}"]`);
                                 if (target.length) {
                                     target.trigger('click'); // Triggers the same click handler
                                 }
@@ -262,6 +432,24 @@
             // #endregion
 
 
+            // #region generateNextCode
+            function generateNextCode(subAccountId) {
+
+                $.ajax({
+                    url: generateNextCodeUrl,
+                    type: 'GET',
+                    data: { mainAccId: subAccountId },
+                    success: function (result) {
+                        $('#TrxAccCode').val(result);
+                    },
+                    error: function () {
+                        console.error('Error generating next code!');
+                    }
+                })
+            }
+            // #endregion
+
+
             // #region Clear
             $(settings.resetBtn).on('click', function (e) {
                 e.preventDefault();
@@ -271,8 +459,8 @@
 
             function clear() {
                 $(settings.addform)[0].reset();
-                $('#MainAccountID').val('0');
-                resetValidation(['MainAccountName', 'MainAccountCode']);
+                $('#TrxAccID').val('0');
+                resetValidation(['ClassID', 'GroupID', 'MainAccountID', 'SubAccountID', 'TrxAccName', 'TrxAccCode']);
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -281,8 +469,8 @@
                     }
                 });
                 $(settings.addform).find(settings.saveBtn).text('Save');
-                $("#addMainAccount-check-all").prop('checked', false);
-                $('.addMainAccount-selectItem').prop('checked', false);
+                $("#trxAccount-check-all").prop('checked', false);
+                $('.trxAccount-selectItem').prop('checked', false);
                 $('.chat-thread-tab').empty();
 
                 if (accountClassDD) {
@@ -290,9 +478,19 @@
                 }
                 initAccountClassDD();
 
+                if (accountGroupDD) {
+                    accountGroupDD.destroy();
+                }
+                initAccountGroupDD();
+
+                if (mainAccDD) {
+                    mainAccDD.destroy();
+                }
+                initMainAccDD();
+
                 loadTableData();
                 toggleBulkActions();
-                $('#addMainAccount-check-all').prop('checked', false).prop('indeterminate', false);
+                $('#trxAccount-check-all').prop('checked', false).prop('indeterminate', false);
             }
             // #endregion
 
@@ -307,6 +505,28 @@
             }
             document.addEventListener('DOMContentLoaded', initAccountClassDD);
             initAccountClassDD();
+
+
+            function initAccountGroupDD() {
+                accountGroupDD = new Choices('#GroupID', {
+                    removeItemButton: true,
+                    shouldSort: false,
+                    placeholderValue: 'Select Group...'
+                });
+            }
+            document.addEventListener('DOMContentLoaded', initAccountGroupDD);
+            initAccountGroupDD();
+
+
+            function initMainAccDD() {
+                mainAccDD = new Choices('#MainAccountID', {
+                    removeItemButton: true,
+                    shouldSort: false,
+                    placeholderValue: 'Select Main Account...'
+                });
+            }
+            document.addEventListener('DOMContentLoaded', initMainAccDD);
+            initMainAccDD();
             // #endregion
 
 
@@ -314,14 +534,14 @@
             var typingTimer;
             var doneTypingInterval = 100; // Wait 500ms after user stops typing
 
-            $('#MainAccountName').on('input', function () {
+            $('#TrxAccName').on('input', function () {
                 clearTimeout(typingTimer);
                 var value = $(this).val();
 
                 // Clear error immediately when input is empty
                 if (!value) {
-                    $('#MainAccountNameError').hide();
-                    $('#MainAccountName').removeClass('is-invalid');
+                    $('#TrxAccNameError').hide();
+                    $('#TrxAccName').removeClass('is-invalid');
                     return;
                 }
 
@@ -332,11 +552,11 @@
                         data: { name: value },
                         success: function (response) {
                             if (response.isSuccess == true || response === true) {
-                                $('#MainAccountNameError').hide();
-                                $('#MainAccountName').removeClass('is-invalid');
+                                $('#TrxAccNameError').hide();
+                                $('#TrxAccName').removeClass('is-invalid');
                             } else {
-                                $('#MainAccountNameError').text(response.message).show();
-                                $('#MainAccountName').addClass('is-invalid');
+                                $('#TrxAccNameError').text(response.message).show();
+                                $('#TrxAccName').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
@@ -347,21 +567,21 @@
             });
 
             // Clear timer when user is still typing
-            $('#MainAccountName').on('keydown', function () {
+            $('#TrxAccName').on('keydown', function () {
                 clearTimeout(typingTimer);
             });
             // #endregion
 
 
             // #region checkCodeUnique
-            $('#MainAccountCode').on('input', function () {
+            $('#TrxAccCode').on('input', function () {
                 clearTimeout(typingTimer);
                 var value = $(this).val();
 
                 // Clear error immediately when input is empty
                 if (!value) {
-                    $('#MainAccountCodeError').hide();
-                    $('#MainAccountCode').removeClass('is-invalid');
+                    $('#TrxAccCodeError').hide();
+                    $('#TrxAccCode').removeClass('is-invalid');
                     return;
                 }
 
@@ -372,11 +592,11 @@
                         data: { code: value },
                         success: function (response) {
                             if (response.isSuccess == true || response === true) {
-                                $('#MainAccountCodeError').hide();
-                                $('#MainAccountCode').removeClass('is-invalid');
+                                $('#TrxAccCodeError').hide();
+                                $('#TrxAccCode').removeClass('is-invalid');
                             } else {
-                                $('#MainAccountCodeError').text(response.message).show();
-                                $('#MainAccountCode').addClass('is-invalid');
+                                $('#TrxAccCodeError').text(response.message).show();
+                                $('#TrxAccCode').addClass('is-invalid');
                             }
                         },
                         error: function (xhr, status, error) {
@@ -386,50 +606,61 @@
                 }, doneTypingInterval);
             });
 
+            $('#TrxAccCode').on('keypress', function (e) {
+                var value = $(this).val();
+                if (value.length >= 12) {
+                    e.preventDefault();
+                    $('#TrxAccCodeError').text('Maximum 12 characters allowed.').show();
+                    $('#TrxAccCode').addClass('is-invalid');
+                }
+            });
+
             // Clear timer when user is still typing
-            $('#MainAccountCode').on('keydown', function () {
+            $('#TrxAccCode').on('keydown', function () {
                 clearTimeout(typingTimer);
+                $('#TrxAccCode').removeClass('is-invalid');
             });
             // #endregion
 
 
             // #region toggle table checkbox
             $(document).ready(function () {
-                $('#addMainAccount-check-all').on('change', function () {
+                $('#trxAccount-check-all').on('change', function () {
                     var isChecked = $(this).prop('checked');
-                    $('.addMainAccount-selectItem').prop('checked', isChecked);
+                    $('.trxAccount-selectItem').prop('checked', isChecked);
 
                     toggleBulkActions();
                 });
 
-                $(document).on('change', '.addMainAccount-selectItem', function () {
+                $(document).on('change', '.trxAccount-selectItem', function () {
                     toggleBulkActions();
                 });
             });
 
             function toggleBulkActions() {
-                const allItems = $('.addMainAccount-selectItem');
-                const checkedItems = $('.addMainAccount-selectItem:checked');
+                const allItems = $('.trxAccount-selectItem');
+                const checkedItems = $('.trxAccount-selectItem:checked');
 
                 const allChecked = allItems.length === checkedItems.length;
                 const someChecked = checkedItems.length > 0 && !allChecked;
 
-                $('#addMainAccount-check-all').prop('checked', allChecked);
-                $('#addMainAccount-check-all').prop('indeterminate', someChecked);
+                $('#trxAccount-check-all').prop('checked', allChecked);
+                $('#trxAccount-check-all').prop('indeterminate', someChecked);
 
                 if (checkedItems.length > 1) {
-                    $('#addMainAccount-bulkSelectActions').removeClass('d-none');
-                    $('#addMainAccount-searchBox').addClass('d-none');
-                    $('.addMainAccount-bulkDelete').addClass('disabled');
-                    $('.addMainAccount-bulkEdit').addClass('disabled');
+                    $('#trxAccount-bulkSelectActions').removeClass('d-none');
+                    $('#trxAccount-searchBox').addClass('d-none');
+                    $('.trxAccount-bulkDelete').addClass('disabled');
+                    $('.trxAccount-bulkEdit').addClass('disabled');
                 } else {
-                    $('#addMainAccount-bulkSelectActions').addClass('d-none');
-                    $('#addMainAccount-searchBox').removeClass('d-none');
-                    $('.addMainAccount-bulkDelete').removeClass('disabled');
-                    $('.addMainAccount-bulkEdit').removeClass('disabled');
+                    $('#trxAccount-bulkSelectActions').addClass('d-none');
+                    $('#trxAccount-searchBox').removeClass('d-none');
+                    $('.trxAccount-bulkDelete').removeClass('disabled');
+                    $('.trxAccount-bulkEdit').removeClass('disabled');
                 }
             }
             // #endregion
+
 
 
         });
@@ -440,7 +671,7 @@
         var currentPage = 1;
         var pageSize = 5;
 
-        $('#addMainAccount-pageSizeSelect').on('change', function () {
+        $('#trxAccount-pageSizeSelect').on('change', function () {
             var selectedSize = $(this).val();
 
             if (selectedSize) {
@@ -454,26 +685,26 @@
         $(document).ready(function () {
             loadTableData();
 
-            $("#addMainAccount-searchInput").on("input", function () {
+            $("#trxAccount-searchInput").on("input", function () {
                 currentPage = 1;
                 loadTableData();
             });
 
-            $("#addMainAccount-prevPageBtn").on('click', function () {
+            $("#trxAccount-prevPageBtn").on('click', function () {
                 if (currentPage > 1) {
                     currentPage--;
                     loadTableData();
                 }
             });
 
-            $("#addMainAccount-nextPageBtn").on('click', function () {
+            $("#trxAccount-nextPageBtn").on('click', function () {
                 currentPage++;
                 loadTableData();
             });
         });
 
 
-        let currentSortColumn = 'addMainAccountName';
+        let currentSortColumn = 'trxAccountName';
         let currentSortOrder = 'asc';
 
         $('th.sort').on('click', function () {
@@ -507,7 +738,7 @@
         }
 
         function loadTableData(sortColumn, sortOrder) {
-            var searchTerm = $("#addMainAccount-searchInput").val();
+            var searchTerm = $("#trxAccount-searchInput").val();
 
             $.ajax({
                 url: getAllUrl,
@@ -520,7 +751,7 @@
                     sortOrder: sortOrder
                 },
                 success: function (response) {
-                    var tableBody = $("#addMainAccount-tBody");
+                    var tableBody = $("#trxAccount-tBody");
                     tableBody.empty();
                     if (response.data.length > 0) {
                         response.data.forEach(function (item, index) {
@@ -528,30 +759,31 @@
                             tableBody.append(`
                                 <tr class="position-static">
                                     <td class="text-center text-middle align-middle" style="width: 5%;">
-                                        <input type="checkbox" class="form-check-input addMainAccount-selectItem" data-id="${item.mainAccountID}" />
+                                        <input type="checkbox" class="form-check-input trxAccount-selectItem" data-id="${item.trxAccID}" />
                                     </td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.className}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.groupName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountName}</td>
-                                    <td class="align-middle white-space-nowrap ps-0">${item.mainAccountCode}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.trxAccName}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.trxAccCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.description}</td>
                                     <td class="align-middle text-end white-space-nowrap pe-2">
                                         <div class="row g-3">
-                                            <a href="#!" class="btn btn-outline-light btn-icon me-2 addMainAccount-edit" id="addMainAccount-edit" data-id="${item.mainAccountID}"><i class="fas fa-edit text-black"></i></a>
-                                            <a href="#!" class="btn btn-outline-light btn-icon addMainAccount-single-delete" id="addMainAccount-single-delete" data-id="${item.mainAccountID}"><i class="far fa-trash-alt text-black"></i></a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon me-2 trxAccount-editBtn" id="trxAccount-editBtn" data-id="${item.trxAccID}"><i class="fas fa-edit text-black"></i></a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon trxAccount-single-deleteBtn" id="trxAccount-single-delete" data-id="${item.trxAccID}"><i class="far fa-trash-alt text-black"></i></a>
                                         </div>
                                     </td>
                                 </tr>
                             `);
                         });
                     } else {
-                        tableBody.append('<tr><td colspan="7" class="text-center">No data available</td></tr>');
+                        tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
                     }
 
                     var paginationInfo = response.paginationInfo;
 
-                    $("#addMainAccount-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-                    $("#addMainAccount-totalCount").text(`(${paginationInfo.totalItems})`);
+                    $("#trxAccount-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                    $("#trxAccount-totalCount").text(`(${paginationInfo.totalItems})`);
 
                     updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
                 },
@@ -562,7 +794,7 @@
         }
 
         function updatePagination(pageNumbers, currentPage, totalPages) {
-            const paginationLinks = $("#addMainAccount-paginationLinks");
+            const paginationLinks = $("#trxAccount-paginationLinks");
             paginationLinks.empty();
             // Window size (number of pages before/after the current page)
             const windowSize = 1;
@@ -588,8 +820,8 @@
                 paginationLinks.append(addEllipsis(), createPageButton(totalPages));
             }
             // Disable or enable previous/next buttons
-            $("#addMainAccount-prevPageBtn").prop('disabled', currentPage === 1);
-            $("#addMainAccount-nextPageBtn").prop('disabled', currentPage === totalPages);
+            $("#trxAccount-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#trxAccount-nextPageBtn").prop('disabled', currentPage === totalPages);
         }
 
         $(document).on('click', '.page-btn', function () {
