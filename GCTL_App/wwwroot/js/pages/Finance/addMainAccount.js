@@ -109,7 +109,7 @@
 
                             getAccountGroupByClassId(data.classID, data.groupID);
 
-                            $('#addMainAccount-form #BaseAccount-saveBtn').text('Update');
+                            $('#addMainAccount-form #addMainAccount-saveBtn').text('Update');
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                         } else {
                             toastr.warning(response.message);

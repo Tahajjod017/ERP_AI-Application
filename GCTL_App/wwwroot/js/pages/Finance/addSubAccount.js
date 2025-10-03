@@ -115,7 +115,7 @@
 
                         getMainAccByClassIdGroupId(data.classID, data.groupID, data.mainAccountID);
 
-                        $('#addSubAccount-form #BaseAccount-saveBtn').text('Update');
+                        $('#addSubAccount-form #addSubAccount-saveBtn').text('Update');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     } else {
                         toastr.warning(response.message);

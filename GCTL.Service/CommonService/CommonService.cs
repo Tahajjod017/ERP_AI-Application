@@ -346,6 +346,21 @@ namespace GCTL.Service.CommonService
         }
         #endregion
 
+
+        #region GetMainAccount
+        public async Task<List<CommonSelectVM>> GetMainAccount()
+        {
+            var result = await _mainAccounts.AllActive().Include(x => x.Group).AsNoTracking().Select(x => new CommonSelectVM
+            {
+                Id = x.MainAccountID,
+                Name = x.MainAccountName ?? "-",
+                GroupName = x.Group.GroupName ?? "-"
+            }).ToListAsync();
+
+            return result;
+        }
+        #endregion
+
         #endregion
 
 
@@ -381,6 +396,27 @@ namespace GCTL.Service.CommonService
                     Id = m.MainAccountID,
                     Name = $"{m.MainAccountCode}-{m.MainAccountName}" ?? "-",
                     GroupName = $"{m.Group.Class.ClassName}-{m.Group.GroupName}" ?? "-"
+                }).ToListAsync();
+
+            return data;
+        }
+        #endregion
+
+
+        #region GetSubAccByClassIdGroupIdMainAccId
+        public async Task<List<CommonSelectVM>> GetSubAccByClassIdGroupIdMainAccId(int classId, int? GroupId, int? mainAccId)
+        {
+            var data = await _subAccounts.AllActive()
+                .Include(x => x.MainAccount)
+                .ThenInclude(m => m.Group)
+                .ThenInclude(g => g.Class)
+                .Where(m => m.MainAccount.Group.ClassID == classId && m.MainAccount.GroupID == GroupId && m.MainAccountID == mainAccId)
+                .AsNoTracking()
+                .Select(m => new CommonSelectVM
+                {
+                    Id = m.SubAccountID,
+                    Name = $"{m.SubAccountCode}-{m.SubAccountName}" ?? "-",
+                    GroupName = $"{m.MainAccount.Group.Class.ClassName}-{m.MainAccount.Group.GroupName}-{m.MainAccount.MainAccountName}" ?? "-"
                 }).ToListAsync();
 
             return data;
