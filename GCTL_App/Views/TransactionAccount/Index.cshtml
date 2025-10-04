@@ -7,19 +7,35 @@
     var mainAccDD = ViewBag.MainAccDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
 }
 
-<style>
-    /* Highlight active link */
-    .chat-thread-tab .nav-link.active {
-        background-color: #f0f0f0; /* Or any color you prefer */
-        color: #007bff; /* Highlight the text */
-    }
+@section Styles {
+    <style>
+        /* Highlight active link */
+        .trxAccount-ul .nav-link.active {
+            background-color: #f0f0f0; /* Or any color you prefer */
+            color: #007bff; /* Highlight the text */
+        }
 
-    /* Highlight selected li */
-    .chat-thread-tab li.selected {
-        background-color: #e9ecef; /* Lighter background for the selected item */
-        border-left: 4px solid #007bff; /* Optional: Add a left border for better visibility */
-    }
-</style>
+        /* Highlight selected li */
+        .trxAccount-ul li.selected {
+            background-color: #e9ecef; /* Lighter background for the selected item */
+            border-left: 4px solid #007bff; /* Optional: Add a left border for better visibility */
+        }
+
+        /* Constrain the list to show exactly 10 items */
+        .trxAccount-ul {
+            max-height: 55vh;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            display: block;
+        }
+
+            /* Remove flex properties that might interfere */
+            .trxAccount-ul.flex-column {
+                display: block !important;
+            }
+
+    </style>
+}
 
 <ul class="nav nav-underline fs-9">
     <li class="nav-item"><a class="nav-link" href="/addMainAccount/Index">@Html.SmartLocalize("Add Main Account")</a></li>
@@ -83,7 +99,7 @@
                 </div>
 
                 <div class="d-grid">
-                    <ul class="nav chat-thread-tab flex-column list">
+                    <ul class="nav flex-column trxAccount-ul">
                     </ul>
                 </div>
             </div>
@@ -179,7 +195,7 @@
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="TrxAccName">@Html.SmartLocalize("Transaction Account Name")</th>
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="TrxAccCode">@Html.SmartLocalize("Transaction Account Code")</th>
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="Description">@Html.SmartLocalize("Description")</th>
-                                        <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Action")</th>
+                                        <th class="white-space-nowrap align-middle ps-0" scope="col">@Html.SmartLocalize("Action")</th>
                                     </tr>
                                 </thead>
                                 <tbody id="trxAccount-tBody">

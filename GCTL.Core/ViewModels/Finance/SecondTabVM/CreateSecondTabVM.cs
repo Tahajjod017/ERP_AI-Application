@@ -11,7 +11,8 @@ namespace GCTL.Core.ViewModels.Finance.SecondTabVM
     {
         public int ClassID { get; set; }
 
-        [Required(ErrorMessage = "{0} is required!"), Display(Name = "Class Code")]
+        [Required(ErrorMessage = "{0} is required!"), StringLength(1, ErrorMessage = "{0} must be at most {1} characters long!"), Display(Name = "Class Code")]
+        [AllowedValues("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ErrorMessage = "{0} is valid only for 0-9!")]
         public string ClassCode { get; set; }
 
         [Required(ErrorMessage = "{0} is required!"), Display(Name = "Class Name")]

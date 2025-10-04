@@ -14,7 +14,7 @@ namespace GCTL.Core.ViewModels.Finance.ThirdTabVM
         [Required(ErrorMessage = "{0} is required!"), Display(Name = "Class Name")]
         public int ClassID { get; set; }
 
-        [Required(ErrorMessage = "{0} is required!"), Display(Name = "Group Code")]
+        [Required(ErrorMessage = "{0} is required!"), StringLength(2, MinimumLength = 2, ErrorMessage = "{0} must me at least {1} characters long!"), Display(Name = "Group Code")]
         public string GroupCode { get; set; }
 
         [Required(ErrorMessage = "{0} is required!"), Display(Name = "Group Name")]

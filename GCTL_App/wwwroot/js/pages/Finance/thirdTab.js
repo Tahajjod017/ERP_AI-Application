@@ -205,6 +205,11 @@
                 $("#thirdTab-check-all").prop('checked', false);
                 $('.thirdTab-selectItem').prop('checked', false);
 
+                if (classDD) {
+                    classDD.destroy();
+                }
+                initClassDD();
+
                 loadTableData();
                 toggleBulkActions();
                 $('#thirdTab-check-all').prop('checked', false).prop('indeterminate', false);

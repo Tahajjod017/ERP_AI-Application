@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace GCTL.Service.Finance.AddSubAccount
@@ -45,7 +46,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                 if (exixtingEntity != null)
                 {
                     exixtingEntity.MainAccountID = (int)model.MainAccountID;
-                    exixtingEntity.SubAccountCode = model.SubAccountCode;
+                    exixtingEntity.SubAccountCode = model.SubAccountCode.Trim();
                     exixtingEntity.SubAccountName = model.SubAccountName;
                     exixtingEntity.Description = model.Description;
 
@@ -66,7 +67,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                 {
                     SubAccounts entity = new SubAccounts();
                     entity.MainAccountID = (int)model.MainAccountID;
-                    entity.SubAccountCode = model.SubAccountCode;
+                    entity.SubAccountCode = model.SubAccountCode.Trim();
                     entity.SubAccountName = model.SubAccountName;
                     entity.Description = model.Description;
 
@@ -106,7 +107,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                 var beforeEntity = JsonConvert.DeserializeObject<UpdateAddSubAccountVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.MainAccountID = (int)model.MainAccountID;
-                entity.SubAccountCode = model.SubAccountCode;
+                entity.SubAccountCode = model.SubAccountCode.Trim();
                 entity.SubAccountName = model.SubAccountName;
                 entity.Description = model.Description;
 
@@ -134,7 +135,7 @@ namespace GCTL.Service.Finance.AddSubAccount
 
 
         #region GetAllAsync
-        public async Task<PaginationService<SubAccounts, GetAllAddSubAccountVM>.PaginationResult<GetAllAddSubAccountVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "SubAccountID", string sortOrder = "desc")
+        public async Task<PaginationService<SubAccounts, GetAllAddSubAccountVM>.PaginationResult<GetAllAddSubAccountVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "SubAccountID", string sortOrder = "desc", int? mainAccId = null)
         {
             try
             {
@@ -144,6 +145,11 @@ namespace GCTL.Service.Finance.AddSubAccount
                     .ThenInclude(x => x.Class)
                     .AsNoTracking()
                     .Where(x => x.DeletedAt == null && x.DeletedBy == null);
+
+                if(mainAccId != null)
+                {
+                    query = query.Where(x => x.MainAccountID == mainAccId);
+                }
 
                 if (!string.IsNullOrEmpty(sortColumn))
                 {
@@ -321,7 +327,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                 throw new Exception("Main Account not found.");
             }
 
-            var prefix = mainAcc.MainAccountCode;
+            var prefix = Regex.Replace(mainAcc.MainAccountCode, @"\s+", "");
 
             var result = await _genericRepository.All()
                 .Where(x => x.MainAccountID == mainAccId)
@@ -336,7 +342,7 @@ namespace GCTL.Service.Finance.AddSubAccount
             }
 
             // Step 3: Extract the numeric part from the last SubAccountCode
-            var lastCode = result.SubAccountCode;  // E.g., "01010003"
+            var lastCode = Regex.Replace(result.SubAccountCode, @"\s+", "");  // E.g., "01010003"
             var lastCodeNumericPart = lastCode.Substring(4);  // E.g., "0003"
 
             // Step 4: Increment the numeric part
