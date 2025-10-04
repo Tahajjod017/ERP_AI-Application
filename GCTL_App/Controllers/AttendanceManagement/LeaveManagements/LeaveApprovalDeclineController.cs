@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using SkiaSharp;
 using System.Security.Claims;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
@@ -25,7 +26,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         private ILeaveRequestService leaveRequestService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> employee;
         private readonly AppDbContext appDb;
-        public LeaveApprovalDeclineController(ITranslateService translateService, IUserProfileService userProfileService, ILeaveApprovalService leaveApprovalService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, IGenericRepository<GCTL.Data.Models.Employees> employee, AppDbContext appDb) : base(translateService, userProfileService)
+        private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
+        public LeaveApprovalDeclineController(ITranslateService translateService, IUserProfileService userProfileService, ILeaveApprovalService leaveApprovalService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, IGenericRepository<GCTL.Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi) : base(translateService, userProfileService)
         {
             this.leaveApprovalService = leaveApprovalService;
             this.leaveType = leaveType;
@@ -33,9 +35,36 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             this.leaveRequestService = leaveRequestService;
             this.employee = employee;
             this.appDb = appDb;
+            this.empoffi = empoffi;
         }
 
+        public bool IsEligibleForLeave(LeaveTypes leaveType, DateOnly joiningDate, DateOnly today)
+        {
+            if (leaveType.EffectiveFromMonthYear?.Contains("Years") == true && leaveType.EffectiveFrom.HasValue)
+            {
+                return today >= joiningDate.AddYears(leaveType.EffectiveFrom.Value);
+            }
 
+            if (leaveType.EffectiveFromMonthYear?.Contains("Months") == true && leaveType.EffectiveFrom.HasValue)
+            {
+                return today >= joiningDate.AddMonths(leaveType.EffectiveFrom.Value);
+            }
+
+            if (!string.IsNullOrEmpty(leaveType.EffectiveFromMonthYear))
+            {
+                if (DateTime.TryParse(leaveType.EffectiveFromMonthYear, out var effDate))
+                {
+                    return today >= DateOnly.FromDateTime(effDate);
+                }
+            }
+
+            if (leaveType.EffectiveAfter?.Contains("After Joining Date") == true)
+            {
+                return today >= joiningDate;
+            }
+
+            return true;
+        }
 
         public async Task< IActionResult> Index()
         {
@@ -43,9 +72,28 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
             {
                 Setup = new LeaveApplicationApprovalModifyVM()
             };
+            string url = GetEmployeePictureURL();
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var employeeId = await appDb.Users
+                   .Where(u => u.Id == userId)
+                   .Select(e => e.EmployeeId)
+                   .FirstOrDefaultAsync();
 
-         
-            ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive().Where(x=>x.IsActive==true), "LeaveTypeID", "LeaveTypeName");
+            var employee22 = await empoffi.AllActive().Where(e => e.EmployeeID == employeeId).Select(e => new { e.JoiningDate }).FirstOrDefaultAsync();
+
+            if (employee22 == null)
+            {
+                return NotFound("Employee not found");
+            }
+
+            var joiningDate = employee22.JoiningDate ?? DateOnly.FromDateTime(DateTime.Today);
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+
+            var leaveTypes = await leaveType.AllActive().Where(x => x.IsActive).ToListAsync();   
+            var eligibleLeaveTypes = leaveTypes.Where(x => IsEligibleForLeave(x, joiningDate, today)).ToList();
+            ViewBag.LeaveTypeDD = new SelectList(eligibleLeaveTypes, "LeaveTypeID", "LeaveTypeName");
+
             ViewBag.StatusDD = new SelectList(status.AllActive().Where(x=>x.StatusName=="APPROVED" || x.StatusName== "DECLINED"), "StatusID", "StatusName");
             var employees =await  employee.AllActive().Select(e => new  {  e.EmployeeID, FullName = e.FirstName + " " + e.LastName  }).ToListAsync();
             if (employees.Count == 1)
@@ -105,78 +153,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         #endregion
 
 
-        //#region accept/declien from  email 
-
-        
-        //[HttpGet("LeaveApprovalDeclineRoute/Action")]
-        //public async Task<IActionResult> LeaveApprovalActionAsync(int leaveId, int approverId, bool isApproved, string secrectCode)
-        //{
-        //    var data = await leaveApprovalService.GetLeaveRequestByIdAsync(leaveId);
-
-        //    if (data == null)
-        //    {
-        //        return Content("Leave request not found.");
-        //    }
-
-        //    // Check secrect code
-        //    if (string.IsNullOrEmpty(data.SecrectCode) || data.SecrectCode != secrectCode)
-        //    {
-        //        return Content("You are not an authorized person to approve this leave.");
-        //    }
-
-        //    // Check 24 hours expiration
-        //    if (data.SecrectCodeDateTime.HasValue && data.SecrectCodeDateTime.Value.AddHours(24) < DateTime.UtcNow)
-        //    {
-        //        return Content("This approval link has expired. You can no longer approve or decline this leave.");
-        //    }
-
-        //    var employeeId = await appDb.Users
-        //        .Where(u => u.EmployeeId == approverId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
-
-        //    if (employeeId == 0)
-        //    {
-        //        return Content("You are not an authorized person.");
-        //    }
-        //    if (leaveId == 0)
-        //    {
-        //        string emailHtml = "<p style='color:red'>Invalid Leave ID</p>";
-        //        return Content(emailHtml, "text/html");
-        //    }
-        //    if (!data.ApprovalPersonID.HasValue || data.ApprovalPersonID != approverId)
-        //    {
-        //        return Content("Approver not found.");
-        //    }
-
-        //    var entityVM = new LeaveApplicationApprovalModifyVM
-        //    {
-        //        LeaveApplicationID = leaveId,
-        //        UpdatedBy = approverId,
-        //        Approved = isApproved,
-        //        CreatedBy = approverId,
-        //        DeletedBy = approverId,
-        //        EmployeeIDEdit = data.EmployeeIDEdit,
-        //        LeaveTypeIDEdit = data.LeaveTypeIDEdit,
-        //        IsFullDayEdit = data.IsFullDayEdit,
-        //        ReasonEdit = data.ReasonEdit,
-        //        FromDateEdit = data.FromDateEdit,
-        //        ToDateEdit = data.ToDateEdit,
-        //        TotalAppliedDays = (int)data.Period,
-        //        ApprovalNote = isApproved ? "Approved via email link" : "Declined via email link"
-        //    };
-
-        //    string url = $"{Request.Scheme}://{Request.Host.Value}";
-        //    var result = await leaveApprovalService.UpdateLeaveRequestAsynce(entityVM, url);
-
-        //    string responseMessage = result.Success
-        //        ? (isApproved ? "Leave request approved successfully." : "Leave request declined successfully.")
-        //        : $"Operation failed: {result.Message}";
-
-        //    string color = isApproved ? "#28a745" : "#dc3545";
-
-        //    return Content($"<p style='color:{color}; font-weight:bold; text-align:center;'>{responseMessage}</p>", "text/html");
-        //}
-
-        //#endregion
+       
 
         #region  Update Leave request in Approval Side
         [Route("LeaveApprovalDeclineRoute/UpdateRequestAsync")]
@@ -190,8 +167,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                 {
                     return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
                 }
-                //string domain = Request.Host.Host;
-                //string url = $"{this.Request.Scheme}://{this.Request.Host.Value.ToString()}{this.Request.PathBase.Value.ToString()}";
                 string url = $"{Request.Scheme}://{Request.Host.Value}";
                 var data = await leaveApprovalService.UpdateLeaveRequestAsynce(entityVM,url);
                 return Json(data);

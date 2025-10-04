@@ -41,7 +41,14 @@ namespace GCTL.Service.ActionLogAudit
                 model.CreatedBy = employeeId;
                 model.UpdatedBy = employeeId;
                 model.DeletedBy = employeeId;
-                model.LIP =NetworkHelper.GetLocalIP();
+                var localIp = NetworkHelper.GetLocalIP();
+                if (string.IsNullOrEmpty(localIp) || localIp == "0.0.0.0")
+                {
+                    localIp = NetworkHelper.GetLocalIPMobile(httpContext);
+                }
+                model.LIP = localIp;
+
+                //model.LIP =NetworkHelper.GetLocalIP();
                 model.LMAC =NetworkHelper.GetMacAddress();
 
             }

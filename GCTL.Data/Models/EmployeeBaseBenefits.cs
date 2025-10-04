@@ -44,4 +44,6 @@ public partial class EmployeeBaseBenefits
     public virtual Employees Employee { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
+
+    public bool IsBenifitEnabled { get; set; }
 }

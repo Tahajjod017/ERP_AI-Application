@@ -991,12 +991,16 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
 
             if (steps.length > 0) {
                 steps.forEach((item, index) => {
-                    const approverStep = item.approverStep ?? '';
+                    var approverStep = item.approverStep ?? '';
                     const statusName = item.statusName ?? '';
                     const author = item.approvarPerson ?? '';
                     const statusDescription = item.approvarNote ?? '';
                     const approvedOrDeclineDate = item.approvedOrDeclineDate ?? '';
-
+                    var total = item.approverStepTotal ?? '';
+                    if (approverStep > total)
+                    {
+                        approverStep = total;
+                    }
                     html += `
                 <div class="timeline-item" style="margin-bottom:1px>
                     <div class="timeline-item position-relative">
@@ -1004,7 +1008,8 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
                             <div class="col-12 col-md-auto d-flex">
                                 <div class="timeline-item-date order-1 order-md-0 me-md-4">
                                     <p class="fs-10 fw-semibold text-body-tertiary text-opacity-85 text-end">
-                                        ${approverStep} 
+                                    
+                                        ${approverStep} of ${total}
                                     </p>
                                 </div>
 

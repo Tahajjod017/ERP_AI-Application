@@ -13,6 +13,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public string? ApprovarNote { get; set; }
         public string? ApprovarPerson { get; set; }
         public string? StatusName { get; set; }
-
+        public int ? ImmediatePersonCount { get; set; }
+        public int? ApproverStepTotal { get; set; }
     }
 }
