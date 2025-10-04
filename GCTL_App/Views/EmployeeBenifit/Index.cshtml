@@ -98,18 +98,16 @@
 
     <div class="px-3 mb-5">
         <div class="row">
-            <form asp-controller="EmployeeBenifit" asp-action="Index" method="post">
+            <form id="benefitForm" method="post" asp-action="Save" asp-controller="EmployeeBenifit">
+           
                 <div class="col-12">
                     <input type="hidden" asp-for="EmployeeBaseBenefitID" />
-
+                    
                     <div class="row g-2 align-items-center" id="EmployeeDropDownDiv" style="display:none">
 
                         <div class="col-md-3">
                             <div class="position-relative">
-                                <!--
-                            <input class="form-control search-input search" type="search" placeholder="@Html.SmartLocalize("Employee Name / Phone / Email")" aria-label="Search" />
-                            <span class="fas fa-search search-box-icon position-absolute top-50 end-0 translate-middle-y me-3"></span>
-                -->
+                             
                             </div>
                         </div>
                         <div class="col-md-3"></div>
@@ -173,7 +171,7 @@
                                                             </div>
 
                                                             <div class="card">
-
+                                                                <input type="hidden" name="EmployeeId" id="EmployeeId" />
                                                                 <div id="EmployeeAllowanceAccordion"></div>
                                                             </div>
 

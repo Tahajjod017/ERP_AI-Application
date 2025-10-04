@@ -60,7 +60,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IEmailService  emailService;
         private readonly ILocalizationContext _localizationContext;
         private readonly ICommonDroDownService commonDroDownService;
-
+        
         //
         public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory, IEmailService emailService, ILocalizationContext localizationContext, ICommonDroDownService commonDroDownService) : base(leaveRequest)
         {
@@ -88,6 +88,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         }
 
         #region  Get Data All  Leave  Requyest
+
+         
         public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
           List<int> departmentIds = null, List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
@@ -2090,10 +2092,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                 LeaveTypeID = lt.LeaveTypeID,
                                 LeaveTypeName = lt.LeaveTypeName,
                                 TotalLeave = lb.TotalLeave ?? lt.LeaveDays,
-                                Taken = lb.Taken,
+                                Taken = lb.Taken ?? 0,
                                 ApplicableYear = lb.ApplicableYear,
                                 RemainingDays = lb != null
-                                    ? (lb.TotalLeave - lb.Taken)
+                                    ? (lb.TotalLeave ?? 0 - lb.Taken ?? 0)
                                     : (lt.LeaveDays ?? 0)
                             };
 
@@ -2109,6 +2111,18 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         {
             try
             {
+                int? TotalSupCount = 0;
+                var empId = await leaveRequest.AllActive().Where(x => x.LeaveApplicationID == leaveApplicationID).Select(x => x.EmployeeID).FirstOrDefaultAsync();
+                var empInfo = await empoffi.AllActive().Where(x => x.EmployeeID == empId).Select(x => new 
+
+                {
+                    Imm = x.ImmediateSupervisor != null ? 1 : 0,  
+                    Sen = x.SeniorSupervisor != null ? 1 : 0,
+                    HOd = x.HeadOfDepartment != null ? 1 : 0,
+                  }).FirstOrDefaultAsync();
+
+                TotalSupCount = (empInfo?.Imm ?? 0) + (empInfo?.Sen ?? 0) + (empInfo?.HOd ?? 0);
+
                 var result = await (
                     from lb in leaveBaseApprovalHistory.AllActive()
                         .Where(x => x.LeaveApplicationID == leaveApplicationID)
@@ -2127,8 +2141,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         ApproverStep = lb.ApprovalStep ?? 0,
                         ApprovarPerson = e.FirstName + " " + e.LastName ?? string.Empty,
                         StatusName = statusName.StatusName ?? string.Empty,
-                        //ApprovedOrDeclineDate =DateTimeHelpers.FormatDateTime(lb.CreatedAt),
                         ApprovedOrDeclineDate = lb.CreatedAt.HasValue ? TimeConversionHelper.ConvertUtcToUserLocalizedDateTimeString(DateTime.SpecifyKind(lb.CreatedAt.Value, DateTimeKind.Utc), _localizationContext) : "-",
+                        ApproverStepTotal = TotalSupCount
 
                     }).OrderBy(X=>X.ApproverStep).ToListAsync();
 

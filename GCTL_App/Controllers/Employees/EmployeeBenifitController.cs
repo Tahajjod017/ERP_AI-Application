@@ -63,8 +63,8 @@ namespace GCTL_App.Controllers.Employees
 
                 var userId = loggedUser.Id;
 
-                var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
-                var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+                var user = await _userManagerRepository2.FindByIdAsync(userId); 
+                var roleNames = await _userManagerRepository2.GetRolesAsync(user); 
 
                 var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
 
@@ -108,9 +108,6 @@ namespace GCTL_App.Controllers.Employees
                     return View(model);
                 }
             }
-
-          
-
 
            
             return View();
@@ -286,7 +283,7 @@ namespace GCTL_App.Controllers.Employees
         }
 
         #region Get Allowance Type according to Organization
-        [Route("EmployeeBenifitController/SelectAllowanceTypeAsync")]
+        [Route("EmployeeBenifitController/SelectBenefitsTypeAsync")]
         [HttpGet]
         public async Task<IActionResult> SelectAsync(int id)
         {
@@ -304,6 +301,21 @@ namespace GCTL_App.Controllers.Employees
 
 
         #endregion
+        
+        [HttpPost]
+        public async Task<IActionResult> Save(EmployeeBenifitPostViewModel22 model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _employeeBenifitService.SaveOrUpdateEmployeeBenefitsAsync1(model);
+
+            if (!result.Success) return BadRequest(result.Message);
+
+            return Json(new {Success=result.Success, Message=result.Message});
+        }
 
     }
 }
+
+

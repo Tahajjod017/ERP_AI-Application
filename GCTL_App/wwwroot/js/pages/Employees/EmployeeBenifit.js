@@ -2,84 +2,25 @@
 
     var percentageOptionsHtml = $("#percentageOptionsTemplate").html();
 
+    var lastInt=0
+
     console.log(percentageOptionsHtml);
     function getLastIntFromUrl() {
         const parts = window.location.pathname.split('/').filter(Boolean).reverse();
         return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
     }
 
-    
-
-
-    FixedValue();
-    function FixedValue() {
-        $('.fixedPercentageSelect').val('1');
-        $('.fixedPercentageSelect').each(function () {
-            const selected = $(this).val();
-            showHide($(this), selected);
-        });
-    };
-    $(document).on('change', '.fixedPercentageSelect', function () {
-        const selected = $(this).val();
-        const $parent = $(this).closest('.input-group');
-        const $fixedRate = $parent.find('.fixedRate');
-        const $percentRate = $parent.find('.percentRate');
-        const $calcTypeInput = $parent.closest('.col-lg-3').find('.calculationTypeInput');
-
-        if (selected === 'Fixed') {
-            $fixedRate.show();
-            $percentRate.hide();
-            $calcTypeInput.val(1); 
-        } else if (selected === 'Percentage') {
-            $percentRate.show();
-            $fixedRate.hide();
-            $calcTypeInput.val(2); 
-        } else {
-            $fixedRate.hide();
-            $percentRate.hide();
-            $calcTypeInput.val(0);
-        }
-    });
-    //#region Fixed Percentage
-
-
-    $(document).on('change', '.fixedPercentageSelect', function () {
-        const selected = $(this).val();
-        showHide($(this), selected);
-    });
-    function showHide($select, selected) {
-        
-        const $parent = $select.closest('.input-group');
-        const $fixedRate = $parent.find('.fixedRate');
-        const $percentRate = $parent.find('.percentRate');
-
-        if (selected == 1) {
-            $fixedRate.show();
-            $percentRate.hide();
-        } else if (selected == 2) {
-            $percentRate.show();
-            $fixedRate.hide();
-        } else {
-            $fixedRate.hide();
-            $percentRate.hide();
-        }
-    }
-
     //#endregion
-
-    
-   
-    
 
     $(document).ready(function () {
 
-        const lastInt = getLastIntFromUrl();
+         lastInt = getLastIntFromUrl();
         if (lastInt) {
 
             TabChange(lastInt);
         }
 
-
+        $('#EmployeeId').val(lastInt);
         loadAllowanceTypes(lastInt);
 
 
@@ -97,9 +38,32 @@
         return html;
     }
 
+
+
+    $(document).on("change", ".fixedPercentageSelect", function () {
+        let $row = $(this).closest(".row"); // only this row
+
+        let selected = $(this).val();
+
+        if (selected == "1") { // Fixed
+            $row.find(".fixedRateEditable").show();
+            $row.find(".percentRateEditable").hide();
+
+        } else if (selected == "2") { // Percentage
+            $row.find(".fixedRateEditable").hide();
+            $row.find(".percentRateEditable").show();
+
+        } else {
+            $row.find(".fixedRateEditable").hide();
+            $row.find(".percentRateEditable").hide();
+        }
+    });
+
+
+
     function loadAllowanceTypes(id) {
         $.ajax({
-            url: '/EmployeeBenifitController/SelectAllowanceTypeAsync',
+            url: '/EmployeeBenifitController/SelectBenefitsTypeAsync',
             type: 'GET',
             data: { id: id },
             dataType: 'json',
@@ -128,6 +92,7 @@
 
                         accordionHtml += `
                                     <div class="accordion-item">
+                                     
     <h2 class="accordion-header" id="${headingId}">
         <button class="${buttonClass}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}"
             aria-expanded="${ariaExpanded}" aria-controls="${collapseId}">
@@ -153,12 +118,12 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-4 col-md-6 col-sm-12 fixedRate" style="display:${calculationType == 1 ? 'block' : 'none'};">
+                        <div class="col-lg-4 col-md-6 col-sm-12 fixedRateEditable" style="display:${calculationType == 1 ? 'block' : 'none'};">
                             <input type="text" class="form-control fixedInput" name="Benefits[${i}].Value"
                                    placeholder="Enter Fixed Rate" value="${calculationType == 1 ? value : ''}">
                         </div>
 
-                        <div class="col-lg-4 col-md-6 col-sm-12 percentRate" style="display:${calculationType == 2 ? 'block' : 'none'};">
+                        <div class="col-lg-4 col-md-6 col-sm-12 percentRateEditable" style="display:${calculationType == 2 ? 'block' : 'none'};">
                             <select class="form-select percentInput" name="Benefits[${i}].Value">
                                 <option value="">Select %</option>
                                 ${getPercentageOptionsHtml(value)}
@@ -178,11 +143,11 @@
                         </div>  
                         
                         <div class="col-lg-2 col-md-6 col-sm-12 fixedRate" style="display:${calculationType == 1 ? 'block' : 'none'};">
-                            <input type="text" class="form-control fixedInput" disabled name="Benefits[${i}].Value"
+                            <input type="text" class="form-control fixedInput" disabled 
                                    placeholder="Enter Fixed Rate" value="${calculationType == 1 ? value : ''}">
                         </div>
                          <div class="col-lg-2 col-md-6 col-sm-12 percentRate" style="display:${calculationType == 2 ? 'block' : 'none'};">
-                            <select class="form-select percentInput" disabled name="Benefits[${i}].Value">
+                            <select class="form-select percentInput" disabled>
                                 <option value="">Select %</option>
                                 ${getPercentageOptionsHtml(value)}
                             </select>
@@ -213,7 +178,29 @@
     }
 
 
-    //
+    $("#benefitForm").on("submit", function (e) {
+        e.preventDefault();
+
+        var formData = $(this).serializeArray(); 
+        formData.push({ name: "EmployeeId", value: lastInt }); 
+
+        $.ajax({
+            url: $(this).attr("action"),
+            type: "POST",
+            data: $.param(formData),
+            success: function (res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                } else {
+                    toastr.error(res.message);
+                }
+            },
+            error: function (err) {
+                toastr.error("Something went wrong!");
+                console.error("Save error:", err);
+            }
+        });
+    });
 
     // End Iniatially Loaded 
 
@@ -330,73 +317,6 @@
         resetPayRollEmpBenefitsForm();
 
     })
-
-
-
-
-    // Edit Button Click
-    //$(document).ready(function () {
-    //    loadPayRollEmpAllowanceData();
-    //});
-
-    //function loadPayRollEmpAllowanceData() {
-    //    $.ajax({
-    //        url: '/PayRollEmpBenefitsUpdate/GetAllDataAfterSave',
-    //        type: 'GET',
-    //        success: function (res) {
-    //            if (res.success && res.data && res.data.length > 0) {
-    //                res.data.forEach((item, index) => {
-    //                    console.log("Get All Data", item);
-    //                    // --- Effective Date ---
-    //                    const $effectiveDateInput = $(`input[name="HouseRentAllowances[${index}].EffectiveDate"]`);
-    //                    if ($effectiveDateInput.length && item.effectiveDate) {
-    //                        try {
-    //                            const date = new Date(item.effectiveDate);
-    //                            if (!isNaN(date.getTime())) {
-    //                                const monthNames = ["January", "February", "March", "April", "May", "June",
-    //                                    "July", "August", "September", "October", "November", "December"];
-    //                                const formattedDate = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-    //                                $effectiveDateInput.val(formattedDate);
-    //                                if ($effectiveDateInput[0]._flatpickr) {
-    //                                    $effectiveDateInput[0]._flatpickr.setDate(formattedDate, true);
-    //                                }
-    //                            }
-    //                        } catch (e) {
-    //                            console.error(`Failed to set date for index ${index}:`, e.message);
-    //                        }
-    //                    }
-
-    //                    // --- IsActive ---
-    //                    const $isActiveCheckbox = $(`input[name="HouseRentAllowances[${index}].IsActive"]`);
-    //                    if ($isActiveCheckbox.length && item.hasOwnProperty('isActive')) {
-    //                        $isActiveCheckbox.prop('checked', item.isActive === true || item.isActive === 'true');
-    //                    }
-
-    //                    // --- EmployeeAllowanceID (hidden input) ---
-    //                    const $allowanceIdInput = $('input[name="EmployeeAllowanceID"]');
-    //                    if ($allowanceIdInput.length && item.hasOwnProperty('employeeAllowanceID')) {
-    //                        $allowanceIdInput.val(item.employeeAllowanceID);
-    //                    }
-
-    //                });
-
-    //                toastr.success(res.message || "Data loaded successfully");
-    //            } else {
-    //                toastr.warning(res.message || "No data found.");
-    //            }
-    //        },
-
-
-    //        error: function (err) {
-    //            console.error("Error fetching data:", err);
-    //            toastr.error("Failed to load payroll employee Benefits data.");
-    //        }
-    //    });
-    //}
-
-
-
-
 
     
     //#endregion

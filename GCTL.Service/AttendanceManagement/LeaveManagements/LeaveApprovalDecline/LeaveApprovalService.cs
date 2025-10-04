@@ -58,6 +58,45 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
             this.commonDroDownService = commonDroDownService;
         }
 
+        #region Leave Type 
+        public bool IsEligibleForLeave(LeaveTypes leaveType, DateOnly joiningDate, DateOnly today)
+        {
+            // Case 1: EffectiveFrom + EffectiveAfter = Years
+            if (leaveType.EffectiveAfter?.Contains("Year") == true && leaveType.EffectiveFrom.HasValue)
+            {
+                var eligibleDate = joiningDate.AddYears(leaveType.EffectiveFrom.Value);
+                return today >= eligibleDate;
+            }
+
+            // Case 2: EffectiveFrom + EffectiveAfter = Months
+            if (leaveType.EffectiveAfter?.Contains("Month") == true && leaveType.EffectiveFrom.HasValue)
+            {
+                var eligibleDate = joiningDate.AddMonths(leaveType.EffectiveFrom.Value);
+                return today >= eligibleDate;
+            }
+
+            // Case 3: EffectiveFromMonthYear (e.g. "2025-01")
+            if (!string.IsNullOrEmpty(leaveType.EffectiveFromMonthYear))
+            {
+                if (DateTime.TryParse(leaveType.EffectiveFromMonthYear + "-01", out var effDate))
+                {
+                    var effDateOnly = DateOnly.FromDateTime(effDate);
+                    return today >= effDateOnly;
+                }
+            }
+
+            // Case 4: After Joining Date (immediate eligibility)
+            if (leaveType.EffectiveAfter?.Contains("After Joining Date") == true)
+            {
+                return today >= joiningDate;
+            }
+
+            // Default: eligible if nothing blocks it
+            return true;
+        }
+
+
+        #endregion
 
         #region  Get Data All  Leave  Requyest above table 
 
@@ -307,7 +346,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 decimal availableLeaveDays = 0;
                 if (leaveBalancevaluse != null && leaveBalancevaluse.TotalLeave.HasValue && leaveBalancevaluse.Taken.HasValue)
                 {
-                    availableLeaveDays = leaveBalancevaluse.TotalLeave.Value - leaveBalancevaluse.Taken.Value;
+                    availableLeaveDays = leaveBalancevaluse.TotalLeave.Value - (leaveBalancevaluse.Taken.Value+leaveBalancevaluse.TakenPartialHours.Value );
                 }
                 else
                 {
@@ -333,7 +372,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     ApprovalPersonID = data.ApprovalPersonID,
                     SecrectCode = data.SecrectCode,
                     SecrectCodeDateTime = data.SecrectCodeDateTime,
+                    Taken= leaveBalancevaluse?.Taken ?? 0
                 };
+
+                
                 return entityVM;
             }
             catch (Exception ex)
@@ -1235,9 +1277,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 {
                     // Applicant receives final approval/decline
                     toEmail = applicantData.OfficeEmail ?? applicantData.Email ?? string.Empty;
-                    statusMessage = statusId == leavStatusDecline
-                        ? "Your leave request has been declined."
-                        : "Your leave request has been approved.";
+                    statusMessage = statusId == leavStatusDecline ? "Your leave request has been declined." : "Your leave request has been approved.";
                     name = $"{applicantData?.FirstName} {applicantData?.LastName}"; //({applicantData?.DesignationName}, {applicantData?.DepartmentName}
                 }
                 else

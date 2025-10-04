@@ -386,6 +386,7 @@ $(document).ready(function () {
                     $('#PartialToTimeEdit').val(data.partialToTimeEdit);
                     $('#ReasonEdit').val(data.reasonEdit);
                     $('#AvailableLeaveDays').val(data.availableLeaveDays);
+                    $('#Taken').val(data.taken);
                     initializeDatepickerDMY("FromDateEdit,ToDateEdit,ToDateFromDateCombinedEdit");
                     if (data.isFullDayEdit === true) {
                         $('#FullDayDivEdit').removeClass('d-none');

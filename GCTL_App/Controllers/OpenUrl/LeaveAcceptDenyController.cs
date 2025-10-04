@@ -104,17 +104,6 @@ namespace GCTL_App.Controllers.OpenUrl
                     ApprovalNote = isApproved ? "Approved via email link" : "Declined via email link"
                 };
 
-                //string url = $"{Request.Scheme}://{Request.Host.Value}";
-                //var result = await leaveApprovalService.UpdateLeaveRequestAsynce(entityVM, url);
-
-                //string responseMessage = result.Success
-                //    ? (isApproved ? "Leave request approved successfully." : "Leave request declined successfully.")
-                //    : $"Operation failed: {result.Message}";
-
-                //string color = isApproved ? "#28a745" : "#dc3545";
-
-                //return Content($"<p style='color:{color}; font-weight:bold; text-align:center;'>{responseMessage}</p>", "text/html");
-
                 string url = $"{Request.Scheme}://{Request.Host.Value}";
                 var result = await leaveApprovalService.UpdateLeaveRequestAsynce(entityVM, url);
 
