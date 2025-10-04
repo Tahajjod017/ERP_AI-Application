@@ -18,7 +18,7 @@ namespace GCTL.Service.Finance.TransactionAccount
         Task<DeleteTransactionAccountVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<GetByIdTransactionAccountVM> GetByIdAsync(int id);
         Task<PaginationService<TransactionAccounts, GetAllTransactionAccountVM>.PaginationResult<GetAllTransactionAccountVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5,
-            string searchTerm = "", string sortColumn = "GroupID", string sortOrder = "desc");
+            string searchTerm = "", string sortColumn = "GroupID", string sortOrder = "desc", int? subAccId = null);
         #endregion
 
 

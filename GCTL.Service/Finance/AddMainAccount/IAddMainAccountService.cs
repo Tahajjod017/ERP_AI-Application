@@ -18,7 +18,7 @@ namespace GCTL.Service.Finance.AddMainAccount
         Task<DeleteAddMainAccountVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<GetByIdAddMainAccountVM> GetByIdAsync(int id);
         Task<PaginationService<MainAccounts, GetAllAddMainAccountVM>.PaginationResult<GetAllAddMainAccountVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5,
-            string searchTerm = "", string sortColumn = "MainAccountID", string sortOrder = "desc");
+            string searchTerm = "", string sortColumn = "MainAccountID", string sortOrder = "desc", int? groupId = null);
         #endregion
 
 

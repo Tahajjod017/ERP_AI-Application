@@ -113,7 +113,7 @@
                         await getAccountGroupByClassId(data.classID);  // Wait for group options to load
                         await accountGroupDD.setChoiceByValue(data.groupID.toString());  // Now set group
 
-                        getMainAccByClassIdGroupId(data.classID, data.groupID, data.mainAccountID);
+                        getMainAccByClassIdGroupId(data.classID, data.groupID, data.mainAccountID, true);
 
                         $('#addSubAccount-form #addSubAccount-saveBtn').text('Update');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -278,7 +278,7 @@
                 getMainAccByClassIdGroupId(classId, groupId);
             });
 
-            function getMainAccByClassIdGroupId(classId, groupId = null, mainAccountId = null) {
+            function getMainAccByClassIdGroupId(classId, groupId = null, mainAccountId = null, skipGenerateNextCode = false) {
                 $.ajax({
                     url: getMainAccByClassIdGroupIdUrl,
                     type: 'GET',
@@ -287,9 +287,9 @@
                         groupId: groupId
                     },
                     success: function (result) {
-                        $('.chat-thread-tab').empty();
+                        $('.addSubAccount-ul').empty();
 
-                        $('.chat-thread-tab')
+                        $('.addSubAccount-ul')
                             .append(`<div class="row">
                             <div class="col-md-12">
                                 <label class="form-label"><strong>Select a Main Account</strong><span style="color:red;">*&nbsp;</span></label>
@@ -298,7 +298,7 @@
                         </div>`);
 
                         if (result.length === 0) {
-                            $('.chat-thread-tab').append('<li class="nav-item text-center">No Data Found</li>');
+                            $('.addSubAccount-ul').append('<li class="nav-item text-center">No Data Found</li>');
                         } else {
                             result.forEach(function (item) {
                                 var listItem = `
@@ -316,12 +316,12 @@
                         </li>
                     `;
 
-                                $('.chat-thread-tab').append(listItem);
+                                $('.addSubAccount-ul').append(listItem);
                             });
 
                             // Click handler
-                            $('.chat-thread-tab .nav-link').on('click', function () {
-                                $('.chat-thread-tab .nav-link').removeClass('active');
+                            $('.addSubAccount-ul .nav-link').on('click', function () {
+                                $('.addSubAccount-ul .nav-link').removeClass('active');
                                 $(this).addClass('active');
 
                                 $(this).closest('li').siblings().removeClass('selected');
@@ -329,12 +329,15 @@
 
                                 var mainAccountID = $(this).data('mainaccount-id');
                                 $('#MainAccountID').val(mainAccountID);
-                                generateNextCode(mainAccountID);
+                                if (!skipGenerateNextCode) {
+                                    generateNextCode(mainAccountID);
+                                }
+                                loadTableData();
                             });
 
                             // 🔽 If editing, auto-select the group
                             if (mainAccountId) {
-                                const target = $(`.chat-thread-tab .nav-link[data-mainaccount-id="${mainAccountId}"]`);
+                                const target = $(`.addSubAccount-ul .nav-link[data-mainaccount-id="${mainAccountId}"]`);
                                 if (target.length) {
                                     target.trigger('click'); // Triggers the same click handler
                                 }
@@ -388,7 +391,7 @@
                 $(settings.addform).find(settings.saveBtn).text('Save');
                 $("#addSubAccount-check-all").prop('checked', false);
                 $('.addSubAccount-selectItem').prop('checked', false);
-                $('.chat-thread-tab').empty();
+                $('.addSubAccount-ul').empty();
 
                 if (accountClassDD) {
                     accountClassDD.destroy();
@@ -640,6 +643,7 @@
 
         function loadTableData(sortColumn, sortOrder) {
             var searchTerm = $("#addSubAccount-searchInput").val();
+            var mainAccId = $("#MainAccountID").val();
 
             $.ajax({
                 url: getAllUrl,
@@ -649,7 +653,8 @@
                     pageSize: pageSize,
                     searchTerm: searchTerm,
                     sortColumn: sortColumn,
-                    sortOrder: sortOrder
+                    sortOrder: sortOrder,
+                    mainAccId: mainAccId
                 },
                 success: function (response) {
                     var tableBody = $("#addSubAccount-tBody");

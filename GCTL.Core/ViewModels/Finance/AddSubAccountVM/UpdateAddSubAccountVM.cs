@@ -20,7 +20,7 @@ namespace GCTL.Core.ViewModels.Finance.AddSubAccountVM
         [Required(ErrorMessage = "{0} is required!"), Display(Name = "Main Account")]
         public int? MainAccountID { get; set; }
 
-        [Required(ErrorMessage = "{0} is required!"), StringLength(10, ErrorMessage = "{0} must be at most {1} characters long."), Display(Name = "Sub Account Code")]
+        [Required(ErrorMessage = "{0} is required!"), StringLength(8, ErrorMessage = "{0} must be at most {1} characters long."), Display(Name = "Sub Account Code")]
         [RegularExpression(@"^.{8}$", ErrorMessage = "{0} must be exactly 8 characters long.")]
         public string SubAccountCode { get; set; }
 

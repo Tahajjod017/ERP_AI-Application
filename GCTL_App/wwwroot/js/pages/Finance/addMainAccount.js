@@ -201,9 +201,9 @@
                     type: 'GET',
                     data: { classId: classId },
                     success: function (result) {
-                        $('.chat-thread-tab').empty();
+                        $('.addMainAccount-ul').empty();
 
-                        $('.chat-thread-tab')
+                        $('.addMainAccount-ul')
                             .append(`<div class="row">
                             <div class="col-md-12">
                                 <label class="form-label"><strong>Select a Group</strong><span style="color:red;">*&nbsp;</span></label>
@@ -212,7 +212,7 @@
                         </div>`);
 
                         if (result.length === 0) {
-                            $('.chat-thread-tab').append('<li class="nav-item text-center">No Data Found</li>');
+                            $('.addMainAccount-ul').append('<li class="nav-item text-center">No Data Found</li>');
                         } else {
                             result.forEach(function (item) {
                                 var listItem = `
@@ -230,12 +230,14 @@
                         </li>
                     `;
 
-                                $('.chat-thread-tab').append(listItem);
+                                $('.addMainAccount-ul').append(listItem);
                             });
 
+                            
+
                             // Click handler
-                            $('.chat-thread-tab .nav-link').on('click', function () {
-                                $('.chat-thread-tab .nav-link').removeClass('active');
+                            $('.addMainAccount-ul .nav-link').on('click', function () {
+                                $('.addMainAccount-ul .nav-link').removeClass('active');
                                 $(this).addClass('active');
 
                                 $(this).closest('li').siblings().removeClass('selected');
@@ -243,11 +245,12 @@
 
                                 var groupId = $(this).data('group-id');
                                 $('#GroupID').val(groupId);
+                                loadTableData();
                             });
 
                             // 🔽 If editing, auto-select the group
                             if (selectedGroupId) {
-                                const target = $(`.chat-thread-tab .nav-link[data-group-id="${selectedGroupId}"]`);
+                                const target = $(`.addMainAccount-ul .nav-link[data-group-id="${selectedGroupId}"]`);
                                 if (target.length) {
                                     target.trigger('click'); // Triggers the same click handler
                                 }
@@ -283,7 +286,7 @@
                 $(settings.addform).find(settings.saveBtn).text('Save');
                 $("#addMainAccount-check-all").prop('checked', false);
                 $('.addMainAccount-selectItem').prop('checked', false);
-                $('.chat-thread-tab').empty();
+                $('.addMainAccount-ul').empty();
 
                 if (accountClassDD) {
                     accountClassDD.destroy();
@@ -508,6 +511,7 @@
 
         function loadTableData(sortColumn, sortOrder) {
             var searchTerm = $("#addMainAccount-searchInput").val();
+            var groupId = $("#GroupID").val();
 
             $.ajax({
                 url: getAllUrl,
@@ -517,7 +521,8 @@
                     pageSize: pageSize,
                     searchTerm: searchTerm,
                     sortColumn: sortColumn,
-                    sortOrder: sortOrder
+                    sortOrder: sortOrder,
+                    groupId: groupId
                 },
                 success: function (response) {
                     var tableBody = $("#addMainAccount-tBody");

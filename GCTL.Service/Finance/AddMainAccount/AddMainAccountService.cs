@@ -129,11 +129,16 @@ namespace GCTL.Service.Finance.AddMainAccount
 
 
         #region GetAllAsync
-        public async Task<PaginationService<MainAccounts, GetAllAddMainAccountVM>.PaginationResult<GetAllAddMainAccountVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "MainAccountID", string sortOrder = "desc")
+        public async Task<PaginationService<MainAccounts, GetAllAddMainAccountVM>.PaginationResult<GetAllAddMainAccountVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "MainAccountID", string sortOrder = "desc", int? groupId = null)
         {
             try
             {
                 var query = _genericRepository.AllActive().Include(x => x.Group).ThenInclude(x => x.Class).Where(x => x.DeletedAt == null && x.DeletedBy == null);
+
+                if(groupId != null)
+                {
+                    query = query.Where(x => x.GroupID == groupId);
+                }
 
                 if (!string.IsNullOrEmpty(sortColumn))
                 {
