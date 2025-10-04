@@ -6,19 +6,35 @@
     var accountGroupDD = ViewBag.AccountGroupDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
 }
 
-<style>
-    /* Highlight active link */
-    .chat-thread-tab .nav-link.active {
-        background-color: #f0f0f0; /* Or any color you prefer */
-        color: #007bff; /* Highlight the text */
-    }
+@section Styles {
+    <style>
+        /* Highlight active link */
+        .addSubAccount-ul .nav-link.active {
+            background-color: #f0f0f0; /* Or any color you prefer */
+            color: #007bff; /* Highlight the text */
+        }
 
-    /* Highlight selected li */
-    .chat-thread-tab li.selected {
-        background-color: #e9ecef; /* Lighter background for the selected item */
-        border-left: 4px solid #007bff; /* Optional: Add a left border for better visibility */
-    }
-</style>
+        /* Highlight selected li */
+        .addSubAccount-ul li.selected {
+            background-color: #e9ecef; /* Lighter background for the selected item */
+            border-left: 4px solid #007bff; /* Optional: Add a left border for better visibility */
+        }
+
+        /* Constrain the list to show exactly 10 items */
+        .addSubAccount-ul {
+            max-height: 66vh;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            display: block;
+        }
+
+            /* Remove flex properties that might interfere */
+            .addSubAccount-ul.flex-column {
+                display: block !important;
+            }
+
+    </style>
+}
 
 <ul class="nav nav-underline fs-9">
     <li class="nav-item"><a class="nav-link" href="/addMainAccount/Index">@Html.SmartLocalize("Add Main Account")</a></li>
@@ -66,7 +82,7 @@
                 </div>
 
                 <div class="d-grid">
-                    <ul class="nav chat-thread-tab flex-column list">
+                    <ul class="nav addSubAccount-ul flex-column list">
                     </ul>
                 </div>
             </div>

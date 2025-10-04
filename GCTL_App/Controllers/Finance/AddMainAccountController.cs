@@ -146,9 +146,9 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region GetAll
-        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "MainAccountID", string sortOrder = "desc")
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "MainAccountID", string sortOrder = "desc", int? groupId = null)
         {
-            var result = await _addMainAccountService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+            var result = await _addMainAccountService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, groupId);
 
             return Json(result);
         }

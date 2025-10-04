@@ -116,7 +116,7 @@
                         await accountGroupDD.setChoiceByValue(data.groupID.toString());  // Now set group
                         await mainAccDD.setChoiceByValue(data.mainAccountID.toString());  // Now set group
 
-                        getSubAccByClassIdGroupIdMainAccId(data.classID, data.groupID, data.mainAccountID, data.subAccountID);
+                        getSubAccByClassIdGroupIdMainAccId(data.classID, data.groupID, data.mainAccountID, data.subAccountID, true);
 
                         $('#trxAccount-form #trxAccount-saveBtn').text('Update');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -360,7 +360,7 @@
                 getSubAccByClassIdGroupIdMainAccId(classId, groupId, mainAccId);
             });
 
-            function getSubAccByClassIdGroupIdMainAccId(classId, groupId = null, mainAccId = null, subAccountId = null, ) {
+            function getSubAccByClassIdGroupIdMainAccId(classId, groupId = null, mainAccId = null, subAccountId = null, skipGenerateNextCode = false) {
                 $.ajax({
                     url: getSubAccByClassIdGroupIdMainAccIdUrl,
                     type: 'GET',
@@ -370,9 +370,9 @@
                         mainAccId: mainAccId
                     },
                     success: function (result) {
-                        $('.chat-thread-tab').empty();
+                        $('.trxAccount-ul').empty();
 
-                        $('.chat-thread-tab')
+                        $('.trxAccount-ul')
                             .append(`<div class="row">
                             <div class="col-md-12">
                                 <label class="form-label"><strong>Select a Sub Account</strong><span style="color:red;">*&nbsp;</span></label>
@@ -381,7 +381,7 @@
                         </div>`);
 
                         if (result.length === 0) {
-                            $('.chat-thread-tab').append('<li class="nav-item text-center">No Data Found</li>');
+                            $('.trxAccount-ul').append('<li class="nav-item text-center">No Data Found</li>');
                         } else {
                             result.forEach(function (item) {
                                 var listItem = `
@@ -399,12 +399,12 @@
                                     </li>
                                 `;
 
-                                $('.chat-thread-tab').append(listItem);
+                                $('.trxAccount-ul').append(listItem);
                             });
 
                             // Click handler
-                            $('.chat-thread-tab .nav-link').on('click', function () {
-                                $('.chat-thread-tab .nav-link').removeClass('active');
+                            $('.trxAccount-ul .nav-link').on('click', function () {
+                                $('.trxAccount-ul .nav-link').removeClass('active');
                                 $(this).addClass('active');
 
                                 $(this).closest('li').siblings().removeClass('selected');
@@ -412,12 +412,15 @@
 
                                 var subAccountId = $(this).data('subaccount-id');
                                 $('#SubAccountID').val(subAccountId);
-                                generateNextCode(subAccountId);
+                                if (!skipGenerateNextCode) {
+                                    generateNextCode(subAccountId);
+                                }
+                                loadTableData();
                             });
 
                             // 🔽 If editing, auto-select the group
                             if (subAccountId) {
-                                const target = $(`.chat-thread-tab .nav-link[data-subaccount-id="${subAccountId}"]`);
+                                const target = $(`.trxAccount-ul .nav-link[data-subaccount-id="${subAccountId}"]`);
                                 if (target.length) {
                                     target.trigger('click'); // Triggers the same click handler
                                 }
@@ -471,7 +474,7 @@
                 $(settings.addform).find(settings.saveBtn).text('Save');
                 $("#trxAccount-check-all").prop('checked', false);
                 $('.trxAccount-selectItem').prop('checked', false);
-                $('.chat-thread-tab').empty();
+                $('.trxAccount-ul').empty();
 
                 if (accountClassDD) {
                     accountClassDD.destroy();
@@ -739,6 +742,7 @@
 
         function loadTableData(sortColumn, sortOrder) {
             var searchTerm = $("#trxAccount-searchInput").val();
+            var subAccId = $("#SubAccountID").val();
 
             $.ajax({
                 url: getAllUrl,
@@ -748,7 +752,8 @@
                     pageSize: pageSize,
                     searchTerm: searchTerm,
                     sortColumn: sortColumn,
-                    sortOrder: sortOrder
+                    sortOrder: sortOrder,
+                    subAccId: subAccId
                 },
                 success: function (response) {
                     var tableBody = $("#trxAccount-tBody");
@@ -764,20 +769,25 @@
                                     <td class="align-middle white-space-nowrap ps-0">${item.className}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.groupName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountName}</td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.subAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.trxAccName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.trxAccCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.description}</td>
-                                    <td class="align-middle text-end white-space-nowrap pe-2">
-                                        <div class="row g-3">
-                                            <a href="#!" class="btn btn-outline-light btn-icon me-2 trxAccount-editBtn" id="trxAccount-editBtn" data-id="${item.trxAccID}"><i class="fas fa-edit text-black"></i></a>
-                                            <a href="#!" class="btn btn-outline-light btn-icon trxAccount-single-deleteBtn" id="trxAccount-single-delete" data-id="${item.trxAccID}"><i class="far fa-trash-alt text-black"></i></a>
+                                    <td class="align-middle white-space-nowrap ps-0">
+                                        <div class="d-flex gap-2">
+                                            <a href="#!" class="btn btn-outline-light btn-icon trxAccount-editBtn" id="trxAccount-editBtn" data-id="${item.trxAccID}">
+                                                <i class="fas fa-edit text-black"></i>
+                                            </a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon trxAccount-single-deleteBtn" id="trxAccount-single-delete" data-id="${item.trxAccID}">
+                                                <i class="far fa-trash-alt text-black"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
                             `);
                         });
                     } else {
-                        tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
+                        tableBody.append('<tr><td colspan="9" class="text-center">No data available</td></tr>');
                     }
 
                     var paginationInfo = response.paginationInfo;

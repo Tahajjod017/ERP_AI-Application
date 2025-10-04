@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace GCTL.Service.Finance.TransactionAccount
@@ -42,7 +43,7 @@ namespace GCTL.Service.Finance.TransactionAccount
                 if (exixtingEntity != null)
                 {
                     exixtingEntity.SubAccountID = (int)model.SubAccountID;
-                    exixtingEntity.TrxAccCode = model.TrxAccCode;
+                    exixtingEntity.TrxAccCode = model.TrxAccCode.Trim();
                     exixtingEntity.TrxAccName = model.TrxAccName;
                     exixtingEntity.IsActive = model.IsActive;
                     exixtingEntity.Description = model.Description;
@@ -64,7 +65,7 @@ namespace GCTL.Service.Finance.TransactionAccount
                 {
                     TransactionAccounts entity = new TransactionAccounts();
                     entity.SubAccountID = (int)model.SubAccountID;
-                    entity.TrxAccCode = model.TrxAccCode;
+                    entity.TrxAccCode = model.TrxAccCode.Trim();
                     entity.TrxAccName = model.TrxAccName;
                     entity.IsActive = model.IsActive;
                     entity.Description = model.Description;
@@ -105,7 +106,7 @@ namespace GCTL.Service.Finance.TransactionAccount
                 var beforeEntity = JsonConvert.DeserializeObject<UpdateTransactionAccountVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.SubAccountID = (int)model.SubAccountID;
-                entity.TrxAccCode = model.TrxAccCode;
+                entity.TrxAccCode = model.TrxAccCode.Trim();
                 entity.TrxAccName = model.TrxAccName;
                 entity.IsActive = model.IsActive;
                 entity.Description = model.Description;
@@ -134,7 +135,7 @@ namespace GCTL.Service.Finance.TransactionAccount
 
 
         #region GetAllAsync
-        public async Task<PaginationService<TransactionAccounts, GetAllTransactionAccountVM>.PaginationResult<GetAllTransactionAccountVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "TrxAccID", string sortOrder = "desc")
+        public async Task<PaginationService<TransactionAccounts, GetAllTransactionAccountVM>.PaginationResult<GetAllTransactionAccountVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "TrxAccID", string sortOrder = "desc", int? subAccId = null)
         {
             try
             {
@@ -145,6 +146,11 @@ namespace GCTL.Service.Finance.TransactionAccount
                     .ThenInclude(x => x.Class)
                     .AsNoTracking()
                     .Where(x => x.DeletedAt == null && x.DeletedBy == null);
+
+                if(subAccId != null)
+                {
+                    query = query.Where(x => x.SubAccountID == subAccId);
+                }
 
                 if (!string.IsNullOrEmpty(sortColumn))
                 {
@@ -307,7 +313,7 @@ namespace GCTL.Service.Finance.TransactionAccount
                     query = query.Where(x => x.TrxAccID != excludeId.Value);
                 }
 
-                var exists = await query.AnyAsync(x => x.TrxAccCode == code);
+                var exists = await query.AnyAsync(x => x.TrxAccCode.Trim() == code);
 
                 return !exists;
             }
@@ -329,7 +335,7 @@ namespace GCTL.Service.Finance.TransactionAccount
                 throw new Exception("Sub Account not found.");
             }
 
-            var prefix = subAcc.SubAccountCode;
+            var prefix = Regex.Replace(subAcc.SubAccountCode, @"\s+", "");
 
             var result = await _genericRepository.All()
                 .Where(x => x.SubAccountID == subAccId)
@@ -344,7 +350,7 @@ namespace GCTL.Service.Finance.TransactionAccount
             }
 
             // Step 3: Extract the numeric part from the last SubAccountCode
-            var lastCode = result.TrxAccCode;  // E.g., "01010003"
+            var lastCode = Regex.Replace(result.TrxAccCode, @"\s+", "");  // E.g., "01010003"
             var lastCodeNumericPart = lastCode.Substring(8);  // E.g., "0003"
 
             // Step 4: Increment the numeric part
