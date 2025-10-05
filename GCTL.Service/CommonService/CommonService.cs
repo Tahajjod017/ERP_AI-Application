@@ -41,7 +41,7 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<SpiralMonthlyPatternDetails> _spiralMonthlyPatternDetails;
         private readonly IGenericRepository<BaseAccounts> _baseAccounts;
         private readonly IGenericRepository<Classes> _classes;
-        private readonly IGenericRepository<Groups> _groups;
+        //private readonly IGenericRepository<Groups> _groups;
         private readonly IGenericRepository<MainAccounts> _mainAccounts;
         private readonly IGenericRepository<SubAccounts> _subAccounts;
 
@@ -66,7 +66,6 @@ namespace GCTL.Service.CommonService
             IGenericRepository<SpiralMonthlyPatternDetails> spiralMonthlyPatternDetails,
             IGenericRepository<BaseAccounts> baseAccounts,
             IGenericRepository<Classes> classes,
-            IGenericRepository<Groups> groups,
             IGenericRepository<SubAccounts> subAccounts,
             IGenericRepository<MainAccounts> mainAccounts)
         {
@@ -90,7 +89,6 @@ namespace GCTL.Service.CommonService
             _spiralMonthlyPatternDetails = spiralMonthlyPatternDetails;
             _baseAccounts = baseAccounts;
             _classes = classes;
-            _groups = groups;
             _subAccounts = subAccounts;
             _mainAccounts = mainAccounts;
         }
@@ -360,18 +358,18 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetBranches
-        public async Task<List<CommonSelectVM>> GetAccountGroup()
-        {
-            var result = await _groups.AllActive().Include(x => x.Class).AsNoTracking().Select(x => new CommonSelectVM
-            {
-                Id = x.GroupID,
-                Name = x.GroupName ?? "-",
-                GroupName = x.Class.ClassName ?? "-"
-            }).ToListAsync();
+        #region GetAccountGroup
+        //public async Task<List<CommonSelectVM>> GetAccountGroup()
+        //{
+        //    var result = await _groups.AllActive().Include(x => x.Class).AsNoTracking().Select(x => new CommonSelectVM
+        //    {
+        //        Id = x.GroupID,
+        //        Name = x.GroupName ?? "-",
+        //        GroupName = x.Class.ClassName ?? "-"
+        //    }).ToListAsync();
 
-            return result;
-        }
+        //    return result;
+        //}
         #endregion
 
 
@@ -393,21 +391,21 @@ namespace GCTL.Service.CommonService
 
 
         #region GetAccountGroupByClassId
-        public async Task<List<CommonSelectVM>> GetAccountGroupByClassId(int classId)
-        {
-            var data = await _groups.AllActive()
-                .Where(x => x.ClassID == classId)
-                .Include(x => x.Class)
-                .AsNoTracking()
-                .Select(x => new CommonSelectVM
-            {
-                Id = x.GroupID,
-                Name = $"{x.GroupCode}-{x.GroupName}" ?? "-",
-                GroupName = x.Class.ClassName ?? "-"
-            }).ToListAsync();
+        //public async Task<List<CommonSelectVM>> GetAccountGroupByClassId(int classId)
+        //{
+        //    var data = await _groups.AllActive()
+        //        .Where(x => x.ClassID == classId)
+        //        .Include(x => x.Class)
+        //        .AsNoTracking()
+        //        .Select(x => new CommonSelectVM
+        //    {
+        //        Id = x.GroupID,
+        //        Name = $"{x.GroupCode}-{x.GroupName}" ?? "-",
+        //        GroupName = x.Class.ClassName ?? "-"
+        //    }).ToListAsync();
 
-            return data;
-        }
+        //    return data;
+        //}
         #endregion
 
 

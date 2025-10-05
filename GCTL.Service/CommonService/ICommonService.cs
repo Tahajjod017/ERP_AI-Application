@@ -31,11 +31,11 @@ namespace GCTL.Service.CommonService
 
         Task<List<CommonSelectVM>> GetAccountClass();
 
-        Task<List<CommonSelectVM>> GetAccountGroup();
+        //Task<List<CommonSelectVM>> GetAccountGroup();
 
         Task<List<CommonSelectVM>> GetMainAccount();
 
-        Task<List<CommonSelectVM>> GetAccountGroupByClassId(int classId);
+        //Task<List<CommonSelectVM>> GetAccountGroupByClassId(int classId);
 
         Task<List<CommonSelectVM>> GetMainAccByClassIdGroupId(int classId, int? GroupId);
 

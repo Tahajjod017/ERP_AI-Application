@@ -6,7 +6,7 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var accountClassDD = ViewBag.AccountClassDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
-    var accountGroupDD = ViewBag.AccountGroupDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+    // var accountGroupDD = ViewBag.AccountGroupDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
     var mainAccDD = ViewBag.MainAccDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
 }
 
@@ -93,7 +93,7 @@
                         </select>
                         <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
                     </div>
-                    <div class="col-md-12">
+                    @* <div class="col-md-12">
                         <label class="form-label" asp-for="GroupID">@Html.SmartLocalize("Select Group")<span style="color:red;">*&nbsp;</span></label>
                         <select class="form-select" asp-for="GroupID">
                             <option value="">@Html.SmartLocalize("Select Group")...</option>
@@ -108,7 +108,7 @@
                             }
                         </select>
                         <span asp-validation-for="GroupID" id="GroupIDError" class="text-danger" style="display:none;"></span>
-                    </div>
+                    </div> *@
                     <div class="col-md-12">
                         <label class="form-label" asp-for="MainAccountID">@Html.SmartLocalize("Select Main Account")<span style="color:red;">*&nbsp;</span></label>
                         <select class="form-select" asp-for="MainAccountID">
