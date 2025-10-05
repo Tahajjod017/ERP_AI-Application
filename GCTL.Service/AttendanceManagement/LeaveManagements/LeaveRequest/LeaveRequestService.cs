@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using SkiaSharp;
 using System;
@@ -25,11 +27,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.Razor.Generator;
+using System.Web.Razor.Parser.SyntaxTree;
 using static Dapper.SqlMapper;
 using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -916,7 +920,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                                  emp.Email,
                                                  empOff.OfficeEmail,
                                                  DepartmentName = empOff.Department.DepartmentName,
-                                                 DesignationName = empOff.Designation.DesignationName
+                                                 DesignationName = empOff.Designation.DesignationName,
+                                                
                                              }).ToListAsync();
 
                 var applicantData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == entityVM.EmployeeID);
@@ -964,9 +969,91 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 //    Body = emailBody
                 //};
 
+                var supervisors = await empoffi.AllActive()
+  .Where(x => x.EmployeeID == entityVM.EmployeeID)
+  .Select(x => new
+  {
+      ImmediateSupervisor = x.ImmediateSupervisorId != null && x.ImmediateSupervisorId != 0 ? x.ImmediateSupervisorId : (int?)null,
+      SeniorSupervisor = x.SeniorSupervisorId != null && x.SeniorSupervisorId != 0 ? x.SeniorSupervisorId : (int?)null,
+      HeadOfDepartment = x.HeadOfDepartmentId != null && x.HeadOfDepartmentId != 0 ? x.HeadOfDepartmentId : (int?)null
+  }).FirstOrDefaultAsync();
+
+                var supervisorList = new List<(string Role, int? Id)>();
+                if (supervisors?.ImmediateSupervisor != null) supervisorList.Add(("Immediate Supervisor", supervisors.ImmediateSupervisor));
+                if (supervisors?.SeniorSupervisor != null) supervisorList.Add(("Senior Supervisor", supervisors.SeniorSupervisor));
+                if (supervisors?.HeadOfDepartment != null) supervisorList.Add(("Head of Department", supervisors.HeadOfDepartment));
+
+
+                var supervisorIds = supervisorList.Select(s => s.Id).ToList();
+                var supervisorNames = await employee.AllActive()
+                    .Where(x => supervisorIds.Contains(x.EmployeeID))
+                    .ToDictionaryAsync(x => x.EmployeeID, x => x.FirstName + " " + x.LastName);
+
+
+                var timelineHtml = new StringBuilder();
+
+                // Step 1: Submitted (always first)
+                timelineHtml.Append($@"
+<td style=""width:20%; position:relative; vertical-align:top;"">
+  <div style=""width:50px;height:50px;background:linear-gradient(135deg, #10b981, #059669);border-radius:50%;margin:auto;display:flex;align-items:center;justify-content:center;"">
+    <span style=""color:#fff;font-size:20px;font-weight:bold;margin:10px 0px 0px 17px !important"">✓</span>
+  </div>
+  <p style=""margin:10px 0 5px;font-weight:bold;color:#10b981;font-size:14px;"">Submitted</p>
+  <p style=""margin:0;font-size:11px;color:#6b7280;"">{DateTime.Now:MMM dd, yyyy}</p>
+  <p style=""margin:0;font-size:11px;color:#6b7280;"">{DateTime.Now:hh:mm tt}</p>
+</td>");
+
+                // Connector after submitted
+                if (supervisorList.Count > 0)
+                {
+                    timelineHtml.Append(@"<td style=""width:10%; vertical-align:middle;"">
+      <div style=""height:3px;background:#10b981;margin:0 5px;""></div>
+    </td>");
+                }
+
+                // Dynamic approvals
+                for (int i = 0; i < supervisorList.Count; i++)
+                {
+                    var sup = supervisorList[i];
+                    string supName;
+                    if (!supervisorNames.TryGetValue((int)sup.Id, out supName))
+                    {
+                        supName = "Pending";
+                    }
+
+
+                    // Assign colors/icons dynamically
+                    string bgColor = i == 0 ? "linear-gradient(135deg, #fbbf24, #f59e0b)" : "linear-gradient(135deg, #e5e7eb, #d1d5db)";
+                    string icon = i == 0 ? "⏳" : "•••";
+                    string textColor = i == 0 ? "#f59e0b" : "#9ca3af";
+                    //string stepText = $"{i + 1}{(i == 0 ? "st" : i == 1 ? "nd" : i == 2 ? "rd" : "th")} Approval";
+                    string stepText = sup.Role;
+
+                    timelineHtml.Append($@"
+<td style=""width:20%; position:relative; vertical-align:top;"">
+  <div style=""width:50px;height:50px;background:{bgColor};border-radius:50%;margin:auto;display:flex;align-items:center;justify-content:center;"">
+    <span style=""color:#fff;font-size:20px;font-weight:bold;margin:10px 0px 0px 17px !important;"">{icon}</span>
+  </div>
+  <p style=""margin:10px 0 5px;font-weight:bold;color:{textColor};font-size:14px;"">{stepText}</p>
+  <p style=""margin:0;font-size:11px;color:#6b7280;"">Pending</p>
+  <p style=""margin:5px 0 0;font-size:12px;color:#6b7280;font-weight:600;background:#f3f4f6;padding:3px 10px;border-radius:10px;display:inline-block;"">{supName}</p>
+</td>");
+
+                    // Connector after each supervisor except last
+                    if (i != supervisorList.Count - 1)
+                    {
+                        timelineHtml.Append($@"<td style=""width:10%; vertical-align:middle;"">
+            <div style=""height:3px;background:#e5e7eb;margin:0 5px;""></div>
+          </td>");
+                    }
+                }
+
+
+
                 var emailModel = new EmailVM
                 {
                     To = approverData?.OfficeEmail ?? approverData?.Email,
+                    //To = applicantData?.OfficeEmail ?? applicantData?.Email,
                     Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
   <!DOCTYPE html>
@@ -1130,6 +1217,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 <table width=""100%"">
                     <tr>
                         <td align=""left"">
+
                             <img src=""{logourl}"" alt=""Company Logo"">
                           
                         </td>
@@ -1153,36 +1241,17 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         </tr>
       		<!-- Approval Timeline (Horizontal) -->
 <tr>
-  <td class=""content section-timeline"">
+
+     <td class=""content section-timeline"">
     <h2>Approval Status Timeline</h2>
-    <table width=""100%"" style=""text-align:center; margin-top:20px;"">
+     <table width=""100%"" style=""text-align:center; margin-top:20px; border-spacing: 0;"">
       <tr>
-        <!-- Step 1 -->
-        <td style=""width:33%; position:relative;"">
-          <div style=""width:20px;height:20px;background:#008000;border-radius:50%;margin:auto;""></div>
-          <p style=""margin:5px 0 0;font-weight:bold;color:#008000;"">Leave Submitted</p>
-          <p style=""margin:0;font-size:12px;color:#555;"">{DateTime.Now:dd MMM yyyy - hh:mm tt}</p>
-        </td>
-        <!-- Connector -->
-        <td style=""width:5%;""><hr style=""border:none;border-top:2px solid #e0e0e0;""></td>
-        <!-- Step 2 -->
-        <td style=""width:33%; position:relative;"">
-          <div style=""width:20px;height:20px;background:#ffc107;border-radius:50%;margin:auto;""></div>
-          <p style=""margin:5px 0 0;font-weight:bold;color:#ffc107;"">Pending Manager Approval</p>
-          <p style=""margin:0;font-size:12px;color:#555;"">Sep 16, 2025 - 10:05 AM</p>
-        </td>
-        <!-- Connector -->
-        <td style=""width:5%;""><hr style=""border:none;border-top:2px solid #e0e0e0;""></td>
-        <!-- Step 3 -->
-        <td style=""width:33%; position:relative;"">
-          <div style=""width:20px;height:20px;background:#e0e0e0;border-radius:50%;margin:auto;""></div>
-          <p style=""margin:5px 0 0;font-weight:bold;color:#555;"">Leave Approved</p>
-          <p style=""margin:0;font-size:12px;color:#888;"">(Waiting update)</p>
-        </td>
+  
+     {timelineHtml}
+   
       </tr>
     </table>
   </td>
-</tr>
 
 
         <!-- Employee Info -->
@@ -1269,6 +1338,44 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 // Send using EmailService (SMTP uses applicant’s org config)
                 await emailService.SendEmailLeaveRequest(emailModel, entityVM.EmployeeID);
 
+
+                //
+
+
+                //
+
+  //               < td class=""content section-timeline"">
+  //  <h2>Approval Status Timeline</h2>
+  //  <table width = ""100%"" style=""text-align:center; margin-top:20px;"">
+  //    <tr>
+  //      <!-- Step 1 -->
+  //      <td style = ""width:33%; position:relative;"">
+  //        <div style = ""width:20px;height:20px;background:#008000;border-radius:50%;margin:auto;""></div>
+  //        <p style = ""margin:5px 0 0;font-weight:bold;color:#008000;"">Submitted</p>
+  //        <p style = ""margin:0;font-size:9px;color:#555;"">{DateTime.Now:dd MMM yyyy - hh:mm tt}</p>
+  //      </td>
+  //      <!-- Connector -->
+  //      <td style = ""width:5%;""><hr style = ""border:none;border-top:2px solid #e0e0e0;""></td>
+  //      <!-- Step 2 -->
+  //      <td style = ""width:33%; position:relative;"">
+  //        <div style = ""width:20px;height:20px;background:#ffc107;border-radius:50%;margin:auto;""></div>
+  //        <p style = ""margin:5px 0 0;font-weight:bold;color:#ffc107;"">Pending Manager Approval</p>
+  //        <p style = ""margin:0;font-size:9px;color:#555;"">Sep 16, 2025 - 10:05 AM</p>
+  //      </td>
+  //      <!-- Connector -->
+  //      <td style = ""width:5%;""><hr style = ""border:none;border-top:2px solid #e0e0e0;""></td>
+  //      <!-- Step 3 -->
+  //      <td style = ""width:33%; position:relative;"">
+  //        <div style = ""width:20px;height:20px;background:#e0e0e0;border-radius:50%;margin:auto;""></div>
+  //        <p style = ""margin:5px 0 0;font-weight:bold;color:#555;"">Leave Approved</p>
+  //        <p style = ""margin:0;font-size:9px;color:#888;"">(Waiting update)</p>
+  //      </td>
+  //    </tr>
+  //  </table>
+  //</td>
+                //
+
+                //
 
                 await leaveRequest.CommitTransactionAsync();
 
@@ -1597,43 +1704,116 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             return defaultLeave;
         }
 
+        //public async Task<object> GetLeaveTypeTotaldays(int employeeId, int leaveTypeID)
+        //{
+
+        //    //
+        //    var usedUpLeaveTypeIds = await leaveBalances.AllActive()
+        //.Where(lb => lb.EmployeeID == employeeId && (lb.TotalLeave - lb.Taken) <= 0)
+        //.Select(lb => lb.LeaveTypeID).ToListAsync();
+
+        //    var leaveTypess = await leaveTypes.AllActive()
+        //        .Where(lt => !usedUpLeaveTypeIds.Contains(lt.LeaveTypeID)).ToListAsync();
+        //    //
+        //    var leaveBalance = await leaveBalances.AllActive()
+        //        .Where(x => x.EmployeeID == employeeId && x.LeaveTypeID == leaveTypeID)
+        //        .Select(x => new
+        //        {
+        //            leaveDays = x.TotalLeave - x.Taken
+        //        }).FirstOrDefaultAsync();
+
+        //    if (leaveBalance != null)
+        //    {
+        //        return leaveBalance;
+        //    }
+        //    else
+        //    {
+        //        var defaultLeave = await leaveTypes.AllActive()
+        //            .Where(l => l.LeaveTypeID == leaveTypeID)
+        //            .Select(l => new
+        //            {
+        //                leaveDays = l.LeaveDays
+        //            }).FirstOrDefaultAsync();
+        //        if (defaultLeave == null) return null;
+        //        return defaultLeave;
+        //    }
+        //}
+
+
         public async Task<object> GetLeaveTypeTotaldays(int employeeId, int leaveTypeID)
         {
 
-            //
-            var usedUpLeaveTypeIds = await leaveBalances.AllActive()
-        .Where(lb => lb.EmployeeID == employeeId && (lb.TotalLeave - lb.Taken) <= 0)
-        .Select(lb => lb.LeaveTypeID).ToListAsync();
+            var workingHour = await leavePolicyConfiguration.AllActive().Select(x => x.WorkingHour).FirstOrDefaultAsync();
 
-            var leaveTypess = await leaveTypes.AllActive()
-                .Where(lt => !usedUpLeaveTypeIds.Contains(lt.LeaveTypeID)).ToListAsync();
-            //
-            var leaveBalance = await leaveBalances.AllActive()
-                .Where(x => x.EmployeeID == employeeId && x.LeaveTypeID == leaveTypeID)
-                .Select(x => new
+            if (workingHour == null || workingHour == 0)  workingHour = 8; 
+            // 1. Get employee joining date 
+            var employee = await empoffi.AllActive()
+                .Where(e => e.EmployeeID == employeeId).Select(e => new { e.JoiningDate }) .FirstOrDefaultAsync();
+
+            if (employee == null || employee.JoiningDate == null)
+                return null;
+
+            var joiningDate = employee.JoiningDate.Value;
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            // 2. Get leave type details 
+            var leaveType = await leaveTypes.AllActive()
+                .Where(l => l.LeaveTypeID == leaveTypeID)
+                .FirstOrDefaultAsync();
+
+            if (leaveType == null) return null;
+
+            int totalLeaveDays = (int)leaveType.LeaveDays;
+
+
+            if (leaveType.LeaveTypeName != null)
+            {
+                string leaveTypeName = leaveType.LeaveTypeName.ToLower();
+
+                if (leaveTypeName.Contains("annual leave") ||
+                    leaveTypeName.Contains("sick leave") ||
+                    leaveTypeName.Contains("casual leave"))
                 {
-                    leaveDays = x.TotalLeave - x.Taken
-                }).FirstOrDefaultAsync();
+                    int totalMonthsInYear = 12;
+
+                    if (joiningDate.Year == today.Year) 
+                    {
+                        // Months employee will serve this year (including joining month)
+                        int monthsWorked = totalMonthsInYear - joiningDate.Month + 1;
+
+                        totalLeaveDays = (int)Math.Round(
+                            (decimal)leaveType.LeaveDays * monthsWorked / totalMonthsInYear,
+                            MidpointRounding.AwayFromZero
+                        );
+                    }
+                }
+            }
+
+            
+            var leaveBalance = await leaveBalances.AllActive()
+        .Where(x => x.EmployeeID == employeeId && x.LeaveTypeID == leaveTypeID)
+        .Select(x => new
+        {
+            TakenDays = x.Taken ?? 0,
+            TakenPartialHours = x.TakenPartialHours ?? 0
+        }) .FirstOrDefaultAsync();
+
+            decimal? takenLeaveDays = 0;
 
             if (leaveBalance != null)
             {
-                return leaveBalance;
+                // Convert hours to days (assuming 8 hours = 1 day, adjust if needed)
+                decimal? hoursInDays = leaveBalance.TakenPartialHours / workingHour;
+                takenLeaveDays = leaveBalance.TakenDays + hoursInDays;
             }
-            else
-            {
-                var defaultLeave = await leaveTypes.AllActive()
-                    .Where(l => l.LeaveTypeID == leaveTypeID)
-                    .Select(l => new
-                    {
-                        leaveDays = l.LeaveDays
-                    }).FirstOrDefaultAsync();
-                if (defaultLeave == null) return null;
-                return defaultLeave;
-            }
+
+            // 5. Calculate available leave
+            decimal? availableLeaveDays = totalLeaveDays - takenLeaveDays;
+
+            // 6. Return result 
+            return new { leaveDays = Math.Round((decimal)availableLeaveDays, 2) };
+
         }
-
-
-
 
 
         #endregion
@@ -2079,7 +2259,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #region Dispaly LeaveDays 
         public async Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId)
         {
-            
+            var workingHour = await leavePolicyConfiguration.AllActive().Select(x => x.WorkingHour).FirstOrDefaultAsync();
+
+            if (workingHour == null || workingHour == 0) workingHour = 8;
             // Base query for leave balances
             var baseQuery = from lt in leaveTypes.AllActive()
                             join lb in leaveBalances.AllActive().Where(x => x.EmployeeID == employeeId)
@@ -2095,7 +2277,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                 Taken = lb.Taken ?? 0,
                                 ApplicableYear = lb.ApplicableYear,
                                 RemainingDays = lb != null
-                                    ? (lb.TotalLeave ?? 0 - lb.Taken ?? 0)
+                                    ? (lb.TotalLeave ?? 0 - (lb.Taken ?? 0 + lb.TakenPartialHours/workingHour ?? 0))
                                     : (lt.LeaveDays ?? 0)
                             };
 
