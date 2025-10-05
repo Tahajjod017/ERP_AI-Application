@@ -1001,6 +1001,7 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
                     {
                         approverStep = total;
                     }
+
                     html += `
                 <div class="timeline-item" style="margin-bottom:1px>
                     <div class="timeline-item position-relative">
