@@ -34,6 +34,7 @@ namespace GCTL_App.Controllers.Finance
 
                 SetSmartPageCode(203700);
 
+                ViewBag.BodyTabs = await _addSubAccountService.GetBodyTabsAsync();
                 ViewBag.AccountClassDD = await _commonService.GetAccountClass();
                 ViewBag.AccountGroupDD = await _commonService.GetAccountGroup();
                 //if (accountClass.Count == 1)
@@ -122,8 +123,14 @@ namespace GCTL_App.Controllers.Finance
                         return Json(new { isSuccess = false, message = $"{model.SubAccountCode} already exists!" });
                     }
 
-                    await _addSubAccountService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                    var result = await _addSubAccountService.UpdateAsync(model);
+                    return Json(new
+                    {
+                        isSuccess = result.Success,
+                        message = result.Message,
+                        errors = result.Errors, // optional
+                        data = result.Data      // optional
+                    });
                 }
 
                 var orderedKeys = new[] { "ClassID", "GroupID", "MainAccountID", "BaseAccountCode", "SubAccountName" };
