@@ -36,7 +36,7 @@ namespace GCTL_App.Controllers.Finance
 
                 ViewBag.BodyTabs = await _transactionAccountService.GetBodyTabsAsync();
                 ViewBag.AccountClassDD = await _commonService.GetAccountClass();
-                ViewBag.AccountGroupDD = await _commonService.GetAccountGroup();
+                //ViewBag.AccountGroupDD = await _commonService.GetAccountGroup();
                 ViewBag.MainAccDD = await _commonService.GetMainAccount();
                 //if (accountClass.Count == 1)
                 //{
@@ -260,11 +260,11 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region GetAccountGroupByClassId
-        public async Task<IActionResult> GetAccountGroupByClassId(int classId)
-        {
-            var result = await _commonService.GetAccountGroupByClassId(classId);
-            return Json(result);
-        }
+        //public async Task<IActionResult> GetAccountGroupByClassId(int classId)
+        //{
+        //    var result = await _commonService.GetAccountGroupByClassId(classId);
+        //    return Json(result);
+        //}
         #endregion
 
 
