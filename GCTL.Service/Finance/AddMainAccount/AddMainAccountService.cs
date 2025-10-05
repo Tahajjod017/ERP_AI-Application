@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Finance.AddMainAccountVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -20,14 +21,16 @@ namespace GCTL.Service.Finance.AddMainAccount
         #region Repositories & Services
         public readonly IGenericRepository<MainAccounts> _genericRepository;
         private readonly IUserInfoService _userInfoService;
+        private readonly IGenericRepository<MenuTab> _menuTabRepository;
 
-        public AddMainAccountService(IGenericRepository<MainAccounts> genericRepository, IUserInfoService userInfoService) : base(genericRepository)
+        public AddMainAccountService(IGenericRepository<MainAccounts> genericRepository, IUserInfoService userInfoService, IGenericRepository<MenuTab> menuTabRepository) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
+            _menuTabRepository = menuTabRepository;
         }
         #endregion
-
+              
 
         #region AddAsync
         public async Task<bool> AddAsync(CreateAddMainAccountVM model)
@@ -88,19 +91,30 @@ namespace GCTL.Service.Finance.AddMainAccount
 
 
         #region UpdateAsync
-        public async Task<bool> UpdateAsync(UpdateAddMainAccountVM model)
+        public async Task<CommonReturnViewModel> UpdateAsync(UpdateAddMainAccountVM model)
         {
+            var result = new CommonReturnViewModel();
             try
             {
                 await _genericRepository.BeginTransactionAsync();
 
                 var entity = await _genericRepository.GetByIdAsync(model.MainAccountID);
                 if (entity == null)
-                    return false;
+                {
+                    result.Success = false;
+                    result.Message = "Main account not found.";
+                    return result;
+                }
+
+                if (model.GroupID != entity.GroupID)
+                {
+                    result.Success = false;
+                    result.Message = "You cannot change the group!";
+                    return result;
+                }
 
                 var beforeEntity = JsonConvert.DeserializeObject<UpdateAddMainAccountVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
-                entity.GroupID = (int)model.GroupID;
                 entity.MainAccountCode = model.MainAccountCode;
                 entity.MainAccountName = model.MainAccountName;
                 entity.Description = model.Description;
@@ -116,13 +130,18 @@ namespace GCTL.Service.Finance.AddMainAccount
                 await _userInfoService.ActionLogAsync("Add Main Account", ActionName.DataUpdated, beforeEntity, afterEntity, entity.MainAccountID, model);
 
                 await _genericRepository.CommitTransactionAsync();
-                return true;
+
+                result.Success = true;
+                result.Message = "Updated Successfully.";
+                return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await _genericRepository.RollbackTransactionAsync();
-                return false;
-                throw;
+                result.Success = false;
+                result.Message = "An error occurred while updating the main account.";
+                result.Errors.Add(ex.Message);
+                return result;
             }
         }
         #endregion
@@ -296,6 +315,27 @@ namespace GCTL.Service.Finance.AddMainAccount
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while checking the Add Main Account code uniqueness.", ex);
+            }
+        }
+        #endregion
+
+
+        #region GetBodyTabsAsync
+        public async Task<List<MenuTab>> GetBodyTabsAsync()
+        {
+            try
+            {
+                var allowedControllers = new[] { "AddMainAccount", "AddSubAccount", "TransactionAccount" };
+
+                var menuTabs = await _menuTabRepository.AllActive()
+                    .Where(mt => allowedControllers.Contains(mt.ControllerName) && !mt.IsActive)
+                    //.OrderBy(mt => mt.TabOrder)
+                    .ToListAsync();
+                return menuTabs;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving menu tabs.", ex);
             }
         }
         #endregion
