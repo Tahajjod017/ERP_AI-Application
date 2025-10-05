@@ -147,16 +147,16 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                 var baseBenefits = await _employeeBaseBenefitsRepository.AllActive().Where(x => x.EmployeeID == id).FirstOrDefaultAsync();
 
                 // Get Basic Salary
-                decimal healthInsurance = (baseBenefits?.IsHealthInsuranceEnabled == true ? baseBenefits.HealthInsurance ?? 0 : 0);
-                decimal performanceBonus = (baseBenefits?.IsPerformanceBonusEnabled == true ? baseBenefits.PerformanceBonus ?? 0 : 0);
-                decimal yearlyEndBonus = (baseBenefits?.IsYearlyEndBonusTypeIDEnabled == true ?  0 : 0);
-                decimal festivalBonus = (baseBenefits?.IsFastivalBonusPercentageEnabled == true ?
-                    (baseBenefits.FastivalBonusPercentage ?? 0) * (basicsalary ?? 0) / 100 : 0);
-                decimal providentFund = (baseBenefits?.IsProvidantFundEnabled == true ?
-                    (baseBenefits.ProvidantFundEmployeePercentage ?? 0) * (basicsalary ?? 0) / 100 : 0);
+                //decimal healthInsurance = (baseBenefits?.IsHealthInsuranceEnabled == true ? baseBenefits.HealthInsurance ?? 0 : 0);
+                //decimal performanceBonus = (baseBenefits?.IsPerformanceBonusEnabled == true ? baseBenefits.PerformanceBonus ?? 0 : 0);
+                //decimal yearlyEndBonus = (baseBenefits?.IsYearlyEndBonusTypeIDEnabled == true ?  0 : 0);
+                //decimal festivalBonus = (baseBenefits?.IsFastivalBonusPercentageEnabled == true ?
+                //    (baseBenefits.FastivalBonusPercentage ?? 0) * (basicsalary ?? 0) / 100 : 0);
+                //decimal providentFund = (baseBenefits?.IsProvidantFundEnabled == true ?
+                //    (baseBenefits.ProvidantFundEmployeePercentage ?? 0) * (basicsalary ?? 0) / 100 : 0);
 
-                decimal totalBonus= healthInsurance+ performanceBonus+yearlyEndBonus+festivalBonus+providentFund;
-
+                // decimal totalBonus= healthInsurance+ performanceBonus+yearlyEndBonus+festivalBonus+providentFund;
+                decimal totalBonus = 0 + 0 + 0 + 0 + 0;
                 //
                 // Fetch benefits from DB
                 var benefitsList = await benefitsRepository.AllActive()
@@ -220,14 +220,10 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     var setup = allowance.EmployeeAllowanceSetup
                         .Where(s => (s.SalaryMin == null || basicsalary >= s.SalaryMin) &&
                                     (s.SalaryMax == null || basicsalary <= s.SalaryMax))
-                        .OrderByDescending(s => s.EffectiveDate ?? DateTime.MinValue)
+                        
                         .FirstOrDefault();
 
-                    if (setup == null)
-                    {
-                        setup = allowance.EmployeeAllowanceSetup
-                            .OrderByDescending(s => s.EffectiveDate ?? DateTime.MinValue) .FirstOrDefault();
-                    }
+                   
 
                     if (setup != null)
                     {

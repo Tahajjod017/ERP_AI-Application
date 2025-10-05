@@ -4,7 +4,6 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "MinimumProductVersion": "2.6.1080",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -15,6 +14,30 @@
    "SelectedToBeGenerated": 0,
    "T4TemplatePath": null,
    "Tables": [
+      {
+         "Name": "[COA].[BaseAccounts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[Classes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[Groups]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[MainAccounts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[SubAccounts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[TransactionAccounts]",
+         "ObjectType": 0
+      },
       {
          "Name": "[Customer].[Addresses]",
          "ObjectType": 0
@@ -649,7 +672,6 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
-   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -657,7 +679,6 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
-   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
@@ -669,6 +690,5 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false,
-   "UseT4Split": false
+   "UseT4": false
 }

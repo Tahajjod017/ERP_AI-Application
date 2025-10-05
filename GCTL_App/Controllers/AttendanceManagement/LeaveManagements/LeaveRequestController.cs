@@ -8,7 +8,9 @@ using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDecline;
 using GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using GCTL_App.Controllers.AttendanceManagement.AttentendceReports.DailyReport;
 using GCTL_App.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,7 +21,7 @@ using System.Security.Claims;
 
 namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 {
-   
+    [Authorize]
     public class LeaveRequestController : BaseController
     {
         private readonly IGenericRepository<LeaveTypes> leaveType;
@@ -27,15 +29,46 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
         private ILeaveRequestService  leaveRequestService;
         private ILeaveApprovalService leaveApprovalService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public LeaveRequestController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, ILeaveApprovalService leaveApprovalService = null, IWebHostEnvironment webHostEnvironment = null) : base(translateService, userProfileService)
+        private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
+        private readonly AppDbContext appDb;
+        public LeaveRequestController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeaveTypes> leaveType, IGenericRepository<Statuses> status, ILeaveRequestService leaveRequestService, ILeaveApprovalService leaveApprovalService, IWebHostEnvironment webHostEnvironment, IGenericRepository<EmployeeOfficeInfo> empoffi, AppDbContext appDb) : base(translateService, userProfileService)
         {
             this.leaveType = leaveType;
             this.status = status;
             this.leaveRequestService = leaveRequestService;
             this.leaveApprovalService = leaveApprovalService;
             _webHostEnvironment = webHostEnvironment;
+            this.empoffi = empoffi;
+            this.appDb = appDb;
         }
+        // Calculate 
+        public bool IsEligibleForLeave(LeaveTypes leaveType, DateOnly joiningDate, DateOnly today)
+        {
+            if (leaveType.EffectiveFromMonthYear?.Contains("Years") == true && leaveType.EffectiveFrom.HasValue)
+            {
+                return today >= joiningDate.AddYears(leaveType.EffectiveFrom.Value);
+            }
 
+            if (leaveType.EffectiveFromMonthYear?.Contains("Months") == true && leaveType.EffectiveFrom.HasValue)
+            {
+                return today >= joiningDate.AddMonths(leaveType.EffectiveFrom.Value);
+            }
+
+            if (!string.IsNullOrEmpty(leaveType.EffectiveFromMonthYear))
+            {
+                if (DateTime.TryParse(leaveType.EffectiveFromMonthYear , out var effDate))
+                {
+                    return today >= DateOnly.FromDateTime(effDate);
+                }
+            }
+
+            if (leaveType.EffectiveAfter?.Contains("After Joining Date") == true)
+            {
+                return today >= joiningDate;
+            }
+
+            return true;
+        }
         public async Task< IActionResult> Index()
         {
             LeaveApplicationsRequestPageVM model = new LeaveApplicationsRequestPageVM
@@ -43,11 +76,28 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                 SetupForm = new LeaveApplicationsRequestVM(),
                 SetupFormEdit=new LeaveApplicationEditVM(),
             };
+            //
+            string url = GetEmployeePictureURL();
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var employeeId = await appDb.Users.Where(u => u.Id == userId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
 
+            var employee22 = await empoffi.AllActive().Where(e => e.EmployeeID == employeeId).Select(e => new { e.JoiningDate }).FirstOrDefaultAsync();
 
-            ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive().Where(x=>x.IsActive==true), "LeaveTypeID", "LeaveTypeName");
+            if (employee22 == null)
+            {
+                return NotFound("Employee not found");
+            }
+
+            var joiningDate = employee22.JoiningDate ?? DateOnly.FromDateTime(DateTime.Today);
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var leaveTypes = await leaveType.AllActive().Where(x => x.IsActive) .ToListAsync();   
+
+            var eligibleLeaveTypes = leaveTypes.Where(x => IsEligibleForLeave(x, joiningDate, today)).ToList();
+            //
+
+            // ViewBag.LeaveTypeDD = new SelectList(leaveType.AllActive().Where(x=>x.IsActive==true), "LeaveTypeID", "LeaveTypeName");
+            ViewBag.LeaveTypeDD = new SelectList(eligibleLeaveTypes, "LeaveTypeID", "LeaveTypeName");
             ViewBag.StatusDD = new SelectList(status.AllActive().Where(x=>x.StatusName== "APPROVED" || x.StatusName== "DECLINED"), "StatusID", "StatusName");
-           // ViewBag.OrganizationDD = new SelectList(await leaveRequestService.GetCompanies(), "Id", "Name");
             var companies = await leaveRequestService.GetCompanies();
 
             if (companies.Count == 1)
@@ -69,7 +119,6 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                 ViewBag.DepartmentDD = new SelectList(departments, "Id", "Name");
             }
 
-            // Employees list (if you want a dropdown or grouped display, just assign it directly)
             ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
             ViewBag.EmployeeList = await leaveRequestService.GetGroupedEmployees();
 
@@ -128,8 +177,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
                     Errors = errorMessages
                 });
             }
-            string url = $"{this.Request.Scheme}://{this.Request.Host.Value.ToString()}{this.Request.PathBase.Value.ToString()}";
-            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+           
+            string url = $"{Request.Scheme}://{Request.Host.Value}";
             var data = await leaveRequestService.SaveLeaveRequestAsync(model, url);
             return Ok(data);
 

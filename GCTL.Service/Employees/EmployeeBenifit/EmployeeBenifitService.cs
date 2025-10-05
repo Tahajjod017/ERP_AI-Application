@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.Helpers;
 using GCTL.Core.Helpers.Entity;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeBenifit;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM;
 using GCTL.Data.Models;
+using GCTL.Service.ActionLogAudit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 
 namespace GCTL.Service.Employees.EmployeeBenifit
 {
@@ -24,8 +28,8 @@ namespace GCTL.Service.Employees.EmployeeBenifit
         private readonly IGenericRepository<Benefits> benefits;
         private readonly IGenericRepository<BenefitTypes> benefitTypesRepository;
         private readonly IGenericRepository<BenefitSetups> benefitSetupRepository;
-
-        public EmployeeBenifitService(IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Benefits> benefits = null, IGenericRepository<BenefitTypes> benefitTypesRepository = null, IGenericRepository<BenefitSetups> benefitSetupRepository = null)
+        private readonly IUserInfoService userInfoService;
+        public EmployeeBenifitService(IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<EmployeeSalarySettings> employeeSalaryRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Benefits> benefits = null, IGenericRepository<BenefitTypes> benefitTypesRepository = null, IGenericRepository<BenefitSetups> benefitSetupRepository = null, IUserInfoService userInfoService = null)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
             _employeeRepository = employeeRepository;
@@ -34,6 +38,7 @@ namespace GCTL.Service.Employees.EmployeeBenifit
             this.benefits = benefits;
             this.benefitTypesRepository = benefitTypesRepository;
             this.benefitSetupRepository = benefitSetupRepository;
+            this.userInfoService = userInfoService;
         }
 
 
@@ -66,19 +71,6 @@ namespace GCTL.Service.Employees.EmployeeBenifit
 
                                       PersonalEmail = emp.Email ?? "N/A",
                                       PersonalPhone = emp.MobileNumber ?? "N/A",
-                                      //IsBenifitEnabled = true,
-                                      HealthInsurance = eb.HealthInsurance ?? 0,
-                                      IsHealthInsuranceEnabled = eb.IsHealthInsuranceEnabled,
-                                      PerformanceBonus = eb.PerformanceBonus ?? 0,
-                                      IsPerformanceBonusEnabled = eb.IsPerformanceBonusEnabled,
-                                      YearlyEndBonusTypeID = eb.YearlyEndBonusTypeID ?? 0,
-                                      IsYearlyEndBonusTypeIDEnabled = eb.IsYearlyEndBonusTypeIDEnabled,
-                                      FastivalBonusPercentage = eb.FastivalBonusPercentage ?? 0,
-                                      IsFastivalBonusPercentageEnabled = eb.IsFastivalBonusPercentageEnabled,
-                                      ProvidantFundEmployeePercentage = eb.ProvidantFundEmployeePercentage ?? 0,
-                                      ProvidantFundOrganizationPercentage = eb.ProvidantFundOrganizationPercentage ?? 0,
-                                      IsProvidantFundEnabled = eb.IsProvidantFundEnabled,
-                                      ServiceYearID = eb.ServiceYearID ?? 0,
                                       IsBenifitEnabled = empSaley.IsBenefitsEnabled
                                   }).FirstOrDefaultAsync();
 
@@ -104,10 +96,8 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                                          
                                           EmployeePersonalId = (int)emp.EmployeeID,
                                           OrganizationID = empOff.OrganizationID,
-
                                           PersonalEmail = emp.Email ?? "N/A",
                                           PersonalPhone = emp.MobileNumber ?? "N/A",
-                                          
                                        
                                       }).FirstOrDefaultAsync();
 
@@ -132,18 +122,7 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                         //EmployeeBaseBenefitID = model.EmployeeBaseBenefitID,
                         EmployeeID = model.EmployeePersonalId,
 
-                        HealthInsurance = model.HealthInsurance,
-                        IsHealthInsuranceEnabled = model.IsHealthInsuranceEnabled,
-                        PerformanceBonus = model.PerformanceBonus,
-                        IsPerformanceBonusEnabled = model.IsPerformanceBonusEnabled,
-                        YearlyEndBonusTypeID = model.YearlyEndBonusTypeID,
-                        IsYearlyEndBonusTypeIDEnabled = model.IsYearlyEndBonusTypeIDEnabled,
-                        FastivalBonusPercentage = model.FastivalBonusPercentage,
-                        IsFastivalBonusPercentageEnabled = model.IsFastivalBonusPercentageEnabled,
-                        ProvidantFundEmployeePercentage = model.ProvidantFundEmployeePercentage,
-                        ProvidantFundOrganizationPercentage = model.ProvidantFundOrganizationPercentage,
-                        IsProvidantFundEnabled = model.IsProvidantFundEnabled,
-                        ServiceYearID = model.ServiceYearID
+                     
                     };
 
 
@@ -155,10 +134,7 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                         {
                             EmployeeID = model.EmployeePersonalId,
                             IsBenefitsEnabled = model.IsBenifitEnabled,
-                            //CreatedBy = model.CreatedBy,
-                            //CreatedAt = DateTime.UtcNow,
-                            //LIP = model.LIP,
-                            //LMAC = model.LMAC
+                          
                         };
                         await _employeeSalaryRepository.AddAsync(empSalary, model);
                     }
@@ -175,18 +151,7 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                 else
                 {
                   
-                    existingBenefit.HealthInsurance = model.HealthInsurance;
-                    existingBenefit.IsHealthInsuranceEnabled = model.IsHealthInsuranceEnabled;
-                    existingBenefit.PerformanceBonus = model.PerformanceBonus;
-                    existingBenefit.IsPerformanceBonusEnabled = model.IsPerformanceBonusEnabled;
-                    existingBenefit.YearlyEndBonusTypeID = model.YearlyEndBonusTypeID;
-                    existingBenefit.IsYearlyEndBonusTypeIDEnabled = model.IsYearlyEndBonusTypeIDEnabled;
-                    existingBenefit.FastivalBonusPercentage = model.FastivalBonusPercentage;
-                    existingBenefit.IsFastivalBonusPercentageEnabled = model.IsFastivalBonusPercentageEnabled;
-                    existingBenefit.ProvidantFundEmployeePercentage = model.ProvidantFundEmployeePercentage;
-                    existingBenefit.ProvidantFundOrganizationPercentage = model.ProvidantFundOrganizationPercentage;
-                    existingBenefit.IsProvidantFundEnabled = model.IsProvidantFundEnabled;
-                    existingBenefit.ServiceYearID = model.ServiceYearID;
+                
 
                     var empSalary = await _employeeSalaryRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeePersonalId);
 
@@ -230,51 +195,111 @@ namespace GCTL.Service.Employees.EmployeeBenifit
             
         }
 
-        
 
-        public async Task<List<CommonSelectVMM>> SelectAsync(int id)
+
+        public async Task<CommonReturnViewModel> SaveOrUpdateEmployeeBenefitsAsync1(EmployeeBenifitPostViewModel22 model)
         {
-           
             try
             {
-                
-                // Get all benefit types for the organization
+                foreach (var benefit in model.Benefits)
+                {
+                    var existing = await _employeeBenifitRepository.AllActive()
+                        .FirstOrDefaultAsync(b => b.BenefitID == benefit.BenefitID && b.EmployeeID == model.EmployeeId);
+
+                    if (existing != null)
+                    {
+                        // Update
+                        existing.CalculationTypeID = benefit.CalculationTypeID;
+                        existing.BenefitValue = benefit.Value;
+                        existing.LIP = model.LIP;
+                        existing.LMAC = model.LMAC;
+                        existing.UpdatedAt = DateTime.UtcNow;
+                        existing.UpdatedBy = model.UpdatedBy;
+                        await _employeeBenifitRepository.UpdateAsync(existing);
+                    }
+                    else
+                    {
+                        // Insert new
+                        var newBenefit = new EmployeeBaseBenefits
+                        {
+                            EmployeeID = model.EmployeeId,
+                            BenefitID = benefit.BenefitID,
+                            CalculationTypeID = benefit.CalculationTypeID,
+                            BenefitValue = benefit.Value,
+                            IsBenifitEnabled = true,
+                            LIP= model.LIP,
+                            LMAC=model.LMAC,
+                            CreatedAt=DateTime.UtcNow,
+                            CreatedBy=model.CreatedBy,
+                           
+                          
+                        };
+                        await _employeeBenifitRepository.AddAsync(newBenefit);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await userInfoService.ActionLogExceptionAsync("Employee Benefit", ex, 0, ActionName.Error);
+                throw;
+            }
+            
+
+          
+            return new CommonReturnViewModel
+            {
+                Success = true,
+                Message = "Benefits saved successfully."
+            };
+        }
+
+
+        public async Task<List<CommonSelectVMMM>> SelectAsync(int id)
+        {
+            List<CommonSelectVMMM> result = new List<CommonSelectVMMM>();
+            try
+            {
+                var orgaid = await _employeeOfficialRepository.AllActive()
+                    .Where(x => x.EmployeeID == id)
+                    .Select(x => x.OrganizationID)
+                    .FirstOrDefaultAsync();
+
+                var employeeSalary = await _employeeSalaryRepository.AllActive()
+                    .Where(x => x.EmployeeID == id)
+                    .Select(x => x.Salary)
+                    .FirstOrDefaultAsync();
+
                 var benefitTypes = await benefitTypesRepository
                     .AllActive()
-                    .Where(x => x.OrganizationID == id && x.IsApplyOnGrossSalary == true)
+                    .Where(x => x.OrganizationID == orgaid && x.IsApplyOnGrossSalary == true)
                     .ToListAsync();
 
-                // Get all benefits with their setups
                 var benefits = await this.benefits
                     .AllActive()
                     .Include(b => b.BenefitSetups)
                     .Include(b => b.BenefitType)
-                    .Where(b => b.OrganizationID == id)
+                    .Where(b => b.OrganizationID == orgaid)
                     .ToListAsync();
 
-                // Structure: BenefitType -> Benefits -> BenefitSetups
-                var result = benefitTypes.Select(bt => new CommonSelectVMM
+                result = benefitTypes.Select(bt => new CommonSelectVMMM
                 {
                     Id = bt.BenefitTypeID,
                     Name = bt.BenefitTypeName,
                     EmpBenefitVMM = benefits
                         .Where(b => b.BenefitTypeID == bt.BenefitTypeID)
-                        .Select(b => new EmpBenefitVMM
+                        .Select(b =>
                         {
-                            BenefitID = b.BenefitID,
-                            OrganizationID = b.OrganizationID,
-                            BenefitTypeID = b.BenefitTypeID,
-                            BenefitTypeName = b.BenefitType != null ? b.BenefitType.BenefitTypeName : "",
-                            IsActive = b.IsActive,
-                            EffectiveDate = b.EffectiveDate,
-                            BenefitSetups = b.BenefitSetups.Select(s => new EmpBenefitSetupVMM
+                            var matchedSetup = b.BenefitSetups
+                                .FirstOrDefault(s => s.SalaryMin <= employeeSalary && s.SalaryMax >= employeeSalary);
+
+                            return new EmpBenefitVMMM
                             {
-                                BenefitSetupID = s.BenefitSetupID,
-                                SalaryMin = s.SalaryMin,
-                                SalaryMax = s.SalaryMax,
-                                CalculationTypeID = s.CalculationTypeID,
-                                Value = s.Value
-                            }).ToList()
+                                BenefitID = b.BenefitID,
+                                OrganizationID = b.OrganizationID,
+                                CalculationTypeID = matchedSetup?.CalculationTypeID ?? 0,
+                                Value = matchedSetup?.Value ?? 0
+                            };
+
                         }).ToList()
                 }).ToList();
 
@@ -282,15 +307,11 @@ namespace GCTL.Service.Employees.EmployeeBenifit
             }
             catch (Exception ex)
             {
-                // Optional: log the exception using your logging service
-                // await _userInfoService.ActionLogExceptionAsync("Allowance Type", ex, result, new BaseViewModel());
-
-                // Return empty list or rethrow depending on your choice
-                Console.WriteLine(ex); // for debugging
-                return new List<CommonSelectVMM>();
+                await userInfoService.ActionLogExceptionAsync("Employee Benefit", ex, id, ActionName.Error);
+                Console.WriteLine(ex);
+                return new List<CommonSelectVMMM>();
             }
         }
-
 
     }
 }

@@ -377,7 +377,6 @@
                 },
                 success: function (response) {
                     console.log(response);
-                    debugger
                     if (response.success) {
                         toastr.success(response.message)
                         window.location.href = '/EmployeeOfficial/Index/'+ response.data; 

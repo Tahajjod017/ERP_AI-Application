@@ -1,153 +1,69 @@
 ﻿$(document).ready(function () {
 
     var percentageOptionsHtml = $("#percentageOptionsTemplate").html();
-    initializeFlatpickr();
-    function initializeFlatpickr() {
-        $('.flatpickr-input').flatpickr({
-            altInput: true,
-            altFormat: "F Y",
-            dateFormat: "Y-m-d",
-            plugins: [
-                new monthSelectPlugin({
-                    shorthand: true,
-                    dateFormat: "F Y",
-                    altFormat: "F Y",
-                    theme: "light"
-                })
-            ]
-        });
-    }
 
-    //#endregion
-    // If no rows exist initially
-    if ($(".houseRentRow").length === 0) {
-        // Simulate click or directly call AJAX with index 0
-        const $firstContainer = $(".houseRentContainer").first();
+    var lastInt=0
 
-        $.ajax({
-            url: '/PayRollEmpBenefitsUpdate/GetHouseRentAllowanceRow',
-            type: 'GET',
-            data: { index: 0 },
-            success: function (response) {
-                $firstContainer.append(response);
-                const firstRow = $firstContainer.find(".houseRentRow").first();
-                firstRow.find('.fixedPercentageSelect').val('Fixed').trigger('change');
-            }
-        });
-    }
-
-
-    FixedValue();
-    function FixedValue() {
-        $('.fixedPercentageSelect').val('1');
-        $('.fixedPercentageSelect').each(function () {
-            const selected = $(this).val();
-            showHide($(this), selected);
-        });
-    };
-    $(document).on('change', '.fixedPercentageSelect', function () {
-        const selected = $(this).val();
-        const $parent = $(this).closest('.input-group');
-        const $fixedRate = $parent.find('.fixedRate');
-        const $percentRate = $parent.find('.percentRate');
-        const $calcTypeInput = $parent.closest('.col-lg-3').find('.calculationTypeInput');
-
-        if (selected === 'Fixed') {
-            $fixedRate.show();
-            $percentRate.hide();
-            $calcTypeInput.val(1); // 1 = Fixed
-        } else if (selected === 'Percentage') {
-            $percentRate.show();
-            $fixedRate.hide();
-            $calcTypeInput.val(2); // 2 = Percentage
-        } else {
-            $fixedRate.hide();
-            $percentRate.hide();
-            $calcTypeInput.val(0);
-        }
-    });
-    //#region Fixed Percentage
-
-
-    $(document).on('change', '.fixedPercentageSelect', function () {
-        const selected = $(this).val();
-        showHide($(this), selected);
-    });
-    function showHide($select, selected) {
-        // Find the closest input-group to scope the fixedRate and percentRate elements
-        const $parent = $select.closest('.input-group');
-        const $fixedRate = $parent.find('.fixedRate');
-        const $percentRate = $parent.find('.percentRate');
-
-        if (selected == 1) {
-            $fixedRate.show();
-            $percentRate.hide();
-        } else if (selected == 2) {
-            $percentRate.show();
-            $fixedRate.hide();
-        } else {
-            $fixedRate.hide();
-            $percentRate.hide();
-        }
+    console.log(percentageOptionsHtml);
+    function getLastIntFromUrl() {
+        const parts = window.location.pathname.split('/').filter(Boolean).reverse();
+        return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
     }
 
     //#endregion
 
-    // Add new row
-    $(document).on('click', '.addRow', function () {
-        let container = $(this).closest('.houseRentContainer');
-        let rows = container.find('.houseRentRow');
-        let newIndex = rows.length;
+    $(document).ready(function () {
 
-        // Clone first row
-        let newRow = rows.first().clone();
+         lastInt = getLastIntFromUrl();
+        if (lastInt) {
 
-        // Clear input values
-        newRow.find('input').val('');
-        newRow.find('select').val('');
-        newRow.find('.percentRate').hide();
-        newRow.find('.fixedRate').hide();
+            TabChange(lastInt);
+        }
 
-        // Update name attributes with new index
-        newRow.find('[name]').each(function () {
-            let name = $(this).attr('name');
-            if (name) {
-                let updatedName = name.replace(/BenefitSetups\[\d+\]/, `BenefitSetups[${newIndex}]`);
-                $(this).attr('name', updatedName);
-            }
+        $('#EmployeeId').val(lastInt);
+        loadAllowanceTypes(lastInt);
+
+
+
+    });
+
+
+    function getPercentageOptionsHtml(selectedValue) {
+        let html = '';
+        $("#percentageOptionsTemplate option").each(function () {
+            const val = $(this).val();
+            const text = $(this).text();
+            html += `<option value="${val}" ${val == selectedValue ? 'selected' : ''}>${text}</option>`;
         });
-        newRow.find('.addRow')
-            .removeClass('addRow btn-outline-primary')
-            .addClass('removeRow  btn-danger')
-            .text('X');
-        container.append(newRow);
-        FixedValue();
-    });
-
-    // Remove row
-    $(document).on('click', '.removeRow', function () {
-        $(this).closest('.houseRentRow').remove();
-    });
-
-    // Initailly Loaded
-
-    var id = $("#OrganizationID").val();
-    if (id) {
-        loadAllowanceTypes(id);
-    } else {
-        return toastr.info('No Organization Id Found');
+        return html;
     }
 
-    $(document).on('change', '#OrganizationID', function () {
-        var id = $(this).val();
-        if (!id) {
-            return toastr.info('No Organization Id Found');
+
+
+    $(document).on("change", ".fixedPercentageSelect", function () {
+        let $row = $(this).closest(".row"); // only this row
+
+        let selected = $(this).val();
+
+        if (selected == "1") { // Fixed
+            $row.find(".fixedRateEditable").show();
+            $row.find(".percentRateEditable").hide();
+
+        } else if (selected == "2") { // Percentage
+            $row.find(".fixedRateEditable").hide();
+            $row.find(".percentRateEditable").show();
+
+        } else {
+            $row.find(".fixedRateEditable").hide();
+            $row.find(".percentRateEditable").hide();
         }
-        loadAllowanceTypes(id);
     });
+
+
+
     function loadAllowanceTypes(id) {
         $.ajax({
-            url: '/EmployeeBenifitController/SelectAllowanceTypeAsync',
+            url: '/EmployeeBenifitController/SelectBenefitsTypeAsync',
             type: 'GET',
             data: { id: id },
             dataType: 'json',
@@ -167,134 +83,124 @@
                         let collapseClass = isFirst ? "accordion-collapse collapse show" : "accordion-collapse collapse";
                         let ariaExpanded = isFirst.toString();
 
+                        // Get employee benefit
+                        let benefit = (item.empBenefitVMM && item.empBenefitVMM.length > 0) ? item.empBenefitVMM[0] : null;
+
+                        let benefitId = benefit ? benefit.benefitID : 0;
+                        let calculationType = benefit ? benefit.calculationTypeID : "";
+                        let value = benefit ? benefit.value : "";
+
                         accordionHtml += `
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="${headingId}">
-                                <button class="${buttonClass}" type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#${collapseId}"
-                                        aria-expanded="${ariaExpanded}"
-                                        aria-controls="${collapseId}">
-                                    ${item.name}
-                                </button>
-                            </h2>
+                                    <div class="accordion-item">
+                                     
+    <h2 class="accordion-header" id="${headingId}">
+        <button class="${buttonClass}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}"
+            aria-expanded="${ariaExpanded}" aria-controls="${collapseId}">
+            ${item.name}
+        </button>
+    </h2>
 
-                            <div id="${collapseId}" class="${collapseClass}" aria-labelledby="${headingId}">
-                                <div class="accordion-body">
+    <div id="${collapseId}" class="${collapseClass}" aria-labelledby="${headingId}">
+        <div class="accordion-body">
+            <div class="card shadow-sm rounded-3 mb-1">
+                <div class="card-body">
+                    <input type="hidden" name="Benefits[${i}].BenefitTypeID" value="${item.id}" />
+                    <input type="hidden" name="Benefits[${i}].BenefitID" value="${benefitId}" />
 
-                                    <div class="card shadow-sm rounded-3 mb-1 houseRentRow">
-                                        <div class="card-body">
-                                            <div class="houseRentContainer">
-                                                <div class="row">
-                                                    <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                                        <input type="hidden" name="Benefits[${i}].BenefitTypeID" value="${item.id}" />
-                                                         <input type="hidden" name="Benefits[${i}].BenefitID" value="0" />
+                    <div class="row g-3 align-items-center">
 
-                                                        <label class="form-label">Effective Date</label>
-                                                        <div class="input-icon-end position-relative">
-                                                            <input class="form-control ps-6 flatpickr-input"
-                   name="Benefits[${i}].EffectiveDate"
-                   type="text" readonly placeholder="Select Month">
-                                                            <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                                        <div class="form-check form-switch mt-4">
-                                                            <input class="form-check-input" type="checkbox" name="Benefits[${i}].IsActive">
-                                                            <label class="form-check-label ms-2">Active</label>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                        <!-- LEFT SIDE: EDITABLE (8 columns) -->
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <select class="form-select fixedPercentageSelect" name="Benefits[${i}].CalculationTypeID">
+                                <option value="">Select One</option>
+                                <option value="1" ${calculationType == 1 ? "selected" : ""}>Fixed</option>
+                                <option value="2" ${calculationType == 2 ? "selected" : ""}>Percentage</option>
+                            </select>
+                        </div>
 
-                                                <div class="row g-3 houseRentRow">
-                                                    <div class="col-lg-4 col-md-6 col-sm-12">
-                                                        <label class="form-label">Min Salary</label>
-                                                        <input type="text" class="form-control"
-               name="Benefits[${i}].BenefitSetups[0].SalaryMin"
-               placeholder="Enter Min Salary" />
-                                                    </div>
-                                                    <div class="col-lg-4 col-md-6 col-sm-12">
-                                                        <label class="form-label">Max Salary</label>
-                                                       <input type="text" class="form-control"
-               name="Benefits[${i}].BenefitSetups[0].SalaryMax"
-               placeholder="Enter Max Salary" />
-                                                    </div>
-                                                                         <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
-                                <!-- Hidden CalculationTypeID -->
+                        <div class="col-lg-4 col-md-6 col-sm-12 fixedRateEditable" style="display:${calculationType == 1 ? 'block' : 'none'};">
+                            <input type="text" class="form-control fixedInput" name="Benefits[${i}].Value"
+                                   placeholder="Enter Fixed Rate" value="${calculationType == 1 ? value : ''}">
+                        </div>
 
+                        <div class="col-lg-4 col-md-6 col-sm-12 percentRateEditable" style="display:${calculationType == 2 ? 'block' : 'none'};">
+                            <select class="form-select percentInput" name="Benefits[${i}].Value">
+                                <option value="">Select %</option>
+                                ${getPercentageOptionsHtml(value)}
+                            </select>
+                        </div>
 
+                        <!-- RIGHT SIDE: READONLY (4 columns) -->
+                        <div class="col-lg-2 col-md-6 col-sm-12">
+                            
+                            <select class="form-select" disabled>
+                                <option value="1" ${calculationType == 1 ? "selected" : ""}>Fixed</option>
+                                <option value="2" ${calculationType == 2 ? "selected" : ""}>Percentage</option>
+                            </select>
+                           
 
-                                <div class="input-group mb-3">
-                                    <!-- Selector -->
-                                    <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
-                                        <option value="">Select One</option>
-                                        <option value="1">Fixed</option>
-                                        <option value="2">Percentage</option>
-                                    </select>
+                           
+                        </div>  
+                        
+                        <div class="col-lg-2 col-md-6 col-sm-12 fixedRate" style="display:${calculationType == 1 ? 'block' : 'none'};">
+                            <input type="text" class="form-control fixedInput" disabled 
+                                   placeholder="Enter Fixed Rate" value="${calculationType == 1 ? value : ''}">
+                        </div>
+                         <div class="col-lg-2 col-md-6 col-sm-12 percentRate" style="display:${calculationType == 2 ? 'block' : 'none'};">
+                            <select class="form-select percentInput" disabled>
+                                <option value="">Select %</option>
+                                ${getPercentageOptionsHtml(value)}
+                            </select>
+                        </div>
 
-                                    <!-- Percentage -->
-                                    <div class="percentRate" style="display: none;">
-                                        <label class="form-label">Percentage(%)</label>
-                                        <select class="form-select choiceDD percentInput"
-                                                name="Benefits[${i}].BenefitSetups[0].Value"
-                                                style="max-width:185px;">
-                                            <option value="">Select %</option>
-                                           ${percentageOptionsHtml}
-                                        </select>
-                                    </div>
+                    </div> <!-- row -->
 
-                                    <!-- Fixed -->
-                                    <div class="fixedRate" style="display: none;">
-                                        <label class="form-label">Fixed</label>
-                                        <input type="text" class="form-control fixedInput"
-                                               name="Benefits[${i}].BenefitSetups[0].Value"
-                                               placeholder="Enter Fixed Rate"
-                                               style="max-width: 185px;">
-                                    </div>
-                                </div>
-                            </div>
-                                                    <div class="col-lg-1 px-0 col-md-1 col-sm-1">
-                                                        <button type="button" class="btn btn-primary px-3 mt-4 addRow">
-                                                            <i class="bi bi-plus-circle"></i>+
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                            <div class="row g-3 justify-content-end">
-                                                <div class="col-auto">
-                                                    <button class="btn btn-primary px-5 PayRollEmpBenefitsSave">Save</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>`;
+                </div> <!-- card-body -->
+            </div> <!-- card -->
+        </div> <!-- accordion-body -->
+    </div>
+</div>
+`;
                     });
 
                     accordionHtml += '</div>';
-
                 } else {
                     accordionHtml = '<p class="text-warning">No Benefits found for this organization.</p>';
                 }
 
                 $('#EmployeeAllowanceAccordion').html(accordionHtml);
-                initializeFlatpickr();
-                FixedValue();
+               // showHide();
             },
             error: function (err) {
-                //toastr.error('Failed to fetch allowance types');
-                console.error(err);
+                console.error("Error fetching allowance types:", err);
             }
         });
     }
 
-    //
 
+    $("#benefitForm").on("submit", function (e) {
+        e.preventDefault();
 
-    //
+        var formData = $(this).serializeArray(); 
+        formData.push({ name: "EmployeeId", value: lastInt }); 
+
+        $.ajax({
+            url: $(this).attr("action"),
+            type: "POST",
+            data: $.param(formData),
+            success: function (res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                } else {
+                    toastr.error(res.message);
+                }
+            },
+            error: function (err) {
+                toastr.error("Something went wrong!");
+                console.error("Save error:", err);
+            }
+        });
+    });
 
     // End Iniatially Loaded 
 
@@ -411,73 +317,6 @@
         resetPayRollEmpBenefitsForm();
 
     })
-
-
-
-
-    // Edit Button Click
-    //$(document).ready(function () {
-    //    loadPayRollEmpAllowanceData();
-    //});
-
-    //function loadPayRollEmpAllowanceData() {
-    //    $.ajax({
-    //        url: '/PayRollEmpBenefitsUpdate/GetAllDataAfterSave',
-    //        type: 'GET',
-    //        success: function (res) {
-    //            if (res.success && res.data && res.data.length > 0) {
-    //                res.data.forEach((item, index) => {
-    //                    console.log("Get All Data", item);
-    //                    // --- Effective Date ---
-    //                    const $effectiveDateInput = $(`input[name="HouseRentAllowances[${index}].EffectiveDate"]`);
-    //                    if ($effectiveDateInput.length && item.effectiveDate) {
-    //                        try {
-    //                            const date = new Date(item.effectiveDate);
-    //                            if (!isNaN(date.getTime())) {
-    //                                const monthNames = ["January", "February", "March", "April", "May", "June",
-    //                                    "July", "August", "September", "October", "November", "December"];
-    //                                const formattedDate = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-    //                                $effectiveDateInput.val(formattedDate);
-    //                                if ($effectiveDateInput[0]._flatpickr) {
-    //                                    $effectiveDateInput[0]._flatpickr.setDate(formattedDate, true);
-    //                                }
-    //                            }
-    //                        } catch (e) {
-    //                            console.error(`Failed to set date for index ${index}:`, e.message);
-    //                        }
-    //                    }
-
-    //                    // --- IsActive ---
-    //                    const $isActiveCheckbox = $(`input[name="HouseRentAllowances[${index}].IsActive"]`);
-    //                    if ($isActiveCheckbox.length && item.hasOwnProperty('isActive')) {
-    //                        $isActiveCheckbox.prop('checked', item.isActive === true || item.isActive === 'true');
-    //                    }
-
-    //                    // --- EmployeeAllowanceID (hidden input) ---
-    //                    const $allowanceIdInput = $('input[name="EmployeeAllowanceID"]');
-    //                    if ($allowanceIdInput.length && item.hasOwnProperty('employeeAllowanceID')) {
-    //                        $allowanceIdInput.val(item.employeeAllowanceID);
-    //                    }
-
-    //                });
-
-    //                toastr.success(res.message || "Data loaded successfully");
-    //            } else {
-    //                toastr.warning(res.message || "No data found.");
-    //            }
-    //        },
-
-
-    //        error: function (err) {
-    //            console.error("Error fetching data:", err);
-    //            toastr.error("Failed to load payroll employee Benefits data.");
-    //        }
-    //    });
-    //}
-
-
-
-
 
     
     //#endregion

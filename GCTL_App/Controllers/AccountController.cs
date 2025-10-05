@@ -55,25 +55,7 @@ namespace GCTL_App.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
-        ////
-        //[HttpGet]
-        //public IActionResult Login(string returnUrl = null)
-        //{
-        //    // ✅ If user is already logged in, skip login and redirect
-        //    if (User.Identity.IsAuthenticated)
-        //    {
-        //        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-        //        {
-        //            return Redirect(returnUrl); // Goes straight to LeaveApprovalDecline/Index
-        //        }
-
-        //        return RedirectToAction("Index", "Home");
-        //    }
-
-        //    ViewData["ReturnUrl"] = returnUrl;
-        //    return View();
-        //}
-
+        
 
 
         [HttpPost]

@@ -31,6 +31,8 @@ public partial class EmployeeAllowances
 
     public bool? IsActive { get; set; }
 
+    public DateTime? EffectiveDate { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

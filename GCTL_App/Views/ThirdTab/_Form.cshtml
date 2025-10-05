@@ -1,0 +1,57 @@
+﻿@model GCTL.Core.ViewModels.Finance.ThirdTabVM.CreateThirdTabVM
+
+<form asp-action="Create" asp-controller="ThirdTab" method="post" enctype="multipart/form-data" id="thirdTab-form">
+    <div class="row">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="GroupID" />
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label" asp-for="ClassID">@Html.SmartLocalize("Choose Class Name")<span style="color:red;">&nbsp;*</span></label>
+                <select class="form-select" asp-for="ClassID" asp-items="@ViewBag.ClassDD as SelectList">
+                    <option value="">@Html.SmartLocalize("Select Class Name")...</option>
+                </select>
+                <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label" asp-for="GroupName">@Html.SmartLocalize("Group Name")<span style="color:red;">&nbsp;*</span></label>
+                <input class="form-control" asp-for="GroupName" type="text" placeholder="@Html.SmartLocalize("Input Group Name")" />
+                <span asp-validation-for="GroupName" id="GroupNameError" class="text-danger" style="display:none;"></span>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label class="form-label" asp-for="GroupCode">@Html.SmartLocalize("Group Code")<span style="color:red;">&nbsp;*</span></label>
+                <input class="form-control" asp-for="GroupCode" type="text" placeholder="@Html.SmartLocalize("Input Group Code")" />
+                <span asp-validation-for="GroupCode" id="GroupCodeError" class="text-danger" style="display:none;"></span>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="mb-3">
+                <label class="form-label" asp-for="Description">@Html.SmartLocalize("Description")</label>
+                <textarea class="form-control" asp-for="Description" placeholder="@Html.SmartLocalize("Input Description")"></textarea>
+            </div>
+        </div>
+
+        <div class="col-12 mb-3">
+            <div class="row g-3 justify-content-end">
+                <div class="col-auto">
+                    <button type="reset" class="btn btn-phoenix-primary px-5" id="thirdTab-resetBtn">@Html.SmartLocalize("Reset")</button>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary px-5 px-sm-15" id="thirdTab-saveBtn">@Html.SmartLocalize("Save")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

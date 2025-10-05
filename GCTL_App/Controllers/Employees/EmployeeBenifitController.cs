@@ -30,6 +30,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<Organization> _organizationRepository;
         private readonly IElementPermissionService _elementPermissionService;
         private readonly IGenericRepository<Percentages> percentagesService;
+
         public EmployeeBenifitController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<EmployeeBaseBenefits> employeeBenifitRepository, IEmployeeBenifitService employeeBenifitService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypesRepository, IGenericRepository<ServiceYears> serviceYearsRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IGenericRepository<Organization> organizationRepository, IElementPermissionService elementPermissionService, IGenericRepository<Percentages> percentagesService = null) : base(translateService, userProfileService)
         {
             _employeeBenifitRepository = employeeBenifitRepository;
@@ -62,8 +63,8 @@ namespace GCTL_App.Controllers.Employees
 
                 var userId = loggedUser.Id;
 
-                var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
-                var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+                var user = await _userManagerRepository2.FindByIdAsync(userId); 
+                var roleNames = await _userManagerRepository2.GetRolesAsync(user); 
 
                 var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
 
@@ -108,9 +109,6 @@ namespace GCTL_App.Controllers.Employees
                 }
             }
 
-          
-
-
            
             return View();
         }
@@ -123,55 +121,55 @@ namespace GCTL_App.Controllers.Employees
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
-            ViewBag.YearlyEndBonusTypeDD = new SelectList(_yearlyEndBonusTypesRepository.AllActive().Select(e => new { e.YearlyEndBonusTypeID, e.YearlyEndBonusTypeName }), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
+            //ViewBag.YearlyEndBonusTypeDD = new SelectList(_yearlyEndBonusTypesRepository.AllActive().Select(e => new { e.YearlyEndBonusTypeID, e.YearlyEndBonusTypeName }), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
 
-            ViewBag.ServiceYearDD = new SelectList(_serviceYearsRepository.AllActive().Select(e => new { e.ServiceYearID, e.ServiceYearName }), "ServiceYearID", "ServiceYearName");
+            //ViewBag.ServiceYearDD = new SelectList(_serviceYearsRepository.AllActive().Select(e => new { e.ServiceYearID, e.ServiceYearName }), "ServiceYearID", "ServiceYearName");
 
-            ViewBag.FastivalBonusPercentageDD = new SelectList(new List<SelectListItem>
-                {
-                    new SelectListItem { Value = "35.00", Text = "35 %" },
-                    new SelectListItem { Value = "40.00", Text = "40 %" },
-                    new SelectListItem { Value = "45.00", Text = "45 %" },
-                    new SelectListItem { Value = "50.00", Text = "50 %" },
-                    new SelectListItem { Value = "60.00", Text = "60 %" },
-                    new SelectListItem { Value = "70.00", Text = "70 %" },
-                    new SelectListItem { Value = "100.00", Text = "100 %" }
-                }, "Value", "Text");
+            //ViewBag.FastivalBonusPercentageDD = new SelectList(new List<SelectListItem>
+            //    {
+            //        new SelectListItem { Value = "35.00", Text = "35 %" },
+            //        new SelectListItem { Value = "40.00", Text = "40 %" },
+            //        new SelectListItem { Value = "45.00", Text = "45 %" },
+            //        new SelectListItem { Value = "50.00", Text = "50 %" },
+            //        new SelectListItem { Value = "60.00", Text = "60 %" },
+            //        new SelectListItem { Value = "70.00", Text = "70 %" },
+            //        new SelectListItem { Value = "100.00", Text = "100 %" }
+            //    }, "Value", "Text");
 
-            ViewBag.BonusDependsOnDD = new SelectList(new[]
-                {
-                    new { Value = "Gross Salary", Text = "Gross Salary" },
-                    new { Value = "Basic Salary", Text = "Basic Salary" }
-                }, "Value", "Text");
-
-
-            ViewBag.PFEmployeeContributionDD = new SelectList(new[]
-                {
-                    new { Value = "5.00", Text = "5 %" },
-                    new { Value = "6.00", Text = "6 %" },
-                    new { Value = "7.00", Text = "7 %" },
-                    new { Value = "8.00", Text = "8 %" },
-                    new { Value = "9.00", Text = "9 %" },
-                    new { Value = "10.00", Text = "10 %" }
-                }, "Value", "Text");
+            //ViewBag.BonusDependsOnDD = new SelectList(new[]
+            //    {
+            //        new { Value = "Gross Salary", Text = "Gross Salary" },
+            //        new { Value = "Basic Salary", Text = "Basic Salary" }
+            //    }, "Value", "Text");
 
 
-            ViewBag.PFOrgContributionDD = new SelectList(new[]
-                {
-                    new { Value = "5.00", Text = "5 %" },
-                    new { Value = "6.00", Text = "6 %" },
-                    new { Value = "7.00", Text = "7 %" },
-                    new { Value = "8.00", Text = "8 %" },
-                    new { Value = "9.00", Text = "9 %" },
-                    new { Value = "10.00", Text = "10 %" }
-                }, "Value", "Text");
+            //ViewBag.PFEmployeeContributionDD = new SelectList(new[]
+            //    {
+            //        new { Value = "5.00", Text = "5 %" },
+            //        new { Value = "6.00", Text = "6 %" },
+            //        new { Value = "7.00", Text = "7 %" },
+            //        new { Value = "8.00", Text = "8 %" },
+            //        new { Value = "9.00", Text = "9 %" },
+            //        new { Value = "10.00", Text = "10 %" }
+            //    }, "Value", "Text");
 
 
-            ViewBag.PFDependsOnDD = new SelectList(new[]
-                {
-                    new { Value = "Gross Salary", Text = "Gross Salary" },
-                    new { Value = "Basic Salary", Text = "Basic Salary" }
-                }, "Value", "Text");
+            //ViewBag.PFOrgContributionDD = new SelectList(new[]
+            //    {
+            //        new { Value = "5.00", Text = "5 %" },
+            //        new { Value = "6.00", Text = "6 %" },
+            //        new { Value = "7.00", Text = "7 %" },
+            //        new { Value = "8.00", Text = "8 %" },
+            //        new { Value = "9.00", Text = "9 %" },
+            //        new { Value = "10.00", Text = "10 %" }
+            //    }, "Value", "Text");
+
+
+            //ViewBag.PFDependsOnDD = new SelectList(new[]
+            //    {
+            //        new { Value = "Gross Salary", Text = "Gross Salary" },
+            //        new { Value = "Basic Salary", Text = "Basic Salary" }
+            //    }, "Value", "Text");
 
 
             #endregion
@@ -285,7 +283,7 @@ namespace GCTL_App.Controllers.Employees
         }
 
         #region Get Allowance Type according to Organization
-        [Route("EmployeeBenifitController/SelectAllowanceTypeAsync")]
+        [Route("EmployeeBenifitController/SelectBenefitsTypeAsync")]
         [HttpGet]
         public async Task<IActionResult> SelectAsync(int id)
         {
@@ -303,6 +301,21 @@ namespace GCTL_App.Controllers.Employees
 
 
         #endregion
+        
+        [HttpPost]
+        public async Task<IActionResult> Save(EmployeeBenifitPostViewModel22 model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _employeeBenifitService.SaveOrUpdateEmployeeBenefitsAsync1(model);
+
+            if (!result.Success) return BadRequest(result.Message);
+
+            return Json(new {Success=result.Success, Message=result.Message});
+        }
 
     }
 }
+
+
