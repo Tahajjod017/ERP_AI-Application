@@ -413,8 +413,8 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetSubAccByClassIdGroupIdMainAccId
-        public async Task<List<CommonSelectVM>> GetSubAccByClassIdGroupIdMainAccId(int classId, int? GroupId, int? mainAccId)
+        #region GetSubAccByClassIdMainAccId
+        public async Task<List<CommonSelectVM>> GetSubAccByClassIdMainAccId(int classId, int? mainAccId)
         {
             var data = await _subAccounts.AllActive()
                 .Include(x => x.MainAccount)
