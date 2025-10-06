@@ -15,8 +15,6 @@ namespace GCTL.Core.ViewModels.Finance.TransactionAccountVM
 
         public int? ClassID { get; set; }
 
-        public int? GroupID { get; set; }
-
         public int? SubAccountID { get; set; }
 
         public string? TrxAccCode { get; set; }

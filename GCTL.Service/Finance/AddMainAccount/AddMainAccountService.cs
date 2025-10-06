@@ -39,10 +39,10 @@ namespace GCTL.Service.Finance.AddMainAccount
             {
                 await _genericRepository.BeginTransactionAsync();
 
-                var exixtingEntity = await _genericRepository.FirstOrDefaultAsync(x => x.MainAccountName.ToLower() == model.MainAccountName.ToLower() && x.GroupID == model.GroupID && x.DeletedAt != null);
+                var exixtingEntity = await _genericRepository.FirstOrDefaultAsync(x => x.MainAccountName.ToLower() == model.MainAccountName.ToLower() && x.ClassID == model.ClassID && x.DeletedAt != null);
                 if (exixtingEntity != null)
                 {
-                    exixtingEntity.GroupID = (int)model.GroupID;
+                    exixtingEntity.ClassID = (int)model.ClassID;
                     exixtingEntity.MainAccountCode = model.MainAccountCode;
                     exixtingEntity.MainAccountName = model.MainAccountName;
                     exixtingEntity.Description = model.Description;
@@ -63,7 +63,7 @@ namespace GCTL.Service.Finance.AddMainAccount
                 else
                 {
                     MainAccounts entity = new MainAccounts();
-                    entity.GroupID = (int)model.GroupID;
+                    entity.ClassID = (int)model.ClassID;
                     entity.MainAccountCode = model.MainAccountCode;
                     entity.MainAccountName = model.MainAccountName;
                     entity.Description = model.Description;
@@ -106,10 +106,10 @@ namespace GCTL.Service.Finance.AddMainAccount
                     return result;
                 }
 
-                if (model.GroupID != entity.GroupID)
+                if (model.ClassID != entity.ClassID)
                 {
                     result.Success = false;
-                    result.Message = "You cannot change the group!";
+                    result.Message = "You cannot change the class!";
                     return result;
                 }
 
@@ -148,15 +148,15 @@ namespace GCTL.Service.Finance.AddMainAccount
 
 
         #region GetAllAsync
-        public async Task<PaginationService<MainAccounts, GetAllAddMainAccountVM>.PaginationResult<GetAllAddMainAccountVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "MainAccountID", string sortOrder = "desc", int? groupId = null)
+        public async Task<PaginationService<MainAccounts, GetAllAddMainAccountVM>.PaginationResult<GetAllAddMainAccountVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "MainAccountID", string sortOrder = "desc", int? classId = null)
         {
             try
             {
-                var query = _genericRepository.AllActive().Include(x => x.Group).ThenInclude(x => x.Class).Where(x => x.DeletedAt == null && x.DeletedBy == null);
+                var query = _genericRepository.AllActive().Include(x => x.Class).ThenInclude(x => x.BaseAccount).Where(x => x.DeletedAt == null && x.DeletedBy == null);
 
-                if(groupId != null)
+                if(classId != null)
                 {
-                    query = query.Where(x => x.GroupID == groupId);
+                    query = query.Where(x => x.ClassID == classId);
                 }
 
                 if (!string.IsNullOrEmpty(sortColumn))
@@ -164,8 +164,8 @@ namespace GCTL.Service.Finance.AddMainAccount
                     query = sortColumn switch
                     {
                         "MainAccountID" => sortOrder == "desc" ? query.OrderByDescending(x => x.MainAccountID) : query.OrderBy(x => x.MainAccountID),
-                        "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Group.Class.ClassName) : query.OrderBy(x => x.Group.Class.ClassName),
-                        "GroupName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Group.GroupName) : query.OrderBy(x => x.Group.GroupName),
+                        "BaseAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Class.BaseAccount.BaseAccountName) : query.OrderBy(x => x.Class.BaseAccount.BaseAccountName),
+                        "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Class.ClassName) : query.OrderBy(x => x.Class.ClassName),
                         "MainAccountCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.MainAccountCode) : query.OrderBy(x => x.MainAccountCode),
                         "MainAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.MainAccountName) : query.OrderBy(x => x.MainAccountName),
                         "Description" => sortOrder == "desc" ? query.OrderByDescending(x => x.Description) : query.OrderBy(x => x.Description),
@@ -174,14 +174,18 @@ namespace GCTL.Service.Finance.AddMainAccount
                 }
 
                 return await PaginationService<MainAccounts, GetAllAddMainAccountVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
-                    term => x => EF.Functions.Like(x.MainAccountCode, $"%{term}%") || EF.Functions.Like(x.MainAccountName, $"%{term}%") || EF.Functions.Like(x.Description, $"%{term}%"),
+                    term => x => EF.Functions.Like(x.MainAccountCode, $"%{term}%") 
+                    || EF.Functions.Like(x.MainAccountName, $"%{term}%") 
+                    || EF.Functions.Like(x.Class.ClassName, $"%{term}%") 
+                    || EF.Functions.Like(x.Class.BaseAccount.BaseAccountName, $"%{term}%") 
+                    || EF.Functions.Like(x.Description, $"%{term}%"),
                     x => new GetAllAddMainAccountVM
                     {
                         MainAccountID = x.MainAccountID,
-                        ClassID = x.Group.ClassID,
-                        ClassName = x.Group.Class.ClassName ?? "-",
-                        GroupID = x.GroupID,
-                        GroupName = x.Group != null ? x.Group.GroupName : "-",
+                        BaseAccountID = x.Class.BaseAccountID,
+                        BaseAccountName = x.Class.BaseAccount.BaseAccountName ?? "-",
+                        ClassID = x.ClassID,
+                        ClassName = x.Class.ClassName ?? "-",
                         MainAccountCode = x.MainAccountCode ?? "-",
                         MainAccountName = x.MainAccountName ?? "-",
                         Description = x.Description ?? "-"
@@ -201,16 +205,15 @@ namespace GCTL.Service.Finance.AddMainAccount
             try
             {
                 var data = await _genericRepository.AllActive()
-                    .Include(x => x.Group)
-                        .ThenInclude(x => x.Class)
+                    .Include(x => x.Class)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.MainAccountID == id);
 
                 return new GetByIdAddMainAccountVM
                 {
                     MainAccountID = data.MainAccountID,
-                    ClassID = data.Group.ClassID,
-                    GroupID = data.GroupID,
+                    BaseAccountID = data.Class.BaseAccountID,
+                    ClassID = data.ClassID,
                     MainAccountCode = data.MainAccountCode ?? "-",
                     MainAccountName = data.MainAccountName ?? "-",
                     Description = data.Description ?? "-"

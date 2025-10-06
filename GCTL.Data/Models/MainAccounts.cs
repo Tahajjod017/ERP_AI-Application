@@ -9,7 +9,7 @@ public partial class MainAccounts
 {
     public int MainAccountID { get; set; }
 
-    public int GroupID { get; set; }
+    public int ClassID { get; set; }
 
     public string MainAccountCode { get; set; }
 
@@ -33,11 +33,11 @@ public partial class MainAccounts
 
     public int? DeletedBy { get; set; }
 
+    public virtual Classes Class { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
-
-    public virtual Groups Group { get; set; }
 
     public virtual ICollection<SubAccounts> SubAccounts { get; set; } = new List<SubAccounts>();
 

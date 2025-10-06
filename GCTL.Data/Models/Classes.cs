@@ -39,7 +39,7 @@ public partial class Classes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Groups> Groups { get; set; } = new List<Groups>();
+    public virtual ICollection<MainAccounts> MainAccounts { get; set; } = new List<MainAccounts>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

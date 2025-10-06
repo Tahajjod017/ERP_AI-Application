@@ -1,7 +1,6 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
-using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
 using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.Language;
@@ -20,7 +19,7 @@ namespace GCTL_App.Controllers.CRM
     [Authorize]
     public class CreateLeadController : BaseController
     {
-        #region CTOR
+        #region Repositories & Services
         private readonly IGenericRepository<Services> _serviceTypeRepository;
         private readonly IGenericRepository<LeadSources> _leadSourceTypeRepository;
         private readonly IGenericRepository<LeadStatuses> _leadStatusesTypeRepository;
@@ -32,7 +31,8 @@ namespace GCTL_App.Controllers.CRM
         private readonly AppDbContext _context;
         private readonly IGenericRepository<Country> _countryRepository;
         private readonly IGenericRepository<Priorities> _prioritiesRepository;
-        #endregion
+
+
         public CreateLeadController(AppDbContext context, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<LeadSources> leadSourceTypeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeTypeRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<LeadStatuses> leadStatusesTypeRepository = null, ILeadCreateService leadCreateService = null, IGenericRepository<Priorities> prioritiesRepository = null) : base(translateService, userProfileService)
         {
             _serviceTypeRepository = serviceTypeRepository;
@@ -47,7 +47,10 @@ namespace GCTL_App.Controllers.CRM
             _context = context;
             _prioritiesRepository = prioritiesRepository;
         }
+        #endregion
 
+
+        #region Index
         public async Task<IActionResult> index()
         {
             SetSmartPageCode(600100);
@@ -61,7 +64,10 @@ namespace GCTL_App.Controllers.CRM
 
             return View();
         }
+        #endregion
 
+
+        #region GetLeadWonerList
         //public async Task<IActionResult> GetLeadWonerList(string query)
         //{
         //    var employees = await _employeeRepository.AllActive()
@@ -72,8 +78,10 @@ namespace GCTL_App.Controllers.CRM
 
         //    return Json(employees);
         //}
+        #endregion
 
 
+        #region IsUniqueAsync
         [HttpGet]
         private async Task<bool> IsUniqueAsync(string queryText, string type, int id)
         {
@@ -108,14 +116,19 @@ namespace GCTL_App.Controllers.CRM
 
             return false;
         }
+        #endregion
 
 
+        #region UniquenessCheck
         public async Task<IActionResult> UniquenessCheck(string queryText, string type, int id)
         {
             var isUnique = await IsUniqueAsync(queryText, type, id);
             return Json(new { unique = isUnique });
         }
+        #endregion
 
+
+        #region GetCustomerList
         [HttpGet]
         public async Task<IActionResult> GetCustomerList()
         {
@@ -134,8 +147,10 @@ namespace GCTL_App.Controllers.CRM
 
             return Json(customers);
         }
+        #endregion
 
-        
+
+        #region addCountry
         [HttpGet]
         public async Task<IActionResult> addCountry(string countryName)
         {
@@ -151,6 +166,10 @@ namespace GCTL_App.Controllers.CRM
 
             return Json(new {countryId = countryObj.CountryID , countryName= countryObj.CountryName});
         }
+        #endregion
+
+
+        #region getCountry
         [HttpGet]
         public async Task<IActionResult> getCountry(string countryName)
         {
@@ -162,6 +181,10 @@ namespace GCTL_App.Controllers.CRM
             }).ToList();
             return Json(countrySelectList);
         }
+        #endregion
+
+
+        #region getCompanyList
         [HttpPost]
         public async Task<IActionResult> getCompanyList()
         {
@@ -180,7 +203,10 @@ namespace GCTL_App.Controllers.CRM
 
             return BadRequest("No companies found.");
         }
+        #endregion
 
+
+        #region GetPersonList
         [HttpPost]
         public async Task<IActionResult> GetPersonList([FromBody] string query)
         {
@@ -209,8 +235,10 @@ namespace GCTL_App.Controllers.CRM
 
             return Json(results);
         }
+        #endregion
 
-        
+
+        #region getAllCustomerList
         [HttpPost]
         public async Task<IActionResult> getAllCustomerList([FromBody] string query)
         {
@@ -243,7 +271,10 @@ namespace GCTL_App.Controllers.CRM
 
             return Json(results);
         }
+        #endregion
 
+
+        #region getCompnayList
         [HttpPost]
         public async Task<IActionResult> getCompnayList([FromBody] string query)
         {
@@ -272,9 +303,10 @@ namespace GCTL_App.Controllers.CRM
 
             return Json(results);
         }
+        #endregion
 
 
-
+        #region GetCustomerInfo
         [HttpPost]
         public async Task<IActionResult> GetCustomerInfo([FromBody]  int id)
         {
@@ -309,7 +341,10 @@ namespace GCTL_App.Controllers.CRM
 
             return Json(new { customer = customerObj });
         }
+        #endregion
 
+
+        #region InsertPerson
         [Permission("Create", "CreateLead")]
         [HttpPost]
         public async Task<IActionResult> InsertPerson([FromBody] CustomerVM customerVM)
@@ -329,7 +364,11 @@ namespace GCTL_App.Controllers.CRM
                 Message = "Data not inserted",
             };
             return Ok(results); 
-        } 
+        }
+        #endregion
+
+
+        #region InsertCompany
         [HttpPost]
         public async Task<IActionResult> InsertCompany([FromBody] CompanyVM companyVM)
         {
@@ -348,8 +387,11 @@ namespace GCTL_App.Controllers.CRM
                 Message = "Data not inserted",
             };
             return Ok(results); 
-        } 
+        }
+        #endregion
 
+
+        #region InsertBranch
         public async Task<IActionResult> InsertBranch([FromBody] BranchVM branchVM)
         {
             try
@@ -370,7 +412,11 @@ namespace GCTL_App.Controllers.CRM
                 return Ok(false);
             }
             
-        } 
+        }
+        #endregion
+
+
+        #region InsertWarehouse
         public async Task<IActionResult> InsertWarehouse([FromBody] WarehouseVM warehouseVM)
         {
             try
@@ -391,8 +437,11 @@ namespace GCTL_App.Controllers.CRM
                 return Ok(false);
             }
             
-        } 
+        }
+        #endregion
 
+
+        #region InsertShippingAddress
         [HttpPost]
         public async Task<IActionResult> InsertShippingAddress([FromBody] ShippingVM shippingVM)
         {
@@ -407,7 +456,10 @@ namespace GCTL_App.Controllers.CRM
             }
             return Ok(false); 
         }
+        #endregion
 
+
+        #region CreateLeadData
         [Permission("Create", "CreateLead")]
         [HttpPost]
         public async Task<IActionResult> CreateLeadData([FromBody] LeadsVM leadsVM)
@@ -428,9 +480,13 @@ namespace GCTL_App.Controllers.CRM
             return Ok(results);
 
         }
+        #endregion
+
+
+        #region GetEmployeeList
         [HttpGet]
         public async Task<IActionResult> GetEmployeeList(string query, int page)
-       {
+        {
             const int pageSize = 10; // Number of items per page
             int skip = (page - 1) * pageSize; // Calculate how many items to skip
 
@@ -452,6 +508,6 @@ namespace GCTL_App.Controllers.CRM
             return Ok(list);
 
         }
-
+        #endregion
     }
 }
