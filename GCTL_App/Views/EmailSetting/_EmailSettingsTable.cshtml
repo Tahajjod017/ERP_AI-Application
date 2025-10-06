@@ -54,9 +54,9 @@
                         </th>
                         <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col" data-sort="EmailCompanyName">@Html.SmartLocalize("Company Name")</th>
                         <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col" data-sort="EmailServerName">@Html.SmartLocalize("Server Name")</th>
-                        <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col" data-sort="EmailSSLRequired">@Html.SmartLocalize("SSL Required")</th>
+@*                         <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col" data-sort="EmailSSLRequired">@Html.SmartLocalize("SSL Required")</th>
                         <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col" data-sort="EmailPort">@Html.SmartLocalize("Port")</th>
-                        <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col" data-sort="EmailSMTPAuthentication">@Html.SmartLocalize("SMTP Authentication")</th>
+                        <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col" data-sort="EmailSMTPAuthentication">@Html.SmartLocalize("SMTP Authentication")</th> *@
                         <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col" data-sort="EmailUserName">@Html.SmartLocalize("User Name")</th>
                         <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col" data-sort="EmailPassword">@Html.SmartLocalize("Password")</th>
                         <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col" data-sort="EmailPriority">@Html.SmartLocalize("Priority")</th>
@@ -84,3 +84,7 @@
     </div>
 </div>
 
+
+@* <td class="align-middle white-space-nowrap ">${item.portNumber}</td>
+<td class="align-middle white-space-nowrap ps-0">${item.isSSLRequired ? "Yes" : "No"}</td>
+<td class="align-middle white-space-nowrap ps-0">${item.isSMTPAuthenticationRequired ? "Yes" : "No"}</td> *@

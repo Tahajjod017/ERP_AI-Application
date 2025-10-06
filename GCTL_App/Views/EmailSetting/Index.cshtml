@@ -118,33 +118,7 @@
 
 @section Scripts {
     <script src="~/js/pages/adminsettings/systemsettings/emailsetting.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#smtpFormd').on('submit', function (e) {
-                e.preventDefault();
-
-                var form = $(this);
-                var formData = form.serialize();
-
-                $.ajax({
-                    url: form.attr('action'),
-                    type: form.attr('method'),
-                    data: formData,
-                    success: function (response) {
-                        if (response.success) {
-                            toastr.success(response.message);    // ✅ SUCCESS TOAST
-                            form[0].reset(); // Optional: reset the form
-                        } else {
-                            toastr.error(response.message);      // ❌ ERROR TOAST
-                        }
-                    },
-                    error: function () {
-                        toastr.error('❌ A server error occurred. Please try again.');
-                    }
-                });
-            });
-        });
-    </script>
+   
 }
 
 

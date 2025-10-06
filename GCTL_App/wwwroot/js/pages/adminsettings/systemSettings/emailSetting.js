@@ -191,12 +191,11 @@ function loadTableData(sortColumn, sortOrder) {
                             
                              <td class="align-middle white-space-nowrap ">${item.organizationName}</td>
                             <td class="align-middle white-space-nowrap ">${item.serverName}</td>
-                            <td class="align-middle white-space-nowrap ">${item.portNumber}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.isSSLRequired ? "Yes" : "No"}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.isSMTPAuthenticationRequired ? "Yes" : "No"}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.friorityIndex}</td>
+                          
+                           
                             <td class="align-middle white-space-nowrap ps-0">${item.userName}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.password}</td>
+                             <td class="align-middle white-space-nowrap ps-0">${item.priorityIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.isActive ? "Active" : "InActive"}</td>
                              <td>
                             <div class="d-flex justify-content-end align-items-center">
@@ -291,11 +290,18 @@ $(document).on('click', '#edit_emailSettings_settingBtn', function () {
         url: '/EmailSetting/GetById',  // Adjust the URL as per your endpoint
         type: 'GET',
         data: { id: weekendSettingID },
-        success: function (data) {
-            
+        success: function (response) {
+            debugger
             //orgazationEditDropdown();
-            choiceManager.setChoiceValue('OrganizationIDedit', data.organizationID);
-            $('#ServerNameEdit').val(data.serverName);
+            choiceManager.setChoiceValue('OrganizationIDedit', response.data.organizationID);
+            $('#ServerNameEdit').val(response.data.serverName);
+            $('#PortNumberEdit').val(response.data.portNumber);
+            $('#IsSSLRequiredEdit').val(response.data.isSSLRequired);
+            $('#IsSMTPAuthenticationRequiredEdit').val(response.data.isSMTPAuthenticationRequired);
+            $('#UserNameEdit').val(response.data.userName);
+            $('#PasswordEdit').val(response.data.password);
+            $('#PriorityIndexEdit').val(response.data.priorityIndex);
+            $('#IsActiveEdit').val(response.data.isActive);
 
 
         },
