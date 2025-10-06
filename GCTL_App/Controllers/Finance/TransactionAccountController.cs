@@ -36,7 +36,6 @@ namespace GCTL_App.Controllers.Finance
 
                 ViewBag.BodyTabs = await _transactionAccountService.GetBodyTabsAsync();
                 ViewBag.AccountClassDD = await _commonService.GetAccountClass();
-                //ViewBag.AccountGroupDD = await _commonService.GetAccountGroup();
                 ViewBag.MainAccDD = await _commonService.GetMainAccount();
                 //if (accountClass.Count == 1)
                 //{
@@ -81,7 +80,7 @@ namespace GCTL_App.Controllers.Finance
                     return Json(new { isSuccess = true, message = "Saved Successfully." });
                 }
 
-                var orderedKeys = new[] { "ClassID", "GroupID", "MainAccountID", "SubAccountID", "TrxAccName", "TrxAccCode" };
+                var orderedKeys = new[] { "ClassID", "MainAccountID", "SubAccountID", "TrxAccName", "TrxAccCode" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -134,7 +133,7 @@ namespace GCTL_App.Controllers.Finance
                     });
                 }
 
-                var orderedKeys = new[] { "ClassID", "GroupID", "MainAccountID", "SubAccountID", "BaseAccountCode", "TrxAccName" };
+                var orderedKeys = new[] { "ClassID", "MainAccountID", "SubAccountID", "BaseAccountCode", "TrxAccName" };
                 foreach (var key in orderedKeys)
                 {
                     if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
@@ -156,9 +155,16 @@ namespace GCTL_App.Controllers.Finance
         #region GetAll
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "TrxAccID", string sortOrder = "desc", int? subAccId = null)
         {
-            var result = await _transactionAccountService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, subAccId);
+            try
+            {
+                var result = await _transactionAccountService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, subAccId);
 
-            return Json(result);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
         }
         #endregion
 
@@ -259,20 +265,34 @@ namespace GCTL_App.Controllers.Finance
         #endregion
 
 
-        #region GetAccountGroupByClassId
-        //public async Task<IActionResult> GetAccountGroupByClassId(int classId)
-        //{
-        //    var result = await _commonService.GetAccountGroupByClassId(classId);
-        //    return Json(result);
-        //}
+        #region GetMainAccByClassId
+        public async Task<IActionResult> GetMainAccByClassId(int classId)
+        {
+            try
+            {
+                var result = await _commonService.GetMainAccByClassId(classId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
+        }
         #endregion
 
 
-        #region GetSubAccByClassIdGroupIdMainAccId
-        public async Task<IActionResult> GetSubAccByClassIdGroupIdMainAccId(int classId, int? groupId, int? mainAccId)
+        #region GetSubAccByClassIdMainAccId
+        public async Task<IActionResult> GetSubAccByClassIdMainAccId(int classId, int? mainAccId)
         {
-            var result = await _commonService.GetSubAccByClassIdGroupIdMainAccId(classId, groupId, mainAccId);
-            return Json(result);
+            try
+            {
+                var result = await _commonService.GetSubAccByClassIdMainAccId(classId, mainAccId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
         }
         #endregion
 
@@ -280,10 +300,17 @@ namespace GCTL_App.Controllers.Finance
         #region GenerateNextCodeAsync
         [Route("TransactionAccount/GenerateNextCodeAsync")]
         [HttpGet]
-        public async Task<IActionResult> GenerateNextCodeAsync(int mainAccId)
+        public async Task<IActionResult> GenerateNextCodeAsync(int subAccountId)
         {
-            var result = await _transactionAccountService.GenerateNextCodeAsync(mainAccId);
-            return Json(result);
+            try
+            {
+                var result = await _transactionAccountService.GenerateNextCodeAsync(subAccountId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
         }
         #endregion
     }
