@@ -2,8 +2,11 @@
 
 @{
     ViewData["Title"] = @Html.SmartLocalize("Transaction Account");
+    var bodyTabs = ViewBag.BodyTabs as List<GCTL.Data.Models.MenuTab>;
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var accountClassDD = ViewBag.AccountClassDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
-    var accountGroupDD = ViewBag.AccountGroupDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+    // var accountGroupDD = ViewBag.AccountGroupDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
     var mainAccDD = ViewBag.MainAccDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
 }
 
@@ -34,13 +37,39 @@
                 display: block !important;
             }
 
+        .nav-link.active {
+            background-color: #f0f0f0;
+            color: #007bff;
+            font-weight: 600;
+        }
+
     </style>
 }
 
 <ul class="nav nav-underline fs-9">
-    <li class="nav-item"><a class="nav-link" href="/addMainAccount/Index">@Html.SmartLocalize("Add Main Account")</a></li>
-    <li class="nav-item"><a class="nav-link" href="/AddSubAccount/Index">@Html.SmartLocalize("Add Sub Account")</a></li>
-    <li class="nav-item"><a class="nav-link active" href="/TransactionAccount/Index">@Html.SmartLocalize("Transaction Account")</a></li>
+    @if (bodyTabs != null && bodyTabs.Any())
+    {
+        foreach (var tab in bodyTabs)
+        {
+            var isActive = tab.ControllerName.Equals(currentController, StringComparison.OrdinalIgnoreCase)
+            ? "active" : "";
+
+            <li class="nav-item">
+                <a class="nav-link @isActive"
+                   href="@Url.Action("Index", tab.ControllerName)">
+                    @if (!string.IsNullOrEmpty(tab.Icon))
+                    {
+                        <i class="@tab.Icon me-1"></i>
+                    }
+                    @Html.SmartLocalize(tab.Title)
+                </a>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="nav-item"><span class="text-muted">No menu items found</span></li>
+    }
 </ul>
 
 <div class="tab-content mt-3">
@@ -64,7 +93,7 @@
                         </select>
                         <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
                     </div>
-                    <div class="col-md-12">
+                    @* <div class="col-md-12">
                         <label class="form-label" asp-for="GroupID">@Html.SmartLocalize("Select Group")<span style="color:red;">*&nbsp;</span></label>
                         <select class="form-select" asp-for="GroupID">
                             <option value="">@Html.SmartLocalize("Select Group")...</option>
@@ -79,7 +108,7 @@
                             }
                         </select>
                         <span asp-validation-for="GroupID" id="GroupIDError" class="text-danger" style="display:none;"></span>
-                    </div>
+                    </div> *@
                     <div class="col-md-12">
                         <label class="form-label" asp-for="MainAccountID">@Html.SmartLocalize("Select Main Account")<span style="color:red;">*&nbsp;</span></label>
                         <select class="form-select" asp-for="MainAccountID">

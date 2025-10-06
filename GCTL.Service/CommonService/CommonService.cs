@@ -41,7 +41,7 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<SpiralMonthlyPatternDetails> _spiralMonthlyPatternDetails;
         private readonly IGenericRepository<BaseAccounts> _baseAccounts;
         private readonly IGenericRepository<Classes> _classes;
-        private readonly IGenericRepository<Groups> _groups;
+        //private readonly IGenericRepository<Groups> _groups;
         private readonly IGenericRepository<MainAccounts> _mainAccounts;
         private readonly IGenericRepository<SubAccounts> _subAccounts;
 
@@ -66,7 +66,6 @@ namespace GCTL.Service.CommonService
             IGenericRepository<SpiralMonthlyPatternDetails> spiralMonthlyPatternDetails,
             IGenericRepository<BaseAccounts> baseAccounts,
             IGenericRepository<Classes> classes,
-            IGenericRepository<Groups> groups,
             IGenericRepository<SubAccounts> subAccounts,
             IGenericRepository<MainAccounts> mainAccounts)
         {
@@ -90,7 +89,6 @@ namespace GCTL.Service.CommonService
             _spiralMonthlyPatternDetails = spiralMonthlyPatternDetails;
             _baseAccounts = baseAccounts;
             _classes = classes;
-            _groups = groups;
             _subAccounts = subAccounts;
             _mainAccounts = mainAccounts;
         }
@@ -132,31 +130,59 @@ namespace GCTL.Service.CommonService
 
 
         #region SearchEmployees
-        public async Task<List<CommonSelectVM>> SearchEmployees(string search, int pageSize = 50)
+        public async Task<PaginatedResult<CommonSelectVM>> SearchEmployees(string search, int page = 1, int pageSize = 50)
         {
-            var employees = await (from emp in _employees.AllActive().AsNoTracking()
+            var query = _employeeOfficeInfo.AllActive().Include(x => x.Employee).Include(x => x.Department).AsNoTracking();
 
-                                   join empOi in _employeeOfficeInfo.AllActive() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
-                                   from empOi in empOiGroup.DefaultIfEmpty()
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var pattern = $"%{search}%";
+                query = query
+                    .Where(e => EF.Functions.Like(e.Employee.FirstName + " " + e.Employee.LastName, pattern));
+            }
 
-                                   where emp.IsActive == true && empOi.EmploymentStatusId == 1 &&
-                                         (string.IsNullOrEmpty(search) || (emp.FirstName + " " + emp.LastName + " " + emp.EmployeeCode).Contains(search))
+            var totalCount = await query.CountAsync();
 
-                                   join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
-                                   from dep in depGroup.DefaultIfEmpty()
+            var items = await query
+                .OrderBy(x => x.Employee.FirstName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.EmployeeID,
+                    Name = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})" ?? "-"
+                })
+                .ToListAsync();
 
-                                   orderby emp.FirstName
+            return new PaginatedResult<CommonSelectVM>
+            {
+                Items = items,
+                HasMore = (page * pageSize) < totalCount
+            };
 
-                                   select new CommonSelectVM
-                                   {
-                                       Id = emp.EmployeeID,
-                                       Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
-                                       GroupName = dep.DepartmentName ?? "-"
-                                   })
-                           .Take(pageSize) 
-                           .ToListAsync();
+            //var employees = await (from emp in _employees.AllActive().AsNoTracking()
 
-            return employees;
+            //                       join empOi in _employeeOfficeInfo.AllActive() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
+            //                       from empOi in empOiGroup.DefaultIfEmpty()
+
+            //                       where emp.IsActive == true && empOi.EmploymentStatusId == 1 &&
+            //                             (string.IsNullOrEmpty(search) || (emp.FirstName + " " + emp.LastName + " " + emp.EmployeeCode).Contains(search))
+
+            //                       join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
+            //                       from dep in depGroup.DefaultIfEmpty()
+
+            //                       orderby emp.FirstName
+
+            //                       select new CommonSelectVM
+            //                       {
+            //                           Id = emp.EmployeeID,
+            //                           Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
+            //                           GroupName = dep.DepartmentName ?? "-"
+            //                       })
+            //               .Take(pageSize) 
+            //               .ToListAsync();
+
+            //return employees;
         }
 
         #endregion
@@ -332,18 +358,18 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetBranches
-        public async Task<List<CommonSelectVM>> GetAccountGroup()
-        {
-            var result = await _groups.AllActive().Include(x => x.Class).AsNoTracking().Select(x => new CommonSelectVM
-            {
-                Id = x.GroupID,
-                Name = x.GroupName ?? "-",
-                GroupName = x.Class.ClassName ?? "-"
-            }).ToListAsync();
+        #region GetAccountGroup
+        //public async Task<List<CommonSelectVM>> GetAccountGroup()
+        //{
+        //    var result = await _groups.AllActive().Include(x => x.Class).AsNoTracking().Select(x => new CommonSelectVM
+        //    {
+        //        Id = x.GroupID,
+        //        Name = x.GroupName ?? "-",
+        //        GroupName = x.Class.ClassName ?? "-"
+        //    }).ToListAsync();
 
-            return result;
-        }
+        //    return result;
+        //}
         #endregion
 
 
@@ -365,21 +391,21 @@ namespace GCTL.Service.CommonService
 
 
         #region GetAccountGroupByClassId
-        public async Task<List<CommonSelectVM>> GetAccountGroupByClassId(int classId)
-        {
-            var data = await _groups.AllActive()
-                .Where(x => x.ClassID == classId)
-                .Include(x => x.Class)
-                .AsNoTracking()
-                .Select(x => new CommonSelectVM
-            {
-                Id = x.GroupID,
-                Name = $"{x.GroupCode}-{x.GroupName}" ?? "-",
-                GroupName = x.Class.ClassName ?? "-"
-            }).ToListAsync();
+        //public async Task<List<CommonSelectVM>> GetAccountGroupByClassId(int classId)
+        //{
+        //    var data = await _groups.AllActive()
+        //        .Where(x => x.ClassID == classId)
+        //        .Include(x => x.Class)
+        //        .AsNoTracking()
+        //        .Select(x => new CommonSelectVM
+        //    {
+        //        Id = x.GroupID,
+        //        Name = $"{x.GroupCode}-{x.GroupName}" ?? "-",
+        //        GroupName = x.Class.ClassName ?? "-"
+        //    }).ToListAsync();
 
-            return data;
-        }
+        //    return data;
+        //}
         #endregion
 
 

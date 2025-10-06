@@ -1,10 +1,15 @@
 ﻿@model GCTL.Core.ViewModels.CRM.AddTeamVM
-
+<style>
+    .form-multi-select-input-group{
+        height: 47px;
+        border-color: rgb(203, 208, 221);
+    }
+</style>
 <div class="row">
     <input type="hidden" asp-for="TeamID"/>
     <div class="flatpickr-input-container col-md-4">
         <div class="form-floating">
-            <input class="form-control" type="text" placeholder="@Html.SmartLocalize("Generated ID")" readonly/>
+            <input class="form-control" type="text" id="GeneratedID" placeholder="@Html.SmartLocalize("Generated ID")" readonly/>
             <label>@Html.SmartLocalize("Generated ID") <span style="color: red;">*</span></label>
         </div>
         <span id="nameError" class="text-danger" style="display:none;"></span>
@@ -19,18 +24,19 @@
     <div class="flatpickr-input-container col-md-4">
         <div class="mb-3">
             <div class="form-floating">
-                <select class="form-multi-select coreUiDD" asp-for="EmployeeIds" asp-items="@ViewBag.OrganizationDD as SelectList"
-                        id="OrganizationIDs"
+                <select class="form-multi-select coreUiDD"
+                        asp-for="EmployeeIds"
                         multiple
                         data-coreui-selection-type="counter"
                         data-coreui-search="true"
-                        data-coreui-placeholder="@Html.SmartLocalize("Select Organization")..." required>
-                </select>                
+                        data-coreui-placeholder="Select Team Members...">
+                </select>
                 @* <span asp-validation-for="EmployeeIds" id="OrganizationIDsError" class="text-danger" style="display:none;"></span> *@
 
             </div>
            
         </div>
     </div>
+    <div id="btnDiv" class="d-flex justify-content-end pe-5"><button type="submit" id="CreatTeamBtn" class="btn btn-primary">Create Team</button></div>
 </div>
 

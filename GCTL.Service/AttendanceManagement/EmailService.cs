@@ -71,7 +71,7 @@ namespace GCTL.Service.AttendanceManagement
             }
         }
 
-        #region  leave Request
+        
         #region  leave Request
         public async Task SendEmailLeaveRequest(EmailVM model, int? empId)
         {
@@ -122,7 +122,7 @@ namespace GCTL.Service.AttendanceManagement
         }
         #endregion
 
-        #endregion
+      
 
 
         #region LeaveRequest Body 

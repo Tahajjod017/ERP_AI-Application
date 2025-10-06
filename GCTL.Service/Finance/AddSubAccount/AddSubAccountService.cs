@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Finance.AddSubAccountVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -22,12 +23,14 @@ namespace GCTL.Service.Finance.AddSubAccount
         public readonly IGenericRepository<SubAccounts> _genericRepository;
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<MainAccounts> _mainAccounts;
+        private readonly IGenericRepository<MenuTab> _menuTabRepository;
 
-        public AddSubAccountService(IGenericRepository<SubAccounts> genericRepository, IUserInfoService userInfoService, IGenericRepository<MainAccounts> mainAccounts) : base(genericRepository)
+        public AddSubAccountService(IGenericRepository<SubAccounts> genericRepository, IUserInfoService userInfoService, IGenericRepository<MainAccounts> mainAccounts, IGenericRepository<MenuTab> menuTabRepository) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _userInfoService = userInfoService;
             _mainAccounts = mainAccounts;
+            _menuTabRepository = menuTabRepository;
         }
         #endregion
 
@@ -94,15 +97,27 @@ namespace GCTL.Service.Finance.AddSubAccount
 
 
         #region UpdateAsync
-        public async Task<bool> UpdateAsync(UpdateAddSubAccountVM model)
+        public async Task<CommonReturnViewModel> UpdateAsync(UpdateAddSubAccountVM model)
         {
+            var result = new CommonReturnViewModel();
             try
             {
                 await _genericRepository.BeginTransactionAsync();
 
                 var entity = await _genericRepository.GetByIdAsync(model.SubAccountID);
                 if (entity == null)
-                    return false;
+                {
+                    result.Success = false;
+                    result.Message = "Main account not found.";
+                    return result;
+                }
+
+                if (model.MainAccountID != entity.MainAccountID)
+                {
+                    result.Success = false;
+                    result.Message = "You cannot change the main account!";
+                    return result;
+                }
 
                 var beforeEntity = JsonConvert.DeserializeObject<UpdateAddSubAccountVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
@@ -122,13 +137,18 @@ namespace GCTL.Service.Finance.AddSubAccount
                 await _userInfoService.ActionLogAsync("Add Sub Account", ActionName.DataUpdated, beforeEntity, afterEntity, entity.SubAccountID, model);
 
                 await _genericRepository.CommitTransactionAsync();
-                return true;
+
+                result.Success = true;
+                result.Message = "Updated Successfully.";
+                return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await _genericRepository.RollbackTransactionAsync();
-                return false;
-                throw;
+                result.Success = false;
+                result.Message = "An error occurred while updating the main account.";
+                result.Errors.Add(ex.Message);
+                return result;
             }
         }
         #endregion
@@ -354,6 +374,27 @@ namespace GCTL.Service.Finance.AddSubAccount
 
             // Step 5: Return the new SubAccountCode by combining the prefix and new numeric part
             return prefix + newCodeNumberPadded;
+        }
+        #endregion
+
+
+        #region GetBodyTabsAsync
+        public async Task<List<MenuTab>> GetBodyTabsAsync()
+        {
+            try
+            {
+                var allowedControllers = new[] { "AddMainAccount", "AddSubAccount", "TransactionAccount" };
+
+                var menuTabs = await _menuTabRepository.AllActive()
+                    .Where(mt => allowedControllers.Contains(mt.ControllerName) && !mt.IsActive)
+                    //.OrderBy(mt => mt.TabOrder)
+                    .ToListAsync();
+                return menuTabs;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving menu tabs.", ex);
+            }
         }
         #endregion
     }

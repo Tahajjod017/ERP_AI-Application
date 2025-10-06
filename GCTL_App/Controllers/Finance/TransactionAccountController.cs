@@ -34,8 +34,9 @@ namespace GCTL_App.Controllers.Finance
 
                 SetSmartPageCode(203700);
 
+                ViewBag.BodyTabs = await _transactionAccountService.GetBodyTabsAsync();
                 ViewBag.AccountClassDD = await _commonService.GetAccountClass();
-                ViewBag.AccountGroupDD = await _commonService.GetAccountGroup();
+                //ViewBag.AccountGroupDD = await _commonService.GetAccountGroup();
                 ViewBag.MainAccDD = await _commonService.GetMainAccount();
                 //if (accountClass.Count == 1)
                 //{
@@ -123,8 +124,14 @@ namespace GCTL_App.Controllers.Finance
                         return Json(new { isSuccess = false, message = $"{model.TrxAccCode} already exists!" });
                     }
 
-                    await _transactionAccountService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                    var result = await _transactionAccountService.UpdateAsync(model);
+                    return Json(new
+                    {
+                        isSuccess = result.Success,
+                        message = result.Message,
+                        errors = result.Errors, // optional
+                        data = result.Data      // optional
+                    });
                 }
 
                 var orderedKeys = new[] { "ClassID", "GroupID", "MainAccountID", "SubAccountID", "BaseAccountCode", "TrxAccName" };
@@ -253,11 +260,11 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region GetAccountGroupByClassId
-        public async Task<IActionResult> GetAccountGroupByClassId(int classId)
-        {
-            var result = await _commonService.GetAccountGroupByClassId(classId);
-            return Json(result);
-        }
+        //public async Task<IActionResult> GetAccountGroupByClassId(int classId)
+        //{
+        //    var result = await _commonService.GetAccountGroupByClassId(classId);
+        //    return Json(result);
+        //}
         #endregion
 
 

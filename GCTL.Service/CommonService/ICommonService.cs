@@ -31,11 +31,11 @@ namespace GCTL.Service.CommonService
 
         Task<List<CommonSelectVM>> GetAccountClass();
 
-        Task<List<CommonSelectVM>> GetAccountGroup();
+        //Task<List<CommonSelectVM>> GetAccountGroup();
 
         Task<List<CommonSelectVM>> GetMainAccount();
 
-        Task<List<CommonSelectVM>> GetAccountGroupByClassId(int classId);
+        //Task<List<CommonSelectVM>> GetAccountGroupByClassId(int classId);
 
         Task<List<CommonSelectVM>> GetMainAccByClassIdGroupId(int classId, int? GroupId);
 
@@ -45,7 +45,7 @@ namespace GCTL.Service.CommonService
 
         #region Load Paginated
         Task<PaginatedResult<CommonSelectVM>> GetOrganizations(string search, int page = 1, int pageSize = 50);
-        Task<List<CommonSelectVM>> SearchEmployees(string search, int pageSize = 50);
+        Task<PaginatedResult<CommonSelectVM>> SearchEmployees(string search, int page = 1, int pageSize = 50);
         #endregion
 
 

@@ -590,7 +590,7 @@ namespace GCTL_App.Controllers
             var result = await _emailService.SendEmailAsync(
                 toEmail: email,
                 subject: "Password Reset OTP",
-                razorTemplateFile: "OtpTemplate.html",
+                razorTemplateFile: "OtpTemplateV2.html",
                 model: model,
                 null, // Fix: Move optional parameters to the end  
                 null

@@ -35,7 +35,9 @@ namespace GCTL_App.Controllers.Finance
 
                 SetSmartPageCode(203700);
 
+                ViewBag.BodyTabs = await _addMainAccountService.GetBodyTabsAsync();
                 ViewBag.AccountClassDD = await _commonService.GetAccountClass();
+
                 //if (accountClass.Count == 1)
                 //{
                 //    model.Create.ClassID = (int)accountClass[0].Id;
@@ -122,8 +124,14 @@ namespace GCTL_App.Controllers.Finance
                         return Json(new { isSuccess = false, message = $"{model.MainAccountCode} already exists!" });
                     }
 
-                    await _addMainAccountService.UpdateAsync(model);
-                    return Json(new { isSuccess = true, message = "Updated Successfully." });
+                    var result = await _addMainAccountService.UpdateAsync(model);
+                    return Json(new
+                    {
+                        isSuccess = result.Success,
+                        message = result.Message,
+                        errors = result.Errors, // optional
+                        data = result.Data      // optional
+                    });
                 }
 
                 var orderedKeys = new[] { "ClassID", "GroupID", "BaseAccountCode", "MainAccountName" };
@@ -252,11 +260,11 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region GetAccountGroupByClassId
-        public async Task<IActionResult> GetAccountGroupByClassId(int classId)
-        {
-            var result = await _commonService.GetAccountGroupByClassId(classId);
-            return Json(result);
-        }
+        //public async Task<IActionResult> GetAccountGroupByClassId(int classId)
+        //{
+        //    var result = await _commonService.GetAccountGroupByClassId(classId);
+        //    return Json(result);
+        //}
         #endregion
     }
 }
