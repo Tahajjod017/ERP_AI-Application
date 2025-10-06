@@ -161,7 +161,6 @@ namespace GCTL.Service.Finance.AddSubAccount
             {
                 var query = _genericRepository.AllActive()
                     .Include(x => x.MainAccount)
-                    .ThenInclude(x => x.Group)
                     .ThenInclude(x => x.Class)
                     .AsNoTracking()
                     .Where(x => x.DeletedAt == null && x.DeletedBy == null);
@@ -176,8 +175,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                     query = sortColumn switch
                     {
                         "SubAccountID" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccountID) : query.OrderBy(x => x.SubAccountID),
-                        "GroupName" => sortOrder == "desc" ? query.OrderByDescending(x => x.MainAccount.Group.GroupName) : query.OrderBy(x => x.MainAccount.Group.GroupName),
-                        "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.MainAccount.Group.Class.ClassName) : query.OrderBy(x => x.MainAccount.Group.Class.ClassName),
+                        "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.MainAccount.Class.ClassName) : query.OrderBy(x => x.MainAccount.Class.ClassName),
                         "MainAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.MainAccount.MainAccountName) : query.OrderBy(x => x.MainAccount.MainAccountName),
                         "SubAccountCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccountCode) : query.OrderBy(x => x.SubAccountCode),
                         "SubAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccountName) : query.OrderBy(x => x.SubAccountName),
@@ -193,10 +191,8 @@ namespace GCTL.Service.Finance.AddSubAccount
                         SubAccountID = x.SubAccountID,
                         MainAccountID = x.MainAccountID,
                         MainAccountName = x.MainAccount.MainAccountName ?? "-",
-                        GroupID = x.MainAccount.GroupID,
-                        GroupName = x.MainAccount.Group.GroupName ?? "-",
-                        ClassID = x.MainAccount.Group.ClassID,
-                        ClassName = x.MainAccount.Group.Class.ClassName ?? "-",
+                        ClassID = x.MainAccount.ClassID,
+                        ClassName = x.MainAccount.Class.ClassName ?? "-",
                         SubAccountCode = x.SubAccountCode ?? "-",
                         SubAccountName = x.SubAccountName ?? "-",
                         Description = x.Description ?? "-"
@@ -217,7 +213,6 @@ namespace GCTL.Service.Finance.AddSubAccount
             {
                 var data = await _genericRepository.AllActive()
                     .Include(x => x.MainAccount)
-                    .ThenInclude(x => x.Group)
                     .ThenInclude(x => x.Class)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.SubAccountID == id);
@@ -226,8 +221,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                 {
                     SubAccountID = data.SubAccountID,
                     MainAccountID = data.MainAccountID,
-                    GroupID = data.MainAccount.GroupID,
-                    ClassID = data.MainAccount.Group.ClassID,
+                    ClassID = data.MainAccount.ClassID,
                     SubAccountCode = data.SubAccountCode ?? "-",
                     SubAccountName = data.SubAccountName ?? "-",
                     Description = data.Description ?? "-"

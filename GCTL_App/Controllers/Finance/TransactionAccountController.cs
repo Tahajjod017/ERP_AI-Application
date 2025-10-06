@@ -268,15 +268,6 @@ namespace GCTL_App.Controllers.Finance
         #endregion
 
 
-        #region GetMainAccByClassIdGroupId
-        public async Task<IActionResult> GetMainAccByClassIdGroupId(int classId, int? groupId)
-        {
-            var result = await _commonService.GetMainAccByClassIdGroupId(classId, groupId);
-            return Json(result);
-        }
-        #endregion
-
-
         #region GetSubAccByClassIdGroupIdMainAccId
         public async Task<IActionResult> GetSubAccByClassIdGroupIdMainAccId(int classId, int? groupId, int? mainAccId)
         {

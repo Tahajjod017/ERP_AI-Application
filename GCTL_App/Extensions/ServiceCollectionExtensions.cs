@@ -70,7 +70,6 @@ using GCTL.Service.Finance.AddMainAccount;
 using GCTL.Service.Finance.AddSubAccount;
 using GCTL.Service.Finance.BaseAccount;
 using GCTL.Service.Finance.SecondTab;
-using GCTL.Service.Finance.ThirdTab;
 using GCTL.Service.Finance.TransactionAccount;
 using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.ImageFileHandler;
@@ -193,7 +192,6 @@ namespace GCTL_App.Extensions
             services.AddScoped<IAppsAttendanceService, AppsAttendanceService>();
             services.AddScoped<IBaseAccountService, BaseAccountService>();
             services.AddScoped<ISecondTabService, SecondTabService>();
-            services.AddScoped<IThirdTabService, ThirdTabService>();
             services.AddScoped<IAddMainAccountService, AddMainAccountService>();
             services.AddScoped<IAddSubAccountService, AddSubAccountService>();
             services.AddScoped<ITransactionAccountService, TransactionAccountService>();

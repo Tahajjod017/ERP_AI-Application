@@ -14,9 +14,6 @@ namespace GCTL.Core.ViewModels.Finance.AddSubAccountVM
         [Required(ErrorMessage = "Select a {0}!"), Display(Name = "Class Name")]
         public int? ClassID { get; set; }
 
-        [Required(ErrorMessage = "Select a {0}!"), Display(Name = "Group Name")]
-        public int? GroupID { get; set; }
-
         [Required(ErrorMessage = "{0} is required!"), Display(Name = "Main Account")]
         public int? MainAccountID { get; set; }
 

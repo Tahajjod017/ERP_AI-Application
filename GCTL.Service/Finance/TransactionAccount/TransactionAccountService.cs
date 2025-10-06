@@ -163,7 +163,6 @@ namespace GCTL.Service.Finance.TransactionAccount
                 var query = _genericRepository.AllActive()
                     .Include(x => x.SubAccount)
                     .ThenInclude(x => x.MainAccount)
-                    .ThenInclude(x => x.Group)
                     .ThenInclude(x => x.Class)
                     .AsNoTracking()
                     .Where(x => x.DeletedAt == null && x.DeletedBy == null);
@@ -178,8 +177,7 @@ namespace GCTL.Service.Finance.TransactionAccount
                     query = sortColumn switch
                     {
                         "TrxAccID" => sortOrder == "desc" ? query.OrderByDescending(x => x.TrxAccID) : query.OrderBy(x => x.TrxAccID),
-                        "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.MainAccount.Group.Class.ClassName) : query.OrderBy(x => x.SubAccount.MainAccount.Group.Class.ClassName),
-                        "GroupName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.MainAccount.Group.GroupName) : query.OrderBy(x => x.SubAccount.MainAccount.Group.GroupName),
+                        "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.MainAccount.Class.ClassName) : query.OrderBy(x => x.SubAccount.MainAccount.Class.ClassName),
                         "SubAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.MainAccount.MainAccountName) : query.OrderBy(x => x.SubAccount.MainAccount.MainAccountName),
                         "MainAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.SubAccountName) : query.OrderBy(x => x.SubAccount.SubAccountName),
                         "TrxAccCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.TrxAccCode) : query.OrderBy(x => x.TrxAccCode),
@@ -194,10 +192,8 @@ namespace GCTL.Service.Finance.TransactionAccount
                     x => new GetAllTransactionAccountVM
                     {
                         TrxAccID = x.TrxAccID,
-                        ClassID = x.SubAccount.MainAccount.Group.ClassID,
-                        ClassName = x.SubAccount.MainAccount.Group.Class.ClassName ?? "-",
-                        GroupID = x.SubAccount.MainAccount.GroupID,
-                        GroupName = x.SubAccount.MainAccount.Group.GroupName ?? "-",
+                        ClassID = x.SubAccount.MainAccount.ClassID,
+                        ClassName = x.SubAccount.MainAccount.Class.ClassName ?? "-",
                         MainAccountID = x.SubAccount.MainAccountID,
                         MainAccountName = x.SubAccount.MainAccount.MainAccountName ?? "-",
                         SubAccountID = x.SubAccountID,
@@ -224,7 +220,6 @@ namespace GCTL.Service.Finance.TransactionAccount
                 var data = await _genericRepository.AllActive()
                     .Include(x => x.SubAccount)
                     .ThenInclude(x => x.MainAccount)
-                    .ThenInclude(x => x.Group)
                     .ThenInclude(x => x.Class)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.TrxAccID == id);
@@ -234,8 +229,7 @@ namespace GCTL.Service.Finance.TransactionAccount
                     TrxAccID = data.TrxAccID,
                     SubAccountID = data.SubAccountID,
                     MainAccountID = data.SubAccount.MainAccountID,
-                    GroupID = data.SubAccount.MainAccount.GroupID,
-                    ClassID = data.SubAccount.MainAccount.Group.ClassID,
+                    ClassID = data.SubAccount.MainAccount.ClassID,
                     TrxAccCode = data.TrxAccCode ?? "-",
                     TrxAccName = data.TrxAccName ?? "-",
                     IsActive = data.IsActive,
