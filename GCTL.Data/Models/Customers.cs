@@ -29,6 +29,8 @@ public partial class Customers
 
     public int? DeletedBy { get; set; }
 
+    public int? HeadID { get; set; }
+
     public virtual ICollection<CompanyBranches> CompanyBranches { get; set; } = new List<CompanyBranches>();
 
     public virtual ICollection<CompanyWarehouses> CompanyWarehouses { get; set; } = new List<CompanyWarehouses>();
@@ -38,6 +40,8 @@ public partial class Customers
     public virtual ICollection<CustomerAddresses> CustomerAddresses { get; set; } = new List<CustomerAddresses>();
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Heads Head { get; set; }
 
     public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
 

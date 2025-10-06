@@ -19,7 +19,7 @@
         var deleteUrl = settings.baseUrl + "/Delete";
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
-        var getGroupByClassIdUrl = settings.baseUrl + "/GetAccountGroupByClassId";
+        var getClassByBaseAccIdUrl = settings.baseUrl + "/GetClassByBaseAccId";
 
         $(() => {
 
@@ -34,8 +34,8 @@
                 var formData = {
                     __RequestVerificationToken: token,
                     MainAccountID: $('#MainAccountID').val(),
+                    BaseAccountID: $('#BaseAccountID').val(),
                     ClassID: $('#ClassID').val(),
-                    GroupID: $('#GroupID').val(),
                     MainAccountName: $('#MainAccountName').val(),
                     MainAccountCode: $('#MainAccountCode').val(),
                     Description: $('#Description').val(),
@@ -60,7 +60,7 @@
                         showLoadingIndicator();
                     },
                     success: function (response) {
-                        const allFields = ['ClassID', 'GroupID', 'MainAccountName', 'MainAccountCode'];
+                        const allFields = ['BaseAccountID', 'ClassID', 'MainAccountName', 'MainAccountCode'];
 
                         allFields.forEach(function (fieldId) {
                             validateField(fieldId, response);
@@ -105,9 +105,9 @@
                             $('#addMainAccount-form #MainAccountCode').val(data.mainAccountCode);
                             $('#addMainAccount-form #MainAccountName').val(data.mainAccountName);
                             $('#addMainAccount-form #Description').val(data.description);
-                            accountClassDD.setChoiceByValue(data.classID.toString());
+                            baseAccountsDD.setChoiceByValue(data.baseAccountID.toString());
 
-                            getAccountGroupByClassId(data.classID, data.groupID);
+                            getClassByBaseAccId(data.baseAccountID, data.classID);
 
                             $('#addMainAccount-form #addMainAccount-saveBtn').text('Update');
                             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -186,29 +186,29 @@
             // #endregion
 
 
-            // #region GetAccountGroupByClassId
-            $('#ClassID').on('change', function (e) {
+            // #region GetAccountGroupByBaseAccountID
+            $('#BaseAccountID').on('change', function (e) {
                 e.preventDefault();
 
-                var classId = $(this).val();
+                var baseAccountID = $(this).val();
 
-                getAccountGroupByClassId(classId);
+                getClassByBaseAccId(baseAccountID);
             });
 
-            function getAccountGroupByClassId(classId, selectedGroupId = null) {
+            function getClassByBaseAccId(baseAccountID, selectedClassId = null) {
                 $.ajax({
-                    url: getGroupByClassIdUrl,
+                    url: getClassByBaseAccIdUrl,
                     type: 'GET',
-                    data: { classId: classId },
+                    data: { baseAccountID: baseAccountID },
                     success: function (result) {
                         $('.addMainAccount-ul').empty();
 
                         $('.addMainAccount-ul')
                             .append(`<div class="row">
                             <div class="col-md-12">
-                                <label class="form-label"><strong>Select a Group</strong><span style="color:red;">*&nbsp;</span></label>
+                                <label class="form-label"><strong>Select a Class</strong><span style="color:red;">*&nbsp;</span></label>
                             </div>
-                            <span asp-validation-for="GroupID" id="GroupIDError" class="text-danger" style="display:none;"></span>
+                            <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
                         </div>`);
 
                         if (result.length === 0) {
@@ -217,7 +217,7 @@
                             result.forEach(function (item) {
                                 var listItem = `
                         <li class="nav-item read border-bottom" role="presentation">
-                            <a class="nav-link d-flex align-items-center justify-content-center p-2" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-${item.id}" role="tab" aria-selected="false" data-group-id="${item.id}">
+                            <a class="nav-link d-flex align-items-center justify-content-center p-2" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-${item.id}" role="tab" aria-selected="false" data-class-id="${item.id}">
                                 <div class="flex-1 d-sm-none d-xl-block">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <h5 class="text-body fw-normal name text-nowrap">${item.name}</h5>
@@ -243,14 +243,14 @@
                                 $(this).closest('li').siblings().removeClass('selected');
                                 $(this).closest('li').addClass('selected');
 
-                                var groupId = $(this).data('group-id');
-                                $('#GroupID').val(groupId);
+                                var classId = $(this).data('class-id');
+                                $('#ClassID').val(classId);
                                 loadTableData();
                             });
 
                             // 🔽 If editing, auto-select the group
-                            if (selectedGroupId) {
-                                const target = $(`.addMainAccount-ul .nav-link[data-group-id="${selectedGroupId}"]`);
+                            if (selectedClassId) {
+                                const target = $(`.addMainAccount-ul .nav-link[data-class-id="${selectedClassId}"]`);
                                 if (target.length) {
                                     target.trigger('click'); // Triggers the same click handler
                                 }
@@ -288,10 +288,10 @@
                 $('.addMainAccount-selectItem').prop('checked', false);
                 $('.addMainAccount-ul').empty();
 
-                if (accountClassDD) {
-                    accountClassDD.destroy();
+                if (baseAccountsDD) {
+                    baseAccountsDD.destroy();
                 }
-                initAccountClassDD();
+                initBaseAccountsDD();
 
                 loadTableData();
                 toggleBulkActions();
@@ -301,15 +301,15 @@
 
 
             // #region Dropdowns
-            function initAccountClassDD() {
-                accountClassDD = new Choices('#ClassID', {
+            function initBaseAccountsDD() {
+                baseAccountsDD = new Choices('#BaseAccountID', {
                     removeItemButton: true,
                     shouldSort: false,
-                    placeholderValue: 'Select Class...'
+                    placeholderValue: 'Select Base Account...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initAccountClassDD);
-            initAccountClassDD();
+            document.addEventListener('DOMContentLoaded', initBaseAccountsDD);
+            initBaseAccountsDD();
             // #endregion
 
 
@@ -511,7 +511,7 @@
 
         function loadTableData(sortColumn, sortOrder) {
             var searchTerm = $("#addMainAccount-searchInput").val();
-            var groupId = $("#GroupID").val();
+            var classId = $("#ClassID").val();
 
             $.ajax({
                 url: getAllUrl,
@@ -522,7 +522,7 @@
                     searchTerm: searchTerm,
                     sortColumn: sortColumn,
                     sortOrder: sortOrder,
-                    groupId: groupId
+                    classId: classId
                 },
                 success: function (response) {
                     var tableBody = $("#addMainAccount-tBody");
@@ -535,8 +535,8 @@
                                     <td class="text-center text-middle align-middle" style="width: 5%;">
                                         <input type="checkbox" class="form-check-input addMainAccount-selectItem" data-id="${item.mainAccountID}" />
                                     </td>
+                                    <td class="align-middle white-space-nowrap ps-0">${item.baseAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.className}</td>
-                                    <td class="align-middle white-space-nowrap ps-0">${item.groupName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.description}</td>

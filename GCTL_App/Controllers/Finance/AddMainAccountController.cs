@@ -36,7 +36,7 @@ namespace GCTL_App.Controllers.Finance
                 SetSmartPageCode(203700);
 
                 ViewBag.BodyTabs = await _addMainAccountService.GetBodyTabsAsync();
-                ViewBag.AccountClassDD = await _commonService.GetAccountClass();
+                ViewBag.BaseAccountsDD = await _commonService.GetBaseAccounts();
 
                 //if (accountClass.Count == 1)
                 //{
@@ -81,7 +81,7 @@ namespace GCTL_App.Controllers.Finance
                     return Json(new { isSuccess = true, message = "Saved Successfully." });
                 }
 
-                var orderedKeys = new[] { "ClassID", "GroupID", "MainAccountName", "MainAccountCode" };
+                var orderedKeys = new[] { "BaseAccountID", "ClassID", "MainAccountName", "MainAccountCode" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -134,7 +134,7 @@ namespace GCTL_App.Controllers.Finance
                     });
                 }
 
-                var orderedKeys = new[] { "ClassID", "GroupID", "BaseAccountCode", "MainAccountName" };
+                var orderedKeys = new[] { "BaseAccountID", "ClassID", "BaseAccountCode", "MainAccountName" };
                 foreach (var key in orderedKeys)
                 {
                     if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
@@ -154,9 +154,9 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region GetAll
-        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "MainAccountID", string sortOrder = "desc", int? groupId = null)
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "MainAccountID", string sortOrder = "desc", int? classId = null)
         {
-            var result = await _addMainAccountService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, groupId);
+            var result = await _addMainAccountService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, classId);
 
             return Json(result);
         }
@@ -259,12 +259,12 @@ namespace GCTL_App.Controllers.Finance
         #endregion
 
 
-        #region GetAccountGroupByClassId
-        //public async Task<IActionResult> GetAccountGroupByClassId(int classId)
-        //{
-        //    var result = await _commonService.GetAccountGroupByClassId(classId);
-        //    return Json(result);
-        //}
+        #region GetClassByBaseAccId
+        public async Task<IActionResult> GetClassByBaseAccId(int baseAccountID)
+        {
+            var result = await _commonService.GetClassByBaseAccId(baseAccountID);
+            return Json(result);
+        }
         #endregion
     }
 }

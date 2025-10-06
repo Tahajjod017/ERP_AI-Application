@@ -35,9 +35,13 @@ public partial class TransactionAccounts
 
     public int? DeletedBy { get; set; }
 
+    public int? HeadID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Heads Head { get; set; }
 
     public virtual SubAccounts SubAccount { get; set; }
 

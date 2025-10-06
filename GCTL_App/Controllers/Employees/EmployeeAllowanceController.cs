@@ -87,20 +87,20 @@ namespace GCTL_App.Controllers.Employees
                     }
                     else
                     {
-                        var model = _employeeAllowanceService.GetEmployeeAllowance((int)empid).Result;
+                        //var model = _employeeAllowanceService.GetEmployeeAllowance((int)empid).Result;
 
                         
-                        return View(model);
+                        //return View(model);
                     }
 
 
                 }
                 else
                 {
-                    var model = _employeeAllowanceService.GetEmployeeAllowance(id).Result;
+                    //var model = _employeeAllowanceService.GetEmployeeAllowance(id).Result;
 
                     
-                    return View(model);
+                    //return View(model);
                 }
             }
 
@@ -168,105 +168,105 @@ namespace GCTL_App.Controllers.Employees
 
 
 
-        [HttpPost]
-        public async Task<IActionResult> Index(EmployeeAdditionalPostViewModel model)
-        {
-            if(model.MobileAllowanceEffectiveFromStr != null)
-            model.MobileAllowanceEffectiveFrom = ConvertToDateTime(model.MobileAllowanceEffectiveFromStr);
+        //[HttpPost]
+        //public async Task<IActionResult> Index(EmployeeAdditionalPostViewModel model)
+        //{
+        //    if(model.MobileAllowanceEffectiveFromStr != null)
+        //    model.MobileAllowanceEffectiveFrom = ConvertToDateTime(model.MobileAllowanceEffectiveFromStr);
 
-            if (model.InternetAllowanceEffectiveFromStr != null)
-                model.InternetAllowanceEffectiveFrom = ConvertToDateTime(model.InternetAllowanceEffectiveFromStr);
+        //    if (model.InternetAllowanceEffectiveFromStr != null)
+        //        model.InternetAllowanceEffectiveFrom = ConvertToDateTime(model.InternetAllowanceEffectiveFromStr);
 
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState
-                    .Where(x => x.Value.Errors.Count > 0)
-                    .ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                    );
+        //    if (!ModelState.IsValid)
+        //    {
+        //        var errors = ModelState
+        //            .Where(x => x.Value.Errors.Count > 0)
+        //            .ToDictionary(
+        //                kvp => kvp.Key,
+        //                kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+        //            );
 
-                return BadRequest(errors);
-            }
+        //        return BadRequest(errors);
+        //    }
 
-            try
-            {
-                var res = await _employeeAllowanceService.SaveEmployeeAllowanceAsync(model);
+        //    try
+        //    {
+        //        var res = await _employeeAllowanceService.SaveEmployeeAllowanceAsync(model);
 
-                return Ok(res);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
+        //        return Ok(res);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = ex.Message });
+        //    }
+        //}
 
-        [HttpPost]
-        public async Task<IActionResult> SubmitFromEdit(EmployeeAdditionalPostViewModel model)
-        {
-            if (model.MobileAllowanceEffectiveFromStr != null)
-                model.MobileAllowanceEffectiveFrom = ConvertToDateTime(model.MobileAllowanceEffectiveFromStr);
+        //[HttpPost]
+        //public async Task<IActionResult> SubmitFromEdit(EmployeeAdditionalPostViewModel model)
+        //{
+        //    if (model.MobileAllowanceEffectiveFromStr != null)
+        //        model.MobileAllowanceEffectiveFrom = ConvertToDateTime(model.MobileAllowanceEffectiveFromStr);
 
-            if (model.InternetAllowanceEffectiveFromStr != null)
-                model.InternetAllowanceEffectiveFrom = ConvertToDateTime(model.InternetAllowanceEffectiveFromStr);
+        //    if (model.InternetAllowanceEffectiveFromStr != null)
+        //        model.InternetAllowanceEffectiveFrom = ConvertToDateTime(model.InternetAllowanceEffectiveFromStr);
 
            
 
-            try
-            {
-                var res = await _employeeAllowanceService.SaveEmployeeAllowanceAsync(model);
+        //    try
+        //    {
+        //        var res = await _employeeAllowanceService.SaveEmployeeAllowanceAsync(model);
 
-                return Ok(res);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
+        //        return Ok(res);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = ex.Message });
+        //    }
+        //}
 
-        [HttpGet]
-        public async Task<IActionResult> GetEmployeeAllowance(int employeeId)
-        {
-            try
-            {
+        //[HttpGet]
+        //public async Task<IActionResult> GetEmployeeAllowance(int employeeId)
+        //{
+        //    try
+        //    {
                 
-                 var allowanceData = await _employeeAllowanceService.GetEmployeeAllowance(employeeId);
+        //         var allowanceData = await _employeeAllowanceService.GetEmployeeAllowance(employeeId);
 
-                // Return the data as JSON
-                return Json(new
-                {
-                    employeePersonalId = allowanceData.EmployeePersonalId,
-                    employeeBaseAllowanceID =  allowanceData?.EmployeeBaseAllowanceID ?? 0,
-                    personalEmail = allowanceData.PersonalEmail ?? "",
-                    personalPhone = allowanceData.PersonalPhone,
+        //        // Return the data as JSON
+        //        return Json(new
+        //        {
+        //            employeePersonalId = allowanceData.EmployeePersonalId,
+        //            employeeBaseAllowanceID =  allowanceData?.EmployeeBaseAllowanceID ?? 0,
+        //            personalEmail = allowanceData.PersonalEmail ?? "",
+        //            personalPhone = allowanceData.PersonalPhone,
 
-                    organizationID = allowanceData.OrganizationID,
+        //            organizationID = allowanceData.OrganizationID,
 
-                    //mobileInternetAllowance = allowanceData?.MobileInternetAllowance,
-                    //isMobileInternetAllowanceEnabled =  allowanceData?.IsMobileInternetAllowanceEnabled ?? false,
-                    mobileAllowance = allowanceData?.MobileAllowance,
-                    internetAllowance = allowanceData?.InternetAllowance,
-                    isMobileAllowanceEnabled = allowanceData?.IsMobileAllowanceEnabled ?? false,
-                    isInternetAllowanceEnabled = allowanceData?.IsInternetAllowanceEnabled ?? false,
-                    mobileAllowanceEffectiveFrom = allowanceData?.MobileAllowanceEffectiveFrom?.ToString("dd/MM/yyyy"),
-                    internetAllowanceEffectiveFrom = allowanceData?.InternetAllowanceEffectiveFrom?.ToString("dd/MM/yyyy"),
+        //            //mobileInternetAllowance = allowanceData?.MobileInternetAllowance,
+        //            //isMobileInternetAllowanceEnabled =  allowanceData?.IsMobileInternetAllowanceEnabled ?? false,
+        //            mobileAllowance = allowanceData?.MobileAllowance,
+        //            internetAllowance = allowanceData?.InternetAllowance,
+        //            isMobileAllowanceEnabled = allowanceData?.IsMobileAllowanceEnabled ?? false,
+        //            isInternetAllowanceEnabled = allowanceData?.IsInternetAllowanceEnabled ?? false,
+        //            mobileAllowanceEffectiveFrom = allowanceData?.MobileAllowanceEffectiveFrom?.ToString("dd/MM/yyyy"),
+        //            internetAllowanceEffectiveFrom = allowanceData?.InternetAllowanceEffectiveFrom?.ToString("dd/MM/yyyy"),
 
 
-                    shiftAllowance =allowanceData?.ShiftAllowance,
-                    isShiftAllowanceEnabled =  allowanceData?.IsShiftAllowanceEnabled ?? false,
-                    houseRentAllowancePercentage =  allowanceData?.HouseRentAllowancePercentage,
-                    isHouseRentAllowancePercentageEnabled =  allowanceData?.IsHouseRentAllowancePercentageEnabled ?? false,
-                    medicalAllowancePercentage =  allowanceData?.MedicalAllowancePercentage,
-                    isMedicalAllowancePercentageEnabled =  allowanceData?.IsMedicalAllowancePercentageEnabled ?? false,
-                    conveyanceAllowancePercentage =  allowanceData?.ConveyanceAllowancePercentage,
-                    isConveyanceAllowancePercentageEnabled =  allowanceData?.IsConveyanceAllowancePercentageEnabled ?? false,
-                    isEmployeeAllowanceEnabled =  allowanceData?.IsEmployeeAllowanceEnabled ?? false
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { error = ex.Message });
-            }
-        }
+        //            shiftAllowance =allowanceData?.ShiftAllowance,
+        //            isShiftAllowanceEnabled =  allowanceData?.IsShiftAllowanceEnabled ?? false,
+        //            houseRentAllowancePercentage =  allowanceData?.HouseRentAllowancePercentage,
+        //            isHouseRentAllowancePercentageEnabled =  allowanceData?.IsHouseRentAllowancePercentageEnabled ?? false,
+        //            medicalAllowancePercentage =  allowanceData?.MedicalAllowancePercentage,
+        //            isMedicalAllowancePercentageEnabled =  allowanceData?.IsMedicalAllowancePercentageEnabled ?? false,
+        //            conveyanceAllowancePercentage =  allowanceData?.ConveyanceAllowancePercentage,
+        //            isConveyanceAllowancePercentageEnabled =  allowanceData?.IsConveyanceAllowancePercentageEnabled ?? false,
+        //            isEmployeeAllowanceEnabled =  allowanceData?.IsEmployeeAllowanceEnabled ?? false
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { error = ex.Message });
+        //    }
+        //}
     }
 }
