@@ -36,12 +36,12 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region getLastIndexNumber
-        [HttpGet]
-        public async Task<IActionResult> GetLastIndexNumber()
-        {
-            var nextIndex = await _addTeamService.GetLastIndexNumber();
-            return Ok(nextIndex);
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> GetLastIndexNumber()
+        //{
+        //    var nextIndex = await _addTeamService.GetLastIndexNumber();
+        //    return Ok(nextIndex);
+        //}
         #endregion
 
 
@@ -83,6 +83,14 @@ namespace GCTL_App.Controllers.CRM
         public async Task<IActionResult> GetTeamList(int pageNumber = 1, int pageSize = 10, string? searchTerm = null, string sortColumn = "CreatedAt", string sortOrder = "asc")
         {
             var result = await _addTeamService.GetTeamListAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+            return Ok(result);
+        }
+        #endregion
+
+        #region IndivudialIteamDetails
+        public async Task<IActionResult> GetIndivudialTeamDetails(int id)
+        {
+            var result = await _addTeamService.IndivudialIteamDetails(id);
             return Ok(result);
         }
         #endregion
