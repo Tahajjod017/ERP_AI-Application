@@ -33,12 +33,12 @@ namespace GCTL.Service.CRM.AddTeam
         #endregion
 
         #region GetLastIndexNumber
-        public async Task<int> GetLastIndexNumber()
-        {
-            int lastID = await _teamsRepository.All().OrderByDescending(t => t.LeadProjectTeamID).Select(t => t.LeadProjectTeamID).FirstOrDefaultAsync() + 1;
+        //public async Task<int> GetLastIndexNumber()
+        //{
+        //    int lastID = await _teamsRepository.All().OrderByDescending(t => t.LeadProjectTeamID).Select(t => t.LeadProjectTeamID).FirstOrDefaultAsync() + 1;
 
-            return lastID;
-        }
+        //    return lastID;
+        //}
         #endregion
 
         #region getEmployeeList
@@ -77,6 +77,7 @@ namespace GCTL.Service.CRM.AddTeam
         }
         #endregion
 
+        #region CreateTeam
         public async Task<ReturnView> CreateTeam(CreateTeamVM createTeamVM)
         {
             try
@@ -112,7 +113,7 @@ namespace GCTL.Service.CRM.AddTeam
                 {
                     LeadProjectTeamName = createTeamVM.TeamName,
                     LPTeamGID = newGID,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     CreatedBy = createTeamVM.CreatedBy
                 };
 
@@ -124,7 +125,7 @@ namespace GCTL.Service.CRM.AddTeam
                     {
                         LeadProjectTeamID = LeadProjectTeams.LeadProjectTeamID,
                         EmployeeID = id,
-                        CreatedAt = DateTime.Now,
+                        CreatedAt = DateTime.UtcNow,
                         CreatedBy = createTeamVM.CreatedBy,
                     }).ToList();
 
@@ -144,14 +145,15 @@ namespace GCTL.Service.CRM.AddTeam
                 };
             }
         }
+        #endregion
 
         #region GetAllAsync
         public async Task<List<TeamViewVM>> GetTeamListAsync(
-     int pageNumber = 1,
-     int pageSize = 10,
-     string? searchTerm = null,
-     string sortColumn = "CreatedAt",
-     string sortOrder = "asc")
+         int pageNumber = 1,
+         int pageSize = 10,
+         string? searchTerm = null,
+         string sortColumn = "CreatedAt",
+         string sortOrder = "asc")
         {
             // Base query with eager-loading team members and their employees
             var query = _teamsRepository.AllActive()
@@ -172,17 +174,15 @@ namespace GCTL.Service.CRM.AddTeam
                 ("CreatedAt", "asc") => query.OrderBy(t => t.CreatedAt),
                 _ => query.OrderBy(t => t.CreatedAt)
             };
-
-            // Pagination: skip previous pages and take pageSize
             query = query.Skip((pageNumber - 1) * pageSize)
                          .Take(pageSize);
 
-            // Projection to ViewModel
             var result = await query
                 .Select(t => new TeamViewVM
                 {
                     TeamID = t.LeadProjectTeamID,
                     TeamGID = t.LPTeamGID,
+                    TeamName = t.LeadProjectTeamName,
                     TeamMemberName = t.LeadProjectTeamMembers
                                        .Select(m => $"{m.Employee.FirstName} {m.Employee.LastName}")
                                        .ToList()
@@ -192,6 +192,117 @@ namespace GCTL.Service.CRM.AddTeam
             return result;
         }
 
+        #endregion
+        
+        #region Get Indivudial Team Details
+        // for add Team page
+        public async Task<TeamViewVM> IndivudialIteamDetails(int id)
+        {
+            try
+            {
+                var result = await _teamsRepository.AllActive()
+                    .Include(t => t.LeadProjectTeamMembers)
+                    .ThenInclude(m => m.Employee)
+                    .Where(t => t.LeadProjectTeamID == id)
+                    .Select(t => new TeamViewVM
+                    {
+                        TeamID = t.LeadProjectTeamID,
+                        TeamGID = t.LPTeamGID,
+                        TeamName = t.LeadProjectTeamName,
+                        TeamMemberName = t.LeadProjectTeamMembers
+                                       .Select(m => $"{m.Employee.FirstName} {m.Employee.LastName}")
+                                       .ToList()
+                    })
+                    .FirstOrDefaultAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return new TeamViewVM { };
+            }
+        }
+        #endregion
+
+
+        #region Get Single Team Information 
+        //for team details page
+        public async Task<TeamDetailsVM> GetIndividualTeamDetails(int id)
+        {
+            try
+            {
+                var result = await _teamsRepository.AllActive()
+                    .Include(t => t.LeadProjectTeamMembers)
+                    .ThenInclude(m => m.Employee)
+                    .Where(t => t.LeadProjectTeamID == id)
+                    .Select(t => new TeamDetailsVM
+                    {
+                        TeamID = t.LeadProjectTeamID,
+                        TeamGID = t.LPTeamGID,
+                        TeamName = t.LeadProjectTeamName,
+                        MemberDetails = t.LeadProjectTeamMembers
+                            .Select(m => new TeamMemberDetails
+                            {
+                                TeamMemberName = $"{m.Employee.FirstName} {m.Employee.LastName}",
+                                EmployeeID = m.EmployeeID,
+                                Designation = "HRM",
+                                //Designation = m.Employee.Designation,
+                                MobileNumber = m.Employee.MobileNumber,
+                                IsTeamHead = m.IsTeamHead,
+                                profileImage = "/img/user.png"
+                            })
+                            .ToList()
+                    })
+                    .FirstOrDefaultAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // optionally log ex
+                return null;
+            }
+        }
+
+        #endregion
+
+
+        #region Set Team Head
+        public async Task<ReturnView> SetTeamHead(TeamHeadVM teamHeadVM)
+        {
+            try
+            {
+                if (teamHeadVM.TeamID == 0 || teamHeadVM.EmployeeID == 0) return new ReturnView { Message = "Team ID or Employee ID is null", Success = false, };
+
+                var exitingObj = await _teamMembersRepository.AllActive().Where(t => t.LeadProjectTeamID == teamHeadVM.TeamID && t.EmployeeID == teamHeadVM.EmployeeID).FirstOrDefaultAsync();
+                if (exitingObj == null) { return new ReturnView { Message = "Team not exist", Success = false, }; }
+
+                var teamMembers = await _teamMembersRepository.AllActive().Where(t => t.LeadProjectTeamID == teamHeadVM.TeamID).ToListAsync();
+
+                foreach(var member in teamMembers)
+                {
+                    member.IsTeamHead = false;
+                    member.LMAC = teamHeadVM.LMAC;
+                    member.LIP = teamHeadVM.LIP;
+                    member.UpdatedAt = DateTime.UtcNow;
+                    member.UpdatedBy = teamHeadVM.UpdatedBy;
+                }
+
+                exitingObj.IsTeamHead = true;
+                exitingObj.LMAC = teamHeadVM.LMAC;
+                exitingObj.LIP = teamHeadVM.LIP;
+                exitingObj.UpdatedAt = DateTime.UtcNow;
+                exitingObj.UpdatedBy = teamHeadVM.UpdatedBy;
+
+                await _teamMembersRepository.UpdateAsync(exitingObj);
+
+                return new ReturnView { Message = "Team Head updated", Success = true, };
+            }
+            catch (Exception ex)
+            {
+                return new ReturnView { Message = "Something went to wrong", Success = false, };
+            }
+            
+        }
         #endregion
     }
 }

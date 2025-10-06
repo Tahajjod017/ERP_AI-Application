@@ -74,7 +74,8 @@
 //    };
 //})();
 
-//v1.3
+// v1.3
+// e43
 const customToaster = (() => {
     const durationDefault = 3000;
     const toaster = document.getElementById("customToaster");

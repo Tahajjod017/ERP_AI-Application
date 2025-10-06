@@ -7,13 +7,13 @@
 </style>
 <div class="row">
     <input type="hidden" asp-for="TeamID"/>
-    <div class="flatpickr-input-container col-md-4">
+    @* <div class="flatpickr-input-container col-md-4">
         <div class="form-floating">
             <input class="form-control" type="text" id="GeneratedID" placeholder="@Html.SmartLocalize("Generated ID")" readonly/>
             <label>@Html.SmartLocalize("Generated ID") <span style="color: red;">*</span></label>
         </div>
         <span id="nameError" class="text-danger" style="display:none;"></span>
-    </div>
+    </div> *@
     <div class="flatpickr-input-container col-md-4">
         <div class="form-floating">
             <input class="form-control" type="text" asp-for="TeamName" placeholder="@Html.SmartLocalize("Team Name")" />
@@ -37,6 +37,7 @@
            
         </div>
     </div>
-    <div id="btnDiv" class="d-flex justify-content-end pe-5"><button type="submit" id="CreatTeamBtn" class="btn btn-primary">Create Team</button></div>
+    <div id="btnDiv" class="d-flex justify-content-end pe-5"><button type="submit" id="resetTeamBtn" class="btn btn-primary">Reset</button></div>
+    <div id="btnDiv" class="d-flex justify-content-end pe-5"><button type="submit" id="CreateTeamBtn" class="btn btn-primary">Create Team</button></div>
 </div>
 

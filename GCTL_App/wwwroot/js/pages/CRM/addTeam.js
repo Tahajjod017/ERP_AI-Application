@@ -2,7 +2,7 @@
 
     let ids = {
         generatedID: '#GeneratedID',
-        submitBtn: '#CreatTeamBtn',
+        submitBtn: '#CreateTeamBtn',
         employeeDrpdn: '#EmployeeIds',
         teamName: '#TeamName',
         employeeIDs: '#EmployeeIds',
@@ -10,22 +10,22 @@
     }
 
 
-    async function getNextIndex() {
-        try {
-            const response = await fetch('/AddTeams/GetLastIndexNumber');
-            if (!response.ok) throw new Error('Network response was not ok');
+    //async function getNextIndex() {
+    //    try {
+    //        const response = await fetch('/AddTeams/GetLastIndexNumber');
+    //        if (!response.ok) throw new Error('Network response was not ok');
 
-            const nextIndex = await response.json();
+    //        const nextIndex = await response.json();
+            
+    //        return nextIndex;
+    //    } catch (error) {
+    //        console.error("Error fetching next index: ", error);
+    //    }
+    //}
 
-            return nextIndex;
-        } catch (error) {
-            console.error("Error fetching next index: ", error);
-        }
-    }
-
-    getNextIndex().then(index => {
-        $(ids.generatedID).val(index);
-    });
+    //getNextIndex().then(index => {
+    //    $(ids.generatedID).val(index);
+    //});
 
 
     // ============================
@@ -211,9 +211,9 @@
             data: formData,
             success: function (response) {
                 if (response.success) {
-                    alert('Team saved successfully!');
+                    fetchTeamList();
                 } else {
-                    alert('Error: ' + response.message);
+                   
                 }
             },
             error: function (xhr) {
@@ -250,6 +250,7 @@
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const data = await response.json();
+            showDev(data);
             renderTeamCards(data); // <-- render cards on page
             return data;
         } catch (error) {
@@ -265,30 +266,64 @@
             return;
         }
 
+        // Clear previous content
         container.innerHTML = '';
 
-        teams.forEach(team => {
-            const card = document.createElement('div');
-            card.className = 'col-xl-3 col-lg-4 col-md-6 mb-4';
+        teams.forEach(function (team) {
+            // Build the inner HTML for team members
+            let membersHtml = '';
+            if (team.teamMemberName && team.teamMemberName.length > 0) {
+                team.teamMemberName.forEach(function (memberName) {
+                    membersHtml += `
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-user me-2 pb-2"></i>
+                        <span class="fw-semibold">${memberName}</span>
+                    </div>
+                `;
+                });
+            }
 
-            const memberBadges = team.teamMemberName.map(name =>
-                `<span class="badge bg-primary me-1 mb-1">${name}</span>`).join(' ');
-
-            card.innerHTML = `
-            <div class="card shadow-sm border-0 h-100 hover-shadow">
-                <div class="card-body d-flex flex-column">
-                    <div class="mb-2 text-muted small">Team #${team.teamID}</div>
-                    <h5 class="card-title fw-bold">${team.teamGID}</h5>
-                    <div class="mt-3">${memberBadges}</div>
+            // Build the full card HTML
+            const teamHtml = `
+            <div class="col-sm-12 col-md-6 col-xl-3 mt-4">
+                <div class="card h-100" style="max-width: 20rem; height: 100%;">
+                    <div class="card-body d-flex flex-column p-3" style="height: 268px;">
+                        <a href="#" class="text-warning fw-bold text-center h5 text-decoration-none mb-2 addTeam-edit"
+                           data-teamid="${team.teamID}"
+                           title="Click for Edit Team">
+                            <i class="fas fa-edit"></i> &nbsp;<span>${team.teamName}</span> &nbsp;<span>(${team.teamGID})</span> 
+                        </a>
+                        <hr class="my-2" />
+                        <div class="overflow-auto flex-grow-1">
+                            ${membersHtml}
+                        </div>
+                        <a  href="/TeamDetails/index/${team.teamID}" class="btn btn-outline-primary rounded-pill btn-sm w-100 viewDetailsBtn">View Details</a>
+                    </div>
                 </div>
             </div>
         `;
-            container.appendChild(card);
+
+            // Append the card
+            container.innerHTML += teamHtml;
+
         });
     }
 
-    // Call the fetch function
+    // ===========================
+    // edit Team Name and members
+    // ===========================
+    $(document).on("click", ".addTeam-edit", async function (e) {
+        e.preventDefault();
+        let id = $(this).data("teamid");
+        const response = await fetch(`/AddTeams/GetIndivudialTeamDetails?id=${id}`);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const result = await response.json();
+        $(ids.teamName).val(result.teamName);
+        showDev(result.teamName);
+    });
+
+
+
     fetchTeamList();
-
-
 });
