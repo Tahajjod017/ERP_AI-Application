@@ -94,12 +94,12 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
                 if (model.EmployeePicture != null)
                 {
-                     EmployeeImageFileName = await _imageFileHandlerService.SaveFileAsync(model.EmployeePicture, "uploads/employee/images" , true);
+                     EmployeeImageFileName = await _imageFileHandlerService.SaveFileAsync(model.EmployeePicture, "media/employee/images", true);
                 }
 
                 if (model.Signature != null)
                 {
-                     EmployeeSignatureFileName = await _imageFileHandlerService.SaveFileAsync(model.Signature, "uploads/employee/signatures");
+                     EmployeeSignatureFileName = await _imageFileHandlerService.SaveFileAsync(model.Signature, "media/employee/signatures");
                 }
                 
                 
@@ -616,6 +616,64 @@ namespace GCTL.Service.Employees.EmployeePersonal
         #endregion
 
 
+
+        #region GetEmployees
+        public async Task<PaginatedResult<CommonSelectVM>> GetEmployees(string search, int page = 1, int pageSize = 50, bool hasEmployeePermission = false, int? empId = null)
+        {
+            var query = _employeePersonalRepository.AllActive().AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x => x.FirstName.Contains(search) || x.LastName.Contains(search));
+            }
+
+            if (!hasEmployeePermission && empId != null)
+            {
+                query = query.Where(x => x.EmployeeID == empId);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(x => x.FirstName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.EmployeeID,
+                    Name = $"{x.FirstName} {x.LastName}"
+                })
+                .ToListAsync();
+
+            return new PaginatedResult<CommonSelectVM>
+            {
+                Items = items,
+                HasMore = (page * pageSize) < totalCount
+            };
+        }
+
+        public async Task<CommonSelectVM> GetEmployeeById(int id)
+        {
+            var employee = await _employeePersonalRepository.AllActive()
+                .AsNoTracking()
+                .Where(x => x.EmployeeID == id)
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.EmployeeID,
+                    Name = $"{x.FirstName} {x.LastName}"
+                })
+                .FirstOrDefaultAsync();
+            if (employee != null)
+            {
+                return employee;
+            }
+            else
+            {
+               return new CommonSelectVM();
+            }
+            
+        }
+        #endregion
 
 
     }

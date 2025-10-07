@@ -132,13 +132,15 @@
     //#endregion
 
 
-   
+
 
     //#region Submit Form
 
-   
 
-    $('form').on('submit', function (e) {
+
+    // $('form').on('submit', function (e) {
+
+    $('#additionalForm').on('submit', function (e) {
         e.preventDefault();
 
         const fields = [ "EmployeePersonalId", "PasportName", "PasportNo", "DrivingLicenceNo", "SymbolOfVehicleClass" ];

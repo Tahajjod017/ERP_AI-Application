@@ -17,5 +17,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
         Task<EmployeePersonalGetViewModel> GetEmployeePersonalById(int id);
 
         Task<IEnumerable<EmployeePersonalGetViewModel>> GetAllEmployeePersonalByCompanyAsync(int compId);
+        Task<PaginatedResult<CommonSelectVM>> GetEmployees(string search, int page = 1, int pageSize = 50, bool hasEmployeePermission = false, int? empId = null);
+        Task<CommonSelectVM> GetEmployeeById(int id);
     }
 }

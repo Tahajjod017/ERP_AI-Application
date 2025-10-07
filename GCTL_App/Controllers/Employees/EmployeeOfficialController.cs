@@ -181,19 +181,19 @@ namespace GCTL_App.Controllers.Employees
             );
 
             ViewBag.SeniorSupervisorDD = new SelectList(
-                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Take(50).Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
 
             ViewBag.ImmediateSupervisorDD = new SelectList(
-                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Take(50).Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
 
             ViewBag.HeadOfDepartmentDD = new SelectList(
-                _employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
+                _employeeRepository.AllActive().Take(50).Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }),
                 "EmployeeID",
                 "FullName"
             );
@@ -491,36 +491,82 @@ namespace GCTL_App.Controllers.Employees
             return Ok(a);
         }
 
+
+
+        [Route("EmployeeOfficial/GetEmployeeSupDDbyComp")]
         [HttpGet]
-        public IActionResult GetEmployeeSupDDbyComp(int id, int empID)
+        public async Task<IActionResult> GetEmployeeSupDDbyComp(int id, int empID, string search = "", int page = 1, int pageSize = 50)
         {
+            try
+            {
+                var query = from emp in _employeeRepository.AllActive()
+                            join office in _employeeOfficialRepository.AllActive()
+                                on emp.EmployeeID equals office.EmployeeID into officeJoin
+                            from official in officeJoin.DefaultIfEmpty()
+                            where emp.EmployeeID != empID
+                                  && (official == null || official.OrganizationID == id)
+                                  && (string.IsNullOrEmpty(search) || (emp.FirstName + " " + emp.LastName).Contains(search, StringComparison.OrdinalIgnoreCase))
+                            select new
+                            {
+                                value = emp.EmployeeID,
+                                label = emp.FirstName + " " + emp.LastName
+                            };
+
+                var totalCount = await query.CountAsync();
+                var employeeList = await query
+                                .Skip((page - 1) * pageSize)
+                                .Take(pageSize)
+                                .ToListAsync();
+
+                return Ok(new
+                {
+                    items = employeeList,
+                    hasMore = totalCount > (page * pageSize)
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log exception
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult GetEmployeeHOD(int id, string search = "", int page = 1, int pageSize = 50)
+        {
+            try
+            {
+                var employees = (from office in _employeeOfficialRepository.AllActive()
+                                 join emp in _employeeRepository.AllActive()
+                                     on office.EmployeeID equals emp.EmployeeID
+                                 where office.DepartmentID == id
+                                       && (string.IsNullOrEmpty(search) || (emp.FirstName + " " + emp.LastName).Contains(search, StringComparison.OrdinalIgnoreCase))
+                                 select new
+                                 {
+                                     value = emp.EmployeeID,
+                                     label = emp.FirstName + " " + emp.LastName
+                                 })
+                            .Skip((page - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToList();
+
+                var totalCount = _employeeOfficialRepository.AllActive()
+                    .Count(e => e.DepartmentID == id);
+
+                return Ok(new
+                {
+                    items = employees,
+                    hasMore = totalCount > (page * pageSize)
+                });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
            
-
-
-            var employeeList = (from emp in _employeeRepository.AllActive()
-                                join office in _employeeOfficialRepository.AllActive()
-                                    on emp.EmployeeID equals office.EmployeeID into officeJoin
-                                from official in officeJoin.DefaultIfEmpty()
-                                where emp.EmployeeID != empID
-                                      && (official == null || official.OrganizationID == id)
-                                select new
-                                {
-                                    id = emp.EmployeeID,
-                                    FullName = emp.FirstName + " " + emp.LastName,
-                                    
-                                }).ToList();
-            return Ok(employeeList);
         }
 
-        [HttpGet]
-        public IActionResult GetEmployeeHOD(int id)
-        {
-
-            var a = _departmentRepository.AllActive().Where(e=>e.DepartmentID == id).Select(u=>u.DepartmentHeadEmpID).FirstOrDefault();
-
-
-            return Ok(a);
-        }
 
         #endregion
     }
