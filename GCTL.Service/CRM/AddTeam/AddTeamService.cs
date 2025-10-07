@@ -183,9 +183,13 @@ namespace GCTL.Service.CRM.AddTeam
                     TeamID = t.LeadProjectTeamID,
                     TeamGID = t.LPTeamGID,
                     TeamName = t.LeadProjectTeamName,
-                    TeamMemberName = t.LeadProjectTeamMembers
-                                       .Select(m => $"{m.Employee.FirstName} {m.Employee.LastName}")
-                                       .ToList()
+                    TeamDetails = t.LeadProjectTeamMembers
+                            .Select(m => new TeamDetailsItemVM
+                            {
+                                TeamMemberName = $"{m.Employee.FirstName} {m.Employee.LastName}",
+                                IsTeamHead = m.IsTeamHead,
+                            })
+                            .ToList()
                 })
                 .ToListAsync();
 
@@ -209,9 +213,13 @@ namespace GCTL.Service.CRM.AddTeam
                         TeamID = t.LeadProjectTeamID,
                         TeamGID = t.LPTeamGID,
                         TeamName = t.LeadProjectTeamName,
-                        TeamMemberName = t.LeadProjectTeamMembers
-                                       .Select(m => $"{m.Employee.FirstName} {m.Employee.LastName}")
-                                       .ToList()
+                        TeamDetails = t.LeadProjectTeamMembers
+                            .Select(m => new TeamDetailsItemVM
+                            {
+                                TeamMemberName = $"{m.Employee.FirstName} {m.Employee.LastName}",
+                                IsTeamHead = m.IsTeamHead,
+                            })
+                            .ToList()
                     })
                     .FirstOrDefaultAsync();
                 return result;

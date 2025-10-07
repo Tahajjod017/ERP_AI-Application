@@ -251,7 +251,7 @@
 
             const data = await response.json();
             showDev(data);
-            renderTeamCards(data); // <-- render cards on page
+            renderTeamCards(data);
             return data;
         } catch (error) {
             console.error('Error fetching teams:', error);
@@ -266,24 +266,28 @@
             return;
         }
 
-        // Clear previous content
         container.innerHTML = '';
 
+        // Loop through all teams
         teams.forEach(function (team) {
-            // Build the inner HTML for team members
             let membersHtml = '';
-            if (team.teamMemberName && team.teamMemberName.length > 0) {
-                team.teamMemberName.forEach(function (memberName) {
+
+            if (team.teamDetails && team.teamDetails.length > 0) {
+                team.teamDetails.forEach(function (member) {
+                    const headLabel = member.isTeamHead
+                        ? '<span class="badge bg-success ms-2">Team Head</span>'
+                        : '';
+
                     membersHtml += `
                     <div class="d-flex align-items-center mb-2">
                         <i class="fas fa-user me-2 pb-2"></i>
-                        <span class="fw-semibold">${memberName}</span>
+                        <span class="fw-semibold">${member.teamMemberName}</span>
+                        ${headLabel}
                     </div>
                 `;
                 });
             }
 
-            // Build the full card HTML
             const teamHtml = `
             <div class="col-sm-12 col-md-6 col-xl-3 mt-4">
                 <div class="card h-100" style="max-width: 20rem; height: 100%;">
@@ -297,17 +301,16 @@
                         <div class="overflow-auto flex-grow-1">
                             ${membersHtml}
                         </div>
-                        <a  href="/TeamDetails/index/${team.teamID}" class="btn btn-outline-primary rounded-pill btn-sm w-100 viewDetailsBtn">View Details</a>
+                        <a href="/TeamDetails/index/${team.teamID}" class="btn btn-outline-primary rounded-pill btn-sm w-100 viewDetailsBtn">View Details</a>
                     </div>
                 </div>
             </div>
         `;
 
-            // Append the card
             container.innerHTML += teamHtml;
-
         });
     }
+
 
     // ===========================
     // edit Team Name and members
@@ -320,10 +323,7 @@
 
         const result = await response.json();
         $(ids.teamName).val(result.teamName);
-        showDev(result.teamName);
     });
-
-
 
     fetchTeamList();
 });

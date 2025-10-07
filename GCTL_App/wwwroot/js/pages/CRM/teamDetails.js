@@ -43,6 +43,11 @@
                         <input type="hidden" class="TeamID" value="${result.teamID}" />
                         <input type="hidden" class="EmployeeID" value="${member.employeeID}" />
 
+                        <span class="badge ${member.isTeamHead == true ? "bg-success" : "bg-secondary"}">
+                            ${member.isTeamHead == true ? "Team Leader" : "Member"}
+                        </span>
+                       
+
                         <div class="col-12 col-xxl-auto"> 
                             <div class="avatar avatar-5xl d-flex align-items-center">
                                 <img class="rounded-circle" src="${member.profileImage}" alt="Employee Photo" style="width:80px; height:80px; object-fit:cover;" />
@@ -87,7 +92,7 @@
                 if (!response.ok) throw console.log("Network response was not ok");
 
                 const result = await response.json();
-                toastr.success(result.message);
+                customToaster.success(result.message);
                 GetTeamDetails();
             }
             else customToaster.error("Cancelled!");
