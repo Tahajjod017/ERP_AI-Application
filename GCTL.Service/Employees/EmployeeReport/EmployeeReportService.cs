@@ -168,8 +168,8 @@ namespace GCTL.Service.Employees.EmployeeReport
 
                                         row.RelativeItem(45).AlignRight().Height(90).Image(
                                              !string.IsNullOrEmpty(personal?.EmployeeImageFileName)
-                                                 ? System.IO.File.ReadAllBytes($"wwwroot/uploads/employee/images/{personal.EmployeeImageFileName}")
-                                                 : System.IO.File.ReadAllBytes("wwwroot/uploads/employee/images/MdShefain.jpg")
+                                                 ? System.IO.File.ReadAllBytes($"wwwroot/media/employee/images/{personal.EmployeeImageFileName}")
+                                                 : System.IO.File.ReadAllBytes("wwwroot/media/employee/No_image_available.svg.png")
                                          ).FitArea();
                                     });
                                 });

@@ -48,7 +48,7 @@ namespace GCTL.Service.FileHandler
                 companyImage = company.LogoLink;
             }
 
-            imagePath = "wwwroot/uploads/company/logo/" + companyImage;
+            imagePath = "wwwroot/media/company/logo/" + companyImage;
             bool imageExists = !string.IsNullOrEmpty(companyImage) && File.Exists(imagePath);
 
             if (showOnce)
