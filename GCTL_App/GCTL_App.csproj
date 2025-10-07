@@ -39,6 +39,7 @@
     <Folder Include="Views\AddTeams\" />
     <Folder Include="wwwroot\img\companyImages\" />
     <Folder Include="wwwroot\js\pages\ProjectManagements\" />
+    <Folder Include="wwwroot\media\costomTosterImg\" />
 
   </ItemGroup>
 

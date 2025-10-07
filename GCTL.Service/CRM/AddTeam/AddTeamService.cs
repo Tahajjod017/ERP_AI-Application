@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.AddTeam;
 using GCTL.Core.ViewModels.MasterSetup.Grade;
@@ -200,7 +201,7 @@ namespace GCTL.Service.CRM.AddTeam
         
         #region Get Indivudial Team Details
         // for add Team page
-        public async Task<TeamViewVM> IndivudialIteamDetails(int id)
+        public async Task<TeamEditVM> IndivudialIteamDetails(int id)
         {
             try
             {
@@ -208,29 +209,25 @@ namespace GCTL.Service.CRM.AddTeam
                     .Include(t => t.LeadProjectTeamMembers)
                     .ThenInclude(m => m.Employee)
                     .Where(t => t.LeadProjectTeamID == id)
-                    .Select(t => new TeamViewVM
+                    .Select(t => new TeamEditVM
                     {
                         TeamID = t.LeadProjectTeamID,
-                        TeamGID = t.LPTeamGID,
                         TeamName = t.LeadProjectTeamName,
-                        TeamDetails = t.LeadProjectTeamMembers
-                            .Select(m => new TeamDetailsItemVM
-                            {
-                                TeamMemberName = $"{m.Employee.FirstName} {m.Employee.LastName}",
-                                IsTeamHead = m.IsTeamHead,
-                            })
-                            .ToList()
+                        TeamMembersInfo = t.LeadProjectTeamMembers.Select(t => new PertialEditVM
+                        {
+                            TeamMemberID = t.Employee.EmployeeID,
+                            TeamMemberName = $"{t.Employee.FirstName} {t.Employee.LastName}"
+                        }).ToList()
                     })
                     .FirstOrDefaultAsync();
                 return result;
             }
             catch (Exception ex)
             {
-                return new TeamViewVM { };
+                return new TeamEditVM { };
             }
         }
         #endregion
-
 
         #region Get Single Team Information 
         //for team details page
@@ -273,7 +270,6 @@ namespace GCTL.Service.CRM.AddTeam
 
         #endregion
 
-
         #region Set Team Head
         public async Task<ReturnView> SetTeamHead(TeamHeadVM teamHeadVM)
         {
@@ -312,6 +308,20 @@ namespace GCTL.Service.CRM.AddTeam
             
         }
         #endregion
+
+
+        //public async Task<List<CommonSelectVM>> GetEmployeesByIds(List<int> ids)
+        //{
+        //    return await _employeeRepository.All()
+        //        .Where(e => ids.Contains(e.EmployeeID))
+        //        .Select(e => new CommonSelectVM
+        //        {
+        //            Id = e.EmployeeID,
+        //            Name = e.FirstName + e.LastName,
+        //        })
+        //        .ToListAsync();
+        //}
+
     }
 }
 

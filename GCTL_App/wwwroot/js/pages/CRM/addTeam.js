@@ -1,6 +1,7 @@
 ﻿$(function () {
 
     let ids = {
+        teamID: '#TeamID',
         generatedID: '#GeneratedID',
         submitBtn: '#CreateTeamBtn',
         employeeDrpdn: '#EmployeeIds',
@@ -8,25 +9,6 @@
         employeeIDs: '#EmployeeIds',
         resultShowDiv: '#teamsDiv',
     }
-
-
-    //async function getNextIndex() {
-    //    try {
-    //        const response = await fetch('/AddTeams/GetLastIndexNumber');
-    //        if (!response.ok) throw new Error('Network response was not ok');
-
-    //        const nextIndex = await response.json();
-            
-    //        return nextIndex;
-    //    } catch (error) {
-    //        console.error("Error fetching next index: ", error);
-    //    }
-    //}
-
-    //getNextIndex().then(index => {
-    //    $(ids.generatedID).val(index);
-    //});
-
 
     // ============================
     // load employee
@@ -201,6 +183,7 @@
     //==========================
     $(ids.submitBtn).on('click', function () {
         let formData = {
+            TeamID: $(ids.teamID).val(),
             TeamName: $(ids.teamName).val(),
             EmployeeIds: $(ids.employeeIDs).val()
         };
@@ -315,15 +298,49 @@
     // ===========================
     // edit Team Name and members
     // ===========================
+    //$(document).on("click", ".addTeam-edit", async function (e) {
+    //    e.preventDefault();
+    //    let id = $(this).data("teamid");
+    //    const response = await fetch(`/AddTeams/GetIndivudialTeamDetails?id=${id}`);
+    //    if (!response.ok) throw new Error('Network response was not ok');
+    //    const result = await response.json();
+    //    showDev(result);
+    //    $(ids.teamName).val(result.teamName);
+    //    showDev(result.teamMemberIDs);
+    //    $('#EmployeeIds').val(result.teamMemberIDs).each(function () {
+    //        coreui.MultiSelect.getInstance('#EmployeeIds')?.update();
+    //    });
+    //});
+
+
     $(document).on("click", ".addTeam-edit", async function (e) {
         e.preventDefault();
+        // Reset page for MultiSelect
+        page = 1;       // first page
+        hasMore = true; // allow loading more
+        term = '';      // clear search term
         let id = $(this).data("teamid");
+
         const response = await fetch(`/AddTeams/GetIndivudialTeamDetails?id=${id}`);
         if (!response.ok) throw new Error('Network response was not ok');
-
         const result = await response.json();
+        showDev(result);
+        // Set team name
         $(ids.teamName).val(result.teamName);
+        $(ids.employeeIDs).empty();
+        result.teamMembersInfo.forEach(member => {
+            const opt = new Option(member.teamMemberName, member.teamMemberID, true, true);
+            $(ids.employeeIDs).append(opt);
+        });
+        const selectedIds = result.teamMembersInfo.map(m => m.teamMemberID.toString());
+        $(ids.employeeIDs).val(selectedIds);
+        ms.update();
+
+        fetchPage({ append: false, keepSelected: true });
+
+
     });
+
 
     fetchTeamList();
 });
