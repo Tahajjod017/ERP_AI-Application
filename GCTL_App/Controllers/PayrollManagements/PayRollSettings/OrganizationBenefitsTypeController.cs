@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels.PayrollManagements.PayRollOrganizationBenefitsType;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmpAllowanceOrganization;
+using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.EmpAllowanceTypeOrgaization;
 using GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType;
@@ -14,9 +15,11 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
     public class OrganizationBenefitsTypeController : BaseController
     {
         private IPayRollOrgaBenefitsTypeService payRollOrgaBenefitsTypeService;
-        public OrganizationBenefitsTypeController(ITranslateService translateService, IUserProfileService userProfileService, IPayRollOrgaBenefitsTypeService payRollOrgaBenefitsTypeService) : base(translateService, userProfileService)
+        private readonly IUserInfoService userInfoService;
+        public OrganizationBenefitsTypeController(ITranslateService translateService, IUserProfileService userProfileService, IPayRollOrgaBenefitsTypeService payRollOrgaBenefitsTypeService, IUserInfoService userInfoService) : base(translateService, userProfileService)
         {
             this.payRollOrgaBenefitsTypeService = payRollOrgaBenefitsTypeService;
+            this.userInfoService = userInfoService;
         }
 
         public async Task<IActionResult> Index()
@@ -125,6 +128,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                await userInfoService.ActionLogExceptionAsync("Organization Benefit", ex, id, ActionName.Error);
                 return BadRequest(new
                 {
                     Success = false,

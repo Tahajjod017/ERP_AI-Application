@@ -42,7 +42,7 @@ namespace GCTL.Service.Employees.EmployeeBenifit
         }
 
 
-
+        #region sheafain 
         public async Task<EmployeeBenifitPostViewModel> GetEmployeeBenefitsAsync(string employeeId)
         {
             if (!int.TryParse(employeeId, out var id))
@@ -107,100 +107,19 @@ namespace GCTL.Service.Employees.EmployeeBenifit
             
         }
 
-        public async Task<CommonReturnViewModel> SaveOrUpdateEmployeeBenefitsAsync(EmployeeBenifitPostViewModel model)
-        {
-            try
-            {
-                var existingBenefit = await _employeeBenifitRepository.AllActive()
-                .FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeePersonalId);
+   
 
-                if (existingBenefit == null)
-                {
-
-                    var newBenefit = new EmployeeBaseBenefits
-                    {
-                        //EmployeeBaseBenefitID = model.EmployeeBaseBenefitID,
-                        EmployeeID = model.EmployeePersonalId,
-
-                     
-                    };
+        #endregion
 
 
-                    var empSalary = await _employeeSalaryRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeePersonalId);
-
-                    if (empSalary == null)
-                    {
-                        empSalary = new EmployeeSalarySettings()
-                        {
-                            EmployeeID = model.EmployeePersonalId,
-                            IsBenefitsEnabled = model.IsBenifitEnabled,
-                          
-                        };
-                        await _employeeSalaryRepository.AddAsync(empSalary, model);
-                    }
-                    else
-                    {
-                        empSalary.IsBenefitsEnabled = model.IsBenifitEnabled;
-                        await _employeeSalaryRepository.UpdateAsync(empSalary, model);
-                    }
-
-                    EntityHelper.Create(newBenefit, model);
-
-                    await _employeeBenifitRepository.AddAsync(newBenefit);
-                }
-                else
-                {
-                  
-                
-
-                    var empSalary = await _employeeSalaryRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == model.EmployeePersonalId);
-
-                    if (empSalary == null)
-                    {
-                        empSalary = new EmployeeSalarySettings()
-                        {
-                            EmployeeID = model.EmployeePersonalId,
-                            IsBenefitsEnabled = model.IsBenifitEnabled,
-                           
-                        };
-                        await _employeeSalaryRepository.AddAsync(empSalary, model);
-                    }
-                    else
-                    {
-                        empSalary.IsBenefitsEnabled = model.IsBenifitEnabled;
-                        await _employeeSalaryRepository.UpdateAsync(empSalary , model);
-                    }
-
-                    EntityHelper.Update(existingBenefit, model);
-
-                    await _employeeBenifitRepository.UpdateAsync(existingBenefit);
-                }
-
-                return new CommonReturnViewModel()
-                {
-                    Success = true,
-                    Message = "Employee benefits saved successfully.",
-                    Data = model.EmployeePersonalId
-                };
-            }
-            catch (Exception ex)
-            {
-                return new CommonReturnViewModel()
-                {
-                    Success = false,
-                    Message = ex.Message
-                };
-            }
-            
-            
-        }
-
-
+        #region Save Update
 
         public async Task<CommonReturnViewModel> SaveOrUpdateEmployeeBenefitsAsync1(EmployeeBenifitPostViewModel22 model)
         {
+            bool isUpdated = false;
+            bool isInserted = false;
             try
-            {
+            { 
                 foreach (var benefit in model.Benefits)
                 {
                     var existing = await _employeeBenifitRepository.AllActive()
@@ -209,13 +128,14 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                     if (existing != null)
                     {
                         // Update
-                        existing.CalculationTypeID = benefit.CalculationTypeID;
-                        existing.BenefitValue = benefit.Value;
+                        existing.CalculationTypeID = benefit.BaseCalculationTypeID;
+                        existing.BenefitValue = benefit.BaseValue;
                         existing.LIP = model.LIP;
                         existing.LMAC = model.LMAC;
                         existing.UpdatedAt = DateTime.UtcNow;
                         existing.UpdatedBy = model.UpdatedBy;
                         await _employeeBenifitRepository.UpdateAsync(existing);
+                        isUpdated = true;
                     }
                     else
                     {
@@ -224,17 +144,18 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                         {
                             EmployeeID = model.EmployeeId,
                             BenefitID = benefit.BenefitID,
-                            CalculationTypeID = benefit.CalculationTypeID,
-                            BenefitValue = benefit.Value,
+                            CalculationTypeID = benefit.BaseCalculationTypeID,
+                            BenefitValue = benefit.BaseValue,
                             IsBenifitEnabled = true,
-                            LIP= model.LIP,
-                            LMAC=model.LMAC,
-                            CreatedAt=DateTime.UtcNow,
-                            CreatedBy=model.CreatedBy,
-                           
-                          
+                            LIP = model.LIP,
+                            LMAC = model.LMAC,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = model.CreatedBy,
+
+
                         };
                         await _employeeBenifitRepository.AddAsync(newBenefit);
+                        isInserted = true;
                     }
                 }
             }
@@ -243,15 +164,24 @@ namespace GCTL.Service.Employees.EmployeeBenifit
                 await userInfoService.ActionLogExceptionAsync("Employee Benefit", ex, 0, ActionName.Error);
                 throw;
             }
-            
 
-          
+            string message;
+            if (isUpdated && !isInserted)
+                message = "Updated successfully.";
+            else if (isInserted && !isUpdated)
+                message = "Saved successfully.";
+            else if (isUpdated && isInserted)
+                message = "Saved and updated successfully.";
+            else
+                message = "No changes made.";
             return new CommonReturnViewModel
             {
                 Success = true,
-                Message = "Benefits saved successfully."
+                Message = message
             };
         }
+        #endregion
+
 
 
         public async Task<List<CommonSelectVMMM>> SelectAsync(int id)
@@ -259,52 +189,79 @@ namespace GCTL.Service.Employees.EmployeeBenifit
             List<CommonSelectVMMM> result = new List<CommonSelectVMMM>();
             try
             {
-                var orgaid = await _employeeOfficialRepository.AllActive()
-                    .Where(x => x.EmployeeID == id)
-                    .Select(x => x.OrganizationID)
-                    .FirstOrDefaultAsync();
+                var orgaid = await _employeeOfficialRepository.AllActive().Where(x => x.EmployeeID == id).Select(x => x.OrganizationID).FirstOrDefaultAsync();
 
-                var employeeSalary = await _employeeSalaryRepository.AllActive()
-                    .Where(x => x.EmployeeID == id)
-                    .Select(x => x.Salary)
-                    .FirstOrDefaultAsync();
+                var employeeSalary = await _employeeSalaryRepository.AllActive() .Where(x => x.EmployeeID == id).Select(x => x.Salary).FirstOrDefaultAsync();
 
-                var benefitTypes = await benefitTypesRepository
-                    .AllActive()
-                    .Where(x => x.OrganizationID == orgaid && x.IsApplyOnGrossSalary == true)
-                    .ToListAsync();
+                var benefitTypes = await benefitTypesRepository.AllActive().Where(x => x.OrganizationID == orgaid && x.IsApplyOnGrossSalary == true).ToListAsync();
 
-                var benefits = await this.benefits
-                    .AllActive()
-                    .Include(b => b.BenefitSetups)
-                    .Include(b => b.BenefitType)
-                    .Where(b => b.OrganizationID == orgaid)
-                    .ToListAsync();
+                var benefits = await this.benefits.AllActive().Include(b => b.BenefitSetups).Include(b => b.BenefitType).Where(b => b.OrganizationID == orgaid).ToListAsync();
 
-                result = benefitTypes.Select(bt => new CommonSelectVMMM
-                {
-                    Id = bt.BenefitTypeID,
-                    Name = bt.BenefitTypeName,
-                    EmpBenefitVMM = benefits
-                        .Where(b => b.BenefitTypeID == bt.BenefitTypeID)
-                        .Select(b =>
-                        {
-                            var matchedSetup = b.BenefitSetups
-                                .FirstOrDefault(s => s.SalaryMin <= employeeSalary && s.SalaryMax >= employeeSalary);
+                var empBasebenefit = await _employeeBenifitRepository.AllActive().Where(x=>x.EmployeeID==id)
+      .Select(x => new
+      {
+          BenefitID = x.BenefitID,
+          CalculationTypeID = x.CalculationTypeID,
+          BenefitValue = x.BenefitValue,
+      }).ToListAsync();
 
-                            return new EmpBenefitVMMM
-                            {
-                                BenefitID = b.BenefitID,
-                                OrganizationID = b.OrganizationID,
-                                CalculationTypeID = matchedSetup?.CalculationTypeID ?? 0,
-                                Value = matchedSetup?.Value ?? 0
-                            };
 
-                        }).ToList()
-                }).ToList();
+                //result = benefitTypes.Select(bt => new CommonSelectVMMM
+                //{
+                //    Id = bt.BenefitTypeID,
+                //    Name = bt.BenefitTypeName,
+                //    EmpBenefitVMM = benefits
+                //        .Where(b => b.BenefitTypeID == bt.BenefitTypeID)
+                //        .Select(b =>
+                //        {
+                //            var matchedSetup = b.BenefitSetups.FirstOrDefault(s => s.SalaryMin <= employeeSalary && s.SalaryMax >= employeeSalary);
+                //            var baseBenefit = empBasebenefit.FirstOrDefault(x => x.BenefitID == b.BenefitID);
+
+                //            return new EmpBenefitVMMM
+                //            {
+                //                OrganizationID = b.OrganizationID,
+                //                BenefitID = b.BenefitID,
+                //                CalculationTypeID = matchedSetup?.CalculationTypeID ?? 0,
+                //                Value = matchedSetup?.Value ?? 0,
+                //                // base benefit
+                //                BaseBenefitID = baseBenefit?.BenefitID ?? b.BenefitID,
+                //                BaseCalculationTypeID = baseBenefit?.CalculationTypeID ?? (matchedSetup?.CalculationTypeID ?? 0),
+                //                BaseValue = baseBenefit?.BenefitValue ?? (matchedSetup?.Value ?? 0),
+                //            };
+
+                //        }).ToList()
+                //}).ToList();
+
+
+     result = benefits.Where(b => benefitTypes.Any(bt => bt.BenefitTypeID == b.BenefitTypeID)) .GroupBy(b => new { b.BenefitTypeID, b.BenefitType.BenefitTypeName })
+    .Select(g => new CommonSelectVMMM
+    {
+        Id = g.Key.BenefitTypeID,
+        Name = g.Key.BenefitTypeName,
+        EmpBenefitVMM = g.Select(b =>
+        {
+            var matchedSetup = b.BenefitSetups
+                .FirstOrDefault(s => s.SalaryMin <= employeeSalary && s.SalaryMax >= employeeSalary);
+            var baseBenefit = empBasebenefit.FirstOrDefault(x => x.BenefitID == b.BenefitID);
+
+            return new EmpBenefitVMMM
+            {
+                OrganizationID = b.OrganizationID,
+                BenefitID = b.BenefitID,
+                CalculationTypeID = matchedSetup?.CalculationTypeID ?? 0,
+                Value = matchedSetup?.Value ?? 0,
+                BaseBenefitID = baseBenefit?.BenefitID ?? b.BenefitID,
+                BaseCalculationTypeID = baseBenefit?.CalculationTypeID ?? (matchedSetup?.CalculationTypeID ?? 0),
+                BaseValue = baseBenefit?.BenefitValue ?? (matchedSetup?.Value ?? 0),
+            };
+        }).ToList()
+    }) .ToList();
+
 
                 return result;
             }
+
+
             catch (Exception ex)
             {
                 await userInfoService.ActionLogExceptionAsync("Employee Benefit", ex, id, ActionName.Error);
