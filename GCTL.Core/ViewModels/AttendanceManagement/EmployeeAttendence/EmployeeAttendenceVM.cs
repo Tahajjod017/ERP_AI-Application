@@ -23,6 +23,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence
         public string? ShiftStartTime { get; set; }
 
         public string? CheckInTime { get; set; }
+        public bool HasCheckIn { get; set; }
         public string? CheckInShiftTime { get; set; } // 
 
         public string? CheckOutTime { get; set; }
@@ -53,14 +54,19 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence
         public string? ProductionTime { get; set; }  // Calculated production time (CheckInTime to CurrentTime)
         public string? ProductionTimeMinute { get; set; }  // Calculated production time (CheckInTime to CurrentTime)
         public string? Overtime { get; set; }        // Calculated overtime if the production time exceeds working hours
-
+        public string? EarlyStartTime { get; set; } // Calculated early start time if CheckInTime is before ShiftStartTime
         public List<SessionData>? SessionTimeline { get; set; }
-
+        // "HH:mm" strings used by the client timeline labels
+       // public string ShiftStartTime { get; set; } = "-";
+        public string TimelineStartTime { get; set; } = "-";
     }
     public class SessionData
     {
         public string? Type { get; set; }
+        public int DurationMinutes { get; set; }
         public string? Duration { get; set; }
         public string? Percentage { get; set; }
+        public string StartLocal { get; set; } = "";        // "HH:mm"
+        public string EndLocal { get; set; } = "";
     }
 }

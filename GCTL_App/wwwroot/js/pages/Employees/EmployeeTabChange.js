@@ -1,5 +1,7 @@
 ﻿//#region Jump Tab
 
+
+
 //const { ajax } = require("jquery");
 
 $(document).ready(function () {
@@ -9,6 +11,9 @@ $(document).ready(function () {
         
         TabChange(lastInt);
     }
+
+    
+
 
     ShowTabToAdmin();
 

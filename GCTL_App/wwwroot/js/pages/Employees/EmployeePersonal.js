@@ -1,4 +1,6 @@
-﻿$(document).ready(function () {
+﻿
+
+$(document).ready(function () {
 
 
     //#region Validation
@@ -89,16 +91,19 @@
 
         if (!firstName) {
             showError("firstName", "First Name is required.");
+            toastr.warning("firstName", "First Name is required.");
             valid = false;
         }
 
         if (!lastName) {
             showError("lastName", "Last Name is required.");
+            toastr.warning("lastName", "Last Name is required.");
             valid = false;
         }
 
         if (!email) {
             showError("personalEmail", "Email is required.");
+            toastr.warning("personalEmail", "Email is required.");
             valid = false;
         } else if (!isValidEmail(email)) {
             showError("personalEmail", "Invalid email format.");
@@ -107,6 +112,7 @@
 
         if (!mobile) {
             showError("personalMobile", "Mobile number is required.");
+            toastr.warning("personalMobile", "Mobile number is required.");
             valid = false;
         }
 

@@ -13,30 +13,43 @@ using GCTL.Core.Helpers;
 using Microsoft.Identity.Client;
 using GCTL_App.ViewModels.PayRollManagements.PayRollPolicy;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM;
+using GCTL.Core.Helpers.CommonSelectMasterDropDown;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 {
     public class EmployeeBenefitsController : BaseController
     {
-        private readonly IGenericRepository<Organization> organization;
+       
         private readonly IGenericRepository<SalaryTypes> salaryTypes;
         private readonly IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes;
         private IEmployeeBenefitsService employeeBenefitsService;
         private readonly IGenericRepository<Percentages> percentagesService;
-        public EmployeeBenefitsController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organization, IGenericRepository<SalaryTypes> salaryTypes, IEmployeeBenefitsService employeeBenefitsService, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes, IGenericRepository<Percentages> percentagesService) : base(translateService, userProfileService)
+        private readonly ICommonDroDownService commonDroDownService;
+        public EmployeeBenefitsController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<SalaryTypes> salaryTypes, IEmployeeBenefitsService employeeBenefitsService, IGenericRepository<YearlyEndBonusTypes> yearlyEndBonusTypes, IGenericRepository<Percentages> percentagesService, ICommonDroDownService commonDroDownService) : base(translateService, userProfileService)
         {
-            this.organization = organization;
+           
             this.salaryTypes = salaryTypes;
             this.employeeBenefitsService = employeeBenefitsService;
             this.yearlyEndBonusTypes = yearlyEndBonusTypes;
             this.percentagesService = percentagesService;
+            this.commonDroDownService = commonDroDownService;
         }
 
         public async Task<IActionResult> Index()
         {
             PayRollEmpBenefitsPageVM model = new PayRollEmpBenefitsPageVM();
             
-            ViewBag.OrganizationDD = new SelectList( organization.AllActive(), "OrganizationID", "OrganizationName");
+            var orga=await commonDroDownService.GetAllOrganizationsAsync();
+            //if(orga.Count ==1)
+            //{
+            //    ViewBag.OrganizationDD = new SelectList(orga, "Id", "Name", orga[0].Id);
+            //}
+            //else
+            //{
+            //    ViewBag.OrganizationDD = new SelectList(orga, "Id", "Name");
+            //}
+            ViewBag.OrganizationDD = new SelectList(orga, "Id", "Name", orga.Count == 1 ? orga[0].Id : null);
+
             ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");
             ViewBag.YearlyBonusTypeDD=new SelectList(yearlyEndBonusTypes.AllActive(), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
             ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");

@@ -1,6 +1,7 @@
 ﻿#region References
 using GCTL.Core.Configurations;
 using GCTL.Core.Helpers.AttendenceHelper;
+using GCTL.Core.Helpers.CommonSelectMasterDropDown;
 using GCTL.Core.Repository;
 //using GCTL.Core.SeedData;
 using GCTL.Data.Models;
@@ -32,12 +33,14 @@ using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShift;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.AssignSpiralPattern;
+using GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.EmployeeShiftView;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
 using GCTL.Service.CommonService;
 using GCTL.Service.CRM;
+using GCTL.Service.CRM.AddTeam;
 using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.CRM.LeadDetail;
 using GCTL.Service.CRM.LeadsActivities;
@@ -63,6 +66,11 @@ using GCTL.Service.Employees.EmployeeTermination;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmpTransfer;
 using GCTL.Service.FileHandler;
+using GCTL.Service.Finance.AddMainAccount;
+using GCTL.Service.Finance.AddSubAccount;
+using GCTL.Service.Finance.BaseAccount;
+using GCTL.Service.Finance.SecondTab;
+using GCTL.Service.Finance.TransactionAccount;
 using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.ImageFileHandler;
 using GCTL.Service.Language;
@@ -78,6 +86,7 @@ using GCTL.Service.MasterSetup.EmployeeTypes;
 using GCTL.Service.MasterSetup.EmploymentNatures;
 using GCTL.Service.MasterSetup.Gender;
 using GCTL.Service.MasterSetup.Grades;
+using GCTL.Service.MasterSetup.LeadActivityType;
 using GCTL.Service.MasterSetup.LeadSource;
 using GCTL.Service.MasterSetup.LeadStatus;
 using GCTL.Service.MasterSetup.LeadStatuses;
@@ -145,6 +154,8 @@ namespace GCTL_App.Extensions
 
             //services.AddScoped<DataSeeder>();
             services.AddScoped<IEmailService, EmailService>();
+
+
             #region Added by Md. Rakib Hasan
             services.AddScoped<IBloodGroupService, BloodGroupService>();
             services.AddScoped<ICountryService, CountryService>();
@@ -178,6 +189,12 @@ namespace GCTL_App.Extensions
             services.AddScoped<ICreateSpiralPatternService, CreateSpiralPatternService>();
             services.AddScoped<IAssignSpiralPatternService, AssignSpiralPatternService>();
             services.AddScoped<IEmployeeShiftViewService, EmployeeShiftViewService>();
+            services.AddScoped<IAppsAttendanceService, AppsAttendanceService>();
+            services.AddScoped<IBaseAccountService, BaseAccountService>();
+            services.AddScoped<ISecondTabService, SecondTabService>();
+            services.AddScoped<IAddMainAccountService, AddMainAccountService>();
+            services.AddScoped<IAddSubAccountService, AddSubAccountService>();
+            services.AddScoped<ITransactionAccountService, TransactionAccountService>();
             #endregion
 
 
@@ -200,6 +217,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IPayRollLoanEntryService, PayRollLoanEntryService>();
             services.AddScoped<IPayRollEarlyPaymentService, PayRollEarlyPaymentService>();
             services.AddScoped<IPayRollOrgaBenefitsTypeService, PayRollOrgaBenefitsTypeService>();
+            services.AddScoped<ICommonDroDownService, CommonDropDownService>();
             #endregion
 
             #region Asad
@@ -291,6 +309,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeadDetailsService, LeadDetailsService>();
             services.AddScoped<IPriorityService, PriorityService>();
             services.AddScoped<ILeadsActivityService, LeadsActivityService>();
+            services.AddScoped<ILeadActivityTypeService, LeadActivityTypeService>();
+            services.AddScoped<IAddTeamService, AddTeamService>();
             #endregion
         }
     }

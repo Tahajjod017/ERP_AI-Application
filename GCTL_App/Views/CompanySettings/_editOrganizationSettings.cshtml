@@ -10,6 +10,7 @@
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="companySettingsFormEdit" asp-controller="CompanySettings" asp-action="Create" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
                 <div class="border-bottom mb-3">
                     <input type="hidden" id="OrganizationIDedit" name="OrganizationID" value="" />
                     <div class="row">
@@ -53,40 +54,63 @@
                 <div class="border-bottom mb-3">
                     <h6 class="mb-3">Organization Images</h6>
                     <div class="row">
+
+                        <!-- Logo -->
                         <div class="col-md-6">
-                            <div class="d-flex justify-content-between bg-light p-3 mb-4">
+                            <div class="d-flex justify-content-between bg-light p-3 mb-4 position-relative">
+                                <input type="hidden" id="ExistingLogoLink" name="LogoLink" />
+                                <input type="hidden" id="ExistingFaviconLink" name="FaviconLink" />
+
+                                <!-- flags to remove existing files if user clicks X -->
+                                <input type="hidden" id="RemoveLogo" name="RemoveLogo" value="false" />
+                                <input type="hidden" id="RemoveFavicon" name="RemoveFavicon" value="false" />
+
                                 <div class="me-2">
-                                    <img id="logoPreview" src="~/img/logo-small.svg" style="width: 100px; height: 100px;">
+                                    <img id="logoPreviewEdit" src="~/img/logo-small.svg" style="width:100px;height:100px;object-fit:contain;">
                                 </div>
-                                <i id="clearLogo" class="fas fa-times-circle" style="color: red; position: absolute; top: 0; right: 0; display: none; cursor: pointer;"></i>
-                                <div class="">
+
+                                <!-- show only when there is an existing logo OR a newly chosen file -->
+                                <i id="clearLogo"
+                                   class="fas fa-times-circle"
+                                   style="color:red;position:absolute;top:8px;right:8px;display:none;cursor:pointer;"></i>
+
+                                <div>
                                     <div class="mb-2">
                                         <h6 class="mb-1">Logo</h6>
                                         <p class="fs-12">Recommended image size is 160px x 50px</p>
-                                        <input type="file" class="form-control image-sign" id="logoUpload" name="LogoLinkIform" multiple="">
-                                        <p id="logoWarning" class="text-danger mt-2" style="display:none;"></p> <!-- Warning message -->
+                                        <input type="file" class="form-control image-sign" id="logoUploadEdit" name="LogoLinkIform" accept=".jpg,.jpeg,.png">
+                                        <p id="logoWarningEdit" class="text-danger mt-2" style="display:none;"></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Favicon -->
                         <div class="col-md-6">
-                            <div class="d-flex justify-content-between bg-light p-3 mb-4">
+                            <div class="d-flex justify-content-between bg-light p-3 mb-4 position-relative">
                                 <div class="me-2">
-                                    <img id="faviconPreview" src="~/img/logo-small.svg" style="width: 100px; height: 100px;">
+                                    <img id="faviconPreviewEdit" src="~/img/logo-small.svg" style="width:100px;height:100px;object-fit:contain;">
                                 </div>
-                                <div class="">
+
+                                <!-- optional X for favicon too -->
+                                <i id="clearFavicon"
+                                   class="fas fa-times-circle"
+                                   style="color:red;position:absolute;top:8px;right:8px;display:none;cursor:pointer;"></i>
+
+                                <div>
                                     <div class="mb-2">
                                         <h6 class="mb-1">Favicon</h6>
                                         <p class="fs-12">Recommended image size is 128px x 128px</p>
-                                        <input type="file" class="form-control image-sign" id="faviconUpload" name="FaviconLinkIform" multiple="">
-                                        <p id="faviconWarning" class="text-danger mt-2" style="display:none;"></p> <!-- Warning message -->
+                                        <input type="file" class="form-control image-sign" id="faviconUploadEdit" name="FaviconLinkIform" accept=".jpg,.jpeg,.png">
+                                        <p id="faviconWarningEdit" class="text-danger mt-2" style="display:none;"></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
+
 
                 <div class="border-bottom mb-3">
                     <h6 class="mb-3">Address Information</h6>
@@ -107,9 +131,10 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="CountryID">Country</label>
-                                <select class="form-select choiceDD" id="CountryIDEdit"  name="CountryID">
+                                <select class="form-select choiceDD" asp-items="@ViewBag.CountryID" id="CountryIDEdit" name="CountryID">
                                     
                                 </select>
+
                             </div>
                         </div>
 

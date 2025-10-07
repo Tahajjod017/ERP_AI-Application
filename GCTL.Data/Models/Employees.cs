@@ -79,6 +79,8 @@ public partial class Employees
 
     public bool? IsActive { get; set; }
 
+    public int? HeadID { get; set; }
+
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
     public virtual ICollection<AddressTypes> AddressTypesCreatedByNavigation { get; set; } = new List<AddressTypes>();
@@ -141,7 +143,19 @@ public partial class Employees
 
     public virtual ICollection<AttendanceLog> AttendanceLogUpdatedByNavigation { get; set; } = new List<AttendanceLog>();
 
+    public virtual ICollection<AttendancePolicies> AttendancePoliciesCreatedByNavigation { get; set; } = new List<AttendancePolicies>();
+
+    public virtual ICollection<AttendancePolicies> AttendancePoliciesDeletedByNavigation { get; set; } = new List<AttendancePolicies>();
+
+    public virtual ICollection<AttendancePolicies> AttendancePoliciesUpdatedByNavigation { get; set; } = new List<AttendancePolicies>();
+
     public virtual ICollection<Attendance> AttendanceUpdatedByNavigation { get; set; } = new List<Attendance>();
+
+    public virtual ICollection<BaseAccounts> BaseAccountsCreatedByNavigation { get; set; } = new List<BaseAccounts>();
+
+    public virtual ICollection<BaseAccounts> BaseAccountsDeletedByNavigation { get; set; } = new List<BaseAccounts>();
+
+    public virtual ICollection<BaseAccounts> BaseAccountsUpdatedByNavigation { get; set; } = new List<BaseAccounts>();
 
     public virtual ICollection<BenefitSetups> BenefitSetupsCreatedByNavigation { get; set; } = new List<BenefitSetups>();
 
@@ -174,6 +188,12 @@ public partial class Employees
     public virtual ICollection<CalculationTypes> CalculationTypesDeletedByNavigation { get; set; } = new List<CalculationTypes>();
 
     public virtual ICollection<CalculationTypes> CalculationTypesUpdatedByNavigation { get; set; } = new List<CalculationTypes>();
+
+    public virtual ICollection<Classes> ClassesCreatedByNavigation { get; set; } = new List<Classes>();
+
+    public virtual ICollection<Classes> ClassesDeletedByNavigation { get; set; } = new List<Classes>();
+
+    public virtual ICollection<Classes> ClassesUpdatedByNavigation { get; set; } = new List<Classes>();
 
     public virtual ICollection<CompanyBranchAddresses> CompanyBranchAddressesCreatedByNavigation { get; set; } = new List<CompanyBranchAddresses>();
 
@@ -244,6 +264,12 @@ public partial class Employees
     public virtual ICollection<Customers> CustomersDeletedByNavigation { get; set; } = new List<Customers>();
 
     public virtual ICollection<Customers> CustomersUpdatedByNavigation { get; set; } = new List<Customers>();
+
+    public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatusCreatedByNavigation { get; set; } = new List<DailyAttendanceStatus>();
+
+    public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatusEmployee { get; set; } = new List<DailyAttendanceStatus>();
+
+    public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatusUpdatedByNavigation { get; set; } = new List<DailyAttendanceStatus>();
 
     public virtual ICollection<DefaultShifts> DefaultShiftsCreatedByNavigation { get; set; } = new List<DefaultShifts>();
 
@@ -326,8 +352,6 @@ public partial class Employees
     public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowancesCreatedByNavigation { get; set; } = new List<EmployeeBaseAllowances>();
 
     public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowancesDeletedByNavigation { get; set; } = new List<EmployeeBaseAllowances>();
-
-    public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowancesEmployee { get; set; } = new List<EmployeeBaseAllowances>();
 
     public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowancesUpdatedByNavigation { get; set; } = new List<EmployeeBaseAllowances>();
 
@@ -479,6 +503,20 @@ public partial class Employees
 
     public virtual ICollection<Grade> GradeUpdatedByNavigation { get; set; } = new List<Grade>();
 
+    public virtual Heads Head { get; set; }
+
+    public virtual ICollection<HeadDetails> HeadDetailsCreatedByNavigation { get; set; } = new List<HeadDetails>();
+
+    public virtual ICollection<HeadDetails> HeadDetailsDeletedByNavigation { get; set; } = new List<HeadDetails>();
+
+    public virtual ICollection<HeadDetails> HeadDetailsUpdatedByNavigation { get; set; } = new List<HeadDetails>();
+
+    public virtual ICollection<Heads> HeadsCreatedByNavigation { get; set; } = new List<Heads>();
+
+    public virtual ICollection<Heads> HeadsDeletedByNavigation { get; set; } = new List<Heads>();
+
+    public virtual ICollection<Heads> HeadsUpdatedByNavigation { get; set; } = new List<Heads>();
+
     public virtual ICollection<Holidays> HolidaysCreatedByNavigation { get; set; } = new List<Holidays>();
 
     public virtual ICollection<Holidays> HolidaysDeletedByNavigation { get; set; } = new List<Holidays>();
@@ -502,6 +540,20 @@ public partial class Employees
     public virtual ICollection<LeadDetails> LeadDetailsDeletedByNavigation { get; set; } = new List<LeadDetails>();
 
     public virtual ICollection<LeadDetails> LeadDetailsUpdatedByNavigation { get; set; } = new List<LeadDetails>();
+
+    public virtual ICollection<LeadProjectTeamMembers> LeadProjectTeamMembersCreatedByNavigation { get; set; } = new List<LeadProjectTeamMembers>();
+
+    public virtual ICollection<LeadProjectTeamMembers> LeadProjectTeamMembersDeletedByNavigation { get; set; } = new List<LeadProjectTeamMembers>();
+
+    public virtual ICollection<LeadProjectTeamMembers> LeadProjectTeamMembersEmployee { get; set; } = new List<LeadProjectTeamMembers>();
+
+    public virtual ICollection<LeadProjectTeamMembers> LeadProjectTeamMembersUpdatedByNavigation { get; set; } = new List<LeadProjectTeamMembers>();
+
+    public virtual ICollection<LeadProjectTeams> LeadProjectTeamsCreatedByNavigation { get; set; } = new List<LeadProjectTeams>();
+
+    public virtual ICollection<LeadProjectTeams> LeadProjectTeamsDeletedByNavigation { get; set; } = new List<LeadProjectTeams>();
+
+    public virtual ICollection<LeadProjectTeams> LeadProjectTeamsUpdatedByNavigation { get; set; } = new List<LeadProjectTeams>();
 
     public virtual ICollection<LeadServices> LeadServicesCreatedByNavigation { get; set; } = new List<LeadServices>();
 
@@ -617,6 +669,12 @@ public partial class Employees
 
     public virtual ICollection<Localizations> LocalizationsUpdatedByNavigation { get; set; } = new List<Localizations>();
 
+    public virtual ICollection<MainAccounts> MainAccountsCreatedByNavigation { get; set; } = new List<MainAccounts>();
+
+    public virtual ICollection<MainAccounts> MainAccountsDeletedByNavigation { get; set; } = new List<MainAccounts>();
+
+    public virtual ICollection<MainAccounts> MainAccountsUpdatedByNavigation { get; set; } = new List<MainAccounts>();
+
     public virtual MaritalStatus MaritalStatus { get; set; }
 
     public virtual ICollection<MaritalStatus> MaritalStatusCreatedByNavigation { get; set; } = new List<MaritalStatus>();
@@ -628,6 +686,12 @@ public partial class Employees
     public virtual ICollection<MessageContent> MessageContentDeletedByNavigation { get; set; } = new List<MessageContent>();
 
     public virtual ICollection<MessageContent> MessageContentUpdatedByNavigation { get; set; } = new List<MessageContent>();
+
+    public virtual ICollection<MobileApps> MobileAppsCreatedByNavigation { get; set; } = new List<MobileApps>();
+
+    public virtual ICollection<MobileApps> MobileAppsDeletedByNavigation { get; set; } = new List<MobileApps>();
+
+    public virtual ICollection<MobileApps> MobileAppsUpdatedByNavigation { get; set; } = new List<MobileApps>();
 
     public virtual Country Nationality { get; set; }
 
@@ -859,6 +923,12 @@ public partial class Employees
 
     public virtual ICollection<Statuses> StatusesUpdatedByNavigation { get; set; } = new List<Statuses>();
 
+    public virtual ICollection<SubAccounts> SubAccountsCreatedByNavigation { get; set; } = new List<SubAccounts>();
+
+    public virtual ICollection<SubAccounts> SubAccountsDeletedByNavigation { get; set; } = new List<SubAccounts>();
+
+    public virtual ICollection<SubAccounts> SubAccountsUpdatedByNavigation { get; set; } = new List<SubAccounts>();
+
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryApprovalPerson { get; set; } = new List<TerminationApprovalHistory>();
 
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryCreatedByNavigation { get; set; } = new List<TerminationApprovalHistory>();
@@ -890,6 +960,12 @@ public partial class Employees
     public virtual ICollection<TrainingYears> TrainingYearsDeletedByNavigation { get; set; } = new List<TrainingYears>();
 
     public virtual ICollection<TrainingYears> TrainingYearsUpdatedByNavigation { get; set; } = new List<TrainingYears>();
+
+    public virtual ICollection<TransactionAccounts> TransactionAccountsCreatedByNavigation { get; set; } = new List<TransactionAccounts>();
+
+    public virtual ICollection<TransactionAccounts> TransactionAccountsDeletedByNavigation { get; set; } = new List<TransactionAccounts>();
+
+    public virtual ICollection<TransactionAccounts> TransactionAccountsUpdatedByNavigation { get; set; } = new List<TransactionAccounts>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 

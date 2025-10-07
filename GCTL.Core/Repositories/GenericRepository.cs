@@ -37,7 +37,7 @@ namespace GCTL.Core.Repository
             
             // Check if 'DeletedAt' property exists
             var hasDeletedAt = entityType.GetProperty("DeletedAt") != null;
-            var hasDeletedBy = entityType.GetProperty("DeletedBy") != null;
+            var hasDeletedBy = entityType.GetProperty("DeletedAt") != null;
 
             if (hasDeletedAt && hasDeletedBy)
             {

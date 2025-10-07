@@ -105,67 +105,81 @@
 
     //
 
-    $("#PayRolltaxSettings-delSel").on('click', function () {
-        var selectedItems = $(".EmpAllowanceOrganization-selectItem:checked");
-        var selectedIds = [];
+    $("#PayRolltaxSettings-delSel").on('click', async function () {
+        const selectedItems = $(".EmpAllowanceOrganization-selectItem:checked");
+        const selectedIds = [];
+        debugger
         selectedItems.each(function () {
             selectedIds.push($(this).data('id'));
         });
 
         if (selectedIds.length > 0) {
-            showDeleteModal(function () {
-                $.ajax({
-                    url: '/EmpAllowanceOrganization/SoftDelete',
-                    method: 'POST',
-                    data: { ids: selectedIds },
-                    success: function (response) {
-                        if (response.success) {
-                            toastr.success(response.message);
-                            $("#EmpAllowanceOrganization-check-all").prop('checked', false);
-                            $('.EmpAllowanceOrganization-selectItem').prop('checked', false);
-                            clear();
-                        } else {
-                            
-                            toastr.error(response.message);
-                        }
-                    },
-                    error: function () {
-                        toastr.error("Error occurred while deleting.");
+            // ✅ callback (confirmation before delete)
+            showDeleteModal(async function () {
+
+                debugger
+                try {
+                    const response = await $.ajax({
+                        url: '/EmpAllowanceOrganization/SoftDelete',
+                        method: 'POST',
+                        data: { ids: selectedIds }
+                    });
+
+                    if (response && response.success) {
+                        toastr.success(response.message);
+                        $("#EmpAllowanceOrganization-check-all").prop('checked', false);
+                        $('.EmpAllowanceOrganization-selectItem').prop('checked', false);
+                        clear();
+                    } else {
+                        // ✅ fallback if server response is invalid
+                        toastr.error(response?.message || "Delete failed, please try again later.");
                     }
-                });
+                } catch (error) {
+                    // ✅ fallback if AJAX request fails
+                    toastr.error("Network error, using fallback: Could not delete items.");
+                }
             });
         } else {
             toastr.info("Please select at least one item to delete.");
         }
     });
 
-    $(document).on('click', '#EmpAllowanceOrganization-single-delete', function () {
-        var id = $(this).data('id');
+
+
+
+    $(document).on('click', '#EmpAllowanceOrganization-single-delete', async function () {
+        const id = $(this).data('id');
 
         if (id) {
-            showDeleteModal(function () {
-                $.ajax({
-                    url: '/EmpAllowanceOrganization/SoftDelete',
-                    method: 'POST',
-                    data: { ids: [id] },
-                    success: function (response) {
-                        if (response.success) {
-                            toastr.success(response.message);
-                            $("#EmpAllowanceOrganization-check-all").prop('checked', false);
-                            loadTableData();
-                        } else {
-                            toastr.error(response.message);
-                        }
-                    },
-                    error: function () {
-                        toastr.error("Error occurred while deleting.");
+            // ✅ callback (user confirm before delete)
+            showDeleteModal(async function () {
+                try {
+                    const response = await $.ajax({
+                        url: '/EmpAllowanceOrganization/SoftDelete',
+                        method: 'POST',
+                        data: { ids: [id] }
+                    });
+
+                    if (response && response.success) {
+                        toastr.success(response.message);
+                        $("#EmpAllowanceOrganization-check-all").prop('checked', false);
+                        loadTableData();
+                    } else {
+                        // ✅ fallback if response invalid
+                        toastr.error(response?.message || "Delete failed, please try again.");
                     }
-                });
+                } catch (error) {
+                    // ✅ fallback if AJAX fails
+                    toastr.error("Network error, fallback used: Could not delete item.");
+                }
             });
         } else {
             toastr.error("Invalid action.");
         }
     });
+
+
+
     //
     //#region Dat Table
     var currentPage = 1;

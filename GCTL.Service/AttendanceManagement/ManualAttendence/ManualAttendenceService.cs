@@ -8,7 +8,9 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.ManualAttendence;
 using GCTL.Data.Models;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using Microsoft.EntityFrameworkCore;
+using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
 
 namespace GCTL.Service.AttendanceManagement.ManualAttendence
 {
@@ -23,8 +25,9 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
         private readonly IGenericRepository<Designations> _designationRepository;
         private readonly IGenericRepository<Shifts> _shiftRepository;
         private readonly IGenericRepository<LeaveApplications> _leaveRepository;
+        private readonly ILocalizationContext _localizationContext;
 
-        public ManualAttendenceService(IGenericRepository<EmployeeOfficeInfo> officialRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<AttendanceLog> attendenceLogRepository, IGenericRepository<Attendance> attendenceRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<Shifts> shiftRepository, IGenericRepository<LeaveApplications> leaveRepository)
+        public ManualAttendenceService(IGenericRepository<EmployeeOfficeInfo> officialRepository, IGenericRepository<Data.Models.Employees> employeeRepository, IGenericRepository<AttendanceLog> attendenceLogRepository, IGenericRepository<Attendance> attendenceRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<Designations> designationRepository, IGenericRepository<Shifts> shiftRepository, IGenericRepository<LeaveApplications> leaveRepository, ILocalizationContext localizationContext)
         {
             _officialRepository = officialRepository;
             _employeeRepository = employeeRepository;
@@ -34,6 +37,7 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
             _designationRepository = designationRepository;
             _shiftRepository = shiftRepository;
             _leaveRepository = leaveRepository;
+            _localizationContext = localizationContext;
         }
 
         public async Task<List<AttendanceRecord>> GetAllDataAsync(string imgTemFolder)
@@ -79,29 +83,37 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                                       join lev in leaves on att.EmployeeID equals lev.EmployeeID into levGroup
                                       from lev in levGroup.DefaultIfEmpty()
 
+                    // StartTime = x.StartTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(x.StartTime.Value, _localizationContext) : null,
+                    //EndTime = x.EndTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(x.EndTime.Value, _localizationContext) : null,
+                    
+
                                       select new AttendanceRecord
                                       {
                                           EmployeeId = emp?.EmployeeID ?? 0,
                                           Id = att?.AttendanceID ?? 0,
-                                          EmployeeName = emp != null ?
-                                              $"{emp.FirstName ?? ""} {emp.LastName ?? ""}".Trim() : "N/A",
+                                          EmployeeName = emp != null ? $"{emp.FirstName ?? ""} {emp.LastName ?? ""}".Trim() : "N/A",
                                           EmployeeRole = des?.DesignationName ?? "N/A",
                                           Department = dept?.DepartmentName ?? "N/A",
-                                          EmployeeImage = !string.IsNullOrEmpty(emp?.EmployeeImageFileName)
-                                              ? imgTemFolder + emp.EmployeeImageFileName
-                                              : "https://placehold.co/300x200?text=Photo",
+                                          EmployeeImage = !string.IsNullOrEmpty(emp?.EmployeeImageFileName) ? imgTemFolder + emp.EmployeeImageFileName : "https://placehold.co/300x200?text=Photo",
                                           AttendanceDate = att?.AttendanceDate.ToString("dd MMM yyyy") ?? "N/A",
-                                          ScheduleTime = shift != null ?
-                                              $"{shift.StartTime:hh\\:mm tt} - {shift.EndTime:hh\\:mm tt}" : "N/A",
-                                          ActualInTime = att?.CheckInTime?.ToString("hh:mm tt") ?? "Not Punched",
-                                          ActualOutTime = att?.CheckOutTime?.ToString("hh:mm tt") ?? "Not Punched",
+                                          //ScheduleTime = shift != null ? $"{shift.StartTime:hh\\:mm tt} - {shift.EndTime:hh\\:mm tt}" : "N/A",
+                                          //ActualInTime = att?.CheckInTime?.ToString("hh:mm tt") ?? "Not Punched",
+                                          //ActualOutTime = att?.CheckOutTime?.ToString("hh:mm tt") ?? "Not Punched",
+
+                                          ScheduleTime = shift.StartTime.HasValue && shift.EndTime.HasValue ? $"{TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(shift.StartTime.Value, _localizationContext)} - {TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(shift.EndTime.Value, _localizationContext)}" : "N/A",
+
+                                          ActualInTime = att?.CheckInTime.HasValue == true    ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(att.CheckInTime.Value, DateTimeKind.Utc), _localizationContext)    : "Not Punched",
+
+                                          ActualOutTime = att?.CheckOutTime.HasValue == true    ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(att.CheckOutTime.Value, DateTimeKind.Utc), _localizationContext)    : "Not Punched",
+
+
+
                                           BreakInTime = shift?.MealBreakStartTime?.ToString("hh:mm tt") ?? "Not Punched",
                                           BreakOutTime = shift?.MealBreakEndTime?.ToString("hh:mm tt") ?? "Not Punched",
                                           //Overtime = (att?.OvertimeHour ?? 0) > 0 ?
-                                          //    $"{att.OvertimeHour} hrs" : "No Overtime",
+                                          //$"{att.OvertimeHour} hrs" : "No Overtime",
                                           Overtime = att?.OvertimeMinutes,
-                                          BiometricHits = att != null ?
-                                              logs?.Count(x => x.AttendanceID == att.AttendanceID) ?? 0 : 0,
+                                          BiometricHits = att != null ? logs?.Count(x => x.AttendanceID == att.AttendanceID) ?? 0 : 0,
 
                                           PossibleReason = "",
                                           GraceTime = shift?.GraceTime,
@@ -215,7 +227,8 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
 
                     if (record.GraceTime.HasValue)
                     {
-                        var graceSpan = record.GraceTime.Value.ToTimeSpan();
+                        TimeSpan graceSpan = TimeSpan.FromMinutes((double)record.GraceTime);
+                        //var graceSpan = record.GraceTime.Value.ToTimeSpan();
                         if (firstPunchTime > shiftStart + graceSpan)
                         {
                             var lateBy = (firstPunchTime - shiftStart).TotalMinutes;
@@ -239,7 +252,9 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                     var firstPunchTime = DateTime.ParseExact(record.PunchData.First().Time, "hh:mm tt", null).TimeOfDay;
                     var lastPunchTime = DateTime.ParseExact(record.PunchData.Last().Time, "hh:mm tt", null).TimeOfDay;
                     var workDuration = lastPunchTime - firstPunchTime;
-                    var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
+
+                    TimeSpan minWorkSpan = TimeSpan.FromMinutes((double)record.MinimumWorkHour);
+                    //var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
 
                     if (workDuration < minWorkSpan)
                     {
@@ -355,7 +370,8 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
 
                 if (record.GraceTime.HasValue)
                 {
-                    var graceSpan = record.GraceTime.Value.ToTimeSpan();
+                    TimeSpan graceSpan = TimeSpan.FromMinutes((double)record.GraceTime);
+                    //var graceSpan = record.GraceTime.Value.ToTimeSpan();
 
                     if (firstPunchTime > shiftStart + graceSpan)
                     {
@@ -378,7 +394,9 @@ namespace GCTL.Service.AttendanceManagement.ManualAttendence
                 var firstPunchTime = DateTime.ParseExact(record.PunchData.First().Time, "hh:mm tt", null).TimeOfDay;
                 var lastPunchTime = DateTime.ParseExact(record.PunchData.Last().Time, "hh:mm tt", null).TimeOfDay;
                 var workDuration = lastPunchTime - firstPunchTime;
-                var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
+
+                TimeSpan minWorkSpan = TimeSpan.FromMinutes((double)record.MinimumWorkHour);
+                //var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
 
                 if (workDuration < minWorkSpan)
                 {

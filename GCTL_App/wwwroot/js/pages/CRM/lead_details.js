@@ -6,7 +6,23 @@ $(function () {
         leadID: '#leadID',
         addActiveBtn: '#addLActivity',
         wonConfirmDiv: '#won-fonfirm-div',
+        restoreBtn: '#restoreBtn2',
+
+        wonBtn: '.special-btn:first',   // first .special-btn
+        lostBtn: '.special-btn:last',   // last .special-btn
+        cSpecialBtn: '.special-btn',
+        closingDateDiv: '#closingDateDiv',
+        closingDateResult: '#closingDateResult',
+
+        successPercentage: '#successPercentage',
+        cancelPercentage: '#cancelPercentage',
+        lostPercentage: '#lostPercentage',
     }
+
+    //=============================
+    // gobal veriable
+    //==============================
+    let isWon = null;
 
     // ==============================
     // Active option buttons
@@ -18,8 +34,7 @@ $(function () {
         let btnText = $(this).text().trim();
         if (btnText === "Attachment") {
             $('#file-field').show();
-            $('#dateField').show();
-            $('#note-Field').show();
+
             $(ids.addActiveBtn).removeClass('d-none');
             $(ids.addActiveBtn).removeAttr('disabled');
             $(ids.wonConfirmDiv).addClass('d-none');
@@ -28,15 +43,16 @@ $(function () {
             if (isWonAlready !== 'yes') {
                 $('#file-field').hide();
                 $('#dateField').hide();
-                $('#note-Field').show();
                 $(ids.addActiveBtn).addClass('d-none');
                 $(ids.addActiveBtn).prop('disabled', true);
                 $(ids.wonConfirmDiv).removeClass('d-none');
             }
+
         } else if (btnText === "Lost") {
             $('#file-field').hide();
             $('#dateField').hide();
             $('#note-Field').show();
+
             $(ids.addActiveBtn).removeClass('d-none');
             $(ids.addActiveBtn).removeAttr('disabled');
             $(ids.wonConfirmDiv).addClass('d-none');
@@ -44,21 +60,20 @@ $(function () {
             $('#file-field').hide();
             $('#dateField').show();
             $('#note-Field').show();
+
             $(ids.addActiveBtn).removeClass('d-none');
             $(ids.addActiveBtn).removeAttr('disabled');
             $(ids.wonConfirmDiv).addClass('d-none');
         }
-        clearAllValidationBorders();
     });
 
-    // Won cancel button
+    // won cancel btn
     $('#won-btn-cancel').on('click', function () {
         $('#dateField').show();
-        $('#note-Field').show();
+
         $(ids.addActiveBtn).removeClass('d-none');
         $(ids.addActiveBtn).removeAttr('disabled');
         $(ids.wonConfirmDiv).addClass('d-none');
-        $('.option-btn').removeClass('active');
     });
 
     // ==============================
@@ -77,16 +92,22 @@ $(function () {
 
     let currentPage = 1;
     let currentPage2 = 1;
+
     let lastSearch = "";
+
+
     let loading = false, noMoreDataDown = false;
     let loading2 = false, noMoreDataDown2 = false;
+
     let loadedIds = new Set();
     let loadedIds2 = new Set();
 
-    // ==============================
-    // Save lead activity function
-    // ==============================
-    async function saveActivityFunction() {
+    let secialButtonState = null;
+
+    //==========================
+    // save lead activity function
+    //==============================
+    async function saveActivityFunction(e) {
         const buttonName = $(".option-btn.active").text().trim();
         const buttonID = $(".option-btn.active").data('id');
         const leadID = $(ids.leadID).val();
@@ -95,17 +116,16 @@ $(function () {
         const fileInput = $(ids.file)[0];
         const file = fileInput ? fileInput.files[0] : null;
 
-        // Run validation
+        // run validation
         if (!validation(buttonName)) return;
 
-        let isWonOrLost = $('.special-btn').hasClass('active2');
-        let isWonOrLostText = $('.special-btn.active').text().trim();
-
+        //let isWonOrLost = $('.special-btn').hasClass('active2');
+        //let isWonOrLostText = $('.special-btn.active').text().trim();
         // Show confirmation modal if Won/Lost
-        if (isWonOrLost && isWonOrLostText !== 'Won' && isWonOrLostText !== 'Lost') {
-            const confirmed = await showConfirmationModal();
-            if (!confirmed) return; // User clicked No, stop execution
-        }
+        //if (isWon != null) {
+        //    const confirmed = await showConfirmationModal();
+        //    if (!confirmed) return; // User clicked No, stop execution
+        //}
 
         const formData = new FormData();
         formData.append("LeadID", parseInt(leadID));
@@ -118,6 +138,7 @@ $(function () {
             formData.append("ActivityDateTime", convertedDate);
             if (file) formData.append("File", file);
         }
+        let isWonOrLostBtnSelected = $('.special-btn').hasClass('active');
 
         $.ajax({
             url: '/LeadDetails/SaveLeadActivity',
@@ -125,60 +146,32 @@ $(function () {
             data: formData,
             contentType: false,
             processData: false,
-            success: function (response) {
+            success: async function (response) {
                 if (response.success) {
                     toastr.success(response.message);
-
-                    // Create new activity object
-                    const activityDate = date ? new Date(convertToISODateTime(date)).toLocaleString('en-GB', options) : new Date().toLocaleString('en-GB', options);
-                    const newActivity = {
-                        leadDetailID: response.leadDetailID || Date.now(), // Use server-provided ID or temp ID
-                        leadActivityName: buttonName,
-                        activityNote: note,
-                        createdByName: response.createdByName || 'Current User', // Adjust based on server response
-                        activityDateTime: date || new Date().toISOString(),
-                        leadActivityIcon: response.leadActivityIcon || 'fa-default-icon', // Adjust based on server response
-                        fileLink: response.fileLink || '' // For attachments
-                    };
-
-                    // Append to activity list
-                    if (!loadedIds.has(newActivity.leadDetailID)) {
-                        loadedIds.add(newActivity.leadDetailID);
-                        const $newActivity = $(buttonName === "Attachment"
-                            ? renderAttachmentActivity(newActivity, activityDate)
-                            : renderActivity(newActivity, activityDate));
-                        $(activityListDiv).prepend($newActivity);
-                        $newActivity.css('opacity', 0).animate({ opacity: 1 }, 300);
-                    }
-
-                    // Append to upcoming activity list if applicable
-                    if (buttonName !== "Won" && buttonName !== "Lost" && date) {
-                        if (!loadedIds2.has(newActivity.leadDetailID)) {
-                            loadedIds2.add(newActivity.leadDetailID);
-                            const $newUpcomingActivity = $(buttonName === "Attachment"
-                                ? renderAttachmentActivity(newActivity, activityDate)
-                                : renderActivity(newActivity, activityDate));
-                            $(upcomingListDiv).prepend($newUpcomingActivity);
-                            $newUpcomingActivity.css('opacity', 0).animate({ opacity: 1 }, 300);
-                        }
-                    }
-
-                    // Update UI elements
-                    if (buttonName === "Won") {
-                        $("#transferDiv").css("display", "block");
-                    } else if (buttonName === "Lost") {
-                        $("#transferDiv").css("display", "none");
-                    }
-
-                    // Reset form fields
+                    await updateActivate();
+                    resetAndReload();
+                    resetAndReloadUpcoming();
+                    $(".option-btn").removeClass("active");
                     $(ids.date).val("");
                     $(ids.note).val("");
                     $(ids.file).val("");
                     $('#file-field').hide();
-                    $(".option-btn").removeClass("active");
+                    $(ids.wonConfirmDiv).addClass("d-none");
+                    $(ids.addActiveBtn).removeClass("d-none");
+
+                    
+                    if (isWon === true && isWonOrLostBtnSelected) {
+                        customToaster.success("Congratulations! Lead won successfully.");
+                        makeDisabledState();
+                    } if (isWon === false && isWonOrLostBtnSelected) {
+                        customToaster.success("Lead marked as Lost successfully.");
+                        makeDisabledState();
+                    }
                 } else {
                     toastr.error(response.message);
                 }
+               
             },
             error: function (error) {
                 toastr.error(error.responseJSON?.message || "Error saving lead activity");
@@ -186,45 +179,27 @@ $(function () {
         });
     }
 
-    // Helper: show Bootstrap 5.1 modal and return a Promise
-    function showConfirmationModal() {
-        return new Promise((resolve) => {
-            const modalEl = document.getElementById('confirmModal');
-            const bsModal = new bootstrap.Modal(modalEl);
-            bsModal.show();
-
-            // Yes button
-            $('#modalYesBtn').off('click').one('click', () => {
-                bsModal.hide();
-                resolve(true);
-            });
-
-            // No button
-            $('#modalNoBtn').off('click').one('click', () => {
-                bsModal.hide();
-                resolve(false);
-            });
-        });
-    }
-
     // ==================
-    // Save activity
+    // save activity
     // ==================
     $('#addLActivity').on('click', function (e) {
         e.preventDefault();
-        saveActivityFunction();
+        saveActivityFunction(this);
     });
 
-    // ==============================
-    // Yes/No Won button work
-    // ==============================
+    //============================
+    // yes no Won button work
+    // ============================
     $('#wonYes, #wonNo').on('click', function () {
-        saveActivityFunction();
+        saveActivityFunction(this);
+        secialButtonState = "won";
     });
 
-    // ==============================
-    // Validation
-    // ==============================
+
+    //============================
+    // validation
+    // ============================
+
     function validation(placeName) {
         clearAllValidationBorders();
 
@@ -263,10 +238,11 @@ $(function () {
         return isValid;
     }
 
+
     // ==============================
     // Infinite scroll inside activity-list
     // ==============================
-    $('#activity-list, #upcoming-activity').on("scroll", function () {
+    $('#activity-list, #upcoming-activity',).on("scroll", function () {
         const container = $(this);
         const containerName = container.attr('id');
         const scrollTop = container.scrollTop();
@@ -276,12 +252,12 @@ $(function () {
         if (containerName === 'activity-list') {
             if (!loading && !noMoreDataDown && Math.ceil(scrollTop + innerHeight) >= scrollHeight) {
                 currentPage++;
-                updateActivate(currentPage);
+                updateActivate(currentPage, "down");
             }
         } else if (containerName === 'upcoming-activity') {
             if (!loading2 && !noMoreDataDown2 && Math.ceil(scrollTop + innerHeight) >= scrollHeight) {
                 currentPage2++;
-                updateUpcomingActivate(currentPage2);
+                updateUpcomingActivate(currentPage2)
             }
         }
     });
@@ -317,46 +293,145 @@ $(function () {
     // Fetch activity data
     // ==============================
     function updateActivate(page = 1) {
-        if (loading) return;
-        loading = true;
+        return new Promise((resolve, reject) => {
+            if (loading) return;
+            loading = true;
 
-        const tabName = $("#myTab .nav-link.active").text().trim();
-        const search = $("#search-activity").val() || "";
-        const id = $("#leadID").val();
-        const typeD = tabName === "All Activity" ? "" : tabName;
+            const tabName = $("#myTab .nav-link.active").text().trim();
+            const search = $("#search-activity").val() || "";
+            const id = $("#leadID").val();
+            const typeD = tabName === "All Activity" ? "" : tabName;
 
-        $.ajax({
-            url: '/LeadDetails/getActivityList',
-            method: 'GET',
-            contentType: 'application/json',
-            data: { id, query: search, page, type: typeD },
-            success: function (response) {
-                $("#activity-label").text(tabName);
-                if (!response || response.length === 0) {
-                    noMoreDataDown = true;
-                    return;
-                } else {
-                    $("#all-activity-div").removeClass("d-none");
+            $.ajax({
+                url: '/LeadDetails/getActivityList',
+                method: 'GET',
+                contentType: 'application/json',
+                data: { id, query: search, page, type: typeD },
+                success: function (response) {
+                    showLeadCreatorPercentage(response.successPercentage, response.lostPercentage, response.cancelPercentage)
+
+                    if (response.closingDate != null) {
+                        showClosedDate(response.closingDate);
+                    } else {
+                        hideClosedDate();
+                    }
+
+                    // show or hide upcoming activity or add acitivity
+                    $("#activity-label").text(tabName);
+                    if (!response.activities || response.activities.length === 0) {
+                        noMoreDataDown = true;
+                        return;
+                    } else {
+                        $("#all-activity-div").removeClass("d-none");
+                    }
+                    // select won/lost/nothing todo 
+                    $(ids.cSpecialBtn).removeClass('active2');
+                    isWon = response.isWon;
+                    
+                    if (response.isWon == true) {
+                        $(ids.wonBtn).addClass('active2');
+                        makeDisabledState();
+                    }
+                    else if (response.isWon == false) {
+                        $(ids.lostBtn).addClass('active2');
+                        makeDisabledState();
+                    }
+
+                    if (response.isWon === true || response.isWon === false) {
+                        $(ids.restoreBtn).removeClass('d-none');
+                        //$(ids.addActiveBtn).removeAttr('disabled');
+                        makeDisabledState();
+                    } else {
+                        $(ids.restoreBtn).addClass('d-none');
+                    }
+
+                    response.activities.forEach(item => {
+                        if (!item.leadDetailID) return; // skip invalid
+                        if (!loadedIds.has(item.leadDetailID)) {
+                            loadedIds.add(item.leadDetailID);
+                            const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
+
+                            if (item.leadActivityName === 'Attachment') {
+                                $(activityListDiv).append(renderAttachmentActivity(item, activityDate));
+                            } else {
+                                $(activityListDiv).append(renderActivity(item, activityDate));
+                            }
+                        }
+                    });
+                },
+                complete: function () { loading = false; resolve(200); },
+                error: function (jqXHR, textStatus) {
+                    toastr.error("Error: " + textStatus);
                 }
-
-                response.forEach(item => {
-                    if (!item.leadDetailID || loadedIds.has(item.leadDetailID)) return;
-                    loadedIds.add(item.leadDetailID);
-                    const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
-                    const $newActivity = $(item.leadActivityName === 'Attachment'
-                        ? renderAttachmentActivity(item, activityDate)
-                        : renderActivity(item, activityDate));
-                    $(activityListDiv).append($newActivity);
-                    $newActivity.css('opacity', 0).animate({ opacity: 1 }, 300);
-                });
-            },
-            complete: function () { loading = false; },
-            error: function (jqXHR, textStatus) {
-                toastr.error("Error: " + textStatus);
-            }
+            });
         });
+        
     }
 
+    //==============================
+    // show showLeadCreatorPercentage
+    //================================
+    function showLeadCreatorPercentage(success, lost, cancel) {
+        $(ids.successPercentage).text(success);
+        $(ids.lostPercentage).text(lost);
+        $(ids.cancelPercentage).text(cancel);
+    }
+
+    //==============================
+    // show close Date Div
+    //================================
+    function showClosedDate(date) {
+        const d = new Date(date);
+        const pad = n => n.toString().padStart(2, '0');
+        const isoLocal = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        $(ids.closingDateDiv).removeClass('d-none');
+        $(ids.closingDateResult).text(showClosedDate(isoLocal));
+    }
+    //==============================
+    // hide closed Date Div
+    //================================
+    function hideClosedDate(date) {
+        $(ids.closingDateDiv).addClass('d-none');
+        $(ids.closingDateResult).text("");
+    }
+    // =============================
+    // make disabled statue
+    //==========
+    function showClosedDate(date) {
+        $(ids.closingDateDiv).removeClass('d-none');
+        const d = new Date(date);
+        const options = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            hour12: true
+        };
+        $(ids.closingDateResult).text(d.toLocaleString('en-US', options));
+    }
+    // =============================
+    // make disabled statue
+    //==============================
+    function makeDisabledState() {
+        $(ids.addActiveBtn).prop('disabled', true);
+        $("#optionBtnDiv .option-btn").prop('disabled', true);
+        $(ids.wonBtn).prop('disabled', true);
+        $(ids.lostBtn).prop('disabled', true);
+        $(ids.note).prop('disabled', true);
+        $(ids.date).prop('disabled', true);
+        $(ids.file).prop('disabled', true);
+    }
+    function makeEnableState() {
+        $(ids.addActiveBtn).removeAttr('disabled');
+        $("#optionBtnDiv .option-btn").removeAttr('disabled');
+        $(ids.wonBtn).removeAttr('disabled');
+        $(ids.lostBtn).removeAttr('disabled');
+        $(ids.note).removeAttr('disabled');
+        $(ids.date).removeAttr('disabled');
+        $(ids.file).removeAttr('disabled');
+    }
     // ==============================
     // Fetch upcoming activity data
     // ==============================
@@ -364,36 +439,47 @@ $(function () {
         if (loading2) return;
         loading2 = true;
         const id = $("#leadID").val();
-
         $.ajax({
             url: '/LeadDetails/GetUpcomingActivityList',
             method: 'GET',
             contentType: 'application/json',
             data: { id, page },
             success: function (response) {
-                if (!response || response.length === 0) {
-                    noMoreDataDown2 = true;
+                debugger;
+                if (!response || response.length === 0 && loadedIds2.size == 0) {
                     $("#upcomming-div").addClass("d-none");
                     return;
+
+                }
+                  
+                if (!response || response.length === 0) {
+                    noMoreDataDown2 = true;
+                    //$("#upcomming-div").addClass("d-none");
+                    return;
+
                 } else {
+                    //$("#myTab").css("display", "block");
                     $("#upcomming-div").removeClass("d-none");
                 }
-
                 response.forEach(item => {
-                    if (!item.leadDetailID || loadedIds2.has(item.leadDetailID)) return;
-                    loadedIds2.add(item.leadDetailID);
-                    const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
-                    const $newActivity = $(item.leadActivityName === 'Attachment'
-                        ? renderAttachmentActivity(item, activityDate)
-                        : renderActivity(item, activityDate));
-                    $(upcomingListDiv).append($newActivity);
-                    $newActivity.css('opacity', 0).animate({ opacity: 1 }, 300);
+                    if (!item.leadDetailID) return;
+                    if (!loadedIds2.has(item.leadDetailID)) {
+                        loadedIds2.add(item.leadDetailID);
+                        const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);
+                        if (item.leadActivityName === 'Attachment') {
+                            $('#upcoming-activity').append(renderAttachmentActivity(item, activityDate));
+                        } else {
+                            $('#upcoming-activity').append(renderActivity(item, activityDate));
+                        }
+
+                    }
                 });
             },
             complete: function () { loading2 = false; },
             error: function (jqXHR, textStatus) {
                 toastr.error("Error: " + textStatus);
             }
+
         });
     }
 
@@ -402,7 +488,7 @@ $(function () {
     // ==============================
     function renderActivity(value, activityDate) {
         return `
-            <div class="activity-item border-bottom border-translucent py-3 mx-3">
+            <div class="border-bottom border-translucent py-3 mx-3">
                 <div class="d-flex">
                     <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
                          style="width:25px; height:25px">
@@ -425,56 +511,61 @@ $(function () {
             </div>`;
     }
 
-    // Preview file function
+    // previewFile function
     function previewFile(fileUrl) {
         let ext = fileUrl.split('.').pop().toLowerCase();
         let container = document.getElementById("filePreviewContainer");
-        container.innerHTML = ""; // Reset
+        container.innerHTML = ""; // reset
 
         if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
+            // Image preview
             container.innerHTML = `<img src="${fileUrl}" class="img-fluid" alt="preview">`;
-        } else if (ext === "pdf") {
+        }
+        else if (ext === "pdf") {
             container.innerHTML = `<iframe src="${fileUrl}" 
                            style="width:100%;height:500px" frameborder="0"></iframe>`;
-        } else {
+        }
+        else {
+            // Not supported ? force download
             window.open(fileUrl, "_blank");
             return;
         }
 
+        // Show modal
         let modal = new bootstrap.Modal(document.getElementById('filePreviewModal'));
         modal.show();
     }
+    // Ensure global access
     window.previewFile = previewFile;
-
-    // Render attachment activity
     function renderAttachmentActivity(value, activityDate) {
         return `
-            <div class="activity-item border-bottom border-translucent py-3 mx-3">
-                <div class="d-flex">
-                    <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
-                         style="width:25px; height:25px">
-                        <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
-                    </div>
-                    <div class="flex-1">
-                        <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                            <div class="flex-1 me-2">
-                                <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
-                                <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
-                                <p class="fs-9 mb-0">file: 
-                                    <a href="javascript:void(0)" onclick="previewFile('${value.fileLink}')">
-                                        ${value.fileLink}
-                                    </a>
-                                </p>
-                            </div>
-                            <div class="fs-9">
-                                <span class="fa-regular fa-calendar-days text-primary me-2"></span>
-                                <span class="fw-semibold">${activityDate}</span>
-                            </div>
-                        </div>
-                        <p class="fs-9 mb-0">${value.activityNote}</p>
-                    </div>
+        <div class="border-bottom border-translucent py-3 mx-3">
+            <div class="d-flex">
+                <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
+                     style="width:25px; height:25px">
+                    <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
                 </div>
-            </div>`;
+                <div class="flex-1">
+                    <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
+                        <div class="flex-1 me-2">
+                            <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
+                            <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
+                            
+                            <p class="fs-9 mb-0">file: 
+                                <a href="javascript:void(0)" onclick="previewFile('${value.fileLink}')">
+                                    ${value.fileLink}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="fs-9">
+                            <span class="fa-regular fa-calendar-days text-primary me-2"></span>
+                            <span class="fw-semibold">${activityDate}</span>
+                        </div>
+                    </div>
+                    <p class="fs-9 mb-0">${value.activityNote}</p>
+                </div>
+            </div>
+        </div>`;
     }
 
     // ==============================
@@ -497,15 +588,14 @@ $(function () {
     }
 
     // ==============================
-    // Update Lead Source value
+    // update Lead Source value
     // ==============================
+
     $("#leadSource, #lead-status, #leadPriority, #probabilityPercentage").on("change", function () {
+
         let fieldValue = $(this).val();
         let fieldID = $(this).attr("id");
-        let fieldName = fieldID === "leadSource" ? "source" :
-            fieldID === "lead-status" ? "stage" :
-                fieldID === "leadPriority" ? "priority" :
-                    fieldID === "probabilityPercentage" ? "probability" : "";
+        let fieldName = fieldID === "leadSource" ? "source" : fieldID == "lead-status" ? "stage" : fieldID === 'leadPriority' ? "priority" : fieldID == 'probabilityPercentage' ? 'probability' : "";
         let leadID = $(ids.leadID).val();
 
         $.ajax({
@@ -513,20 +603,17 @@ $(function () {
             method: 'POST',
             data: { LeadID: leadID, FieldName: fieldName, FieldValue: fieldValue },
             success: function (response) {
-                if (response.success) {
+                if (response) {
                     toastr.success(`${fieldName} updated successfully`);
-                    if (fieldID === "probabilityPercentage") {
-                        $("#completionValue2").text(fieldValue + "%");
-                    }
-                } else {
-                    toastr.error(response.message || "Failed to update lead");
                 }
             },
+
             error: function (jqXHR, textStatus) {
                 toastr.error("Error: " + textStatus);
             }
+
         });
-    });
+    })
 
     // ==============================
     // Reset state and reload page 1
@@ -534,14 +621,10 @@ $(function () {
     function resetAndReload() {
         currentPage = 1;
         noMoreDataDown = false;
-        const search = $("#search-activity").val() || "";
-        if (search !== lastSearch) {
-            loadedIds.clear();
-            $(activityListDiv).empty();
-        }
-        updateActivate(1);
+        loadedIds.clear();
+        $(activityListDiv).empty();
+        updateActivate(1, "reset");
     }
-
     function resetAndReloadUpcoming() {
         currentPage2 = 1;
         noMoreDataDown2 = false;
@@ -550,21 +633,32 @@ $(function () {
         updateUpcomingActivate(currentPage2);
     }
 
+
     // ==============================
-    // Validation load
+    // validation load
     // ==============================
     function clearAllValidationBorders() {
+        // Clear option buttons and container
         $(".option-btn").css("border", "");
         $("#optionBtnDiv").css("border", "");
+
+        // Clear all input, textarea, select fields
         $("input, textarea, select").css("border", "");
+
+        // Clear file inputs
         $("input[type='file']").css("border", "");
+
+        // Clear error messages if you have spans
         $(".errorShow").text("");
     }
+
+
+
 
     // ==============================
     // Initial load
     // ==============================
-    updateActivate(1);
+    updateActivate(1, "reset");
     updateUpcomingActivate();
 
     // ====================
@@ -582,6 +676,7 @@ $(function () {
             method: 'POST',
             data: { id: leadID },
             success: function (response) {
+                //updateEmployee();
                 $("#leadID").val(response.leadID);
                 $("#leadName").val(response.leadName);
                 $("#leadStatusID").val(response.leadStatusID);
@@ -593,10 +688,12 @@ $(function () {
                 $("#descriptionText").val(response.leadDescription);
                 $("#queryText").val(response.leadOwnerName);
                 $("#selectedID").val(response.leadOwnerId);
+                // multiselect edit field read
                 $('#serviceTypes').val(response.serviceIds).each(function () {
                     coreui.MultiSelect.getInstance(this)?.update();
                 });
 
+                // employee add
                 const currentOwnerId = response.leadOwnerId;
                 const currentOwnerName = response.leadOwnerName;
                 if (currentOwnerId && currentOwnerName) {
@@ -604,19 +701,20 @@ $(function () {
                         [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
                         'value',
                         'label',
-                        false
+                        false // false = append (don?t clear)
                     );
                 }
             },
             error: function (xhr) {
-                toastr.error("Error fetching lead info");
+                toastr.error("Error creating lead");
             }
         });
     });
 
     // ======================
-    // Employee
+    // employee
     // ======================
+    // #region Choice with Pagination + Infinite Scroll (server-side search only)
     const selectEl = document.getElementById('leadOwnerId');
     let debounceTimer;
     let loading3 = false;
@@ -630,16 +728,19 @@ $(function () {
         placeholderValue: 'Select Organization...',
         searchPlaceholderValue: 'Type to search...',
         noChoicesText: 'Type 3 or more characters...',
-        searchResultLimit: -1,
+        searchResultLimit: -1, // disable local limiting
         shouldSort: false,
         duplicateItemsAllowed: false,
         itemSelectText: '',
         removeItemButton: true,
+
+        // ?? disable client-side filtering (server handles search)
         searchChoices: false,
         fuseOptions: false,
         searchFn: () => true
     });
 
+    // Fetch data from server
     async function fetchOptions(search, page = 1, pageSize = 50) {
         loading3 = true;
         try {
@@ -655,6 +756,7 @@ $(function () {
         }
     }
 
+    // Handle debounce on search
     selectEl.addEventListener('search', function (e) {
         const searchTerm = e.detail.value;
         clearTimeout(debounceTimer);
@@ -671,11 +773,13 @@ $(function () {
 
             choices.clearChoices();
             if (data.items.length > 0) {
+                // replace with new results
                 choices.setChoices(data.items, 'value', 'label', true);
             }
-        }, 500);
+        }, 500); // debounce delay
     });
 
+    // Scroll handler
     async function handleScroll(e) {
         const dropdownList = e.target;
         if (!loading3 && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
@@ -683,11 +787,13 @@ $(function () {
             const data = await fetchOptions(lastSearch3, currentPage3);
 
             if (data.items.length > 0) {
+                // append results, keep existing
                 choices.setChoices(data.items, 'value', 'label', false);
             }
         }
     }
 
+    // Reattach scroll listener when dropdown opens
     choices.passedElement.element.addEventListener('showDropdown', () => {
         const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
         if (dropdownList) {
@@ -695,10 +801,12 @@ $(function () {
             dropdownList.addEventListener('scroll', handleScroll);
         }
     });
+    // #endregion
 
     // ==============================
-    // Update lead information
+    // update lead information
     // ==============================
+
     $("#editBtn").on("click", function (e) {
         e.preventDefault();
         const data = {
@@ -713,35 +821,37 @@ $(function () {
             LeadDescription: $("#descriptionText").val(),
             ServiceTypeIds: $("#serviceTypes").val(),
         };
-
         if (validation2()) {
             $.ajax({
                 url: '/CRM/EditLeadData',
                 method: 'POST',
                 data: JSON.stringify(data),
                 contentType: "application/json; charset=utf-8",
+
                 success: function (response) {
+
                     if (response.success) {
                         toastr.success(response.message);
+                        // HIDE modal
                         var myModalEl = document.getElementById('editModal');
                         var modal = bootstrap.Modal.getInstance(myModalEl);
                         modal.hide();
-                        // Update UI elements if displayed
-                        $("#completionValue2").text(data.ProbabilityPercentage + "%");
                     } else {
-                        toastr.error(response.message || "Failed to update lead");
+                        toastr.error(response.message || "Failed to create lead");
                     }
                 },
                 error: function (xhr) {
-                    toastr.error("Error updating lead");
+                    toastr.error("Error creating lead");
                 }
             });
         }
-    });
+    })
 
-    // ==============================
-    // Lead validation
-    // ==============================
+
+    // ===============
+    // lead validation2
+    // =================
+
     function validation2() {
         let requiredField = [
             '#leadOwnerId',
@@ -757,6 +867,7 @@ $(function () {
             let value = el.val() ? el.val().trim() : '';
             let target = el;
 
+            // Special case for Choices.js (hidden select)
             if (el.closest('.choices').length > 0) {
                 target = el.closest('.choices').find('.choices__inner');
             }
@@ -765,10 +876,47 @@ $(function () {
                 target.css('border', '1px solid red');
                 isValid = false;
             } else {
-                target.css('border', '1px solid #ccc');
+                target.css('border', '1px solid #ccc'); // reset valid field
             }
         });
 
         return isValid;
     }
+
+    // ==========================
+    // option button on click clear all validation
+    // ===========================
+    $('.option-btn').on('click', function () {
+        clearAllValidationBorders();
+    })
+
+    $(document).on("click", ids.restoreBtn,async function () {
+ 
+            const confirmed = await customToaster.confirm("Do you want to restart this Lead?");
+            if (confirmed) {
+                let leadId = $(ids.leadID).val();
+                $.ajax({
+                    url: '/LeadDetails/RestoreLead',
+                    method: 'POST',
+                    data: { id: leadId },
+                    success: function (response) {
+                        if (response.success) {
+                            customToaster.success(response.message);
+                            resetAndReloadUpcoming();
+                            resetAndReload();
+                            makeEnableState();
+
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        toastr.error("Error restoring lead");
+                    }
+                });
+            }
+            else customToaster.error("Cancelled!");
+        });
+        
+
 });

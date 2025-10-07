@@ -1,43 +1,50 @@
-﻿using GCTL.Core.Repository;
+﻿using Bogus.DataSets;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
+using GCTL.Service.FileHandler;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using NetTopologySuite.Mathematics;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+
 
 namespace GCTL.Service.CRM.LeadsActivities
 {
     public class LeadsActivityService : ILeadsActivityService
     {
         private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
+        private readonly IPdfFileHandler _pdfFileHandlerService;
 
-        public LeadsActivityService(IGenericRepository<LeadDetails> leadDetailsRepository)
+        public LeadsActivityService(IGenericRepository<LeadDetails> leadDetailsRepository, IPdfFileHandler pdfFileHandlerService)
         {
             _leadDetailsRepository = leadDetailsRepository;
+            _pdfFileHandlerService = pdfFileHandlerService;
         }
 
-        public async Task<ReturnDataView> GetUpcomingActivityList(
+        public async Task<ReturnDataView<LeadDetailsDTO>> GetUpcomingActivityList(
             int page,
             int itemPerPage,
             string search,
             string sort,
             string direction,
             string dateRange,
-            int? userID)   // current user ID
+            int? userID,
+            int? CustomerTypeID, 
+            string? LeadStatusID,
+            int? ActivityTypeID
+            )   // current user ID
         {
             try
             {
                 // ✅ If userID is null, return empty result immediately
                 if (!userID.HasValue)
                 {
-                    return new ReturnDataView
+                    return new ReturnDataView<LeadDetailsDTO>
                     {
-                        success = "true",
+                        success = true,
                         message = "No data available for null user",
                         data = [],
                         totalItem = 0,
@@ -47,7 +54,7 @@ namespace GCTL.Service.CRM.LeadsActivities
                 }
 
                 int skip = (page - 1) * itemPerPage;
-                var now = DateTime.Now;
+                var now = DateTime.UtcNow;
                 var today = DateTime.Today;
 
                 // ✅ Base query: Only current user, all future (from today)
@@ -90,14 +97,40 @@ namespace GCTL.Service.CRM.LeadsActivities
                     }
                 }
 
-                // ✅ Search filter
                 if (!string.IsNullOrEmpty(search))
                 {
-                    query = query.Where(u =>
-                        EF.Functions.Like(u.ActivityNote, $"%{search}%") ||
-                        EF.Functions.Like(u.ActivityDateTime, $"%{search}%") ||
-                        EF.Functions.Like(u.CreatedAt, $"%{search}%"));
+                    if (DateTime.TryParse(search, out var searchDate))
+                    {
+                        query = query.Where(u =>
+                            EF.Functions.Like(u.ActivityNote, $"%{search}%") ||
+                            u.ActivityDateTime == searchDate.Date ||
+                            u.CreatedAt == searchDate.Date
+                        );
+                    }
+                    else
+                    {
+                        query = query.Where(u =>
+                            EF.Functions.Like(u.ActivityNote, $"%{search}%")
+                        );
+                    }
                 }
+
+                // Filter by CustomerTypeID
+                if (CustomerTypeID.HasValue && CustomerTypeID.Value > 0)
+                {
+                    query = query.Where(u => u.Lead.Customer.CustomerAddresses.First().AddressTypeID == CustomerTypeID.Value);
+                }
+
+                // Filter by LeadStatusID
+                if (!string.IsNullOrEmpty(LeadStatusID))
+                {
+                    query = query.Where(u => u.Lead.LeadStatus.LeadStatusName== LeadStatusID);
+                }
+                if (ActivityTypeID > 0)
+                {
+                    query = query.Where(u => u.LeadActivityTypeID == ActivityTypeID);
+                }
+
 
                 var totalSearchItem = await query.CountAsync();
 
@@ -113,13 +146,22 @@ namespace GCTL.Service.CRM.LeadsActivities
                     LeadActivityType = u.LeadActivityType.LeadActivityName,
                     ActivityNote = u.ActivityNote,
                     ActivityDateTime = u.ActivityDateTime,
-                    CreatedAt = u.CreatedAt
+                    CreatedAt = u.CreatedAt,
+                    LeadName = u.Lead.LeadName,
+                    LeadID = u.LeadID,
+                    File  = u.FileLink,
+                    CustomerName = u.Lead.Customer.FullName,
+                    LeadStage =  u.Lead.LeadStatus.LeadStatusName,
+                    LeadPriority = u.Lead.Priority.PriorityName,
+                    LeadSource = u.Lead.LeadStatus.LeadStatusName,
+                    LeadProbability = u.Lead.ProbabilityPercentage,
+                    LeadOwner = u.Lead.LeadOwner.FirstName + " " + u.Lead.LeadOwner.LastName,
 
                 }).ToListAsync();
 
-                return new ReturnDataView
+                return new ReturnDataView<LeadDetailsDTO>
                 {
-                    success = "true",
+                    success = true,
                     message = totalSearchItem > 0 ? "Upcoming List Data successfully loaded" : "No records found",
                     data = data,
                     totalItem = totalItem,
@@ -131,13 +173,32 @@ namespace GCTL.Service.CRM.LeadsActivities
             }
             catch (Exception ex)
             {
-                return new ReturnDataView
+                return new ReturnDataView<LeadDetailsDTO>
                 {
-                    success = "false",
+                    success = false,
                     message = $"Something went wrong: {ex.Message}"
                 };
             }
         }
+
+
+        public async Task<byte[]> GeneratePDF()
+        {
+            try
+            {
+                var activityDataSource = new ActivityDocumentDataSource(_leadDetailsRepository);
+                var activities = await activityDataSource.GetUpCommingActivity();
+                var document =new ActivityDocument(activities, _pdfFileHandlerService);
+
+                var pdfBytes = document.GeneratePdf();
+                return pdfBytes;
+            }
+            catch (Exception)
+            {
+                return new byte[0];
+            }
+        }
+
 
     }
 }

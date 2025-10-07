@@ -17,6 +17,8 @@ using System.Security.Cryptography;
 using System.Text;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using GCTL.Core;
+using System.Web;
 
 namespace GCTL_App.Controllers
 {
@@ -44,20 +46,43 @@ namespace GCTL_App.Controllers
         {
             return View();
         }
-        // Login GET
+        //[HttpGet]
+        //public IActionResult Login() => View();
+
         [HttpGet]
-        public IActionResult Login() => View();
+        public IActionResult Login(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+        
 
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             if (ModelState.IsValid)
             {
-                var user2 = await _Db.Users
-                            .Include(u => u.Employees)  // Make sure to include the Employee to check IsActive and DeletedAt
-                            .FirstOrDefaultAsync(u => u.Employees.Email == model.Email);
+                var isSuperAdmin = string.Equals(model.Email, "superadmin@gmail.com", StringComparison.OrdinalIgnoreCase);
+
+                IQueryable<ApplicationUser> baseQuery = _Db.Users
+                    .Include(u => u.Employees)
+                        .ThenInclude(e => e.EmployeeOfficeInfoEmployee);
+
+                // For superadmin: match by the user's primary Email (or whatever field you store the login email in)
+                var user2 = isSuperAdmin
+                    ? await baseQuery.FirstOrDefaultAsync(u => u.Email == model.Email)
+                    : await baseQuery.FirstOrDefaultAsync(
+                        u => u.Employees.EmployeeOfficeInfoEmployee.Any(x => x.OfficeEmail == model.Email)
+                      );
+                if (user2 == null)
+                {
+                    ViewData["ErrorEmailMessage"] = "Email not found.";
+                    ModelState.AddModelError("Email", "Email not found.");
+                    return View(model);
+                }
+
                 // Step 1: Attempt login
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
 
@@ -152,12 +177,18 @@ namespace GCTL_App.Controllers
                     await _Db.ActionLogs.AddAsync(actiondata);
                     await _Db.SaveChangesAsync();
 
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl); // Goes to /LeaveApprovalDecline/Index if the user clicked that link
+                    }
                     // Step 9: Redirect after successful login
                     return RedirectToAction("Index", "Home");
                 }
                 else
                 {
-                    ViewData["ErrorMessage"] = "Invalid login attempt.";
+                    ViewData["ErrorPasswordMessage"] = "Incorrect password.";
+                    ModelState.AddModelError("Password", "Incorrect password.");
+                   // ViewData["ErrorMessage"] = "Invalid login attempt.";
                     return View(model);
                 }
             }
@@ -559,7 +590,7 @@ namespace GCTL_App.Controllers
             var result = await _emailService.SendEmailAsync(
                 toEmail: email,
                 subject: "Password Reset OTP",
-                razorTemplateFile: "OtpTemplate.html",
+                razorTemplateFile: "OtpTemplateV2.html",
                 model: model,
                 null, // Fix: Move optional parameters to the end  
                 null
@@ -641,6 +672,7 @@ namespace GCTL_App.Controllers
                     .Where(e => e.DeletedAt == null
                                 && (e.HasUser != true || e.HasUser == null)
                                 && (e.IsActive == true || e.IsActive == null)
+                                && e.EmployeeOfficeInfoEmployee.Any(x => x.OfficeEmail != null) // Filter by the same OrganizationID
                                 && e.EmployeeOfficeInfoEmployee.Any(x => userOrgId.HasValue)) // Filter by OrganizationID
                     .Select(e => new
                     {
@@ -659,6 +691,7 @@ namespace GCTL_App.Controllers
                     .Where(e => e.DeletedAt == null
                                 && (e.HasUser != true || e.HasUser == null)
                                 && (e.IsActive == true || e.IsActive == null)
+                                && e.EmployeeOfficeInfoEmployee.Any(x => x.OfficeEmail != null)
                                 && e.EmployeeOfficeInfoEmployee.Any(x => x.OrganizationID != null)) // Only active employees
                     .Select(e => new
                     {
@@ -746,8 +779,8 @@ namespace GCTL_App.Controllers
                     // Create new user
                     var applicationUser = new ApplicationUser
                     {
-                        UserName = employee.Email ?? (employee.EmployeeCode + "@default.com"),
-                        Email = employee.Email ?? (employee.EmployeeCode + "@default.com"),
+                        UserName = employee.EmployeeOfficeInfoEmployee.Where(x=>x.EmployeeID==employee.EmployeeID).Select(x => x.OfficeEmail).FirstOrDefault() ?? (employee.EmployeeCode + "@default.com"),
+                        Email = employee.EmployeeOfficeInfoEmployee.Where(x=>x.EmployeeID==employee.EmployeeID).Select(x => x.OfficeEmail).FirstOrDefault() ?? (employee.EmployeeCode + "@default.com"),
                         EmployeeId = employee.EmployeeID,
                         IsPasswordResetRequired = true,
                         DefaultPass = randomPassword,

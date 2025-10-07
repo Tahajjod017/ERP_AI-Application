@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers.Jsonserialize;
 
 namespace GCTL.Service.MasterSetup.EmploymentNatures
 {
@@ -167,7 +168,7 @@ namespace GCTL.Service.MasterSetup.EmploymentNatures
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<EmploymentNatureVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<EmploymentNatureVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.EmploymentNatureID).ToList();
 
                 foreach (var item in data)

@@ -24,13 +24,6 @@
                                     </div>
                                 </div>
 
-                           @*      <select class="form-select choiceDD"
-                                        asp-for="OrganizatonID"
-                                        id="OrganizatonID"
-                                        asp-items="@ViewBag.SelectedOrgaDD as SelectList"
-                                        placeholder="@Html.SmartLocalize("Select Organization")">
-                                       <option value="">Select Company</option>
-                                </select> *@
                                 <select class="form-multi-select"
                                         asp-for="OrganizatonIDs"
                                         asp-items="@ViewBag.SelectedOrgaDD as SelectList"

@@ -1,6 +1,7 @@
 ﻿using NodaTime;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -68,7 +69,87 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
                 // Extract and return only the time portion as TimeOnly
                 return new TimeOnly(utcDateTime.Hour, utcDateTime.Minute, utcDateTime.Second);
             }
+            public static string ConvertDateTimeToUtcHHmm(DateTime localDateTime, ILocalizationContext ctx)
+            {
+                // Interpret the input as a local wall-clock time in the user's zone (ignore DateTime.Kind)
+                var unspecified = DateTime.SpecifyKind(localDateTime, DateTimeKind.Unspecified);
+                var ldt = LocalDateTime.FromDateTime(unspecified);
+
+                // If you prefer strict DST rules (throw on gaps/overlaps), use AtStrictly.
+                // Using AtLeniently to avoid exceptions and auto-resolve DST issues.
+                var zoned = ctx.Zone.AtLeniently(ldt);
+
+                var utc = zoned.ToInstant().ToDateTimeUtc();
+                return utc.ToString("HH:mm", CultureInfo.InvariantCulture);
+            }
+            public static string ConvertUtcDateTimeToLocalHHmm(DateTime utcDateTime, ILocalizationContext ctx)
+            {
+                // Ensure the input is treated as UTC
+                if (utcDateTime.Kind != DateTimeKind.Utc)
+                    utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+
+                var instant = Instant.FromDateTimeUtc(utcDateTime);
+                var localZoned = instant.InZone(ctx.Zone);
+                var local = localZoned.ToDateTimeUnspecified();
+                //return localZoned.ToDateTimeUnspecified().ToString("HH:mm", CultureInfo.InvariantCulture);
+                return local.ToString(ctx.TimePattern, CultureInfo.InvariantCulture);
+            }
+
+            public static string ConvertUtcToUserLocalizedDateTimeString(DateTime utcDateTime, ILocalizationContext ctx)
+            {
+                // Ensure the input is treated as UTC
+                if (utcDateTime.Kind != DateTimeKind.Utc)
+                    utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+
+                var instant = Instant.FromDateTimeUtc(utcDateTime);
+                var userZonedDateTime = instant.InZone(ctx.Zone);
+
+                // Format the DateTime using the user's localization pattern
+                return userZonedDateTime.ToString(ctx.DateTimePattern, CultureInfo.InvariantCulture);
+            }
+
+
+            public static TimeOnly ConvertUtcDateTimeToLocalTimeOnly(DateTime utcDateTime, ILocalizationContext ctx)
+            {
+                if (utcDateTime.Kind != DateTimeKind.Utc)
+                    utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+
+                var instant = Instant.FromDateTimeUtc(utcDateTime);
+                var localZoned = instant.InZone(ctx.Zone);
+                var local = localZoned.ToDateTimeUnspecified();
+
+                return new TimeOnly(local.Hour, local.Minute, local.Second, local.Millisecond);
+            }
+            public static DateTime ToUtcDateTime(TimeOnly time)
+            {
+                var today = DateTime.UtcNow.Date; 
+                return new DateTime(today.Year, today.Month, today.Day,
+                                    time.Hour, time.Minute, time.Second,
+                                    DateTimeKind.Utc);
+            }
+
+            // Helper: TimeOnly(UTC 24h) -> Local TimeOnly
+            public static TimeOnly ConvertUtcTimeOnlyToLocal(TimeOnly utcTime, ILocalizationContext ctx)
+            {
+                var today = DateOnly.FromDateTime(DateTime.UtcNow);
+                //var utcDateTime = utcTime.ToDateTime(today, DateTimeKind.Utc);
+                var utcDateTime = ToUtcDateTime(utcTime);
+                return ConvertUtcDateTimeToLocalTimeOnly(utcDateTime, ctx);
+            }
+
+            // Helper: Directly format as string in user's pattern
+            public static string ConvertUtcTimeOnlyToLocalFormatted(TimeOnly utcTime, ILocalizationContext ctx)
+            {
+                var localTime = ConvertUtcTimeOnlyToLocal(utcTime, ctx);
+                var pattern = ctx.TimePattern ?? "HH:mm"; // fallback 24h
+                var culture =  CultureInfo.InvariantCulture;
+
+                return localTime.ToString(pattern, culture);
+            }
+
+
         }
+
     }
 
 }

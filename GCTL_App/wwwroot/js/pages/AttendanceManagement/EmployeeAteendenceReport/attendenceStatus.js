@@ -13,7 +13,216 @@
 //    // Update time every second
 //    setInterval(updateTime, 1000);
 //});
+// date rangr
+$(document).ready(function () {
+    generateTimeline();
+    //fetchPunchActivityData();
+    AttendancePieChar();
+    renderAttendanceBarChartController();
+    renderAttendanceComparetController();
+});
 
+const FORMATS = [
+    // ── YYYY/MM/DD (slashes) — 12-hour
+    "YYYY/MM/DD h:mm:ss A",
+    "YYYY/M/D h:mm:ss A",
+    "YYYY/MM/DD h:mm A",
+    "YYYY/M/D h:mm A",
+    "YYYY/MM/DD hh:mm:ss A",
+    "YYYY/M/D hh:mm:ss A",
+    "YYYY/MM/DD hh:mm A",
+    "YYYY/M/D hh:mm A",
+
+    // ── YYYY/MM/DD (slashes) — 24-hour
+    "YYYY/MM/DD HH:mm:ss",
+    "YYYY/M/D HH:mm:ss",
+    "YYYY/MM/DD H:mm:ss",
+    "YYYY/M/D H:mm:ss",
+    "YYYY/MM/DD HH:mm",
+    "YYYY/M/D HH:mm",
+    "YYYY/MM/DD H:mm",
+    "YYYY/M/D H:mm",
+
+    // ── YYYY/MM/DD (slashes) — with milliseconds
+    "YYYY/MM/DD HH:mm:ss.SSS",
+    "YYYY/M/D HH:mm:ss.SSS",
+    "YYYY/MM/DD h:mm:ss.SSS A",
+    "YYYY/M/D h:mm:ss.SSS A",
+
+    // ── YYYY/MM/DD (slashes) — with timezone offsets
+    "YYYY/MM/DD HH:mm:ss Z",
+    "YYYY/M/D HH:mm:ss Z",
+    "YYYY/MM/DD HH:mm:ss ZZ",
+    "YYYY/M/D HH:mm:ss ZZ",
+
+    // ── ISO-like (dashes) with T and/or space
+    "YYYY-MM-DDTHH:mm:ss.SSSZ",
+    "YYYY-MM-DDTHH:mm:ss.SSSZZ",
+    "YYYY-MM-DDTHH:mm:ssZ",
+    "YYYY-MM-DDTHH:mm:ssZZ",
+    "YYYY-MM-DDTHH:mm:ss",
+    "YYYY-MM-DDTHH:mm",
+    "YYYY-MM-DD HH:mm:ss",
+    "YYYY-MM-DD HH:mm",
+    "YYYY-MM-DD H:mm:ss",
+    "YYYY-MM-DD H:mm",
+
+    // ── YYYY-MM-DD with 12-hour
+    "YYYY-MM-DD h:mm:ss A",
+    "YYYY-MM-DD h:mm A",
+    "YYYY-MM-DD hh:mm:ss A",
+    "YYYY-MM-DD hh:mm A",
+
+    // ── D/M/Y (day-first) — slashes
+    "DD/MM/YYYY HH:mm:ss",
+    "D/M/YYYY HH:mm:ss",
+    "DD/MM/YYYY HH:mm",
+    "D/M/YYYY HH:mm",
+    "DD/MM/YYYY h:mm:ss A",
+    "D/M/YYYY h:mm:ss A",
+    "DD/MM/YYYY h:mm A",
+    "D/M/YYYY h:mm A",
+
+    // ── D-M-Y (day-first) — dashes
+    "DD-MM-YYYY HH:mm:ss",
+    "D-M-YYYY HH:mm:ss",
+    "DD-MM-YYYY HH:mm",
+    "D-M-YYYY HH:mm",
+    "DD-MM-YYYY h:mm:ss A",
+    "D-M-YYYY h:mm:ss A",
+    "DD-MM-YYYY h:mm A",
+    "D-M-YYYY h:mm A",
+
+    // ── Dots
+    "YYYY.MM.DD HH:mm:ss",
+    "YYYY.MM.DD HH:mm",
+    "DD.MM.YYYY HH:mm:ss",
+    "DD.MM.YYYY HH:mm",
+
+    // ── Month names (English) — 12-hour & 24-hour
+    "MMM D, YYYY h:mm:ss A",
+    "MMM D, YYYY h:mm A",
+    "MMMM D, YYYY h:mm:ss A",
+    "MMMM D, YYYY h:mm A",
+    "MMM D, YYYY HH:mm:ss",
+    "MMM D, YYYY HH:mm",
+
+    // ── Date-only fallbacks (no ticking if you only get a date)
+    "YYYY/MM/DD",
+    "YYYY-MM-DD",
+    "DD/MM/YYYY",
+    "DD-MM-YYYY",
+
+    // ── Additional formats (date-only, requested + time variants)
+    // yyyy-MM-dd
+    "YYYY-MM-DD",
+    "YYYY-MM-DD h:mm:ss A",
+    "YYYY-MM-DD h:mm A",
+    "YYYY-MM-DD HH:mm:ss",
+    "YYYY-MM-DD HH:mm",
+
+    // MM/dd/yyyy
+    "MM/DD/YYYY",
+    "MM/DD/YYYY h:mm:ss A",
+    "MM/DD/YYYY h:mm A",
+    "MM/DD/YYYY HH:mm:ss",
+    "MM/DD/YYYY HH:mm",
+
+    // dd/MM/yyyy
+    "DD/MM/YYYY",
+    "DD/MM/YYYY h:mm:ss A",
+    "DD/MM/YYYY h:mm A",
+    "DD/MM/YYYY HH:mm:ss",
+    "DD/MM/YYYY HH:mm",
+
+    // yyyy/MM/dd
+    "YYYY/MM/DD",
+    "YYYY/MM/DD h:mm:ss A",
+    "YYYY/MM/DD h:mm A",
+    "YYYY/MM/DD HH:mm:ss",
+    "YYYY/MM/DD HH:mm",
+
+    // September 20, 2025
+    "MMMM DD, YYYY",
+    "MMMM DD, YYYY h:mm:ss A",
+    "MMMM DD, YYYY h:mm A",
+    "MMMM DD, YYYY HH:mm:ss",
+    "MMMM DD, YYYY HH:mm",
+
+    // Sep 20, 2025
+    "MMM DD, YYYY",
+    "MMM DD, YYYY h:mm:ss A",
+    "MMM DD, YYYY h:mm A",
+    "MMM DD, YYYY HH:mm:ss",
+    "MMM DD, YYYY HH:mm",
+
+    // 20-Sep-2025
+    "DD-MMM-YYYY",
+    "DD-MMM-YYYY h:mm:ss A",
+    "DD-MMM-YYYY h:mm A",
+    "DD-MMM-YYYY HH:mm:ss",
+    "DD-MMM-YYYY HH:mm",
+
+    // yyyy.MM.dd
+    "YYYY.MM.DD",
+    "YYYY.MM.DD h:mm:ss A",
+    "YYYY.MM.DD h:mm A",
+    "YYYY.MM.DD HH:mm:ss",
+    "YYYY.MM.DD HH:mm",
+
+    // 250920
+    "YYMMDD",
+
+    // 20 Sep 2025
+    "DD MMM YYYY",
+    "DD MMM YYYY h:mm:ss A",
+    "DD MMM YYYY h:mm A",
+    "DD MMM YYYY HH:mm:ss",
+    "DD MMM YYYY HH:mm"
+];
+
+
+
+
+function parseRawPreserveFormat(rawLike) {
+   
+    const raw = (rawLike && typeof rawLike === 'object' && rawLike.nowLocal)
+        ? rawLike.nowLocal
+        : String(rawLike || '').trim();
+
+    for (const fmt of FORMATS) {
+        const m = moment(raw, fmt, true); // strict
+        if (m.isValid()) return { m, fmt, raw };
+    }
+  
+    const m = moment(raw);
+    return { m, fmt: null, raw };
+}
+
+function startClockFromServer() {
+   
+    $.get('/EmployeesAttendance/NowLocal', function (resp) {
+        const { m, fmt, raw } = parseRawPreserveFormat(resp);
+
+      
+        $('#current-time').text(raw || 'Invalid date');
+
+      
+        clearInterval(window._tick);
+
+      
+        if (m.isValid() && fmt) {
+            let t = m.clone();
+            window._tick = setInterval(function () {
+                t.add(1, 'second');
+                $('#current-time').text(t.format(fmt)); 
+            }, 1000);
+        }
+       
+    });
+}
+
+$(document).ready(startClockFromServer);
 
 
 
@@ -84,133 +293,43 @@ function formatTime(minutes) {
 }
 
 // Function to calculate total working hours, productive hours, break hours, and overtime
-//function updateSessionHours() {
-//    let totalWorkingHours = 0;
-//    let productiveHours = 0;
-//    let breakHours = 0;
-//    let overtimeHours = 0;
 
-//    // Loop through each session entry and accumulate time for each type
-//    data.value.sessionTimeline.forEach(session => {
-//        const durationInMinutes = convertToMinutes(session.duration);
 
-//        // Accumulate total time
-//        totalWorkingHours += durationInMinutes;
+// --- helpers (add once, above your functions) ---
+function toHHmm(raw) {
+    if (!raw) return null;
+    const s = String(raw).trim();
+    const m = moment(s, ["h:mm A", "hh:mm A", "H:mm", "HH:mm"], true);
+    if (m.isValid()) return m.format("HH:mm");
 
-//        // Accumulate time based on session type
-//        switch (session.type) {
-//            case "Worked":
-//                productiveHours += durationInMinutes;
-//                break;
-//            case "Break":
-//                breakHours += durationInMinutes;
-//                break;
-//            case "Ovvertime":
-//                overtimeHours += durationInMinutes;
-//                break;
-//        }
-//    });
+    // Handle numeric input like 9.5 → "09:30"
+    const num = parseFloat(s);
+    if (!isNaN(num)) {
+        const hours = Math.floor(num);
+        const minutes = Math.round((num - hours) * 60);
+        return String(hours).padStart(2, "0") + ":" + String(minutes).padStart(2, "0");
+    }
 
-//    // Update the HTML with the calculated values
-//    $('#totalWorkingHours').text(formatTime(totalWorkingHours));
-//    $('#productiveHours').text(formatTime(productiveHours));
-//    $('#breakHours').text(formatTime(breakHours));
-//    $('#overtime').text(formatTime(overtimeHours));
-//}
+    return null;
+}
 
-//// Function to update progress bars and session details
-//function updateProgressBars() {
-//    let totalTime = 0;
-//    let sessionPercentages = [];
-
-//    // Loop through each session entry and accumulate time for each type
-//    data.value.sessionTimeline.forEach(session => {
-//        const durationInMinutes = convertToMinutes(session.duration);
-//        totalTime += durationInMinutes;
-//    });
-
-//    // Now calculate the percentage for each session type
-//    data.value.sessionTimeline.forEach(session => {
-//        const durationInMinutes = convertToMinutes(session.duration);
-//        const sessionPercentage = (durationInMinutes / totalTime) * 100;
-
-//        // Push session type, duration, and formatted percentage to array
-//        sessionPercentages.push({
-//            type: session.type,
-//            duration: session.duration,
-//            percentage: sessionPercentage.toFixed(2) + "%"  // format percentage to 2 decimal places
-//        });
-//    });
-
-//    // Display the progress bars and the session details
-//    let progressBarsHtml = "";
-//    sessionPercentages.forEach(session => {
-//        progressBarsHtml += `
-//            <div class="progress-bar ${getProgressBarColor(session.type)} rounded me-1" role="progressbar"
-//                style="width: ${session.percentage}">
-//                ${session.duration}
-//            </div>
-//        `;
-//    });
-
-//    $('#progressBars').html(progressBarsHtml);  // Insert the progress bars into the container
-
-//    // Update the timeline labels
-//    const timelineLabels = $('#timelineLabels');
-//    let currentTime = 0;
-//    let currentHour = 7;  // Start at 6:00 AM
-
-//    data.value.sessionTimeline.forEach(session => {
-//        const durationInMinutes = convertToMinutes(session.duration);
-//        const label = $('<span>').addClass('fs-10').text(`${currentHour}:00`);
-//        timelineLabels.append(label);
-
-//        currentTime += durationInMinutes;
-//        currentHour = (currentHour + Math.floor(currentTime / 60)) % 24;  // Update hour
-//    });
-//}
-
-//// Function to determine the progress bar color based on session type
-//function getProgressBarColor(type) {
-//    switch (type) {
-//        case "Worked":
-//            return "bg-success";  // Green for Work
-//        case "Break":
-//            return "bg-warning";  // Yellow for Break
-//        case "Ovvertime":
-//            return "style='background-color: #20C997;";  // Blue for Overtime
-//        default:
-//            return "bg-secondary";  // Default for any unknown session type
-//    }
-//}
-
-//// Use jQuery's ready function to ensure the DOM is fully loaded
-//$(document).ready(function () {
-//    updateSessionHours();
-//    updateProgressBars();
-//});
+function parseDurationToMinutes(str) {
+    if (!str) return 0;
+    const h = (str.match(/(\d+)\s*h/i) || [0, 0])[1] | 0;
+    const m = (str.match(/(\d+)\s*m/i) || [0, 0])[1] | 0;
+    return h * 60 + m;
+}
 
 // Function to fetch pre-calculated data from the backend and update session details
-function fetchSessionData() {
-    $.ajax({
-        url: '/EmployeesAttendance/GetAttendanceProgressBar',  // Your backend endpoint to fetch the pre-calculated session data
-        type: 'GET',  // HTTP method (GET, POST, etc.)
-        dataType: 'json',  // Expected response type
-        success: function (response) {
-            if (response) {
-                // Update session hours using pre-calculated data
-                updateSessionHours(response);
-                // Update progress bars with session details
-                updateProgressBars(response);
-            } else {
-                console.error("Invalid data received");
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error fetching session data: ", error);
-        }
-    });
+// Utilities (optional): loading state দেখাতে চাইলে এগুলো ব্যবহার করুন
+function setLoading(isLoading) {
+    const bars = document.getElementById("progressBarsContainer"); // নিজের আইডি বসান
+    if (!bars) return;
+    bars.style.opacity = isLoading ? "0.5" : "1";
 }
+
+// Core: প্রি-ক্যালকুলেটেড ডেটা ফেচ করে UI আপডেট
+
 
 // Function to update session hours with pre-calculated values from the backend
 function updateSessionHours(data) {
@@ -239,18 +358,43 @@ function updateProgressBars(data) {
     $('#progressBars').html(progressBarsHtml);  // Insert the progress bars into the container
 
     // Optionally, update the timeline labels if required
-    const timelineLabels = $('#timelineLabels');
-    //let currentHour = 9;  // Starting hour for the timeline (adjust as needed)
-    let currentTime = moment(data.shiftStartHour || "09:30", "HH:mm"); 
-    // Loop through sessionTimeline to display the timeline labels
-    data.sessionTimeline.forEach(session => {
-        // Add the formatted current hour and minute to the label
-        const label = $('<span>').addClass('fs-10').text(currentTime.format("HH:mm"));
-        timelineLabels.append(label);
+    // Optionally, update the timeline labels if required
+    const timelineLabels = $('#timelineLabels').empty();
 
-        // Increment currentTime by the session duration (assuming it's 1 hour here, adjust as needed)
-        currentTime.add(1, 'hour'); // or currentTime.add(session.duration, 'minutes') if session has duration data
-    });
+    // Optionally, update the timeline labels if required
+   // const timelineLabels = $('#timelineLabels').empty();
+
+    const earlyRaw = data.earlyStartTime ?? data.EarlyStartTime;
+    const shiftRaw = data.shiftStartTime ?? data.shiftStartHour;
+
+    if (earlyRaw) {
+      
+        // --- Requirement: if earlyStartTime exists, render 9 hours in 30-min steps ---
+        const startStr = toHHmm(earlyRaw) || "00:00";
+        let t = moment(startStr, "HH:mm");
+        // First tick at start
+        timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        // 9 hours / 0.5h = 18 increments
+        for (let i = 0; i < 20; i++) {
+            t = t.clone().add(30, 'minutes');
+            timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        }
+    }
+    else {
+       
+        // --- Requirement: if earlyStartTime exists, render 9 hours in 30-min steps ---
+        const startStr = toHHmm(shiftRaw) || "00:00";
+        let t = moment(startStr, "HH:mm");
+        // First tick at start
+        timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        // 9 hours / 0.5h = 18 increments
+        for (let i = 0; i < 20; i++) {
+            t = t.clone().add(30, 'minutes');
+            timelineLabels.append($('<span>').addClass('fs-10').text(t.format("HH:mm")));
+        }
+    }
+
+
 }
 
 // Function to determine the progress bar color based on session type
@@ -272,9 +416,74 @@ function getProgressBarColor(type) {
 }
 
 // Call the fetchSessionData function when the page is ready
-$(document).ready(function () {
-    fetchSessionData();  // Fetch the pre-calculated data from the backend
-});
+//$(document).ready(function () {
+//    fetchSessionData();  // Fetch the pre-calculated data from the backend
+//   // fetchSessionDataFromDate();
+//});
+
+function fetchSessionData(dateStr) {
+    const input = document.getElementById("dateRangePicker");
+    const selectedDate = dateStr || (input ? input.value : "");
+
+    if (!selectedDate) return; // তারিখ না থাকলে কল না দেই
+
+    $.ajax({
+        url: "/EmployeesAttendance/GetAttendanceProgressBar",
+        type: "GET",
+        dataType: "json",
+        data: { date: selectedDate }, // Backend এ d/m/Y ধরেই পাঠাচ্ছি
+
+        success: function (response) {
+            if (response) {
+                // আপনার বিদ্যমান ফাংশন—আগে থেকেই আছে ধরে নিচ্ছি
+                updateSessionHours(response);
+                updateProgressBars(response);
+                const $badgeBox = $("#statusBadge");
+                const $checkInText = $("#checkInText");
+                const $totalHoursBox = $("#totalHoursBox");
+
+                const hasCheckIn = !!response.hasCheckIn;
+                const production = response.productionTime || response.productiveHours || "";
+                const checkInTime = response.checkInTime || "";
+                const totalWorkingHours = response.totalWorkingHours || "";
+
+                if (hasCheckIn) {
+                    $badgeBox.html(
+                        `<div class="badge text-bg-success mb-3 px-5 py-2">
+                     Production: ${production}
+                   </div>`
+                    );
+                    $checkInText.text(checkInTime ? `Punch In at ${checkInTime}` : "");
+                } else {
+                    $badgeBox.html(
+                        `<div class="badge text-bg-danger mb-3 px-5 py-2">Absent</div>`
+                    );
+                    $checkInText.text("");
+                }
+
+                $totalHoursBox.html(`
+            <div class="mb-2 pb-2">
+                <span class="avatar avatar-sm mb-2">
+                    <i class="ti ti-clock-stop"></i>
+                </span>
+                <h3 class="mb-2">${production} / 
+                    <span class="fs-20 text-gray-5">${totalWorkingHours}</span>
+                </h3>
+                <p class="fw-medium text-truncate">Total Hours Today</p>
+            </div>
+        `);
+            } else {
+                console.error("Invalid data received");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching session data:", error);
+        },
+        complete: function () {
+            setLoading(false);
+        }
+    });
+}
 
 
 // Use jQuery's ready function to ensure the DOM is fully loaded
@@ -304,23 +513,32 @@ $(document).ready(function () {
 
 let timelineData = []; 
 // Function to fetch punch activity data from the server
-function fetchPunchActivityData() {
-    $.getJSON(`/EmployeesAttendance/GetEmployeeAttendanceActivity`, function (data) {
-        // data is already an array like [{type, time, description}, ...]
-        timelineData = data;
-        generateTimeline();
+function fetchPunchActivityData(dateStr) {
+    const input = document.getElementById("dateRangePicker");
+    const selectedDate = dateStr || (input ? input.value : "");
+    if (!selectedDate) return; 
 
-    });
+    $.getJSON(`/EmployeesAttendance/GetEmployeeAttendanceActivity`,
+        { date: selectedDate },   // query string parameter হিসেবে পাঠানো হবে
+        function (data) {
+            // data is already an array like [{type, time, description}, ...]
+            timelineData = Array.isArray(data) ? data : [];
+            generateTimeline(timelineData);
+        }
+    );
 }
 
 
 // Function to generate the timeline dynamically
 function generateTimeline() {
     const timelineContainer = document.getElementById('timelineContainer');
+    timelineContainer.innerHTML = "";
+
+    const items = Array.isArray(data) ? data : timelineData;
 
     // Loop through the timeline data and create timeline items
-    timelineData.forEach(item => {
-        debugger
+    items.forEach(item => {
+ 
         // Create the timeline item container
         const timelineItem = document.createElement('div');
         timelineItem.classList.add('timeline-item', 'position-relative');
@@ -377,9 +595,29 @@ function generateTimeline() {
 }
 
 // Call the function to generate the timeline when the page is ready
-$(document).ready(function () {
-    generateTimeline();
-    fetchPunchActivityData();
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("dateRangePicker");
+
+
+    const fp = flatpickr(input, {
+        dateFormat: "d/m/Y",
+        defaultDate: new Date(),
+        disable: [
+            function (date) {
+                return date > new Date();
+            }
+        ],
+     
+        onReady: function (selectedDates, dateStr) {
+            fetchSessionData(dateStr || this.input.value);
+            fetchPunchActivityData(dateStr || this.input.value);
+        },
+   
+        onChange: function (selectedDates, dateStr) {
+            fetchSessionData(dateStr);
+            fetchPunchActivityData(dateStr);
+        }
+    });
 });
 
 
@@ -387,7 +625,7 @@ $(document).ready(function () {
 ///piechart
 
 // Function to update the attendance status pie chart
-function updateAttendancePieChart(present, absent, leave, late, earlyLeave) {
+function updateAttendancePieChart(present, absent, leave, late) {
     var dom = document.getElementById('employee-attendance-status-piechart');
     var myChart = echarts.init(dom, null, {
         renderer: 'canvas',
@@ -425,7 +663,7 @@ function updateAttendancePieChart(present, absent, leave, late, earlyLeave) {
 
                     },
                     {
-                        value: leave, name: 'Early Leave',
+                        value: leave, name: 'Early',
                         itemStyle: {
                             color: '#FFA500'  // Set color 
                         }
@@ -451,8 +689,26 @@ function updateAttendancePieChart(present, absent, leave, late, earlyLeave) {
 
 // Call the function with dynamic data
 // Example dynamic data
-updateAttendancePieChart(65, 20, 2, 5, 8);
+//updateAttendancePieChart(65, 20, 2, 5);
+function AttendancePieChar() {
+    $.ajax({
+        url: '/EmployeesAttendance/GetEmployeeStatusMonthReport',  // Your backend endpoint to fetch the pre-calculated session data
+        type: 'GET',  // HTTP method (GET, POST, etc.)
+        dataType: 'json',  // Expected response type
+        success: function (response) {
+            if (response) {
+                // Update session hours using pre-calculated data
+                updateAttendancePieChart(response.present, response.absent, response.late, response.early);
 
+            } else {
+                console.error("Invalid data received");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching session data: ", error);
+        }
+    });
+}
 // You can call this function again with new data to update the chart dynamically
 // updateAttendancePieChart(newPresent, newAbsent, newLeave, newLate, newEarlyLeave);
 
@@ -468,7 +724,7 @@ function renderAttendanceCompareChart(data) {
     var option = {
         title: {
             text: 'You vs Emp benchmark',
-            subtext: 'Previous Month'
+            subtext: 'This Month'
         },
         tooltip: {
             trigger: 'axis'
@@ -488,7 +744,7 @@ function renderAttendanceCompareChart(data) {
         xAxis: [
             {
                 type: 'category',
-                data: ['Present', 'Absent', 'Early Leave', 'Late Leave']
+                data: ['Present', 'Absent', 'Early', 'Late']
             }
         ],
         yAxis: [
@@ -523,6 +779,27 @@ function renderAttendanceCompareChart(data) {
     window.addEventListener('resize', myChart.resize);
 }
 
+function renderAttendanceComparetController() {
+    $.ajax({
+        url: '/EmployeesAttendance/GetCompareMonth',  // Your backend endpoint to fetch the pre-calculated session data
+        type: 'GET',  // HTTP method (GET, POST, etc.)
+        dataType: 'json',  // Expected response type
+        success: function (response) {
+            if (response) {
+                // Update session hours using pre-calculated data
+                //  updateAttendancePieChart(response.present, response.absent, response.late, response.early);
+                renderAttendanceCompareChart(response);
+
+            } else {
+                console.error("Invalid data received");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching session data: ", error);
+        }
+    });
+}
+
 // Example of passing dynamic data as a JSON object
 var jsonData = {
     "you": [16, 3, 3, 2],      // Data for "You"
@@ -530,7 +807,7 @@ var jsonData = {
 };
 
 // Call the function with the dynamic data (this can be done on the fly)
-renderAttendanceCompareChart(jsonData);
+//renderAttendanceCompareChart(jsonData);
 
 // linechart1
 
@@ -594,10 +871,10 @@ function renderAttendanceBarChart(data) {
     };
 
     const option = {
-        title: { text: 'Attendance Status', subtext: 'Previous Year' },
+        title: { text: 'Attendance Status', subtext: 'Latest Month' },
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
         grid: { left: '3%', right: '3%', bottom: '3%', containLabel: true },
-        legend: { data: ['Present', 'Absent', 'Late Entry', 'Early Leave', 'Casual Leave', 'Medical Leave'] },
+        legend: { data: ['Present', 'Absent', 'Late', 'Early', 'Casual Leave', 'Medical Leave'] },
         toolbox: {
             show: true,
             orient: 'vertical',
@@ -636,23 +913,23 @@ function renderAttendanceBarChart(data) {
                 type: 'bar',
                 label: labelOption,
                 itemStyle: {
-                    color: 'red'  // Set color #B0B0B0
+                    color: '#B0B0B0'  // Set color #B0B0B0
                 },
                 emphasis: { focus: 'series' },
                 data: data.absent // Dynamic data for "Absent"
             },
             {
-                name: 'Late Entry',
+                name: 'Late',
                 type: 'bar',
                 label: labelOption,
                 itemStyle: {
-                    color: '#D9534F'  // Set color 
+                    color: 'red'  // Set color 
                 },
                 emphasis: { focus: 'series' },
                 data: data.lateEntry // Dynamic data for "Late Entry"
             },
             {
-                name: 'Early Leave',
+                name: 'Early',
                 type: 'bar',
                 label: labelOption,
                 itemStyle: {
@@ -692,16 +969,36 @@ function renderAttendanceBarChart(data) {
 }
 
 // Example of passing dynamic data as a JSON object
-var jsonData = {
-    "months": ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    "present": [20, 21, 19, 21, 18, 20, 21, 19, 21, 18, 20, 21],
-    "absent": [3, 2, 1, 3, 2, 1, 1, 1, 2, 3, 1, 1],
-    "lateEntry": [2, 1, 2, 1, 3, 1, 2, 2, 1, 2, 1, 2],
-    "earlyLeave": [3, 2, 1, 3, 2, 1, 0, 1, 2, 3, 1, 1],
-    "casualLeave": [1, 0, 1, 1, 1, 1, 0, 1, 2, 1, 2, 1],
-    "medicalLeave": [0, 0, 1, 3, 0, 1, 0, 0, 2, 0, 2, 1]
-};
+//var jsonData = {
+//    "months": ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+//    "present": [20, 21, 19, 21, 18, 20, 21, 19, 21, 18, 20, 21],
+//    "absent": [3, 2, 1, 3, 2, 1, 1, 1, 2, 3, 1, 1],
+//    "lateEntry": [2, 1, 2, 1, 3, 1, 2, 2, 1, 2, 1, 2],
+//    "earlyLeave": [3, 2, 1, 3, 2, 1, 0, 1, 2, 3, 1, 1],
+//    "casualLeave": [1, 0, 1, 1, 1, 1, 0, 1, 2, 1, 2, 1],
+//    "medicalLeave": [0, 0, 1, 3, 0, 1, 0, 0, 2, 0, 2, 1]
+//};
 
+function renderAttendanceBarChartController() {
+    $.ajax({
+        url: '/EmployeesAttendance/GetEmployeeStatusYearReport',  // Your backend endpoint to fetch the pre-calculated session data
+        type: 'GET',  // HTTP method (GET, POST, etc.)
+        dataType: 'json',  // Expected response type
+        success: function (response) {
+            if (response) {
+                // Update session hours using pre-calculated data
+                //  updateAttendancePieChart(response.present, response.absent, response.late, response.early);
+                renderAttendanceBarChart(response);
+
+            } else {
+                console.error("Invalid data received");
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error fetching session data: ", error);
+        }
+    });
+}
 // Call the function with the dynamic data (this can be done on the fly)
 renderAttendanceBarChart(jsonData);
 

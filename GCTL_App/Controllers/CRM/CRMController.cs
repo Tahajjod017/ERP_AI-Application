@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 namespace GCTL_App.Controllers.CRM
 {
-    [Authorize]
+    //[Authorize]
     public class CRMController : BaseController
     {
         private readonly ILeadCreateService _leadCreateService;
@@ -50,32 +50,34 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.ServiceDD = new SelectList(_serviceTypeRepository.AllActive().Select(e => new { e.ServiceID, e.ServiceName }), "ServiceID", "ServiceName");
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadActivityTypes = _leadActivityTypesRepository.AllActive().Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
-            ViewBag.LeadStatus = new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
+            ViewBag.LeadStatus = new SelectList(_leadStatusesRepository.AllActive().Where(u=> u.LeadStatusName != "Won" && u.LeadStatusName != "Lost").Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
+            ViewBag.LeadStatus2 = new SelectList(_leadStatusesRepository.AllActive().Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
             ViewBag.LeadPriorities = new SelectList(_prioritiesRepository.AllActive().Select(e => new { e.PriorityID, e.PriorityName }), "PriorityID", "PriorityName");
 
 
 
             SetSmartPageCode(605000);
 
-            ViewBag.ServiceTypeDD = new SelectList(_addressTypeService.AllActive().Where(u => u.AddressTypeName == "billing" || u.AddressTypeName == "company").Select(e => new { e.AddressTypeID, e.AddressTypeName }), "AddressTypeID", "AddressTypeName");
+            ViewBag.ServiceTypeDD = new SelectList(_addressTypeService.AllActive().Where(u => u.AddressTypeName == "individual" || u.AddressTypeName == "company").Select(e => new { e.AddressTypeID, e.AddressTypeName }), "AddressTypeID", "AddressTypeName");
             return View();
         }
 
         #region Approved
 
         [HttpGet]
-        public async Task<IActionResult> GetAllLead(
-     string dateRange,
-     int customerType,
-     string designation,
-     int pageNumber = 1,
-     int pageSize = 10,
-     string searchTerm = "",
-     string sortColumn = "",
-     string sortDirection = "desc")
+        public async Task<IActionResult> GetAllLead (
+         string dateRange,
+         int customerType,
+         string designation,
+         int pageNumber = 1,
+         int pageSize = 10,
+         string searchTerm = "",
+         string sortColumn = "",
+         string sortDirection = "desc",
+         string leadStatus = "")
         {
             var (leads, totalCount) = await _crmService.GetLeads(
-                customerType, dateRange, pageNumber, pageSize,
+                customerType, dateRange, leadStatus, pageNumber, pageSize,
                 searchTerm, sortColumn, sortDirection
             );
 
@@ -108,7 +110,7 @@ namespace GCTL_App.Controllers.CRM
 
             var customerObj = await (from lead in _context.Leads
                                      join cAddress in _context.CustomerAddresses
-                                     on lead.CustomerID equals cAddress.CustomerAddressID
+                                     on lead.CustomerID equals cAddress.CustomerID
                                      join customer in _context.Customers on cAddress.CustomerID equals customer.CustomerID
                                      join address in _context.Addresses on cAddress.AddressID equals address.AddressID
 
@@ -147,7 +149,7 @@ namespace GCTL_App.Controllers.CRM
             if (ModelState.IsValid)
             {
                 if (leadUpdateVM.LeadID != 0)
-                {
+                {   
                     var result = await _leadCreateService.EditLead(leadUpdateVM);
                     return Ok(result);
                 }

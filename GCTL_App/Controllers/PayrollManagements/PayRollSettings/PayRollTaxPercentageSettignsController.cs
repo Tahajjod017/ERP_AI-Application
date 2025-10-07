@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.CommonSelectMasterDropDown;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.BloodGroup;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollSettings;
@@ -10,6 +11,7 @@ using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.BloodGroup;
 using GCTL_App.ViewModels.PayRollManagements.PayRollSettings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Identity.Client;
@@ -17,30 +19,39 @@ using Microsoft.Identity.Client;
 
 namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
 {
+    [Authorize]
     public class PayRollTaxPercentageSettignsController : BaseController
     {
         private readonly IPayRollTaxperCentangeSettingsService payRollTaxperCentangeSettingsService;
-        private readonly IGenericRepository<Organization> organization;
+        private readonly ICommonDroDownService commonDroDownService;
 
         #region Services & Repositories
 
 
 
-        public PayRollTaxPercentageSettignsController(IPayRollTaxperCentangeSettingsService payRollTaxperCentangeSettingsService, ITranslateService translateService, IUserProfileService userProfileService, IBloodGroupService bloodGroupService, IGenericRepository<Organization> organization) : base(translateService, userProfileService)
+        public PayRollTaxPercentageSettignsController(IPayRollTaxperCentangeSettingsService payRollTaxperCentangeSettingsService, ITranslateService translateService, IUserProfileService userProfileService,  ICommonDroDownService commonDroDownService) : base(translateService, userProfileService)
         {
             this.payRollTaxperCentangeSettingsService = payRollTaxperCentangeSettingsService;
-            this.organization = organization;
+            this.commonDroDownService = commonDroDownService;
         }
         #endregion
 
 
         #region Index
-        //[Permission("View", "BloodGroups")]
-
         public async Task<IActionResult> Index()
         {
             PayRolltaxpercentagePageVM model = new PayRolltaxpercentagePageVM();
-            ViewBag.OrganizationDD = new SelectList( organization.AllActive(), "OrganizationID", "OrganizationName");
+            var orga = await commonDroDownService.GetAllOrganizationsAsync(); 
+
+            if (orga.Count == 1) 
+            {
+                ViewBag.OrganizationDD = new SelectList(orga, "Id", "Name", orga.First().Id);
+            }
+            else
+            {
+                ViewBag.OrganizationDD = new SelectList(orga, "Id", "Name");
+            }
+          
             return View(model);
         }
 

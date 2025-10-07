@@ -26,10 +26,10 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ManualAttendence
         public string PossibleReason { get; set; }
         public List<PunchData> PunchData { get; set; }
         public int? EmployeeId { get; set; }
-        public TimeOnly? GraceTime { get; set; }
-        public TimeOnly? MaximumOverTime { get; set; }
-        public TimeOnly? MinimumOverTime { get; set; }
-        public TimeOnly? MinimumWorkHour { get; set; }
+        public int? GraceTime { get; set; }
+        public int? MaximumOverTime { get; set; }
+        public int? MinimumOverTime { get; set; }
+        public int? MinimumWorkHour { get; set; }
         public bool IsOnFullLeave { get; set; }
         public string? PartialLeaveTimeRange { get; set; }
         public bool IsPartialLeave { get; set; }

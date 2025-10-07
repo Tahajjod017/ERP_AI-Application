@@ -22,12 +22,16 @@
             $('#leadStatus-saveBtn').on('click', function (e) {
                 e.preventDefault();
 
-                var token = $('#leadStatus-form input[name="__RequestVerificationToken"]').val();
+                $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
+                var token = $('#leadStatus-form input[name="__RequestVerificationToken"]').val();
+                const isSpecial = $("#IsSpecial").is(":checked");
+                showDev(isSpecial);
                 var formData = {
                     __RequestVerificationToken: token,
                     LeadStatusID: $('#LeadStatusID').val(),
                     LeadStatusName: $('#LeadStatusName').val(),
+                    IsSpecial: isSpecial,
                 }
 
                 validateName();
@@ -51,9 +55,11 @@
                         } else {
                             toastr.info(data.message);
                         }
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     },
                     error: function (err) {
                         console.log(err);
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     }
                 });
             });
@@ -63,7 +69,7 @@
                 e.preventDefault();
 
                 var id = $(this).data('id');
-
+                
 
                 $.ajax({
                     url: '/LeadStatuses/GetById',
@@ -74,7 +80,10 @@
                             var data = response.data;
                             $('#leadStatus-form #LeadStatusID').val(data.leadStatusID);
                             $('#leadStatus-form #LeadStatusName').val(data.leadStatusName);
-
+                            if (data.isSpecial == true) {
+                                $("#IsSpecial").prop("checked", true);
+                            }
+                            $("#")
                             $('#leadStatus-form #leadStatus-saveBtn').text('Update');
                         } else {
                             toastr.warning(response.message);
@@ -357,6 +366,7 @@
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.leadStatusName}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.isSpecial}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 leadStatus-bulkDelete" href="#!" id="leadStatus-edit" data-id="${item.leadStatusID}"><i class="fas fa-edit"></i></a>

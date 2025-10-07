@@ -1,0 +1,48 @@
+﻿@model GCTL_App.ViewModels.Finance.MasterSetup.SecondTabPageVM
+
+@{
+    ViewData["Title"] = @Html.SmartLocalize("Class");
+}
+
+<ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+    <li class="nav-item"><a class="nav-link" href="/MasterSetup/Index">@Html.SmartLocalize("Base Account")</a></li>
+    <li class="nav-item"><a class="nav-link active" href="/SecondTab/Index">@Html.SmartLocalize("Class")</a></li>
+    @* <li class="nav-item"><a class="nav-link" href="/ThirdTab/Index">@Html.SmartLocalize("Group")</a></li> *@
+</ul>
+
+<div class="tab-content mt-3">
+    <div class="tab-pane fade show active">
+        <div class="row">
+            <div class="col-xl-9">
+                <partial name="_Form" model="Model.Create" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-9">
+                <partial name="_Table" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_ConfirmDelete" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/finance/secondTab.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var options = {
+                baseUrl: '@Url.Action("", "SecondTab")'
+            };
+            options.load = () => {
+
+            };
+
+            $.secondTab(options);
+        });
+    </script>
+}

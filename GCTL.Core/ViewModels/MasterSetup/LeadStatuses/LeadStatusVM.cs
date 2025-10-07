@@ -11,5 +11,6 @@ namespace GCTL.Core.ViewModels.MasterSetup.LeadStatuses
         public int LeadStatusID { get; set; }
 
         public string LeadStatusName { get; set; }
+        public bool? IsSpecial { get; set; }
     }
 }

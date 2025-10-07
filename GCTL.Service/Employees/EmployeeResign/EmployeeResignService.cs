@@ -1167,7 +1167,7 @@ namespace GCTL.Service.Employees.EmployeeResign
 
                 return new CommonReturnViewModel { Success = true, Message = "Resign action completed successfully" };
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
                 return new CommonReturnViewModel { Success = false, Message = "Database error occurred while processing the increment action" };
             }

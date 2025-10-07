@@ -72,20 +72,6 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                     response.Errors.Add("BenefitTypeName cannot be empty.");
                     return response;
                 }
-                // Check for duplicate benefit type
-                //var existingBenefitType = await benefitYpe
-                //    .FindAsync(b => b.OrganizationID == model.OrganizatonID
-                //        && b.BenefitTypeName.ToLower() == model.BenefitTypeName.ToLower() && b.BenefitTypeID != model.BenefitTypeID);
-
-
-
-                //if (existingBenefitType != null)
-                //{
-                //    response.Success = false;
-                //    response.Message = "Benefit type already exists.";
-                //    response.Errors.Add($"A benefit type with name '{model.BenefitTypeName}' already exists for this organization.");
-                //    return response;
-                //}
 
                 await benefitYpe.BeginTransactionAsync();
                 foreach(var item in model.OrganizatonIDs)
@@ -94,9 +80,7 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                     {
                         OrganizationID = item,
                         BenefitTypeName = model.BenefitTypeName.Trim(),
-
                         IsApplyOnGrossSalary = model.IsApplyOnGrossSalary,
-
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy,
                         LIP = model.LIP,
@@ -144,9 +128,7 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                 foreach (var item in model.OrganizatonIDs) {
                     entity.BenefitTypeName = model.BenefitTypeName;
                     entity.OrganizationID = item;
-
                     entity.IsApplyOnGrossSalary = model.IsApplyOnGrossSalary;
-
                     entity.UpdatedAt = DateTime.UtcNow;
                     entity.UpdatedBy = model.UpdatedBy;
                     entity.LIP = model.LIP;
@@ -290,7 +272,9 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                     BenefitTypeID = data.BenefitTypeID,
                     OrganizatonID = data.OrganizationID,
                     BenefitTypeName = data.BenefitTypeName,
-                    IsApplyOnGrossSalary = data.IsApplyOnGrossSalary,
+
+                    //ApplyOnGrossSalary = data.ApplyOnGrossSalary,
+                    //ApplyOnBasicSalary = data.ApplyOnBasicSalary,
 
                 };
                 return result;

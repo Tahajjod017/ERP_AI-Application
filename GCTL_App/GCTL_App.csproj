@@ -7,37 +7,9 @@
 	<PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="ViewModels\MasterSetup\LicenceTypes\**" />
-    <Compile Remove="ViewModels\MasterSetup\Organization\**" />
-    <Compile Remove="ViewModels\MasterSetup\PassingYears\**" />
-    <Compile Remove="ViewModels\MasterSetup\ResultTypes\**" />
-    <Compile Remove="ViewModels\MasterSetup\ServiceYears\**" />
-    <Compile Remove="ViewModels\MasterSetup\TrainingYears\**" />
-    <Compile Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
     <Compile Remove="wwwroot\js\layout\coreui-5.4.0\**" />
-    <Content Remove="ViewModels\MasterSetup\LicenceTypes\**" />
-    <Content Remove="ViewModels\MasterSetup\Organization\**" />
-    <Content Remove="ViewModels\MasterSetup\PassingYears\**" />
-    <Content Remove="ViewModels\MasterSetup\ResultTypes\**" />
-    <Content Remove="ViewModels\MasterSetup\ServiceYears\**" />
-    <Content Remove="ViewModels\MasterSetup\TrainingYears\**" />
-    <Content Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
     <Content Remove="wwwroot\js\layout\coreui-5.4.0\**" />
-    <EmbeddedResource Remove="ViewModels\MasterSetup\LicenceTypes\**" />
-    <EmbeddedResource Remove="ViewModels\MasterSetup\Organization\**" />
-    <EmbeddedResource Remove="ViewModels\MasterSetup\PassingYears\**" />
-    <EmbeddedResource Remove="ViewModels\MasterSetup\ResultTypes\**" />
-    <EmbeddedResource Remove="ViewModels\MasterSetup\ServiceYears\**" />
-    <EmbeddedResource Remove="ViewModels\MasterSetup\TrainingYears\**" />
-    <EmbeddedResource Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
     <EmbeddedResource Remove="wwwroot\js\layout\coreui-5.4.0\**" />
-    <None Remove="ViewModels\MasterSetup\LicenceTypes\**" />
-    <None Remove="ViewModels\MasterSetup\Organization\**" />
-    <None Remove="ViewModels\MasterSetup\PassingYears\**" />
-    <None Remove="ViewModels\MasterSetup\ResultTypes\**" />
-    <None Remove="ViewModels\MasterSetup\ServiceYears\**" />
-    <None Remove="ViewModels\MasterSetup\TrainingYears\**" />
-    <None Remove="ViewModels\MasterSetup\YearlyEndBonusTypes\**" />
     <None Remove="wwwroot\js\layout\coreui-5.4.0\**" />
   </ItemGroup>
 
@@ -51,6 +23,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.20" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.16" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.16" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="RazorLight" Version="2.3.1" />
     <PackageReference Include="Selenium.WebDriver" Version="4.32.0" />
@@ -62,9 +35,10 @@
   <ItemGroup>
     <Folder Include="ViewModels\ProjectManagements\" />
     <Folder Include="Views\LeadSources\" />
+    <Folder Include="Views\LeadActivityTypes\" />
+    <Folder Include="Views\AddTeams\" />
     <Folder Include="wwwroot\img\companyImages\" />
     <Folder Include="wwwroot\js\pages\ProjectManagements\" />
-    <Folder Include="wwwroot\uploads\employee\signatures\" />
 
   </ItemGroup>
 
@@ -81,7 +55,7 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Update="wwwroot\uploads\employee\images\MdShefain.jpg">
+    <Content Update="wwwroot\media\employee\images\MdShefain.jpg">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using GCTL.Data.Models;
+using GCTL.Core.Helpers.Jsonserialize;
 
 namespace GCTL.Service.MasterSetup.EducationBoards
 {
@@ -165,7 +166,7 @@ namespace GCTL.Service.MasterSetup.EducationBoards
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<EducationBoardVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<EducationBoardVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.EducationBoardID).ToList();
 
                 foreach (var item in data)

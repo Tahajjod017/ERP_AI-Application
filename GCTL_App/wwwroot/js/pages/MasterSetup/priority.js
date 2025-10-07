@@ -21,6 +21,9 @@
 
             $('#priority-saveBtn').on('click', function (e) {
                 e.preventDefault();
+
+                $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+
                 var token = $('#leadSource-form input[name="__RequestVerificationToken"]').val();
 
                 var formData = {
@@ -50,9 +53,11 @@
                         } else {
                             toastr.info(data.message);
                         }
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     },
                     error: function (err) {
                         console.log(err);
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     }
                 });
             });

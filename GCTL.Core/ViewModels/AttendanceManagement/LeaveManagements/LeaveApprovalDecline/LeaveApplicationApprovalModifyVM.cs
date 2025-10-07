@@ -29,5 +29,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveApprov
         public bool Declined { get; set; }
         public string? ApprovalNote { get; set; }
         public int TotalAppliedDays { get; set; }
+        public int? ApprovalPersonID { get; set; }
+        public string? SecrectCode { get; set; }
+        public DateTime? SecrectCodeDateTime { get; set; }
+        public decimal Taken { get; set; }
     }
 }

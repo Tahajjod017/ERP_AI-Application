@@ -33,5 +33,9 @@ public partial class CalculationTypes
 
     public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetup { get; set; } = new List<EmployeeAllowanceSetup>();
 
+    public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowances { get; set; } = new List<EmployeeBaseAllowances>();
+
+    public virtual ICollection<EmployeeBaseBenefits> EmployeeBaseBenefits { get; set; } = new List<EmployeeBaseBenefits>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

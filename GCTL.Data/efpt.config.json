@@ -16,6 +16,34 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[COA].[BaseAccounts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[Classes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[HeadDetails]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[Heads]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[MainAccounts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[SubAccounts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[TransactionAccounts]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Customer].[Addresses]",
          "ObjectType": 0
       },
@@ -452,6 +480,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[HRM].[AttendancePolicies]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[HRM].[DailyAttendanceStatus]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[HRM].[Resignations]",
          "ObjectType": 0
       },
@@ -477,6 +513,14 @@
       },
       {
          "Name": "[Lead].[LeadDetails]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadProjectTeamMembers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadProjectTeams]",
          "ObjectType": 0
       },
       {
@@ -580,6 +624,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Settings].[MobileApps]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Settings].[Percentages]",
          "ObjectType": 0
       },
@@ -617,6 +665,10 @@
       },
       {
          "Name": "[dbo].[sp_InsertOrUpdateShifts]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_ProcessPunch]",
          "ObjectType": 1
       }
    ],

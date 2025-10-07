@@ -936,13 +936,15 @@ $(document).ready(function () {
         });
     }
 
+
+    // #region savePerson
     async function savePerson(e) {
-        
+
         e.preventDefault();
-        
+
         const ids = idMap[targetTab]
         const data = {};
-        
+
         Object.entries(ids).forEach(([key, value]) => {
             if (key === 'primaryID' || key == 'countryID') {
                 data[titleizeKeys(key)] = $("#" + value).val() ? parseInt($("#" + value).val(), 10) : 0;
@@ -959,7 +961,7 @@ $(document).ready(function () {
             $.ajax({
                 url: '/CreateLead/InsertPerson',
                 method: 'POST',
-                contentType: 'application/json', 
+                contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (response) {
                     if (response.success) {
@@ -978,16 +980,20 @@ $(document).ready(function () {
                 }
             });
         })
-            
-        
+
+
     };
+    // #endregion
+    
+
+    // #region saveCompany
     async function saveCompany(e) {
-        
+
         e.preventDefault();
 
         const ids = idMap[targetTab]
         const data = {};
-      
+
 
         Object.entries(ids).forEach(([key, value]) => {
             if (key === 'primaryID' || key == 'countryID') {
@@ -1024,16 +1030,20 @@ $(document).ready(function () {
                 }
             });
         })
-            
-        
+
+
     };
+    // #endregion
+    
+
+    // #region saveBranch
     async function saveBranch(e) {
-        
+
         e.preventDefault();
 
         const ids = idMap[targetTab]
         const data = {};
-        
+
         //data['PrimaryID'] = 
         //data['Latitude'] = parseFloat($("#" + ids.latitude).val()) || null;
         //data['Longitude'] = parseFloat($("#" + ids.longitude).val()) || null;
@@ -1045,7 +1055,7 @@ $(document).ready(function () {
                 data[titleizeKeys(key)] = parseFloat($("#" + value).val()) || null;
             } else if (key === 'phone' || key === 'otherPhone') {
                 data[titleizeKeys(key)] = getPhoneNumber(value);
-            }else {
+            } else {
                 data[titleizeKeys(key)] = $("#" + value).val() || "";
             }
         });
@@ -1073,16 +1083,20 @@ $(document).ready(function () {
                 }
             });
         })
-            
-        
+
+
     };
+    // #endregion
+    
+
+    // #region saveWarehouse
     async function saveWarehouse(e) {
-        
+
         e.preventDefault();
 
         const ids = idMap[targetTab]
         const data = {};
-        
+
         //data['PrimaryID'] = 
         //data['Latitude'] = parseFloat($("#" + ids.latitude).val()) || null;
         //data['Longitude'] = parseFloat($("#" + ids.longitude).val()) || null;
@@ -1122,9 +1136,13 @@ $(document).ready(function () {
                 }
             });
         })
-            
-        
+
+
     };
+    // #endregion
+    
+
+    // #region saveShippingAddress
     async function saveShippingAddress(e) {
         
         e.preventDefault();
@@ -1167,8 +1185,10 @@ $(document).ready(function () {
             
         
     };
+    // #endregion
 
 
+    // #region goToShippingTab on click
     $("#goToShippingTab").on("click", async function (e) {
         e.preventDefault();
         try {
@@ -1192,7 +1212,7 @@ $(document).ready(function () {
                 }
                 await mapInit();
                 setDataDesktop(result.id);
-                await getCustomerList(); 
+                await getCustomerList();
                 var customer = await customers.find(c => c.customerId == result.id);
                 $('#personSearch').val(customer.fullName)
                 $('#' + idMap.shipping.personID).val(customer.customerId);
@@ -1204,8 +1224,12 @@ $(document).ready(function () {
             $(this).prop("disabled", false);
             toastr.error("Save Failed")
         }
-     
+
     });
+    // #endregion
+
+
+    // #region personSaveAndExit on click
     $("#personSaveAndExit").on("click", async function (e) {
         e.preventDefault();
         try {
@@ -1218,14 +1242,18 @@ $(document).ready(function () {
                     setDataDesktop(result.id);
                     clearTabData(idMap.person);
                 }
-                
+
             };
             $(this).prop("disabled", false);
         } catch (e) {
             toastr.error("Save Failed")
         }
-     
+
     });
+    // #endregion
+
+
+    // #region companySaveAndExit on click
     $("#companySaveAndExit").on("click", async function (e) {
         e.preventDefault();
         try {
@@ -1239,14 +1267,17 @@ $(document).ready(function () {
                     targetTab = 'index';
                     setDataDesktop(result.id);
                 }
-                
+
             };
             $(this).prop("disabled", false);
         } catch (e) {
             toastr.error("Save Failed")
         }
     });
+    // #endregion
 
+
+    // #region saveAndGoBranchTab on click
     $("#saveAndGoBranchTab").on("click", async function (e) {
         e.preventDefault();
         try {
@@ -1285,11 +1316,10 @@ $(document).ready(function () {
         }
 
     });
+    // #endregion
 
 
-    
-
-
+    // #region branchSaveAndExit on click
     $("#branchSaveAndExit").on("click", async function (e) {
         try {
             if (await fieldValidation()) {
@@ -1302,15 +1332,18 @@ $(document).ready(function () {
                     setDataDesktop(result.id);
                     $('#bCompanySearch').val("");
                 }
-                
+
             };
             $(this).prop("disabled", false);
         } catch (e) {
             toastr.error("Save Failed")
         }
-     
-    });
 
+    });
+    // #endregion
+
+
+    // #region saveAndgoWarehouseTab on click
     $("#saveAndgoWarehouseTab").on("click", async function (e) {
         e.preventDefault();
         try {
@@ -1350,7 +1383,10 @@ $(document).ready(function () {
         }
 
     });
+    // #endregion
 
+
+    // #region saveWarehouse on click
     $("#saveWarehouse").on("click", async function (e) {
         try {
             if (await fieldValidation()) {
@@ -1363,25 +1399,23 @@ $(document).ready(function () {
                     setDataDesktop(result.id);
                     $('#wCompanySearch').val("");
                 }
-                
+
             };
             $(this).prop("disabled", false);
         } catch (e) {
             toastr.error("Save Failed")
         }
-     
+
     });
-        
-        
+    // #endregion
 
-        // go to shipping tab
-        
 
+    // #region shippingAddressSaveBtn on click
     $("#shippingAddressSaveBtn").on("click", async function (e) {
 
         if (await fieldValidation()) {
             $(this).prop("disabled", true);
-            var result = await saveShippingAddress(e);   
+            var result = await saveShippingAddress(e);
             if (result.success == true) {
                 setDataDesktop($('#' + idMap.shipping.personID).val());
                 $('#addCustomerModal').modal('hide');
@@ -1392,8 +1426,10 @@ $(document).ready(function () {
             $(this).prop("disabled", false);
         }
         $(this).prop("disabled", false);
-        
+
     });
+    // #endregion
+    
 
     let currentPage = 1;
     let search = "";

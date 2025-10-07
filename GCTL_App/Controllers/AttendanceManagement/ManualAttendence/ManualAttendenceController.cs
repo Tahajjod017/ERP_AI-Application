@@ -8,6 +8,7 @@ using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,20 +16,23 @@ using OpenQA.Selenium.BiDi.Modules.Script;
 
 namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 {
+    [Authorize]
     public class ManualAttendenceController : BaseController
     {
         private readonly IManualAttendenceService _manualAttendenceService;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<Attendance> _attendanceRepository;
+        private readonly IGenericRepository<Departments> _departmentRepository;
         private readonly IGenericRepository<AttendanceLog> _attendanceLogRepository;
 
 
-        public ManualAttendenceController(ITranslateService translateService, IUserProfileService userProfileService, IManualAttendenceService manualAttendenceService, IGenericRepository<Attendance> attendanceRepository, IGenericRepository<AttendanceLog> attendanceLogRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository) : base(translateService, userProfileService)
+        public ManualAttendenceController(ITranslateService translateService, IUserProfileService userProfileService, IManualAttendenceService manualAttendenceService, IGenericRepository<Attendance> attendanceRepository, IGenericRepository<AttendanceLog> attendanceLogRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Departments> departmentRepository) : base(translateService, userProfileService)
         {
             _manualAttendenceService = manualAttendenceService;
             _attendanceRepository = attendanceRepository;
             _attendanceLogRepository = attendanceLogRepository;
             _employeeRepository = employeeRepository;
+            _departmentRepository = departmentRepository;
         }
 
         public IActionResult Index()
@@ -54,6 +58,14 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                 id = e.EmployeeID,
                 name = e.FirstName + " " + e.LastName
             }), "id", "name");
+
+            ViewBag.DepartmentDD = new SelectList(_departmentRepository.AllActive().Select(e => new
+            {
+                id = e.DepartmentName,
+                name = e.DepartmentName 
+            }), "id", "name");
+
+
 
             return View();
         }
@@ -562,7 +574,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
 
                     if (record.GraceTime.HasValue)
                     {
-                        var graceSpan = record.GraceTime.Value.ToTimeSpan();
+                        TimeSpan graceSpan = TimeSpan.FromMinutes((double)record.GraceTime);
+                        //var graceSpan = record.GraceTime.Value.ToTimeSpan();
                         if (firstPunchTime > shiftStart + graceSpan)
                         {
                             var lateBy = (firstPunchTime - shiftStart).TotalMinutes;
@@ -590,7 +603,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ManualAttendence
                     var lastPunchTime = ParseFlexibleTime(record.PunchData.Last().Time);
 
                     var workDuration = lastPunchTime - firstPunchTime;
-                    var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
+                    //var minWorkSpan = record.MinimumWorkHour.Value.ToTimeSpan();
+                    TimeSpan minWorkSpan = TimeSpan.FromMinutes((double)record.MinimumWorkHour);
 
                     if (workDuration < minWorkSpan)
                     {

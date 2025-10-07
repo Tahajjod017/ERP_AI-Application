@@ -65,6 +65,8 @@ public partial class Organization
 
     public virtual ICollection<ApplicationUser> AspNetUsers { get; set; } = new List<ApplicationUser>();
 
+    public virtual ICollection<AttendancePolicies> AttendancePolicies { get; set; } = new List<AttendancePolicies>();
+
     public virtual ICollection<BenefitTypes> BenefitTypes { get; set; } = new List<BenefitTypes>();
 
     public virtual ICollection<Benefits> Benefits { get; set; } = new List<Benefits>();
@@ -106,6 +108,8 @@ public partial class Organization
     public virtual ICollection<LeaveTypes> LeaveTypes { get; set; } = new List<LeaveTypes>();
 
     public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
+
+    public virtual ICollection<MobileApps> MobileApps { get; set; } = new List<MobileApps>();
 
     public virtual ICollection<OTPSettings> OTPSettings { get; set; } = new List<OTPSettings>();
 

@@ -38,6 +38,14 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
                 model.Save.OrganizationID = organizations[0].Id;
             }
             ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name");
+            if (organizations.Count == 1)
+            {
+                ViewBag.OrganizationDDTable = new SelectList(organizations, "Id", "Name", organizations[0].Id);
+            }
+            else
+            {
+                ViewBag.OrganizationDDTable = new SelectList(organizations, "Id", "Name");
+            }
             ViewBag.DepartmentDD = await _commonService.GetDepartments();
             ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
             ViewBag.EmployeeDD = await payRollLoanEntryService.SelectAsync();

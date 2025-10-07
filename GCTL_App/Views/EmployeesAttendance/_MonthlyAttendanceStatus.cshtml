@@ -224,13 +224,13 @@
 
             @* //linechart *@
 
-            <div class="col-12 col-xl-12 col-md-12">
+           @*  <div class="col-12 col-xl-12 col-md-12">
                 <div class="card h-100">
                     <div class="card-body">
                         <div id="yearly-employee-attendance-status-linechart" style="position: relative; height: 20rem; overflow: hidden;"></div>
                     </div>
                 </div>
-            </div>
+            </div> *@
 
 
 
@@ -482,7 +482,7 @@
         var option = {
             title: {
                 text: 'Attendance Status',
-                subtext: 'Previous Year'
+                subtext: 'Latest Year'
             },
             tooltip: {
                 trigger: 'axis'
@@ -525,7 +525,7 @@
                     stack: 'Total',
                     itemStyle: {
                     color: '#28A745'  // Set color
-                },
+                     },
                     data: data.medicalLeave
                 },
                 {
@@ -573,7 +573,26 @@
         // Resize the chart on window resize
         window.addEventListener('resize', myChart.resize);
     }
+        function renderAttendanceBarChartControllers() {
+        $.ajax({
+            url: '/EmployeesAttendance/GetEmployeeStatusYearReport',  // Your backend endpoint to fetch the pre-calculated session data
+            type: 'GET',  // HTTP method (GET, POST, etc.)
+            dataType: 'json',  // Expected response type
+            success: function (response) {
+                if (response) {
+                    // Update session hours using pre-calculated data
+                    //  updateAttendancePieChart(response.present, response.absent, response.late, response.early);
+                    renderAttendanceLineChart(response);
 
+                } else {
+                    console.error("Invalid data received");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching session data: ", error);
+            }
+        });
+    }
     // Example of passing dynamic data as a JSON object
     var jsonData = {
         "months": ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -586,5 +605,5 @@
     };
 
     // Call the function with the dynamic data (this can be done on the fly)
-    renderAttendanceLineChart(jsonData);
+    //renderAttendanceLineChart(jsonData);
 </script>

@@ -40,19 +40,26 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         [Permission("View", "AddShift")]
         public async Task<IActionResult> Index()
         {
-            ShiftsPageVM model = new ShiftsPageVM();
-
-            SetSmartPageCode(202800);
-
-            var result = await _commonService.GetOrganizations(search: "", page: 1, pageSize: 50);
-            var organizations = result.Items;
-            if (organizations.Count == 1)
+            try
             {
-                model.Setup.OrganizationIDs = organizations[0].Id.HasValue ? new List<int> { organizations[0].Id.Value } : new List<int>();
-            }
-            ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name");
+                ShiftsPageVM model = new ShiftsPageVM();
 
-            return View(model);
+                SetSmartPageCode(202800);
+
+                var result = await _commonService.GetOrganizations(search: "", page: 1, pageSize: 50);
+                var organizations = result.Items;
+                if (organizations.Count == 1)
+                {
+                    model.Setup.OrganizationIDs = organizations[0].Id.HasValue ? new List<int> { organizations[0].Id.Value } : new List<int>();
+                }
+                ViewBag.OrganizationDD = new SelectList(organizations, "Id", "Name");
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
         }
         #endregion
 
@@ -103,7 +110,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
                     return Json(new { isSuccess = true, message = "Saved Successfully.", lastId = model.ShiftID });
                 }
 
-                var orderedKeys = new[] { "ShiftName", "OrganizationIDs", "StartTime", "EndTime" };
+                var orderedKeys = new[] { "OrganizationIDs", "ShiftName", "StartTime", "EndTime" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -125,7 +132,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Update
-        //[Permission("Edit", "Add Shift")]
+        [Permission("Edit", "AddShift")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(ShiftUpdateSetupVM model)

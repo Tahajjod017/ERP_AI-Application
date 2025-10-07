@@ -614,16 +614,20 @@ $(document).ready(function () {
     // Handle form submit
     $('body').on('submit', '#LeaveRequestForm', function (e) {
         e.preventDefault();
-
+        
         var $form = $(this);
-
+        var $saveButton = $form.find('#ApplyLeaveSubmitButton'); 
         if (!$form.valid()) {
 
             return false;
         }
         var available = parseFloat($('#LeaveDays').val()) || 0;
         var applied = parseFloat($('#TotalAppliedDays').val()) || 0;
-
+        var leaveType = $('#LeaveTypeID').val();
+        if (!leaveType) {
+            toastr.error("Please select a leave type before applying.");
+            return false;
+        }
         if (applied > available && !exceedConfirmed) {
             const message = `You have ${available} day(s) available, but you tried to apply for ${applied} day(s).
         So, your exceed leave will be deducted from Annual Leave. `;
@@ -652,6 +656,11 @@ $(document).ready(function () {
             contentType: false,
             processData: false,
             dataType: 'json',
+            beforeSend: function ()
+            {
+                $saveButton.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+                showLoadingIndicator();
+            },
             success: function (response) {
                 console.log("Response:", response);
                 if (response.success) {
@@ -667,7 +676,6 @@ $(document).ready(function () {
                     applyModal.hide();
                     //
                 } else {
-                    // Show server-side validation errors
                     if (response.errors && response.errors.length > 0) {
                         response.errors.forEach(function (error) {
                             toastr.error(error);
@@ -679,6 +687,9 @@ $(document).ready(function () {
             },
             error: function () {
                 toastr.error("An unexpected error occurred.");
+            }, complete: function () {
+                $saveButton.prop('disabled', false).html('Apply Leave');
+                hideLoadingIndicator();
             }
         });
     });
@@ -756,7 +767,7 @@ $(document).ready(function () {
     //
     $(document).on('click', '#ApplyLeaveSubmitButtonUpdate', function (e) {
         e.preventDefault();
-
+        var $saveButton = $(this); // 🔑 reference the clicked button
         var model = {
             LeaveApplicationID: parseInt($('#LeaveApplicationID').val()) || 0,
             EmployeeIDEdit: parseInt($('#EmployeeIDEdit').val()) || null,
@@ -781,6 +792,13 @@ $(document).ready(function () {
             type: 'POST',
             data: JSON.stringify(model),
             contentType: 'application/json',
+            beforeSend: function () {
+                // show spinner
+                $saveButton
+                    .prop('disabled', true)
+                    .html('<i class="fa fa-spinner fa-spin"></i> Updating...');
+                showLoadingIndicator();
+            },
             success: function (response) {
 
                 if (response.success) {
@@ -793,6 +811,10 @@ $(document).ready(function () {
             error: function (xhr, status, error) {
                 console.error("Update Error:", error);
                 toastr.error("An unexpected error occurred while updating the leave request.");
+            }, complete: function () {
+                // restore button
+                $saveButton.prop('disabled', false).html('Update Apply');
+                hideLoadingIndicator();
             }
         });
     });
@@ -969,11 +991,16 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
 
             if (steps.length > 0) {
                 steps.forEach((item, index) => {
-                    const approverStep = item.approverStep ?? '';
+                    var approverStep = item.approverStep ?? '';
                     const statusName = item.statusName ?? '';
                     const author = item.approvarPerson ?? '';
                     const statusDescription = item.approvarNote ?? '';
                     const approvedOrDeclineDate = item.approvedOrDeclineDate ?? '';
+                    var total = item.approverStepTotal ?? '';
+                    if (approverStep > total)
+                    {
+                        approverStep = total;
+                    }
 
                     html += `
                 <div class="timeline-item" style="margin-bottom:1px>
@@ -982,7 +1009,8 @@ $(document).on('mouseenter', '.custom-tooltip-container', function () {
                             <div class="col-12 col-md-auto d-flex">
                                 <div class="timeline-item-date order-1 order-md-0 me-md-4">
                                     <p class="fs-10 fw-semibold text-body-tertiary text-opacity-85 text-end">
-                                        ${approverStep} 
+                                    
+                                        ${approverStep} of ${total}
                                     </p>
                                 </div>
 
@@ -1069,28 +1097,37 @@ function getBadgeClass(status) {
 // #endregion
 
 // #region 🟡 Get Status Text Based on Approver Steps & Timing
+
+
 function getStatusText(item) {
     const rawStatus = item.statusName?.trim().toUpperCase();
-    const isNewStatus = !rawStatus || rawStatus === 'NEW';
-    if (item.approverStep === 1 || item.approverStep === 2) {
-        return 'OnGoing';
-    } else if (item.approverStep === 3) {
+     if (rawStatus === 'DECLINED') {
+        return 'DECLINED';
+    }
+     else if (rawStatus === 'APPROVED' && item.isFinalApproved)
+     {
         return 'APPROVED';
     }
-  
+     else if (rawStatus === 'APPROVED' && !item.isFinalApproved)
+     {
+        return 'ONGOING';
+    }
+    const isNewStatus = !rawStatus;
     if (isNewStatus && item.applicationDate) {
-       
         const applicationDate = new Date(item.applicationDate);
         const now = new Date();
-        const hoursPassed = (now - applicationDate) / (1000 * 60 * 60);
+        const hoursPassed = (now - applicationDate) / (1000 * 60 * 60); 
 
-        if (hoursPassed >= 24) {
-            return 'Waiting for Approval';
+        if (hoursPassed >= 24)
+        {
+            return 'WAITING FOR APPROVAL';
         }
-        return 'New';
+        return 'NEW';
     }
-    return rawStatus || '<i class="text-success"></i> New';
+
+    return rawStatus;
 }
+
 // #endregion
 
 // #region 🟠 Check Whether to Show Info Icon

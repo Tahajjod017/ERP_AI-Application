@@ -33,10 +33,17 @@
                     <span asp-validation-for="LeaveTypeIDEdit" class="text-danger small"></span>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <div class="mb-3">
                     <label class="form-label">Available No of Days</label>
                     <input type="text" class="form-control readonly" id="AvailableLeaveDays" readonly>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <label class="form-label">Taken</label>
+                    <input type="text" class="form-control readonly" id="Taken" readonly>
                 </div>
             </div>
 
@@ -114,7 +121,6 @@
                         <div class="mb-3">
                             <label class="form-label req">Start Time</label>
                             <input class="form-control datetimepicker timepicker-12hrEdit" asp-for="PartialFromTimeEdit" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
-                            @* <input class="form-control datetimepicker" asp-for="PartialFromTimeEdit" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' /> *@
                             <span asp-validation-for="PartialFromTimeEdit" class="text-danger small"></span>
                         </div>
                     </div>
@@ -123,7 +129,6 @@
                         <div class="mb-3">
                             <label class="form-label req">End Time</label>
                             <input class="form-control datetimepicker timepicker-12hr" asp-for="PartialToTimeEdit" type="text" placeholder="@Html.SmartLocalize("hour : minute")" readonly="readonly" />
-                           @*  <input class="form-control datetimepicker" asp-for="PartialToTimeEdit" type="text" placeholder="hour : minute" data-options='{"enableTime":true,"noCalendar":true,"dateFormat":"H:i","disableMobile":true}' /> *@
                             <span asp-validation-for="PartialToTimeEdit" class="text-danger small"></span>
                         </div>
                     </div>

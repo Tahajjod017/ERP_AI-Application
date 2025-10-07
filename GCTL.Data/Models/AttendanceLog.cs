@@ -35,6 +35,10 @@ public partial class AttendanceLog
 
     public DateTime? CHECKTIME_UTC { get; set; }
 
+    public string Latitude { get; set; }
+
+    public string Longitude { get; set; }
+
     public virtual Attendance Attendance { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }

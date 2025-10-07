@@ -24,18 +24,21 @@ namespace GCTL.Service.CRM
             _employeesRepository = employeesRepository;
         }
         public async Task<(List<LeadsTableVM> Leads, int TotalCount)> GetLeads(
-        int customerType,
-        string dateRange,
-        int pageNumber,
-        int pageSize,
-        string searchTerm,
-        string sortColumn,
-        string sortDirection)
+    int customerType,
+    string dateRange,
+    string leadStatus2,
+    int pageNumber = 1,
+    int pageSize = 10,
+    string searchTerm = null,
+    string sortColumn = null,
+    string sortDirection = null
+    
+)
         {
-            // Base query
+            // Start query (IQueryable, NOT ToList yet)
             var query = from lead in _leadsGenericRepository.AllActive()
                         join indDddr in _context.CustomerAddresses
-                            on lead.CustomerID equals indDddr.CustomerAddressID
+                            on lead.CustomerID equals indDddr.CustomerID
                         join address in _context.Addresses
                             on indDddr.AddressID equals address.AddressID
                         join individual in _context.Customers
@@ -49,7 +52,7 @@ namespace GCTL.Service.CRM
                         select new LeadsTableVM
                         {
                             LeadId = lead.LeadID,
-                            LeadStatus = leadStatus.LeadStatusName,
+                            LeadStatus = lead.IsOwn == true ? "Won": lead.IsOwn == false ? "Lost":  leadStatus.LeadStatusName,
                             LeadSourceName = leadSource.LeadSourceName,
                             LeadOwnerName = leadOwner.FirstName + " " + leadOwner.LastName,
                             ApproximateDealValue = lead.ApproximateDealValue,
@@ -63,46 +66,13 @@ namespace GCTL.Service.CRM
                             CustomerTypeID = indDddr.AddressType.AddressTypeID
                         };
 
-
-            // Filter by customerType if provided
+            // Apply filters before pagination
             if (customerType > 0)
-            {
                 query = query.Where(r => r.CustomerTypeID == customerType);
-            }
 
+            if (!string.IsNullOrEmpty(leadStatus2))
+                query = query.Where(r => r.LeadStatus == leadStatus2);
 
-            if (!string.IsNullOrEmpty(dateRange))
-            {
-                var dates = dateRange.Split(" to ", StringSplitOptions.RemoveEmptyEntries);
-
-                // single date case
-                if (dates.Length == 1)
-                {
-                    if (DateTime.TryParseExact(dates[0].Trim(), "dd/MM/yy",
-                        System.Globalization.CultureInfo.InvariantCulture,
-                        System.Globalization.DateTimeStyles.None, out var singleDate))
-                    {
-                        query = query.Where(r => r.CreatedDate == singleDate.Date);
-                    }
-                }
-                // range case
-                else if (dates.Length == 2)
-                {
-                    if (DateTime.TryParseExact(dates[0].Trim(), "dd/MM/yy",
-                        System.Globalization.CultureInfo.InvariantCulture,
-                        System.Globalization.DateTimeStyles.None, out var startDate) &&
-                        DateTime.TryParseExact(dates[1].Trim(), "dd/MM/yy",
-                        System.Globalization.CultureInfo.InvariantCulture,
-                        System.Globalization.DateTimeStyles.None, out var endDate))
-                    {
-                        query = query.Where(r => r.CreatedDate >= startDate.Date &&
-                                                 r.CreatedDate <= endDate.Date);
-                    }
-                }
-            }
-
-
-            // 🔹 Search
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 searchTerm = searchTerm.ToLower();
@@ -110,54 +80,32 @@ namespace GCTL.Service.CRM
                     (r.LeadName != null && r.LeadName.ToLower().Contains(searchTerm)) ||
                     (r.Phone != null && r.Phone.ToLower().Contains(searchTerm)) ||
                     (r.ContactName != null && r.ContactName.ToLower().Contains(searchTerm)) ||
-                    (r.ApproximateDealValue.ToString().ToLower().Contains(searchTerm)) ||
-                    (r.ProbabilityPercentage.ToString().ToLower().Contains(searchTerm)) ||
-                    (r.Email != null && r.Email.ToLower().Contains(searchTerm)) ||
-                    (r.LeadOwnerName != null && r.LeadOwnerName.ToLower().Contains(searchTerm))
+                    (r.Email != null && r.Email.ToLower().Contains(searchTerm))
                 );
             }
 
-            // 🔹 Sorting
+            // Sorting
             query = (sortColumn, sortDirection) switch
             {
                 ("leadStatus", "desc") => query.OrderByDescending(r => r.LeadStatus),
                 ("leadStatus", _) => query.OrderBy(r => r.LeadStatus),
-
-                ("leadSourceName", "desc") => query.OrderByDescending(r => r.LeadSourceName),
-                ("leadSourceName", _) => query.OrderBy(r => r.LeadSourceName),
-
-                ("leadOwnerName", "desc") => query.OrderByDescending(r => r.LeadOwnerName),
-                ("leadOwnerName", _) => query.OrderBy(r => r.LeadOwnerName),
-
                 ("leadName", "desc") => query.OrderByDescending(r => r.LeadName),
                 ("leadName", _) => query.OrderBy(r => r.LeadName),
-
-                ("email", "desc") => query.OrderByDescending(r => r.Email),
-                ("email", _) => query.OrderBy(r => r.Email),
-
-                ("phone", "desc") => query.OrderByDescending(r => r.Phone),
-                ("phone", _) => query.OrderBy(r => r.Phone),
-
-                ("approximateDealValue", "desc") => query.OrderByDescending(r => r.ApproximateDealValue),
-                ("approximateDealValue", _) => query.OrderBy(r => r.ApproximateDealValue),
-
-                ("probabilityPercentage", "desc") => query.OrderByDescending(r => r.ProbabilityPercentage),
-                ("probabilityPercentage", _) => query.OrderBy(r => r.ProbabilityPercentage),
-
-                ("status", "desc") => query.OrderByDescending(r => r.Status),
-                ("status", _) => query.OrderBy(r => r.Status),
-
-                _ => query.OrderByDescending(r => r.LeadId) // default
+                _ => query.OrderByDescending(r => r.LeadId)
             };
 
-            // 🔹 Count before paging
+            // Total count before paging
             var totalCount = await query.CountAsync();
 
-            // 🔹 Paging
-            var leads = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            // ✅ Fetch only the required page from DB
+            var leads = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             return (leads, totalCount);
         }
+
 
         // employeeService
 

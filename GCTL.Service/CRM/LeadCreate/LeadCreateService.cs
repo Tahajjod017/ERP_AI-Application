@@ -1,14 +1,9 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
-using GCTL.Core.ViewModels.MasterSetup.LeadSource;
-using GCTL.Core.ViewModels.MasterSetup.LeadStatuses;
-using GCTL.Core.ViewModels.MasterSetup.Priority;
-using GCTL.Core.ViewModels.MasterSetup.ServiceType;
-using GCTL.Core.ViewModels.PayrollManagements.LoanManagement;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SkiaSharp;
 using System.Security.Cryptography;
 
@@ -17,6 +12,7 @@ namespace GCTL.Service.CRM.LeadCreate
 {
     public class LeadCreateService : ILeadCreateService
     {
+        #region Repositories
         private readonly IGenericRepository<Country> _countryRepository;
         private readonly IGenericRepository<Customers> _customersRepository;
         private readonly IGenericRepository<Addresses> _addressesRepository;
@@ -30,7 +26,14 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly IGenericRepository<LeadServices> _leadServicesRepository;
         private readonly AppDbContext _context;
 
-        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository,  IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository,IGenericRepository<CompanyWarehouses> companyWarehousesRepository,IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository)
+        #region Added by Md. Rakib Hasan
+        private readonly IGenericRepository<Heads> _heads;
+        private readonly IGenericRepository<HeadDetails> _headDetails;
+        private readonly IGenericRepository<TransactionAccounts> _transactionAccounts;
+        private readonly IGenericRepository<SubAccounts> _subAccounts;
+        #endregion
+
+        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts)
         {
             _countryRepository = countryRepository;
             _addressesRepository = addressesRepository;
@@ -44,8 +47,15 @@ namespace GCTL.Service.CRM.LeadCreate
             _companyBranchAddressesRepository = companyBranchAddressesRepository;
             _leadServicesRepository = leadServicesRepository;
             _context = context;
+            _heads = heads;
+            _headDetails = headDetails;
+            _transactionAccounts = transactionAccounts;
+            _subAccounts = subAccounts;
         }
+        #endregion
 
+
+        #region CreatePerson
         public async Task<ReturnView> CreatePerson(CustomerVM customerVM)
         {
             // Begin transaction
@@ -62,7 +72,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 if (!items.Any())
                 {
                     var addressTypes = new List<AddressTypes>();
-                    var listItem = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    var listItem = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
 
                     foreach (var typeName in listItem)
                     {
@@ -82,8 +92,85 @@ namespace GCTL.Service.CRM.LeadCreate
                 // Fetch country
                 var countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == customerVM.CountryId);
 
-                // Fetch billing address type
-                var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "billing");
+                // Fetch individual address type
+                var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "individual");
+
+
+                #region Added by Md. Rakib Hasan
+                string schemaName = "Customer"; 
+                string tableName = "Customers";
+                int subAccId = 1;
+
+                var headDetail = await _headDetails.FirstOrDefaultAsync(hd => hd.SchemaName == schemaName && hd.TableName == tableName);
+
+                if (headDetail == null)
+                {
+                    headDetail = new HeadDetails();
+                    headDetail.SchemaName = schemaName;
+                    headDetail.TableName = tableName;
+
+                    headDetail.LIP = customerVM.LIP;
+                    headDetail.LMAC = customerVM.LMAC;
+                    headDetail.CreatedAt = DateTime.UtcNow;
+                    headDetail.CreatedBy = customerVM.CreatedBy;
+                    
+                    await _headDetails.AddAsync(headDetail);
+                }
+
+                var head = await _heads.FirstOrDefaultAsync(h => h.HeadDetailID == headDetail.HeadDetailID);
+
+                if (head == null)
+                {
+                    head = new Heads();
+                    head.HeadDetailID = headDetail.HeadDetailID;
+
+                    head.LIP = customerVM.LIP;
+                    head.LMAC = customerVM.LMAC;
+                    head.CreatedAt = DateTime.UtcNow;
+                    head.CreatedBy = customerVM.CreatedBy;
+
+                    await _heads.AddAsync(head);
+                }
+
+                customerObj.HeadID = head.HeadID;
+
+                var subAccDetails = await _subAccounts.AllActive().FirstOrDefaultAsync(x => x.SubAccountID == subAccId);
+
+                if(subAccDetails != null)
+                {
+                    TransactionAccounts trxAccount = new TransactionAccounts();
+                    trxAccount.SubAccountID = subAccDetails.SubAccountID;
+
+                    // Increment TrxAccCode
+                    string originalCode = subAccDetails.SubAccountCode;
+                    string prefix = new string(originalCode.TakeWhile(c => !char.IsDigit(c)).ToArray());
+                    string numberPart = new string(originalCode.SkipWhile(c => !char.IsDigit(c)).ToArray());
+
+                    if (int.TryParse(numberPart, out int number))
+                    {
+                        number++; // Increment the numeric part
+                        string newCode = $"{prefix}{number.ToString(new string('0', numberPart.Length))}";
+                        trxAccount.TrxAccCode = newCode;
+                    }
+                    else
+                    {
+                        trxAccount.TrxAccCode = originalCode; // fallback if not a number
+                    }
+
+                    trxAccount.TrxAccName = subAccDetails.SubAccountName;
+                    trxAccount.IsActive = true;
+                    trxAccount.Description = "Customer transaction account";
+                    trxAccount.Head = head;
+
+                    trxAccount.LIP = customerVM.LIP;
+                    trxAccount.LMAC = customerVM.LMAC;
+                    trxAccount.CreatedAt = DateTime.UtcNow;
+                    trxAccount.CreatedBy = customerVM.CreatedBy;
+
+                    await _transactionAccounts.AddAsync(trxAccount);
+                }
+                #endregion
+
 
                 // Create customer (individual)
                 customerObj = new Customers()
@@ -162,7 +249,10 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
+        #endregion
 
+
+        #region CreateCompany
         public async Task<ReturnView> CreateCompany(CompanyVM companyVM)
         {
             // Begin transaction
@@ -178,7 +268,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 if (!items.Any())
                 {
                     var addressTypes = new List<AddressTypes>();
-                    var listItem = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    var listItem = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
 
                     foreach (var typeName in listItem)
                     {
@@ -276,6 +366,10 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
+        #endregion
+
+
+        #region SaveAddressType
         public async Task<int> SaveAddressType(int? createdBy, string? LIP, string? LMAC)
         {
             // Begin transaction
@@ -289,7 +383,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 if (!items.Any())
                 {
                     var addressTypes = new List<AddressTypes>();
-                    var listItem = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    var listItem = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
 
                     foreach (var typeName in listItem)
                     {
@@ -320,8 +414,10 @@ namespace GCTL.Service.CRM.LeadCreate
                 return 0;
             }
         }
+        #endregion
 
 
+        #region SaveCountry
         //private async Task<int> saveCountry(string? countryCode, string? coutryName, int? CreatedBy, string? LIP, string? LMAC)
         //{
         //    int countryId = 0;
@@ -356,7 +452,10 @@ namespace GCTL.Service.CRM.LeadCreate
         //    }
         //    return countryId;
         //}
+        #endregion
 
+
+        #region CreateShippingAddress
         public async Task<CommonReturnViewModel> CreateShippingAddress(ShippingVM shippingVM)
         {
             // Begin transaction only in this method
@@ -448,14 +547,16 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
+        #endregion
 
-        // ✅ Helper method: Do NOT start a transaction here
+
+        #region EnsureAddressTypesExist
         private async Task EnsureAddressTypesExist(int? createdBy, string? LIP, string? LMAC)
         {
             var items = await _addressTypesRepository.GetAllAsync();
             if (!items.Any())
             {
-                var listItems = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                var listItems = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
                 List<AddressTypes> newAddressTypes = new List<AddressTypes>();
 
                 foreach (var item in listItems)
@@ -474,7 +575,10 @@ namespace GCTL.Service.CRM.LeadCreate
                 // Do NOT commit or start transaction here
             }
         }
+        #endregion
 
+
+        #region CreateLead
         public async Task<CommonReturnViewModel> CreateLead(LeadsVM leadsVM)
         {
             // Begin transaction
@@ -484,12 +588,12 @@ namespace GCTL.Service.CRM.LeadCreate
             {
                 // Get the customer address
                 var individualAddressObj = await _customerAddressesRepository.FirstOrDefaultAsync(
-                    u => u.CustomerAddressID == leadsVM.CustomerId);
+                    u => u.CustomerID == leadsVM.CustomerId);
 
                 // Create lead
                 var leadObj = new Leads()
                 {
-                    CustomerID = individualAddressObj.CustomerAddressID,
+                    CustomerID = individualAddressObj.CustomerID,
                     LeadName = leadsVM.LeadName,
                     IsIndividualCustomer = leadsVM.IsIndividualCustomer,
                     LeadStatusID = leadsVM.LeadStatusID,
@@ -544,6 +648,10 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
+        #endregion
+
+
+        #region EditLead
         public async Task<CommonReturnViewModel> EditLead(LeadUpdateVM leadUpdateVM)
         {
             // Begin transaction
@@ -620,9 +728,9 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
+        #endregion
 
-
-
+        #region CreateBranch
         public async Task<ReturnView> CreateBranch(BranchVM branchVM)
         {
             // Begin transaction
@@ -634,7 +742,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 var addressTypes = await _addressTypesRepository.GetAllAsync();
                 if (!addressTypes.Any())
                 {
-                    var listItems = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    var listItems = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
                     List<AddressTypes> newAddressTypes = new List<AddressTypes>();
 
                     foreach (var item in listItems)
@@ -752,8 +860,10 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
+        #endregion
 
 
+        #region CreateWarehouse
         public async Task<ReturnView> CreateWarehouse(WarehouseVM warehouseVM)
         {
             // Begin transaction
@@ -765,7 +875,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 var addressTypes = await _addressTypesRepository.GetAllAsync();
                 if (!addressTypes.Any())
                 {
-                    var listItems = new string[] { "billing", "shipping", "company", "branch", "warehouse" };
+                    var listItems = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
                     List<AddressTypes> newAddressTypes = new List<AddressTypes>();
 
                     foreach (var item in listItems)
@@ -875,8 +985,10 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
+        #endregion
 
 
+        #region getcustomerInfo
         public async Task<object?> getcustomerInfo(int? id = 0)
         {
             var customerObj = await(from add in _context.CustomerAddresses
@@ -910,5 +1022,6 @@ namespace GCTL.Service.CRM.LeadCreate
 
             return customerObj;
         }
+        #endregion
     }
 }

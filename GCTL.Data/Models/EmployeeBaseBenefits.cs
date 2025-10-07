@@ -11,30 +11,6 @@ public partial class EmployeeBaseBenefits
 
     public int? EmployeeID { get; set; }
 
-    public decimal? HealthInsurance { get; set; }
-
-    public bool IsHealthInsuranceEnabled { get; set; }
-
-    public decimal? PerformanceBonus { get; set; }
-
-    public bool IsPerformanceBonusEnabled { get; set; }
-
-    public int? YearlyEndBonusTypeID { get; set; }
-
-    public bool IsYearlyEndBonusTypeIDEnabled { get; set; }
-
-    public decimal? FastivalBonusPercentage { get; set; }
-
-    public bool IsFastivalBonusPercentageEnabled { get; set; }
-
-    public decimal? ProvidantFundEmployeePercentage { get; set; }
-
-    public decimal? ProvidantFundOrganizationPercentage { get; set; }
-
-    public bool IsProvidantFundEnabled { get; set; }
-
-    public int? ServiceYearID { get; set; }
-
     public string LIP { get; set; }
 
     public string LMAC { get; set; }
@@ -51,15 +27,23 @@ public partial class EmployeeBaseBenefits
 
     public int? DeletedBy { get; set; }
 
+    public int? BenefitID { get; set; }
+
+    public int? CalculationTypeID { get; set; }
+
+    public decimal? BenefitValue { get; set; }
+
+    public bool IsBenifitEnabled { get; set; }
+
+    public virtual Benefits Benefit { get; set; }
+
+    public virtual CalculationTypes CalculationType { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees Employee { get; set; }
 
-    public virtual ServiceYears ServiceYear { get; set; }
-
     public virtual Employees UpdatedByNavigation { get; set; }
-
-    public virtual YearlyEndBonusTypes YearlyEndBonusType { get; set; }
 }

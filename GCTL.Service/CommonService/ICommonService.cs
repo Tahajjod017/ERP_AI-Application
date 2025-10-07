@@ -26,12 +26,24 @@ namespace GCTL.Service.CommonService
         Task<List<CommonSelectVM>> GetSpiralPatterns();
 
         Task<List<CommonSelectVM>> GetSpiralPatternsByOrgPatternType(int orgId, int? typeId);
-        #endregion
 
+        Task<List<CommonSelectVM>> GetBaseAccounts();
+
+        Task<List<CommonSelectVM>> GetAccountClass();
+
+        Task<List<CommonSelectVM>> GetMainAccount();
+
+        Task<List<CommonSelectVM>> GetClassByBaseAccId(int baseAccountID);
+
+        Task<List<CommonSelectVM>> GetMainAccByClassId(int classId);
+
+        Task<List<CommonSelectVM>> GetSubAccByClassIdMainAccId(int classId, int? mainAccId);
+        #endregion
+                       
 
         #region Load Paginated
         Task<PaginatedResult<CommonSelectVM>> GetOrganizations(string search, int page = 1, int pageSize = 50);
-        Task<List<CommonSelectVM>> SearchEmployees(string search, int pageSize = 50);
+        Task<PaginatedResult<CommonSelectVM>> SearchEmployees(string search, int page = 1, int pageSize = 50);
         #endregion
 
 

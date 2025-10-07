@@ -7,6 +7,7 @@
 	var initials = !string.IsNullOrEmpty(fullName) ? fullName.Trim()[0].ToString().ToUpper() : "?";
 	bool hasImage = !string.IsNullOrWhiteSpace(profilePicturePath)
 							&& !profilePicturePath.ToLower().Contains("null");
+	var hasCheckIn = ViewData["CheckInTime"] != null;
 	//var currentLocale = ViewData["Locale"]; // Assuming _loc is the current locale context object
 	//var timeZone = ViewData["TimeZone"]; // Assuming you have access to the time zone
 }
@@ -18,8 +19,8 @@
 		<div class="card-body">
 			<div class="mb-3 text-center">
 				<h6 class="fw-medium text-gray-5 mb-2">Hello, @fullName</h6>
-				<h4>@ViewData["CurrentTime"]</h4>
 				<h4 id="current-time"></h4>
+				<h4 ></h4>
 			</div>
 			
 			<div class="attendance-circle-progress mx-auto mb-3" data-value='65'>
@@ -42,17 +43,17 @@
 					}
                 </div>
 			</div>
-			<div class="text-center">
-				<div class="badge text-bg-danger mb-3 px-5 py-2">
-					@if (ViewData["CheckInTime"] == null)
-					{
-						<text>Absent</text>
-					}
-					else
-					{
-						<text>Production: @ViewData["ProductionTime"] </text>  <!-- Access the first element of the array -->
-					}
-				</div>
+			@* <div class="text-center">
+				@if (!hasCheckIn)
+				{
+					<div class="badge text-bg-danger mb-3 px-5 py-2">Absent</div>
+				}
+				else
+				{
+					<div class="badge text-bg-success mb-3 px-5 py-2">
+						Production: <span id="productionTime"></span>
+					</div>
+				}
 				<h6 class="fw-medium d-flex align-items-center justify-content-center mb-3">
 					<i class="ti ti-fingerprint text-primary me-1"></i>
 					@if (ViewData["CheckInTime"] != null)
@@ -60,8 +61,21 @@
 						<text> Punch In at @ViewData["CheckInTime"]</text>
                     }
 				</h6>
-				@* <a href="#" class="btn btn-dark w-100">Punch Out</a> *@
+				
+			</div> *@
+			<div class="text-center">
+				<div id="statusBadge">
+					
+				</div>
+
+				<h6 class="fw-medium d-flex align-items-center justify-content-center mb-3">
+					<i class="ti ti-fingerprint text-primary me-1"></i>
+					<span id="checkInText">
+						
+					</span>
+				</h6>
 			</div>
+
 		</div>
 	</div>
 </div>
@@ -71,11 +85,14 @@
 		<div class="col-xl-3 col-md-6 mb-3">
 			<div class="card">
 				<div class="card-body">
-					<div class="mb-2 pb-2">
+					<div id="totalHoursBox">
+						
+					</div>
+					@* <div class="mb-2 pb-2">
 						<span class="avatar avatar-sm mb-2"><i class="ti ti-clock-stop"></i></span>
 						<h3 class="mb-2">@ViewData["ProductionTime"] / <span class="fs-20 text-gray-5"> @ViewData["TotalWorkingHours"]</span></h3>
 						<p class="fw-medium text-truncate">Total Hours Today</p>
-					</div>
+					</div> *@
 					@* <div>
 						<p class="d-flex align-items-center fs-13">
 							<i class="fa fa-arrow-up fs-12 me-2"></i>
@@ -145,7 +162,7 @@
 					<div class="row">
 						<div class="col-xl-2">
 							<div class="mb-2">
-								<p class="mb-1"><i class="ti ti-point-filled text-dark-transparent me-1"></i>Total Working hours</p>
+								<p class="mb-1"><i class="ti ti-point-filled text-dark-transparent me-1"></i>Total Office hours</p>
 								<h3 id="totalWorkingHours">--</h3>
 							</div>
 						</div>

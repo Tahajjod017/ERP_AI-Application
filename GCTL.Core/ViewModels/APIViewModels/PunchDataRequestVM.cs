@@ -9,8 +9,16 @@ namespace GCTL.Core.ViewModels.APIViewModels
 {
     public class PunchDataRequestVM : BaseViewModel
     {
-        public string EmployeeId { get; set; }
-        public string AttendanceDate { get; set; }
-        public List<PunchDataVM> PunchDataVMs { get; set; } = new();
+        public int EmployeeId { get; set; }
+
+        public string? SourceType { get; set; } = "Apps";
+
+        public string? DeviceInfo { get; set; } = string.Empty;
+
+        public DateTime? CheckInTime { get; set; } = DateTime.Now;
+
+        public string? Latitude { get; set; }
+
+        public string? Longitude { get; set; }
     }
 }

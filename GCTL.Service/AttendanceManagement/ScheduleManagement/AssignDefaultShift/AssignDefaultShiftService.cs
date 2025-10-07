@@ -5,6 +5,7 @@ using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefault
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.GeometriesGraph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,8 +58,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                         if (model.ExcludedEmployeeIDs != null && model.ExcludedEmployeeIDs.Contains(employee.EmployeeID ?? 0))
                             continue;
 
-                        var existingEntity = await _genericRepository.All()
-                            .Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                        var existingEntity = await _genericRepository.AllActive()
+                            .Where(x => x.OrganizationID == employee.OrganizationID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
                         if (existingEntity != null)
                         {
                             existingEntity.ShiftID = model.ShiftID;
@@ -93,7 +94,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                             continue;
                         foreach (var employee in employees)
                         {
-                            var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                            var existingEntity = await _genericRepository.AllActive().Where(x => x.OrganizationID == employee.OrganizationID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
                             if (existingEntity != null)
                             {
                                 existingEntity.ShiftID = model.ShiftID;
@@ -124,35 +125,39 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                 {
                     foreach (var empId in model.EmployeeIDs)
                     {
-                        var employee = (await _employeeOfficeInfo.FindAsync(x => x.EmployeeID == empId)).FirstOrDefault();
+                        var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID && x.EmployeeID == empId);
+                        if (employees == null || !employees.Any())
+                            continue;
 
-                        if (employee == null || employee.DepartmentID == null) continue;
-
-                        var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
-                        if (existingEntity != null)
+                        foreach(var employee in employees)
                         {
-                            existingEntity.ShiftID = model.ShiftID;
-                            existingEntity.LIP = model.LIP;
-                            existingEntity.LMAC = model.LMAC;
-                            existingEntity.CreatedBy = model.CreatedBy;
-                            existingEntity.CreatedAt = DateTime.Now;
+                            var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
 
-                            await _genericRepository.UpdateAsync(existingEntity);
-                        }
-                        else
-                        {
-                            DefaultShifts entity = new DefaultShifts();
-                            entity.ShiftID = model.ShiftID;
-                            entity.OrganizationID = employee.OrganizationID;
-                            entity.DepartmentID = employee.DepartmentID;
-                            entity.EmployeeID = empId;
+                            if (existingEntity != null)
+                            {
+                                existingEntity.ShiftID = model.ShiftID;
+                                existingEntity.LIP = model.LIP;
+                                existingEntity.LMAC = model.LMAC;
+                                existingEntity.CreatedBy = model.CreatedBy;
+                                existingEntity.CreatedAt = DateTime.Now;
 
-                            entity.LIP = model.LIP;
-                            entity.LMAC = model.LMAC;
-                            entity.CreatedBy = model.CreatedBy;
-                            entity.CreatedAt = DateTime.Now;
+                                await _genericRepository.UpdateAsync(existingEntity);
+                            }
+                            else
+                            {
+                                DefaultShifts entity = new DefaultShifts();
+                                entity.ShiftID = model.ShiftID;
+                                entity.OrganizationID = employee.OrganizationID;
+                                entity.DepartmentID = employee.DepartmentID;
+                                entity.EmployeeID = empId;
 
-                            await _genericRepository.AddAsync(entity);
+                                entity.LIP = model.LIP;
+                                entity.LMAC = model.LMAC;
+                                entity.CreatedBy = model.CreatedBy;
+                                entity.CreatedAt = DateTime.Now;
+
+                                await _genericRepository.AddAsync(entity);
+                            }
                         }
                     }
                 }

@@ -38,15 +38,37 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 
         public bool UpdateIsAllowOvertime { get; set; }
 
-        public TimeOnly? UpdateGraceTime { get; set; }
+        public int? UpdateGraceTimeHour { get; set; }
 
-        public TimeOnly? UpdateMinimumWorkingTime { get; set; }
+        public int? UpdateGraceTimeMinute { get; set; }
 
-        public TimeOnly? UpdateMinimumRequiredOvertime { get; set; }
+        public int? UpdateMinimumWorkingTimeHour { get; set; }
 
-        public TimeOnly? UpdateMaximumAllowedOvertime { get; set; }
+        public int? UpdateMinimumWorkingTimeMinute { get; set; }
 
-        public TimeOnly? UpdateMealBreakTime { get; set; }
+        public int? UpdateMinimumRequiredOvertimeHour { get; set; }
+
+        public int? UpdateMinimumRequiredOvertimeMinute { get; set; }
+
+        public int? UpdateMaximumAllowedOvertimeHour { get; set; }
+
+        public int? UpdateMaximumAllowedOvertimeMinute { get; set; }
+
+        public int? UpdateMealBreakTimeHour { get; set; }
+
+        public int? UpdateMealBreakTimeMinute { get; set; }
+
+        public bool UpdateIsRestrictFlexibleInTime { get; set; }
+
+        public int? UpdateEarlyInTimeHour { get; set; }
+
+        public int? UpdateEarlyInTimeMinute { get; set; }
+
+        public bool UpdateIsRestrictFlexibleOutTime { get; set; }
+
+        public int? UpdateEarlyOutTimeHour { get; set; }
+
+        public int? UpdateEarlyOutTimeMinute { get; set; }
 
 
         public IList<OrganizationsVM>? OrganizationsVMs { get; set; } = new List<OrganizationsVM>();

@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.CommonSelectMasterDropDown;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.ActionLogVM;
@@ -10,12 +11,15 @@ using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefault
 using GCTL.Core.ViewModels.MasterSetup.Statuses;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using SkiaSharp;
 using System;
@@ -23,11 +27,15 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 using System.Web.Razor.Generator;
+using System.Web.Razor.Parser.SyntaxTree;
 using static Dapper.SqlMapper;
+using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -54,7 +62,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
         private readonly IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory;
         private readonly IEmailService  emailService;
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory, IEmailService emailService) : base(leaveRequest)
+        private readonly ILocalizationContext _localizationContext;
+        private readonly ICommonDroDownService commonDroDownService;
+        
+        //
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory, IEmailService emailService, ILocalizationContext localizationContext, ICommonDroDownService commonDroDownService) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -75,9 +87,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.approvaldesignation = approvaldesignation;
             this.leaveBaseApprovalHistory = leaveBaseApprovalHistory;
             this.emailService = emailService;
+            _localizationContext = localizationContext;
+            this.commonDroDownService = commonDroDownService;
         }
 
         #region  Get Data All  Leave  Requyest
+
+         
         public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
           List<int> departmentIds = null, List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
@@ -163,38 +179,16 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     ? query.OrderByDescending(orderByExpression)
                     : query.OrderBy(orderByExpression);
 
-                //
-                //var data = await query.ToListAsync(); // Load all into memory
-
-                // Apply Period calculation manually for sorting
-                //if (currentSortColumn?.ToLower() == "period")
-                //{
-                //    data = currentSortOrder == "desc"
-                //        ? data.OrderByDescending(b =>
-                //            b.IsFullDay
-                //                ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
-                //                : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
-                //                    ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours
-                //                    : 0).ToList()
-                //        : data.OrderBy(b =>
-                //            b.IsFullDay
-                //                ? (b.ToDate.DayNumber - b.FromDate.DayNumber) + 1
-                //                : b.PartialFromTime.HasValue && b.PartialToTime.HasValue
-                //                    ? (int)(b.PartialToTime.Value - b.PartialFromTime.Value).TotalHours
-                //                    : 0).ToList();
-                //}
+                
 
                 // For approver Step
                 var approvalStepsMap = await leaveBaseApprovalHistory.AllActive().GroupBy(x => x.LeaveApplicationID).ToDictionaryAsync(g => g.Key, g => g.Select(x => x.ApprovalStep ?? 0).ToList());
-                //
                 var result = await PaginationService<LeaveApplications, LeaveApplicationsList>.GetPaginatedData(
-
 
                     query,
                     pageNumber,
                     pageSize,
                     searchTerm,
-
                     currentSortColumn,
                     currentSortOrder,
 
@@ -205,11 +199,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                       EF.Functions.Like(b.Status.StatusName, $"%{term}%") ||
                       EF.Functions.Like(b.FromDate.ToString(), $"%{term}%") ||
                       EF.Functions.Like(b.ToDate.ToString(), $"%{term}%"),
-
-
                     b => new LeaveApplicationsList
                     {
-                        ApplicationDateForTable = DateTimeHelpers.FormatDateTime(b.CreatedAt)  ,
+                        ApplicationDateForTable = b.CreatedAt.HasValue ? TimeConversionHelper.ConvertUtcToUserLocalizedDateTimeString(DateTime.SpecifyKind(b.CreatedAt.Value, DateTimeKind.Utc), _localizationContext) : "-",
                         ApplicationDate = b.CreatedAt,
                         LeaveApplicationID = b.LeaveApplicationID,
                         StatusName = !string.IsNullOrEmpty(b.Status?.StatusName) ? b.Status.StatusName : "",
@@ -221,7 +213,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         EmployeeName = $"{b.Employee.FirstName} {b.Employee.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee.EmployeeImageFileName) ? url + b.Employee.EmployeeImageFileName : "",
                         EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
-                        ApproverStep = approvalStepsMap.ContainsKey(b.LeaveApplicationID) ? approvalStepsMap[b.LeaveApplicationID] : new List<int>()
+                        ApproverStep = approvalStepsMap.ContainsKey(b.LeaveApplicationID) ? approvalStepsMap[b.LeaveApplicationID] : new List<int>(),
+                        IsFinalApproved=b.IsFinalApproved,
 
                     });
 
@@ -231,7 +224,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             catch (Exception ex)
             {
                 Console.WriteLine($"Error : {ex.Message}");
-
                 return new PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>
                 {
                     Data = new List<LeaveApplicationsList>(),
@@ -250,7 +242,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 return null;
             }
 
-            await leaveRequest.BeginTransactionAsync();
             try
             {
                 var data = await leaveRequest.GetByIdAsync(leaveApplicationID);
@@ -323,8 +314,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #region  Save Leave Reqest
 
-        //Today Taskk  
-
+        
         // StatusID according to Name 
         private async Task<int?> GetIdByNameAsync(string name)
         {
@@ -403,7 +393,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 existingBalance.ApplicableYear = leaveDaysFromConfig.ApplicableYear;
                 existingBalance.LIP = entityVM.LIP;
                 existingBalance.LMAC = entityVM.LMAC;
-                existingBalance.UpdatedAt = DateTime.Now;
+                existingBalance.UpdatedAt = DateTime.UtcNow;
                 existingBalance.UpdatedBy = entityVM.UpdatedBy;
 
                 await leaveBalances.UpdateAsync(existingBalance);
@@ -418,7 +408,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     TakenPartialHours = entityVM.IsFullDay ? 0 : CalculatePartialHours(entityVM.PartialFromTime, entityVM.PartialToTime),
                     TotalLeave = leaveDaysFromConfig.LeaveDays,
                     ApplicableYear = leaveDaysFromConfig.ApplicableYear,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     CreatedBy = entityVM.CreatedBy,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC
@@ -433,7 +423,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 StatusID = approvedStatusId.Value,
                 ApproverNote = "SELF APPROVED",
                 LeaveTypeID = entityVM.LeaveTypeID,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 CreatedBy = entityVM.CreatedBy,
                 LIP = entityVM.LIP,
                 LMAC = entityVM.LMAC,
@@ -595,13 +585,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
 
         //Save Code
-            public async Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM)
+            public async Task<CommonReturnViewModel> SaveLeaveRequestAsync(LeaveApplicationsRequestVM entityVM, string url)
         {
 
             if (entityVM == null)
                 return new CommonReturnViewModel { Success = false, Message = "Data cannot be null" };
 
-            // 3. If it's a partial day leave, check how many partials already exist
+            
             if (!entityVM.IsFullDay)
             {
                 var result = await ValidationMaxPerDayPartialDayAsync(entityVM.EmployeeID, entityVM.ToDateFromDateCombined);
@@ -685,7 +675,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 // Process if we got an approver in self-approval flow
                 if (approvalPersonId.HasValue)
                 {
-                    return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, true);
+                    return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, true,url);
                 }
             }
 
@@ -715,7 +705,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             {
                 return new CommonReturnViewModel { Success = false, Message = "No valid approver found." };
             }
-            return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, false);
+            return await ProcessLeaveApplicationAsync(entityVM, approvalPersonId.Value, approvalSettings, offf, approvalFlow, false,url);
 
         }
 
@@ -725,7 +715,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         // Max Perday Validation Partial
 
         //
-        private async Task<CommonReturnViewModel> ProcessLeaveApplicationAsync( LeaveApplicationsRequestVM entityVM,int approvalPersonId,ApprovalSettings approvalSettings,dynamic offf,List<(int? id, bool isDesignation)> approvalFlow,bool isSelfApproval
+        private async Task<CommonReturnViewModel> ProcessLeaveApplicationAsync( LeaveApplicationsRequestVM entityVM,int approvalPersonId,ApprovalSettings approvalSettings,dynamic offf,List<(int? id, bool isDesignation)> approvalFlow,bool isSelfApproval,string url
         )
         {
             await leaveRequest.BeginTransactionAsync();
@@ -747,6 +737,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 if (remainingDays > 0 && strictLeaveTypes.Contains(leaveTypeName))
                 return new CommonReturnViewModel { Success = false, Message = $"{leaveTypeName} cannot be adjusted from other leave types." };
                 int sequence = 0;
+                string secrectCode = string.Empty;
                 if (usedDays > 0)
                 {
                     var entity = new LeaveApplications
@@ -758,21 +749,26 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         PartialFromTime = entityVM.PartialFromTime,
                         PartialToTime = entityVM.PartialToTime,
                         StatusID = isSelfApproval ? leaveTypeIDApproved : entityVM.StatusID,
-                        LeaveApplicableYear = DateTime.Now.Year,
-                        CreatedAt = DateTime.Now,
+                        LeaveApplicableYear = DateTime.UtcNow.Year,
+                        CreatedAt = DateTime.UtcNow,
                         CreatedBy = entityVM.CreatedBy,
                         LeaveTypeID = entityVM.LeaveTypeID,
                         IsGroupApplication = entityVM.IsGroupApplication,
                         Reason = entityVM.Reason,
                         ApprovalPersonID = approvalPersonId,
                         IsFinalApproved = isSelfApproval ? true : false,
+
+                        SecrectCode =Guid.NewGuid().ToString(),
+                        SecrectCodeDateTime = DateTime.UtcNow,
+                         
+
                         LIP = entityVM.LIP,
                         LMAC = entityVM.LMAC
                     };
 
                     await leaveRequest.AddAsync(entity);
                     sequence = entity.LeaveApplicationID;
-
+                    secrectCode = entity.SecrectCode;
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
                 }
 
@@ -782,7 +778,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 }
 
                 var currentStart = fromDate.AddDays(usedDays);
-
                 if (remainingDays > 0 && allowFallback)
                 {
                     var fallbackTypes = await leaveTypes.AllActive()
@@ -807,20 +802,24 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                 PartialFromTime = entityVM.PartialFromTime,
                                 PartialToTime = entityVM.PartialToTime,
                                 StatusID = entityVM.StatusID,
-                                LeaveApplicableYear = DateTime.Now.Year,
+                                LeaveApplicableYear = DateTime.UtcNow.Year,
                                 IsFinalApproved = isSelfApproval ? true : false,
                                 //IsGroupApplication = entityVM.IsGroupApplication,
-                                CreatedAt = DateTime.Now,
+                                CreatedAt = DateTime.UtcNow,
                                 CreatedBy = entityVM.CreatedBy,
                                 LeaveTypeID = fallback.LeaveTypeID,
                                 Reason = $"Exceeded original leave – adjusted using prioritized leave type ({fallback.LeaveTypeName})",
                                 LIP = entityVM.LIP,
                                 LMAC = entityVM.LMAC,
                                 GroupApplicationID = sequence > 0 ? sequence : 0,
-                                ApprovalPersonID = approvalPersonId
+                                ApprovalPersonID = approvalPersonId,
+                                SecrectCode = Guid.NewGuid().ToString(),
+                                SecrectCodeDateTime = DateTime.UtcNow,
                             };
 
                             await leaveRequest.AddAsync(partial);
+                            sequence = partial.LeaveApplicationID;
+                            secrectCode = partial.SecrectCode;
                             await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, partial, partial.LeaveApplicationID, entityVM);
 
                             remainingDays -= usedFallback;
@@ -843,8 +842,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         PartialToTime = entityVM.PartialToTime,
                         StatusID = entityVM.StatusID,
                         IsFinalApproved = isSelfApproval ? true : false,
-                        LeaveApplicableYear = DateTime.Now.Year,
-                        CreatedAt = DateTime.Now,
+                        LeaveApplicableYear = DateTime.UtcNow.Year,
+                        CreatedAt = DateTime.UtcNow,
                         CreatedBy = entityVM.CreatedBy,
                         //IsGroupApplication= entityVM.IsGroupApplication,
                         LeaveTypeID = lWP,
@@ -852,85 +851,531 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         LIP = entityVM.LIP,
                         LMAC = entityVM.LMAC,
                         GroupApplicationID = sequence > 0 ? sequence : 0,
-                        ApprovalPersonID = approvalPersonId
+                        ApprovalPersonID = approvalPersonId,
+                        SecrectCode = Guid.NewGuid().ToString(),
+                        SecrectCodeDateTime = DateTime.UtcNow,
                     };
 
                     await leaveRequest.AddAsync(lwpEntity);
+                    sequence=lwpEntity.LeaveApplicationID;
+                    secrectCode = lwpEntity.SecrectCode;
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, lwpEntity, lwpEntity.LeaveApplicationID, entityVM);
                 }
-                // fro email 
-                var approvalDepartment = await empoffi.AllActive().Where(x => x.EmployeeID == approvalPersonId)
-                    .Select(x => new { x.OfficeEmail, x.Department.DepartmentName, x.Designation.DesignationName }).FirstOrDefaultAsync();
-                var applicantNameEmail = await employee.AllActive()
-                    .Where(x => x.EmployeeID == entityVM.EmployeeID)
-                    .Select(x => new { x.FirstName, x.LastName, x.Email }).FirstOrDefaultAsync();
+                // for email 
 
-                var applicantDepartment = await empoffi.AllActive()
-                    .Where(x => x.EmployeeID == entityVM.EmployeeID)
-                    .Select(x => new
+                var orgainfo = await _organizationRepository.AllActive().Include(x=>x.Country).Include(x => x.EmployeeOfficeInfo.Where(x => x.EmployeeID == entityVM.EmployeeID))
+                    .Select(x => new {
+                        x.OrganizationName,x.LogoLink,x.FaviconLink,
+                        x.Address, x.FullAddress,x.EmailAddress ,CountryName=x.Country.CountryName
+                        , x.Phone}).FirstOrDefaultAsync();
+
+                string formattedAddress = string.Empty;
+
+                if (orgainfo != null && !string.IsNullOrWhiteSpace(orgainfo.Address))
+                {
+                    //var parts = orgainfo.Address.Split(',');
+                    string addressWithCommas = orgainfo.Address.Replace("\r\n", ",")
+                                               .Replace("\n", ",")
+                                               .Replace("\r", ",");
+
+                    // Split by comma
+                    var parts = orgainfo.Address.Split(',');
+                    formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
+                }
+                else
+                {
+                    formattedAddress = "No address available"; 
+                }
+                string logourl;
+                if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
+                {
+                    logourl = $"http://usasoft.xyz/media/company/logo/{orgainfo.LogoLink}";
+                }
+                else
+                {
+                    var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
+                        ? "?" : orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
+
+                    logourl = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
+                }
+
+              
+                if (orgainfo==null)
+                {
+                    return new CommonReturnViewModel
                     {
-                        x.OfficeEmail,
-                        DepartmentName = x.Department.DepartmentName,
-                        DesignationName = x.Designation.DesignationName
-                    }).FirstOrDefaultAsync();
+                        Success=false,
+                        Message="Organization Info does not exists"
+                    };
+                }
+                var allEmployeeData = await (from emp in employee.AllActive()
+                                             join empOff in empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
+                                                 on emp.EmployeeID equals empOff.EmployeeID
+                                             
+                                             select new
+                                             {
+                                                 emp.EmployeeID,
+                                                 emp.FirstName,
+                                                 emp.LastName,
+                                                 emp.Email,
+                                                 empOff.OfficeEmail,
+                                                 DepartmentName = empOff.Department.DepartmentName,
+                                                 DesignationName = empOff.Designation.DesignationName,
+                                                
+                                             }).ToListAsync();
 
-                // Approver info
-                var approverNameEmail = await employee.AllActive()
-                    .Where(x => x.EmployeeID == approvalPersonId)
-                    .Select(x => new { x.FirstName, x.LastName, x.Email })
-                    .FirstOrDefaultAsync();
+                var applicantData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == entityVM.EmployeeID);
+                var approverData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == approvalPersonId);
 
-                var approverDepartment = await empoffi.AllActive()
-                    .Where(x => x.EmployeeID == approvalPersonId)
-                    .Select(x => new
-                    {
-                        x.OfficeEmail,
-                        DepartmentName = x.Department.DepartmentName,
-                        DesignationName = x.Designation.DesignationName
-                    }).FirstOrDefaultAsync();
                 var leaveName = await leaveTypes.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeID).Select(x => x.LeaveTypeName).FirstOrDefaultAsync();
                 int totalDays = 0;
                 if (entityVM.FromDate.HasValue && entityVM.ToDate.HasValue)
                 {
                     totalDays = (entityVM.ToDate.Value.DayNumber - entityVM.FromDate.Value.DayNumber) + 1;
                 }
-
+               
                 // Build email model
+                int leaveApplicationID = sequence;
+                var data = await GetLeaveRequestByIdAsync(leaveApplicationID);
+                Console.WriteLine(data);
+
+                var model = new EmailTemplateVM
+                {
+                    LogoUrl = logourl,
+                    FormattedAddress = formattedAddress ?? "No address available",
+                    CountryName = orgainfo.CountryName ?? "No country",
+                    Email = orgainfo.EmailAddress ?? "No email",
+                    Phone = orgainfo.Phone ?? "No phone",
+                    RecipientName = applicantData.FirstName + " " + applicantData.LastName,
+                    StatusMessage = "This is an automated leave request submitted by an employee.",
+                    ApplicantName = applicantData.FirstName + " " + applicantData.LastName,
+                    Department = applicantData.DepartmentName,
+                    Designation = applicantData.DesignationName,
+                    LeaveName = leaveName,
+                    FromDate = entityVM.FromDate,
+                    ToDate = entityVM.ToDate,
+                    Reason = entityVM.Reason,
+                    AcceptUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=true&secrectCode={secrectCode}",
+                    DenyUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=false&secrectCode={secrectCode}",
+                    ModifyLink = $"{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}"
+                };
+
+                //var emailBody = await commonDroDownService.RenderViewToStringAsync("LeaveRequest/LeaveRequestEmail", model);
+
+                //var emailModel33 = new EmailVM
+                //{
+                //    To = applicantData?.Email ?? applicantData?.OfficeEmail,
+                //    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
+                //    Body = emailBody
+                //};
+
+                var supervisors = await empoffi.AllActive()
+  .Where(x => x.EmployeeID == entityVM.EmployeeID)
+  .Select(x => new
+  {
+      ImmediateSupervisor = x.ImmediateSupervisorId != null && x.ImmediateSupervisorId != 0 ? x.ImmediateSupervisorId : (int?)null,
+      SeniorSupervisor = x.SeniorSupervisorId != null && x.SeniorSupervisorId != 0 ? x.SeniorSupervisorId : (int?)null,
+      HeadOfDepartment = x.HeadOfDepartmentId != null && x.HeadOfDepartmentId != 0 ? x.HeadOfDepartmentId : (int?)null
+  }).FirstOrDefaultAsync();
+
+                var supervisorList = new List<(string Role, int? Id)>();
+                if (supervisors?.ImmediateSupervisor != null) supervisorList.Add(("Immediate Supervisor", supervisors.ImmediateSupervisor));
+                if (supervisors?.SeniorSupervisor != null) supervisorList.Add(("Senior Supervisor", supervisors.SeniorSupervisor));
+                if (supervisors?.HeadOfDepartment != null) supervisorList.Add(("Head of Department", supervisors.HeadOfDepartment));
+
+
+                var supervisorIds = supervisorList.Select(s => s.Id).ToList();
+                var supervisorNames = await employee.AllActive()
+                    .Where(x => supervisorIds.Contains(x.EmployeeID))
+                    .ToDictionaryAsync(x => x.EmployeeID, x => x.FirstName + " " + x.LastName);
+
+
+                var timelineHtml = new StringBuilder();
+
+                // Step 1: Submitted (always first)
+                timelineHtml.Append($@"
+<td style=""width:20%; position:relative; vertical-align:top;"">
+  <div style=""width:50px;height:50px;background:linear-gradient(135deg, #10b981, #059669);border-radius:50%;margin:auto;display:flex;align-items:center;justify-content:center;"">
+    <span style=""color:#fff;font-size:20px;font-weight:bold;margin:10px 0px 0px 17px !important"">✓</span>
+  </div>
+  <p style=""margin:10px 0 5px;font-weight:bold;color:#10b981;font-size:14px;"">Submitted</p>
+  <p style=""margin:0;font-size:11px;color:#6b7280;"">{DateTime.Now:MMM dd, yyyy}</p>
+  <p style=""margin:0;font-size:11px;color:#6b7280;"">{DateTime.Now:hh:mm tt}</p>
+</td>");
+
+                // Connector after submitted
+                if (supervisorList.Count > 0)
+                {
+                    timelineHtml.Append(@"<td style=""width:10%; vertical-align:middle;"">
+      <div style=""height:3px;background:#10b981;margin:0 5px;""></div>
+    </td>");
+                }
+
+                // Dynamic approvals
+                for (int i = 0; i < supervisorList.Count; i++)
+                {
+                    var sup = supervisorList[i];
+                    string supName;
+                    if (!supervisorNames.TryGetValue((int)sup.Id, out supName))
+                    {
+                        supName = "Pending";
+                    }
+
+
+                    // Assign colors/icons dynamically
+                    string bgColor = i == 0 ? "linear-gradient(135deg, #fbbf24, #f59e0b)" : "linear-gradient(135deg, #e5e7eb, #d1d5db)";
+                    string icon = i == 0 ? "⏳" : "•••";
+                    string textColor = i == 0 ? "#f59e0b" : "#9ca3af";
+                    //string stepText = $"{i + 1}{(i == 0 ? "st" : i == 1 ? "nd" : i == 2 ? "rd" : "th")} Approval";
+                    string stepText = sup.Role;
+
+                    timelineHtml.Append($@"
+<td style=""width:20%; position:relative; vertical-align:top;"">
+  <div style=""width:50px;height:50px;background:{bgColor};border-radius:50%;margin:auto;display:flex;align-items:center;justify-content:center;"">
+    <span style=""color:#fff;font-size:20px;font-weight:bold;margin:10px 0px 0px 17px !important;"">{icon}</span>
+  </div>
+  <p style=""margin:10px 0 5px;font-weight:bold;color:{textColor};font-size:14px;"">{stepText}</p>
+  <p style=""margin:0;font-size:11px;color:#6b7280;"">Pending</p>
+  <p style=""margin:5px 0 0;font-size:12px;color:#6b7280;font-weight:600;background:#f3f4f6;padding:3px 10px;border-radius:10px;display:inline-block;"">{supName}</p>
+</td>");
+
+                    // Connector after each supervisor except last
+                    if (i != supervisorList.Count - 1)
+                    {
+                        timelineHtml.Append($@"<td style=""width:10%; vertical-align:middle;"">
+            <div style=""height:3px;background:#e5e7eb;margin:0 5px;""></div>
+          </td>");
+                    }
+                }
+
+
+
                 var emailModel = new EmailVM
                 {
-                    To = approverNameEmail?.Email ?? approverDepartment?.OfficeEmail, 
-                    Subject = $"Leave Application from {applicantNameEmail?.FirstName} {applicantNameEmail?.LastName}",
+                    To = approverData?.OfficeEmail ?? approverData?.Email,
+                    //To = applicantData?.OfficeEmail ?? applicantData?.Email,
+                    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
                     Body = $@"
-        <p>Dear {approverNameEmail?.FirstName} {approverNameEmail?.LastName},</p>
-        <p>{applicantNameEmail?.FirstName} {applicantNameEmail?.LastName} 
-        ({applicantDepartment?.DesignationName}, {applicantDepartment?.DepartmentName}) 
-        has applied for leave.</p>
+  <!DOCTYPE html>
+<html>
+<head>
+    <meta charset=""UTF-8"">
+    <title>HR Leave Request</title>
+    <style>
+        /* Reset styles */
+        body, table, td, p, a, li, h1, h2 {{
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            margin: 0;
+            padding: 0;
+        }}
+        body {{
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 20px;
+            color: #333333;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }}
+        table {{
+            border-collapse: collapse;
+        }}
 
-        <ul>
-            <li><strong>From:</strong> {entityVM.FromDate:dd MMM yyyy}</li>
-            <li><strong>To:</strong> {entityVM.ToDate:dd MMM yyyy}</li>
-           <li><strong>Total day(s):</strong> {totalDays}</li> 
-           <li><strong>Leave Type:</strong> {leaveName}</li> 
-            <li><strong>Reason:</strong> {entityVM.Reason}</li>
-        </ul>
+        /* Main container */
+        .email-container {{
+            max-width: 600px;
+            margin: auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }}
 
-        <p>Please log in to the HRM system to review and approve this request.</p>
-         <p>
-    <a href='' style='padding:8px 12px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;'>Login</a>
-    &nbsp;&nbsp;
-    <a href='' style='padding:8px 12px;background:#28a745;color:#fff;text-decoration:none;border-radius:4px;'>Accept</a>
-    &nbsp;&nbsp;
-    <a href='' style='padding:8px 12px;background:#dc3545;color:#fff;text-decoration:none;border-radius:4px;'>Decline</a>
-</p>
-        <p>Regards,<br/>HRM System</p>
+        /* Header */
+        .header-bg {{
+            position: relative;
+            background-color: #3252ff;
+            background-image: linear-gradient(to bottom right, #080301 120px, transparent 0);
+            background-repeat: no-repeat;
+            background-size: 140px 140px;
+            padding: 25px 30px;
+            color: #ffffff;
+        }}
+        .header-bg img {{
+            display: block;
+            border: 0;
+            outline: none;
+            text-decoration: none;
+            max-width: 200px;
+            height: auto;
+        }}
+        .header-bg td {{
+            font-size: 13px;
+            line-height: 18px;
+            text-align: right;
+            color: #ffffff;
+        }}
+
+        /* Content */
+        .content {{
+            padding: 20px 30px;
+        }}
+        .content p {{
+            margin-bottom: 10px;
+        }}
+        .content h2 {{
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #3252ff;
+        }}
+
+        /* Tables for info */
+        .info-table {{
+            width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+
+        }}
+        .info-table th, .info-table td {{
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+
+        }}
+        .info-table th {{
+           background-color: #f4f4f4; 
+            font-weight: bold;
+         			width:50%;
+        }}
+
+        /* Approval timeline */
+        .timeline {{
+            width: 100%;
+            margin-top: 20px;
+        }}
+        .timeline td {{
+            vertical-align: top;
+        }}
+        .timeline-dot {{
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-top: 3px;
+        }}
+        .timeline-line {{
+            width: 2px;
+            height: 30px;
+            background-color: #e0e0e0;
+            margin-left: 6px;
+        }}
+      		/* Section backgrounds */
+.section-header {{
+    background-color: #3252ff; /* Blue header */
+    color: #ffffff;
+}}
+.section-greeting {{
+    background-color: #f9f9f9; /* light grey */
+}}
+.section-timeline {{
+    background-color: #eef4ff; /* soft blue */
+}}
+.section-info {{
+    background-color: #ffffff; /* white card */
+}}
+.section-footer {{
+    background-color: #000; /* footer grey */
+}}
+.section-button {{
+    padding-top: 0;
+}}
+
+        /* Footer */
+        .footer {{
+            text-align: center;
+            padding: 20px 30px;
+            font-size: 13px;
+            color: #fff;
+        }}
+        /* Responsive */
+        @media only screen and (max-width: 600px) {{
+            .header-bg td {{
+                display: block;
+                text-align: center;
+                margin-bottom: 10px;
+            }}
+            .header-bg img {{
+                margin: auto;
+            }}
+        }}
+    </style>
+</head>
+<body>
+    <table class=""email-container"">
+        <!-- Header -->
+        <tr>
+            <td class=""header-bg"">
+                <table width=""100%"">
+                    <tr>
+                        <td align=""left"">
+
+                            <img src=""{logourl}"" alt=""Company Logo"">
+                          
+                        </td>
+                        <td align=""right"">
+                           {formattedAddress ?? "No address available"}<br>
+                         {orgainfo.CountryName ?? "No country"}<br>
+                        {orgainfo.EmailAddress ?? "No email"}<br>
+                        {orgainfo.Phone ?? "No phone"}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Greeting -->
+        <tr>
+            <td class=""content section-greeting"">
+                <p>Dear HR Team,</p>
+                <p>This is an automated leave request submitted by an employee. Please find the details below:</p>
+            </td>
+        </tr>
+      		<!-- Approval Timeline (Horizontal) -->
+<tr>
+
+     <td class=""content section-timeline"">
+    <h2>Approval Status Timeline</h2>
+     <table width=""100%"" style=""text-align:center; margin-top:20px; border-spacing: 0;"">
+      <tr>
+  
+     {timelineHtml}
+   
+      </tr>
+    </table>
+  </td>
+
+
+        <!-- Employee Info -->
+        <tr>
+            <td class=""content section-info"">
+                <h2>Employee Information</h2>
+                <table class=""info-table"" style=""margin-bottom: 10px;"">
+                    <tr>
+                        <th>Name</th>
+                        <td>{applicantData.FirstName} {applicantData.LastName}</td>
+                    </tr>
+                    <tr>
+                        <th>Department</th>
+                        <td>{applicantData.DepartmentName}</td>
+                    </tr>
+                    <tr>
+                        <th>Position Title</th>
+                        <td>{applicantData.DesignationName}</td>
+                    </tr>
+                </table>
+
+                <h2>Leave Details</h2>
+                <table class=""info-table"">
+                    <tr>
+                        <th>Type of Leave</th>
+                        <td>{leaveName}</td>
+                    </tr>
+                    <tr>
+                        <th>Start Date</th>
+                        <td>{entityVM.FromDate:dd MMM yyyy}</td>
+                    </tr>
+                    <tr>
+                        <th>End Date</th>
+                        <td>{entityVM.ToDate:dd MMM yyyy}</td>
+                    </tr>
+                    <tr>
+                        <th>Reason</th>
+                        <td>{entityVM.Reason}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+
+
+
+
+<!-- Button Info -->
+<tr>
+    <td class=""content section-button"">
+
+        <!-- Buttons -->
+     <div style=""margin-bottom: 15px; text-align: center;"">
+    <a href=""{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=true&secrectCode={secrectCode}""
+       style=""display: inline-block; padding: 10px 20px; margin-right: 20px; background-color:#fff;border:1px solid #28a745;color:#28a745; text-decoration: none; border-radius: 5px; font-weight: bold;"">
+       Accept
+    </a>
+    <a href=""{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=false&secrectCode={secrectCode}""
+       style=""display: inline-block; padding: 10px 20px; background-color: #fff; color:#dc3545;border:1px solid #dc3545; text-decoration: none; border-radius: 5px; font-weight: bold;"">
+       Deny
+    </a>
+</div>
+
+      		<p>If you need to modify applied date, kindly change by <a href=""{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}"">clicking this link</a> </p>
+    </td>
+</tr>
+<!-- Footer -->
+<tr>
+  <td class=""footer section-footer"" align=""center"" style=""text-align:center;"">
+    <p>© Gctlinfosys 2025. All rights reserved.</p>
+
+
+  </td>
+</tr>
+
+
+
+    </table>
+</body>
+</html>
     "
                 };
 
                 // Send using EmailService (SMTP uses applicant’s org config)
-                await emailService.SendEmailAsync(emailModel, entityVM.EmployeeID);
+                await emailService.SendEmailLeaveRequest(emailModel, entityVM.EmployeeID);
+
 
                 //
 
+
+                //
+
+  //               < td class=""content section-timeline"">
+  //  <h2>Approval Status Timeline</h2>
+  //  <table width = ""100%"" style=""text-align:center; margin-top:20px;"">
+  //    <tr>
+  //      <!-- Step 1 -->
+  //      <td style = ""width:33%; position:relative;"">
+  //        <div style = ""width:20px;height:20px;background:#008000;border-radius:50%;margin:auto;""></div>
+  //        <p style = ""margin:5px 0 0;font-weight:bold;color:#008000;"">Submitted</p>
+  //        <p style = ""margin:0;font-size:9px;color:#555;"">{DateTime.Now:dd MMM yyyy - hh:mm tt}</p>
+  //      </td>
+  //      <!-- Connector -->
+  //      <td style = ""width:5%;""><hr style = ""border:none;border-top:2px solid #e0e0e0;""></td>
+  //      <!-- Step 2 -->
+  //      <td style = ""width:33%; position:relative;"">
+  //        <div style = ""width:20px;height:20px;background:#ffc107;border-radius:50%;margin:auto;""></div>
+  //        <p style = ""margin:5px 0 0;font-weight:bold;color:#ffc107;"">Pending Manager Approval</p>
+  //        <p style = ""margin:0;font-size:9px;color:#555;"">Sep 16, 2025 - 10:05 AM</p>
+  //      </td>
+  //      <!-- Connector -->
+  //      <td style = ""width:5%;""><hr style = ""border:none;border-top:2px solid #e0e0e0;""></td>
+  //      <!-- Step 3 -->
+  //      <td style = ""width:33%; position:relative;"">
+  //        <div style = ""width:20px;height:20px;background:#e0e0e0;border-radius:50%;margin:auto;""></div>
+  //        <p style = ""margin:5px 0 0;font-weight:bold;color:#555;"">Leave Approved</p>
+  //        <p style = ""margin:0;font-size:9px;color:#888;"">(Waiting update)</p>
+  //      </td>
+  //    </tr>
+  //  </table>
+  //</td>
+                //
+
+                //
 
                 await leaveRequest.CommitTransactionAsync();
 
@@ -1079,7 +1524,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 existing.ApprovalPersonID = approvalPersonId;
                 existing.LIP = entityVM.LIP;
                 existing.LMAC = entityVM.LMAC;
-                existing.UpdatedAt = DateTime.Now;
+                existing.UpdatedAt = DateTime.UtcNow;
                 existing.UpdatedBy = entityVM.CreatedBy;
 
                 await leaveRequest.UpdateAsync(existing);
@@ -1121,8 +1566,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                 PartialFromTime = entityVM.PartialFromTimeEdit,
                                 PartialToTime = entityVM.PartialToTimeEdit,
                                 // StatusID = entityVM.StatusID,
-                                LeaveApplicableYear = DateTime.Now.Year,
-                                CreatedAt = DateTime.Now,
+                                LeaveApplicableYear = DateTime.UtcNow.Year,
+                                CreatedAt = DateTime.UtcNow,
                                 CreatedBy = entityVM.CreatedBy,
                                 LeaveTypeID = fallback.LeaveTypeID,
                                 Reason = $"Exceeded original leave – adjusted using prioritized leave type ({fallback.LeaveTypeName})",
@@ -1154,8 +1599,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         PartialFromTime = entityVM.PartialFromTimeEdit,
                         PartialToTime = entityVM.PartialToTimeEdit,
                         // StatusID = entityVM.StatusID,
-                        LeaveApplicableYear = DateTime.Now.Year,
-                        CreatedAt = DateTime.Now,
+                        LeaveApplicableYear = DateTime.UtcNow.Year,
+                        CreatedAt = DateTime.UtcNow,
                         CreatedBy = entityVM.CreatedBy,
                         LeaveTypeID = lWP,
                         Reason = $"Exceeded leave days – fallback to LWP ({lwpName})",
@@ -1205,7 +1650,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 var targetIds = data.Select(x => (int?)x.LeaveApplicationID).ToList();
                 foreach (var item in data)
                 {
-                    item.DeletedAt = DateTime.Now;
+                    item.DeletedAt = DateTime.UtcNow;
                     item.LIP = deleteRequestVM.LIP;
                     item.LMAC = deleteRequestVM.LMAC;
                     item.DeletedBy = deleteRequestVM.DeletedBy ?? null;
@@ -1259,43 +1704,116 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             return defaultLeave;
         }
 
+        //public async Task<object> GetLeaveTypeTotaldays(int employeeId, int leaveTypeID)
+        //{
+
+        //    //
+        //    var usedUpLeaveTypeIds = await leaveBalances.AllActive()
+        //.Where(lb => lb.EmployeeID == employeeId && (lb.TotalLeave - lb.Taken) <= 0)
+        //.Select(lb => lb.LeaveTypeID).ToListAsync();
+
+        //    var leaveTypess = await leaveTypes.AllActive()
+        //        .Where(lt => !usedUpLeaveTypeIds.Contains(lt.LeaveTypeID)).ToListAsync();
+        //    //
+        //    var leaveBalance = await leaveBalances.AllActive()
+        //        .Where(x => x.EmployeeID == employeeId && x.LeaveTypeID == leaveTypeID)
+        //        .Select(x => new
+        //        {
+        //            leaveDays = x.TotalLeave - x.Taken
+        //        }).FirstOrDefaultAsync();
+
+        //    if (leaveBalance != null)
+        //    {
+        //        return leaveBalance;
+        //    }
+        //    else
+        //    {
+        //        var defaultLeave = await leaveTypes.AllActive()
+        //            .Where(l => l.LeaveTypeID == leaveTypeID)
+        //            .Select(l => new
+        //            {
+        //                leaveDays = l.LeaveDays
+        //            }).FirstOrDefaultAsync();
+        //        if (defaultLeave == null) return null;
+        //        return defaultLeave;
+        //    }
+        //}
+
+
         public async Task<object> GetLeaveTypeTotaldays(int employeeId, int leaveTypeID)
         {
 
-            //
-            var usedUpLeaveTypeIds = await leaveBalances.AllActive()
-        .Where(lb => lb.EmployeeID == employeeId && (lb.TotalLeave - lb.Taken) <= 0)
-        .Select(lb => lb.LeaveTypeID).ToListAsync();
+            var workingHour = await leavePolicyConfiguration.AllActive().Select(x => x.WorkingHour).FirstOrDefaultAsync();
 
-            var leaveTypess = await leaveTypes.AllActive()
-                .Where(lt => !usedUpLeaveTypeIds.Contains(lt.LeaveTypeID)).ToListAsync();
-            //
-            var leaveBalance = await leaveBalances.AllActive()
-                .Where(x => x.EmployeeID == employeeId && x.LeaveTypeID == leaveTypeID)
-                .Select(x => new
+            if (workingHour == null || workingHour == 0)  workingHour = 8; 
+            // 1. Get employee joining date 
+            var employee = await empoffi.AllActive()
+                .Where(e => e.EmployeeID == employeeId).Select(e => new { e.JoiningDate }) .FirstOrDefaultAsync();
+
+            if (employee == null || employee.JoiningDate == null)
+                return null;
+
+            var joiningDate = employee.JoiningDate.Value;
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            // 2. Get leave type details 
+            var leaveType = await leaveTypes.AllActive()
+                .Where(l => l.LeaveTypeID == leaveTypeID)
+                .FirstOrDefaultAsync();
+
+            if (leaveType == null) return null;
+
+            int totalLeaveDays = (int)leaveType.LeaveDays;
+
+
+            if (leaveType.LeaveTypeName != null)
+            {
+                string leaveTypeName = leaveType.LeaveTypeName.ToLower();
+
+                if (leaveTypeName.Contains("annual leave") ||
+                    leaveTypeName.Contains("sick leave") ||
+                    leaveTypeName.Contains("casual leave"))
                 {
-                    leaveDays = x.TotalLeave - x.Taken
-                }).FirstOrDefaultAsync();
+                    int totalMonthsInYear = 12;
+
+                    if (joiningDate.Year == today.Year) 
+                    {
+                        // Months employee will serve this year (including joining month)
+                        int monthsWorked = totalMonthsInYear - joiningDate.Month + 1;
+
+                        totalLeaveDays = (int)Math.Round(
+                            (decimal)leaveType.LeaveDays * monthsWorked / totalMonthsInYear,
+                            MidpointRounding.AwayFromZero
+                        );
+                    }
+                }
+            }
+
+            
+            var leaveBalance = await leaveBalances.AllActive()
+        .Where(x => x.EmployeeID == employeeId && x.LeaveTypeID == leaveTypeID)
+        .Select(x => new
+        {
+            TakenDays = x.Taken ?? 0,
+            TakenPartialHours = x.TakenPartialHours ?? 0
+        }) .FirstOrDefaultAsync();
+
+            decimal? takenLeaveDays = 0;
 
             if (leaveBalance != null)
             {
-                return leaveBalance;
+                // Convert hours to days (assuming 8 hours = 1 day, adjust if needed)
+                decimal? hoursInDays = leaveBalance.TakenPartialHours / workingHour;
+                takenLeaveDays = leaveBalance.TakenDays + hoursInDays;
             }
-            else
-            {
-                var defaultLeave = await leaveTypes.AllActive()
-                    .Where(l => l.LeaveTypeID == leaveTypeID)
-                    .Select(l => new
-                    {
-                        leaveDays = l.LeaveDays
-                    }).FirstOrDefaultAsync();
-                if (defaultLeave == null) return null;
-                return defaultLeave;
-            }
+
+            // 5. Calculate available leave
+            decimal? availableLeaveDays = totalLeaveDays - takenLeaveDays;
+
+            // 6. Return result 
+            return new { leaveDays = Math.Round((decimal)availableLeaveDays, 2) };
+
         }
-
-
-
 
 
         #endregion
@@ -1606,14 +2124,15 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #endregion
 
         #region GetCompanies
-        public Task<List<CommonSelectVM>> GetCompanies()
+        public  async Task<List<CommonSelectVM>> GetCompanies()
         {
-            var data = _organizationRepository.AllActive()
+            var data =await _organizationRepository.AllActive()
                 .Select(x => new CommonSelectVM
                 {
                     Id = x.OrganizationID,
                     Name = x.OrganizationName
                 }).ToListAsync();
+            
             return data;
         }
         #endregion
@@ -1740,7 +2259,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         #region Dispaly LeaveDays 
         public async Task<List<LeaveBalancesDisplayVM>> GetLeaveTypeBalancesForEmployee(int employeeId)
         {
-            
+            var workingHour = await leavePolicyConfiguration.AllActive().Select(x => x.WorkingHour).FirstOrDefaultAsync();
+
+            if (workingHour == null || workingHour == 0) workingHour = 8;
             // Base query for leave balances
             var baseQuery = from lt in leaveTypes.AllActive()
                             join lb in leaveBalances.AllActive().Where(x => x.EmployeeID == employeeId)
@@ -1753,10 +2274,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                 LeaveTypeID = lt.LeaveTypeID,
                                 LeaveTypeName = lt.LeaveTypeName,
                                 TotalLeave = lb.TotalLeave ?? lt.LeaveDays,
-                                Taken = lb.Taken,
+                                Taken = lb.Taken ?? 0,
                                 ApplicableYear = lb.ApplicableYear,
                                 RemainingDays = lb != null
-                                    ? (lb.TotalLeave - lb.Taken)
+                                    ? (lb.TotalLeave ?? 0 - (lb.Taken ?? 0 + lb.TakenPartialHours/workingHour ?? 0))
                                     : (lt.LeaveDays ?? 0)
                             };
 
@@ -1772,6 +2293,18 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         {
             try
             {
+                int? TotalSupCount = 0;
+                var empId = await leaveRequest.AllActive().Where(x => x.LeaveApplicationID == leaveApplicationID).Select(x => x.EmployeeID).FirstOrDefaultAsync();
+                var empInfo = await empoffi.AllActive().Where(x => x.EmployeeID == empId).Select(x => new 
+
+                {
+                    Imm = x.ImmediateSupervisor != null ? 1 : 0,  
+                    Sen = x.SeniorSupervisor != null ? 1 : 0,
+                    HOd = x.HeadOfDepartment != null ? 1 : 0,
+                  }).FirstOrDefaultAsync();
+
+                TotalSupCount = (empInfo?.Imm ?? 0) + (empInfo?.Sen ?? 0) + (empInfo?.HOd ?? 0);
+
                 var result = await (
                     from lb in leaveBaseApprovalHistory.AllActive()
                         .Where(x => x.LeaveApplicationID == leaveApplicationID)
@@ -1790,7 +2323,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         ApproverStep = lb.ApprovalStep ?? 0,
                         ApprovarPerson = e.FirstName + " " + e.LastName ?? string.Empty,
                         StatusName = statusName.StatusName ?? string.Empty,
-                        ApprovedOrDeclineDate =DateTimeHelpers.FormatDateTime(lb.CreatedAt),
+                        ApprovedOrDeclineDate = lb.CreatedAt.HasValue ? TimeConversionHelper.ConvertUtcToUserLocalizedDateTimeString(DateTime.SpecifyKind(lb.CreatedAt.Value, DateTimeKind.Utc), _localizationContext) : "-",
+                        ApproverStepTotal = TotalSupCount
 
                     }).OrderBy(X=>X.ApproverStep).ToListAsync();
 
@@ -1801,7 +2335,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 throw;
             }
         }
-
+   
         #endregion
     }
 }

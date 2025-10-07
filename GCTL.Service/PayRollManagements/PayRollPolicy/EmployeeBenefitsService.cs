@@ -14,6 +14,7 @@ using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,39 +105,54 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
             return result;
         }
 
-
-        public async Task<List<CommonSelectVM>> SelectAsync(int id)
-        {
-            try
-            {
-                var data = await benefitTypesRepository
-                    .AllActive()
-                    .Where(x => x.OrganizationID == id).ToListAsync();
-
-                if (data == null || !data.Any())
-                {
-                    return new List<CommonSelectVM>();
-                }
-                var result = data.Select(x => new CommonSelectVM
-                {
-                    Id = x.BenefitTypeID, 
-                    Name = x.BenefitTypeName,
-                }).ToList();
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
+        
+        
 
         #endregion
+        public async Task<List<CommonSelectVMM>> SelectAsync(int id)
+        {
+            // Get all benefit types for the organization
+            var benefitTypes = await benefitTypesRepository
+                .AllActive()
+                .Where(x => x.OrganizationID == id && x.IsApplyOnGrossSalary == true)
+                .ToListAsync();
 
+            // Get all benefits with their setups
+            var benefits = await this.benefits
+                .AllActive()
+                .Include(b => b.BenefitSetups)
+                .Include(b => b.BenefitType)
+                .Where(b => b.OrganizationID == id)
+                .ToListAsync();
 
+            // Structure: BenefitType -> Benefits -> BenefitSetups
+            var result = benefitTypes.Select(bt => new CommonSelectVMM
+            {
+                Id = bt.BenefitTypeID,
+                Name = bt.BenefitTypeName,
+                EmpBenefitVMM = benefits
+                    .Where(b => b.BenefitTypeID == bt.BenefitTypeID)
+                    .Select(b => new EmpBenefitVMM
+                    {
+                        BenefitID = b.BenefitID,
+                        OrganizationID = b.OrganizationID,
+                        BenefitTypeID = b.BenefitTypeID,
+                        BenefitTypeName = b.BenefitType != null ? b.BenefitType.BenefitTypeName : "",
+                        IsActive = b.IsActive,
+                        EffectiveDate = b.EffectiveDate,
+                        BenefitSetups = b.BenefitSetups.Select(s => new EmpBenefitSetupVMM
+                        {
+                            BenefitSetupID = s.BenefitSetupID,
+                            SalaryMin = s.SalaryMin,
+                            SalaryMax = s.SalaryMax,
+                            CalculationTypeID = s.CalculationTypeID,
+                            Value = s.Value
+                        }).ToList()
+                    }).ToList()
+            }).ToList();
 
-
+            return result;
+        }
         #region  Old Benefits 
 
         #region Get All Dataum

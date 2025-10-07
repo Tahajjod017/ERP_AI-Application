@@ -8,19 +8,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Modify Leave</h4>
-                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close mdlClose custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             @await Html.PartialAsync("_EditLeaveApproval", Model.Setup)
            
         </div>
     </div>
 </div>
-<!-- /Edit Leaves -->
-<!-- Add Manual Leaves -->
-<partial name="_AddManualLeavesForm" />
-<!-- /Add Manual Leaves -->
 
-<!-- Breadcrumb -->
 
 <partial name="_BreadCrumPage"/>
 
@@ -33,13 +28,13 @@
    
  
 </div> *@
-<!-- /All Employees Leaves status Approval Table List-->
+
 <div class="mb-2">
     <partial name="_LeaveApprovalTableList" />
 
 </div>
 
-<!-- /All Employees Leaves Info List-->
+
 <div class="mb-2">
 
     <partial name="_LeaveListTable" />
