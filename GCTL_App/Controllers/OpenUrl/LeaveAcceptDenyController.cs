@@ -35,31 +35,29 @@ namespace GCTL_App.Controllers.OpenUrl
         private ContentResult BootstrapMessage(string message, string alertType, string iconClass)
         {
             string html = $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='utf-8'>
-    <title>Message</title>
-    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
-    <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css' rel='stylesheet'>
-</head>
-<body class='bg-light'>
-    <div class='d-flex justify-content-center align-items-center vh-100'>
-        <div class='text-center'>
-            <div class='display-1 mb-3 text-{alertType}'>
-                <i class='bi {iconClass}'></i>
-            </div>
-            <div class='alert alert-{alertType} fw-bold fs-5' role='alert'>
-                {message}
-            </div>
-        </div>
-    </div>
-</body>
-</html>";
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset='utf-8'>
+                            <title>Message</title>
+                            <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
+                            <link href='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css' rel='stylesheet'>
+                        </head>
+                        <body class='bg-light'>
+                            <div class='d-flex justify-content-center align-items-center vh-100'>
+                                <div class='text-center'>
+                                    <div class='display-1 mb-3 text-{alertType}'>
+                                        <i class='bi {iconClass}'></i>
+                                    </div>
+                                    <div class='alert alert-{alertType} fw-bold fs-5' role='alert'>
+                                        {message}
+                                    </div>
+                                </div>
+                            </div>
+                        </body>
+                        </html>";
             return Content(html, "text/html");
         }
-
-
 
         [HttpGet("LeaveApprovalDeclineRoute/Action")]
         public async Task<IActionResult> LeaveApprovalActionAsync(int leaveId, int approverId, bool isApproved, string secrectCode)
