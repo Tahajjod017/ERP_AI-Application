@@ -49,7 +49,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                 if (exixtingEntity != null)
                 {
                     exixtingEntity.MainAccountID = (int)model.MainAccountID;
-                    exixtingEntity.SubAccountCode = model.SubAccountCode.Trim();
+                    exixtingEntity.SubAccountCode = generatedSubAccountCode;
                     exixtingEntity.SubAccountName = model.SubAccountName;
                     exixtingEntity.Description = model.Description;
 
@@ -70,7 +70,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                 {
                     SubAccounts entity = new SubAccounts();
                     entity.MainAccountID = (int)model.MainAccountID;
-                    entity.SubAccountCode = model.SubAccountCode.Trim();
+                    entity.SubAccountCode = generatedSubAccountCode;
                     entity.SubAccountName = model.SubAccountName;
                     entity.Description = model.Description;
 
