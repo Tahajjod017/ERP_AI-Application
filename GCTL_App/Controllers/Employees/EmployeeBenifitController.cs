@@ -121,56 +121,7 @@ namespace GCTL_App.Controllers.Employees
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
-            //ViewBag.YearlyEndBonusTypeDD = new SelectList(_yearlyEndBonusTypesRepository.AllActive().Select(e => new { e.YearlyEndBonusTypeID, e.YearlyEndBonusTypeName }), "YearlyEndBonusTypeID", "YearlyEndBonusTypeName");
-
-            //ViewBag.ServiceYearDD = new SelectList(_serviceYearsRepository.AllActive().Select(e => new { e.ServiceYearID, e.ServiceYearName }), "ServiceYearID", "ServiceYearName");
-
-            //ViewBag.FastivalBonusPercentageDD = new SelectList(new List<SelectListItem>
-            //    {
-            //        new SelectListItem { Value = "35.00", Text = "35 %" },
-            //        new SelectListItem { Value = "40.00", Text = "40 %" },
-            //        new SelectListItem { Value = "45.00", Text = "45 %" },
-            //        new SelectListItem { Value = "50.00", Text = "50 %" },
-            //        new SelectListItem { Value = "60.00", Text = "60 %" },
-            //        new SelectListItem { Value = "70.00", Text = "70 %" },
-            //        new SelectListItem { Value = "100.00", Text = "100 %" }
-            //    }, "Value", "Text");
-
-            //ViewBag.BonusDependsOnDD = new SelectList(new[]
-            //    {
-            //        new { Value = "Gross Salary", Text = "Gross Salary" },
-            //        new { Value = "Basic Salary", Text = "Basic Salary" }
-            //    }, "Value", "Text");
-
-
-            //ViewBag.PFEmployeeContributionDD = new SelectList(new[]
-            //    {
-            //        new { Value = "5.00", Text = "5 %" },
-            //        new { Value = "6.00", Text = "6 %" },
-            //        new { Value = "7.00", Text = "7 %" },
-            //        new { Value = "8.00", Text = "8 %" },
-            //        new { Value = "9.00", Text = "9 %" },
-            //        new { Value = "10.00", Text = "10 %" }
-            //    }, "Value", "Text");
-
-
-            //ViewBag.PFOrgContributionDD = new SelectList(new[]
-            //    {
-            //        new { Value = "5.00", Text = "5 %" },
-            //        new { Value = "6.00", Text = "6 %" },
-            //        new { Value = "7.00", Text = "7 %" },
-            //        new { Value = "8.00", Text = "8 %" },
-            //        new { Value = "9.00", Text = "9 %" },
-            //        new { Value = "10.00", Text = "10 %" }
-            //    }, "Value", "Text");
-
-
-            //ViewBag.PFDependsOnDD = new SelectList(new[]
-            //    {
-            //        new { Value = "Gross Salary", Text = "Gross Salary" },
-            //        new { Value = "Basic Salary", Text = "Basic Salary" }
-            //    }, "Value", "Text");
-
+            
 
             #endregion
 
@@ -211,19 +162,7 @@ namespace GCTL_App.Controllers.Employees
                     employeePersonalId = benefit.EmployeePersonalId,
                     personalEmail = benefit.PersonalEmail,
                     personalPhone = benefit.PersonalPhone,
-                    isBenifitEnabled = benefit.IsBenifitEnabled,
-                    healthInsurance = benefit.HealthInsurance,
-                    isHealthInsuranceEnabled = benefit.IsHealthInsuranceEnabled,
-                    performanceBonus = benefit.PerformanceBonus,
-                    isPerformanceBonusEnabled = benefit.IsPerformanceBonusEnabled,
-                    yearlyEndBonusTypeID = benefit.YearlyEndBonusTypeID,
-                    isYearlyEndBonusTypeIDEnabled = benefit.IsYearlyEndBonusTypeIDEnabled,
-                    fastivalBonusPercentage = benefit.FastivalBonusPercentage,
-                    isFastivalBonusPercentageEnabled = benefit.IsFastivalBonusPercentageEnabled,
-                    providantFundEmployeePercentage = benefit.ProvidantFundEmployeePercentage,
-                    providantFundOrganizationPercentage = benefit.ProvidantFundOrganizationPercentage,
-                    isProvidantFundEnabled = benefit.IsProvidantFundEnabled,
-                    serviceYearID = benefit.ServiceYearID
+                   
                 };
 
                 return Json(new { success = true, data = response });
@@ -237,50 +176,9 @@ namespace GCTL_App.Controllers.Employees
 
 
 
-        [HttpPost]
-        public async Task<IActionResult> Index(EmployeeBenifitPostViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState
-                    .Where(x => x.Value.Errors.Count > 0)
-                    .ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                    );
+       
 
-                return BadRequest(errors);
-            }
-
-            try
-            {
-                var result =  await _employeeBenifitService.SaveOrUpdateEmployeeBenefitsAsync(model);
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-
-
-        [HttpPost]
-        public async Task<IActionResult> SubmitFromEdit(EmployeeBenifitPostViewModel model)
-        {
-            
-            try
-            {
-                var result = await _employeeBenifitService.SaveOrUpdateEmployeeBenefitsAsync(model);
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
+       
 
         #region Get Allowance Type according to Organization
         [Route("EmployeeBenifitController/SelectBenefitsTypeAsync")]

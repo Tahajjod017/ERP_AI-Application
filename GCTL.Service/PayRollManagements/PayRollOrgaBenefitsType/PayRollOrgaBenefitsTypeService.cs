@@ -272,9 +272,8 @@ namespace GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType
                     BenefitTypeID = data.BenefitTypeID,
                     OrganizatonID = data.OrganizationID,
                     BenefitTypeName = data.BenefitTypeName,
-
-                    //ApplyOnGrossSalary = data.ApplyOnGrossSalary,
-                    //ApplyOnBasicSalary = data.ApplyOnBasicSalary,
+                    IsApplyOnGrossSalary=data.IsApplyOnGrossSalary,
+                   
 
                 };
                 return result;

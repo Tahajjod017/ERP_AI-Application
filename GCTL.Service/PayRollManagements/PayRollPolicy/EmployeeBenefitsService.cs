@@ -100,6 +100,7 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
                 result.Success = false;
                 result.Message = "An error occurred while saving.";
                 result.Errors.Add(ex.Message);
+              // await userInfoService.ActionLogExceptionAsync("Organization Benefit", ex, entityVM.OrganizationID, ActionName.Error);
             }
 
             return result;
@@ -111,47 +112,57 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
         #endregion
         public async Task<List<CommonSelectVMM>> SelectAsync(int id)
         {
-            // Get all benefit types for the organization
-            var benefitTypes = await benefitTypesRepository
-                .AllActive()
-                .Where(x => x.OrganizationID == id && x.IsApplyOnGrossSalary == true)
-                .ToListAsync();
 
-            // Get all benefits with their setups
-            var benefits = await this.benefits
-                .AllActive()
-                .Include(b => b.BenefitSetups)
-                .Include(b => b.BenefitType)
-                .Where(b => b.OrganizationID == id)
-                .ToListAsync();
-
-            // Structure: BenefitType -> Benefits -> BenefitSetups
-            var result = benefitTypes.Select(bt => new CommonSelectVMM
+            try
             {
-                Id = bt.BenefitTypeID,
-                Name = bt.BenefitTypeName,
-                EmpBenefitVMM = benefits
-                    .Where(b => b.BenefitTypeID == bt.BenefitTypeID)
-                    .Select(b => new EmpBenefitVMM
-                    {
-                        BenefitID = b.BenefitID,
-                        OrganizationID = b.OrganizationID,
-                        BenefitTypeID = b.BenefitTypeID,
-                        BenefitTypeName = b.BenefitType != null ? b.BenefitType.BenefitTypeName : "",
-                        IsActive = b.IsActive,
-                        EffectiveDate = b.EffectiveDate,
-                        BenefitSetups = b.BenefitSetups.Select(s => new EmpBenefitSetupVMM
-                        {
-                            BenefitSetupID = s.BenefitSetupID,
-                            SalaryMin = s.SalaryMin,
-                            SalaryMax = s.SalaryMax,
-                            CalculationTypeID = s.CalculationTypeID,
-                            Value = s.Value
-                        }).ToList()
-                    }).ToList()
-            }).ToList();
+                // Get all benefit types for the organization
+                var benefitTypes = await benefitTypesRepository
+                    .AllActive()
+                    .Where(x => x.OrganizationID == id && x.IsApplyOnGrossSalary == true)
+                    .ToListAsync();
 
-            return result;
+                // Get all benefits with their setups
+                var benefits = await this.benefits
+                    .AllActive()
+                    .Include(b => b.BenefitSetups)
+                    .Include(b => b.BenefitType)
+                    .Where(b => b.OrganizationID == id)
+                    .ToListAsync();
+
+                // Structure: BenefitType -> Benefits -> BenefitSetups
+                var result = benefitTypes.Select(bt => new CommonSelectVMM
+                {
+                    Id = bt.BenefitTypeID,
+                    Name = bt.BenefitTypeName,
+                    EmpBenefitVMM = benefits
+                        .Where(b => b.BenefitTypeID == bt.BenefitTypeID)
+                        .Select(b => new EmpBenefitVMM
+                        {
+                            BenefitID = b.BenefitID,
+                            OrganizationID = b.OrganizationID,
+                            BenefitTypeID = b.BenefitTypeID,
+                            BenefitTypeName = b.BenefitType != null ? b.BenefitType.BenefitTypeName : "",
+                            IsActive = b.IsActive,
+                            EffectiveDate = b.EffectiveDate,
+                            BenefitSetups = b.BenefitSetups.Select(s => new EmpBenefitSetupVMM
+                            {
+                                BenefitSetupID = s.BenefitSetupID,
+                                SalaryMin = s.SalaryMin,
+                                SalaryMax = s.SalaryMax,
+                                CalculationTypeID = s.CalculationTypeID,
+                                Value = s.Value
+                            }).ToList()
+                        }).ToList()
+                }).ToList();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await userInfoService.ActionLogExceptionAsync("Organization Benefit", ex, id, ActionName.Error);
+                throw;
+            }
+           
         }
         #region  Old Benefits 
 

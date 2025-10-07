@@ -79,5 +79,5 @@ public partial class AspNetUsers
 
     public virtual TenantInfo TenantInfo { get; set; }
 
-    public virtual ICollection<ApplicationRole> Role { get; set; } = new List<ApplicationRole>();
+    public virtual ICollection<AspNetRoles> Role { get; set; } = new List<AspNetRoles>();
 }
