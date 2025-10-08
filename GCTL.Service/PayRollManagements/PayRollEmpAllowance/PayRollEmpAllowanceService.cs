@@ -1,9 +1,9 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
-using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
+using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.MasterSetup.Gender;
@@ -44,319 +44,179 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
             this.benefitSetupsRepository = benefitSetupsRepository;
         }
 
-        public async Task<CommonReturnViewModel> GetPayRollEmpAllowanceByIdAsync()
-        {
-            var result = new CommonReturnViewModel();
-            try
-            {
-                var allowanceEntities = await empAllowance.AllActive().Include(x => x.EmployeeAllowanceSetup).Include(x=>x.EmployeeAllowanceType).ToListAsync();
 
-                if (!allowanceEntities.Any())
-                {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "No Employee Allowance records found!"
-                    };
-                }
-
-                var allowanceDataList = allowanceEntities.Select(entity => new PayRollEmpAllowanceGetAll
-                {
-                    EmployeeAllowanceID = entity.EmployeeAllowanceID,
-                    OrganizationID = entity.OrganizationID,
-                    EmployeeAllowanceTypeID = entity.EmployeeAllowanceTypeID,
-                    EmployeeAllowanceTypeName=entity.EmployeeAllowanceType.EmployeeAllowanceTypeName,
-                    IsActive = entity.IsActive,
-                    EffectiveDate = entity.EffectiveDate,
-                    HouseRentAllowances = entity.EmployeeAllowanceSetup.Select(x => new HouseRentAllowanceDetailGetVM
-                    {
-                        SalaryMin = x.SalaryMin,
-                        SalaryMax = x.SalaryMax,
-                        Value = x.Value,
-                        CalculationTypeID = x.CalculationTypeID,
-                        CalculationType = x.CalculationTypeID == 1 ? "Fixed" : "Percentage",
-                    }).ToList()
-                }).ToList();
-
-                result.Success = true;
-                result.Data = allowanceDataList;
-            }
-            catch (Exception ex)
-            {
-                result.Success = false;
-                result.Message = "An error occurred while retrieving data.";
-                result.Errors.Add(ex.Message);
-            }
-
-            return result;
-        }
 
 
         #region Save Data 
+    
         public async Task<CommonReturnViewModel> SavePayRollEmpAllowance(PayRollEmpAllowanceSaveVM entityVM)
         {
             var result = new CommonReturnViewModel();
 
-            try
-            {
-                if (entityVM == null || entityVM?.OrganizationID is null or <= 0)
-                {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Employee Allowance record not found!"
-                    };
-                }
-                var empallowanceType = await empAllowance.FirstOrDefaultAsync(x=>x.EmployeeAllowanceTypeID==entityVM.EmployeeAllowanceTypeID);
-                if (empallowanceType !=null)
-                {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Already Exists Allowance Type"
-                    };
-                }
-                
-                await empAllowance.BeginTransactionAsync();
-                int EmployeeAllowanceID = 0;
-                var entity = new EmployeeAllowances
-                {
-                    OrganizationID = entityVM.OrganizationID,
-                    IsActive = entityVM.IsActive,
-                    EmployeeAllowanceTypeID=entityVM.EmployeeAllowanceTypeID,
-                    EffectiveDate = entityVM.EffectiveDate,
-                    LIP = entityVM.LIP,
-                    LMAC = entityVM.LMAC,
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = entityVM.CreatedBy,
-                };
-
-                await empAllowance.AddAsync(entity);
-                EmployeeAllowanceID=entity.EmployeeAllowanceID;
-                var empAllowanceSetups = entityVM.HouseRentAllowances.Select(item => new EmployeeAllowanceSetup
-                { 
-                    CalculationTypeID =item.CalculationTypeID,
-                    SalaryMax = item.SalaryMax,
-                    SalaryMin = item.SalaryMin,
-                    Value = item.Value,
-                    EmployeeAllowanceID= EmployeeAllowanceID,
-                    LIP= entityVM.LIP,
-                    LMAC= entityVM.LMAC,
-                    CreatedAt= DateTime.Now,
-                    CreatedBy= entityVM.CreatedBy,
-                    
-                }).ToList();
-
-                await empAlowanceSetup.AddRangeAsync(empAllowanceSetups);
-
-
-                // You may need to commit the transaction here
-                await empAllowance.CommitTransactionAsync();
-
-                return new CommonReturnViewModel
-                {
-                    Success = true,
-                    Data = entity,
-                    Message="Saved Successfully"
-                };
-            }
-            catch (Exception ex)
-            {
-                // Rollback in case of error
-                await empAllowance.RollbackTransactionAsync();
-
-                result.Success = false;
-                result.Message = "An error occurred while saving.";
-                result.Errors.Add(ex.Message);
-            }
-
-            return result;
-        }
-
-
-
-        #endregion
-        #region Update By ID
-
-        public async Task<CommonReturnViewModel> UpdatePayRollEmpAllowance(PayRollEmpAllowanceUpdate entityVM)
-        {
-            var result = new CommonReturnViewModel();
-
-            if (entityVM == null || entityVM.OrganizationID <= 0 || entityVM.EmployeeAllowanceID <= 0)
+            if (entityVM == null || entityVM.OrganizationID <= 0)
             {
                 return new CommonReturnViewModel
                 {
                     Success = false,
-                    Message = "Invalid Employee Allowance data!"
+                    Message = "Employee allowance record not found!"
                 };
             }
 
-            try
-            {
-                await empAllowance.BeginTransactionAsync();
+            bool hasInsert = false;
+            bool hasUpdate = false;
+            EmployeeAllowances benefit;
 
-                // 1. Get existing EmployeeAllowance
-                var entity = await empAllowance.GetByIdAsync(entityVM.EmployeeAllowanceID);
-                if (entity == null)
-                {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Employee Allowance record not found!"
-                    };
-                }
-
-                // Optional: Check for duplicate EmployeeAllowanceTypeID (excluding current)
-                var exists = await empAllowance.FirstOrDefaultAsync(x =>
-                    x.EmployeeAllowanceTypeID == entityVM.EmployeeAllowanceTypeID &&
-                    x.EmployeeAllowanceID != entityVM.EmployeeAllowanceID);
-
-                if (exists != null)
-                {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Already exists allowance type!"
-                    };
-                }
-
-                // 2. Update main EmployeeAllowance entity
-                entity.OrganizationID = entityVM.OrganizationID;
-                entity.IsActive = entityVM.IsActive;
-                entity.EmployeeAllowanceTypeID = entityVM.EmployeeAllowanceTypeID;
-                entity.LIP = entityVM.LIP;
-                entity.LMAC = entityVM.LMAC;
-                entity.UpdatedAt = DateTime.Now;
-                entity.UpdatedBy = entityVM.UpdatedBy;
-                entity.EffectiveDate = entityVM.EffectiveDate;
-                await empAllowance.UpdateAsync(entity);
-
-                // 3. Update HouseRentAllowances
-                // First remove existing setups
-                // Get all active setups for this EmployeeAllowanceID
-                var hasExistingSetups = await empAlowanceSetup.AllActive()
-                               .AnyAsync(x => x.EmployeeAllowanceID == entityVM.EmployeeAllowanceID);
-
-                if (hasExistingSetups)
-                {
-                    await empAlowanceSetup.RemoveRangeAsync(x => x.EmployeeAllowanceID == entityVM.EmployeeAllowanceID);
-                }
-
-                // Add new setups
-                var newSetups = entityVM.HouseRentAllowances.Select(item => new EmployeeAllowanceSetup
-                {
-                    EmployeeAllowanceID = entity.EmployeeAllowanceID,
-                    CalculationTypeID = item.CalculationTypeID,
-                    SalaryMin = item.SalaryMin,
-                    SalaryMax = item.SalaryMax,
-                    Value = item.Value,
-                    LIP = entityVM.LIP,
-                    LMAC = entityVM.LMAC,
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = entityVM.UpdatedBy
-                }).ToList();
-
-                await empAlowanceSetup.AddRangeAsync(newSetups);
-
-                // 4. Commit transaction
-                await empAllowance.CommitTransactionAsync();
-
-                return new CommonReturnViewModel
-                {
-                    Success = true,
-                    Data = entity,
-                    Message = "Updated Successfully"
-                };
-            }
-            catch (Exception ex)
-            {
-                await empAllowance.RollbackTransactionAsync();
-                result.Success = false;
-                result.Message = "An error occurred while updating.";
-                result.Errors.Add(ex.Message);
-            }
-
-            return result;
-        }
-
-
-        
-
-        #endregion
-
-        #region Get By Id 
-        public async Task<CommonReturnViewModel> GetByIdPayRollEmpAllowance(int employeeAllowanceID)
-        {
-            try
-            {
-                var entity = await empAllowance.GetByIdAsync(employeeAllowanceID);
-                var result = new PayRollEmpAllowanceGetById
-                {
-                    EmployeeAllowanceID = entity.EmployeeAllowanceID,
-                    OrganizationIDEdit = entity.OrganizationID,
-                   
-                };
-                return new CommonReturnViewModel
-                {
-                    Success = true,
-                    Data = result,
-                };
-
-            }
-            catch (Exception)
-            {
-                return new CommonReturnViewModel
-                {
-                    Success = false,
-                    Message = "Employee Benefits Does not find"
-                };
-            }
-        }
-
-        #endregion
-        #region Soft Delete 
-        public async Task<CommonReturnViewModel> SoftDeletePayRollEmpAllowance(DeleteRequestVM deleteRequestVM)
-        {
             await empAllowance.BeginTransactionAsync();
             try
             {
-                var data = await empAllowance.FindAsync(x => deleteRequestVM.Ids.Contains(x.EmployeeAllowanceID));
-                if (data == null || data.Count == 0)
+                foreach (var benefitVM in entityVM.Allowances)
                 {
-                    return new CommonReturnViewModel
+                    if (benefitVM.EmployeeAllowanceID > 0)
                     {
-                        Success = false,
-                        Message = "No data found to delete."
-                    };
+                        // 🔹 Update existing allowance
+                        benefit = await empAllowance.FirstOrDefaultAsync(x => x.EmployeeAllowanceID == benefitVM.EmployeeAllowanceID);
+
+                        if (benefit != null)
+                        {
+                            hasUpdate = true;
+                            benefit.EmployeeAllowanceTypeID = benefitVM.EmployeeAllowanceTypeID;
+                            benefit.IsActive = benefitVM.IsActive;
+                            benefit.EffectiveDate = benefitVM.EffectiveDate;
+                            benefit.LIP = entityVM.LIP;
+                            benefit.LMAC = entityVM.LMAC;
+                            benefit.UpdatedAt = DateTime.UtcNow;
+                            benefit.UpdatedBy = entityVM.UpdatedBy;
+
+                            await empAllowance.UpdateAsync(benefit);
+                        }
+                        else
+                        {
+                            // Treat as new insert if not found
+                            benefit = new EmployeeAllowances
+                            {
+                                OrganizationID = entityVM.OrganizationID,
+                                EmployeeAllowanceTypeID = benefitVM.EmployeeAllowanceTypeID,
+                                IsActive = benefitVM.IsActive,
+                                EffectiveDate = benefitVM.EffectiveDate,
+                                LIP = entityVM.LIP,
+                                LMAC = entityVM.LMAC,
+                                CreatedAt = DateTime.Now,
+                                CreatedBy = entityVM.CreatedBy
+                            };
+                            await empAllowance.AddAsync(benefit);
+                            hasInsert = true;
+                        }
+
+                        // 🔹 Handle setups
+                        var existingSetups = await empAlowanceSetup.AllActive()
+                            .Where(x => x.EmployeeAllowanceID == benefit.EmployeeAllowanceID)
+                            .ToListAsync();
+
+                        var setupIdsInVM = benefitVM.AllowanceSetups?.Select(x => x.EmployeeAllowanceSetupID).ToList() ?? new List<int>();
+
+                        // Delete removed setups
+                        var setupsToDelete = existingSetups.Where(x => !setupIdsInVM.Contains(x.EmployeeAllowanceSetupID)).ToList();
+                        if (setupsToDelete.Any())
+                            await empAlowanceSetup.DeleteRangeAsync(setupsToDelete);
+
+                        // Insert or update setups
+                        foreach (var setupVM in benefitVM.AllowanceSetups ?? new List<AllowanceSetupVM>())
+                        {
+                            var setup = existingSetups.FirstOrDefault(x => x.EmployeeAllowanceSetupID == setupVM.EmployeeAllowanceSetupID);
+
+                            if (setup == null)
+                            {
+                                var newSetup = new EmployeeAllowanceSetup
+                                {
+                                    EmployeeAllowanceID = benefit.EmployeeAllowanceID,
+                                    CalculationTypeID = setupVM.CalculationTypeID,
+                                    SalaryMax = setupVM.SalaryMax,
+                                    SalaryMin = setupVM.SalaryMin,
+                                    Value = setupVM.Value,
+                                    LIP = entityVM.LIP,
+                                    LMAC = entityVM.LMAC,
+                                    CreatedAt = DateTime.UtcNow,
+                                    CreatedBy = entityVM.CreatedBy
+                                };
+                                await empAlowanceSetup.AddAsync(newSetup); // ✅ Correct repository
+                                hasInsert = true;
+                            }
+                            else
+                            {
+                                setup.CalculationTypeID = setupVM.CalculationTypeID;
+                                setup.SalaryMax = setupVM.SalaryMax;
+                                setup.SalaryMin = setupVM.SalaryMin;
+                                setup.Value = setupVM.Value;
+                                setup.LIP = entityVM.LIP;
+                                setup.LMAC = entityVM.LMAC;
+                                setup.UpdatedAt = DateTime.UtcNow;
+                                setup.UpdatedBy = entityVM.CreatedBy;
+
+                                await empAlowanceSetup.UpdateAsync(setup);
+                                hasUpdate = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // 🔹 Insert new allowance
+                        benefit = new EmployeeAllowances
+                        {
+                            OrganizationID = entityVM.OrganizationID,
+                            EmployeeAllowanceTypeID = benefitVM.EmployeeAllowanceTypeID,
+                            IsActive = benefitVM.IsActive,
+                            EffectiveDate = benefitVM.EffectiveDate,
+                            LIP = entityVM.LIP,
+                            LMAC = entityVM.LMAC,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = entityVM.CreatedBy
+                        };
+                        await empAllowance.AddAsync(benefit);
+                        hasInsert = true;
+
+                        // Insert setups
+                        foreach (var setupVM in benefitVM.AllowanceSetups ?? new List<AllowanceSetupVM>())
+                        {
+                            var newSetup = new EmployeeAllowanceSetup
+                            {
+                                EmployeeAllowanceID = benefit.EmployeeAllowanceID,
+                                CalculationTypeID = setupVM.CalculationTypeID,
+                                SalaryMax = setupVM.SalaryMax,
+                                SalaryMin = setupVM.SalaryMin,
+                                Value = setupVM.Value,
+                                LIP = entityVM.LIP,
+                                LMAC = entityVM.LMAC,
+                                CreatedAt = DateTime.UtcNow,
+                                CreatedBy = entityVM.CreatedBy
+                            };
+                            await empAlowanceSetup.AddAsync(newSetup); 
+                        }
+                    }
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<PayRollEmpAllowanceSaveVM>>(
-             JsonConvert.SerializeObject(data, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
-                var targetIds = data.Select(x => (int?)x.EmployeeAllowanceID).ToList();
-                foreach (var item in data)
-                {
-                    item.DeletedAt = DateTime.Now;
-                    item.LIP = deleteRequestVM.LIP;
-                    item.LMAC = deleteRequestVM.LMAC;
-                    item.DeletedBy = deleteRequestVM.DeletedBy ?? null;
-                }
-
-                await empAllowance.UpdateRangeAsync(data);
-                await userInfoService.ActionLogDeleteAsync("PayRoll Employee Allowance", ActionName.DataDeleted, null, beforeEntity, targetIds, deleteRequestVM);
                 await empAllowance.CommitTransactionAsync();
 
-                return new CommonReturnViewModel
-                {
-                    Success = true,
-                    Message = $"Deleted Successfully."
+                result.Success = true;
+                if (hasInsert && hasUpdate)
+                    result.Message = "Saved and Updated Successfully";
+                else if (hasInsert)
+                    result.Message = "Saved Successfully";
+                else if (hasUpdate)
+                    result.Message = "Updated Successfully";
+                else
+                    result.Message = "No changes made!";
 
-                };
             }
             catch (Exception ex)
             {
                 await empAllowance.RollbackTransactionAsync();
-                throw new Exception("Error occurred during the deletion of data.", ex);
+                result.Success = false;
+                result.Message = "An error occurred while saving.";
+                result.Errors.Add(ex.Message);
+                await userInfoService.ActionLogExceptionAsync("Organization allowance", ex, entityVM.Allowances?.FirstOrDefault()?.EmployeeAllowanceID, ActionName.Error);
             }
+
+            return result;
         }
 
 
@@ -364,30 +224,8 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
 
         #endregion
 
-        #region Get Employee TYpe Name
-
-        public async Task<List<AllowanceTypeNameVM>> GetEmpAllowanceType()
-        {
-            var data = await empalowanceTypesRepository.AllActive()
-                .Select(x => new AllowanceTypeNameVM
-                {
-                    EmployeeAllowanceTypeID = x.EmployeeAllowanceTypeID,
-                    EmployeeAllowanceTypeName = x.EmployeeAllowanceTypeName,
-                    
-                })
-                .ToListAsync();
-
-            return data;
-        }
-
-
-
-        #endregion
 
         #region Get Allowance Type 
-
-        
-
 
         public async Task<List<CommonSelectVMM>> SelectAsync(int id)
         {
@@ -400,8 +238,8 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
                     .Where(x => x.OrganizationID == id && x.IsApplyOnGrossSalary == true)
                     .ToListAsync();
 
-                // Get all employee allowances with their setups
-                var empAllowances3 = await empAllowance // or your EmployeeAllowances repository
+               
+                var empAllowances3 = await empAllowance 
                     .AllActive()
                     .Include(a => a.EmployeeAllowanceSetup)
                     .Include(a => a.EmployeeAllowanceType)

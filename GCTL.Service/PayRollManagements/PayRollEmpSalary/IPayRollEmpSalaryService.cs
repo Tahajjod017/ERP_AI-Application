@@ -13,7 +13,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 {
     public interface IPayRollEmpSalaryService
     {
-        Task<PaginationService<EmployeeBaseBenefits, PayRollEmpSalaryGetAllVM>.PaginationResult<PayRollEmpSalaryGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+        Task<PaginationService<EmployeeSalarySettings, PayRollEmpSalaryGetAllVM>.PaginationResult<PayRollEmpSalaryGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null, string imgSrcThumb = null);
         Task<CommonReturnViewModel> GetPaySlip(int id);
     }

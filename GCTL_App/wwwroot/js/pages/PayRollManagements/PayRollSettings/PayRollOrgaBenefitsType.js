@@ -3,7 +3,6 @@
     $(document).on('click', '#OrganizationBenefitsType-saveBtn', function (e) {
         e.preventDefault();
         var token = $('#OrganizationBenefitsType-form input[name="__RequestVerificationToken"]').val();
-        debugger
         var formData = {
             __RequestVerificationToken: token,
             BenefitTypeID: $('#BenefitTypeID').val(),

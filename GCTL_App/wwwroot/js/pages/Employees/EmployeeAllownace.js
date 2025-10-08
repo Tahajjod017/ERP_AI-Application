@@ -121,7 +121,7 @@
                         </div>
 
                         <div class="col-lg-4 col-md-6 col-sm-12 fixedRateEditable" style="display:${baseCalculationType == 1 ? 'block' : 'none'};">
-                            <input type="text" class="form-control fixedInput" name="Benefits[${i}].BaseValue" placeholder="Enter Fixed Rate" value="${baseCalculationType == 1 ? baseValue : ''}" ${baseCalculationType == 1 ? "" : "disabled"}>
+                            <input type="text" class="form-control fixedInput integerOnly" name="Benefits[${i}].BaseValue" placeholder="Enter Fixed Rate" value="${baseCalculationType == 1 ? baseValue : ''}" ${baseCalculationType == 1 ? "" : "disabled"}>
                         </div>
 
                         <div class="col-lg-4 col-md-6 col-sm-12 percentRateEditable" style="display:${baseCalculationType == 2 ? 'block' : 'none'};">
@@ -178,6 +178,20 @@
         });
     }
 
+    
+
+
+    $(document).on("input", ".integerOnly", function () {
+        let oldValue = this.value;
+        let newValue = oldValue.replace(/[^0-9]/g, '');
+
+        if (oldValue !== newValue) {
+            toastr.warning("Only numbers are allowed!");
+            this.value = newValue;
+        }
+    });
+
+
 
     $("#EmployeeAllowanceForm").on("submit", function (e) {
         e.preventDefault();
@@ -192,6 +206,7 @@
             success: function (res) {
                 if (res.success) {
                     toastr.success(res.message);
+                    loadAllowanceTypes(lastInt);
                 } else {
                     toastr.error(res.message);
                 }
