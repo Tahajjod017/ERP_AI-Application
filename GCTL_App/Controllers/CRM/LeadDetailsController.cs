@@ -7,15 +7,9 @@ using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using NuGet.Protocol.Plugins;
-using OpenQA.Selenium.Support.UI;
 
 
 namespace GCTL_App.Controllers.CRM
@@ -60,7 +54,7 @@ namespace GCTL_App.Controllers.CRM
 
             ViewBag.LeadSourceDD = new SelectList(_leadSourceTypeRepository.AllActive().Select(e => new { e.LeadSourceID, e.LeadSourceName }), "LeadSourceID", "LeadSourceName");
             ViewBag.LeadActivityTypes = _leadActivityTypesRepository.AllActive().Where(e => e.UseFor == "General").Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
-            ViewBag.LeadActivityTypes2 = _leadActivityTypesRepository.AllActive().Where(e => e.UseFor == "Won" || e.UseFor == "Lost").Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName }).ToList();
+            ViewBag.LeadActivityTypes2 = _leadActivityTypesRepository.AllActive().Where(e => e.UseFor == "Won" || e.UseFor == "Lost").Select(e => new { e.LeadActivityTypeID, e.LeadActivityIcon, e.LeadActivityName, e.UseFor }).ToList();
             ViewBag.LeadStatus = new SelectList(_leadStatusesRepository.AllActive().Where(u => u.IsSpecial != true).Select(e => new { e.LeadStatusID, e.LeadStatusName }), "LeadStatusID", "LeadStatusName");
             ViewBag.LeadPriorities = new SelectList(_prioritiesRepository.AllActive().Select(e => new { e.PriorityID, e.PriorityName }), "PriorityID", "PriorityName");
 
@@ -243,7 +237,7 @@ namespace GCTL_App.Controllers.CRM
                 //var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == leadDetailsVM.LeadID);
                 //Won / Lost special case
                 var existingLeadTypeObj = await _leadActivityTypesRepository.FirstOrDefaultAsync(u => u.LeadActivityTypeID == leadDetailsVM.LeadActivityTypeID);
-                if (existingLeadTypeObj.LeadActivityName == "Won" || existingLeadTypeObj.LeadActivityName == "Lost")
+                if (existingLeadTypeObj.UseFor == "Won" || existingLeadTypeObj.UseFor == "Lost")
                 {
                     var result = await _leadDetailsService.AddIsWon(new IsWonVM
                     {

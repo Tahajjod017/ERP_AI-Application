@@ -285,19 +285,21 @@
             }
 
             const teamHtml = `
-            <div class="col-sm-12 col-md-6 col-xl-3 mt-4">
-                <div class="card h-100" style="max-width: 20rem; height: 100%;">
-                    <div class="card-body d-flex flex-column p-3" style="height: 268px;">
-                        <a href="#" class="text-warning fw-bold text-center h5 text-decoration-none mb-2 addTeam-edit"
-                           data-teamid="${team.teamID}"
-                           title="Click for Edit Team">
-                            <i class="fas fa-edit"></i> &nbsp;<span>${team.teamName}</span> &nbsp;<span>(${team.teamGID})</span> 
-                        </a>
-                        <hr class="my-2" />
-                        <div class="overflow-auto flex-grow-1">
-                            ${membersHtml}
+            <div class="col-auto">
+                <div style="height: 280px; min-width: 70px;">
+                    <div class="card h-100" style="width: 20rem; height: 100%;">
+                        <div class="card-body d-flex flex-column p-3" style="height: 268px;">
+                            <a href="#" class="text-warning fw-bold text-center h5 text-decoration-none mb-2 addTeam-edit"
+                               data-teamid="${team.teamID}"
+                               title="Click for Edit Team">
+                                <i class="fas fa-edit"></i> &nbsp;<span>${team.teamName}</span> &nbsp;<span>(${team.teamGID})</span> 
+                            </a>
+                            <hr class="my-2" />
+                            <div class="overflow-auto flex-grow-1">
+                                ${membersHtml}
+                            </div>
+                            <a href="/TeamDetails/index/${team.teamID}" class="btn btn-outline-primary rounded-pill btn-sm w-100 viewDetailsBtn">View Details</a>
                         </div>
-                        <a href="/TeamDetails/index/${team.teamID}" class="btn btn-outline-primary rounded-pill btn-sm w-100 viewDetailsBtn">View Details</a>
                     </div>
                 </div>
             </div>
@@ -328,18 +330,15 @@
 
     $(document).on("click", ".addTeam-edit", async function (e) {
         e.preventDefault();
-        // Reset page for MultiSelect
-        page = 1;       // first page
-        hasMore = true; // allow loading more
-        term = '';      // clear search term
+        page = 1; 
+        hasMore = true;
+        term = ''; 
         let id = $(this).data("teamid");
 
         const response = await fetch(`/AddTeams/GetIndivudialTeamDetails?id=${id}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
         $(ids.submitBtn).text("Update Team");
-        //showDev(result);
-        // Set team name
         $(ids.teamID).val(result.teamID);
         $(ids.teamName).val(result.teamName);
         $(ids.employeeIDs).empty();

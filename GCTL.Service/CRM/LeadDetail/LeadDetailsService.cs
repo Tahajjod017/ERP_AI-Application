@@ -306,98 +306,94 @@ namespace GCTL.Service.CRM.LeadDetail
 
             try
             {
+                // Fetch Lead and LeadType
                 var leadObj = await _leadsRepository.FirstOrDefaultAsync(u => u.LeadID == isWonVM.LeadID);
                 var leadTypeObj = await _leadActivityTypesGenericRepository.FirstOrDefaultAsync(
                     u => u.LeadActivityTypeID == isWonVM.LeadActivityTypeID
                 );
 
+                // Validate
                 if (leadObj == null || leadTypeObj == null)
+                {
+                    await _leadsRepository.RollbackTransactionAsync();
+                    return new ReturnView { Success = false, Message = "Something went wrong" };
+                }
+
+                if (leadObj.IsOwn != null || leadObj.ClosingDate != null)
+                {
+                    await _leadsRepository.RollbackTransactionAsync();
+                    return new ReturnView { Success = false, Message = "Please restart your lead first" };
+                }
+
+                var leadTypeID = leadTypeObj.LeadActivityTypeID;
+                var isWon = leadTypeObj.UseFor == "Won";
+
+                if (leadTypeID == 0)
+                {
+                    await _leadsRepository.RollbackTransactionAsync();
+                    return new ReturnView { Success = false, Message = "Invalid activity type" };
+                }
+
+                if (leadObj.IsOwn == isWon)
                 {
                     await _leadsRepository.RollbackTransactionAsync();
                     return new ReturnView
                     {
                         Success = false,
-                        Message = "Something went wrong"
+                        Message = $"Your status is already {leadTypeObj.LeadActivityName}"
                     };
                 }
-                
-                if (leadObj.IsOwn == null && leadObj.ClosingDate == null)
+
+                // Create new activity
+                var leadActivityObj = new GCTL.Data.Models.LeadDetails
                 {
-                    var leadTypeID = leadTypeObj.LeadActivityTypeID;
-                    var isWon = leadTypeObj.LeadActivityName == "Won";
+                    LeadID = leadObj.LeadID,
+                    ActivityDateTime = DateTime.UtcNow,
+                    LeadActivityTypeID = leadTypeID,
+                    ActivityNote = isWonVM.ActivityNote,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = isWonVM.CreatedBy,
+                    LIP = isWonVM.LIP,
+                    LMAC = isWonVM.LMAC
+                };
+                await _leadDetailsGenericRepository.AddAsync(leadActivityObj);
 
-                    if (leadTypeID == 0)
+                // Update Lead info
+                leadObj.IsOwn = isWon;
+                leadObj.ClosingDate = DateTime.UtcNow;
+                leadObj.UpdatedAt = DateTime.UtcNow;
+                leadObj.UpdatedBy = isWonVM.UpdatedBy;
+                await _leadsRepository.UpdateAsync(leadObj);
+
+                // 🔹 Mark upcoming activities as deleted (inside transaction)
+                var utcNow = DateTime.UtcNow;
+                var upcomingActivityList = await _leadDetailsGenericRepository.AllActive()
+                    .Where(u => u.ActivityDateTime >= utcNow && u.LeadID == leadObj.LeadID)
+                    .ToListAsync();
+
+                if (upcomingActivityList.Any())
+                {
+                    foreach (var item in upcomingActivityList)
                     {
-                        await _leadsRepository.RollbackTransactionAsync();
-                        return new ReturnView
-                        {
-                            Success = false,
-                            Message = "Something went wrong"
-                        };
-                    }
-
-                    if (leadObj.IsOwn == isWon)
-                    {
-                        await _leadsRepository.RollbackTransactionAsync();
-                        return new ReturnView
-                        {
-                            Success = false,
-                            Message = "Your status is already " + leadTypeObj.LeadActivityName
-                        };
-                    }
-
-                    var leadActivityObj = new GCTL.Data.Models.LeadDetails()
-                    {
-                        LeadID = leadObj.LeadID,
-                        ActivityDateTime = DateTime.UtcNow,
-                        LeadActivityTypeID = leadTypeID,
-                        ActivityNote = isWonVM.ActivityNote,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = isWonVM.CreatedBy,
-                        LIP = isWonVM.LIP,
-                        LMAC = isWonVM.LMAC,
-                    };
-                    await _leadDetailsGenericRepository.AddAsync(leadActivityObj);
-
-                    // Update lead status
-                    leadObj.IsOwn = isWon;
-                    leadObj.ClosingDate = DateTime.UtcNow;
-                    leadObj.UpdatedAt = DateTime.UtcNow;
-                    leadObj.UpdatedBy = isWonVM.UpdatedBy;
-
-                    await _leadsRepository.UpdateAsync(leadObj);
-
-                    await _leadsRepository.CommitTransactionAsync();
-
-
-
-                    var upcommingActivity = await _leadDetailsGenericRepository.AllActive().Where(u => u.ActivityDateTime >= DateTime.UtcNow).ToListAsync();
-                    upcommingActivity.ForEach(item =>
-                    {
-                        item.DeletedAt = DateTime.UtcNow;
+                        item.DeletedAt = utcNow;
                         item.DeletedBy = isWonVM.DeletedBy;
                         item.LIP = isWonVM.LIP;
                         item.LMAC = isWonVM.LMAC;
-                    });
-                    await _leadDetailsGenericRepository.UpdateRangeAsync(upcommingActivity);
+                    }
 
-                    return new ReturnView
-                    {
-                        Success = true,
-                        Message = "Lead status updated to " + leadTypeObj.LeadActivityName
-                    };
+                    await _leadDetailsGenericRepository.UpdateRangeAsync(upcomingActivityList);
                 }
-                else
+
+                // Commit transaction
+                await _leadsRepository.CommitTransactionAsync();
+
+                return new ReturnView
                 {
-                    return new ReturnView
-                    {
-                        Success = false,
-                        Message = "Please Restart Your Lead First"
-                    };
-                }
-                
+                    Success = true,
+                    Message = $"Lead status updated to {leadTypeObj.LeadActivityName}"
+                };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await _leadsRepository.RollbackTransactionAsync();
                 return new ReturnView

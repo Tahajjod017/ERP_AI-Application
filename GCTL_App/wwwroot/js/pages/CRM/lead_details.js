@@ -31,7 +31,7 @@ $(function () {
         $(".option-btn").removeClass('active');
         $(this).addClass('active');
 
-        let btnText = $(this).text().trim();
+        let btnText = $(this).data('usefor');
         if (btnText === "Attachment") {
             $('#file-field').show();
 
@@ -108,7 +108,15 @@ $(function () {
     // save lead activity function
     //==============================
     async function saveActivityFunction(e) {
-        const buttonName = $(".option-btn.active").text().trim();
+        debugger;
+        const userFor = $(".option-btn.active").data("usefor");
+        showDev(userFor)
+        const buttonName = (userFor === "Won" || userFor === "Lost")
+            ? userFor
+            : $(".option-btn.active").text().trim();
+
+        showDev(buttonName);
+
         const buttonID = $(".option-btn.active").data('id');
         const leadID = $(ids.leadID).val();
         const note = $(ids.note).val();
@@ -201,6 +209,7 @@ $(function () {
     // ============================
 
     function validation(placeName) {
+        debugger
         clearAllValidationBorders();
 
         let requiredField = [];
@@ -310,6 +319,9 @@ $(function () {
                 success: function (response) {
                     showLeadCreatorPercentage(response.successPercentage, response.lostPercentage, response.cancelPercentage)
 
+                    debugger;
+                    showDev(response);
+
                     if (response.closingDate != null) {
                         showClosedDate(response.closingDate);
                     } else {
@@ -320,7 +332,7 @@ $(function () {
                     $("#activity-label").text(tabName);
                     if (!response.activities || response.activities.length === 0) {
                         noMoreDataDown = true;
-                        return;
+                        //return;
                     } else {
                         $("#all-activity-div").removeClass("d-none");
                     }
@@ -445,7 +457,6 @@ $(function () {
             contentType: 'application/json',
             data: { id, page },
             success: function (response) {
-                debugger;
                 if (!response || response.length === 0 && loadedIds2.size == 0) {
                     $("#upcomming-div").addClass("d-none");
                     return;

@@ -78,7 +78,7 @@ namespace GCTL.Service.CRM.AddTeam
         }
         #endregion
 
-        #region Update Team
+        #region CreateTeam 
         public async Task<ReturnView> CreateTeam(CreateTeamVM createTeamVM)
         {
             try
@@ -148,7 +148,7 @@ namespace GCTL.Service.CRM.AddTeam
         }
         #endregion
 
-        #region CreateTeam
+        #region UpdateTeam
         public async Task<ReturnView> UpdateTeam(CreateTeamVM updateTeamVM)
         {
             try
