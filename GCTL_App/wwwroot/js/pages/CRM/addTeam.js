@@ -4,6 +4,7 @@
         teamID: '#TeamID',
         generatedID: '#GeneratedID',
         submitBtn: '#CreateTeamBtn',
+        resetBtn: '#resetTeamBtn',
         employeeDrpdn: '#EmployeeIds',
         teamName: '#TeamName',
         employeeIDs: '#EmployeeIds',
@@ -16,7 +17,7 @@
 
     let page = 1;
     let term = '';
-    const pageSize = 20;
+    const pageSize3 = 20;
 
     let hasMore = true;
     let loading = false;
@@ -128,7 +129,7 @@
         if (loading || (!hasMore && append)) return;
         loading = true;
         try {
-            const res = await fetch(`${apiUrl}?search=${encodeURIComponent(term)}&page=${page}&pageSize=${pageSize}`);
+            const res = await fetch(`${apiUrl}?search=${encodeURIComponent(term)}&page=${page}&pageSize=${pageSize3}`);
             const data = await res.json();
 
             addOptions(data.items, { reset: !append });
@@ -188,15 +189,20 @@
             EmployeeIds: $(ids.employeeIDs).val()
         };
 
+        //showDev(formData);
+        console.log(formData);
+
         $.ajax({
             url: '/AddTeams/CreateTeam',
             type: 'POST',
             data: formData,
             success: function (response) {
                 if (response.success) {
+                    toastr.success(response.message);
                     fetchTeamList();
+                    resetForm();
                 } else {
-                   
+                    toastr.error(response.message);
                 }
             },
             error: function (xhr) {
@@ -206,11 +212,18 @@
         });
     });
 
+    // =====================================
+    // reset button
+    // =====================================
+    $(ids.resetBtn).on("click", function () {
+        resetForm();
+    })
+
     // ===============================
     // get Team List
     //==============================
     let pageNumber = 1;
-    let pageSize2 = 10;
+    let pageSize = 25;
     let searchTerm = '';
     let sortColumn = 'CreatedAt';
     let sortOrder = 'asc';
@@ -219,7 +232,7 @@
         try {
             const query = new URLSearchParams({
                 pageNumber,
-                pageSize2,
+                pageSize,
                 searchTerm,
                 sortColumn,
                 sortOrder
@@ -233,7 +246,7 @@
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const data = await response.json();
-            showDev(data);
+            //showDev(data);
             renderTeamCards(data);
             return data;
         } catch (error) {
@@ -324,8 +337,10 @@
         const response = await fetch(`/AddTeams/GetIndivudialTeamDetails?id=${id}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const result = await response.json();
-        showDev(result);
+        $(ids.submitBtn).text("Update Team");
+        //showDev(result);
         // Set team name
+        $(ids.teamID).val(result.teamID);
         $(ids.teamName).val(result.teamName);
         $(ids.employeeIDs).empty();
         result.teamMembersInfo.forEach(member => {
@@ -338,9 +353,20 @@
 
         fetchPage({ append: false, keepSelected: true });
 
-
+        
     });
 
+
+    // ============================
+    // reset function
+    // ============================
+    function resetForm() {
+        $(ids.teamID).val('');
+        $(ids.teamName).val('');
+        $(ids.employeeIDs).val([]);
+        coreui.MultiSelect.getInstance('#EmployeeIds')?.update();
+        $(ids.submitBtn).text("Create Team");
+    }
 
     fetchTeamList();
 });

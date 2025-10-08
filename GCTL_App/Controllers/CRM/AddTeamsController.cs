@@ -44,7 +44,6 @@ namespace GCTL_App.Controllers.CRM
         //}
         #endregion
 
-
         #region getEmployeeList
         [Route("/AddTeams/GetEmployeeList")]
         [HttpGet]
@@ -73,8 +72,17 @@ namespace GCTL_App.Controllers.CRM
         [HttpPost]
         public async Task<IActionResult> CreateTeam([FromForm] CreateTeamVM createTeamVM)
         {
-            var result = await _addTeamService.CreateTeam(createTeamVM);
-            return Ok(result);
+            if (createTeamVM.TeamID == 0)
+            {
+                var result = await _addTeamService.CreateTeam(createTeamVM);
+                return Ok(result);
+            }
+            else
+            {
+                var result = await _addTeamService.UpdateTeam(createTeamVM);
+                return Ok(result);
+            }
+                
         }
         #endregion
 

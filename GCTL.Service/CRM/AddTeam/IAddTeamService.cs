@@ -8,6 +8,7 @@ namespace GCTL.Service.CRM.AddTeam
     {
         #region CRUD
         Task<ReturnView> CreateTeam(CreateTeamVM createTeamVM);
+        Task<ReturnView> UpdateTeam(CreateTeamVM createTeamVM);
         //Task<List<CommonSelectVM>> GetEmployeesByIds(List<int> ids);
         #endregion
 
