@@ -474,7 +474,7 @@
                         <div class="mb-4 p-1" id="optionBtnDiv">
                             @foreach (var item in ViewBag.LeadActivityTypes)
                             {
-                                <button class="btn btn-phoenix-secondary me-1 option-btn"
+                                <button class="btn btn-phoenix-secondary me-1 option-btn mb-2"
                                         type="button"
                                         data-id="@item.LeadActivityTypeID">
                                     <span class="fs-7 mb-2 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
@@ -546,10 +546,10 @@
 
                             @foreach (var item in ViewBag.LeadActivityTypes2)
                             {
-                                <button id="@item.LeadActivityName"
+                                <button
                                         class="d-flex justify-content-center align-items-center btn btn-phoenix-secondary rounded-pill mx-1 special-btn option-btn"
                                         type="button"
-                                        data-id="@item.LeadActivityTypeID">
+                                        data-id="@item.LeadActivityTypeID" data-usefor="@item.UseFor">
                                     <span class="fs-7 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
                                     @item.LeadActivityName
                                 </button>

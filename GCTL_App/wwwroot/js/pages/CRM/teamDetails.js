@@ -18,7 +18,7 @@
             if (!response.ok) throw new Error('Network response was not ok');
 
             const teamDeatils = await response.json();
-            showDev(teamDeatils);
+            //showDev(teamDeatils);
             setHTML(teamDeatils);
         } catch (error) {
             console.error("Error fetching next index: ", error);
