@@ -65,6 +65,8 @@ public partial class Shifts
 
     public int? MealBreakTime { get; set; }
 
+    public bool IsNextDay { get; set; }
+
     public virtual ICollection<Attendance> Attendance { get; set; } = new List<Attendance>();
 
     public virtual Employees CreatedByNavigation { get; set; }

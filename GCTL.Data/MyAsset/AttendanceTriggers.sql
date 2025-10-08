@@ -43,7 +43,7 @@
 
     --USE [HRM_DB_GCTL]
     GO
-    /****** Object:  StoredProcedure [dbo].[sp_ProcessPunch]    Script Date: 09/28/25 10:13:43 AM ******/
+    /****** Object:  StoredProcedure [dbo].[sp_ProcessPunch]    Script Date: 10/8/2025 12:36:23 PM ******/
     SET ANSI_NULLS ON
     GO
     SET QUOTED_IDENTIFIER ON
