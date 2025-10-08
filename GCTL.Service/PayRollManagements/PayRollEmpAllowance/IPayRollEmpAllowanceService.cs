@@ -1,6 +1,5 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels;
-using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeBenefitsVM;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -15,15 +14,11 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpAllowance
     public interface IPayRollEmpAllowanceService
     {
         Task<CommonReturnViewModel>SavePayRollEmpAllowance(PayRollEmpAllowanceSaveVM entityVM);
-        Task<CommonReturnViewModel> UpdatePayRollEmpAllowance(PayRollEmpAllowanceUpdate entityVM);
-        Task<CommonReturnViewModel> GetByIdPayRollEmpAllowance(int employeeAllowanceID);
-        Task<CommonReturnViewModel> SoftDeletePayRollEmpAllowance(DeleteRequestVM deleteRequestVM);
-        public Task<List<AllowanceTypeNameVM>> GetEmpAllowanceType();
-        Task<CommonReturnViewModel> GetPayRollEmpAllowanceByIdAsync();
         Task<List<CommonSelectVMM>> SelectAsync(int id);
     }
 
-    public class CommonSelectVMM:BaseViewModel
+    // for Get 
+    public class CommonSelectVMM
     {
         public int Id { get; set; }
         public string? Name { get; set; }

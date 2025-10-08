@@ -194,31 +194,67 @@ namespace GCTL.Service.Employees.EmployeeAllowance
       }).ToListAsync();
 
 
-                
 
-                result = benefits.Where(b => benefitTypes.Any(bt => bt.EmployeeAllowanceTypeID == b.EmployeeAllowanceTypeID)).GroupBy(b => new { b.EmployeeAllowanceTypeID, b.EmployeeAllowanceType.EmployeeAllowanceTypeName })
-               .Select(g => new CommonSelectVMMMAllowance
-               {
-                   Id = g.Key.EmployeeAllowanceTypeID,
-                   Name = g.Key.EmployeeAllowanceTypeName,
-                   EmpBenefitVMM = g.Select(b =>
-                   {
-                       var matchedSetup = b.EmployeeAllowanceSetup
-                           .FirstOrDefault(s => s.SalaryMin <= employeeSalary && s.SalaryMax >= employeeSalary);
-                       var baseBenefit = empBasebenefit.FirstOrDefault(x => x.EmployeeAllowanceID == b.EmployeeAllowanceID);
 
-                       return new EmpAllowanceVMMM
-                       {
-                           OrganizationID = b.OrganizationID,
-                           BenefitID = b.EmployeeAllowanceID,
-                           CalculationTypeID = matchedSetup?.CalculationTypeID ?? 0,
-                           Value = matchedSetup?.Value ?? 0,
-                           BaseBenefitID = baseBenefit?.EmployeeAllowanceID ?? b.EmployeeAllowanceID,
-                           BaseCalculationTypeID = baseBenefit?.CalculationTypeID ?? (matchedSetup?.CalculationTypeID ?? 0),
-                           BaseValue = baseBenefit?.BenefitValue ?? (matchedSetup?.Value ?? 0),
-                       };
-                   }).ToList()
-               }).ToList();
+                // result = benefits.Where(b => benefitTypes.Any(bt => bt.EmployeeAllowanceTypeID == b.EmployeeAllowanceTypeID)).GroupBy(b => new { b.EmployeeAllowanceTypeID, b.EmployeeAllowanceType.EmployeeAllowanceTypeName })
+                //.Select(g => new CommonSelectVMMMAllowance
+                //{
+                //    Id = g.Key.EmployeeAllowanceTypeID,
+                //    Name = g.Key.EmployeeAllowanceTypeName,
+                //    EmpBenefitVMM = g.Select(b =>
+                //    {
+                //        var matchedSetup = b.EmployeeAllowanceSetup
+                //            .FirstOrDefault(s => s.SalaryMin <= employeeSalary && s.SalaryMax >= employeeSalary);
+                //        var baseBenefit = empBasebenefit.FirstOrDefault(x => x.EmployeeAllowanceID == b.EmployeeAllowanceID);
+
+                //        return new EmpAllowanceVMMM
+                //        {
+                //            OrganizationID = b.OrganizationID,
+                //            BenefitID = b.EmployeeAllowanceID,
+                //            CalculationTypeID = matchedSetup?.CalculationTypeID ?? 0,
+                //            Value = matchedSetup?.Value ?? 0,
+                //            BaseBenefitID = baseBenefit?.EmployeeAllowanceID ?? b.EmployeeAllowanceID,
+                //            BaseCalculationTypeID = baseBenefit?.CalculationTypeID ?? (matchedSetup?.CalculationTypeID ?? 0),
+                //            BaseValue = baseBenefit?.BenefitValue ?? (matchedSetup?.Value ?? 0),
+                //        };
+                //    }).ToList()
+                //}).ToList();
+
+                result = benefits
+    .Where(b => benefitTypes.Any(bt => bt.EmployeeAllowanceTypeID == b.EmployeeAllowanceTypeID))
+    .GroupBy(b => new { b.EmployeeAllowanceTypeID, b.EmployeeAllowanceType.EmployeeAllowanceTypeName })
+    .Select(g => new CommonSelectVMMMAllowance
+    {
+        Id = g.Key.EmployeeAllowanceTypeID,
+        Name = g.Key.EmployeeAllowanceTypeName,
+        EmpBenefitVMM = g.Select(b =>
+        {
+            var matchedSetup = b.EmployeeAllowanceSetup
+                .FirstOrDefault(s => s.SalaryMin <= employeeSalary && s.SalaryMax >= employeeSalary);
+
+            if (matchedSetup == null)
+                return null;  // ✅ Ignore rows without setup
+
+            var baseBenefit = empBasebenefit.FirstOrDefault(x => x.EmployeeAllowanceID == b.EmployeeAllowanceID);
+
+            return new EmpAllowanceVMMM
+            {
+                OrganizationID = b.OrganizationID,
+                BenefitID = b.EmployeeAllowanceID,
+                CalculationTypeID = matchedSetup.CalculationTypeID, // ✅ no fallback
+                Value = matchedSetup.Value,                        // ✅ no fallback
+                BaseBenefitID = baseBenefit?.EmployeeAllowanceID ?? b.EmployeeAllowanceID,
+                BaseCalculationTypeID = baseBenefit?.CalculationTypeID ?? matchedSetup.CalculationTypeID,
+                BaseValue = baseBenefit?.BenefitValue ?? matchedSetup.Value,
+            };
+        })
+        .Where(x => x != null) // remove ignored rows
+        .ToList()
+    })
+    .Where(r => r.EmpBenefitVMM.Any()) // remove groups with no valid rows
+    .ToList();
+
+
                 return result;
             }
 

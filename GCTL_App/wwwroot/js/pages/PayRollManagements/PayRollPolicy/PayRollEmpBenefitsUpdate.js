@@ -273,7 +273,7 @@ $(document).ready(function () {
                                                         <label class="form-label">Percentage(%)</label>
                                                         <select class="form-select choiceDD percentInput"
                                                                 name="Benefits[${i}].BenefitSetups[${setupIndex}].Value"
-                                                                style="max-width:185px;">
+                                                                style="width:160px;">
                                                             <option value="">Select %</option>
                                                             ${getPercentageOptionsHtml(calculationType == 2 ? setupValue : '')}
                                                         </select>
@@ -334,7 +334,7 @@ $(document).ready(function () {
                                                         <label class="form-label">Percentage(%)</label>
                                                         <select class="form-select choiceDD percentInput" 
                                                                 name="Benefits[${i}].BenefitSetups[0].Value" 
-                                                                style="max-width:185px;">
+                                                                style="width:160px;">
                                                             <option value="">Select %</option>
                                                             ${getPercentageOptionsHtml('')}
                                                         </select>
@@ -388,27 +388,47 @@ $(document).ready(function () {
             }
         });
     }
-   
-    // End Iniatially Loaded 
 
-    $("select[name='OrganizationID']").on("changed", function () {
-        validateOrganization();
+    // Remove the current validation and replace with this:
+    $(document).on("input", ".fixedInput", function (e) {
+        let input = $(this);
+        let oldValue = input.val();
+        let newValue = oldValue.replace(/[^0-9.]/g, ''); // Allow digits and decimal point
+
+        // Ensure only one decimal point
+        let parts = newValue.split('.');
+        if (parts.length > 2) {
+            newValue = parts[0] + '.' + parts.slice(1).join('');
+        }
+
+        if (oldValue !== newValue) {
+            input.val(newValue);
+            toastr.warning("Only numbers are allowed!");
+        }
     });
 
-    function validateOrganization() {
-        var orgSelect = $("select[name='OrganizationID']");
-        var selectedValues = orgSelect.val();
-        var errorSpan = $("#OrganizationID-error");
-        if (!selectedValues || selectedValues.length === 0) {
-            errorSpan.text("Please select an organization.");
-            orgSelect.css('border', '1px solid red');
-            return false;
-        } else {
-            errorSpan.text("");
-            orgSelect.css('border', '1px solid #ccc');
+    // Also add validation on keypress to prevent invalid characters
+    $(document).on("keypress", ".fixedInput", function (e) {
+        let charCode = e.which ? e.which : e.keyCode;
+        // Allow: backspace, delete, tab, escape, enter, decimal point
+        if (charCode === 46 || charCode === 8 || charCode === 9 || charCode === 27 || charCode === 13) {
             return true;
         }
-    }
+        // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+        if ((charCode === 65 || charCode === 67 || charCode === 86 || charCode === 88) && (e.ctrlKey === true || e.metaKey === true)) {
+            return true;
+        }
+        // Ensure that it is a number and stop the keypress
+        if (charCode < 48 || charCode > 57) {
+            e.preventDefault();
+            toastr.warning("Only numbers are allowed!");
+            return false;
+        }
+    });
+
+    // End Iniatially Loaded 
+
+    
 
     $(document).on('click', '.PayRollEmpBenefitsSave', function (e) {
         e.preventDefault();
@@ -456,7 +476,7 @@ $(document).ready(function () {
             success: function (res) {
                 if (res.success) {
                     toastr.success(res.message);
-                   // resetPayRollEmpBenefitsForm();
+                    loadAllowanceTypes(id);
                 }
                 else {
                     toastr.error(res.message || "Save failed");
@@ -472,71 +492,7 @@ $(document).ready(function () {
 
     //
 
-    function resetPayRollEmpBenefitsForm() {
-        const $form = $('#payrollEmpBenefitsForm');
-
-        $form[0].reset();
-
-        if (typeof choiceManager !== "undefined") {
-            choiceManager.resetChoice('OrganizationID');
-        } else {
-            // fallback if plain select
-            $('#OrganizationID').val("").trigger('change');
-        }
-
-        $form.find('.flatpickr-input').each(function () {
-            if (this._flatpickr) {
-                this._flatpickr.clear();
-            } else {
-                $(this).val("");
-            }
-        });
-        $form.find('input[type="checkbox"]').prop('checked', false);
-
-        $('#EmployeeAllowanceAccordion').empty();
-
-        $form.find('.text-danger').text('');
-    }
-
-
-    $(document).on('click', '#ResetButton', function (e) {
-        e.preventDefault();
-        resetPayRollEmpBenefitsForm();
-
-    })
-
-   
-
-
-    //#region Delete Soft Leave Request
-    $(document).on('click', '#SoftDeletePayRollEmpAllowanceDelete-singleDelBtn', function () {
-        var id = $(this).data('id');
-        if (id) {
-            showDeleteModal(function () {
-                $.ajax({
-                    url: '/PayRollEmpBenefitsUpdate/SoftDeletePayRollEmpAllowance',
-                    method: 'POST',
-                    data: { ids: [id] },
-                    success: function (response) {
-
-                        if (response.success) {
-                            toastr.success(response.message);
-                            loadTableData();
-                        } else {
-                            toastr.error(response.message);
-                        }
-                    },
-                    error: function () {
-                        toastr.error("Error occurred while deleting.");
-                    }
-                });
-            });
-        } else {
-            toastr.error("Invalid action.");
-        }
-    });
-    //#endregion
-
+    
     
 
 

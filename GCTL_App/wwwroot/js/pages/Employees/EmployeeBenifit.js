@@ -24,9 +24,7 @@
         loadAllowanceTypes(lastInt);
 
 
-
     });
-
 
     function getPercentageOptionsHtml(selectedValue) {
         let html = '';
@@ -39,8 +37,6 @@
     }
 
 
-
-   
 
     $(document).on("change", ".fixedPercentageSelect", function () {
         let $row = $(this).closest(".row");
@@ -123,7 +119,7 @@
                         </div>
 
                         <div class="col-lg-4 col-md-6 col-sm-12 fixedRateEditable" style="display:${baseCalculationType == 1 ? 'block' : 'none'};">
-                            <input type="text" class="form-control fixedInput" name="Benefits[${i}].BaseValue" placeholder="Enter Fixed Rate" value="${baseCalculationType == 1 ? baseValue : ''}" ${baseCalculationType == 1 ? "" : "disabled"}>
+                            <input type="text" class="form-control fixedInput integerOnly" name="Benefits[${i}].BaseValue" placeholder="Enter Fixed Rate" value="${baseCalculationType == 1 ? baseValue : ''}" ${baseCalculationType == 1 ? "" : "disabled"}>
                         </div>
 
                         <div class="col-lg-4 col-md-6 col-sm-12 percentRateEditable" style="display:${baseCalculationType == 2 ? 'block' : 'none'};">
@@ -175,10 +171,22 @@
                // showHide();
             },
             error: function (err) {
-                console.error("Error fetching allowance types:", err);
+                toastr.error("Error fetching allowance types:", err);
             }
         });
     }
+
+
+
+    $(document).on("input", ".integerOnly", function () {
+        let oldValue = this.value;
+        let newValue = oldValue.replace(/[^0-9]/g, '');
+
+        if (oldValue !== newValue) {
+            toastr.warning("Only numbers are allowed!");
+            this.value = newValue;
+        }
+    });
 
 
     $("#benefitForm").on("submit", function (e) {
@@ -194,6 +202,7 @@
             success: function (res) {
                 if (res.success) {
                     toastr.success(res.message);
+                    loadAllowanceTypes(lastInt);
                 } else {
                     toastr.error(res.message);
                 }
@@ -205,10 +214,7 @@
         });
     });
 
-    // End Iniatially Loaded 
-
- 
-    
+   
     //#endregion
 
 
