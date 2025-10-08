@@ -374,6 +374,10 @@ namespace GCTL.Service.Finance.TransactionAccount
                 // Step 3: Extract the numeric part from the last SubAccountCode
                 var lastCode = Regex.Replace(result.TrxAccCode, @"\s+", "");  // E.g., "01010003"
                 var lastCodeNumericPart = lastCode.Substring(8);  // E.g., "0003"
+                if(lastCodeNumericPart == null || lastCodeNumericPart == "")
+                {
+                    return lastCode + "0001";
+                }
 
                 // Step 4: Increment the numeric part
                 int lastCodeNumber = int.Parse(lastCodeNumericPart);  // E.g., 3 from "0003"

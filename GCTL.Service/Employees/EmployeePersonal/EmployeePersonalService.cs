@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GCTL.Core.Repository;
+﻿using GCTL.Core.Repository;
+using GCTL.Core.ServiceExtensions;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.Employee.EmployeePersonal;
-
 using GCTL.Data.Models;
+using GCTL.Service.Finance.TransactionAccount;
+using GCTL.Service.ImageFileHandler;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-
-using GCTL.Core.ServiceExtensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
-using GCTL.Service.ImageFileHandler;
+using System.Threading.Tasks;
 
 
 namespace GCTL.Service.Employees.EmployeePersonal
@@ -32,7 +32,16 @@ namespace GCTL.Service.Employees.EmployeePersonal
         private readonly IGenericRepository<Statuses> _statusRepository;
         private readonly IImageFileHandlerService _imageFileHandlerService;
 
-        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository, IGenericRepository<Country> countryRepository, IImageFileHandlerService imageFileHandlerService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IGenericRepository<BloodGroup> natioanlityRepository, IGenericRepository<MaritalStatus> maritalSatausRepository, IGenericRepository<Statuses> statusRepository)
+        #region Added by Md. Rakib Hasan
+        private readonly IGenericRepository<Heads> _heads;
+        private readonly IGenericRepository<HeadDetails> _headDetails;
+        private readonly IGenericRepository<TransactionAccounts> _transactionAccounts;
+        private readonly IGenericRepository<SubAccounts> _subAccounts;
+        private readonly IGenericRepository<MainAccounts> _mainAccounts;
+        private readonly ITransactionAccountService _transactionAccountService;
+        #endregion
+
+        public EmployeePersonalService(IGenericRepository<GCTL.Data.Models.Employees> employeePersonalRepository, IGenericRepository<Country> countryRepository, IImageFileHandlerService imageFileHandlerService, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IGenericRepository<BloodGroup> natioanlityRepository, IGenericRepository<MaritalStatus> maritalSatausRepository, IGenericRepository<Statuses> statusRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, IGenericRepository<MainAccounts> mainAccounts, ITransactionAccountService transactionAccountService)
         {
             _employeePersonalRepository = employeePersonalRepository;
             _countryRepository = countryRepository;
@@ -44,6 +53,12 @@ namespace GCTL.Service.Employees.EmployeePersonal
             _natioanlityRepository = natioanlityRepository;
             _maritalSatausRepository = maritalSatausRepository;
             _statusRepository = statusRepository;
+            _heads = heads;
+            _headDetails = headDetails;
+            _transactionAccounts = transactionAccounts;
+            _subAccounts = subAccounts;
+            _mainAccounts = mainAccounts;
+            _transactionAccountService = transactionAccountService;
         }
 
         #region Save Method
@@ -79,12 +94,12 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
                 if (model.EmployeePicture != null)
                 {
-                     EmployeeImageFileName = await _imageFileHandlerService.SaveFileAsync(model.EmployeePicture, "uploads/employee/images" , true);
+                     EmployeeImageFileName = await _imageFileHandlerService.SaveFileAsync(model.EmployeePicture, "media/employee/images", true);
                 }
 
                 if (model.Signature != null)
                 {
-                     EmployeeSignatureFileName = await _imageFileHandlerService.SaveFileAsync(model.Signature, "uploads/employee/signatures");
+                     EmployeeSignatureFileName = await _imageFileHandlerService.SaveFileAsync(model.Signature, "media/employee/signatures");
                 }
                 
                 
@@ -92,6 +107,74 @@ namespace GCTL.Service.Employees.EmployeePersonal
 
                 if (model.EmployeeId == 0 || model.EmployeeId == null)
                 {
+                    #region Added by Md. Rakib Hasan
+                    string schemaName = "dbo";
+                    string tableName = "Employees";
+                    int subAccId = 14;
+
+                    var headDetail = await _headDetails.FirstOrDefaultAsync(hd => hd.SchemaName == schemaName && hd.TableName == tableName);
+
+                    if (headDetail == null)
+                    {
+                        headDetail = new HeadDetails();
+                        headDetail.SchemaName = schemaName;
+                        headDetail.TableName = tableName;
+
+                        headDetail.LIP = model.LIP;
+                        headDetail.LMAC = model.LMAC;
+                        headDetail.CreatedAt = DateTime.UtcNow;
+                        headDetail.CreatedBy = model.CreatedBy;
+
+                        await _headDetails.AddAsync(headDetail);
+                    }
+
+                    var head = await _heads.FirstOrDefaultAsync(h => h.HeadDetailID == headDetail.HeadDetailID);
+
+                    if (head == null)
+                    {
+                        head = new Heads();
+                        head.HeadDetailID = headDetail.HeadDetailID;
+
+                        head.LIP = model.LIP;
+                        head.LMAC = model.LMAC;
+                        head.CreatedAt = DateTime.UtcNow;
+                        head.CreatedBy = model.CreatedBy;
+
+                        await _heads.AddAsync(head);
+                    }
+
+                    var headID = head.HeadID;
+
+                    var subAccDetails = await _subAccounts.AllActive().FirstOrDefaultAsync(x => x.SubAccountID == subAccId);
+
+                    if (subAccDetails == null)
+                    {
+                        await _employeeOfficialRepository.RollbackTransactionAsync();
+                        result.Success = false;
+                        result.Message = "Invalid input data.";
+                        return result;
+                    }
+
+                    var generatedTrxAccCode = await _transactionAccountService.GenerateNextCodeAsync((int)subAccDetails.SubAccountID);
+
+                    TransactionAccounts trxAccount = new TransactionAccounts();
+                    trxAccount.SubAccountID = subAccDetails.SubAccountID;
+
+                    trxAccount.TrxAccCode = generatedTrxAccCode;
+
+                    trxAccount.TrxAccName = subAccDetails.SubAccountName;
+                    trxAccount.IsActive = true;
+                    trxAccount.Description = "Customer transaction account";
+                    trxAccount.Head = head;
+
+                    trxAccount.LIP = model.LIP;
+                    trxAccount.LMAC = model.LMAC;
+                    trxAccount.CreatedAt = DateTime.UtcNow;
+                    trxAccount.CreatedBy = model.CreatedBy;
+
+                    await _transactionAccounts.AddAsync(trxAccount);
+                    #endregion
+
                     // New employee
                     employee = new GCTL.Data.Models.Employees
                     {
@@ -121,6 +204,7 @@ namespace GCTL.Service.Employees.EmployeePersonal
                         CountryID = model.Country,
 
                         EmployeeCode = model.EmployeeCode,
+                        HeadID = headID, // Added by Md. Rakib Hasan
 
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy
@@ -532,6 +616,64 @@ namespace GCTL.Service.Employees.EmployeePersonal
         #endregion
 
 
+
+        #region GetEmployees
+        public async Task<PaginatedResult<CommonSelectVM>> GetEmployees(string search, int page = 1, int pageSize = 50, bool hasEmployeePermission = false, int? empId = null)
+        {
+            var query = _employeePersonalRepository.AllActive().AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x => x.FirstName.Contains(search) || x.LastName.Contains(search));
+            }
+
+            if (!hasEmployeePermission && empId != null)
+            {
+                query = query.Where(x => x.EmployeeID == empId);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(x => x.FirstName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.EmployeeID,
+                    Name = $"{x.FirstName} {x.LastName}"
+                })
+                .ToListAsync();
+
+            return new PaginatedResult<CommonSelectVM>
+            {
+                Items = items,
+                HasMore = (page * pageSize) < totalCount
+            };
+        }
+
+        public async Task<CommonSelectVM> GetEmployeeById(int id)
+        {
+            var employee = await _employeePersonalRepository.AllActive()
+                .AsNoTracking()
+                .Where(x => x.EmployeeID == id)
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.EmployeeID,
+                    Name = $"{x.FirstName} {x.LastName}"
+                })
+                .FirstOrDefaultAsync();
+            if (employee != null)
+            {
+                return employee;
+            }
+            else
+            {
+               return new CommonSelectVM();
+            }
+            
+        }
+        #endregion
 
 
     }

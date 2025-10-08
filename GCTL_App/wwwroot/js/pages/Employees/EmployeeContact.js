@@ -197,7 +197,9 @@
     //#endregion
 
     //#region Form Submission
-    $('form').on('submit', function (e) {
+
+    //$('form').on('submit', function (e) {
+    $('#contactForm').on('submit', function (e) {
         e.preventDefault();
 
         const fields = ["EmployeePersonalId"];

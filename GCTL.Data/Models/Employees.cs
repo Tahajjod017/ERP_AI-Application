@@ -353,6 +353,8 @@ public partial class Employees
 
     public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowancesDeletedByNavigation { get; set; } = new List<EmployeeBaseAllowances>();
 
+    public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowancesEmployee { get; set; } = new List<EmployeeBaseAllowances>();
+
     public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowancesUpdatedByNavigation { get; set; } = new List<EmployeeBaseAllowances>();
 
     public virtual ICollection<EmployeeBaseBenefits> EmployeeBaseBenefitsCreatedByNavigation { get; set; } = new List<EmployeeBaseBenefits>();

@@ -37,8 +37,6 @@ public partial class EmployeeAllowanceTypes
 
     public virtual ICollection<EmployeeAllowances> EmployeeAllowances { get; set; } = new List<EmployeeAllowances>();
 
-    public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowances { get; set; } = new List<EmployeeBaseAllowances>();
-
     public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }

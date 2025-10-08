@@ -40,14 +40,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             PayRollEmpBenefitsPageVM model = new PayRollEmpBenefitsPageVM();
             
             var orga=await commonDroDownService.GetAllOrganizationsAsync();
-            //if(orga.Count ==1)
-            //{
-            //    ViewBag.OrganizationDD = new SelectList(orga, "Id", "Name", orga[0].Id);
-            //}
-            //else
-            //{
-            //    ViewBag.OrganizationDD = new SelectList(orga, "Id", "Name");
-            //}
+           
             ViewBag.OrganizationDD = new SelectList(orga, "Id", "Name", orga.Count == 1 ? orga[0].Id : null);
 
             ViewBag.SalaryTypesDD = new SelectList(salaryTypes.AllActive(), "SalaryTypeID", "SalaryTypeName");

@@ -248,7 +248,8 @@
 
     //#region Form Submission
 
-    $('form').on('submit', function (e) {
+    //$('form').on('submit', function (e) {
+    $('#trainingForm').on('submit', function (e) {
         e.preventDefault();
 
         const fields = ["EmployeePersonalId"];

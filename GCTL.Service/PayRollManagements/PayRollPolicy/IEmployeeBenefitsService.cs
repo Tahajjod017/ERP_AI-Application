@@ -18,6 +18,8 @@ namespace GCTL.Service.PayRollManagements.PayRollPolicy
     {
         Task<CommonReturnViewModel> SaveEmployeeBenefitsAsync(EmployeeBenefitsVM entityVM);
         Task<List<CommonSelectVMM>> SelectAsync(int id);
+
+
         #region Old benefits
         Task<CommonReturnViewModel> SaveEmployeeBenefits(PayRollEmpBenefitsSaveVM entityVM);
         Task<CommonReturnViewModel> UpdateEmployeeBenefits(PayRollEmpBenefitsUpdate entityVM);

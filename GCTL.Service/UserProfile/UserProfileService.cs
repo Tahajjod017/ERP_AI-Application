@@ -20,7 +20,7 @@ namespace GCTL.Service.UserProfile
         public (string FullName, string ProfilePicturePath) GetUserProfileAsync(string userId)
         {
             string fullName = "Guest User";
-            string profilePicturePath = "/uploads/employee/No_image_available.svg.png";
+            string profilePicturePath = "/media/employee/No_image_available.svg.png";
 
             if (!string.IsNullOrEmpty(userId))
             {

@@ -25,11 +25,13 @@ public partial class EmployeeBaseAllowances
 
     public int? DeletedBy { get; set; }
 
-    public int? EmployeeAllowanceTypeID { get; set; }
-
     public int? CalculationTypeID { get; set; }
 
-    public decimal? BenefitValue { get; set; }
+    public decimal? AllowanceValue { get; set; }
+
+    public int? EmployeeID { get; set; }
+
+    public int? EmployeeAllowanceID { get; set; }
 
     public virtual CalculationTypes CalculationType { get; set; }
 
@@ -37,7 +39,9 @@ public partial class EmployeeBaseAllowances
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual EmployeeAllowanceTypes EmployeeAllowanceType { get; set; }
+    public virtual Employees Employee { get; set; }
+
+    public virtual EmployeeAllowances EmployeeAllowance { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

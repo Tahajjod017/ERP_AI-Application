@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
+using GCTL.Service.Finance.TransactionAccount;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SkiaSharp;
@@ -31,9 +32,10 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly IGenericRepository<HeadDetails> _headDetails;
         private readonly IGenericRepository<TransactionAccounts> _transactionAccounts;
         private readonly IGenericRepository<SubAccounts> _subAccounts;
+        private readonly ITransactionAccountService _transactionAccountService;
         #endregion
 
-        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts)
+        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, ITransactionAccountService transactionAccountService)
         {
             _countryRepository = countryRepository;
             _addressesRepository = addressesRepository;
@@ -51,6 +53,7 @@ namespace GCTL.Service.CRM.LeadCreate
             _headDetails = headDetails;
             _transactionAccounts = transactionAccounts;
             _subAccounts = subAccounts;
+            _transactionAccountService = transactionAccountService;
         }
         #endregion
 
@@ -99,7 +102,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 #region Added by Md. Rakib Hasan
                 string schemaName = "Customer"; 
                 string tableName = "Customers";
-                int subAccId = 1;
+                int subAccId = 14;
 
                 var headDetail = await _headDetails.FirstOrDefaultAsync(hd => hd.SchemaName == schemaName && hd.TableName == tableName);
 
@@ -136,39 +139,33 @@ namespace GCTL.Service.CRM.LeadCreate
 
                 var subAccDetails = await _subAccounts.AllActive().FirstOrDefaultAsync(x => x.SubAccountID == subAccId);
 
-                if(subAccDetails != null)
+                if(subAccDetails == null)
                 {
-                    TransactionAccounts trxAccount = new TransactionAccounts();
-                    trxAccount.SubAccountID = subAccDetails.SubAccountID;
-
-                    // Increment TrxAccCode
-                    string originalCode = subAccDetails.SubAccountCode;
-                    string prefix = new string(originalCode.TakeWhile(c => !char.IsDigit(c)).ToArray());
-                    string numberPart = new string(originalCode.SkipWhile(c => !char.IsDigit(c)).ToArray());
-
-                    if (int.TryParse(numberPart, out int number))
+                    return new ReturnView
                     {
-                        number++; // Increment the numeric part
-                        string newCode = $"{prefix}{number.ToString(new string('0', numberPart.Length))}";
-                        trxAccount.TrxAccCode = newCode;
-                    }
-                    else
-                    {
-                        trxAccount.TrxAccCode = originalCode; // fallback if not a number
-                    }
-
-                    trxAccount.TrxAccName = subAccDetails.SubAccountName;
-                    trxAccount.IsActive = true;
-                    trxAccount.Description = "Customer transaction account";
-                    trxAccount.Head = head;
-
-                    trxAccount.LIP = customerVM.LIP;
-                    trxAccount.LMAC = customerVM.LMAC;
-                    trxAccount.CreatedAt = DateTime.UtcNow;
-                    trxAccount.CreatedBy = customerVM.CreatedBy;
-
-                    await _transactionAccounts.AddAsync(trxAccount);
+                        Success = false,
+                        Message = "Please Add Sub Account first!",
+                    };
                 }
+
+                var generatedTrxAccCode = await _transactionAccountService.GenerateNextCodeAsync((int)subAccDetails.SubAccountID);
+
+                TransactionAccounts trxAccount = new TransactionAccounts();
+                trxAccount.SubAccountID = subAccDetails.SubAccountID;
+
+                trxAccount.TrxAccCode = generatedTrxAccCode;
+
+                trxAccount.TrxAccName = subAccDetails.SubAccountName;
+                trxAccount.IsActive = true;
+                trxAccount.Description = "Customer transaction account";
+                trxAccount.Head = head;
+
+                trxAccount.LIP = customerVM.LIP;
+                trxAccount.LMAC = customerVM.LMAC;
+                trxAccount.CreatedAt = DateTime.UtcNow;
+                trxAccount.CreatedBy = customerVM.CreatedBy;
+
+                await _transactionAccounts.AddAsync(trxAccount);
                 #endregion
 
 
@@ -177,6 +174,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 {
                     FullName = customerVM.FirstName + " " + customerVM.LastName,
                     IsPerson = true,
+                    HeadID = head.HeadID, // Added by Md. Rakib Hasan
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = customerVM.CreatedBy,
                     LIP = customerVM.LIP,

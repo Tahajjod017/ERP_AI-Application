@@ -227,7 +227,8 @@
 
     //#region Form Submission
 
-    $('form').on('submit', function (e) {
+    //$('form').on('submit', function (e) {
+    $('#familyForm').on('submit', function (e) {
         e.preventDefault();
 
         const fields = ["EmployeePersonalId"];

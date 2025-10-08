@@ -5,6 +5,16 @@ $(document).ready(function () {
     initializeFlatpickr();
    
 
+    function getPercentageOptionsHtml(selectedValue) {
+        let html = '';
+        $("#percentageOptionsTemplate option").each(function () {
+            const val = $(this).val();
+            const text = $(this).text();
+            html += `<option value="${val}" ${val == selectedValue ? 'selected' : ''}>${text}</option>`;
+        });
+        return html;
+    }
+
     function initializeFlatpickr() {
         $('.flatpickr-input').each(function () {
             const $input = $(this);
@@ -46,49 +56,31 @@ $(document).ready(function () {
     }
 
 
-   
-  
-    FixedValue();
     function FixedValue() {
-        $('.fixedPercentageSelect').val('1');
         $('.fixedPercentageSelect').each(function () {
             const selected = $(this).val();
-            showHide($(this), selected);
+            // Only set to '1' if no value is selected
+            if (!selected || selected === '') {
+                $(this).val('1');
+            }
+            showHide($(this), $(this).val());
         });
-    };
+    }
 
     $(document).on('change', '.fixedPercentageSelect', function () {
         const selected = $(this).val();
         const $parent = $(this).closest('.input-group');
-        const $fixedRate = $parent.find('.fixedRate');
-        const $percentRate = $parent.find('.percentRate');
-        const $calcTypeInput = $parent.closest('.col-lg-3').find('.calculationTypeInput');
+        const $calcTypeHidden = $parent.find('.calculationTypeHidden');
 
-        if (selected == "1") {  // Fixed
-            $fixedRate.show();
-            $percentRate.hide();
-            $calcTypeInput.val(1);
-        } else if (selected == "2") {  // Percentage
-            $percentRate.show();
-            $fixedRate.hide();
-            $calcTypeInput.val(2);
-        } else {
-            $fixedRate.hide();
-            $percentRate.hide();
-            $calcTypeInput.val(0);
+        // Update hidden input value
+        if ($calcTypeHidden.length) {
+            $calcTypeHidden.val(selected);
         }
-    });
 
-
-    //#region Fixed Percentage
-
-
-    $(document).on('change', '.fixedPercentageSelect', function () {
-        const selected = $(this).val();
         showHide($(this), selected);
     });
+
     function showHide($select, selected) {
-        // Find the closest input-group to scope the fixedRate and percentRate elements
         const $parent = $select.closest('.input-group');
         const $fixedRate = $parent.find('.fixedRate');
         const $percentRate = $parent.find('.percentRate');
@@ -105,8 +97,6 @@ $(document).ready(function () {
         }
     }
 
-    //#endregion
-
     // Add new row
     $(document).on('click', '.addRow', function () {
         let container = $(this).closest('.houseRentContainer');
@@ -117,7 +107,7 @@ $(document).ready(function () {
         let newRow = rows.first().clone();
 
         // Clear input values
-        newRow.find('input').val('');
+        newRow.find('input[type="text"]').val('');
         newRow.find('select').val('');
         newRow.find('.percentRate').hide();
         newRow.find('.fixedRate').hide();
@@ -131,14 +121,18 @@ $(document).ready(function () {
             }
         });
 
+        // Change button from + to -
         newRow.find('.addRow')
-            .removeClass('addRow btn-outline-primary')
-            .addClass('removeRow btn btn-danger')
-            .text('-');
+            .removeClass('addRow btn-primary')
+            .addClass('removeRow btn-danger')
+            .html('<i class="bi bi-dash-circle"></i>-');
 
         // Append new row
         container.append(newRow);
-        FixedValue();
+
+        // Set default to Fixed (1) for new row
+        newRow.find('.fixedPercentageSelect').val('1');
+        newRow.find('.fixedRate').show();
     });
 
     // Remove row
@@ -146,13 +140,12 @@ $(document).ready(function () {
         $(this).closest('.houseRentRow').remove();
     });
 
-    // Initailly Loaded
-
+    // Initially Loaded
     var id = $("#OrganizationID").val();
     if (id) {
         loadAllowanceTypes(id);
     } else {
-        return toastr.info('No Organization Id Found');
+        toastr.info('No Organization Id Found');
     }
 
     $(document).on('change', '#OrganizationID', function () {
@@ -162,7 +155,6 @@ $(document).ready(function () {
         }
         loadAllowanceTypes(id);
     });
-
 
     function loadAllowanceTypes(id) {
         $.ajax({
@@ -197,49 +189,48 @@ $(document).ready(function () {
                         let benefitSetups = benefit && benefit.benefitSetups ? benefit.benefitSetups : [];
 
                         accordionHtml += `
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="${headingId}">
-                            <button class="${buttonClass}" type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#${collapseId}"
-                                    aria-expanded="${ariaExpanded}"
-                                    aria-controls="${collapseId}">
-                                ${item.name}
-                            </button>
-                        </h2>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="${headingId}">
+                        <button class="${buttonClass}" type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#${collapseId}"
+                                aria-expanded="${ariaExpanded}"
+                                aria-controls="${collapseId}">
+                            ${item.name}
+                        </button>
+                    </h2>
 
-                        <div id="${collapseId}" class="${collapseClass}" aria-labelledby="${headingId}">
-                            <div class="accordion-body">
+                    <div id="${collapseId}" class="${collapseClass}" aria-labelledby="${headingId}">
+                        <div class="accordion-body">
+                            <div class="card shadow-sm rounded-3 mb-1">
+                                <div class="card-body">
+                                    <div class="houseRentContainer">
+                                        <div class="row">
+                                            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                                <input type="hidden" name="Benefits[${i}].BenefitTypeID" value="${item.id}" />
+                                                <input type="hidden" name="Benefits[${i}].BenefitID" value="${benefitId}" />
 
-                                <div class="card shadow-sm rounded-3 mb-1 houseRentRow">
-                                    <div class="card-body">
-                                        <div class="houseRentContainer">
-                                            <div class="row">
-                                                <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                                    <input type="hidden" name="Benefits[${i}].BenefitTypeID" value="${item.id}" />
-                                                    <input type="hidden" name="Benefits[${i}].BenefitID" value="${benefitId}" />
-
-                                                    <label class="form-label">Effective Date</label>
-                                                    <div class="input-icon-end position-relative">
-                                                        <input class="form-control ps-6 flatpickr-input"
-                                                               name="Benefits[${i}].EffectiveDate"
-                                                               type="text" 
-                                                               readonly 
-                                                               placeholder="Select Month"
-                                                               value="${effectiveDate}">
-                                                        <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
-                                                    </div>
+                                                <label class="form-label">Effective Date</label>
+                                                <div class="input-icon-end position-relative">
+                                                    <input class="form-control ps-6 flatpickr-input"
+                                                           name="Benefits[${i}].EffectiveDate"
+                                                           type="text" 
+                                                           readonly 
+                                                           placeholder="Select Month"
+                                                           value="${effectiveDate}">
+                                                    <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
                                                 </div>
-                                                <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-                                                    <div class="form-check form-switch mt-4">
-                                                        <input class="form-check-input" 
-                                                               type="checkbox" 
-                                                               name="Benefits[${i}].IsActive"
-                                                               ${isActive ? 'checked' : ''}>
-                                                        <label class="form-check-label ms-2">Active</label>
-                                                    </div>
+                                            </div>
+                                            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                                <div class="form-check form-switch mt-4">
+                                                    <input class="form-check-input" 
+                                                           type="checkbox" 
+                                                           name="Benefits[${i}].IsActive"
+                                                           ${isActive ? 'checked' : ''}>
+                                                    <label class="form-check-label ms-2">Active</label>
                                                 </div>
-                                            </div>`;
+                                            </div>
+                                        </div>`;
 
                         // Generate rows for benefit setups
                         if (benefitSetups.length > 0) {
@@ -248,133 +239,136 @@ $(document).ready(function () {
                                 let setupValue = setup.value || '';
 
                                 accordionHtml += `
-                                            <div class="row g-3 houseRentRow">
-                                                <div class="col-lg-4 col-md-6 col-sm-12">
-                                                    <label class="form-label">Min Salary</label>
-                                                    <input type="text" 
-                                                           class="form-control"
-                                                           name="Benefits[${i}].BenefitSetups[${setupIndex}].SalaryMin"
-                                                           placeholder="Enter Min Salary"
-                                                           value="${setup.salaryMin || ''}" />
-                                                </div>
-                                                <div class="col-lg-4 col-md-6 col-sm-12">
-                                                    <label class="form-label">Max Salary</label>
-                                                    <input type="text" 
-                                                           class="form-control"
-                                                           name="Benefits[${i}].BenefitSetups[${setupIndex}].SalaryMax"
-                                                           placeholder="Enter Max Salary"
-                                                           value="${setup.salaryMax || ''}" />
-                                                </div>
-                                                <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
-                                                    <div class="input-group mb-3">
-                                                        <input type="hidden" 
-                                                               name="Benefits[${i}].BenefitSetups[${setupIndex}].CalculationTypeID" 
-                                                               value="${calculationType}" 
-                                                               class="calculationTypeHidden" />
-                                                        
-                                                        <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
-                                                            <option value="">Select One</option>
-                                                            <option value="1" ${calculationType == 1 ? 'selected' : ''}>Fixed</option>
-                                                            <option value="2" ${calculationType == 2 ? 'selected' : ''}>Percentage</option>
+                                        <div class="row g-3 houseRentRow">
+                                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                                <label class="form-label">Min Salary</label>
+                                                <input type="text" 
+                                                       class="form-control"
+                                                       name="Benefits[${i}].BenefitSetups[${setupIndex}].SalaryMin"
+                                                       placeholder="Enter Min Salary"
+                                                       value="${setup.salaryMin || ''}" />
+                                            </div>
+                                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                                <label class="form-label">Max Salary</label>
+                                                <input type="text" 
+                                                       class="form-control"
+                                                       name="Benefits[${i}].BenefitSetups[${setupIndex}].SalaryMax"
+                                                       placeholder="Enter Max Salary"
+                                                       value="${setup.salaryMax || ''}" />
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
+                                                <div class="input-group mb-3">
+                                                    <input type="hidden" 
+                                                           name="Benefits[${i}].BenefitSetups[${setupIndex}].CalculationTypeID" 
+                                                           value="${calculationType}" 
+                                                           class="calculationTypeHidden" />
+                                                    
+                                                    <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
+                                                        <option value="">Select One</option>
+                                                        <option value="1" ${calculationType == 1 ? 'selected' : ''}>Fixed</option>
+                                                        <option value="2" ${calculationType == 2 ? 'selected' : ''}>Percentage</option>
+                                                    </select>
+
+                                                    <div class="percentRate" style="display: ${calculationType == 2 ? 'block' : 'none'};">
+                                                        <label class="form-label">Percentage(%)</label>
+                                                        <select class="form-select choiceDD percentInput"
+                                                                name="Benefits[${i}].BenefitSetups[${setupIndex}].Value"
+                                                                style="max-width:185px;">
+                                                            <option value="">Select %</option>
+                                                            ${getPercentageOptionsHtml(calculationType == 2 ? setupValue : '')}
                                                         </select>
+                                                    </div>
 
-                                                        <div class="percentRate" style="display: ${calculationType == 2 ? 'block' : 'none'};">
-                                                            <label class="form-label">Percentage(%)</label>
-                                                            <select class="form-select choiceDD percentInput"
-                                                                    name="Benefits[${i}].BenefitSetups[${setupIndex}].Value"
-                                                                    style="max-width:185px;">
-                                                                <option value="">Select %</option>
-                                                                ${percentageOptionsHtml}
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="fixedRate" style="display: ${calculationType == 1 ? 'block' : 'none'};">
-                                                            <label class="form-label">Fixed</label>
-                                                            <input type="text" 
-                                                                   class="form-control fixedInput"
-                                                                   name="Benefits[${i}].BenefitSetups[${setupIndex}].Value"
-                                                                   placeholder="Enter Fixed Rate"
-                                                                   style="max-width: 185px;"
-                                                                   value="${calculationType == 1 ? setupValue : ''}">
-                                                        </div>
+                                                    <div class="fixedRate" style="display: ${calculationType == 1 ? 'block' : 'none'};">
+                                                        <label class="form-label">Fixed</label>
+                                                        <input type="text" 
+                                                               class="form-control fixedInput"
+                                                               name="Benefits[${i}].BenefitSetups[${setupIndex}].Value"
+                                                               placeholder="Enter Fixed Rate"
+                                                               style="max-width: 185px;"
+                                                               value="${calculationType == 1 ? setupValue : ''}">
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-1 px-0 col-md-1 col-sm-12">
-                                                    ${setupIndex === 0 ? `
-                                                    <button type="button" class="btn btn-primary px-3 mt-4 addRow">
-                                                        <i class="bi bi-plus-circle"></i>+
-                                                    </button>` : `
-                                                    <button type="button" class="btn btn-danger px-3 mt-4 removeRow">
-                                                        <i class="bi bi-dash-circle"></i>-
-                                                    </button>`}
-                                                </div>
-                                            </div>`;
+                                            </div>
+                                            <div class="col-lg-1 px-0 col-md-1 col-sm-12">
+                                                ${setupIndex === 0 ? `
+                                                <button type="button" class="btn btn-primary px-3 mt-4 addRow">
+                                                    <i class="bi bi-plus-circle"></i>+
+                                                </button>` : `
+                                                <button type="button" class="btn btn-danger px-3 mt-4 removeRow">
+                                                    <i class="bi bi-dash-circle"></i>-
+                                                </button>`}
+                                            </div>
+                                        </div>`;
                             });
                         } else {
                             // Default empty row if no setups exist
                             accordionHtml += `
-                                            <div class="row g-3 houseRentRow">
-                                                <div class="col-lg-4 col-md-6 col-sm-12">
-                                                    <label class="form-label">Min Salary</label>
-                                                    <input type="text" class="form-control"
-                                                           name="Benefits[${i}].BenefitSetups[0].SalaryMin"
-                                                           placeholder="Enter Min Salary" />
-                                                </div>
-                                                <div class="col-lg-4 col-md-6 col-sm-12">
-                                                    <label class="form-label">Max Salary</label>
-                                                    <input type="text" class="form-control"
-                                                           name="Benefits[${i}].BenefitSetups[0].SalaryMax"
-                                                           placeholder="Enter Max Salary" />
-                                                </div>
-                                                <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
-                                                    <div class="input-group mb-3">
-                                                        <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
-                                                            <option value="">Select One</option>
-                                                           <option value="1" ${setup.calculationTypeID == 1 ? "selected" : ""}>Fixed</option>
-                                                            <option value="2" ${setup.calculationTypeID == 2 ? "selected" : ""}>Percentage</option>
-
+                                        <div class="row g-3 houseRentRow">
+                                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                                <label class="form-label">Min Salary</label>
+                                                <input type="text" class="form-control" 
+                                                       name="Benefits[${i}].BenefitSetups[0].SalaryMin" 
+                                                       placeholder="Enter Min Salary" />
+                                            </div>
+                                            <div class="col-lg-4 col-md-6 col-sm-12">
+                                                <label class="form-label">Max Salary</label>
+                                                <input type="text" class="form-control" 
+                                                       name="Benefits[${i}].BenefitSetups[0].SalaryMax" 
+                                                       placeholder="Enter Max Salary" />
+                                            </div>
+                                            <div class="col-lg-3 col-md-3 col-sm-12 d-flex align-items-center gap-3">
+                                                <div class="input-group mb-3">
+                                                    <input type="hidden" 
+                                                           name="Benefits[${i}].BenefitSetups[0].CalculationTypeID" 
+                                                           value="" 
+                                                           class="calculationTypeHidden" />
+                                                    
+                                                    <select class="form-select mt-4 fixedPercentageSelect" style="max-width: 125px;height:37px;">
+                                                        <option value="">Select One</option>
+                                                        <option value="1">Fixed</option>
+                                                        <option value="2">Percentage</option>
+                                                    </select>
+                                                    
+                                                    <div class="percentRate" style="display: none;">
+                                                        <label class="form-label">Percentage(%)</label>
+                                                        <select class="form-select choiceDD percentInput" 
+                                                                name="Benefits[${i}].BenefitSetups[0].Value" 
+                                                                style="max-width:185px;">
+                                                            <option value="">Select %</option>
+                                                            ${getPercentageOptionsHtml('')}
                                                         </select>
-
-                                                        <div class="percentRate" style="display: none;">
-                                                            <label class="form-label">Percentage(%)</label>
-                                                            <select class="form-select choiceDD percentInput"
-                                                                    name="Benefits[${i}].BenefitSetups[0].Value"
-                                                                    style="max-width:185px;">
-                                                                <option value="">Select %</option>
-                                                                ${percentageOptionsHtml}
-                                                            </select>
-                                                        </div>
-
-                                                        <div class="fixedRate" style="display: none;">
-                                                            <label class="form-label">Fixed</label>
-                                                            <input type="text" class="form-control fixedInput"
-                                                                   name="Benefits[${i}].BenefitSetups[0].Value"
-                                                                   placeholder="Enter Fixed Rate"
-                                                                   style="max-width: 185px;">
-                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="fixedRate" style="display: none;">
+                                                        <label class="form-label">Fixed</label>
+                                                        <input type="text" class="form-control fixedInput" 
+                                                               name="Benefits[${i}].BenefitSetups[0].Value" 
+                                                               placeholder="Enter Fixed Rate" 
+                                                               style="max-width: 185px;">
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-1 px-0 col-md-1 col-sm-12">
-                                                    <button type="button" class="btn btn-primary px-3 mt-4 addRow">
-                                                        <i class="bi bi-plus-circle"></i>+
-                                                    </button>
-                                                </div>
-                                            </div>`;
+                                            </div>
+                                            <div class="col-lg-1 px-0 col-md-1 col-sm-12">
+                                                <button type="button" class="btn btn-primary px-3 mt-4 addRow">
+                                                    <i class="bi bi-plus-circle"></i>+
+                                                </button>
+                                            </div>
+                                        </div>`;
                         }
 
                         accordionHtml += `
-                                        </div>
-                                        <div class="row g-3 justify-content-end">
-                                            <div class="col-auto">
-                                                <button class="btn btn-primary px-5 PayRollEmpBenefitsSave">Save</button>
-                                            </div>
+                                    </div>
+                                    <div class="row g-3 justify-content-end">
+                                        <div class="col-auto">
+                                            <button class="btn btn-primary px-5 PayRollEmpBenefitsSave">Save</button>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
-                    </div>`;
+                    </div>
+                </div>`;
                     });
 
                     accordionHtml += '</div>';
@@ -387,27 +381,13 @@ $(document).ready(function () {
                 initializeFlatpickr();
                 FixedValue();
 
-                // Set selected percentage values after DOM is ready
-                if (res && res.length > 0) {
-                    res.forEach(function (item, i) {
-                        let benefit = item.empBenefitVMM && item.empBenefitVMM.length > 0 ? item.empBenefitVMM[0] : null;
-                        let benefitSetups = benefit && benefit.benefitSetups ? benefit.benefitSetups : [];
-
-                        benefitSetups.forEach(function (setup, setupIndex) {
-                            if (setup.calculationTypeID == 2 && setup.value) {
-                                $(`select[name="Benefits[${i}].BenefitSetups[${setupIndex}].Value"]`).val(setup.value);
-                            }
-                        });
-                    });
-                }
-
             },
             error: function (err) {
                 console.error(err);
+                toastr.error('Error loading allowance types');
             }
         });
     }
-
    
     // End Iniatially Loaded 
 

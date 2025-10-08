@@ -1366,14 +1366,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                 //};
 
                 //
-                var supervisors = await empoffi.AllActive()
-  .Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
-  .Select(x => new
-  {
-      ImmediateSupervisor = x.ImmediateSupervisorId != null && x.ImmediateSupervisorId != 0 ? x.ImmediateSupervisorId : (int?)null,
-      SeniorSupervisor = x.SeniorSupervisorId != null && x.SeniorSupervisorId != 0 ? x.SeniorSupervisorId : (int?)null,
-      HeadOfDepartment = x.HeadOfDepartmentId != null && x.HeadOfDepartmentId != 0 ? x.HeadOfDepartmentId : (int?)null
-  }).FirstOrDefaultAsync();
+               var supervisors = await empoffi.AllActive().Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
+              .Select(x => new
+              {
+                  ImmediateSupervisor = x.ImmediateSupervisorId != null && x.ImmediateSupervisorId != 0 ? x.ImmediateSupervisorId : (int?)null,
+                  SeniorSupervisor = x.SeniorSupervisorId != null && x.SeniorSupervisorId != 0 ? x.SeniorSupervisorId : (int?)null,
+                  HeadOfDepartment = x.HeadOfDepartmentId != null && x.HeadOfDepartmentId != 0 ? x.HeadOfDepartmentId : (int?)null
+              }).FirstOrDefaultAsync();
 
                 var supervisorList = new List<(string Role, int? Id)>();
                 if (supervisors?.ImmediateSupervisor != null) supervisorList.Add(("Immediate Supervisor", supervisors.ImmediateSupervisor));
@@ -1382,18 +1381,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
 
                 var supervisorIds = supervisorList.Select(s => s.Id).ToList();
-                var supervisorNames = await employee.AllActive()
-                    .Where(x => supervisorIds.Contains(x.EmployeeID))
+                var supervisorNames = await employee.AllActive().Where(x => supervisorIds.Contains(x.EmployeeID))
                     .ToDictionaryAsync(x => x.EmployeeID, x => x.FirstName + " " + x.LastName);
 
-
-
                 //
-                var approvedPerson =await GetByPersonLeaveStepVM(entityVM.LeaveApplicationID);
-                
-        //
-
-        var timelineHtml = new StringBuilder();
+                   var approvedPerson =await GetByPersonLeaveStepVM(entityVM.LeaveApplicationID);
+                    var timelineHtml = new StringBuilder();
                
                 // Step 1: Submitted (always first)
                 timelineHtml.Append($@"
