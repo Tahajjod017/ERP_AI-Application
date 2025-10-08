@@ -87,12 +87,26 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-        #region IndivudialIteamDetails
+        #region IndivudialIteamDetails  
         public async Task<IActionResult> GetIndivudialTeamDetails(int id)
         {
             var result = await _addTeamService.IndivudialIteamDetails(id);
             return Ok(result);
         }
         #endregion
+
+
+        //[HttpGet]
+        //public async Task<IActionResult> GetEmployeesByIds([FromQuery] List<int> ids)
+        //{
+        //    var result = await _addTeamService.GetEmployeesByIds(ids);
+
+        //    return Json(result.Select(x => new {
+        //        value = x.Id,
+        //        label = x.Name,
+        //        group = x.GroupName
+        //    }));
+        //}
+
     }
 }
