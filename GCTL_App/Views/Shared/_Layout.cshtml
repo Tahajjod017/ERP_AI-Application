@@ -1,7 +1,9 @@
 ﻿@using GCTL.Core.Configurations
 @using GCTL_App.ViewComponents
 @inject Microsoft.Extensions.Options.IOptions<ApplicationSettings> AppSettings
-
+@{
+    var date = DateTime.Now.Year;
+}
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr" data-navigation-type="default" data-navbar-horizontal-shape="default">
 <head>
@@ -129,7 +131,7 @@
                             <p class="mb-0 mt-2 mt-sm-0 text-body">
                                 @Html.SmartLocalize("Thank you for creating with GCTL")
                                 <span class="d-none d-sm-inline-block mx-1">|</span>
-                                <br class="d-sm-none" />2024 &copy;
+                                <br class="d-sm-none" />@date &copy;
                                 <a class="mx-1" href="http://gctlinfosys.com" target="_blank">@Html.SmartLocalize("GCTL")</a>
                             </p>
                         </div>

@@ -86,10 +86,16 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors) .Select(e => e.ErrorMessage).ToList();
+
+                    return Json(new { Success = false, Message = string.Join(", ", errors) });
+                }
                 var data = await employeeBenefitsService.SaveEmployeeBenefitsAsync(model);
                 return Json(new {Success=data.Success, Message=data.Message});
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;

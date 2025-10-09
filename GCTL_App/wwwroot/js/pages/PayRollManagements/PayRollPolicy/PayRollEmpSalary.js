@@ -98,13 +98,13 @@
         });
     }
 
-    $(document).on("change", "#StatusIDFilterDD,#LeaveTypeIDFilterDD", function () {
+    $(document).on("change", "#OrganizationID", function () {
 
         currentPage = 1;
         loadTableData();
     });
 
-    $('#OrganizationIDD').on('changed.coreui.multi-select', function () {
+    $('#EmployeeID,#DepartmentID').on('changed.coreui.multi-select', function () {
         currentPage = 1;
         loadTableData(); // Make AJAX call or reload the table
     });
@@ -113,8 +113,9 @@
 
     function loadTableData(currentSortColumn, currentSortOrder) {
         var searchTerm = $("#payRollEmp-searchInput").val();
-        const organizationId = $('#OrganizationIDD').val();
-
+        const organizationId = $('#OrganizationID').val();
+        const empID = $('#EmployeeID').val();
+        const deptID = $('#DepartmentID').val();
         $.ajax({
             url: '/PayRollEmpSalary/GetAllTableListAsync',
             method: 'GET',
@@ -126,6 +127,8 @@
                 currentSortColumn: currentSortColumn,
                 currentSortOrder: currentSortOrder,
                 organizationId: organizationId,
+                deptID: deptID || [],
+                empID: empID || []
             },
             
             success: function (response) {

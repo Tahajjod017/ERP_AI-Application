@@ -9,21 +9,56 @@
         return;
     }
 
-    //let id = parseInt($('#EmployeeID').val());
-    //debugger
-    //// If input is empty or invalid, fallback to URL
-    //if (!id || isNaN(id)) {
-    //    const pathSegments = window.location.pathname.split('/');
-    //    const idString = pathSegments.length > 2 ? pathSegments[pathSegments.length - 1] : null;
-    //    id = idString ? parseInt(idString) : null;
-    //}
 
-    //if (!id || isNaN(id)) {
-    //    toastr.error("Id Not Found or Invalid");
-    //    return;
-    //}
+    $(document).on('click', '#PaySlipSave', async function () {
+        const postData = {
+            EmployeeID: id,
+            PayPeriodStart: $('#PayPeriodStart').val(),
+            PayPeriodEnd: $('#PayPeriodEnd').val(),
+            IsPaid: $('#IsPaid').is(':checked')
+        };
 
-    
+        try {
+            const response = await $.ajax({
+                url: '/PaySlipForEmp/Save',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(postData),
+                dataType: 'json'
+            });
+
+            if (response.success) {
+                toastr.success(response.message || "Payslip saved successfully!");
+                // Optionally reset form or refresh table
+            } else {
+                // Handle validation errors returned as list
+                if (Array.isArray(response.message)) {
+                    response.Message.forEach(err => toastr.error(err));
+                } else if (typeof response.message === 'string') {
+                    toastr.error(response.message);
+                }
+            }
+        } catch (err) {
+            console.error("AJAX Error:", err);
+            toastr.error("An error occurred while saving the payslip.");
+        }
+    });
+
+
+  
+    function updatePaymentTime() {
+        const now = new Date();
+        const options = {
+            month: 'short', day: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: true
+        };
+        document.getElementById('paymentDateTime').innerText = now.toLocaleString('en-US', options);
+    }
+
+    // Update immediately and then every second
+    updatePaymentTime();
+    setInterval(updatePaymentTime, 1000);
 
     function getPaySlip() {
         $.ajax({

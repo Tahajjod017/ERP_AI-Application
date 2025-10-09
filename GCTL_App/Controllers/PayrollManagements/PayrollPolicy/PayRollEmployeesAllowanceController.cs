@@ -73,10 +73,15 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         {
             try
             {
-                //if (!ModelState.IsValid)
-                //{
-                //    return BadRequest(ModelState);
-                //}
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                                   .SelectMany(v => v.Errors)
+                                   .Select(e => e.ErrorMessage)
+                                   .ToList();
+
+                    return Json(new { Success = false, Message = string.Join(", ", errors) });
+                }
                 var data = await payRollEmpAllowanceService.SavePayRollEmpAllowance(model);
                 if (data.Success) 
                 {

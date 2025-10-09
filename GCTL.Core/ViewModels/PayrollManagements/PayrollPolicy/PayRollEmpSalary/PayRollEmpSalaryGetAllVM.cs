@@ -9,6 +9,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
     public class PayRollEmpSalaryGetAllVM
     {
         public int ? EmployeeId { get; set; }
+        public string ? EmployeeCode { get; set; }
         public string? EmployeeName { get; set; }
         public string ? EmpDepartment {  get; set; }
         public decimal? Salary {  get; set; }
