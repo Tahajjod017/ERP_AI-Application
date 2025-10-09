@@ -6,7 +6,15 @@ namespace GCTL.Core.ViewModels.CRM
         public string CompanyName { get; set; }
         public string CompanyLogo { get; set; }
         public string? CompanyAddress { get; set; }
-        public List<Activity> Activities { get; set; }
+        public string? TeamName { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? Email { get; set; }
+        public bool? IsTeamHead { get; set; }
+
+        // New property: for grouping multiple members in one PDF
+        public List<ActivityPDFModel>? SubEmployees { get; set; }
+
+        public List<Activity> Activities { get; set; } = new List<Activity>();
 
     }
     public class Activity
@@ -22,6 +30,7 @@ namespace GCTL.Core.ViewModels.CRM
         public string? LeadSource { get; set; }
         public decimal? LeadProbability { get; set; }
         public string? LeadOwner { get; set; }
+        public int? LeadOwnerId { get; set; }
 
     }
 }
