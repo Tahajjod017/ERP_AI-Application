@@ -23,62 +23,68 @@
     //    return;
     //}
 
+    
+
     function getPaySlip() {
         $.ajax({
             url: '/PaySlipForEmp/GetPaySlip',
             type: 'GET',
-            data: { id: id }, 
+            data: { id: id },
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    debugger
                     const data = response.data;
                     console.log(data);
+
+                    // Organization Info
                     $('#OrganizationName').text(data.organizationName || 'N/A');
                     $('#OrganizationAddress').html(`
                     ${data.organizationAddress.replace(/,/g, '<br>')} <br> 
                     <a href="mailto:${data.organizationEmailAddress}">${data.organizationEmailAddress}</a>`);
                     let organizationLogoPic = data.organizationLogoPic || "";
-                    let logoPath = organizationLogoPic
-                        ? `/uploads/company/logo/${organizationLogoPic}` : "../../assets/img/icons/No-Image-Placeholder.svg.png";
+                    let logoPath = data.organizationLogoPic
+                        ? data.organizationLogoPic
+                        : "../../assets/img/icons/No-Image-Placeholder.svg.png";
                     document.getElementById("orgLogo").src = logoPath;
+
+                    // Employee Info
                     $('#empName').text(data.employeeName);
                     $('#empAddress').html(`
                     ${data.employeeAddress.replace(/,/g, '<br>')} <br> 
-                    <a href="mailto:${data.employeeAddress}">${data.employeeEmail}</a>`);
+                    <a href="mailto:${data.employeeEmail}">${data.employeeEmail}</a>`);
                     $('#BasicSalary').text(parseFloat(data.basicSalary).toFixed(2));
 
+                    // ✅ Allowances (use AllowanceSalary from backend)
                     let allowanceRows = "";
                     data.allowances.forEach(a => {
                         allowanceRows += `
-                <tr>
-                    <td>
-                        <strong class="ms-2">${a.type}(${a.amount}%)</strong>  
-                        <span class="me-2 float-end">${parseFloat((a.amount * data.basicSalary) / 100).toFixed(2)}</span>
-
-                    </td>
-                </tr>`;
+                        <tr>
+                            <td>
+                                <strong class="ms-2">${a.type} (${a.displayValue})</strong>  
+                                <span class="me-2 float-end">${Math.floor(a.allowanceSalary)}</span>
+                            </td>
+                        </tr>`;
                     });
-                    // Append to table
                     $("#allowanceTable").html(allowanceRows);
 
+                    // ✅ Benefits (use BenefitsSalary from backend)
                     let benefitRows = "";
-                    data.beneFits.forEach(a => {
+                    data.beneFits.forEach(b => {
                         benefitRows += `
-                          <tr>
-                    <td>
-                        <strong class="ms-2">${a.type}(${a.amount}%)</strong>  
-                        <span class="me-2 float-end">${parseFloat((a.amount * data.basicSalary) / 100).toFixed(2)}</span>
-
-                    </td>
-                    </tr>`
+                        <tr>
+                            <td>
+                                <strong class="ms-2">${b.type} (${b.displayValue})</strong>  
+                               <span class="me-2 float-end">${Math.floor(b.benefitsSalary)}</span>
+                            </td>
+                        </tr>`;
                     });
                     $('#benefitTable').html(benefitRows);
+
+                    // Totals
                     $('#TotalSalary').text(parseFloat(data.totalSalary).toFixed(2));
                     $('#SalaryInWords').text(data.salaryInWords);
-                } else
-                {
-                    toastr.error('Failed to load payslip: ' + response.Message);
+                } else {
+                    toastr.error('Failed to load payslip: ' + response.message);
                 }
             },
             error: function (xhr, status, error) {
@@ -87,6 +93,8 @@
             }
         });
     }
+
+
     getPaySlip();
     $('#refreshPaySlip').on('click', function () {
         getPaySlip();

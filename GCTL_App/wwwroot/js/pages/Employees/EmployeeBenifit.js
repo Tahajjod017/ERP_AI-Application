@@ -24,9 +24,7 @@
         loadAllowanceTypes(lastInt);
 
 
-
     });
-
 
     function getPercentageOptionsHtml(selectedValue) {
         let html = '';
@@ -41,24 +39,22 @@
 
 
     $(document).on("change", ".fixedPercentageSelect", function () {
-        let $row = $(this).closest(".row"); // only this row
-
+        let $row = $(this).closest(".row");
         let selected = $(this).val();
 
         if (selected == "1") { // Fixed
-            $row.find(".fixedRateEditable").show();
-            $row.find(".percentRateEditable").hide();
+            $row.find(".fixedRateEditable").show().find("input").prop("disabled", false);
+            $row.find(".percentRateEditable").hide().find("select").prop("disabled", true);
 
         } else if (selected == "2") { // Percentage
-            $row.find(".fixedRateEditable").hide();
-            $row.find(".percentRateEditable").show();
+            $row.find(".fixedRateEditable").hide().find("input").prop("disabled", true);
+            $row.find(".percentRateEditable").show().find("select").prop("disabled", false);
 
         } else {
-            $row.find(".fixedRateEditable").hide();
-            $row.find(".percentRateEditable").hide();
+            $row.find(".fixedRateEditable").hide().find("input").prop("disabled", true);
+            $row.find(".percentRateEditable").hide().find("select").prop("disabled", true);
         }
     });
-
 
 
     function loadAllowanceTypes(id) {
@@ -90,6 +86,10 @@
                         let calculationType = benefit ? benefit.calculationTypeID : "";
                         let value = benefit ? benefit.value : "";
 
+                        //
+                        let baseCalculationType = benefit ? benefit.baseCalculationTypeID : "";
+                        let baseValue = benefit ? benefit.baseValue : "";
+                        //
                         accordionHtml += `
                                     <div class="accordion-item">
                                      
@@ -111,23 +111,22 @@
 
                         <!-- LEFT SIDE: EDITABLE (8 columns) -->
                         <div class="col-lg-4 col-md-6 col-sm-12">
-                            <select class="form-select fixedPercentageSelect" name="Benefits[${i}].CalculationTypeID">
+                            <select class="form-select fixedPercentageSelect" name="Benefits[${i}].BaseCalculationTypeID">
                                 <option value="">Select One</option>
-                                <option value="1" ${calculationType == 1 ? "selected" : ""}>Fixed</option>
-                                <option value="2" ${calculationType == 2 ? "selected" : ""}>Percentage</option>
+                                <option value="1" ${baseCalculationType == 1 ? "selected" : ""}>Fixed</option>
+                                <option value="2" ${baseCalculationType == 2 ? "selected" : ""}>Percentage</option>
                             </select>
                         </div>
 
-                        <div class="col-lg-4 col-md-6 col-sm-12 fixedRateEditable" style="display:${calculationType == 1 ? 'block' : 'none'};">
-                            <input type="text" class="form-control fixedInput" name="Benefits[${i}].Value"
-                                   placeholder="Enter Fixed Rate" value="${calculationType == 1 ? value : ''}">
+                        <div class="col-lg-4 col-md-6 col-sm-12 fixedRateEditable" style="display:${baseCalculationType == 1 ? 'block' : 'none'};">
+                            <input type="text" class="form-control fixedInput integerOnly" name="Benefits[${i}].BaseValue" placeholder="Enter Fixed Rate" value="${baseCalculationType == 1 ? baseValue : ''}" ${baseCalculationType == 1 ? "" : "disabled"}>
                         </div>
 
-                        <div class="col-lg-4 col-md-6 col-sm-12 percentRateEditable" style="display:${calculationType == 2 ? 'block' : 'none'};">
-                            <select class="form-select percentInput" name="Benefits[${i}].Value">
-                                <option value="">Select %</option>
-                                ${getPercentageOptionsHtml(value)}
-                            </select>
+                        <div class="col-lg-4 col-md-6 col-sm-12 percentRateEditable" style="display:${baseCalculationType == 2 ? 'block' : 'none'};">
+                            <select class="form-select percentInput"
+                name="Benefits[${i}].BaseValue" ${baseCalculationType == 2 ? "" : "disabled"}>
+              <option value="">Select %</option>${getPercentageOptionsHtml(baseValue)}
+                </select>
                         </div>
 
                         <!-- RIGHT SIDE: READONLY (4 columns) -->
@@ -172,10 +171,22 @@
                // showHide();
             },
             error: function (err) {
-                console.error("Error fetching allowance types:", err);
+                toastr.error("Error fetching allowance types:", err);
             }
         });
     }
+
+
+
+    $(document).on("input", ".integerOnly", function () {
+        let oldValue = this.value;
+        let newValue = oldValue.replace(/[^0-9]/g, '');
+
+        if (oldValue !== newValue) {
+            toastr.warning("Only numbers are allowed!");
+            this.value = newValue;
+        }
+    });
 
 
     $("#benefitForm").on("submit", function (e) {
@@ -191,6 +202,7 @@
             success: function (res) {
                 if (res.success) {
                     toastr.success(res.message);
+                    loadAllowanceTypes(lastInt);
                 } else {
                     toastr.error(res.message);
                 }
@@ -202,123 +214,7 @@
         });
     });
 
-    // End Iniatially Loaded 
-
-    $("select[name='OrganizationID']").on("changed", function () {
-        validateOrganization();
-    });
-
-    function validateOrganization() {
-        var orgSelect = $("select[name='OrganizationID']");
-        var selectedValues = orgSelect.val();
-        var errorSpan = $("#OrganizationID-error");
-        if (!selectedValues || selectedValues.length === 0) {
-            errorSpan.text("Please select an organization.");
-            orgSelect.css('border', '1px solid red');
-            return false;
-        } else {
-            errorSpan.text("");
-            orgSelect.css('border', '1px solid #ccc');
-            return true;
-        }
-    }
-
-    $(document).on('click', '.PayRollEmpBenefitsSave', function (e) {
-        e.preventDefault();
-        let $card = $(this).closest('.accordion-item');
-        let jsonData = {
-            OrganizationID: parseInt($('#OrganizationID').val()) || 0,
-            Benefits: []
-        };
-        let dateStr = $card.find('.flatpickr-input').val();
-        let effectiveDate = dateStr ? new Date(dateStr).toISOString().split('T')[0] : null;
-        let benefit = {
-            BenefitID: parseInt($card.find('input[name$=".BenefitID"]').val()) || 0,
-            BenefitTypeID: parseInt($card.find('input[name$=".BenefitTypeID"]').val()) || 0,
-            IsActive: $card.find('input[name$=".IsActive"]').is(':checked'),
-            EffectiveDate: effectiveDate,
-            BenefitSetups: []
-        };
-        $card.find('.houseRentContainer .houseRentRow').each(function () {
-            const $row = $(this);
-
-            let calcTypeId = parseInt($row.find('.fixedPercentageSelect').val()) || 0;
-            let value = 0;
-            if (calcTypeId === 1) {
-                value = parseFloat($row.find('.fixedInput').val()) || 0;
-            } else if (calcTypeId === 2) {
-                value = parseFloat($row.find('.percentInput').val()) || 0;
-            }
-            let salaryMin = parseFloat($row.find('input[name$=".SalaryMin"]').val()) || 0;
-            let salaryMax = parseFloat($row.find('input[name$=".SalaryMax"]').val()) || 0;
-            benefit.BenefitSetups.push({
-                BenefitSetupID: 0,
-                SalaryMin: salaryMin,
-                SalaryMax: salaryMax,
-                CalculationTypeID: calcTypeId,
-                Value: value
-            });
-        });
-        jsonData.Benefits.push(benefit);
-        console.log("Sending JSON for only this card:", JSON.stringify(jsonData, null, 2));
-        $.ajax({
-            url: '/PayRollEmpBenefitsUpdate/Save',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(jsonData),
-            success: function (res) {
-                if (res.success) {
-                    toastr.success(res.message);
-                    // resetPayRollEmpBenefitsForm();
-                }
-                else {
-                    toastr.error(res.message || "Save failed");
-                }
-
-            },
-            error: function (err) {
-                toastr.error("Error while saving");
-                console.error(err);
-            }
-        });
-    });
-
-    //
-
-    function resetPayRollEmpBenefitsForm() {
-        const $form = $('#payrollEmpBenefitsForm');
-
-        $form[0].reset();
-
-        if (typeof choiceManager !== "undefined") {
-            choiceManager.resetChoice('OrganizationID');
-        } else {
-            // fallback if plain select
-            $('#OrganizationID').val("").trigger('change');
-        }
-
-        $form.find('.flatpickr-input').each(function () {
-            if (this._flatpickr) {
-                this._flatpickr.clear();
-            } else {
-                $(this).val("");
-            }
-        });
-        $form.find('input[type="checkbox"]').prop('checked', false);
-
-        $('#EmployeeAllowanceAccordion').empty();
-
-        $form.find('.text-danger').text('');
-    }
-
-
-    $(document).on('click', '#ResetButton', function (e) {
-        e.preventDefault();
-        resetPayRollEmpBenefitsForm();
-
-    })
-
-    
+   
     //#endregion
 
 
@@ -328,251 +224,5 @@
 
 
 
-
-// from sheafain  vaii
-//$(document).ready(function () {
-
-//    //#region employeeChoices with onchange
-
-//    let employeeChoices;
-//    function initEmployeeChoices() {
-//        employeeChoices = new Choices('#EmployeePersonalId', {
-//            removeItemButton: true,
-//            shouldSort: false,
-//            placeholderValue: 'Select Employee'
-//        });
-
-//        const employeeElement = document.getElementById('EmployeePersonalId');
-//        if (employeeElement) {
-//            employeeElement.addEventListener('change', function (e) {
-//                const selectedEmployeeId = e.detail.value || e.target.value;
-//                if (selectedEmployeeId && selectedEmployeeId !== '') {
-//                    loadEmployeeBenifitData(selectedEmployeeId);
-//                    TabChange(selectedEmployeeId) // this function is located in EmployeeTabChange.js
-//                } else {
-//                    clearForm();
-//                }
-//            });
-
-//        }
-      
-//    }
-//    document.addEventListener('DOMContentLoaded', initEmployeeChoices);
-//    initEmployeeChoices();
-
-//    //#endregion
-
-
-
-//    //#region Choice dropdowns
-
-  
-
-
-//    let yearlyEndBonusTypeChoices;
-//    function initYearlyEndBonusTypeChoices() {
-//        yearlyEndBonusTypeChoices = new Choices('#YearlyEndBonusTypeID', {
-//            removeItemButton: true,
-//            shouldSort: false,
-//            placeholderValue: 'Select Year'
-//        });
-//    }
-//    document.addEventListener('DOMContentLoaded', initYearlyEndBonusTypeChoices);
-//    initYearlyEndBonusTypeChoices();
-
-//    let serviceYearChoices;
-//    function initServiceYearChoices() {
-//        serviceYearChoices = new Choices('#serviceYearSelect', {
-//            removeItemButton: true,
-//            shouldSort: false,
-//            placeholderValue: 'Select Year'
-//        });
-//    }
-//    document.addEventListener('DOMContentLoaded', initServiceYearChoices);
-//    initServiceYearChoices();
-
-//    let festivalBonusRateChoices;
-//    function initFestivalBonusRateChoices() {
-//        festivalBonusRateChoices = new Choices('#festivalBonusRateSelect', {
-//            removeItemButton: true,
-//            shouldSort: false,
-//            placeholderValue: 'Select %'
-//        });
-//    }
-//    document.addEventListener('DOMContentLoaded', initFestivalBonusRateChoices);
-//    initFestivalBonusRateChoices();
-
-    
-
-//    let employeeContributionChoices;
-//    function initEmployeeContributionChoices() {
-//        employeeContributionChoices = new Choices('#employeeContributionSelect', {
-//            removeItemButton: true,
-//            shouldSort: false,
-//            placeholderValue: 'Select %'
-//        });
-//    }
-//    document.addEventListener('DOMContentLoaded', initEmployeeContributionChoices);
-//    initEmployeeContributionChoices();
-
-//    let organizationContributionChoices;
-//    function initOrganizationContributionChoices() {
-//        organizationContributionChoices = new Choices('#organizationContributionSelect', {
-//            removeItemButton: true,
-//            shouldSort: false,
-//            placeholderValue: 'Select %'
-//        });
-//    }
-//    document.addEventListener('DOMContentLoaded', initOrganizationContributionChoices);
-//    initOrganizationContributionChoices();
-
-   
-
-
-
-//    //#endregion
-
-
-
-
-//    //#region Submit
-
-//    $('form').on('submit', function (e) {
-//        e.preventDefault();
-
-//        // Get the form element
-//        var form = $(this);
-//        var formData = new FormData(form[0]);
-
-//        $.ajax({
-//            url: form.attr('action'),
-//            type: form.attr('method'),
-//            data: formData,
-//            processData: false,
-//            contentType: false,
-//            success: function (response) {
-//                if (response.success) {
-//                    toastr.success(response.message || 'Employee benefits saved successfully.');
-//                    window.location.href = '/EmployeeAllowance/Index/' + response.data;
-                    
-//                } else {
-//                    toastr.error( 'Error saving employee benefits');
-//                    console.error(response.message)
-//                }
-//            },
-//            error: function (xhr) {
-//                if (xhr.status === 400 && xhr.responseJSON) {
-//                    // Handle validation errors
-//                    var errors = xhr.responseJSON;
-//                    for (var field in errors) {
-//                        if (errors.hasOwnProperty(field)) {
-//                            toastr.error(errors[field][0]); 
-//                        }
-//                    }
-//                } else {
-//                    toastr.error('Failed to save employee benefits. Please try again.');
-//                }
-//            }
-//        });
-//    });
-
-//    //#endregion
-
-  
-
-//    //#region Populate Data
-   
-//    function loadEmployeeBenifitData(employeeId) {
-//        if (!employeeId) {
-//            clearForm();
-//            return;
-//        }
-
-//        $.ajax({
-//            url: '/EmployeeBenifit/GetEmployeeBenefits',
-//            type: 'GET',
-//            data: { employeeId: employeeId },
-//            success: function (data) {
-//                if (data) {
-//                    populateForm(data);
-//                } else {
-//                    clearForm();
-//                }
-//            },
-//            error: function (xhr, status, error) {
-//                console.error('Error loading employee benefits:', error);
-//                clearForm();
-//                alert('Failed to load employee benefits. Please try again.');
-//            }
-//        });
-//    }
-
-//    // Populate form with employee benefit data
-//    function populateForm(employee) {
-
-//        var data = employee.data;
-//        debugger
-
-//        $('#EmployeeBaseBenefitID').val(data.employeeBaseBenefitID || '');
-//        $('#EmployeePersonalId').val(data.employeePersonalId || '');
-
-//        choiceManager.setChoiceValue('organizationDD', data.organizationID || '');
-        
-//        $('#PersonalEmail').val(data.personalEmail || '');
-//        $('#PersonalPhone').val(data.personalPhone || '');
-//        $('#HealthInsurance').val(data.healthInsurance || '');
-//        $('#PerformanceBonus').val(data.performanceBonus || '');
-
-//        // Update switch checkboxes
-//        $('#empBeniftSwitch').prop('checked', data.isBenifitEnabled || false);
-//        $('#healthInsuranceSwitch').prop('checked', data.isHealthInsuranceEnabled || false);
-//        $('#performanceBonusSwitch').prop('checked', data.isPerformanceBonusEnabled || false);
-//        $('#yearlyEndBonusSwitch').prop('checked', data.isYearlyEndBonusTypeIDEnabled || false);
-//        $('#festivalBonusSwitch').prop('checked', data.isFastivalBonusPercentageEnabled || false);
-//        $('#providentFundSwitch1').prop('checked', data.isProvidantFundEnabled || false);
-
-//        // Update Choices.js dropdowns
-//        employeeChoices.setChoiceByValue(data.employeePersonalId || '');
-//        yearlyEndBonusTypeChoices.setChoiceByValue(data.yearlyEndBonusTypeID || '');
-//        serviceYearChoices.setChoiceByValue(data.serviceYearID || '');
-//        festivalBonusRateChoices.setChoiceByValue(data.fastivalBonusPercentage || '');
-//        employeeContributionChoices.setChoiceByValue(data.providantFundEmployeePercentage || '');
-//        organizationContributionChoices.setChoiceByValue(data.providantFundOrganizationPercentage || '');
-//    }
-
-    
-//    function clearForm() {
-        
-//        $('#EmployeeBaseBenefitID').val('');
-//        $('#PersonalEmail').val('');
-//        $('#PersonalPhone').val('');
-//        $('#HealthInsurance').val('');
-//        $('#PerformanceBonus').val('');
-
-        
-//        $('#empBeniftSwitch').prop('checked', false);
-//        $('#healthInsuranceSwitch').prop('checked', false);
-//        $('#performanceBonusSwitch').prop('checked', false);
-//        $('#yearlyEndBonusSwitch').prop('checked', false);
-//        $('#festivalBonusSwitch').prop('checked', false);
-//        $('#providentFundSwitch1').prop('checked', false);
-
-//        choiceManager.clearChoice('organizationDD')
-        
-//        employeeChoices.clearStore();
-//        yearlyEndBonusTypeChoices.clearStore();
-//        serviceYearChoices.clearStore();
-//        festivalBonusRateChoices.clearStore();
-//        employeeContributionChoices.clearStore();
-//        organizationContributionChoices.clearStore();
-
-       
-//    }
-
-
-
-//    //#endregion
-
-//});
 
 

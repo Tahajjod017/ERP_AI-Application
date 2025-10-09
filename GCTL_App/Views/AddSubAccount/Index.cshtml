@@ -92,22 +92,6 @@
                         </select>
                         <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
                     </div>
-                    @* <div class="col-md-12">
-                        <label class="form-label" asp-for="GroupID">@Html.SmartLocalize("Select Group")<span style="color:red;">*&nbsp;</span></label>
-                        <select class="form-select" asp-for="GroupID">
-                            <option value="">@Html.SmartLocalize("Select Group")...</option>
-                            @foreach (var group in accountGroupDD.GroupBy(e => e.GroupName))
-                            {
-                                <optgroup label="@group.Key">
-                                    @foreach (var emp in group)
-                                    {
-                                        <option value="@emp.Id">@emp.Name</option>
-                                    }
-                                </optgroup>
-                            }
-                        </select>
-                        <span asp-validation-for="GroupID" id="GroupIDError" class="text-danger" style="display:none;"></span>
-                    </div> *@
                 </div>
 
                 <div class="d-grid">
@@ -201,7 +185,6 @@
                                             <input type="checkbox" class="form-check-input" id="addSubAccount-check-all" />
                                         </th>
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ClassName">@Html.SmartLocalize("Class Name")</th>
-                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="GroupName">@Html.SmartLocalize("Group Name")</th>
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="MainAccountName">@Html.SmartLocalize("Main Account Name")</th>
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="SubAccountName">@Html.SmartLocalize("Sub Account Name")</th>
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="SubAccountCode">@Html.SmartLocalize("Sub Account Code")</th>

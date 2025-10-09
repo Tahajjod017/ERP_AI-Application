@@ -163,7 +163,6 @@ namespace GCTL.Service.Finance.TransactionAccount
                 var query = _genericRepository.AllActive()
                     .Include(x => x.SubAccount)
                     .ThenInclude(x => x.MainAccount)
-                    .ThenInclude(x => x.Group)
                     .ThenInclude(x => x.Class)
                     .AsNoTracking()
                     .Where(x => x.DeletedAt == null && x.DeletedBy == null);
@@ -178,26 +177,28 @@ namespace GCTL.Service.Finance.TransactionAccount
                     query = sortColumn switch
                     {
                         "TrxAccID" => sortOrder == "desc" ? query.OrderByDescending(x => x.TrxAccID) : query.OrderBy(x => x.TrxAccID),
-                        "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.MainAccount.Group.Class.ClassName) : query.OrderBy(x => x.SubAccount.MainAccount.Group.Class.ClassName),
-                        "GroupName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.MainAccount.Group.GroupName) : query.OrderBy(x => x.SubAccount.MainAccount.Group.GroupName),
-                        "SubAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.MainAccount.MainAccountName) : query.OrderBy(x => x.SubAccount.MainAccount.MainAccountName),
+                        "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.MainAccount.Class.ClassName) : query.OrderBy(x => x.SubAccount.MainAccount.Class.ClassName),
                         "MainAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.SubAccountName) : query.OrderBy(x => x.SubAccount.SubAccountName),
-                        "TrxAccCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.TrxAccCode) : query.OrderBy(x => x.TrxAccCode),
+                        "SubAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.SubAccount.MainAccount.MainAccountName) : query.OrderBy(x => x.SubAccount.MainAccount.MainAccountName),
                         "TrxAccName" => sortOrder == "desc" ? query.OrderByDescending(x => x.TrxAccName) : query.OrderBy(x => x.TrxAccName),
+                        "TrxAccCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.TrxAccCode) : query.OrderBy(x => x.TrxAccCode),
                         "Description" => sortOrder == "desc" ? query.OrderByDescending(x => x.Description) : query.OrderBy(x => x.Description),
                         _ => query.OrderBy(x => x.TrxAccID)
                     };
                 }
 
                 return await PaginationService<TransactionAccounts, GetAllTransactionAccountVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
-                    term => x => EF.Functions.Like(x.TrxAccCode, $"%{term}%") || EF.Functions.Like(x.TrxAccName, $"%{term}%") || EF.Functions.Like(x.Description, $"%{term}%"),
+                    term => x => EF.Functions.Like(x.TrxAccCode, $"%{term}%") 
+                    || EF.Functions.Like(x.TrxAccName, $"%{term}%") 
+                    || EF.Functions.Like(x.SubAccount.SubAccountName, $"%{term}%") 
+                    || EF.Functions.Like(x.SubAccount.MainAccount.MainAccountName, $"%{term}%") 
+                    || EF.Functions.Like(x.SubAccount.MainAccount.Class.ClassName, $"%{term}%") 
+                    || EF.Functions.Like(x.Description, $"%{term}%"),
                     x => new GetAllTransactionAccountVM
                     {
                         TrxAccID = x.TrxAccID,
-                        ClassID = x.SubAccount.MainAccount.Group.ClassID,
-                        ClassName = x.SubAccount.MainAccount.Group.Class.ClassName ?? "-",
-                        GroupID = x.SubAccount.MainAccount.GroupID,
-                        GroupName = x.SubAccount.MainAccount.Group.GroupName ?? "-",
+                        ClassID = x.SubAccount.MainAccount.ClassID,
+                        ClassName = x.SubAccount.MainAccount.Class.ClassName ?? "-",
                         MainAccountID = x.SubAccount.MainAccountID,
                         MainAccountName = x.SubAccount.MainAccount.MainAccountName ?? "-",
                         SubAccountID = x.SubAccountID,
@@ -224,7 +225,6 @@ namespace GCTL.Service.Finance.TransactionAccount
                 var data = await _genericRepository.AllActive()
                     .Include(x => x.SubAccount)
                     .ThenInclude(x => x.MainAccount)
-                    .ThenInclude(x => x.Group)
                     .ThenInclude(x => x.Class)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.TrxAccID == id);
@@ -234,8 +234,7 @@ namespace GCTL.Service.Finance.TransactionAccount
                     TrxAccID = data.TrxAccID,
                     SubAccountID = data.SubAccountID,
                     MainAccountID = data.SubAccount.MainAccountID,
-                    GroupID = data.SubAccount.MainAccount.GroupID,
-                    ClassID = data.SubAccount.MainAccount.Group.ClassID,
+                    ClassID = data.SubAccount.MainAccount.ClassID,
                     TrxAccCode = data.TrxAccCode ?? "-",
                     TrxAccName = data.TrxAccName ?? "-",
                     IsActive = data.IsActive,
@@ -349,40 +348,51 @@ namespace GCTL.Service.Finance.TransactionAccount
         #region GenerateNextCodeAsync
         public async Task<string> GenerateNextCodeAsync(int subAccId)
         {
-            var subAcc = await _subAccounts.All().Where(x => x.SubAccountID == subAccId).FirstOrDefaultAsync();
-
-            if (subAcc == null)
+            try
             {
-                throw new Exception("Sub Account not found.");
+                var subAcc = await _subAccounts.All().Where(x => x.SubAccountID == subAccId).FirstOrDefaultAsync();
+
+                if (subAcc == null)
+                {
+                    throw new Exception("Sub Account not found.");
+                }
+
+                var prefix = Regex.Replace(subAcc.SubAccountCode, @"\s+", "");
+
+                var result = await _genericRepository.All()
+                    .Where(x => x.SubAccountID == subAccId)
+                    .AsNoTracking()
+                    .OrderByDescending(x => x.TrxAccCode)
+                    .FirstOrDefaultAsync();
+
+                // If no SubAccountCode exists, start with "0001"
+                if (result == null)
+                {
+                    return prefix + "0001";  // "01010001"
+                }
+
+                // Step 3: Extract the numeric part from the last SubAccountCode
+                var lastCode = Regex.Replace(result.TrxAccCode, @"\s+", "");  // E.g., "01010003"
+                var lastCodeNumericPart = lastCode.Substring(8);  // E.g., "0003"
+                if(lastCodeNumericPart == null || lastCodeNumericPart == "")
+                {
+                    return lastCode + "0001";
+                }
+
+                // Step 4: Increment the numeric part
+                int lastCodeNumber = int.Parse(lastCodeNumericPart);  // E.g., 3 from "0003"
+                var newCodeNumber = lastCodeNumber + 1;  // E.g., 4
+
+                // Ensure the new numeric part is 4 digits long with leading zeros
+                var newCodeNumberPadded = newCodeNumber.ToString("D4");  // E.g., "0004"
+
+                // Step 5: Return the new SubAccountCode by combining the prefix and new numeric part
+                return prefix + newCodeNumberPadded;
             }
-
-            var prefix = Regex.Replace(subAcc.SubAccountCode, @"\s+", "");
-
-            var result = await _genericRepository.All()
-                .Where(x => x.SubAccountID == subAccId)
-                .AsNoTracking()
-                .OrderByDescending(x => x.TrxAccCode)
-                .FirstOrDefaultAsync();
-
-            // If no SubAccountCode exists, start with "0001"
-            if (result == null)
+            catch (Exception ex)
             {
-                return prefix + "0001";  // "01010001"
+                throw;
             }
-
-            // Step 3: Extract the numeric part from the last SubAccountCode
-            var lastCode = Regex.Replace(result.TrxAccCode, @"\s+", "");  // E.g., "01010003"
-            var lastCodeNumericPart = lastCode.Substring(8);  // E.g., "0003"
-
-            // Step 4: Increment the numeric part
-            int lastCodeNumber = int.Parse(lastCodeNumericPart);  // E.g., 3 from "0003"
-            var newCodeNumber = lastCodeNumber + 1;  // E.g., 4
-
-            // Ensure the new numeric part is 4 digits long with leading zeros
-            var newCodeNumberPadded = newCodeNumber.ToString("D4");  // E.g., "0004"
-
-            // Step 5: Return the new SubAccountCode by combining the prefix and new numeric part
-            return prefix + newCodeNumberPadded;
         }
         #endregion
 

@@ -80,7 +80,7 @@ namespace GCTL_App.Controllers.Finance
                     return Json(new { isSuccess = true, message = "Saved Successfully." });
                 }
 
-                var orderedKeys = new[] { "ClassID", "GroupID", "MainAccountID", "SubAccountName", "SubAccountCode" };
+                var orderedKeys = new[] { "ClassID", "MainAccountID", "SubAccountName", "SubAccountCode" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -133,7 +133,7 @@ namespace GCTL_App.Controllers.Finance
                     });
                 }
 
-                var orderedKeys = new[] { "ClassID", "GroupID", "MainAccountID", "BaseAccountCode", "SubAccountName" };
+                var orderedKeys = new[] { "ClassID", "MainAccountID", "BaseAccountCode", "SubAccountName" };
                 foreach (var key in orderedKeys)
                 {
                     if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
@@ -258,19 +258,10 @@ namespace GCTL_App.Controllers.Finance
         #endregion
 
 
-        #region GetAccountGroupByClassId
-        //public async Task<IActionResult> GetAccountGroupByClassId(int classId)
-        //{
-        //    var result = await _commonService.GetAccountGroupByClassId(classId);
-        //    return Json(result);
-        //}
-        #endregion
-
-
-        #region GetMainAccByClassIdGroupId
-        public async Task<IActionResult> GetMainAccByClassIdGroupId(int classId, int? groupId)
+        #region GetMainAccByClassId
+        public async Task<IActionResult> GetMainAccByClassId(int classId)
         {
-            var result = await _commonService.GetMainAccByClassIdGroupId(classId, groupId);
+            var result = await _commonService.GetMainAccByClassId(classId);
             return Json(result);
         }
         #endregion

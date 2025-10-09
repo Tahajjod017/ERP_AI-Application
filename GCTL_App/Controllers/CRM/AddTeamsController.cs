@@ -36,14 +36,13 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region getLastIndexNumber
-        [HttpGet]
-        public async Task<IActionResult> GetLastIndexNumber()
-        {
-            var nextIndex = await _addTeamService.GetLastIndexNumber();
-            return Ok(nextIndex);
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> GetLastIndexNumber()
+        //{
+        //    var nextIndex = await _addTeamService.GetLastIndexNumber();
+        //    return Ok(nextIndex);
+        //}
         #endregion
-
 
         #region getEmployeeList
         [Route("/AddTeams/GetEmployeeList")]
@@ -73,8 +72,17 @@ namespace GCTL_App.Controllers.CRM
         [HttpPost]
         public async Task<IActionResult> CreateTeam([FromForm] CreateTeamVM createTeamVM)
         {
-            var result = await _addTeamService.CreateTeam(createTeamVM);
-            return Ok(result);
+            if (createTeamVM.TeamID == 0)
+            {
+                var result = await _addTeamService.CreateTeam(createTeamVM);
+                return Ok(result);
+            }
+            else
+            {
+                var result = await _addTeamService.UpdateTeam(createTeamVM);
+                return Ok(result);
+            }
+                
         }
         #endregion
 
@@ -86,5 +94,27 @@ namespace GCTL_App.Controllers.CRM
             return Ok(result);
         }
         #endregion
+
+        #region IndivudialIteamDetails  
+        public async Task<IActionResult> GetIndivudialTeamDetails(int id)
+        {
+            var result = await _addTeamService.IndivudialIteamDetails(id);
+            return Ok(result);
+        }
+        #endregion
+
+
+        //[HttpGet]
+        //public async Task<IActionResult> GetEmployeesByIds([FromQuery] List<int> ids)
+        //{
+        //    var result = await _addTeamService.GetEmployeesByIds(ids);
+
+        //    return Json(result.Select(x => new {
+        //        value = x.Id,
+        //        label = x.Name,
+        //        group = x.GroupName
+        //    }));
+        //}
+
     }
 }

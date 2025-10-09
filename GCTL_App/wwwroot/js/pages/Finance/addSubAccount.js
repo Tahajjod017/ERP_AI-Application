@@ -19,8 +19,7 @@
         var deleteUrl = settings.baseUrl + "/Delete";
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
-        var getGroupByClassIdUrl = settings.baseUrl + "/GetAccountGroupByClassId";
-        var getMainAccByClassIdGroupIdUrl = settings.baseUrl + "/GetMainAccByClassIdGroupId";
+        var getGroupByClassIdUrl = settings.baseUrl + "/GetMainAccByClassId";
         var generateNextCodeUrl = settings.baseUrl + "/GenerateNextCodeAsync";
 
         $(() => {
@@ -40,7 +39,6 @@
                     __RequestVerificationToken: token,
                     SubAccountID: $('#SubAccountID').val(),
                     ClassID: $('#ClassID').val(),
-                    GroupID: $('#GroupID').val(),
                     MainAccountID: $('#MainAccountID').val(),
                     SubAccountName: $('#SubAccountName').val(),
                     SubAccountCode: $('#SubAccountCode').val(),
@@ -66,7 +64,7 @@
                         showLoadingIndicator();
                     },
                     success: function (response) {
-                        const allFields = ['ClassID', 'GroupID', 'MainAccountID', 'SubAccountName', 'SubAccountCode'];
+                        const allFields = ['ClassID', 'MainAccountID', 'SubAccountName', 'SubAccountCode'];
 
                         allFields.forEach(function (fieldId) {
                             validateField(fieldId, response);
@@ -110,10 +108,9 @@
                         $('#addSubAccount-form #Description').val(data.description);
                         accountClassDD.setChoiceByValue(data.classID.toString());
 
-                        await getAccountGroupByClassId(data.classID);  // Wait for group options to load
-                        await accountGroupDD.setChoiceByValue(data.groupID.toString());  // Now set group
+                        await getMainAccByClassId(data.classID);  // Wait for group options to load
 
-                        getMainAccByClassIdGroupId(data.classID, data.groupID, data.mainAccountID, true);
+                        await getMainAccByClassId(data.classID, data.mainAccountID, true);
 
                         $('#addSubAccount-form #addSubAccount-saveBtn').text('Update');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -192,99 +189,21 @@
             // #endregion
 
 
-            // #region GetAccountGroupByClassId
+            // #region getMainAccByClassId
             $('#ClassID').on('change', function (e) {
                 e.preventDefault();
 
-                var classId = $(this).val();
-
-                getAccountGroupByClassId(classId);
-            });
-
-
-            function getAccountGroupByClassId(classId) {
-                return new Promise((resolve, reject) => {
-                    $.ajax({
-                        url: getGroupByClassIdUrl,
-                        type: 'GET',
-                        data: {
-                            classId: classId,
-                        },
-                        success: function (results) {
-                            if (!accountGroupDD) return resolve();
-
-                            const select = document.getElementById('GroupID');
-
-                            // Destroy existing Choices instance
-                            if (accountGroupDD) {
-                                accountGroupDD.destroy();
-                                accountGroupDD = null;
-                            }
-
-                            // Clear old options
-                            select.innerHTML = '<option value="">Select Group...</option>';
-
-                            // Group data
-                            const grouped = {};
-                            results.forEach(sp => {
-                                const group = sp.groupName || 'No Group Found';
-                                if (!grouped[group]) {
-                                    grouped[group] = [];
-                                }
-                                grouped[group].push(sp);
-                            });
-
-                            // Build optgroups
-                            for (const group in grouped) {
-                                const optgroup = document.createElement('optgroup');
-                                optgroup.label = group;
-
-                                grouped[group].forEach(sp => {
-                                    const option = document.createElement('option');
-                                    option.value = sp.id;
-                                    option.text = sp.name;
-                                    optgroup.appendChild(option);
-                                });
-
-                                select.appendChild(optgroup);
-                            }
-
-                            // Re-initialize Choices.js
-                            accountGroupDD = new Choices(select, {
-                                removeItemButton: true,
-                                shouldSort: false,
-                                placeholderValue: 'Select Group...'
-                            });
-
-                            resolve();
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Error loading departments:', error);
-                            reject(error);
-                        }
-                    });
-                })
-            }
-            // #endregion
-
-
-            // #region getMainAccByClassIdGroupId
-            $('#GroupID').on('change', function (e) {
-                e.preventDefault();
-
                 var classId = $('#ClassID').val();
-                var groupId = $(this).val();
 
-                getMainAccByClassIdGroupId(classId, groupId);
+                getMainAccByClassId(classId);
             });
 
-            function getMainAccByClassIdGroupId(classId, groupId = null, mainAccountId = null, skipGenerateNextCode = false) {
+            function getMainAccByClassId(classId, mainAccountId = null, skipGenerateNextCode = false) {
                 $.ajax({
-                    url: getMainAccByClassIdGroupIdUrl,
+                    url: getGroupByClassIdUrl,
                     type: 'GET',
                     data: {
-                        classId: classId,
-                        groupId: groupId
+                        classId: classId
                     },
                     success: function (result) {
                         $('.addSubAccount-ul').empty();
@@ -335,7 +254,7 @@
                                 loadTableData();
                             });
 
-                            // 🔽 If editing, auto-select the group
+                            // 🔽 If editing, auto-select the mainaccount
                             if (mainAccountId) {
                                 const target = $(`.addSubAccount-ul .nav-link[data-mainaccount-id="${mainAccountId}"]`);
                                 if (target.length) {
@@ -380,7 +299,7 @@
             function clear() {
                 $(settings.addform)[0].reset();
                 $('#SubAccountID').val('0');
-                resetValidation(['ClassID', 'GroupID', 'MainAccountID', 'SubAccountName', 'SubAccountCode']);
+                resetValidation(['ClassID', 'MainAccountID', 'SubAccountName', 'SubAccountCode']);
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -397,11 +316,6 @@
                     accountClassDD.destroy();
                 }
                 initAccountClassDD();
-
-                if (accountGroupDD) {
-                    accountGroupDD.destroy();
-                }
-                initAccountGroupDD();
 
                 loadTableData();
                 toggleBulkActions();
@@ -420,17 +334,6 @@
             }
             document.addEventListener('DOMContentLoaded', initAccountClassDD);
             initAccountClassDD();
-
-
-            function initAccountGroupDD() {
-                accountGroupDD = new Choices('#GroupID', {
-                    removeItemButton: true,
-                    shouldSort: false,
-                    placeholderValue: 'Select Group...'
-                });
-            }
-            document.addEventListener('DOMContentLoaded', initAccountGroupDD);
-            initAccountGroupDD();
             // #endregion
 
 
@@ -668,7 +571,6 @@
                                         <input type="checkbox" class="form-check-input addSubAccount-selectItem" data-id="${item.subAccountID}" />
                                     </td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.className}</td>
-                                    <td class="align-middle white-space-nowrap ps-0">${item.groupName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.subAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.subAccountCode}</td>
@@ -683,7 +585,7 @@
                             `);
                         });
                     } else {
-                        tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
+                        tableBody.append('<tr><td colspan="7" class="text-center">No data available</td></tr>');
                     }
 
                     var paginationInfo = response.paginationInfo;

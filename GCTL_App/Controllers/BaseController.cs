@@ -19,8 +19,8 @@ namespace GCTL_App.Controllers
         private int _smartPageCode = 0;
 
         
-        protected string imgSrc => GetBaseUrl() + "/uploads/employee/images/";
-        protected string imgSrcThumb => GetBaseUrl() + "/uploads/employee/images/thumbs/";
+        protected string imgSrc => GetBaseUrl() + "/media/employee/images/";
+        protected string imgSrcThumb => GetBaseUrl() + "/media/employee/images/thumbs/";
        
 
 

@@ -69,7 +69,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
                 var data = await employeeBenefitsService.SelectAsync(id);
                 return Json(data);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
                 throw;

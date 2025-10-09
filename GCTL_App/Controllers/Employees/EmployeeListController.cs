@@ -368,8 +368,8 @@ namespace GCTL_App.Controllers.Employees
         [HttpGet]
         public async Task<IActionResult> GetEmployeeTraining(int id) => Ok(await _employeeTrainingService.GetEmployeeTrainingByIdAsync(id));
 
-        [HttpGet]
-        public async Task<IActionResult> GetEmployeeAllowance(int id) => Ok(await _employeeAllowanceService.GetEmployeeAllowance(id));
+        //[HttpGet]
+        //public async Task<IActionResult> GetEmployeeAllowance(int id) => Ok(await _employeeAllowanceService.GetEmployeeAllowance(id));
 
         [HttpGet]
         public async Task<IActionResult> GetEmployeeBenefit(int id) => Ok(await employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString()));

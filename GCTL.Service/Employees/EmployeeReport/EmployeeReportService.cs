@@ -88,7 +88,7 @@ namespace GCTL.Service.Employees.EmployeeReport
                 var educational = await _employeeEducationalService.GetEmployeeAdditionalByIdAsync(id);
                 var additional = await _employeeAdditionalService.GetFullEmployeeAdditionalByIdAsync(id);
                 var salary = await _employeeSalaryService.GetEmployeeSalaryByEmployeeIdAsync(id);
-                var allowance = await _employeeAllowanceService.GetEmployeeAllowance(id);
+                //var allowance = await _employeeAllowanceService.GetEmployeeAllowance(id);
                 var training = await _employeeTrainingService.GetEmployeeTrainingByIdAsync(id);
                 var benifit = await employeeBenifitService.GetEmployeeBenefitsAsync(id.ToString());
 
@@ -168,8 +168,8 @@ namespace GCTL.Service.Employees.EmployeeReport
 
                                         row.RelativeItem(45).AlignRight().Height(90).Image(
                                              !string.IsNullOrEmpty(personal?.EmployeeImageFileName)
-                                                 ? System.IO.File.ReadAllBytes($"wwwroot/uploads/employee/images/{personal.EmployeeImageFileName}")
-                                                 : System.IO.File.ReadAllBytes("wwwroot/uploads/employee/images/MdShefain.jpg")
+                                                 ? System.IO.File.ReadAllBytes($"wwwroot/media/employee/images/{personal.EmployeeImageFileName}")
+                                                 : System.IO.File.ReadAllBytes("wwwroot/media/employee/No_image_available.svg.png")
                                          ).FitArea();
                                     });
                                 });
@@ -743,45 +743,45 @@ namespace GCTL.Service.Employees.EmployeeReport
                                         header.Cell().Border(0.5f).Padding(2).Text("Amount").Bold().FontSize(10).AlignCenter();
                                         header.Cell().Border(0.5f).Padding(2).Text("Effective Date").Bold().FontSize(10).AlignCenter();
                                     });
-                                    if (allowance != null)
-                                    {
-                                        if (allowance.IsMobileAllowanceEnabled)
-                                        {
-                                            table.Cell().Border(0.5f).Padding(2).Text("Mobile Allowance").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.MobileAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.MobileAllowanceEffectiveFromStr ?? " ").FontSize(9).AlignCenter();
-                                        }
-                                        if (allowance.IsInternetAllowanceEnabled)
-                                        {
-                                            table.Cell().Border(0.5f).Padding(2).Text("Internet Allowance").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.InternetAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.InternetAllowanceEffectiveFromStr ?? " ").FontSize(9).AlignCenter();
-                                        }
-                                        if (allowance.IsShiftAllowanceEnabled)
-                                        {
-                                            table.Cell().Border(0.5f).Padding(2).Text("Shift Allowance").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.ShiftAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
-                                        }
-                                        if (allowance.IsHouseRentAllowancePercentageEnabled)
-                                        {
-                                            table.Cell().Border(0.5f).Padding(2).Text("House Rent Allowance").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.HouseRentAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
-                                        }
-                                        if (allowance.IsMedicalAllowancePercentageEnabled)
-                                        {
-                                            table.Cell().Border(0.5f).Padding(2).Text("Medical Allowance").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.MedicalAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
-                                        }
-                                        if (allowance.IsConveyanceAllowancePercentageEnabled)
-                                        {
-                                            table.Cell().Border(0.5f).Padding(2).Text("Conveyance Allowance").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(allowance?.ConveyanceAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
-                                            table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
-                                        }
-                                    }
+                                    //if (allowance != null)
+                                    //{
+                                    //    if (allowance.IsMobileAllowanceEnabled)
+                                    //    {
+                                    //        table.Cell().Border(0.5f).Padding(2).Text("Mobile Allowance").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(allowance?.MobileAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(allowance?.MobileAllowanceEffectiveFromStr ?? " ").FontSize(9).AlignCenter();
+                                    //    }
+                                    //    if (allowance.IsInternetAllowanceEnabled)
+                                    //    {
+                                    //        table.Cell().Border(0.5f).Padding(2).Text("Internet Allowance").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(allowance?.InternetAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(allowance?.InternetAllowanceEffectiveFromStr ?? " ").FontSize(9).AlignCenter();
+                                    //    }
+                                    //    if (allowance.IsShiftAllowanceEnabled)
+                                    //    {
+                                    //        table.Cell().Border(0.5f).Padding(2).Text("Shift Allowance").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(allowance?.ShiftAllowance?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
+                                    //    }
+                                    //    if (allowance.IsHouseRentAllowancePercentageEnabled)
+                                    //    {
+                                    //        table.Cell().Border(0.5f).Padding(2).Text("House Rent Allowance").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(allowance?.HouseRentAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
+                                    //    }
+                                    //    if (allowance.IsMedicalAllowancePercentageEnabled)
+                                    //    {
+                                    //        table.Cell().Border(0.5f).Padding(2).Text("Medical Allowance").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(allowance?.MedicalAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
+                                    //    }
+                                    //    if (allowance.IsConveyanceAllowancePercentageEnabled)
+                                    //    {
+                                    //        table.Cell().Border(0.5f).Padding(2).Text("Conveyance Allowance").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(allowance?.ConveyanceAllowancePercentage?.ToString("N0") ?? " ").FontSize(9).AlignCenter();
+                                    //        table.Cell().Border(0.5f).Padding(2).Text(" ").FontSize(9).AlignCenter();
+                                    //    }
+                                    //}
                                 });
 
                                 #endregion

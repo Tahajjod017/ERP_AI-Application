@@ -13,8 +13,6 @@ namespace GCTL.Service.Employees.EmployeeBenifit
     {
 
         Task<List<CommonSelectVMMM>> SelectAsync(int id);
-
-        Task<CommonReturnViewModel> SaveOrUpdateEmployeeBenefitsAsync(EmployeeBenifitPostViewModel model);
         Task<EmployeeBenifitPostViewModel> GetEmployeeBenefitsAsync(string employeeId);
         Task<CommonReturnViewModel> SaveOrUpdateEmployeeBenefitsAsync1(EmployeeBenifitPostViewModel22 model);
 
@@ -33,6 +31,12 @@ namespace GCTL.Service.Employees.EmployeeBenifit
         public int? CalculationTypeID { get; set; } 
         public decimal? Value { get; set; }   
         public bool IsBenifitEnabled { get; set; }
+
+        //
+        public int BaseBenefitID { get; set; }
+        public int? BaseCalculationTypeID { get; set; }
+        public decimal? BaseValue { get; set; }
+        //
     }
 
     public class CommonSelectVMMM
@@ -48,6 +52,12 @@ namespace GCTL.Service.Employees.EmployeeBenifit
         public int? OrganizationID { get; set; }
         public int? CalculationTypeID { get; set; }
         public decimal? Value { get; set; }
+
+        //from BaseBenefit 
+
+        public int BaseBenefitID { get; set; }
+        public int? BaseCalculationTypeID { get; set; }
+        public decimal? BaseValue { get; set; }
     }
 
     

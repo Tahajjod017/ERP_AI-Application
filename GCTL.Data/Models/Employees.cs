@@ -79,6 +79,8 @@ public partial class Employees
 
     public bool? IsActive { get; set; }
 
+    public int? HeadID { get; set; }
+
     public virtual ICollection<ActionLogs> ActionLogs { get; set; } = new List<ActionLogs>();
 
     public virtual ICollection<AddressTypes> AddressTypesCreatedByNavigation { get; set; } = new List<AddressTypes>();
@@ -503,11 +505,19 @@ public partial class Employees
 
     public virtual ICollection<Grade> GradeUpdatedByNavigation { get; set; } = new List<Grade>();
 
-    public virtual ICollection<Groups> GroupsCreatedByNavigation { get; set; } = new List<Groups>();
+    public virtual Heads Head { get; set; }
 
-    public virtual ICollection<Groups> GroupsDeletedByNavigation { get; set; } = new List<Groups>();
+    public virtual ICollection<HeadDetails> HeadDetailsCreatedByNavigation { get; set; } = new List<HeadDetails>();
 
-    public virtual ICollection<Groups> GroupsUpdatedByNavigation { get; set; } = new List<Groups>();
+    public virtual ICollection<HeadDetails> HeadDetailsDeletedByNavigation { get; set; } = new List<HeadDetails>();
+
+    public virtual ICollection<HeadDetails> HeadDetailsUpdatedByNavigation { get; set; } = new List<HeadDetails>();
+
+    public virtual ICollection<Heads> HeadsCreatedByNavigation { get; set; } = new List<Heads>();
+
+    public virtual ICollection<Heads> HeadsDeletedByNavigation { get; set; } = new List<Heads>();
+
+    public virtual ICollection<Heads> HeadsUpdatedByNavigation { get; set; } = new List<Heads>();
 
     public virtual ICollection<Holidays> HolidaysCreatedByNavigation { get; set; } = new List<Holidays>();
 

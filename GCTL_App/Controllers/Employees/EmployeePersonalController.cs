@@ -26,6 +26,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly IGenericRepository<Genders> _genderRepository;
         private readonly IGenericRepository<Country> _countryRepository;
         private readonly IGenericRepository<BloodGroup> _bloodGroupRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
 
         private readonly UserManager<ApplicationUser> _userManagerRepository2;
         private readonly IGenericRepository<GCTL.Data.Models.MenuTab> _menuTabRepository;
@@ -33,7 +34,7 @@ namespace GCTL_App.Controllers.Employees
         private readonly RoleManager<ApplicationRole> _roleManagerRepository2;
 
         private readonly IElementPermissionService _elementPermissionService;
-        public EmployeePersonalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IElementPermissionService elementPermissionService) : base(translateService, userProfileService)
+        public EmployeePersonalController(ITranslateService translateService, IUserProfileService userProfileService, IEmployeePersonalService employeePersonalService, IGenericRepository<MaritalStatus> maritalRepository, IGenericRepository<Religions> religionRepository, IGenericRepository<Genders> genderRepository, IGenericRepository<Country> countryRepository, IGenericRepository<BloodGroup> bloodGroupRepository, IEmployeeNavigationService employeeNavigationService, UserManager<ApplicationUser> userManagerRepository2, IGenericRepository<GCTL.Data.Models.MenuTab> menuTabRepository, IGenericRepository<RoleModulePermissions> rolePermissionRepository, RoleManager<ApplicationRole> roleManagerRepository2, IElementPermissionService elementPermissionService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository) : base(translateService, userProfileService)
         {
             _employeePersonalService = employeePersonalService;
             _maritalRepository = maritalRepository;
@@ -47,6 +48,7 @@ namespace GCTL_App.Controllers.Employees
             _rolePermissionRepository = rolePermissionRepository;
             _roleManagerRepository2 = roleManagerRepository2;
             _elementPermissionService = elementPermissionService;
+            _employeeRepository = employeeRepository;
         }
 
         #endregion
@@ -262,6 +264,79 @@ namespace GCTL_App.Controllers.Employees
             return Ok(false);
 
         }
+
+        #endregion
+
+        #region Employee List for Dropdown Pagination
+
+        
+
+
+        [HttpGet]
+        public IActionResult SearchEmployeeDD(string search = "", int page = 1, int pageSize = 50)
+        {
+            try
+            {
+               
+
+                var searchLower = search?.ToLower();
+
+                var query = _employeeRepository.AllActive()
+                    .Where(e => string.IsNullOrEmpty(searchLower) ||
+                        (e.FirstName + " " + e.LastName).ToLower().Contains(searchLower));
+
+                var employees = query
+                    .Select(e => new
+                    {
+                        value = e.EmployeeID,
+                        label = e.FirstName + " " + e.LastName
+                    })
+                    .OrderBy(e => e.label)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                var totalCount = query.Count();
+
+                var response = new
+                {
+                    items = employees,
+                    hasMore = totalCount > (page * pageSize)
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in SearchEmployeeDD: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                return StatusCode(500, new { error = "Internal server error: " + ex.Message });
+            }
+        }
+
+
+
+
+
+
+        [Route("EmployeePersonal/GetEmployeeById")]
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeeById(int id)
+        {
+            var employee = await _employeePersonalService.GetEmployeeById(id);
+
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return Json(new
+            {
+                id = employee.Id,
+                name = employee.Name
+            });
+        }
+
+
 
         #endregion
 

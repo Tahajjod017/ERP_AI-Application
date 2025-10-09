@@ -1,32 +1,15 @@
 ﻿$(function () {
 
     let ids = {
+        teamID: '#TeamID',
         generatedID: '#GeneratedID',
-        submitBtn: '#CreatTeamBtn',
+        submitBtn: '#CreateTeamBtn',
+        resetBtn: '#resetTeamBtn',
         employeeDrpdn: '#EmployeeIds',
         teamName: '#TeamName',
         employeeIDs: '#EmployeeIds',
         resultShowDiv: '#teamsDiv',
     }
-
-
-    async function getNextIndex() {
-        try {
-            const response = await fetch('/AddTeams/GetLastIndexNumber');
-            if (!response.ok) throw new Error('Network response was not ok');
-
-            const nextIndex = await response.json();
-
-            return nextIndex;
-        } catch (error) {
-            console.error("Error fetching next index: ", error);
-        }
-    }
-
-    getNextIndex().then(index => {
-        $(ids.generatedID).val(index);
-    });
-
 
     // ============================
     // load employee
@@ -34,7 +17,7 @@
 
     let page = 1;
     let term = '';
-    const pageSize = 20;
+    const pageSize3 = 20;
 
     let hasMore = true;
     let loading = false;
@@ -146,7 +129,7 @@
         if (loading || (!hasMore && append)) return;
         loading = true;
         try {
-            const res = await fetch(`${apiUrl}?search=${encodeURIComponent(term)}&page=${page}&pageSize=${pageSize}`);
+            const res = await fetch(`${apiUrl}?search=${encodeURIComponent(term)}&page=${page}&pageSize=${pageSize3}`);
             const data = await res.json();
 
             addOptions(data.items, { reset: !append });
@@ -201,9 +184,13 @@
     //==========================
     $(ids.submitBtn).on('click', function () {
         let formData = {
+            TeamID: $(ids.teamID).val(),
             TeamName: $(ids.teamName).val(),
             EmployeeIds: $(ids.employeeIDs).val()
         };
+
+        //showDev(formData);
+        console.log(formData);
 
         $.ajax({
             url: '/AddTeams/CreateTeam',
@@ -211,9 +198,11 @@
             data: formData,
             success: function (response) {
                 if (response.success) {
-                    alert('Team saved successfully!');
+                    toastr.success(response.message);
+                    fetchTeamList();
+                    resetForm();
                 } else {
-                    alert('Error: ' + response.message);
+                    toastr.error(response.message);
                 }
             },
             error: function (xhr) {
@@ -223,11 +212,18 @@
         });
     });
 
+    // =====================================
+    // reset button
+    // =====================================
+    $(ids.resetBtn).on("click", function () {
+        resetForm();
+    })
+
     // ===============================
     // get Team List
     //==============================
     let pageNumber = 1;
-    let pageSize2 = 10;
+    let pageSize = 25;
     let searchTerm = '';
     let sortColumn = 'CreatedAt';
     let sortOrder = 'asc';
@@ -236,7 +232,7 @@
         try {
             const query = new URLSearchParams({
                 pageNumber,
-                pageSize2,
+                pageSize,
                 searchTerm,
                 sortColumn,
                 sortOrder
@@ -250,7 +246,8 @@
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
             const data = await response.json();
-            renderTeamCards(data); // <-- render cards on page
+            //showDev(data);
+            renderTeamCards(data);
             return data;
         } catch (error) {
             console.error('Error fetching teams:', error);
@@ -267,28 +264,108 @@
 
         container.innerHTML = '';
 
-        teams.forEach(team => {
-            const card = document.createElement('div');
-            card.className = 'col-xl-3 col-lg-4 col-md-6 mb-4';
+        // Loop through all teams
+        teams.forEach(function (team) {
+            let membersHtml = '';
 
-            const memberBadges = team.teamMemberName.map(name =>
-                `<span class="badge bg-primary me-1 mb-1">${name}</span>`).join(' ');
+            if (team.teamDetails && team.teamDetails.length > 0) {
+                team.teamDetails.forEach(function (member) {
+                    const headLabel = member.isTeamHead
+                        ? '<span class="badge bg-success ms-2">Team Head</span>'
+                        : '';
 
-            card.innerHTML = `
-            <div class="card shadow-sm border-0 h-100 hover-shadow">
-                <div class="card-body d-flex flex-column">
-                    <div class="mb-2 text-muted small">Team #${team.teamID}</div>
-                    <h5 class="card-title fw-bold">${team.teamGID}</h5>
-                    <div class="mt-3">${memberBadges}</div>
+                    membersHtml += `
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-user me-2 pb-2"></i>
+                        <span class="fw-semibold">${member.teamMemberName}</span>
+                        ${headLabel}
+                    </div>
+                `;
+                });
+            }
+
+            const teamHtml = `
+            <div class="col-auto">
+                <div style="height: 280px; min-width: 70px;">
+                    <div class="card h-100" style="width: 20rem; height: 100%;">
+                        <div class="card-body d-flex flex-column p-3" style="height: 268px;">
+                            <a href="#" class="text-warning fw-bold text-center h5 text-decoration-none mb-2 addTeam-edit"
+                               data-teamid="${team.teamID}"
+                               title="Click for Edit Team">
+                                <i class="fas fa-edit"></i> &nbsp;<span>${team.teamName}</span> &nbsp;<span>(${team.teamGID})</span> 
+                            </a>
+                            <hr class="my-2" />
+                            <div class="overflow-auto flex-grow-1">
+                                ${membersHtml}
+                            </div>
+                            <a href="/TeamDetails/index/${team.teamID}" class="btn btn-outline-primary rounded-pill btn-sm w-100 viewDetailsBtn">View Details</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
-            container.appendChild(card);
+
+            container.innerHTML += teamHtml;
         });
     }
 
-    // Call the fetch function
+
+    // ===========================
+    // edit Team Name and members
+    // ===========================
+    //$(document).on("click", ".addTeam-edit", async function (e) {
+    //    e.preventDefault();
+    //    let id = $(this).data("teamid");
+    //    const response = await fetch(`/AddTeams/GetIndivudialTeamDetails?id=${id}`);
+    //    if (!response.ok) throw new Error('Network response was not ok');
+    //    const result = await response.json();
+    //    showDev(result);
+    //    $(ids.teamName).val(result.teamName);
+    //    showDev(result.teamMemberIDs);
+    //    $('#EmployeeIds').val(result.teamMemberIDs).each(function () {
+    //        coreui.MultiSelect.getInstance('#EmployeeIds')?.update();
+    //    });
+    //});
+
+
+    $(document).on("click", ".addTeam-edit", async function (e) {
+        e.preventDefault();
+        page = 1; 
+        hasMore = true;
+        term = ''; 
+        let id = $(this).data("teamid");
+
+        const response = await fetch(`/AddTeams/GetIndivudialTeamDetails?id=${id}`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const result = await response.json();
+        $(ids.submitBtn).text("Update Team");
+        $(ids.teamID).val(result.teamID);
+        $(ids.teamName).val(result.teamName);
+        $(ids.employeeIDs).empty();
+        result.teamMembersInfo.forEach(member => {
+            const opt = new Option(member.teamMemberName, member.teamMemberID, true, true);
+            $(ids.employeeIDs).append(opt);
+        });
+        const selectedIds = result.teamMembersInfo.map(m => m.teamMemberID.toString());
+        $(ids.employeeIDs).val(selectedIds);
+        ms.update();
+
+        fetchPage({ append: false, keepSelected: true });
+
+        
+    });
+
+
+    // ============================
+    // reset function
+    // ============================
+    function resetForm() {
+        $(ids.teamID).val('');
+        $(ids.teamName).val('');
+        $(ids.employeeIDs).val([]);
+        coreui.MultiSelect.getInstance('#EmployeeIds')?.update();
+        $(ids.submitBtn).text("Create Team");
+    }
+
     fetchTeamList();
-
-
 });

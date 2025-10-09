@@ -19,9 +19,8 @@
         var deleteUrl = settings.baseUrl + "/Delete";
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
-        var getGroupByClassIdUrl = settings.baseUrl + "/GetAccountGroupByClassId";
-        var getMainAccByClassIdGroupIdUrl = settings.baseUrl + "/GetMainAccByClassIdGroupId";
-        var getSubAccByClassIdGroupIdMainAccIdUrl = settings.baseUrl + "/GetSubAccByClassIdGroupIdMainAccId";
+        var getMainAccByClassIdUrl = settings.baseUrl + "/GetMainAccByClassId";
+        var getSubAccByClassIdMainAccIdUrl = settings.baseUrl + "/GetSubAccByClassIdMainAccId";
         var generateNextCodeUrl = settings.baseUrl + "/GenerateNextCodeAsync";
 
         $(() => {
@@ -113,10 +112,9 @@
                         accountClassDD.setChoiceByValue(data.classID.toString());
 
                         await getAccountGroupByClassId(data.classID);  // Wait for group options to load
-                        await accountGroupDD.setChoiceByValue(data.groupID.toString());  // Now set group
                         await mainAccDD.setChoiceByValue(data.mainAccountID.toString());  // Now set group
 
-                        getSubAccByClassIdGroupIdMainAccId(data.classID, data.groupID, data.mainAccountID, data.subAccountID, true);
+                        getSubAccByClassIdMainAccId(data.classID, data.groupID, data.mainAccountID, data.subAccountID, true);
 
                         $('#trxAccount-form #trxAccount-saveBtn').text('Update');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -208,88 +206,10 @@
             function getAccountGroupByClassId(classId) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
-                        url: getGroupByClassIdUrl,
+                        url: getMainAccByClassIdUrl,
                         type: 'GET',
                         data: {
                             classId: classId,
-                        },
-                        success: function (results) {
-                            if (!accountGroupDD) return resolve();
-
-                            const select = document.getElementById('GroupID');
-
-                            // Destroy existing Choices instance
-                            if (accountGroupDD) {
-                                accountGroupDD.destroy();
-                                accountGroupDD = null;
-                            }
-
-                            // Clear old options
-                            select.innerHTML = '<option value="">Select Group...</option>';
-
-                            // Group data
-                            const grouped = {};
-                            results.forEach(sp => {
-                                const group = sp.groupName || 'No Group Found';
-                                if (!grouped[group]) {
-                                    grouped[group] = [];
-                                }
-                                grouped[group].push(sp);
-                            });
-
-                            // Build optgroups
-                            for (const group in grouped) {
-                                const optgroup = document.createElement('optgroup');
-                                optgroup.label = group;
-
-                                grouped[group].forEach(sp => {
-                                    const option = document.createElement('option');
-                                    option.value = sp.id;
-                                    option.text = sp.name;
-                                    optgroup.appendChild(option);
-                                });
-
-                                select.appendChild(optgroup);
-                            }
-
-                            // Re-initialize Choices.js
-                            accountGroupDD = new Choices(select, {
-                                removeItemButton: true,
-                                shouldSort: false,
-                                placeholderValue: 'Select Group...'
-                            });
-
-                            resolve();
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Error loading data:', error);
-                            reject(error);
-                        }
-                    });
-                })
-            }
-            // #endregion
-
-
-            // #region GetMainAccByClassIdGroupId
-            $('#GroupID').on('change', function (e) {
-                e.preventDefault();
-
-                var classId = $('#ClassID').val();
-                var groupId = $(this).val();
-
-                getMainAccByClassIdGroupId(classId, groupId);
-            });
-
-
-            function getMainAccByClassIdGroupId(classId, groupId) {
-                return new Promise((resolve, reject) => {
-                    $.ajax({
-                        url: getMainAccByClassIdGroupIdUrl,
-                        type: 'GET',
-                        data: {
-                            classId: classId,
-                            groupId: groupId
                         },
                         success: function (results) {
                             if (!mainAccDD) return resolve();
@@ -349,24 +269,22 @@
             // #endregion
 
 
-            // #region GetSubAccByClassIdGroupIdMainAccId
+            // #region getSubAccByClassIdMainAccId
             $('#MainAccountID').on('change', function (e) {
                 e.preventDefault();
 
                 var classId = $('#ClassID').val();
-                var groupId = $('#GroupID').val();
                 var mainAccId = $(this).val();
 
-                getSubAccByClassIdGroupIdMainAccId(classId, groupId, mainAccId);
+                getSubAccByClassIdMainAccId(classId, mainAccId);
             });
 
-            function getSubAccByClassIdGroupIdMainAccId(classId, groupId = null, mainAccId = null, subAccountId = null, skipGenerateNextCode = false) {
+            function getSubAccByClassIdMainAccId(classId, mainAccId = null, subAccountId = null, skipGenerateNextCode = false) {
                 $.ajax({
-                    url: getSubAccByClassIdGroupIdMainAccIdUrl,
+                    url: getSubAccByClassIdMainAccIdUrl,
                     type: 'GET',
                     data: {
                         classId: classId,
-                        groupId: groupId,
                         mainAccId: mainAccId
                     },
                     success: function (result) {
@@ -441,7 +359,7 @@
                 $.ajax({
                     url: generateNextCodeUrl,
                     type: 'GET',
-                    data: { mainAccId: subAccountId },
+                    data: { subAccountId: subAccountId },
                     success: function (result) {
                         $('#TrxAccCode').val(result);
                     },
@@ -481,11 +399,6 @@
                 }
                 initAccountClassDD();
 
-                if (accountGroupDD) {
-                    accountGroupDD.destroy();
-                }
-                initAccountGroupDD();
-
                 if (mainAccDD) {
                     mainAccDD.destroy();
                 }
@@ -508,17 +421,6 @@
             }
             document.addEventListener('DOMContentLoaded', initAccountClassDD);
             initAccountClassDD();
-
-
-            function initAccountGroupDD() {
-                accountGroupDD = new Choices('#GroupID', {
-                    removeItemButton: true,
-                    shouldSort: false,
-                    placeholderValue: 'Select Group...'
-                });
-            }
-            document.addEventListener('DOMContentLoaded', initAccountGroupDD);
-            initAccountGroupDD();
 
 
             function initMainAccDD() {
@@ -767,7 +669,6 @@
                                         <input type="checkbox" class="form-check-input trxAccount-selectItem" data-id="${item.trxAccID}" />
                                     </td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.className}</td>
-                                    <td class="align-middle white-space-nowrap ps-0">${item.groupName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.subAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.trxAccName}</td>
@@ -787,7 +688,7 @@
                             `);
                         });
                     } else {
-                        tableBody.append('<tr><td colspan="9" class="text-center">No data available</td></tr>');
+                        tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
                     }
 
                     var paginationInfo = response.paginationInfo;

@@ -1,340 +1,235 @@
 ﻿$(document).ready(function () {
 
-    //#region employeeChoices with onchange
+    var percentageOptionsHtml = $("#percentageOptionsTemplate").html();
+    
+    var lastInt = 0
 
-    let employeeChoices;
-    function initEmployeeChoices() {
-        employeeChoices = new Choices('#EmployeePersonalId', {
-            removeItemButton: true,
-            shouldSort: false,
-            placeholderValue: 'Select Employee'
-        });
-
-        const employeeElement = document.getElementById('EmployeePersonalId');
-        if (employeeElement) {
-            employeeElement.addEventListener('change', function (e) {
-                const selectedEmployeeId = e.detail.value || e.target.value;
-                if (selectedEmployeeId && selectedEmployeeId !== '') {
-                    loadEmployeeBenifitData(selectedEmployeeId);
-                    TabChange(selectedEmployeeId) // this function is located in EmployeeTabChange.js
-
-                } else {
-                    clearForm();
-                }
-            });
-
-           
-        }
-
-
-        //const lastInt = getLastIntFromUrl();
-        //if (lastInt) {
-        //    loadEmployeeBenifitData(lastInt);
-        //    TabChange(lastInt);
-        //}
-
-    }
-    document.addEventListener('DOMContentLoaded', initEmployeeChoices);
-    initEmployeeChoices();
-
-    //#endregion
-
-
+    console.log(percentageOptionsHtml);
     function getLastIntFromUrl() {
         const parts = window.location.pathname.split('/').filter(Boolean).reverse();
         return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
     }
 
-    //const lastInt = getLastIntFromUrl();
-    //console.log('Last int:', lastInt);
+    //#endregion
 
-    //if (lastInt) {
-    //    loadEmployeeContactData(lastInt);
-    //    TabChange(lastInt);
-    //}
+    $(document).ready(function () {
 
+        lastInt = getLastIntFromUrl();
+        if (lastInt) {
 
-
-
-    //#region Pupulate Data
-
-    // Static data for form population
-    const formData = {
-        company: ["1"], // Selecting CSL
-        isEmployeeAllowanceEnabled: true,
-        mobileAllowance: "1500 tk Monthly",
-        isMobileInternetAllowanceEnabled: true,
-        mobileAllowanceEffectiveFrom: "28/06/2025",
-        internetAllowance: "1000 tk Monthly",
-        isInternetAllowanceEnabled: true,
-        internetAllowanceEffectiveFrom: "01/12/2025",
-        isHouseRentAllowanceEnabled: true,
-        houseRentAllowancePercentage: "20",
-        isMedicalAllowanceEnabled: true,
-        medicalAllowancePercentage: "15",
-        isConveyanceAllowanceEnabled: true,
-        conveyanceAllowancePercentage: "10"
-    };
-
-    // Function to populate the form
-    function populateFormpp() {
-        // Company selection
-        $('#multiple-select-tag').val(formData.company).trigger('change');
-
-        // Employee Allowance toggle
-        $('#allowanceEnabled').prop('checked', formData.isEmployeeAllowanceEnabled);
-
-        // Mobile Allowance
-        $('#MobileAllowance').val(formData.mobileAllowance);
-        $('#mobileAllowanceEnabled').prop('checked', formData.isMobileInternetAllowanceEnabled);
-        $('#mobileAllowanceEffectiveFrom').val(formData.mobileAllowanceEffectiveFrom);
-
-        // Internet Allowance
-        $('#InternetAllowance').val(formData.internetAllowance);
-        $('#internetAllowanceEnabled').prop('checked', formData.isInternetAllowanceEnabled);
-        $('#internetAllowanceEffectiveFrom').val(formData.internetAllowanceEffectiveFrom);
-
-        // House Rent Allowance
-        $('#houseRentAllowanceEnabled').prop('checked', formData.isHouseRentAllowanceEnabled);
-        $('#HouseRentAllowancePercentage').val(formData.houseRentAllowancePercentage);
-
-        // Medical Allowance
-        $('#medicalAllowanceEnabled').prop('checked', formData.isMedicalAllowanceEnabled);
-        $('#MedicalAllowancePercentage').val(formData.medicalAllowancePercentage);
-
-        // Conveyance Allowance
-        $('#conveyanceAllowanceEnabled').prop('checked', formData.isConveyanceAllowanceEnabled);
-        $('#ConveyanceAllowancePercentage').val(formData.conveyanceAllowancePercentage);
-
-        // Reinitialize any select plugins if needed (e.g., CoreUI select)
-        if ($.fn.CoreUISelect) {
-            $('#multiple-select-tag').CoreUISelect('update');
+            TabChange(lastInt);
         }
 
-        // Trigger flatpickr update if needed
-        if ($('.datetimepicker').length) {
-            $('.datetimepicker').each(function () {
-                if (this._flatpickr) {
-                    this._flatpickr.setDate($(this).val(), true);
-                }
-            });
-        }
+        $('#EmployeeId').val(lastInt);
+        loadAllowanceTypes(lastInt);
+
+
+
+    });
+    function getPercentageOptionsHtml(selectedValue) {
+        let html = '';
+        $("#percentageOptionsTemplate option").each(function () {
+            const val = $(this).val();
+            const text = $(this).text();
+            html += `<option value="${val}" ${val == selectedValue ? 'selected' : ''}>${text}</option>`;
+        });
+        return html;
     }
 
-    //#endregion
- 
-
-   
 
 
 
-    //#region Submit Form
-    $('form').on('submit', function (e) {
+
+    $(document).on("change", ".fixedPercentageSelect", function () {
+        let $row = $(this).closest(".row");
+        let selected = $(this).val();
+
+        if (selected == "1") { // Fixed
+            $row.find(".fixedRateEditable").show().find("input").prop("disabled", false);
+            $row.find(".percentRateEditable").hide().find("select").prop("disabled", true);
+
+        } else if (selected == "2") { // Percentage
+            $row.find(".fixedRateEditable").hide().find("input").prop("disabled", true);
+            $row.find(".percentRateEditable").show().find("select").prop("disabled", false);
+
+        } else {
+            $row.find(".fixedRateEditable").hide().find("input").prop("disabled", true);
+            $row.find(".percentRateEditable").hide().find("select").prop("disabled", true);
+        }
+    });
+
+
+    function loadAllowanceTypes(id) {
+        $.ajax({
+            url: '/EmployeeAllowance/SelectAsync',
+            type: 'GET',
+            data: { id: id },
+            dataType: 'json',
+            success: function (res) {
+                console.log("Allowance Types Fetched:", res);
+
+                let accordionHtml = '';
+
+                if (res && res.length > 0) {
+                    accordionHtml += '<div class="accordion" id="accordionAllowance">';
+
+                    res.forEach(function (item, i) {
+                        let collapseId = `collapse-${i}`;
+                        let headingId = `heading-${i}`;
+                        let isFirst = i === 0;
+                        let buttonClass = isFirst ? "accordion-button" : "accordion-button collapsed";
+                        let collapseClass = isFirst ? "accordion-collapse collapse show" : "accordion-collapse collapse";
+                        let ariaExpanded = isFirst.toString();
+
+                        // Get employee benefit
+                        let benefit = (item.empBenefitVMM && item.empBenefitVMM.length > 0) ? item.empBenefitVMM[0] : null;
+
+                        let benefitId = benefit ? benefit.benefitID : 0;
+                        let calculationType = benefit ? benefit.calculationTypeID : "";
+                        let value = benefit ? benefit.value : "";
+
+                        //
+                        let baseCalculationType = benefit ? benefit.baseCalculationTypeID : "";
+                        let baseValue = benefit ? benefit.baseValue : "";
+                        //
+                        accordionHtml += `
+                                    <div class="accordion-item">
+                                     
+    <h2 class="accordion-header" id="${headingId}">
+        <button class="${buttonClass}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}"
+            aria-expanded="${ariaExpanded}" aria-controls="${collapseId}">
+            ${item.name}
+        </button>
+    </h2>
+
+    <div id="${collapseId}" class="${collapseClass}" aria-labelledby="${headingId}">
+        <div class="accordion-body">
+            <div class="card shadow-sm rounded-3 mb-1">
+                <div class="card-body">
+                    <input type="hidden" name="Benefits[${i}].BenefitTypeID" value="${item.id}" />
+                    <input type="hidden" name="Benefits[${i}].BenefitID" value="${benefitId}" />
+
+                    <div class="row g-3 align-items-center">
+
+                        <!-- LEFT SIDE: EDITABLE (8 columns) -->
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <select class="form-select fixedPercentageSelect" name="Benefits[${i}].BaseCalculationTypeID">
+                                <option value="">Select One</option>
+                                <option value="1" ${baseCalculationType == 1 ? "selected" : ""}>Fixed</option>
+                                <option value="2" ${baseCalculationType == 2 ? "selected" : ""}>Percentage</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6 col-sm-12 fixedRateEditable" style="display:${baseCalculationType == 1 ? 'block' : 'none'};">
+                            <input type="text" class="form-control fixedInput integerOnly" name="Benefits[${i}].BaseValue" placeholder="Enter Fixed Rate" value="${baseCalculationType == 1 ? baseValue : ''}" ${baseCalculationType == 1 ? "" : "disabled"}>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6 col-sm-12 percentRateEditable" style="display:${baseCalculationType == 2 ? 'block' : 'none'};">
+                            <select class="form-select percentInput"
+                name="Benefits[${i}].BaseValue" ${baseCalculationType == 2 ? "" : "disabled"}>
+              <option value="">Select %</option>${getPercentageOptionsHtml(baseValue)}
+                </select>
+                        </div>
+
+                        <!-- RIGHT SIDE: READONLY (4 columns) -->
+                        <div class="col-lg-2 col-md-6 col-sm-12">
+                            
+                            <select class="form-select" disabled>
+                                <option value="1" ${calculationType == 1 ? "selected" : ""}>Fixed</option>
+                                <option value="2" ${calculationType == 2 ? "selected" : ""}>Percentage</option>
+                            </select>
+                           
+
+                           
+                        </div>  
+                        
+                        <div class="col-lg-2 col-md-6 col-sm-12 fixedRate" style="display:${calculationType == 1 ? 'block' : 'none'};">
+                            <input type="text" class="form-control fixedInput" disabled 
+                                   placeholder="Enter Fixed Rate" value="${calculationType == 1 ? value : ''}">
+                        </div>
+                         <div class="col-lg-2 col-md-6 col-sm-12 percentRate" style="display:${calculationType == 2 ? 'block' : 'none'};">
+                            <select class="form-select percentInput" disabled>
+                                <option value="">Select %</option>
+                                ${getPercentageOptionsHtml(value)}
+                            </select>
+                        </div>
+
+                    </div> <!-- row -->
+
+                </div> <!-- card-body -->
+            </div> <!-- card -->
+        </div> <!-- accordion-body -->
+    </div>
+</div>
+`;
+                    });
+
+                    accordionHtml += '</div>';
+                } else {
+                    accordionHtml = '<p class="text-warning">No allowance found for this employee.</p>';
+                }
+
+                $('#EmployeeAllowanceAccordion').html(accordionHtml);
+                // showHide();
+            },
+            error: function (err) {
+                console.error("Error fetching allowance types:", err);
+            }
+        });
+    }
+
+    
+
+
+    $(document).on("input", ".integerOnly", function () {
+        let oldValue = this.value;
+        let newValue = oldValue.replace(/[^0-9]/g, '');
+
+        if (oldValue !== newValue) {
+            toastr.warning("Only numbers are allowed!");
+            this.value = newValue;
+        }
+    });
+
+
+
+    $("#EmployeeAllowanceForm").on("submit", function (e) {
         e.preventDefault();
 
-        var form = $(this);
-        var formData = new FormData(form[0]);
+        var formData = $(this).serializeArray();
+        formData.push({ name: "EmployeeId", value: lastInt });
 
         $.ajax({
-            url: form.attr('action'),
-            type: form.attr('method'),
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                if (response.success) {
-                    toastr.success(response.message || 'Employee allowance saved successfully.');
-                    window.location.href = '/EmployeeAdditional/Index/' + response.data;
+            url: $(this).attr("action"),
+            type: "POST",
+            data: $.param(formData),
+            success: function (res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    loadAllowanceTypes(lastInt);
                 } else {
-                    toastr.error('Error saving employee allowance');
-                    console.error(response.message);
+                    toastr.error(res.message);
                 }
             },
-            error: function (xhr) {
-                if (xhr.status === 400 && xhr.responseJSON) {
-                    var errors = xhr.responseJSON;
-                    for (var field in errors) {
-                        if (errors.hasOwnProperty(field)) {
-                            toastr.error(errors[field][0]);
-                        }
-                    }
-                } else {
-                    toastr.error('Failed to save employee allowance. Please try again.');
-                }
+            error: function (err) {
+                toastr.error("Something went wrong!");
+                console.error("Save error:", err);
             }
         });
     });
-    //#endregion
 
-    //#region Clear Form And Load Form
-    function loadEmployeeBenifitData(selectedEmployeeId) {
-        $.ajax({
-            url: '/EmployeeAllowance/GetEmployeeAllowance',
-            type: 'GET',
-            data: { employeeId: selectedEmployeeId },
-            success: function (data) {
-                if (data) {
-                     populateForm(data);
-                   // populateFormpp();
-                }
-            },
-            error: function () {
-                toastr.error('Failed to load employee allowance data.');
-            }
-        });
-    }
-
-    function populateForm(data) {
-        console.log('populate form', data);
-        
-        // Basic fields
-        $('#EmployeeBaseAllowanceID').val(data.employeeBaseAllowanceID || 0);
-        $('#PersonalEmail').val(data.personalEmail || '');
-        $('#PersonalPhone').val(data.personalPhone || '');
-
-        choiceManager.setChoiceValue('organizationDD', data.organizationID || ''); // Assuming choiceManager is defined globally
-
-        // Main allowance toggle
-        $('#allowanceEnabled').prop('checked', data.isEmployeeAllowanceEnabled || false);
-
-        // Mobile Allowance
-        $('#MobileAllowance').val(data.mobileAllowance || '');
-        $('#mobileAllowanceEnabled').prop('checked', data.isMobileAllowanceEnabled || false);
-
-        // Internet Allowance  
-        $('#InternetAllowance').val(data.internetAllowance || '');
-        $('#internetAllowanceEnabled').prop('checked', data.isInternetAllowanceEnabled || false);
-
-        // Effective dates - handle null values properly
-        if (data.mobileAllowanceEffectiveFrom) {
-          //  $('#mobileAllowanceEffectiveFrom').val(moment(data.mobileAllowanceEffectiveFrom).format('DD/MM/YYYY'));
-            $('#mobileAllowanceEffectiveFrom').val(data.mobileAllowanceEffectiveFrom);
-           // $('#mobileAllowanceEffectiveFrom').val(formData.mobileAllowanceEffectiveFrom);
-
-        } else {
-            $('#mobileAllowanceEffectiveFrom').val('');
-        }
-
-        if (data.internetAllowanceEffectiveFrom) {
-           // $('#internetAllowanceEffectiveFrom').val(moment(data.internetAllowanceEffectiveFrom).format('DD/MM/YYYY'));
-            $('#internetAllowanceEffectiveFrom').val(data.internetAllowanceEffectiveFrom);
-           // $('#internetAllowanceEffectiveFrom').val(formData.internetAllowanceEffectiveFrom);
-
-
-        } else {
-            $('#internetAllowanceEffectiveFrom').val('');
-        }
-
-        // Shift Allowance
-        $('#ShiftAllowance').val(data.shiftAllowance || '');
-        $('#shiftAllowanceEnabled').prop('checked', data.isShiftAllowanceEnabled || false);
-
-        // House Rent Allowance
-        if (data.houseRentAllowancePercentage && globalChoices['HouseRentAllowancePercentage']) {
-            globalChoices['HouseRentAllowancePercentage'].setChoiceByValue(data.houseRentAllowancePercentage.toString());
-        }
-        $('#houseRentAllowanceEnabled').prop('checked', data.isHouseRentAllowancePercentageEnabled || false);
-
-        // Medical Allowance
-        if (data.medicalAllowancePercentage && globalChoices['MedicalAllowancePercentage']) {
-            globalChoices['MedicalAllowancePercentage'].setChoiceByValue(data.medicalAllowancePercentage.toString());
-        }
-        $('#medicalAllowanceEnabled').prop('checked', data.isMedicalAllowancePercentageEnabled || false);
-
-        // Conveyance Allowance
-        if (data.conveyanceAllowancePercentage && globalChoices['ConveyanceAllowancePercentage']) {
-            globalChoices['ConveyanceAllowancePercentage'].setChoiceByValue(data.conveyanceAllowancePercentage.toString());
-        }
-        $('#conveyanceAllowanceEnabled').prop('checked', data.isConveyanceAllowancePercentageEnabled || false);
-
-        if ($('.datetimepicker').length) {
-            $('.datetimepicker').each(function () {
-                if (this._flatpickr) {
-                    this._flatpickr.setDate($(this).val(), true);
-                }
-            });
-        }
-    }
-
-    function clearForm() {
-        $('form')[0].reset();
-        $('#EmployeeBaseAllowanceID').val(0);
-
-        choiceManager.clearChoice('organizationDD')
-
-        // Clear all choice dropdowns
-        clearChoiceDD('HouseRentAllowancePercentage');
-        clearChoiceDD('MedicalAllowancePercentage');
-        clearChoiceDD('ConveyanceAllowancePercentage');
-
-        // Uncheck all switches
-        $('input[type="checkbox"]').prop('checked', false);
-    }
-    //#endregion
-
-
-   
-
-    //#region Choice dropdowns
-
-    //let conveyanceAllowancePercentageChoices;
-    //function initConveyanceAllowancePercentageChoices() {
-    //    conveyanceAllowancePercentageChoices = new Choices('#ConveyanceAllowancePercentage', {
-    //        removeItemButton: true,
-    //        shouldSort: false,
-    //        placeholderValue: 'Select Year'
-    //    });
-    //}
-    //document.addEventListener('DOMContentLoaded', initConveyanceAllowancePercentageChoices);
-    //initConveyanceAllowancePercentageChoices();
-
+    // End Iniatially Loaded 
 
 
 
     //#endregion
 
-    //#region Universal choice
-
-    let globalChoices = {}; 
-
-    function InitChoiceDD(elementId, config = {}) {
-        globalChoices[elementId] = new Choices(`#${elementId}`, {
-            removeItemButton: true,
-            shouldSort: false,
-            placeholderValue: 'Select an option',
-            ...config
-        });
-        return globalChoices[elementId];
-    }
-
-    
-    InitChoiceDD('ConveyanceAllowancePercentage', { placeholderValue: 'Select %' });
-    InitChoiceDD('MedicalAllowancePercentage', { placeholderValue: 'Select %' });
-    InitChoiceDD('HouseRentAllowancePercentage', { placeholderValue: 'Select %' });
-
- 
-
-    //#endregion
-
-    //#region Clear Coice
-
-    //clearChoiceDD('ConveyanceAllowancePercentage');
-    function clearChoiceDD(elementId) {
-        const choicesInstance = globalChoices[elementId];
-
-        if (choicesInstance) {
-            choicesInstance.removeActiveItems();
-            choicesInstance.setChoiceByValue('');
-            $(`#${elementId}`).val('').trigger('change');
-        } else {
-            $(`#${elementId}`).val('').trigger('change');
-        }
-    }
-
-    
 
 
-
-    //#endregion
 
 });
+
+
+
+
+

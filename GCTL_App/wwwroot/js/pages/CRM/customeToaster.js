@@ -74,7 +74,8 @@
 //    };
 //})();
 
-//v1.3
+// v1.3
+// e43
 const customToaster = (() => {
     const durationDefault = 3000;
     const toaster = document.getElementById("customToaster");
@@ -89,22 +90,22 @@ const customToaster = (() => {
         let iconHTML = "";
         switch (type) {
             case "success":
-                iconHTML = `<img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" class="toast-icon" alt="success">`;
+                iconHTML = `<img src="/media/costomTosterImg/tickmark.png" class="toast-icon" alt="success">`;
                 break;
             case "error":
-                iconHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1828/1828665.png" class="toast-icon" alt="error">`;
+                iconHTML = `<img src="/media/costomTosterImg/cross.png" class="toast-icon" alt="error">`;
                 break;
             case "loading":
                 iconHTML = `<div class="spinner"></div>`;
                 break;
             case "info":
-                iconHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" class="toast-icon" alt="info">`;
+                iconHTML = `<img src="/media/costomTosterImg/star.png" class="toast-icon" alt="info">`;
                 break;
             case "warning":
-                iconHTML = `<img src="https://cdn-icons-png.flaticon.com/512/189/189792.png" class="toast-icon spin" alt="warning">`;
+                iconHTML = `<img src="/media/costomTosterImg/circle.png" class="toast-icon spin" alt="warning">`;
                 break;
             case "alert":
-                iconHTML = `<img src="https://cdn-icons-png.flaticon.com/512/1827/1827349.png" class="toast-icon" alt="alert">`;
+                iconHTML = `<img src="/media/costomTosterImg/alarm.png" class="toast-icon" alt="alert">`;
                 break;
         }
         toaster.innerHTML = `${iconHTML}<span>${message}</span>`;
@@ -117,7 +118,7 @@ const customToaster = (() => {
         return new Promise(resolve => {
             confirmMessage.textContent = message;
             modalIcon.classList.remove("spin");
-            modalIcon.src = "https://cdn-icons-png.flaticon.com/512/189/189792.png";
+            modalIcon.src = "/media/costomTosterImg/circle.png";
             modalIcon.classList.add("spin");
             modal.classList.add("active");
 

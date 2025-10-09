@@ -8,6 +8,7 @@ namespace GCTL.Core.ViewModels.CRM
 {
     public class CreateTeamVM : BaseViewModel
     {
+        public int TeamID { get; set; }
         public string TeamName { get; set; }
         public List<int>? EmployeeIds { get; set; }
     }

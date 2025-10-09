@@ -319,7 +319,9 @@
 
     
 
-    $('form').on('submit', function (e) {
+  
+   // $('form').on('submit', function (e) {
+    $('#educationFrom').on('submit', function (e) {
         e.preventDefault();
 
         const fields = ["EmployeePersonalId" ];
