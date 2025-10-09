@@ -6,7 +6,17 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
 {
-    public class PayRollEmpSalarySaveVM
+    public class PayRollEmpSalarySaveVM:BaseViewModel
     {
+
+        public int? EmployeeID { get; set; }
+
+        public DateOnly PayPeriodStart { get; set; }
+
+        public DateOnly PayPeriodEnd { get; set; }
+
+        public decimal BasicSalary { get; set; }
+
+        public bool? IsPaid { get; set; }
     }
 }

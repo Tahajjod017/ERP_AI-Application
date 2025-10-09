@@ -19,7 +19,6 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
         public decimal HRA { get; set; }
         public decimal DA { get; set; }
         public decimal SpecialAllowance { get; set; }
-        public decimal Bonus { get; set; }
         public decimal TotalEarnings { get; set; }
         public decimal ProvidentFund { get; set; }
         public decimal ProfessionalTax { get; set; }

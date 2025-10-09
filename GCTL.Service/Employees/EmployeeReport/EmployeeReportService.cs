@@ -128,10 +128,6 @@ namespace GCTL.Service.Employees.EmployeeReport
                                 
                             });
 
-
-
-
-
                             // Content
                             page.Content().Column(column =>
                             {

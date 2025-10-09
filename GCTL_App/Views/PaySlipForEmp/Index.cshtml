@@ -3,13 +3,13 @@
     DateTime date = DateTime.Now;
 }
 <div class="mb-9 mt-1">
-
+    <button type="button" id="PaySlipSave" class="btn-outline-info">Pay Slip Save</button>
     <div class="card p-4">
         <div class="invoice-wrapper">
             <div class="d-flex justify-content-center">
                 <span class="h4">Payslip for the month of @date.ToString("MMMM yyyy")</span>
             </div>
-            <input id="EmployeeID" value="@employeeId" type="hidden"/>
+            <input id="EmployeeID" value="@employeeId" type="hidden" />
             <div class="payment-info">
                 <div class="row border-bottom">
                     <div class="col-sm-6 mb-3">
@@ -17,7 +17,8 @@
                     </div>
                     <div class="col-sm-6 text-end">
                         <span>Payment Date</span>
-                        <strong>@date.ToString("MMM dd, yyyy - hh:mm tt")</strong>
+                        <strong id="paymentDateTime"></strong>
+                       @*  <strong>@date.ToString("MMM dd, yyyy - hh:mm tt")</strong> *@
                     </div>
                 </div>
             </div>
@@ -33,7 +34,7 @@
                         <span>Payment To</span>
                         <strong id="empName"></strong>
                         <p id="empAddress">
-                           
+
                         </p>
                     </div>
                 </div>
@@ -51,19 +52,15 @@
                                             <span class=" me-2 float-end" id="BasicSalary"></span>
                                         </td>
                                     </tr>
-                                    
+
                                 <tbody id="allowanceTable"></tbody>
-                              @*       <tr>
-                                        <td>
-                                            <strong class="ms-2">Bonus</strong><span class="me-2 float-end">-</span>
-                                        </td>
-                                    </tr> *@
+
                                 <tbody id="benefitTable"></tbody>
-                                    <tr>
-                                        <td>
+                                <tr>
+                                    <td>
                                         <strong class="ms-2">Total Earnings</strong><span class="me-2 float-end"><strong id="TotalSalary"></strong></span>
-                                        </td>
-                                    </tr>
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -134,5 +131,5 @@
     }
 
     <script src="~/js/pages/payrollmanagements/PayRollPolicy/PaySlipForEmp.js"></script>
-    
+
 }

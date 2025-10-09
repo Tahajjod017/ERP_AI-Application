@@ -1,12 +1,15 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary;
 using GCTL.Data.Models;
+using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Index.HPRtree;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -15,6 +18,8 @@ using System.Linq.Expressions;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using static Dapper.SqlMapper;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 {
@@ -25,12 +30,13 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         private readonly IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository;
         private readonly IGenericRepository<EmployeeAllowances> employeeAllowancesRepository; 
         private readonly IGenericRepository<EmployeeBaseAllowances> _employeeBaseAllowancesRepository;
-
         private readonly IGenericRepository<Benefits> benefitsRepository;
         private readonly IGenericRepository<BenefitSetups> benefitSetupsRepository;
         private readonly IGenericRepository<BenefitTypes> benefitType;
         private readonly IGenericRepository<EmployeeBaseBenefits> _employeeBaseBenefitsRepository;
-        public PayRollEmploSalaryService(IGenericRepository<EmployeeBaseBenefits> employeeBenefitsRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository, IGenericRepository<EmployeeAllowances> employeeAllowancesRepository, IGenericRepository<EmployeeBaseAllowances> employeeBaseAllowancesRepository, IGenericRepository<Benefits> benefitsRepository, IGenericRepository<BenefitSetups> benefitSetupsRepository , IGenericRepository<BenefitTypes> benefitType)
+        private readonly IUserInfoService userInfoService;
+        private readonly IGenericRepository<PaySlips> paySlipsRepository;
+        public PayRollEmploSalaryService(IGenericRepository<EmployeeBaseBenefits> employeeBenefitsRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository, IGenericRepository<EmployeeAllowances> employeeAllowancesRepository, IGenericRepository<EmployeeBaseAllowances> employeeBaseAllowancesRepository, IGenericRepository<Benefits> benefitsRepository, IGenericRepository<BenefitSetups> benefitSetupsRepository, IGenericRepository<BenefitTypes> benefitType, IUserInfoService userInfoService, IGenericRepository<PaySlips> paySlipsRepository)
         {
             _employeeBaseBenefitsRepository = employeeBenefitsRepository;
             _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
@@ -41,34 +47,51 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             this.benefitsRepository = benefitsRepository;
             this.benefitSetupsRepository = benefitSetupsRepository;
             this.benefitType = benefitType;
+            this.userInfoService = userInfoService;
+            this.paySlipsRepository = paySlipsRepository;
         }
 
         #region Get All Table 
-        public async Task<PaginationService<EmployeeSalarySettings, PayRollEmpSalaryGetAllVM>.PaginationResult<PayRollEmpSalaryGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null, string imgSrcThumb = null)
+        public async Task<PaginationService<EmployeeSalarySettings, PayRollEmpSalaryGetAllVM>.PaginationResult<PayRollEmpSalaryGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null, string imgSrcThumb = null, List<int>? deptID = null,List<int>? empID = null)
         {
             try
             {
-                // 🔹 Step 3: Base query with includes
-                var query = employeeSalarySettingsRepository.AllActive().Include(x => x.Employee).OrderByDescending(x => x.EmployeeID).AsQueryable();
+                
+                var query = employeeSalarySettingsRepository.AllActive().Include(x => x.Employee)
+                    .ThenInclude(e => e.EmployeeOfficeInfoEmployee).ThenInclude(o => o.Department).AsQueryable();
                 if (query == null)
                 {
                     throw new InvalidOperationException("query source is null.");
                 }
 
-                //if (organizationId.HasValue)
-                //{
+                if (organizationId.HasValue)
+                {
+                    query = query.Where(x => x.Employee.EmployeeOfficeInfoEmployee.Any(o => o.OrganizationID == organizationId.Value));
+                }
+                if (empID != null && empID.Any())
+                {
+                    query = query.Where(x => empID.Contains((int)x.EmployeeID));
+                }
 
-                //    query = query.Where(x => x.OrganizationID == organizationId);
-                //}
+                if (deptID != null && deptID.Any())
+                {
+                    query = query.Where(x => _employeeOfficeInfoRepository.AllActive()
+                        .Any(eo => eo.EmployeeID == x.EmployeeID && deptID.Contains((int)eo.DepartmentID)));
+                }
+
                 Expression<Func<EmployeeBaseBenefits, object>> orderByExpression = currentSortColumn?.ToLower() switch
                 {
-                    //"companyname" => x => x.Organization.OrganizationName,
+                    "empid" => x => x.EmployeeID,
+                     "empname" => x => x.Employee.FirstName + " " + x.Employee.LastName,
+                    "empdept" => x => _employeeOfficeInfoRepository.AllActive().Where(e => e.EmployeeID == x.EmployeeID)
+                                    .Select(d => d.Department.DepartmentName) .FirstOrDefault(),
+                    "empsalary" => x => employeeSalarySettingsRepository.AllActive().Where(e => e.EmployeeID == x.EmployeeID).Select(x => x.Salary).FirstOrDefault(),
                     
                     _ => x => x.EmployeeID
                 };
-                
 
-                var result = await PaginationService< EmployeeSalarySettings, PayRollEmpSalaryGetAllVM>.GetPaginatedData(
+
+                var result = await PaginationService<EmployeeSalarySettings, PayRollEmpSalaryGetAllVM>.GetPaginatedData(
                     query,
                     pageNumber,
                     pageSize,
@@ -86,24 +109,39 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                          EmpDepartment = _employeeOfficeInfoRepository.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
                          Salary = employeeSalarySettingsRepository.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Select(x => x.Salary).FirstOrDefault(),
                          //Deduction = CalculateDeduction(b.EmployeeID),
-                         
+
 
                      });
+                
                 foreach (var item in result.Data)
                 {
-                    var paySlip = await GetPaySlip((int)item.EmployeeId);
-                    item.Bonus = (paySlip.Data as PayRollPaySlipEmpVM)?.TotalBonus ?? 0;
-                    item.NetSalary= (paySlip.Data as PayRollPaySlipEmpVM)?.TotalSalary ?? employeeSalarySettingsRepository.AllActive().Where(e => e.EmployeeID == item.EmployeeId).Select(x => x.Salary).FirstOrDefault();
+                    try
+                    {
+                        var paySlip = await GetPaySlip((int)item.EmployeeId);
+                        var a = paySlip.Data as PayRollPaySlipEmpVM;
+                        item.Bonus = a?.TotalBonus ?? 0;
+                        item.NetSalary = a?.TotalSalary
+                            ?? employeeSalarySettingsRepository
+                                .AllActive()
+                                .Where(e => e.EmployeeID == item.EmployeeId)
+                                .Select(x => x.Salary)
+                                .FirstOrDefault();
+                    }
+                    catch (Exception exRow)
+                    {
+                        // 🔹 Specific error log for this employee
+                        await userInfoService.ActionLogExceptionAsync("Pay Slip Row", exRow, item.EmployeeId, ActionName.Error);
+                    }
                 }
-
                 return result;
-                
+
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error : {ex.Message}");
 
+                await userInfoService.ActionLogExceptionAsync("Pay Slip Table", ex, null, ActionName.Error);
                 return new PaginationService<EmployeeSalarySettings, PayRollEmpSalaryGetAllVM>.PaginationResult<PayRollEmpSalaryGetAllVM>
                 {
                     Data = new List<PayRollEmpSalaryGetAllVM>(),
@@ -117,8 +155,62 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         //
         #endregion
 
+
+        #region Save PaySlip
+        public async Task<CommonReturnViewModel> SaveAsync(PayRollEmpSalarySaveVM entityVM)
+        {
+            var result = new CommonReturnViewModel();
+            int pk = 0;
+            if (entityVM == null)
+            {
+                result.Success = false;
+                result.Message = "Invalid payslip data!";
+                return result;
+            }
+            decimal? basicsalary = await employeeSalarySettingsRepository.AllActive()
+                    .Where(x => x.EmployeeID ==entityVM.EmployeeID).Select(x => x.Salary) .FirstOrDefaultAsync();
+            await paySlipsRepository.BeginTransactionAsync();
+
+            try
+            {
+                
+                var entity = new PaySlips
+                {
+                    EmployeeID = entityVM.EmployeeID,
+                    BasicSalary = (decimal)basicsalary,
+                    PayPeriodStart = entityVM.PayPeriodStart,
+                    PayPeriodEnd = entityVM.PayPeriodEnd,
+                    IsPaid = entityVM.IsPaid,
+                    LIP = entityVM.LIP,
+                    LMAC = entityVM.LMAC,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = entityVM.CreatedBy,
+                };
+
+                await paySlipsRepository.AddAsync(entity);
+                await paySlipsRepository.CommitTransactionAsync();
+                pk=entity.PaySlipID;
+                await userInfoService.ActionLogAsync("Pay Slip Save", ActionName.DataAdd, null, entity, entity.PaySlipID, entityVM);
+                result.Success = true;
+                result.Message = "Payslip saved successfully!";
+                result.Data = entity; 
+            }
+            catch (Exception ex)
+            {
+                await paySlipsRepository.RollbackTransactionAsync();
+                result.Success = false;
+                result.Message = ex.Message;
+                result.Errors.Add(ex.Message);
+                await userInfoService.ActionLogExceptionAsync("Pay Slip Save", ex, pk, ActionName.Error);
+            }
+
+            return result;
+        }
+        #endregion
+
+
         #region Get PaySlip 
-       
+
         public async Task<CommonReturnViewModel> GetPaySlip(int id)
         {
             try
@@ -166,12 +258,12 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                         if (baseBenefit.CalculationTypeID == 1) // Percentage
                         {
                             benefitSalary = (decimal)(basicsalary * (baseBenefit.BenefitValue ?? 0) / 100);
-                            display = $"{baseBenefit.BenefitValue}%";
+                            display = $"{(baseBenefit.BenefitValue ?? 0).ToString("0")}%";
                         }
                         else // Fixed
                         {
                             benefitSalary = (decimal)(basicsalary * (baseBenefit.BenefitValue ?? 0) / 100);
-                            display = $"{baseBenefit.BenefitValue ?? 0}%";
+                            display = $"{Math.Floor(baseBenefit.BenefitValue ?? 0)}%";
                         }
 
                         benefitsVMs.Add(new BeneFitsVM
@@ -208,12 +300,12 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                             if (setup.CalculationTypeID == 1) // Percentage
                             {
                                 benefitSalary = (decimal)(basicsalary * (setup.Value ?? 0) / 100);
-                                display = $"{setup.Value}%";
+                                display = $"{(setup.Value ?? 0).ToString("0")}%";
                             }
                             else // Fixed
                             {
                                 benefitSalary = (decimal)(basicsalary * (setup.Value ?? 0) / 100);
-                                display = $"{setup.Value ?? 0}%";
+                                display = $"{Math.Floor(setup.Value ?? 0)}%";
                             }
 
                             benefitsVMs.Add(new BeneFitsVM
@@ -245,12 +337,13 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     if (baseAllowances.CalculationTypeID == 1) // Percentage
                     {
                         allowanceSalary = (decimal)(basicsalary * (baseAllowances.AllowanceValue ?? 0) / 100);
-                        display = $"{baseAllowances.AllowanceValue}%";
+                       // display = $"{baseAllowances.AllowanceValue}%";
+                        display = $"{(baseAllowances.AllowanceValue ?? 0).ToString("0")}%"; // ✅ fixed
                     }
                     else // Fixed
                     {
                         allowanceSalary = (decimal)(basicsalary * (baseAllowances.AllowanceValue ?? 0) / 100);
-                        display = $"{baseAllowances.AllowanceValue ?? 0}%";
+                        display = $"{Math.Floor( baseAllowances.AllowanceValue ?? 0)}%";
                     }
 
                     allowanceVMs.Add(new AllowanceVM
@@ -285,12 +378,13 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                             if (setup.CalculationType?.CalculationTypeName == "Percentage")
                             {
                                 allowanceSalary = (decimal)(basicsalary * (setup.Value ?? 0) / 100);
-                                display = $"{setup.Value}%";
+                               // display = $"{setup.Value}%";
+                                display = $"{(setup.Value ?? 0).ToString("0")}%"; // ✅ fixed
                             }
                             else // Fixed
                             {
                                 allowanceSalary = (decimal)(basicsalary*(setup.Value ?? 0)/100);
-                                display = $"{setup.Value ?? 0}%";
+                                display = $"{Math.Floor( setup.Value ?? 0)}%";
                             }
 
                             allowanceVMs.Add(new AllowanceVM
@@ -337,6 +431,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             }
             catch (Exception ex)
             {
+                await userInfoService.ActionLogExceptionAsync("Pay Slip according to EmpoyeeID", ex, id, ActionName.Error);
                 return new CommonReturnViewModel
                 {
                     Success = false,
@@ -345,7 +440,8 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             }
         }
 
-        
+       
+
         #endregion
 
         public static class NumberToWordsConverter
