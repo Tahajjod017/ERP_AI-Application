@@ -39,12 +39,12 @@ namespace GCTL.Service.Finance.AddMainAccount
             {
                 await _genericRepository.BeginTransactionAsync();
 
-                var exixtingEntity = await _genericRepository.FirstOrDefaultAsync(x => x.MainAccountName.ToLower() == model.MainAccountName.ToLower() && x.ClassID == model.ClassID && x.DeletedAt != null);
+                var exixtingEntity = await _genericRepository.FirstOrDefaultAsync(x => x.MainAccountName.Trim().ToLower() == model.MainAccountName.Trim().ToLower() && x.ClassID == model.ClassID && x.DeletedAt != null);
                 if (exixtingEntity != null)
                 {
                     exixtingEntity.ClassID = (int)model.ClassID;
-                    exixtingEntity.MainAccountCode = model.MainAccountCode;
-                    exixtingEntity.MainAccountName = model.MainAccountName;
+                    exixtingEntity.MainAccountCode = model.MainAccountCode.Trim();
+                    exixtingEntity.MainAccountName = model.MainAccountName.Trim();
                     exixtingEntity.Description = model.Description;
 
                     exixtingEntity.CreatedAt = DateTime.UtcNow;
@@ -64,8 +64,8 @@ namespace GCTL.Service.Finance.AddMainAccount
                 {
                     MainAccounts entity = new MainAccounts();
                     entity.ClassID = (int)model.ClassID;
-                    entity.MainAccountCode = model.MainAccountCode;
-                    entity.MainAccountName = model.MainAccountName;
+                    entity.MainAccountCode = model.MainAccountCode.Trim();
+                    entity.MainAccountName = model.MainAccountName.Trim();
                     entity.Description = model.Description;
 
                     entity.CreatedAt = DateTime.UtcNow;
@@ -115,8 +115,8 @@ namespace GCTL.Service.Finance.AddMainAccount
 
                 var beforeEntity = JsonConvert.DeserializeObject<UpdateAddMainAccountVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
-                entity.MainAccountCode = model.MainAccountCode;
-                entity.MainAccountName = model.MainAccountName;
+                entity.MainAccountCode = model.MainAccountCode.Trim();
+                entity.MainAccountName = model.MainAccountName.Trim();
                 entity.Description = model.Description;
 
                 entity.UpdatedAt = DateTime.UtcNow;
@@ -152,7 +152,7 @@ namespace GCTL.Service.Finance.AddMainAccount
         {
             try
             {
-                var query = _genericRepository.AllActive().Include(x => x.Class).ThenInclude(x => x.BaseAccount).Where(x => x.DeletedAt == null && x.DeletedBy == null);
+                var query = _genericRepository.AllActive().Include(x => x.Class).Where(x => x.DeletedAt == null && x.DeletedBy == null);
 
                 if(classId != null)
                 {
@@ -164,7 +164,6 @@ namespace GCTL.Service.Finance.AddMainAccount
                     query = sortColumn switch
                     {
                         "MainAccountID" => sortOrder == "desc" ? query.OrderByDescending(x => x.MainAccountID) : query.OrderBy(x => x.MainAccountID),
-                        "BaseAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Class.BaseAccount.BaseAccountName) : query.OrderBy(x => x.Class.BaseAccount.BaseAccountName),
                         "ClassName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Class.ClassName) : query.OrderBy(x => x.Class.ClassName),
                         "MainAccountCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.MainAccountCode) : query.OrderBy(x => x.MainAccountCode),
                         "MainAccountName" => sortOrder == "desc" ? query.OrderByDescending(x => x.MainAccountName) : query.OrderBy(x => x.MainAccountName),
@@ -177,13 +176,10 @@ namespace GCTL.Service.Finance.AddMainAccount
                     term => x => EF.Functions.Like(x.MainAccountCode, $"%{term}%") 
                     || EF.Functions.Like(x.MainAccountName, $"%{term}%") 
                     || EF.Functions.Like(x.Class.ClassName, $"%{term}%") 
-                    || EF.Functions.Like(x.Class.BaseAccount.BaseAccountName, $"%{term}%") 
                     || EF.Functions.Like(x.Description, $"%{term}%"),
                     x => new GetAllAddMainAccountVM
                     {
                         MainAccountID = x.MainAccountID,
-                        BaseAccountID = x.Class.BaseAccountID,
-                        BaseAccountName = x.Class.BaseAccount.BaseAccountName ?? "-",
                         ClassID = x.ClassID,
                         ClassName = x.Class.ClassName ?? "-",
                         MainAccountCode = x.MainAccountCode ?? "-",
@@ -212,7 +208,6 @@ namespace GCTL.Service.Finance.AddMainAccount
                 return new GetByIdAddMainAccountVM
                 {
                     MainAccountID = data.MainAccountID,
-                    BaseAccountID = data.Class.BaseAccountID,
                     ClassID = data.ClassID,
                     MainAccountCode = data.MainAccountCode ?? "-",
                     MainAccountName = data.MainAccountName ?? "-",
@@ -279,7 +274,7 @@ namespace GCTL.Service.Finance.AddMainAccount
         {
             try
             {
-                name = name.ToLower();
+                name = name.Trim().ToLower();
                 var query = _genericRepository.AllActive();
 
                 if (excludeId.HasValue)
@@ -287,7 +282,7 @@ namespace GCTL.Service.Finance.AddMainAccount
                     query = query.Where(x => x.MainAccountID != excludeId.Value);
                 }
 
-                var exists = await query.AnyAsync(x => x.MainAccountName.ToLower() == name);
+                var exists = await query.AnyAsync(x => x.MainAccountName.Trim().ToLower() == name);
 
                 return !exists;
             }
@@ -304,6 +299,7 @@ namespace GCTL.Service.Finance.AddMainAccount
         {
             try
             {
+                code = code.Trim();
                 var query = _genericRepository.AllActive();
 
                 if (excludeId.HasValue)
@@ -311,7 +307,7 @@ namespace GCTL.Service.Finance.AddMainAccount
                     query = query.Where(x => x.MainAccountID != excludeId.Value);
                 }
 
-                var exists = await query.AnyAsync(x => x.MainAccountCode == code);
+                var exists = await query.AnyAsync(x => x.MainAccountCode.Trim() == code);
 
                 return !exists;
             }
@@ -332,7 +328,7 @@ namespace GCTL.Service.Finance.AddMainAccount
 
                 var menuTabs = await _menuTabRepository.AllActive()
                     .Where(mt => allowedControllers.Contains(mt.ControllerName) && !mt.IsActive)
-                    //.OrderBy(mt => mt.TabOrder)
+                    //.OrderBy(mt => mt.OrderBy)
                     .ToListAsync();
                 return menuTabs;
             }
