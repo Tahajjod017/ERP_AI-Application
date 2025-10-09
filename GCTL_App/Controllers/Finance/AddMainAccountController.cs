@@ -3,12 +3,15 @@ using GCTL.Core.ViewModels.Finance.AddMainAccountVM;
 using GCTL.Service.CommonService;
 using GCTL.Service.Finance.AddMainAccount;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.Finance
 {
+    [Authorize]
     public class AddMainAccountController : BaseController
     {
         #region Services
@@ -25,7 +28,7 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region Index
-        //[Permission("View", "AddMainAccount")]
+        [Permission("View", "AddMainAccount")]
         public async Task<IActionResult> Index()
         {
             try
@@ -36,7 +39,7 @@ namespace GCTL_App.Controllers.Finance
                 SetSmartPageCode(203700);
 
                 ViewBag.BodyTabs = await _addMainAccountService.GetBodyTabsAsync();
-                ViewBag.BaseAccountsDD = await _commonService.GetBaseAccounts();
+                ViewBag.ClassDD = await _commonService.GetAccountClass();
 
                 //if (accountClass.Count == 1)
                 //{
@@ -56,7 +59,7 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region Create
-        //[Permission("Create", "AddMainAccount")]
+        [Permission("Create", "AddMainAccount")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(CreateAddMainAccountVM model)
@@ -78,10 +81,10 @@ namespace GCTL_App.Controllers.Finance
                     }
 
                     await _addMainAccountService.AddAsync(model);
-                    return Json(new { isSuccess = true, message = "Saved Successfully." });
+                    return Json(new { isSuccess = true, message = "Saved Successfully.", classId = model.ClassID });
                 }
 
-                var orderedKeys = new[] { "BaseAccountID", "ClassID", "MainAccountName", "MainAccountCode" };
+                var orderedKeys = new[] { "ClassID", "MainAccountName", "MainAccountCode" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -103,7 +106,7 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region Update
-        //[Permission("Edit", "AddMainAccount")]
+        [Permission("Edit", "AddMainAccount")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(UpdateAddMainAccountVM model)
@@ -134,7 +137,7 @@ namespace GCTL_App.Controllers.Finance
                     });
                 }
 
-                var orderedKeys = new[] { "BaseAccountID", "ClassID", "BaseAccountCode", "MainAccountName" };
+                var orderedKeys = new[] { "ClassID", "BaseAccountCode", "MainAccountName" };
                 foreach (var key in orderedKeys)
                 {
                     if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
@@ -255,15 +258,6 @@ namespace GCTL_App.Controllers.Finance
             {
                 return Json("Error occurred: " + ex.Message);
             }
-        }
-        #endregion
-
-
-        #region GetClassByBaseAccId
-        public async Task<IActionResult> GetClassByBaseAccId(int baseAccountID)
-        {
-            var result = await _commonService.GetClassByBaseAccId(baseAccountID);
-            return Json(result);
         }
         #endregion
     }

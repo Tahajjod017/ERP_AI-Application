@@ -11,9 +11,6 @@ namespace GCTL.Core.ViewModels.Finance.AddMainAccountVM
     {
         public int MainAccountID { get; set; }
 
-        [Required(ErrorMessage = "Select a {0}!"), Display(Name = "Base Account Name")]
-        public int? BaseAccountID { get; set; }
-
         [Required(ErrorMessage = "Select a {0}!"), Display(Name = "Class Name")]
         public int? ClassID { get; set; }
 
