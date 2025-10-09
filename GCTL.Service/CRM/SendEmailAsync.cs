@@ -13,7 +13,7 @@ namespace GCTL.Service.CRM
     public class EmailService1
     {
         private readonly string _fromEmail = "systemtestmailuse@gmail.com";
-        private readonly string _appPassword = "onwg dvjb tayk mwtv";
+        private readonly string _appPassword = "gfis sljk niul ycmg";
 
         public async Task SendEmailAsync(string toEmail, string subject, string body, byte[] attachmentBytes = null, string attachmentName = null)
         {

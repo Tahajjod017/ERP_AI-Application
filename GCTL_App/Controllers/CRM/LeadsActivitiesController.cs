@@ -1,7 +1,6 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
-using GCTL.Core.ViewModels.MasterSetup.LeadStatuses;
 using GCTL.Data.Models;
 using GCTL.Service.CRM;
 using GCTL.Service.CRM.LeadsActivities;
@@ -9,12 +8,12 @@ using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using NuGet.Protocol;
 
 namespace GCTL_App.Controllers.CRM
 {
     public class LeadsActivitiesController : BaseController
     {
+        #region services
         private readonly ILeadsActivityService _activityService;
         public readonly IGenericRepository<LeadStatuses> _leadStatusesRepository;
         private readonly IGenericRepository<AddressTypes> _addressTypeService;
@@ -28,7 +27,9 @@ namespace GCTL_App.Controllers.CRM
             _addressTypeService = addressTypeService;
             _leadActivityTypeService = leadActivityTypeService;
         }
+        #endregion
 
+        #region index
         public IActionResult Index()
         {
 
@@ -59,9 +60,9 @@ namespace GCTL_App.Controllers.CRM
                 return false;
             }
         }
+        #endregion
 
-
-
+        #region get Upcomming Activity
         [HttpPost]
         public async Task<IActionResult> GetUpcomingActivities([FromForm] UpcomingActivityVM model)
         
@@ -87,17 +88,18 @@ namespace GCTL_App.Controllers.CRM
             var result = await _activityService.GetUpcomingActivityList(page, itemPagePage, search, sort, direction, model.DateRange, model.CreatedBy, model.CustomerTypeID, model.LeadStatusID, model.ActivityTypeID);
             return Ok(result);
         }
+        #endregion
 
+        #region Generate PDF and Send Email
         //=======================
         // generatePDF
         //=======================
         [HttpPost]
         public async Task<IActionResult> GeneratePDF()
         {
-
-            var pdfBytes = await _activityService.GeneratePDF();
-            await SendEmailWithPdf(pdfBytes);
-            return File(pdfBytes, "application/pdf", "report.pdf");
+            var pdfBytes = await _activityService.GenerateAndSendEmployeePDFsAsync();
+            return Ok(pdfBytes);
         }
+        #endregion
     }
 }
