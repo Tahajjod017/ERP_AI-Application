@@ -249,7 +249,7 @@ function loadTableData(sortColumn, sortOrder) {
                             
                              <td class="align-middle white-space-nowrap ps-4">${item.organizationName}</td>
                              <td class="align-middle white-space-nowrap ps-4">${item.organizationBranchName}</td>
-                             <td class="align-middle white-space-nowrap ps-4">${item.emailAddress}</td>
+                             <td class="align-middle white-space-nowrap ps-4">${item.address}</td>
                              <td class="align-middle white-space-nowrap ps-4">${item.countryName}</td>
                              <td class="align-middle white-space-nowrap ps-4">${item.emailAddress}</td>
                              <td class="align-middle white-space-nowrap ps-4">${item.phone}</td>
