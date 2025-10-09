@@ -30,13 +30,14 @@
 
 
             // #region Save 
-            $(settings.saveBtn).on('click', function (e) {
+            $(settings.saveBtn).on('click', async function (e) {
                 e.preventDefault();
 
-                $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+                const saveBtn = $(settings.saveBtn);
+                saveBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
-                var token = $('#trxAccount-form input[name="__RequestVerificationToken"]').val();
-                var formData = {
+                const token = $('#trxAccount-form input[name="__RequestVerificationToken"]').val();
+                const formData = {
                     __RequestVerificationToken: token,
                     TrxAccID: $('#TrxAccID').val(),
                     SubAccountID: $('#SubAccountID').val(),
@@ -46,49 +47,47 @@
                     TrxAccName: $('#TrxAccName').val(),
                     TrxAccCode: $('#TrxAccCode').val(),
                     Description: $('#Description').val(),
-                }
+                };
 
-                var id = $(settings.addform).find('#TrxAccID').val();
-                var url = '';
-                var type = '';
-                if (id > 0) {
-                    url = updateUrl;
-                    type = 'POST'
-                } else {
-                    url = createUrl;
-                    type = 'POST'
-                }
+                const id = $(settings.addform).find('#TrxAccID').val();
+                const url = id > 0 ? updateUrl : createUrl;
+                const type = 'POST';
 
-                $.ajax({
-                    url: url,
-                    type: type,
-                    data: formData,
-                    beforeSend: function () {
-                        showLoadingIndicator();
-                    },
-                    success: function (response) {
-                        const allFields = ['ClassID', 'GroupID', 'MainAccountID', 'SubAccountID', 'TrxAccName', 'TrxAccCode'];
+                try {
+                    showLoadingIndicator();
 
-                        allFields.forEach(function (fieldId) {
-                            validateField(fieldId, response);
-                        });
+                    // Await the jQuery ajax call
+                    const response = await $.ajax({
+                        url: url,
+                        type: type,
+                        data: formData,
+                    });
 
-                        if (response.isSuccess) {
-                            clear();
-                            toastr.success(response.message);
-                        } else {
-                            toastr.info(response.message);
+                    const allFields = ['ClassID', 'GroupID', 'MainAccountID', 'SubAccountID', 'TrxAccName', 'TrxAccCode'];
+                    allFields.forEach(fieldId => validateField(fieldId, response));
+
+                    if (response.isSuccess) {
+                        clear();
+
+                        if (response.subAccId) {
+                            accountClassDD.setChoiceByValue(response.classId.toString());
+                            await getMainAccByClassId(response.classId);  // Make sure this returns a Promise
+                            mainAccDD.setChoiceByValue(response.mainAccId.toString());
+                            await getSubAccByClassIdMainAccId(response.classId, response.mainAccId, response.subAccId, false);
+                            generateNextCode(response.subAccId);
                         }
-                        $(settings.saveBtn).prop('disabled', false).html('Save');
-                    },
-                    error: function (err) {
-                        console.log(err);
-                        $(settings.saveBtn).prop('disabled', false).html('Save');
-                    },
-                    complete: function () {
-                        hideLoadingIndicator();
+
+                        toastr.success(response.message);
+                    } else {
+                        toastr.info(response.message);
                     }
-                });
+                } catch (err) {
+                    console.error(err);
+                    toastr.error('An unexpected error occurred.');
+                } finally {
+                    hideLoadingIndicator();
+                    saveBtn.prop('disabled', false).html('Save');
+                }
             });
             // #endregion
 
@@ -97,7 +96,7 @@
             $(document).on('click', settings.editBtn, async function (e) {
                 e.preventDefault();
 
-                $('.trxAccount-edit').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+                $('.trxAccount-editBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
 
                 var id = $(this).data('id');
                 try {
@@ -105,24 +104,27 @@
                     if (response.isSuccess == true) {
                         const data = response.data;
 
+                        accountClassDD.setChoiceByValue(data.classID.toString());
+                        await getMainAccByClassId(data.classID);  // Wait for main account options to load
+                        await mainAccDD.setChoiceByValue(data.mainAccountID.toString());  // Now set main account
+
+                        getSubAccByClassIdMainAccId(data.classID, data.mainAccountID, data.subAccountID, true);
+
                         $('#trxAccount-form #TrxAccID').val(data.trxAccID);
                         $('#trxAccount-form #TrxAccCode').val(data.trxAccCode);
                         $('#trxAccount-form #TrxAccName').val(data.trxAccName);
                         $('#trxAccount-form #Description').val(data.description);
-                        accountClassDD.setChoiceByValue(data.classID.toString());
-
-                        await getAccountGroupByClassId(data.classID);  // Wait for group options to load
-                        await mainAccDD.setChoiceByValue(data.mainAccountID.toString());  // Now set group
-
-                        getSubAccByClassIdMainAccId(data.classID, data.groupID, data.mainAccountID, data.subAccountID, true);
 
                         $('#trxAccount-form #trxAccount-saveBtn').text('Update');
+                        $('.trxAccount-editBtn').prop('disabled', false).html('<i class="fas fa-edit text-black"></i>');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     } else {
                         toastr.warning(response.message);
+                        $('.trxAccount-editBtn').prop('disabled', false).html('<i class="fas fa-edit text-black"></i>');
                     }
                 } catch (error) {
                     console.error("Edit load failed:", error);
+                    $('.trxAccount-editBtn').prop('disabled', false).html('<i class="fas fa-edit text-black"></i>');
                 }
             })
             // #endregion
@@ -193,17 +195,17 @@
             // #endregion
 
 
-            // #region GetAccountGroupByClassId
+            // #region getMainAccByClassId
             $('#ClassID').on('change', function (e) {
                 e.preventDefault();
 
                 var classId = $(this).val();
 
-                getAccountGroupByClassId(classId);
+                getMainAccByClassId(classId);
             });
 
 
-            function getAccountGroupByClassId(classId) {
+            function getMainAccByClassId(classId) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
                         url: getMainAccByClassIdUrl,

@@ -19,7 +19,6 @@
         var deleteUrl = settings.baseUrl + "/Delete";
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
-        var getClassByBaseAccIdUrl = settings.baseUrl + "/GetClassByBaseAccId";
 
         $(() => {
 
@@ -34,7 +33,6 @@
                 var formData = {
                     __RequestVerificationToken: token,
                     MainAccountID: $('#MainAccountID').val(),
-                    BaseAccountID: $('#BaseAccountID').val(),
                     ClassID: $('#ClassID').val(),
                     MainAccountName: $('#MainAccountName').val(),
                     MainAccountCode: $('#MainAccountCode').val(),
@@ -42,16 +40,9 @@
                 }
 
                 var id = $(settings.addform).find('#MainAccountID').val();
-                var url = '';
-                var type = '';
-                if (id > 0) {
-                    url = updateUrl;
-                    type = 'POST'
-                } else {
-                    url = createUrl;
-                    type = 'POST'
-                }
-
+                var url = id > 0 ? updateUrl : createUrl;
+                var type = 'POST';
+                
                 $.ajax({
                     url: url,
                     type: type,
@@ -60,7 +51,7 @@
                         showLoadingIndicator();
                     },
                     success: function (response) {
-                        const allFields = ['BaseAccountID', 'ClassID', 'MainAccountName', 'MainAccountCode'];
+                        const allFields = ['ClassID', 'MainAccountName', 'MainAccountCode'];
 
                         allFields.forEach(function (fieldId) {
                             validateField(fieldId, response);
@@ -68,6 +59,9 @@
 
                         if (response.isSuccess) {
                             clear();
+                            if (response.classId) {
+                                classDD.setChoiceByValue(response.classId.toString());
+                            }
                             toastr.success(response.message);
                         } else {
                             toastr.info(response.message);
@@ -105,9 +99,8 @@
                             $('#addMainAccount-form #MainAccountCode').val(data.mainAccountCode);
                             $('#addMainAccount-form #MainAccountName').val(data.mainAccountName);
                             $('#addMainAccount-form #Description').val(data.description);
-                            baseAccountsDD.setChoiceByValue(data.baseAccountID.toString());
-
-                            getClassByBaseAccId(data.baseAccountID, data.classID);
+                            classDD.setChoiceByValue(data.classID.toString());
+                            loadTableData(null, null, data.classID);
 
                             $('#addMainAccount-form #addMainAccount-saveBtn').text('Update');
                             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -186,82 +179,12 @@
             // #endregion
 
 
-            // #region GetAccountGroupByBaseAccountID
-            $('#BaseAccountID').on('change', function (e) {
-                e.preventDefault();
+            // #region ClassID on change
+            $('#ClassID').on('change', function () {
 
-                var baseAccountID = $(this).val();
-
-                getClassByBaseAccId(baseAccountID);
+                var classId = $(this).val();
+                loadTableData(null, null, classId);
             });
-
-            function getClassByBaseAccId(baseAccountID, selectedClassId = null) {
-                $.ajax({
-                    url: getClassByBaseAccIdUrl,
-                    type: 'GET',
-                    data: { baseAccountID: baseAccountID },
-                    success: function (result) {
-                        $('.addMainAccount-ul').empty();
-
-                        $('.addMainAccount-ul')
-                            .append(`<div class="row">
-                            <div class="col-md-12">
-                                <label class="form-label"><strong>Select a Class</strong><span style="color:red;">*&nbsp;</span></label>
-                            </div>
-                            <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
-                        </div>`);
-
-                        if (result.length === 0) {
-                            $('.addMainAccount-ul').append('<li class="nav-item text-center">No Data Found</li>');
-                        } else {
-                            result.forEach(function (item) {
-                                var listItem = `
-                        <li class="nav-item read border-bottom" role="presentation">
-                            <a class="nav-link d-flex align-items-center justify-content-center p-2" data-bs-toggle="tab" data-chat-thread="data-chat-thread" href="#tab-thread-${item.id}" role="tab" aria-selected="false" data-class-id="${item.id}">
-                                <div class="flex-1 d-sm-none d-xl-block">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="text-body fw-normal name text-nowrap">${item.name}</h5>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <p class="fs-9 mb-0 line-clamp-1 text-body-tertiary text-opacity-85 message">${item.groupName}</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </li>
-                    `;
-
-                                $('.addMainAccount-ul').append(listItem);
-                            });
-
-                            
-
-                            // Click handler
-                            $('.addMainAccount-ul .nav-link').on('click', function () {
-                                $('.addMainAccount-ul .nav-link').removeClass('active');
-                                $(this).addClass('active');
-
-                                $(this).closest('li').siblings().removeClass('selected');
-                                $(this).closest('li').addClass('selected');
-
-                                var classId = $(this).data('class-id');
-                                $('#ClassID').val(classId);
-                                loadTableData();
-                            });
-
-                            // 🔽 If editing, auto-select the group
-                            if (selectedClassId) {
-                                const target = $(`.addMainAccount-ul .nav-link[data-class-id="${selectedClassId}"]`);
-                                if (target.length) {
-                                    target.trigger('click'); // Triggers the same click handler
-                                }
-                            }
-                        }
-                    },
-                    error: function () {
-                        console.error('Something went wrong!');
-                    }
-                });
-            }
             // #endregion
 
 
@@ -275,7 +198,7 @@
             function clear() {
                 $(settings.addform)[0].reset();
                 $('#MainAccountID').val('0');
-                resetValidation(['MainAccountName', 'MainAccountCode']);
+                resetValidation(['ClassID', 'MainAccountName', 'MainAccountCode']);
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -288,10 +211,10 @@
                 $('.addMainAccount-selectItem').prop('checked', false);
                 $('.addMainAccount-ul').empty();
 
-                if (baseAccountsDD) {
-                    baseAccountsDD.destroy();
+                if (classDD) {
+                    classDD.destroy();
                 }
-                initBaseAccountsDD();
+                initClassDD();
 
                 loadTableData();
                 toggleBulkActions();
@@ -301,15 +224,15 @@
 
 
             // #region Dropdowns
-            function initBaseAccountsDD() {
-                baseAccountsDD = new Choices('#BaseAccountID', {
+            function initClassDD() {
+                classDD = new Choices('#ClassID', {
                     removeItemButton: true,
                     shouldSort: false,
-                    placeholderValue: 'Select Base Account...'
+                    placeholderValue: 'Select Class...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initBaseAccountsDD);
-            initBaseAccountsDD();
+            document.addEventListener('DOMContentLoaded', initClassDD);
+            initClassDD();
             // #endregion
 
 
@@ -509,9 +432,8 @@
             });
         }
 
-        function loadTableData(sortColumn, sortOrder) {
+        function loadTableData(sortColumn, sortOrder, classId = null) {
             var searchTerm = $("#addMainAccount-searchInput").val();
-            var classId = $("#ClassID").val();
 
             $.ajax({
                 url: getAllUrl,
@@ -535,7 +457,6 @@
                                     <td class="text-center text-middle align-middle" style="width: 5%;">
                                         <input type="checkbox" class="form-check-input addMainAccount-selectItem" data-id="${item.mainAccountID}" />
                                     </td>
-                                    <td class="align-middle white-space-nowrap ps-0">${item.baseAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.className}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountCode}</td>

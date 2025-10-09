@@ -46,16 +46,9 @@
                 }
 
                 var id = $(settings.addform).find('#SubAccountID').val();
-                var url = '';
-                var type = '';
-                if (id > 0) {
-                    url = updateUrl;
-                    type = 'POST'
-                } else {
-                    url = createUrl;
-                    type = 'POST'
-                }
-
+                var url = id > 0 ? updateUrl : createUrl;
+                var type = 'POST';
+                
                 $.ajax({
                     url: url,
                     type: type,
@@ -72,6 +65,14 @@
 
                         if (response.isSuccess) {
                             clear();
+
+                            if (response.mainAccId) {
+                                accountClassDD.setChoiceByValue(response.classId.toString());
+                                getMainAccByClassId(response.classId);  // Wait for group options to load
+                                getMainAccByClassId(response.classId, response.mainAccId, false);
+                                generateNextCode(response.mainAccId)
+                            }
+                            
                             toastr.success(response.message);
                         } else {
                             toastr.info(response.message);
@@ -94,7 +95,7 @@
             $(document).on('click', settings.editBtn, async function (e) {
                 e.preventDefault();
 
-                $('.addSubAccount-edit').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+                $('.addSubAccount-editBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
 
                 var id = $(this).data('id');
                 try {
@@ -113,11 +114,14 @@
                         await getMainAccByClassId(data.classID, data.mainAccountID, true);
 
                         $('#addSubAccount-form #addSubAccount-saveBtn').text('Update');
+                        $('.addSubAccount-editBtn').prop('disabled', false).html('<i class="fas fa-edit text-black"></i>');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     } else {
+                        $('.addSubAccount-editBtn').prop('disabled', false).html('<i class="fas fa-edit text-black"></i>');
                         toastr.warning(response.message);
                     }
                 } catch (error) {
+                    $('.addSubAccount-editBtn').prop('disabled', false).html('<i class="fas fa-edit text-black"></i>');
                     console.error("Edit load failed:", error);
                 }
             })
