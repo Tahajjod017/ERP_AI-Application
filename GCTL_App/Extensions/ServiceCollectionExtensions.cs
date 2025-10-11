@@ -220,6 +220,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IPayRollEarlyPaymentService, PayRollEarlyPaymentService>();
             services.AddScoped<IPayRollOrgaBenefitsTypeService, PayRollOrgaBenefitsTypeService>();
             services.AddScoped<ICommonDroDownService, CommonDropDownService>();
+            services.AddSingleton<IBackgroundTask, GeneratePayslipTask>();
             #endregion
 
             #region Asad

@@ -191,7 +191,6 @@
             a.click();
             a.remove();
             window.URL.revokeObjectURL(url);
-
             toastr.success("Payslip saved and PDF generated!");
         } catch (err) {
             console.error(err);
