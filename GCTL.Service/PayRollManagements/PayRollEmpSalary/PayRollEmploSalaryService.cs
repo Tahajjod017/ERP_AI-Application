@@ -1,15 +1,23 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.Employee.EmployeeEducational;
+using GCTL.Core.ViewModels.Employee.EmployeeFamily;
+using GCTL.Core.ViewModels.Employee.EmployeeTraining;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpAllowance;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.Employees.EmployeeBenifit;
+using GCTL.Service.FileHandler;
 using GCTL.Service.Pagination;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Index.HPRtree;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -36,7 +44,9 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         private readonly IGenericRepository<EmployeeBaseBenefits> _employeeBaseBenefitsRepository;
         private readonly IUserInfoService userInfoService;
         private readonly IGenericRepository<PaySlips> paySlipsRepository;
-        public PayRollEmploSalaryService(IGenericRepository<EmployeeBaseBenefits> employeeBenefitsRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository, IGenericRepository<EmployeeAllowances> employeeAllowancesRepository, IGenericRepository<EmployeeBaseAllowances> employeeBaseAllowancesRepository, IGenericRepository<Benefits> benefitsRepository, IGenericRepository<BenefitSetups> benefitSetupsRepository, IGenericRepository<BenefitTypes> benefitType, IUserInfoService userInfoService, IGenericRepository<PaySlips> paySlipsRepository)
+        private readonly IPdfFileHandler _pdfFileHandlerService;
+        int pk = 0;
+        public PayRollEmploSalaryService(IGenericRepository<EmployeeBaseBenefits> employeeBenefitsRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository, IGenericRepository<EmployeeAllowances> employeeAllowancesRepository, IGenericRepository<EmployeeBaseAllowances> employeeBaseAllowancesRepository, IGenericRepository<Benefits> benefitsRepository, IGenericRepository<BenefitSetups> benefitSetupsRepository, IGenericRepository<BenefitTypes> benefitType, IUserInfoService userInfoService, IGenericRepository<PaySlips> paySlipsRepository, IPdfFileHandler pdfFileHandlerService)
         {
             _employeeBaseBenefitsRepository = employeeBenefitsRepository;
             _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
@@ -49,6 +59,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             this.benefitType = benefitType;
             this.userInfoService = userInfoService;
             this.paySlipsRepository = paySlipsRepository;
+            _pdfFileHandlerService = pdfFileHandlerService;
         }
 
         #region Get All Table 
@@ -160,7 +171,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         public async Task<CommonReturnViewModel> SaveAsync(PayRollEmpSalarySaveVM entityVM)
         {
             var result = new CommonReturnViewModel();
-            int pk = 0;
+            
             if (entityVM == null)
             {
                 result.Success = false;
@@ -211,6 +222,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 
         #region Get PaySlip 
 
+        
         public async Task<CommonReturnViewModel> GetPaySlip(int id)
         {
             try
@@ -440,10 +452,11 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             }
         }
 
-       
 
         #endregion
 
+
+        #region  Number converter 
         public static class NumberToWordsConverter
         {
             private static readonly string[] Ones =
@@ -504,7 +517,195 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             }
         }
 
+        #endregion
 
-        
+        public async Task<byte[]> GeratePdf(int id)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            try
+            {
+                var payslipEntity = await paySlipsRepository.AllActive().Where(x=>x.PaySlipID==id).Select(x=>x.EmployeeID).FirstOrDefaultAsync();
+
+                if (payslipEntity == null)
+                    throw new Exception("Payslip not found.");
+
+                var payslipResult = await GetPaySlip((int)payslipEntity);
+
+                if (!payslipResult.Success || payslipResult.Data == null)
+                    throw new Exception(payslipResult.Message ?? "Failed to fetch payslip data.");
+
+                var data = (PayRollPaySlipEmpVM)payslipResult.Data;
+
+                using (var stream = new MemoryStream())
+                {
+                    Document.Create(container =>
+                    {
+                        container.Page(page =>
+                        {
+                            page.Size(PageSizes.A4);
+                            page.Margin(35);
+                            page.DefaultTextStyle(x => x.FontFamily(Fonts.TimesNewRoman).FontSize(10));
+
+                            page.Content().Column(col =>
+                            {
+                                // Payslip title
+                                col.Item().AlignCenter().Text($"Payslip for the month of {DateTime.Now:MMMM yyyy}")
+                                    .FontSize(14).Bold();
+
+                                // Payment Info
+                                col.Item().PaddingVertical(5).BorderBottom(1).Row(row =>
+                                {
+                                    row.RelativeItem().Text(text =>
+                                    {
+                                        text.Span("Payslip No. ").Bold();
+                                        text.Span(id.ToString());
+                                    });
+
+                                    row.RelativeItem().AlignRight().Text(text =>
+                                    {
+                                        text.Span("Payment Date ").Bold();
+                                        text.Span($"{DateTime.Now:dd-MMM-yyyy hh:mm tt}");
+                                    });
+                                });
+
+                                // Organization & Employee
+                                col.Item().PaddingVertical(10).Row(row =>
+                                {
+                                    row.RelativeItem().Column(left =>
+                                    {
+                                        var logoPath = string.IsNullOrEmpty(data.OrganizationLogoPic)
+                                            ? Path.Combine("wwwroot/assets/img/icons", "No-Image-Placeholder.svg.png")
+                                            : data.OrganizationLogoPic;
+
+                                        if (System.IO.File.Exists(logoPath))
+                                        {
+                                            left.Item()
+                                                .Height(26)
+                                                .Width(26)
+                                                .Image(logoPath)
+                                                .FitArea();
+                                        }
+
+                                        left.Item().Text(data.OrganizationName).Bold();
+                                        left.Item().Text(data.OrganizationAddress);
+                                        left.Item().Text(data.OrganizationEmailAddress);
+                                    });
+
+                                    row.RelativeItem().AlignRight().Column(right =>
+                                    {
+                                        right.Item().Text("Payment To").SemiBold();
+                                        right.Item().Text(data.EmployeeName).Bold();
+                                        right.Item().Text(data.EmployeeAddress);
+                                        right.Item().Text(data.EmployeeEmail);
+                                    });
+                                });
+
+
+                                // Earnings & Deductions
+                                col.Item().Row(row =>
+                                {
+                                    // Earnings
+                                    row.RelativeItem().Column(earn =>
+                                    {
+                                        earn.Item().Text("Earnings").Bold();
+
+                                        earn.Item().Table(table =>
+                                        {
+                                            table.ColumnsDefinition(c =>
+                                            {
+                                                c.RelativeColumn();
+                                                c.ConstantColumn(80);
+                                            });
+
+                                            // Basic
+                                            table.Cell().Text("Basic");
+                                            table.Cell().AlignRight().Text($"{data.BasicSalary?.ToString("N2")}");
+
+                                            // Allowances
+                                            foreach (var a in data.Allowances)
+                                            {
+                                                table.Cell().Text($"{a.Type} ({a.DisplayValue})");
+                                                table.Cell().AlignRight().Text(Math.Floor(a.AllowanceSalary ?? 0).ToString("N2"));
+                                            }
+
+                                            // Benefits
+                                            foreach (var b in data.BeneFits)
+                                            {
+                                                table.Cell().Text($"{b.Type} ({b.DisplayValue})");
+                                                table.Cell().AlignRight().Text(Math.Floor(b.BenefitsSalary ?? 0).ToString("N2"));
+                                            }
+
+                                            // Total Earnings
+                                            table.Cell().Text("Total Earnings").Bold();
+                                            table.Cell().AlignRight().Text(data.TotalSalary.ToString("N2") ?? "0.00").Bold();
+                                        });
+                                    });
+
+                                    // Deductions (static for now)
+                                    row.RelativeItem().Column(ded =>
+                                    {
+                                        ded.Item().Text("Deductions").Bold();
+
+                                        ded.Item().Table(table =>
+                                        {
+                                            table.ColumnsDefinition(c =>
+                                            {
+                                                c.RelativeColumn();
+                                                c.ConstantColumn(80);
+                                            });
+
+                                            void AddDeduction(string label, decimal amount)
+                                            {
+                                                table.Cell().Text(label);
+                                                table.Cell().AlignRight().Text(amount.ToString("N2"));
+                                            }
+
+                                            AddDeduction("Provident Fund", 1000);
+                                            AddDeduction("Professional Tax", 2000);
+                                            AddDeduction("ESI", 0);
+                                            AddDeduction("Home Loan", 20000);
+                                            AddDeduction("TDS", 10000);
+
+                                            table.Cell().Text("Total Deductions").Bold();
+                                            table.Cell().AlignRight().Text("35000.00").Bold();
+                                        });
+                                    });
+                                });
+
+                                // Net Pay
+                                col.Item().PaddingTop(10).Text($"Net Pay: {(data.TotalSalary - 35000):N2}")
+                                    .Bold().FontSize(12);
+
+                                col.Item().Text(data.SalaryInWords);
+
+                                // Signature
+                                col.Item().PaddingTop(30).AlignRight().Column(c =>
+                                {
+                                    c.Item().Text("For Priya Jain").Bold();
+                                    c.Item().PaddingTop(15).Text("Authorised Signatory");
+                                });
+
+
+                                // Footer
+                                col.Item().AlignCenter().PaddingTop(20).Text("This is a system generated payslip.")
+                                    .FontSize(9).Italic();
+                            });
+                        });
+                    }).GeneratePdf(stream);
+
+                    return stream.ToArray();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("PDF Generation Error: " + ex.Message);
+                await userInfoService.ActionLogExceptionAsync("Pay Slip according to EmpoyeeID", ex, id, ActionName.Error);
+                throw new Exception("Error while generating Pay Slip PDF.");
+            }
+        }
+
+
+
     }
 }
