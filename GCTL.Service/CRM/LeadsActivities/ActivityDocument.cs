@@ -30,23 +30,23 @@ namespace GCTL.Service.CRM.LeadsActivities
                 page.Margin(20);
 
                 // Header
-                page.Header().Element(header =>
-                {
-                    header.Column(column =>
-                    {
-                        column.Item().Element(h => _pdfFileHandlerService.ComposeHeader(h, 2, true));
-                        column.Item().Element(container =>
-                        {
-                            container
-                                .PaddingBottom(10)
-                                .Text("Upcoming Activities Report")
-                                .AlignCenter()
-                                .FontSize(18)
-                                .FontColor(Colors.Blue.Medium)
-                                .Bold();
-                        });
-                    });
-                });
+                //page.Header().Element(header =>
+                //{
+                //    header.Column(column =>
+                //    {
+                //        column.Item().Element(h => _pdfFileHandlerService.ComposeHeader(h, 2, true));
+                //        column.Item().Element(container =>
+                //        {
+                //            container
+                //                .PaddingBottom(10)
+                //                .Text("Upcoming Activities Report")
+                //                .AlignCenter()
+                //                .FontSize(18)
+                //                .FontColor(Colors.Blue.Medium)
+                //                .Bold();
+                //        });
+                //    });
+                //});
 
                 // Content (each employee section)
                 page.Content().PaddingVertical(10).Column(column =>
@@ -86,18 +86,57 @@ namespace GCTL.Service.CRM.LeadsActivities
         {
             container.PaddingBottom(15).Column(column =>
             {
-                column.Item().Background(Colors.Grey.Lighten4).Padding(8).Column(header =>
+                column.Item().Background(Colors.Grey.Lighten4).Row(row =>
                 {
-                    header.Item().Text($"{model.CompanyName}").FontSize(16).SemiBold().FontColor(Colors.Blue.Darken1);
-                    header.Item().Text($"{model.CompanyAddress}").FontSize(10).FontColor(Colors.Grey.Darken1);
-                    header.Item().Text($"Team: {model.TeamName}").FontSize(11).FontColor(Colors.Grey.Darken2);
-                    header.Item().Text($"Employee: {model.EmployeeName}").FontSize(11).Bold().FontColor(Colors.Black);
+                    // Left text: take all remaining space
+                    row.RelativeItem().Padding(10).AlignMiddle().Element(el =>
+                    {
+                        el.Column(col =>
+                        {
+                            col.Item().Text($"{model.CompanyName}")
+                                  .FontSize(16).SemiBold().FontColor(Colors.Blue.Darken1);
+                            col.Item().Text($"{model.CompanyAddress}")
+                                  .FontSize(10).FontColor(Colors.Grey.Darken1);
+
+                            col.Item().Text($"Team: {model.TeamName}")
+                                  .FontSize(11).FontColor(Colors.Grey.Darken2);
+
+                            col.Item().Text($"Employee: {model.EmployeeName}")
+                                  .FontSize(11).Bold().FontColor(Colors.Black);
+
+                            col.Item().Text("Subject: Upcoming Activities")
+                                  .FontSize(11).FontColor(Colors.Grey.Darken2);
+                        });
+                    });
+
+                    // Right logo: fixed size, vertically centered
+                    row.ConstantItem(100)
+                       .Height(60)
+                       .AlignMiddle()
+                       .AlignCenter()
+                       .Element(el =>
+                       {
+                           try
+                           {
+                               if (model.CompanyLogo != null)
+                                   el.Image(model.CompanyLogo, ImageScaling.FitArea);
+                               else
+                                   el.Placeholder();
+                           }
+                           catch (Exception e)
+                           {
+                               el.Placeholder();
+                           }
+
+                       });
                 });
+
+
 
                 column.Item().PaddingTop(10);
 
-                // If SubEmployees exist (team leader/admin), render each separately
-                if (model.SubEmployees != null && model.SubEmployees.Any())
+                // Activities
+                if (model.SubEmployees?.Any() == true)
                 {
                     foreach (var sub in model.SubEmployees)
                     {
@@ -106,16 +145,20 @@ namespace GCTL.Service.CRM.LeadsActivities
                         column.Item().PaddingTop(10);
                     }
                 }
+                else if (model.Activities?.Any() == true)
+                {
+                    column.Item().Element(_ => ComposeActivitiesTable(_, model));
+                }
                 else
                 {
-                    // Individual activities
-                    if (model.Activities != null && model.Activities.Any())
-                        column.Item().Element(_ => ComposeActivitiesTable(_, model));
-                    else
-                        column.Item().Text("No upcoming activities found.").FontColor(Colors.Grey.Darken1).Italic().AlignCenter();
+                    column.Item().Text("No upcoming activities found.")
+                          .FontColor(Colors.Grey.Darken1)
+                          .Italic()
+                          .AlignCenter();
                 }
             });
         }
+
 
         // Renders table of activities
         private void ComposeActivitiesTable(IContainer container, ActivityPDFModel model)
