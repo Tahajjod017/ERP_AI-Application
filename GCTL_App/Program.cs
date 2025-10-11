@@ -162,11 +162,28 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.AddService<UserInfoActionFilter>(); // Global filter registration
 });
 
+
+#region AddCors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Allowall", policy =>
+    {
+        policy
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
+#endregion
+
+
 // localization
 builder.Services.AddScoped<ILocalizationContext, LocalizationContext>();
 QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
+app.UseCors("AllowAll");
 
 
 #region Error Handling & Swagger
