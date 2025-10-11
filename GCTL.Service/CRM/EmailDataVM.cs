@@ -8,6 +8,9 @@ namespace GCTL.Service.CRM
 {
     public class TeamMemberDto
     {
+        public string? CompanyName { get; set; }
+        public string? CompanyAddress { get; set; }
+        public string? LogoLink { get; set; }
         public int? LeadProjectTeamMemberID { get; set; }
         public string? LeadProjectTeamMemberName { get; set; }
         public string? LeadProjectTeamMemberEmail { get; set; }

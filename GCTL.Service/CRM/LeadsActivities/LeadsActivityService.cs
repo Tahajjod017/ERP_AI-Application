@@ -184,7 +184,9 @@ namespace GCTL.Service.CRM.LeadsActivities
             {
                 var allTeam = await _leadProjectTeamsRepository.AllActive()
                     .Include(t => t.LeadProjectTeamMembers)
-                    .ThenInclude(m => m.Employee)
+                        .ThenInclude(m => m.Employee)
+                            .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
+                              .ThenInclude(o => o.Organization)
                     .Select(l => new TeamDto
                     {
                         TeamID = l.LeadProjectTeamID,
@@ -192,6 +194,11 @@ namespace GCTL.Service.CRM.LeadsActivities
                         TeamMembers = l.LeadProjectTeamMembers
                             .Select(m => new TeamMemberDto
                             {
+                                CompanyName = m.Employee.EmployeeOfficeInfoEmployee
+                                    .Select(x => x.Organization.OrganizationName)
+                                    .FirstOrDefault(),
+                                CompanyAddress = m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.Address).FirstOrDefault(),
+                                LogoLink = m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.LogoLink).FirstOrDefault(),
                                 LeadProjectTeamMemberID = m.EmployeeID,
                                 LeadProjectTeamMemberName = $"{m.Employee.FirstName} {m.Employee.LastName}",
                                 LeadProjectTeamMemberEmail = m.Employee.Email,
@@ -253,7 +260,7 @@ namespace GCTL.Service.CRM.LeadsActivities
 
         private async Task SendPdfEmail(ActivityPDFModel model, string? emailOverride = null)
         {
-            var document = new ActivityDocument(
+             var document = new ActivityDocument(
                 new List<ActivityPDFModel> { model },
                 _pdfFileHandlerService
             );
@@ -265,9 +272,225 @@ namespace GCTL.Service.CRM.LeadsActivities
 
             string subject = $"Upcoming Activity Report - {model.EmployeeName ?? "Admin"}";
             string body = $@"
-                <h2>Dear {model.EmployeeName ?? "Admin"},</h2>
-                <p>Please find attached your upcoming activities report.</p>
-                <p>Regards,<br/>CRM System</p>";
+                <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset=""UTF-8"">
+                        <title>HR Leave Request</title>
+                        <style>
+                            /* Reset styles */
+                            body, table, td, p, a, li, h1, h2 {{
+                                -webkit-text-size-adjust: 100%;
+                                -ms-text-size-adjust: 100%;
+                                margin: 0;
+                                padding: 0;
+                            }}
+                            body {{
+                                font-family: Arial, sans-serif;
+                                font-size: 14px;
+                                line-height: 20px;
+                                color: #333333;
+                                background-color: #f4f4f4;
+                                padding: 20px;
+                            }}
+                            table {{
+                                border-collapse: collapse;
+                            }}
+
+                            /* Main container */
+                            .email-container {{
+                                max-width: 600px;
+                                margin: auto;
+                                background-color: #ffffff;
+                                border: 1px solid #e0e0e0;
+                                border-radius: 8px;
+                                overflow: hidden;
+                            }}
+
+                            /* Header */
+                            .header-bg {{
+                                position: relative;
+                                background-color: #3252ff;
+                                background-image: linear-gradient(to bottom right, #080301 120px, transparent 0);
+                                background-repeat: no-repeat;
+                                background-size: 140px 140px;
+                                padding: 25px 30px;
+                                color: #ffffff;
+                            }}
+                            .header-bg img {{
+                                display: block;
+                                border: 0;
+                                outline: none;
+                                text-decoration: none;
+                                max-width: 200px;
+                                height: auto;
+                            }}
+                            .header-bg td {{
+                                font-size: 13px;
+                                line-height: 18px;
+                                text-align: right;
+                                color: #ffffff;
+                            }}
+
+                            /* Content */
+                            .content {{
+                                padding: 20px 30px;
+                            }}
+                            .content p {{
+                                margin-bottom: 10px;
+                            }}
+                            .content h2 {{
+                                font-size: 18px;
+                                margin-bottom: 10px;
+                                color: #3252ff;
+                            }}
+
+                            /* Tables for info */
+                            .info-table {{
+                                width: 100%;
+                                border: 1px solid #e0e0e0;
+                                border-radius: 5px;
+          
+                            }}
+                            .info-table th, .info-table td {{
+                                padding: 10px;
+                                border: 1px solid #e0e0e0;
+                                text-align: left;
+		
+                            }}
+                            .info-table th {{
+                               background-color: #f4f4f4; 
+                                font-weight: bold;
+			                    width:50%;
+                            }}
+
+                            /* Approval timeline */
+                            .timeline {{
+                                width: 100%;
+                                margin-top: 20px;
+                            }}
+                            .timeline td {{
+                                vertical-align: top;
+                            }}
+                            .timeline-dot {{
+                                width: 15px;
+                                height: 15px;
+                                border-radius: 50%;
+                                margin-top: 3px;
+                            }}
+                            .timeline-line {{
+                                width: 2px;
+                                height: 30px;
+                                background-color: #e0e0e0;
+                                margin-left: 6px;
+                            }}
+		                    /* Section backgrounds */
+                    .section-header {{
+                        background-color: #3252ff; /* Blue header */
+                        color: #ffffff;
+                    }}
+                    .section-greeting {{
+                        background-color: #f9f9f9; /* light grey */
+                    }}
+                    .section-timeline {{
+                        background-color: #eef4ff; /* soft blue */
+                    }}
+                    .section-info {{
+                        background-color: #ffffff; /* white card */
+                    }}
+                    .section-footer {{
+                        background-color: #000; /* footer grey */
+                    }}
+                    .section-button {{
+                        padding-top: 0;
+                    }}
+
+                            /* Footer */
+                            .footer {{
+                                text-align: center;
+                                padding: 20px 30px;
+                                font-size: 13px;
+                                color: #fff;
+                            }}
+                            /* Responsive */
+                            @media only screen and (max-width: 600px) {{
+                                .header-bg td {{
+                                    display: block;
+                                    text-align: center;
+                                    margin-bottom: 10px;
+                                }}
+                                .header-bg img {{
+                                    margin: auto;
+                                }}
+                            }}
+                        </style>
+                    </head>
+                    <body>
+                        <table class=""email-container"">
+                            <!-- Header -->
+                            <tr>
+                                <td class=""header-bg"">
+                                    <table width=""100%"">
+                                        <tr>
+                                            <td align=""left"">
+                                                <img src=""https://gctlsecurity.com/pub/static/frontend/CLS/Security/en_US/images/logo.png"" alt=""Company Logo"">
+                                            </td>
+                                            <td align=""right"">
+                                                House-42(5th Floor) Road-10,<br>
+                                                Sector-4, Uttara, Dhaka-1230,<br>
+                                                Bangladesh<br>
+                                                info@gctlinfosys.com<br>
+                                                +88 01795-788488
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                            <!-- Greeting -->
+                            <tr>
+                                <td class=""content section-greeting"">
+                                    <p>Dear HR Team,</p>
+                                    <p>This is an automated leave request submitted by an employee. Please find the details below:</p>
+                                </td>
+                            </tr>
+		                    <!-- Approval Timeline (Horizontal) -->
+
+
+
+                            <!-- Employee Info -->
+                            <tr>
+                                <td class=""content section-info"">
+                                    <h2>Employee Information</h2>
+                                    <table class=""info-table"" style=""margin-bottom: 10px;"">
+                                        <tr>
+                                            <th>Name</th>
+                                            <td>{model.EmployeeName}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Team Name</th>
+                                            <td>{model.TeamName}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Total Activities</th>
+                                            <td> {model.TotalActivities} </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                    <!-- Footer -->
+                    <tr>
+                      <td class=""footer section-footer"" align=""center"" style=""text-align:center;"">
+                        <p>© Gctlinfosys 2025. All rights reserved.</p>
+
+
+                      </td>
+                    </tr>
+                        </table>
+                    </body>
+                    </html>
+
+               ";
 
             await emailService.SendEmailAsync(
                 recipientEmail,

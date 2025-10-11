@@ -3,10 +3,6 @@ using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using GCTL.Service.CRM;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 public class ActivityDocumentDataSource
 {
@@ -49,43 +45,45 @@ public class ActivityDocumentDataSource
                 })
                 .ToListAsync();
 
-            // Individual employee PDFs
             foreach (var member in members)
             {
                 var memberActivities = upcomingActivities
                     .Where(a => a.LeadOwnerId == member.LeadProjectTeamMemberID)
                     .ToList();
 
-                if (memberActivities.Any())
+                if (memberActivities.Any() && member.IsTeamHead != true)
                 {
                     individualList.Add(new ActivityPDFModel
                     {
-                        CompanyName = "YourCompany",
-                        CompanyAddress = "Your Address",
+                        CompanyName = member.CompanyName ?? "",
+                        CompanyAddress = member.CompanyAddress ?? "",
+                        CompanyLogo = member.LogoLink,
                         TeamName = team.TeamName,
                         EmployeeName = member.LeadProjectTeamMemberName,
                         Email = "debanjandevelopment@gmail.com",
                         //Email = member.LeadProjectTeamMemberEmail, // send to real email
                         IsTeamHead = member.IsTeamHead,
-                        Activities = memberActivities
+                        Activities = memberActivities,
+                        TotalActivities = memberActivities.Count()
                     });
                 }
             }
 
-            // Team leader PDFs (all team activities, if any)
-            var leader = members.FirstOrDefault(m => m.IsTeamHead == true); // error if IsTeamHead is bool?
+            var leader = members.FirstOrDefault(m => m.IsTeamHead == true);
             if (leader != null && upcomingActivities.Any())
             {
                 teamLeaderList.Add(new ActivityPDFModel
                 {
-                    CompanyName = "YourCompany",
-                    CompanyAddress = "Your Address",
+                    CompanyName = leader.CompanyName ?? "",
+                    CompanyAddress = leader.CompanyAddress ?? "",
+                    CompanyLogo = leader.LogoLink,
                     TeamName = team.TeamName,
                     EmployeeName = leader.LeadProjectTeamMemberName,
                     Email = "debanjandevelopment@gmail.com",
                     //Email = leader.LeadProjectTeamMemberEmail,
                     IsTeamHead = true,
                     Activities = upcomingActivities, // all team activities
+                    TotalActivities = upcomingActivities.Count(),
                     SubEmployees = members
                         .Select(m => new ActivityPDFModel
                         {
@@ -106,6 +104,7 @@ public class ActivityDocumentDataSource
                     CompanyAddress = "Your Address",
                     TeamName = team.TeamName,
                     Activities = upcomingActivities,
+                    TotalActivities = upcomingActivities.Count(),
                     SubEmployees = members
                         .Select(m => new ActivityPDFModel
                         {
