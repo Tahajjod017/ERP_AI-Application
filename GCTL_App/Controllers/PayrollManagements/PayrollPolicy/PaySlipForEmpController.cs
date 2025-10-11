@@ -89,7 +89,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
             int payslipId = ((PaySlips)saveResult.Data).PaySlipID;
 
             // 3️⃣ Generate PDF
-            var pdfBytes = await payRollEmpSalaryService.GeratePdf(payslipId);
+            var pdfBytes = await payRollEmpSalaryService.GeneratePdf(payslipId);
 
             return File(pdfBytes, "application/pdf", $"PaySlip_{payslipId}.pdf");
         }
@@ -101,7 +101,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         [HttpPost]
         public async Task<IActionResult> GenerateIndiEmpDetailsPDF(int id)
         {
-            var pdfBytes = await payRollEmpSalaryService.GeratePdf(id);
+            var pdfBytes = await payRollEmpSalaryService.GeneratePdf(id);
             return File(pdfBytes, "application/pdf", $"Pay Slip{id}.pdf");
         }
         #endregion
