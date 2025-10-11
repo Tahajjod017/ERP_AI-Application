@@ -18,7 +18,7 @@ namespace GCTL.Service.BackgroundServices
 
         public string Name => "AttendanceTask";
 
-        public TimeSpan ScheduledTime => new TimeSpan(13, 50, 0); // 11:00 PM
+        public TimeSpan ScheduledTime => new TimeSpan(13, 5, 0); // 11:00 PM
 
         public Task ExecuteAsync(CancellationToken stoppingToken)
         {

@@ -172,7 +172,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         public async Task<CommonReturnViewModel> SaveAsync(PayRollEmpSalarySaveVM entityVM)
         {
             var result = new CommonReturnViewModel();
-            
+
             if (entityVM == null)
             {
                 result.Success = false;
@@ -180,12 +180,12 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                 return result;
             }
             decimal? basicsalary = await employeeSalarySettingsRepository.AllActive()
-                    .Where(x => x.EmployeeID ==entityVM.EmployeeID).Select(x => x.Salary) .FirstOrDefaultAsync();
+                    .Where(x => x.EmployeeID == entityVM.EmployeeID).Select(x => x.Salary).FirstOrDefaultAsync();
             await paySlipsRepository.BeginTransactionAsync();
 
             try
             {
-                
+
                 var entity = new PaySlips
                 {
                     EmployeeID = entityVM.EmployeeID,
@@ -201,11 +201,11 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 
                 await paySlipsRepository.AddAsync(entity);
                 await paySlipsRepository.CommitTransactionAsync();
-                pk=entity.PaySlipID;
+                pk = entity.PaySlipID;
                 await userInfoService.ActionLogAsync("Pay Slip Save", ActionName.DataAdd, null, entity, entity.PaySlipID, entityVM);
                 result.Success = true;
                 result.Message = "Payslip saved successfully!";
-                result.Data = entity; 
+                result.Data = entity;
             }
             catch (Exception ex)
             {
@@ -218,12 +218,81 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 
             return result;
         }
+
+        #region Save Payslips in Bulk
+        public async Task<CommonReturnViewModel> SaveBulkAsync(List<PayRollEmpSalarySaveVM> entityVMList)
+        {
+            var result = new CommonReturnViewModel();
+
+            if (entityVMList == null || !entityVMList.Any())
+            {
+                result.Success = false;
+                result.Message = "No payslip data provided!";
+                return result;
+            }
+
+            // Preload all salaries in one query
+            var employeeIds = entityVMList.Select(x => x.EmployeeID).ToList();
+            var salaryData = await employeeSalarySettingsRepository.AllActive()
+                .Where(x => employeeIds.Contains(x.EmployeeID))
+                .Select(x => new { x.EmployeeID, x.Salary })
+                .ToListAsync();
+
+            await paySlipsRepository.BeginTransactionAsync();
+            try
+            {
+                var entities = entityVMList.Select(vm =>
+                {
+                    var basicSalary = salaryData.FirstOrDefault(s => s.EmployeeID == vm.EmployeeID)?.Salary ?? 0;
+
+                    return new PaySlips
+                    {
+                        EmployeeID = vm.EmployeeID,
+                        BasicSalary = basicSalary,
+                        PayPeriodStart = vm.PayPeriodStart,
+                        PayPeriodEnd = vm.PayPeriodEnd,
+                        IsPaid = vm.IsPaid,
+                        LIP = vm.LIP,
+                        LMAC = vm.LMAC,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = vm.CreatedBy
+                    };
+                }).ToList();
+
+                // ✅ Bulk insert
+                await paySlipsRepository.AddRangeAsync(entities);
+                await paySlipsRepository.CommitTransactionAsync();
+
+                // ✅ Optional: log each save
+                //foreach (var entity in entityVMList)
+                //{
+                //    await userInfoService.ActionLogAsync("Pay Slip Save", ActionName.DataAdd, null, entity, entities.FirstOrDefault().PaySlipID, entity);
+
+                //}
+
+                result.Success = true;
+                result.Message = $"{entities.Count} Payslips saved successfully!";
+                result.Data = entities;
+            }
+            catch (Exception ex)
+            {
+                await paySlipsRepository.RollbackTransactionAsync();
+                result.Success = false;
+                result.Message = ex.Message;
+                result.Errors.Add(ex.Message);
+                await userInfoService.ActionLogExceptionAsync("Pay Slip Save", ex, null, ActionName.Error);
+            }
+
+            return result;
+        }
+        #endregion
+
         #endregion
 
 
         #region Get PaySlip 
 
-        
+
         public async Task<CommonReturnViewModel> GetPaySlip(int id)
         {
             try
@@ -633,15 +702,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                                                 c.ConstantColumn(80);
                                             });
 
-                                            // Helper method to add bordered row
-                                            //void AddRow(string label, string value, bool isBold = false)
-                                            //{
-                                            //    table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2)
-                                            //        .Padding(8).Text(label).FontSize(10);
-                                            //    table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2)
-                                            //        .Padding(8).AlignRight().Text(value).FontSize(10);
-                                            //}
-
                                             void AddRow(string label, string value, bool isBold = false)
                                             {
                                                 var labelCell = table.Cell().Border(1).BorderColor(Colors.Grey.Lighten2)
@@ -711,12 +771,12 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                                                 }
                                             }
 
-                                            AddRow("Provident Fund", "1,000.00");
-                                            AddRow("Professional Tax", "2,000.00");
+                                            AddRow("Provident Fund", "0.00");
+                                            AddRow("Professional Tax", "0.00");
                                             AddRow("ESI", "0.00");
-                                            AddRow("Home Loan", "20,000.00");
-                                            AddRow("TDS", "10,000.00");
-                                            AddRow("Total Deductions", "35,000.00", true);
+                                            AddRow("Home Loan", "0.00");
+                                            AddRow("TDS", "0.00");
+                                            AddRow("Total Deductions", "0.00", true);
                                         });
                                     });
                                 });
@@ -724,7 +784,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                                 // Net Pay Section
                                 col.Item().PaddingTop(15).Column(netPay =>
                                 {
-                                    var netPayAmount = (data?.TotalSalary ?? 0) - 35000;
+                                    var netPayAmount = (data?.TotalSalary ?? 0) - 0;
                                     netPay.Item().Text($"Net Pay : {netPayAmount:N2}").Bold().FontSize(11);
                                     netPay.Item().PaddingTop(8).Text(data.SalaryInWords ?? "").FontSize(10);
                                 });
@@ -755,193 +815,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             }
         }
 
-        //public async Task<byte[]> GeratePdf(int id)
-        //{
-        //    QuestPDF.Settings.License = LicenseType.Community;
-
-        //    try
-        //    {
-        //        var payslipEntity = await paySlipsRepository.AllActive().Where(x=>x.PaySlipID==id).Select(x=>x.EmployeeID).FirstOrDefaultAsync();
-
-        //        if (payslipEntity == null)
-        //            throw new Exception("Payslip not found.");
-
-        //        var payslipResult = await GetPaySlip((int)payslipEntity);
-
-        //        if (!payslipResult.Success || payslipResult.Data == null)
-        //            throw new Exception(payslipResult.Message ?? "Failed to fetch payslip data.");
-
-        //        var data = (PayRollPaySlipEmpVM)payslipResult.Data;
-
-        //        using (var stream = new MemoryStream())
-        //        {
-        //            Document.Create(container =>
-        //            {
-        //                container.Page(page =>
-        //                {
-        //                    page.Size(PageSizes.A4);
-        //                    page.Margin(35);
-        //                    page.DefaultTextStyle(x => x.FontFamily(Fonts.TimesNewRoman).FontSize(10));
-
-        //                    page.Content().Column(col =>
-        //                    {
-        //                        // Payslip title
-        //                        col.Item().AlignCenter().Text($"Payslip for the month of {DateTime.Now:MMMM yyyy}")
-        //                            .FontSize(14).Bold();
-
-        //                        // Payment Info
-        //                        col.Item().PaddingVertical(5).BorderBottom(1).Row(row =>
-        //                        {
-        //                            row.RelativeItem().Text(text =>
-        //                            {
-        //                                text.Span("Payslip No. ").Bold();
-        //                                text.Span(id.ToString());
-        //                            });
-
-        //                            row.RelativeItem().AlignRight().Text(text =>
-        //                            {
-        //                                text.Span("Payment Date ").Bold();
-        //                                text.Span($"{DateTime.Now:dd-MMM-yyyy hh:mm tt}");
-        //                            });
-        //                        });
-
-        //                        // Organization & Employee
-        //                        col.Item().PaddingVertical(10).Row(row =>
-        //                        {
-        //                            row.RelativeItem().Column(left =>
-        //                            {
-        //                                var logoPath = string.IsNullOrEmpty(data.OrganizationLogoPic)
-        //                                    ? Path.Combine("wwwroot/assets/img/icons", "No-Image-Placeholder.svg.png")
-        //                                    : data.OrganizationLogoPic;
-
-        //                                if (System.IO.File.Exists(logoPath))
-        //                                {
-        //                                    left.Item()
-        //                                        .Height(26)
-        //                                        .Width(26)
-        //                                        .Image(logoPath)
-        //                                        .FitArea();
-        //                                }
-
-        //                                left.Item().Text(data.OrganizationName).Bold();
-        //                                left.Item().Text(data.OrganizationAddress);
-        //                                left.Item().Text(data.OrganizationEmailAddress);
-        //                            });
-
-        //                            row.RelativeItem().AlignRight().Column(right =>
-        //                            {
-        //                                right.Item().Text("Payment To").SemiBold();
-        //                                right.Item().Text(data.EmployeeName).Bold();
-        //                                right.Item().Text(data.EmployeeAddress);
-        //                                right.Item().Text(data.EmployeeEmail);
-        //                            });
-        //                        });
-
-
-        //                        // Earnings & Deductions
-        //                        col.Item().Row(row =>
-        //                        {
-        //                            // Earnings
-        //                            row.RelativeItem().Column(earn =>
-        //                            {
-        //                                earn.Item().Text("Earnings").Bold();
-
-        //                                earn.Item().Table(table =>
-        //                                {
-        //                                    table.ColumnsDefinition(c =>
-        //                                    {
-        //                                        c.RelativeColumn();
-        //                                        c.ConstantColumn(80);
-        //                                    });
-
-        //                                    // Basic
-        //                                    table.Cell().Text("Basic");
-        //                                    table.Cell().AlignRight().Text($"{data.BasicSalary?.ToString("N2")}");
-
-        //                                    // Allowances
-        //                                    foreach (var a in data.Allowances)
-        //                                    {
-        //                                        table.Cell().Text($"{a.Type} ({a.DisplayValue})");
-        //                                        table.Cell().AlignRight().Text(Math.Floor(a.AllowanceSalary ?? 0).ToString("N2"));
-        //                                    }
-
-        //                                    // Benefits
-        //                                    foreach (var b in data.BeneFits)
-        //                                    {
-        //                                        table.Cell().Text($"{b.Type} ({b.DisplayValue})");
-        //                                        table.Cell().AlignRight().Text(Math.Floor(b.BenefitsSalary ?? 0).ToString("N2"));
-        //                                    }
-
-        //                                    // Total Earnings
-        //                                    table.Cell().Text("Total Earnings").Bold();
-        //                                    table.Cell().AlignRight().Text(data.TotalSalary.ToString("N2") ?? "0.00").Bold();
-        //                                });
-        //                            });
-
-        //                            // Deductions (static for now)
-        //                            row.RelativeItem().Column(ded =>
-        //                            {
-        //                                ded.Item().Text("Deductions").Bold();
-
-        //                                ded.Item().Table(table =>
-        //                                {
-        //                                    table.ColumnsDefinition(c =>
-        //                                    {
-        //                                        c.RelativeColumn();
-        //                                        c.ConstantColumn(80);
-        //                                    });
-
-        //                                    void AddDeduction(string label, decimal amount)
-        //                                    {
-        //                                        table.Cell().Text(label);
-        //                                        table.Cell().AlignRight().Text(amount.ToString("N2"));
-        //                                    }
-
-        //                                    AddDeduction("Provident Fund", 1000);
-        //                                    AddDeduction("Professional Tax", 2000);
-        //                                    AddDeduction("ESI", 0);
-        //                                    AddDeduction("Home Loan", 20000);
-        //                                    AddDeduction("TDS", 10000);
-
-        //                                    table.Cell().Text("Total Deductions").Bold();
-        //                                    table.Cell().AlignRight().Text("35000.00").Bold();
-        //                                });
-        //                            });
-        //                        });
-
-        //                        // Net Pay
-        //                        col.Item().PaddingTop(10).Text($"Net Pay: {(data.TotalSalary - 35000):N2}")
-        //                            .Bold().FontSize(12);
-
-        //                        col.Item().Text(data.SalaryInWords);
-
-        //                        // Signature
-        //                        col.Item().PaddingTop(30).AlignRight().Column(c =>
-        //                        {
-        //                            c.Item().Text("For Priya Jain").Bold();
-        //                            c.Item().PaddingTop(15).Text("Authorised Signatory");
-        //                        });
-
-
-        //                        // Footer
-        //                        col.Item().AlignCenter().PaddingTop(20).Text("This is a system generated payslip.")
-        //                            .FontSize(9).Italic();
-        //                    });
-        //                });
-        //            }).GeneratePdf(stream);
-
-        //            return stream.ToArray();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("PDF Generation Error: " + ex.Message);
-        //        await userInfoService.ActionLogExceptionAsync("Pay Slip according to EmpoyeeID", ex, id, ActionName.Error);
-        //        throw new Exception("Error while generating Pay Slip PDF.");
-        //    }
-        //}
-
-
-
+        
     }
 }
