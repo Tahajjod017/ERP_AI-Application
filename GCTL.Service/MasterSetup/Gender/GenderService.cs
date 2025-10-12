@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.Genders;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.Genders;
+using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using GCTL.Data.Models;
 
 namespace GCTL.Service.MasterSetup.Gender
 {
@@ -92,7 +93,7 @@ namespace GCTL.Service.MasterSetup.Gender
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<GenderVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<GenderVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.GenderName = model.GenderName;
                 entity.UpdatedAt = DateTime.Now;
@@ -102,7 +103,7 @@ namespace GCTL.Service.MasterSetup.Gender
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<GenderVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<GenderVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Gender", ActionName.DataUpdated, beforeEntity, afterEntity, entity.GenderID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -168,7 +169,7 @@ namespace GCTL.Service.MasterSetup.Gender
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<GenderVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<GenderVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.GenderID).ToList();
 
                 foreach (var item in data)

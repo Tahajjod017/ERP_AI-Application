@@ -14,6 +14,7 @@ namespace GCTL.Service.CRM
 {
     public class CRMService : ICRMService
     {
+        #region Services
         private readonly IGenericRepository<Leads> _leadsGenericRepository;
         private readonly AppDbContext _context;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeesRepository;
@@ -23,19 +24,19 @@ namespace GCTL.Service.CRM
             _leadsGenericRepository = leadsGenericRepository;
             _employeesRepository = employeesRepository;
         }
+        #endregion
+
+        #region Task
         public async Task<(List<LeadsTableVM> Leads, int TotalCount)> GetLeads(
-    int customerType,
-    string dateRange,
-    string leadStatus2,
-    int pageNumber = 1,
-    int pageSize = 10,
-    string searchTerm = null,
-    string sortColumn = null,
-    string sortDirection = null
-    
-)
+            int customerType,
+            string dateRange,
+            string leadStatus2,
+            int pageNumber = 1,
+            int pageSize = 10,
+            string searchTerm = null,
+            string sortColumn = null,
+            string sortDirection = null)
         {
-            // Start query (IQueryable, NOT ToList yet)
             var query = from lead in _leadsGenericRepository.AllActive()
                         join indDddr in _context.CustomerAddresses
                             on lead.CustomerID equals indDddr.CustomerID
@@ -66,7 +67,6 @@ namespace GCTL.Service.CRM
                             CustomerTypeID = indDddr.AddressType.AddressTypeID
                         };
 
-            // Apply filters before pagination
             if (customerType > 0)
                 query = query.Where(r => r.CustomerTypeID == customerType);
 
@@ -94,10 +94,8 @@ namespace GCTL.Service.CRM
                 _ => query.OrderByDescending(r => r.LeadId)
             };
 
-            // Total count before paging
             var totalCount = await query.CountAsync();
 
-            // ✅ Fetch only the required page from DB
             var leads = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -105,10 +103,7 @@ namespace GCTL.Service.CRM
 
             return (leads, totalCount);
         }
-
-
-        // employeeService
-
+        #endregion
 
         #region SearchOrganizations
         public async Task<PaginatedResult<CommonSelectVM>> SearchOrganizations(string search, int page = 1, int pageSize = 50)

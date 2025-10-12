@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.MaritalStatus;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.MaritalStatus;
+using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using GCTL.Data.Models;
 
 namespace GCTL.Service.MasterSetup.MaritalStatuses
 {
@@ -91,7 +92,7 @@ namespace GCTL.Service.MasterSetup.MaritalStatuses
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<MaritalStatusVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<MaritalStatusVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.MaritalStatusName = model.MaritalStatusName;
                 entity.UpdatedAt = DateTime.Now;
@@ -101,7 +102,7 @@ namespace GCTL.Service.MasterSetup.MaritalStatuses
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<MaritalStatusVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<MaritalStatusVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Marital Status", ActionName.DataUpdated, beforeEntity, afterEntity, entity.MaritalStatusID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -167,7 +168,7 @@ namespace GCTL.Service.MasterSetup.MaritalStatuses
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<MaritalStatusVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<MaritalStatusVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.MaritalStatusID).ToList();
 
                 foreach (var item in data)

@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.Religions;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.Religions;
+using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GCTL.Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.MasterSetup.Religion
 {
@@ -91,7 +92,7 @@ namespace GCTL.Service.MasterSetup.Religion
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<ReligionVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<ReligionVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.ReligionName = model.ReligionName;
                 entity.UpdatedAt = DateTime.Now;
@@ -101,7 +102,7 @@ namespace GCTL.Service.MasterSetup.Religion
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<ReligionVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<ReligionVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Religion", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ReligionID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -167,7 +168,7 @@ namespace GCTL.Service.MasterSetup.Religion
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<ReligionVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<ReligionVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.ReligionID).ToList();
 
                 foreach (var item in data)

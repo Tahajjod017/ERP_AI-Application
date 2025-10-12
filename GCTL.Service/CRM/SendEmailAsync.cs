@@ -1,8 +1,4 @@
-﻿using System.Net;
-using System.Net.Mail;
-using System.Threading.Tasks;
-
-
+﻿
 namespace GCTL.Service.CRM
 {
 
@@ -13,7 +9,7 @@ namespace GCTL.Service.CRM
     public class EmailService1
     {
         private readonly string _fromEmail = "systemtestmailuse@gmail.com";
-        private readonly string _appPassword = "hbqb etwa nkhl ngvw";
+        private readonly string _appPassword = "vrst pwvh aidi yvfx";
 
         public async Task SendEmailAsync(string toEmail, string subject, string body, byte[] attachmentBytes = null, string attachmentName = null)
         {

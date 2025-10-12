@@ -2,11 +2,9 @@
 using GCTL.Core.Helpers;
 using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.Genders;
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
-using GCTL.Service.MasterSetup.ServiceType;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -112,7 +110,6 @@ namespace GCTL.Service.MasterSetup.ServiceType
         }
         #endregion;
 
-
         #region Get
         public async Task<ServiceVM> GetByIdAsync(int id)
         {
@@ -135,7 +132,6 @@ namespace GCTL.Service.MasterSetup.ServiceType
         }
         #endregion
 
-
         #region Update
         public async Task<bool> UpdateAsync(ServiceVM model)
         {
@@ -148,7 +144,7 @@ namespace GCTL.Service.MasterSetup.ServiceType
                     return false;
                 }
 
-                //var beforeEntity = JsonConvert.DeserializeObject<ServiceVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<ServiceVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.ServiceName = model.ServiceName;
                 entity.UpdatedAt = DateTime.Now;
@@ -158,8 +154,8 @@ namespace GCTL.Service.MasterSetup.ServiceType
 
                 await _genericRepository.UpdateAsync(entity);
 
-                //var afterEntity = JsonConvert.DeserializeObject<ServiceVM>(JsonConvert.SerializeObject(entity));
-                //await _userInfoService.ActionLogAsync("Service", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ServiceID, model);
+                var afterEntity = JsonConvert.DeserializeObject<ServiceVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                await _userInfoService.ActionLogAsync("Services", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ServiceID, model);
 
                 await _genericRepository.CommitTransactionAsync();
 
@@ -201,7 +197,7 @@ namespace GCTL.Service.MasterSetup.ServiceType
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                //await _userInfoService.ActionLogDeleteAsync("Service", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+                await _userInfoService.ActionLogDeleteAsync("Services", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

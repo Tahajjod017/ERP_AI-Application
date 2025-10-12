@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.LeadSource;
 using GCTL.Core.ViewModels.MasterSetup.Priority;
@@ -7,6 +8,7 @@ using GCTL.Service.ActionLogAudit;
 using GCTL.Service.MasterSetup.LeadSource;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -150,7 +152,7 @@ namespace GCTL.Service.MasterSetup.Priority
                     return false;
                 }
 
-                //var beforeEntity = JsonConvert.DeserializeObject<PriorityVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<PriorityVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.PriorityName = model.PriorityName;
                 entity.UpdatedAt = DateTime.Now;
@@ -160,8 +162,8 @@ namespace GCTL.Service.MasterSetup.Priority
 
                 await _genericRepository.UpdateAsync(entity);
 
-                //var afterEntity = JsonConvert.DeserializeObject<PriorityVM>(JsonConvert.SerializeObject(entity));
-                //await _userInfoService.ActionLogAsync("Service", ActionName.DataUpdated, beforeEntity, afterEntity, entity.PriorityID, model);
+                var afterEntity = JsonConvert.DeserializeObject<PriorityVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                await _userInfoService.ActionLogAsync("Priorities", ActionName.DataUpdated, beforeEntity, afterEntity, entity.PriorityID, model);
 
                 await _genericRepository.CommitTransactionAsync();
 
@@ -190,7 +192,7 @@ namespace GCTL.Service.MasterSetup.Priority
                     };
                 }
 
-                //var beforeEntity = JsonConvert.DeserializeObject<List<PriorityVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<PriorityVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.PriorityID).ToList();
 
                 foreach (var item in data)
@@ -203,7 +205,7 @@ namespace GCTL.Service.MasterSetup.Priority
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                //await _userInfoService.ActionLogDeleteAsync("Service", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+                await _userInfoService.ActionLogDeleteAsync("Priorities", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

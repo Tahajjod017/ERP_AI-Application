@@ -1,8 +1,10 @@
 ﻿using GCTL.Core;
 using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift;
+using GCTL.Core.ViewModels.MasterSetup.Genders;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.AdminSettings.GeneralSettings;
@@ -214,8 +216,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         existingEntity.UpdatedAt = DateTime.Now;
 
                         await _genericRepository.UpdateAsync(existingEntity);
-                        //var afterEntity = JsonConvert.DeserializeObject<ShiftsSetupVM>(JsonConvert.SerializeObject(entityToRestore));
-                        //await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataAdd, null, existingEntity, existingEntity.ShiftID, model);
+                        var afterEntity = JsonConvert.DeserializeObject<ShiftsSetupVM>(JsonConvert.SerializeObject(entityToRestore, JsonSettings.IgnoreReferenceLoop));
+                        await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataAdd, null, existingEntity, existingEntity.ShiftID, model);
                     }
                     else
                     {
@@ -291,7 +293,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 {
                     return false;
                 }
-                //var beforeEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.ShiftName = model.UpdateShiftName;
                 entity.OrganizationID = model.UpdateOrganizationID;
@@ -320,8 +322,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 entity.LMAC = model.LMAC;
                 entity.UpdatedBy = model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
-                //var afterEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity));
-                //await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ShiftID, model);
+                var afterEntity = JsonConvert.DeserializeObject<ShiftUpdateSetupVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                await _userInfoService.ActionLogAsync("Add Shift", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ShiftID, model);
                 await _genericRepository.CommitTransactionAsync();
 
                 return true;
@@ -410,6 +412,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         Message = "No data found to delete."
                     };
                 }
+                var beforeEntity = JsonConvert.DeserializeObject<List<ShiftsSetupVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
+                var targetIds = data.Select(x => (int?)x.ShiftID).ToList();
 
                 foreach (var item in data)
                 {
@@ -420,7 +424,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);
-
+                  await _userInfoService.ActionLogDeleteAsync("Add Shift", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
                 await _genericRepository.CommitTransactionAsync();
 
                 return new ShiftsSetupVM

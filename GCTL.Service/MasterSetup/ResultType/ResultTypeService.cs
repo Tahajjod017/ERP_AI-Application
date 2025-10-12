@@ -94,7 +94,7 @@ namespace GCTL.Service.MasterSetup.ResultType
                 {
                     return false;
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<ResultTypeVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<ResultTypeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 entity.ResultTypeName = model.ResultTypeName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -102,7 +102,7 @@ namespace GCTL.Service.MasterSetup.ResultType
                 entity.LMAC = model.LMAC;
                 entity.UpdatedBy = model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
-                var afterEntity = JsonConvert.DeserializeObject<ResultTypeVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<ResultTypeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Result Type", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ResultTypeID, model);
                 await _genericRepository.CommitTransactionAsync();
 

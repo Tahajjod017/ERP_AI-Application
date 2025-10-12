@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.EmployeeType;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.EmployeeType;
+using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using GCTL.Data.Models;
 
 namespace GCTL.Service.MasterSetup.EmployeeTypes
 {
@@ -91,7 +92,7 @@ namespace GCTL.Service.MasterSetup.EmployeeTypes
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<EmployeeTypesVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<EmployeeTypesVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.EmployeeTypeName = model.EmployeeTypeName;
                 entity.UpdatedAt = DateTime.Now;
@@ -101,7 +102,7 @@ namespace GCTL.Service.MasterSetup.EmployeeTypes
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<EmployeeTypesVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<EmployeeTypesVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Employee Type", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EmployeeTypeID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -167,7 +168,7 @@ namespace GCTL.Service.MasterSetup.EmployeeTypes
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<EmployeeTypesVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<EmployeeTypesVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.EmployeeTypeID).ToList();
 
                 foreach (var item in data)
