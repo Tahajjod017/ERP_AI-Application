@@ -1,11 +1,11 @@
-﻿using Bogus.DataSets;
-using GCTL.Core.Repository;
+﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using GCTL.Service.FileHandler;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Index.HPRtree;
 using QuestPDF.Fluent;
+using System.Text;
+using Microsoft.AspNetCore.Hosting;
 
 
 namespace GCTL.Service.CRM.LeadsActivities
@@ -17,7 +17,12 @@ namespace GCTL.Service.CRM.LeadsActivities
         private readonly IPdfFileHandler _pdfFileHandlerService;
         public readonly IGenericRepository<LeadProjectTeams> _leadProjectTeamsRepository;
 
-        public LeadsActivityService(IGenericRepository<LeadDetails> leadDetailsRepository, IPdfFileHandler pdfFileHandlerService, IGenericRepository<LeadProjectTeams> leadProjectTeamsRepository)
+
+
+        public LeadsActivityService(
+            IGenericRepository<LeadDetails> leadDetailsRepository,
+            IPdfFileHandler pdfFileHandlerService,
+            IGenericRepository<LeadProjectTeams> leadProjectTeamsRepository)
         {
             _leadDetailsRepository = leadDetailsRepository;
             _pdfFileHandlerService = pdfFileHandlerService;
@@ -178,10 +183,11 @@ namespace GCTL.Service.CRM.LeadsActivities
         #endregion
 
         #region Generate PDF
-        public async Task<bool> GenerateAndSendEmployeePDFsAsync()
+        public async Task<bool> GenerateAndSendEmployeePDFsAsync(string wwwRootPath)
         {
             try
             {
+
                 var allTeam = await _leadProjectTeamsRepository.AllActive()
                     .Include(t => t.LeadProjectTeamMembers)
                         .ThenInclude(m => m.Employee)
@@ -198,7 +204,11 @@ namespace GCTL.Service.CRM.LeadsActivities
                                     .Select(x => x.Organization.OrganizationName)
                                     .FirstOrDefault(),
                                 CompanyAddress = m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.Address).FirstOrDefault(),
-                                LogoLink = m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.LogoLink).FirstOrDefault(),
+                                CompanyEmail = m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.EmailAddress).FirstOrDefault(),
+                                CompanyPhone = m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.Phone).FirstOrDefault(),
+                                LogoLink = !string.IsNullOrEmpty(m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.LogoLink).FirstOrDefault())
+                               ? Path.Combine(wwwRootPath, "images", m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.LogoLink).FirstOrDefault())
+                               : "",
                                 LeadProjectTeamMemberID = m.EmployeeID,
                                 LeadProjectTeamMemberName = $"{m.Employee.FirstName} {m.Employee.LastName}",
                                 LeadProjectTeamMemberEmail = m.Employee.Email,
@@ -270,226 +280,464 @@ namespace GCTL.Service.CRM.LeadsActivities
             var emailService = new EmailService1();
             string recipientEmail = emailOverride ?? model.Email;
 
+            // 🔹 Build the table rows using foreach
+            var activityRows = new StringBuilder();
+
+            if (model.Activities != null && model.Activities.Any())
+            {
+                int index = 1;
+                foreach (var activity in model.Activities)
+                {
+                    activityRows.AppendLine($@"
+                <tr>
+                    <td style=""text-align:center;"">{index}</td>
+                    <td>{activity.LeadName}</td>
+                    <td>{activity.CustomerName}</td>
+                    <td>{activity.ActivityType}</td>
+                    <td>{activity.ActivityDateTime:dd-MMM-yyyy hh:mm tt}</td>
+                    <td>{activity.ActivityNote}</td>
+                    <td>{activity.LeadOwner}</td>
+                </tr>");
+                    index++;
+                }
+            }
+            else
+            {
+                activityRows.AppendLine("<tr><td colspan='7' style='text-align:center;'>No activities found</td></tr>");
+            }
+
             string subject = $"Upcoming Activity Report - {model.EmployeeName ?? "Admin"}";
             string body = $@"
-                <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <meta charset=""UTF-8"">
-                        <title>HR Leave Request</title>
-                        <style>
-                            /* Reset styles */
-                            body, table, td, p, a, li, h1, h2 {{
-                                -webkit-text-size-adjust: 100%;
-                                -ms-text-size-adjust: 100%;
-                                margin: 0;
-                                padding: 0;
-                            }}
-                            body {{
-                                font-family: Arial, sans-serif;
-                                font-size: 14px;
-                                line-height: 20px;
-                                color: #333333;
-                                background-color: #f4f4f4;
-                                padding: 20px;
-                            }}
-                            table {{
-                                border-collapse: collapse;
-                            }}
+              <!DOCTYPE html>
+                 <html>
+                 <head>
+                     <meta charset=""UTF-8"">
+                     <title>HR Leave Request</title>
+                     <style>
+                         /* Reset styles */
+                         body, table, td, p, a, li, h1, h2 {{
+                             -webkit-text-size-adjust: 100%;
+                             -ms-text-size-adjust: 100%;
+                             margin: 0;
+                             padding: 0;
+                         }}
+                         body {{
+                             font-family: Arial, sans-serif;
+                             font-size: 14px;
+                             line-height: 20px;
+                             color: #333333;
+                             background-color: #f4f4f4;
+                             padding: 20px;
+                         }}
+                         table {{
+                             border-collapse: collapse;
+                         }}
 
-                            /* Main container */
-                            .email-container {{
-                                max-width: 600px;
-                                margin: auto;
-                                background-color: #ffffff;
-                                border: 1px solid #e0e0e0;
-                                border-radius: 8px;
-                                overflow: hidden;
-                            }}
+                         /* Main container */
+                         .email-container {{
+                             width: 800px;
+                             margin: auto;
+                             background-color: #ffffff;
+                             border: 1px solid #e0e0e0;
+                             border-radius: 8px;
+                             overflow: hidden;
+                         }}
 
-                            /* Header */
-                            .header-bg {{
-                                position: relative;
-                                background-color: #3252ff;
-                                background-image: linear-gradient(to bottom right, #080301 120px, transparent 0);
-                                background-repeat: no-repeat;
-                                background-size: 140px 140px;
-                                padding: 25px 30px;
-                                color: #ffffff;
-                            }}
-                            .header-bg img {{
-                                display: block;
-                                border: 0;
-                                outline: none;
-                                text-decoration: none;
-                                max-width: 200px;
-                                height: auto;
-                            }}
-                            .header-bg td {{
-                                font-size: 13px;
-                                line-height: 18px;
-                                text-align: right;
-                                color: #ffffff;
-                            }}
+                         /* Header */
+                         .header-bg {{
+                             position: relative;
+                             background-color: #3252ff;
+                             background-image: linear-gradient(to bottom right, #080301 120px, transparent 0);
+                             background-repeat: no-repeat;
+                             background-size: 140px 140px;
+                             padding: 25px 30px;
+                             color: #ffffff;
+                         }}
+                         .header-bg img {{
+                             display: block;
+                             border: 0;
+                             outline: none;
+                             text-decoration: none;
+                             max-width: 200px;
+                             height: auto;
+                         }}
+                         .header-bg td {{
+                             font-size: 13px;
+                             line-height: 18px;
+                             text-align: right;
+                             color: #ffffff;
+                         }}
 
-                            /* Content */
-                            .content {{
-                                padding: 20px 30px;
-                            }}
-                            .content p {{
-                                margin-bottom: 10px;
-                            }}
-                            .content h2 {{
-                                font-size: 18px;
-                                margin-bottom: 10px;
-                                color: #3252ff;
-                            }}
+                         /* Content */
+                         .content {{
+                             padding: 20px 30px;
+                         }}
+                         .content p {{
+                             margin-bottom: 10px;
+                         }}
+                         .content h2 {{
+                             font-size: 18px;
+                             margin-bottom: 10px;
+                             color: #3252ff;
+                         }}
 
-                            /* Tables for info */
-                            .info-table {{
-                                width: 100%;
-                                border: 1px solid #e0e0e0;
-                                border-radius: 5px;
+                         /* Tables for info */
+                         .info-table {{
+                             width: 100%;
+                             width: 400px;
+                             border: 1px solid #e0e0e0;
+                             border-radius: 5px;
           
-                            }}
-                            .info-table th, .info-table td {{
-                                padding: 10px;
-                                border: 1px solid #e0e0e0;
-                                text-align: left;
+                         }}
+                         .info-table th, .info-table td {{
+                             padding: 10px;
+                             border: 1px solid #e0e0e0;
+                             text-align: left;
 		
-                            }}
-                            .info-table th {{
-                               background-color: #f4f4f4; 
-                                font-weight: bold;
-			                    width:50%;
-                            }}
+                         }}
+                         .info-table th {{
+                            background-color: #f4f4f4; 
+                             font-weight: bold;
+                             width:50%;
+                         }}
 
-                            /* Approval timeline */
-                            .timeline {{
-                                width: 100%;
-                                margin-top: 20px;
-                            }}
-                            .timeline td {{
-                                vertical-align: top;
-                            }}
-                            .timeline-dot {{
-                                width: 15px;
-                                height: 15px;
-                                border-radius: 50%;
-                                margin-top: 3px;
-                            }}
-                            .timeline-line {{
-                                width: 2px;
-                                height: 30px;
-                                background-color: #e0e0e0;
-                                margin-left: 6px;
-                            }}
-		                    /* Section backgrounds */
-                    .section-header {{
-                        background-color: #3252ff; /* Blue header */
-                        color: #ffffff;
+                         /* Approval timeline */
+                         .timeline {{
+                             width: 100%;
+                             margin-top: 20px;
+                         }}
+                         .timeline td {{
+                             vertical-align: top;
+                         }}
+                         .timeline-dot {{
+                             width: 15px;
+                             height: 15px;
+                             border-radius: 50%;
+                             margin-top: 3px;
+                         }}
+                         .timeline-line {{
+                             width: 2px;
+                             height: 30px;
+                             background-color: #e0e0e0;
+                             margin-left: 6px;
+                         }}
+                         /* Section backgrounds */
+                 .section-header {{
+                     background-color: #3252ff; /* Blue header */
+                     color: #ffffff;
+                 }}
+                 .section-greeting {{
+                     background-color: #f9f9f9; /* light grey */
+                 }}
+                 .section-timeline {{
+                     background-color: #eef4ff; /* soft blue */
+                 }}
+                 .section-info {{
+                  width: 500px;
+                     background-color: #ffffff; /* white card */
+                 }}
+                 .section-footer {{
+                     background-color: #000; /* footer grey */
+                 }}
+                 .section-button {{
+                     padding-top: 0;
+                 }}
+
+                  /* Footer */
+                  .footer {{
+                      text-align: center;
+                      padding: 20px 30px;
+                      font-size: 13px;
+                      color: #fff;
+                  }}
+
+                    #data-table {{
+                        width: 100%;
+                        padding: 20px;
+                      }}
+                      #data-table thead th {{
+                        text-align: center;
+                        background-color: rgb(236, 236, 236);
+                        padding: 7px 0;
+                      }}
+                      #data-table thead th, #data-table tbody td {{
+                        border: 1px solid rgb(218, 218, 218);
+    
+                      }}
+                      #data-table tbody td {{
+                        padding: 7px 5px;
+    
+              }}
+                  /* Responsive */
+                  @media only screen and (max-width: 600px) {{
+                    .header-bg td {{
+                        display: block;
+                        text-align: center;
+                        margin-bottom: 10px;
                     }}
-                    .section-greeting {{
-                        background-color: #f9f9f9; /* light grey */
+                    .header-bg img {{
+                        margin: auto;
                     }}
-                    .section-timeline {{
-                        background-color: #eef4ff; /* soft blue */
+                  }}
+                </style> <!DOCTYPE html>
+                 <html>
+                 <head>
+                     <meta charset=""UTF-8"">
+                     <title>HR Leave Request</title>
+                     <style>
+                         /* Reset styles */
+                         body, table, td, p, a, li, h1, h2 {{
+                             -webkit-text-size-adjust: 100%;
+                             -ms-text-size-adjust: 100%;
+                             margin: 0;
+                             padding: 0;
+                         }}
+                         body {{
+                             font-family: Arial, sans-serif;
+                             font-size: 14px;
+                             line-height: 20px;
+                             color: #333333;
+                             background-color: #f4f4f4;
+                             padding: 20px;
+                         }}
+                         table {{
+                             border-collapse: collapse;
+                         }}
+
+                         /* Main container */
+                         .email-container {{
+                             width: 800px;
+                             margin: auto;
+                             background-color: #ffffff;
+                             border: 1px solid #e0e0e0;
+                             border-radius: 8px;
+                             overflow: hidden;
+                         }}
+
+                         /* Header */
+                         .header-bg {{
+                             position: relative;
+                             background-color: #3252ff;
+                             background-image: linear-gradient(to bottom right, #080301 120px, transparent 0);
+                             background-repeat: no-repeat;
+                             background-size: 140px 140px;
+                             padding: 25px 30px;
+                             color: #ffffff;
+                         }}
+                         .header-bg img {{
+                             display: block;
+                             border: 0;
+                             outline: none;
+                             text-decoration: none;
+                             max-width: 200px;
+                             height: auto;
+                         }}
+                         .header-bg td {{
+                             font-size: 13px;
+                             line-height: 18px;
+                             text-align: right;
+                             color: #ffffff;
+                         }}
+
+                         /* Content */
+                         .content {{
+                             padding: 20px 30px;
+                         }}
+                         .content p {{
+                             margin-bottom: 10px;
+                         }}
+                         .content h2 {{
+                             font-size: 18px;
+                             margin-bottom: 10px;
+                             color: #3252ff;
+                         }}
+
+                         /* Tables for info */
+                         .info-table {{
+                             width: 100%;
+                             width: 400px;
+                             border: 1px solid #e0e0e0;
+                             border-radius: 5px;
+          
+                         }}
+                         .info-table th, .info-table td {{
+                             padding: 10px;
+                             border: 1px solid #e0e0e0;
+                             text-align: left;
+		
+                         }}
+                         .info-table th {{
+                            background-color: #f4f4f4; 
+                             font-weight: bold;
+                             width:50%;
+                         }}
+
+                         /* Approval timeline */
+                         .timeline {{
+                             width: 100%;
+                             margin-top: 20px;
+                         }}
+                         .timeline td {{
+                             vertical-align: top;
+                         }}
+                         .timeline-dot {{
+                             width: 15px;
+                             height: 15px;
+                             border-radius: 50%;
+                             margin-top: 3px;
+                         }}
+                         .timeline-line {{
+                             width: 2px;
+                             height: 30px;
+                             background-color: #e0e0e0;
+                             margin-left: 6px;
+                         }}
+                         /* Section backgrounds */
+                 .section-header {{
+                     background-color: #3252ff; /* Blue header */
+                     color: #ffffff;
+                 }}
+                 .section-greeting {{
+                     background-color: #f9f9f9; /* light grey */
+                 }}
+                 .section-timeline {{
+                     background-color: #eef4ff; /* soft blue */
+                 }}
+                 .section-info {{
+                  width: 500px;
+                     background-color: #ffffff; /* white card */
+                 }}
+                 .section-footer {{
+                     background-color: #000; /* footer grey */
+                 }}
+                 .section-button {{
+                     padding-top: 0;
+                 }}
+
+                  /* Footer */
+                  .footer {{
+                      text-align: center;
+                      padding: 20px 30px;
+                      font-size: 13px;
+                      color: #fff;
+                  }}
+
+                  /* table data css */
+                  #data-table {{
+                    width: 100%;
+                    padding: 20px;
+                  }}
+                  #data-table thead th {{
+                    text-align: center;
+                    background-color: rgb(236, 236, 236);
+                    padding: 7px 0;
+                  }}
+                  #data-table thead th, #data-table tbody td {{
+                    border: 1px solid rgb(218, 218, 218);
+        
+                  }}
+                  #data-table tbody td {{
+                    padding: 7px 5px;
+        
+                  }}
+                #emailHeaderAddress {{
+                    width: 150px;
+                }}
+                  /* Responsive */
+                  @media only screen and (max-width: 600px) {{
+                    .header-bg td {{
+                        display: block;
+                        text-align: center;
+                        margin-bottom: 10px;
                     }}
-                    .section-info {{
-                        background-color: #ffffff; /* white card */
+                    .header-bg img {{
+                        margin: auto;
                     }}
-                    .section-footer {{
-                        background-color: #000; /* footer grey */
-                    }}
-                    .section-button {{
-                        padding-top: 0;
-                    }}
-
-                            /* Footer */
-                            .footer {{
-                                text-align: center;
-                                padding: 20px 30px;
-                                font-size: 13px;
-                                color: #fff;
-                            }}
-                            /* Responsive */
-                            @media only screen and (max-width: 600px) {{
-                                .header-bg td {{
-                                    display: block;
-                                    text-align: center;
-                                    margin-bottom: 10px;
-                                }}
-                                .header-bg img {{
-                                    margin: auto;
-                                }}
-                            }}
-                        </style>
-                    </head>
-                    <body>
-                        <table class=""email-container"">
-                            <!-- Header -->
-                            <tr>
-                                <td class=""header-bg"">
-                                    <table width=""100%"">
-                                        <tr>
-                                            <td align=""left"">
-                                                <img src=""https://gctlsecurity.com/pub/static/frontend/CLS/Security/en_US/images/logo.png"" alt=""Company Logo"">
-                                            </td>
-                                            <td align=""right"">
-                                                House-42(5th Floor) Road-10,<br>
-                                                Sector-4, Uttara, Dhaka-1230,<br>
-                                                Bangladesh<br>
-                                                info@gctlinfosys.com<br>
-                                                +88 01795-788488
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-
-                            <!-- Greeting -->
-                            <tr>
-                                <td class=""content section-greeting"">
-                                    <p>Dear HR Team,</p>
-                                    <p>This is an automated leave request submitted by an employee. Please find the details below:</p>
-                                </td>
-                            </tr>
-		                    <!-- Approval Timeline (Horizontal) -->
-
-
-
-                            <!-- Employee Info -->
-                            <tr>
-                                <td class=""content section-info"">
-                                    <h2>Employee Information</h2>
-                                    <table class=""info-table"" style=""margin-bottom: 10px;"">
-                                        <tr>
-                                            <th>Name</th>
-                                            <td>{model.EmployeeName}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Team Name</th>
-                                            <td>{model.TeamName}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Total Activities</th>
-                                            <td> {model.TotalActivities} </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                    <!-- Footer -->
-                    <tr>
-                      <td class=""footer section-footer"" align=""center"" style=""text-align:center;"">
-                        <p>© Gctlinfosys 2025. All rights reserved.</p>
-
-
+                  }}
+                </style>
+              </head>
+              <body>
+                <table class=""email-container"">
+                        <!-- Header -->
+                  <tr>
+                      <td class=""header-bg"">
+                          <table width=""100%"">
+                              <tr>
+                                  <td align=""left"">
+                                        <p>{model.CompanyName}
+                                  </td>
+                                  <td align=""right"">
+                                      <span id=""emailHeaderAddress"">{model.CompanyAddress}</span><br>
+                                      {model.CompanyEmail}<br>
+                                      {model.CompanyPhone}
+                                  </td>
+                              </tr>
+                          </table>
                       </td>
-                    </tr>
-                        </table>
-                    </body>
-                    </html>
+                  </tr>
 
+                <!-- Greeting -->
+                  <tr>
+                      <td class=""content section-greeting"">
+                          <p>Dear HR Team,</p>
+                          <p>This is an automated leave request submitted by an employee. Please find the details below:</p>
+                      </td>
+                  </tr>
+                        <!-- Approval Timeline (Horizontal) -->
+
+
+
+                        <!-- Employee Info -->
+                  <tr>
+                      <td class=""content section-info"">
+                          <h2>Employee Information</h2>
+                          <table class=""info-table"" style=""margin-bottom: 10px;"">
+                              <tr>
+                                  <th>Name</th>
+                                  <td>{model.EmployeeName}</td>
+                              </tr>
+                              <tr>
+                                  <th>Team Name</th>
+                                  <td>{model.TeamName}</td>
+                              </tr>
+                              <tr>
+                                  <th>Total Activities</th>
+                                  <td> {model.TotalActivities} </td>
+                              </tr>
+                          </table>
+                      </td>
+                  </tr>
+
+
+                  <!-----Table Data --> 
+                  <tr>
+                    <td style=""padding: 0 20px 20px 20px;"">
+                      <table id=""data-table"">
+                        <thead>
+                          <th>#</th>
+                          <th>Lead Name</th>
+                          <th>Customer Name</th>
+                          <th>Activity Type</th>
+                          <th>Date & Time</th>
+                          <th>Note</th>
+                          <th>Owner Name</th>
+                        </thead>
+                        <tbody>
+                         {activityRows}
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+      
+              <!-- Footer -->
+                  <tr>
+                    <td class=""footer section-footer"" align=""center"" style=""text-align:center;"">
+                      <p>© {model.CompanyName} 2025. All rights reserved.</p>
+                    </td>
+                  </tr>
+                </table>
+              </body>
+            </html>
                ";
 
             await emailService.SendEmailAsync(

@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.AddTeam;
@@ -81,36 +82,32 @@ namespace GCTL.Service.CRM.AddTeam
         #region CreateTeam 
         public async Task<ReturnView> CreateTeam(CreateTeamVM createTeamVM)
         {
+            await _teamsRepository.BeginTransactionAsync();
+
             try
             {
                 if (string.IsNullOrWhiteSpace(createTeamVM.TeamName))
                 {
-                    return new ReturnView()
-                    {
-                        Success = false,
-                        Message = "please enter a valid team name"
-                    };
+                    return new ReturnView { Success = false, Message = "please enter a valid team name" };
                 }
 
-                var isUnique = await _teamsRepository.FirstOrDefaultAsync(u=> u.LeadProjectTeamName.ToLower() == createTeamVM.TeamName.ToLower());
+                var isUnique = await _teamsRepository.FirstOrDefaultAsync(
+                    u => u.LeadProjectTeamName.ToLower() == createTeamVM.TeamName.ToLower());
 
                 if (isUnique != null)
                 {
-                    return new ReturnView()
-                    {
-                        Success = false,
-                        Message = "This team name already exist"
-                    };
+                    return new ReturnView { Success = false, Message = "This team name already exist" };
                 }
 
-                string lastGID = await _teamsRepository.All().OrderByDescending(t => t.LPTeamGID).Select(t => t.LPTeamGID).FirstOrDefaultAsync() ?? "0";
-                int lastNumber = 0;
-                int.TryParse(lastGID, out lastNumber);
-                int newNumber = lastNumber + 1;
+                string lastGID = await _teamsRepository.All()
+                    .OrderByDescending(t => t.LPTeamGID)
+                    .Select(t => t.LPTeamGID)
+                    .FirstOrDefaultAsync() ?? "0";
 
-                string newGID = newNumber.ToString("D3");
+                int.TryParse(lastGID, out int lastNumber);
+                string newGID = (lastNumber + 1).ToString("D3");
 
-                var LeadProjectTeams = new LeadProjectTeams()
+                var leadProjectTeam = new LeadProjectTeams
                 {
                     LeadProjectTeamName = createTeamVM.TeamName,
                     LPTeamGID = newGID,
@@ -118,32 +115,33 @@ namespace GCTL.Service.CRM.AddTeam
                     CreatedBy = createTeamVM.CreatedBy
                 };
 
-                await _teamsRepository.AddAsync(LeadProjectTeams);
+                await _teamsRepository.AddAsync(leadProjectTeam);
 
-                if(createTeamVM.EmployeeIds != null && createTeamVM.EmployeeIds.Any())
+                if (createTeamVM.EmployeeIds?.Any() == true)
                 {
                     var members = createTeamVM.EmployeeIds.Select(id => new LeadProjectTeamMembers
                     {
-                        LeadProjectTeamID = LeadProjectTeams.LeadProjectTeamID,
+                        LeadProjectTeamID = leadProjectTeam.LeadProjectTeamID,
                         EmployeeID = id,
                         CreatedAt = DateTime.UtcNow,
-                        CreatedBy = createTeamVM.CreatedBy,
+                        CreatedBy = createTeamVM.CreatedBy
                     }).ToList();
 
                     await _teamMembersRepository.AddRangeAsync(members);
                 }
-                return new ReturnView()
-                {
-                    Success = true,
-                    Message = "Team Created"
-                };
+
+                await _userInfoService.ActionLogAsync("LeadProjectTeam", ActionName.DataAdd, null, leadProjectTeam, leadProjectTeam.LeadProjectTeamID, createTeamVM);
+
+                await _teamsRepository.CommitTransactionAsync();
+
+                return new ReturnView { Success = true, Message = "Team Created" };
             }
-            catch (Exception ex) {
-                return new ReturnView()
-                {
-                    Success = false,
-                    Message = "Something goes to wrong"
-                };
+            catch (Exception ex)
+            {
+                await _teamsRepository.RollbackTransactionAsync();
+                await _userInfoService.ActionLogExceptionAsync("CreateTeam", ex, null, ActionName.Error);
+
+                return new ReturnView { Success = false, Message = "Something went wrong" };
             }
         }
         #endregion
@@ -151,6 +149,8 @@ namespace GCTL.Service.CRM.AddTeam
         #region UpdateTeam
         public async Task<ReturnView> UpdateTeam(CreateTeamVM updateTeamVM)
         {
+            await _teamsRepository.BeginTransactionAsync();
+
             try
             {
                 if (updateTeamVM.TeamID <= 0)
@@ -170,6 +170,7 @@ namespace GCTL.Service.CRM.AddTeam
                         Message = "Please enter a valid team name"
                     };
                 }
+
                 var existingTeam = await _teamsRepository.FirstOrDefaultAsync(t => t.LeadProjectTeamID == updateTeamVM.TeamID);
                 if (existingTeam == null)
                 {
@@ -199,6 +200,7 @@ namespace GCTL.Service.CRM.AddTeam
 
                 await _teamsRepository.UpdateAsync(existingTeam);
 
+                // 🔹 Handle Members
                 var existingMembers = await _teamMembersRepository.All()
                     .Where(m => m.LeadProjectTeamID == updateTeamVM.TeamID)
                     .ToListAsync();
@@ -209,6 +211,7 @@ namespace GCTL.Service.CRM.AddTeam
                 var membersToRemove = existingMembers
                     .Where(m => m.EmployeeID.HasValue && !newMemberIds.Contains(m.EmployeeID.Value))
                     .ToList();
+
                 if (membersToRemove.Any())
                 {
                     await _teamMembersRepository.DeleteRangeAsync(membersToRemove);
@@ -229,6 +232,10 @@ namespace GCTL.Service.CRM.AddTeam
                     await _teamMembersRepository.AddRangeAsync(membersToAdd);
                 }
 
+                await _userInfoService.ActionLogAsync( "LeadProjectTeam", ActionName.DataUpdated, null, existingTeam, existingTeam.LeadProjectTeamID, updateTeamVM );
+
+                await _teamsRepository.CommitTransactionAsync();
+
                 return new ReturnView
                 {
                     Success = true,
@@ -237,6 +244,10 @@ namespace GCTL.Service.CRM.AddTeam
             }
             catch (Exception ex)
             {
+                await _teamsRepository.RollbackTransactionAsync();
+
+                await _userInfoService.ActionLogExceptionAsync("UpdateTeam", ex, updateTeamVM.TeamID, ActionName.Error);
+
                 return new ReturnView
                 {
                     Success = false,
@@ -244,7 +255,6 @@ namespace GCTL.Service.CRM.AddTeam
                 };
             }
         }
-
         #endregion
 
         #region GetAllAsync
@@ -379,16 +389,25 @@ namespace GCTL.Service.CRM.AddTeam
         #region Set Team Head
         public async Task<ReturnView> SetTeamHead(TeamHeadVM teamHeadVM)
         {
+            await _teamMembersRepository.BeginTransactionAsync();
+
             try
             {
-                if (teamHeadVM.TeamID == 0 || teamHeadVM.EmployeeID == 0) return new ReturnView { Message = "Team ID or Employee ID is null", Success = false, };
+                if (teamHeadVM.TeamID == 0 || teamHeadVM.EmployeeID == 0)
+                    return new ReturnView { Message = "Team ID or Employee ID is null", Success = false };
 
-                var exitingObj = await _teamMembersRepository.AllActive().Where(t => t.LeadProjectTeamID == teamHeadVM.TeamID && t.EmployeeID == teamHeadVM.EmployeeID).FirstOrDefaultAsync();
-                if (exitingObj == null) { return new ReturnView { Message = "Team not exist", Success = false, }; }
+                var existingObj = await _teamMembersRepository.AllActive()
+                    .Where(t => t.LeadProjectTeamID == teamHeadVM.TeamID && t.EmployeeID == teamHeadVM.EmployeeID)
+                    .FirstOrDefaultAsync();
 
-                var teamMembers = await _teamMembersRepository.AllActive().Where(t => t.LeadProjectTeamID == teamHeadVM.TeamID).ToListAsync();
+                if (existingObj == null)
+                    return new ReturnView { Message = "Team not exist", Success = false };
 
-                foreach(var member in teamMembers)
+                var teamMembers = await _teamMembersRepository.AllActive()
+                    .Where(t => t.LeadProjectTeamID == teamHeadVM.TeamID)
+                    .ToListAsync();
+
+                foreach (var member in teamMembers)
                 {
                     member.IsTeamHead = false;
                     member.LMAC = teamHeadVM.LMAC;
@@ -397,37 +416,38 @@ namespace GCTL.Service.CRM.AddTeam
                     member.UpdatedBy = teamHeadVM.UpdatedBy;
                 }
 
-                exitingObj.IsTeamHead = true;
-                exitingObj.LMAC = teamHeadVM.LMAC;
-                exitingObj.LIP = teamHeadVM.LIP;
-                exitingObj.UpdatedAt = DateTime.UtcNow;
-                exitingObj.UpdatedBy = teamHeadVM.UpdatedBy;
+                existingObj.IsTeamHead = true;
+                existingObj.LMAC = teamHeadVM.LMAC;
+                existingObj.LIP = teamHeadVM.LIP;
+                existingObj.UpdatedAt = DateTime.UtcNow;
+                existingObj.UpdatedBy = teamHeadVM.UpdatedBy;
 
-                await _teamMembersRepository.UpdateAsync(exitingObj);
+                await _teamMembersRepository.UpdateAsync(existingObj);
 
-                return new ReturnView { Message = "Team Head updated", Success = true, };
+                // 🔹 Log the action
+                await _userInfoService.ActionLogAsync(
+                    "LeadProjectTeam",
+                    ActionName.DataUpdated,
+                    null,
+                    existingObj,
+                    existingObj.LeadProjectTeamID,
+                    teamHeadVM
+                );
+
+                await _teamMembersRepository.CommitTransactionAsync();
+
+                return new ReturnView { Message = "Team Head updated", Success = true };
             }
             catch (Exception ex)
             {
-                return new ReturnView { Message = "Something went to wrong", Success = false, };
+                await _teamMembersRepository.RollbackTransactionAsync();
+
+                await _userInfoService.ActionLogExceptionAsync("SetTeamHead", ex, teamHeadVM.TeamID, ActionName.Error);
+
+                return new ReturnView { Message = "Something went wrong", Success = false };
             }
-            
         }
         #endregion
-
-
-        //public async Task<List<CommonSelectVM>> GetEmployeesByIds(List<int> ids)
-        //{
-        //    return await _employeeRepository.All()
-        //        .Where(e => ids.Contains(e.EmployeeID))
-        //        .Select(e => new CommonSelectVM
-        //        {
-        //            Id = e.EmployeeID,
-        //            Name = e.FirstName + e.LastName,
-        //        })
-        //        .ToListAsync();
-        //}
-
     }
 }
 

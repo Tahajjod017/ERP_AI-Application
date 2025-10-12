@@ -94,7 +94,7 @@ namespace GCTL.Service.MasterSetup.ProvisionPeriodTimeType
                 {
                     return false;
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<ProvisionPeriodTtimeTypesVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<ProvisionPeriodTtimeTypesVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 entity.ProvisionPeriodTtimeTypeName = model.ProvisionPeriodTtimeTypeName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -102,7 +102,7 @@ namespace GCTL.Service.MasterSetup.ProvisionPeriodTimeType
                 entity.LMAC = model.LMAC;
                 entity.UpdatedBy = model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
-                var afterEntity = JsonConvert.DeserializeObject<ProvisionPeriodTtimeTypesVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<ProvisionPeriodTtimeTypesVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Provision Period", ActionName.DataUpdated, beforeEntity, afterEntity, entity.ProvisionPeriodTtimeTypeID, model);
                 await _genericRepository.CommitTransactionAsync();
 
@@ -166,7 +166,7 @@ namespace GCTL.Service.MasterSetup.ProvisionPeriodTimeType
                         Message = "No data found to delete."
                     };
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<List<ProvisionPeriodTtimeTypesVM>>(JsonConvert.SerializeObject(data,JsonSettings.IgnoreReferenceLoop));
+                var beforeEntity = JsonConvert.DeserializeObject<List<ProvisionPeriodTtimeTypesVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.ProvisionPeriodTtimeTypeID).ToList();
                 foreach (var item in data)
                 {

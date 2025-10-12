@@ -1,5 +1,7 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.MasterSetup.TrainingYear;
 using GCTL.Core.ViewModels.MasterSetup.YearlyEndBonusType;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -52,7 +54,7 @@ namespace GCTL.Service.MasterSetup.YearlyEndBonusType
                     entityToRestore.UpdatedAt = DateTime.Now;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
-                    var afterEntity = JsonConvert.DeserializeObject<YearlyEndBonusTypeVM>(JsonConvert.SerializeObject(entityToRestore));
+                    var afterEntity = JsonConvert.DeserializeObject<YearlyEndBonusTypeVM>(JsonConvert.SerializeObject(entityToRestore, JsonSettings.IgnoreReferenceLoop));
                     await _userInfoService.ActionLogAsync("Yearly End Bonus Type", ActionName.DataAdd, null, entityToRestore, entityToRestore.YearlyEndBonusTypeID, model);
                 }
                 else
@@ -92,7 +94,7 @@ namespace GCTL.Service.MasterSetup.YearlyEndBonusType
                 {
                     return false;
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<YearlyEndBonusTypeVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<YearlyEndBonusTypeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 entity.YearlyEndBonusTypeName = model.YearlyEndBonusTypeName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -100,7 +102,7 @@ namespace GCTL.Service.MasterSetup.YearlyEndBonusType
                 entity.LMAC = model.LMAC;
                 entity.UpdatedBy = model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
-                var afterEntity = JsonConvert.DeserializeObject<YearlyEndBonusTypeVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<YearlyEndBonusTypeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Yearly End Bonus Type", ActionName.DataUpdated, beforeEntity, afterEntity, entity.YearlyEndBonusTypeID, model);
                 await _genericRepository.CommitTransactionAsync();
 
@@ -164,7 +166,8 @@ namespace GCTL.Service.MasterSetup.YearlyEndBonusType
                         Message = "No data found to delete."
                     };
                 }
-
+                var beforeEntity = JsonConvert.DeserializeObject<List<YearlyEndBonusTypeVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
+                var targetIds = data.Select(x => (int?)x.YearlyEndBonusTypeID).ToList();
                 foreach (var item in data)
                 {
                     item.DeletedAt = DateTime.Now;
@@ -174,7 +177,7 @@ namespace GCTL.Service.MasterSetup.YearlyEndBonusType
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);
-
+                await _userInfoService.ActionLogDeleteAsync("Yearly End Bonus Type", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
                 await _genericRepository.CommitTransactionAsync();
 
                 return new YearlyEndBonusTypeVM

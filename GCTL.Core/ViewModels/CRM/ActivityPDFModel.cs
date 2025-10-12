@@ -6,6 +6,8 @@ namespace GCTL.Core.ViewModels.CRM
         public string? CompanyName { get; set; }
         public string? CompanyLogo { get; set; }
         public string? CompanyAddress { get; set; }
+        public string? CompanyPhone { get; set; }
+        public string? CompanyEmail { get; set; }
         public string? TeamName { get; set; }
         public string? EmployeeName { get; set; }
         public string? Email { get; set; }

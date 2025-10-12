@@ -10,6 +10,8 @@ namespace GCTL.Service.CRM
     {
         public string? CompanyName { get; set; }
         public string? CompanyAddress { get; set; }
+        public string? CompanyEmail { get; set; }
+        public string? CompanyPhone { get; set; }
         public string? LogoLink { get; set; }
         public int? LeadProjectTeamMemberID { get; set; }
         public string? LeadProjectTeamMemberName { get; set; }

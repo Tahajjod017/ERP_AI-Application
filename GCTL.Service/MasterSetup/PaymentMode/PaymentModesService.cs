@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.PaymentModes;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.PaymentModes;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.MasterSetup.PaymentMode
 {
@@ -91,7 +92,7 @@ namespace GCTL.Service.MasterSetup.PaymentMode
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<PaymentModeVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<PaymentModeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.PaymentModeName = model.PaymentModeName;
                 entity.UpdatedAt = DateTime.Now;
@@ -101,7 +102,7 @@ namespace GCTL.Service.MasterSetup.PaymentMode
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<PaymentModeVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<PaymentModeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Payment Mode", ActionName.DataUpdated, beforeEntity, afterEntity, entity.PaymentModeID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -167,7 +168,7 @@ namespace GCTL.Service.MasterSetup.PaymentMode
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<PaymentModeVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<PaymentModeVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.PaymentModeID).ToList();
 
                 foreach (var item in data)

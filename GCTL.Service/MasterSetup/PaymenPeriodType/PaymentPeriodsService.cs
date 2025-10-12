@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.PaymenPeriodTypes;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.PaymenPeriodTypes;
+using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GCTL.Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.MasterSetup.PaymenPeriodType
 {
@@ -91,7 +92,7 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<PaymentPeriodsVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<PaymentPeriodsVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.PaymentPeriodTypeName = model.PaymentPeriodTypeName;
                 entity.UpdatedAt = DateTime.Now;
@@ -101,7 +102,7 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<PaymentPeriodsVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<PaymentPeriodsVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Payment Period", ActionName.DataUpdated, beforeEntity, afterEntity, entity.PaymentPeriodTypeID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -167,7 +168,7 @@ namespace GCTL.Service.MasterSetup.PaymenPeriodType
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<PaymentPeriodsVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<PaymentPeriodsVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.PaymentPeriodTypeID).ToList();
 
                 foreach (var item in data)

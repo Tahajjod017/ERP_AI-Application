@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Repository;
+﻿
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
@@ -18,14 +19,16 @@ namespace GCTL_App.Controllers.CRM
         public readonly IGenericRepository<LeadStatuses> _leadStatusesRepository;
         private readonly IGenericRepository<AddressTypes> _addressTypeService;
         private readonly IGenericRepository<LeadActivityTypes> _leadActivityTypeService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
 
-        public LeadsActivitiesController(ITranslateService translateService, IUserProfileService userProfileService, ILeadsActivityService activityService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Services> servicesRepository, IGenericRepository<AddressTypes> addressTypeService, IGenericRepository<LeadActivityTypes> leadActivityTypeService) : base(translateService, userProfileService)
+        public LeadsActivitiesController(ITranslateService translateService, IUserProfileService userProfileService, ILeadsActivityService activityService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Services> servicesRepository, IGenericRepository<AddressTypes> addressTypeService, IGenericRepository<LeadActivityTypes> leadActivityTypeService, IWebHostEnvironment webHostEnvironment) : base(translateService, userProfileService)
         {
             _activityService = activityService;
             _leadStatusesRepository = leadStatusesRepository;
             _addressTypeService = addressTypeService;
             _leadActivityTypeService = leadActivityTypeService;
+            _webHostEnvironment = webHostEnvironment;
         }
         #endregion
 
@@ -63,7 +66,7 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region get Upcomming Activity
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         public async Task<IActionResult> GetUpcomingActivities([FromForm] UpcomingActivityVM model)
         
         {
@@ -94,10 +97,12 @@ namespace GCTL_App.Controllers.CRM
         //=======================
         // generatePDF
         //=======================
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         public async Task<IActionResult> GeneratePDF()
         {
-            var pdfBytes = await _activityService.GenerateAndSendEmployeePDFsAsync();
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+
+            var pdfBytes = await _activityService.GenerateAndSendEmployeePDFsAsync(wwwRootPath);
             return Ok(pdfBytes);
         }
         #endregion

@@ -57,6 +57,8 @@ public class ActivityDocumentDataSource
                     {
                         CompanyName = member.CompanyName ?? "",
                         CompanyAddress = member.CompanyAddress ?? "",
+                        CompanyEmail = member.CompanyEmail ?? "",
+                        CompanyPhone = member.CompanyPhone ?? "",
                         CompanyLogo = member.LogoLink,
                         TeamName = team.TeamName,
                         EmployeeName = member.LeadProjectTeamMemberName,
@@ -76,6 +78,8 @@ public class ActivityDocumentDataSource
                 {
                     CompanyName = leader.CompanyName ?? "",
                     CompanyAddress = leader.CompanyAddress ?? "",
+                    CompanyEmail = leader.CompanyEmail ?? "",
+                    CompanyPhone = leader.CompanyPhone ?? "",
                     CompanyLogo = leader.LogoLink,
                     TeamName = team.TeamName,
                     EmployeeName = leader.LeadProjectTeamMemberName,

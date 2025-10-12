@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.Grade;
 using GCTL.Core.ViewModels.MasterSetup.Organizations;
@@ -53,7 +54,7 @@ namespace GCTL.Service.MasterSetup.Organizations
                     entityToRestore.UpdatedAt = DateTime.Now;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
-                    var afterEntity = JsonConvert.DeserializeObject<OrganizationsVM>(JsonConvert.SerializeObject(entityToRestore));
+                    var afterEntity = JsonConvert.DeserializeObject<OrganizationsVM>(JsonConvert.SerializeObject(entityToRestore, JsonSettings.IgnoreReferenceLoop));
                     await _userInfoService.ActionLogAsync("Organization", ActionName.DataAdd, null, entityToRestore, entityToRestore.OrganizationID, model);
                 }
                 else
@@ -93,7 +94,7 @@ namespace GCTL.Service.MasterSetup.Organizations
                 {
                     return false;
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<OrganizationsVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<OrganizationsVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 entity.OrganizationName = model.OrganizationName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -101,7 +102,7 @@ namespace GCTL.Service.MasterSetup.Organizations
                 entity.LMAC = model.LMAC;
                 entity.UpdatedBy = model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
-                var afterEntity = JsonConvert.DeserializeObject<OrganizationsVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<OrganizationsVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Organization", ActionName.DataUpdated, beforeEntity, afterEntity, entity.OrganizationID, model);
                 await _genericRepository.CommitTransactionAsync();
 

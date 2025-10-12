@@ -92,7 +92,7 @@ namespace GCTL.Service.MasterSetup.EmploymentNatures
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<EmploymentNatureVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<EmploymentNatureVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.EmploymentNatureName = model.EmploymentNatureName;
                 entity.UpdatedAt = DateTime.Now;
@@ -102,7 +102,7 @@ namespace GCTL.Service.MasterSetup.EmploymentNatures
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<EmploymentNatureVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<EmploymentNatureVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Employment Nature", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EmploymentNatureID, model);
 
                 await _genericRepository.CommitTransactionAsync();

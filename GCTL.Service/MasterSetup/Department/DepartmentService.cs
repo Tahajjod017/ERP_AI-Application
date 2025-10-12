@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.Departments;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.Departments;
+using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using GCTL.Data.Models;
 
 namespace GCTL.Service.MasterSetup.Department
 {
@@ -90,7 +91,7 @@ namespace GCTL.Service.MasterSetup.Department
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<DepartmentVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<DepartmentVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.DepartmentName = model.DepartmentName;
                 entity.UpdatedAt = DateTime.Now;
@@ -100,7 +101,7 @@ namespace GCTL.Service.MasterSetup.Department
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<DepartmentVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<DepartmentVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Department", ActionName.DataUpdated, beforeEntity, afterEntity, entity.DepartmentID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -166,7 +167,7 @@ namespace GCTL.Service.MasterSetup.Department
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<DepartmentVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<DepartmentVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.DepartmentID).ToList();
 
                 foreach (var item in data)

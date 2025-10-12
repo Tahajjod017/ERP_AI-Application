@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.EducationLevels;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.EducationLevels;
+using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using GCTL.Data.Models;
 
 namespace GCTL.Service.MasterSetup.EducationLevel
 {
@@ -91,7 +92,7 @@ namespace GCTL.Service.MasterSetup.EducationLevel
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<EducationLevelVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<EducationLevelVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.EducationLevelName = model.EducationLevelName;
                 entity.UpdatedAt = DateTime.Now;
@@ -101,7 +102,7 @@ namespace GCTL.Service.MasterSetup.EducationLevel
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<EducationLevelVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<EducationLevelVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Education Level", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EducationLevelID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -167,7 +168,7 @@ namespace GCTL.Service.MasterSetup.EducationLevel
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<EducationLevelVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<EducationLevelVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.EducationLevelID).ToList();
 
                 foreach (var item in data)

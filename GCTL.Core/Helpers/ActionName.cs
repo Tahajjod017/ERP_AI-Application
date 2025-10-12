@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace GCTL.Core.Helpers
 {
@@ -24,8 +20,5 @@ namespace GCTL.Core.Helpers
         public const string AccountDelete = "Account Delete";
         public const string AccountRestore = "AccountRestore";
         public const string  Error = "Error Exception";
-
-
-
     }
 }
