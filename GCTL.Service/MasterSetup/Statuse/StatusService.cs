@@ -92,7 +92,7 @@ namespace GCTL.Service.MasterSetup.Statuse
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<StatusVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<StatusVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.StatusName = model.StatusName;
                 entity.UpdatedAt = DateTime.Now;
@@ -102,7 +102,7 @@ namespace GCTL.Service.MasterSetup.Statuse
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<StatusVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<StatusVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Status", ActionName.DataUpdated, beforeEntity, afterEntity, entity.StatusID, model);
 
                 await _genericRepository.CommitTransactionAsync();
