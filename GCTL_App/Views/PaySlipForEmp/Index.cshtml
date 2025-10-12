@@ -3,7 +3,7 @@
     DateTime date = DateTime.Now;
 }
 <div class="mb-9 mt-1">
-    <button type="button" id="PaySlipSave" class="btn-outline-info">Pay Slip Save</button>
+    @* <button type="button" id="PaySlipSave" class="btn-outline-info">Pay Slip Save</button> *@
     <div class="card p-4">
         <div class="invoice-wrapper">
             <div class="d-flex justify-content-center">
@@ -73,32 +73,32 @@
                                 <tbody class="me-2">
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">Provident Fund</strong><span class="me-2 float-end">1000</span>
+                                            <strong class="ms-2">Provident Fund</strong><span class="me-2 float-end">0.00</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">Professional Tax</strong><span class="me-2 float-end">2000</span>
+                                            <strong class="ms-2">Professional Tax</strong><span class="me-2 float-end" id="ProfessionalTax">0.00</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">ESI</strong><span class="me-2 float-end">0</span>
+                                            <strong class="ms-2">ESI</strong><span class="me-2 float-end">0.00</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">Home Loan</strong><span class="me-2 float-end">20000</span>
+                                            <strong class="ms-2">Home Loan</strong><span class="me-2 float-end">0.00</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">TDS</strong><span class="me-2 float-end">10000</span>
+                                            <strong class="ms-2">TDS</strong><span class="me-2 float-end">0.00</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">Total Deductions</strong><span class="me-2 float-end"><strong>35000</strong></span>
+                                            <strong class="ms-2">Total Deductions</strong><span class="me-2 float-end"><strong id="TotalDeductions">0.00</strong></span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -107,7 +107,7 @@
                     </div>
                     <div class="col-sm-12">
                         <div class="col-sm-12">
-                            <span class="fw-bold">Net Pay : 8,552.00</span><br><br><span id="SalaryInWords">Eight Thousand Five Hundred Fifty Two Only</span>
+                            <span class="fw-bold" id="NetPay">Net Pay :</span><br><br><span id="SalaryInWords">Eight Thousand Five Hundred Fifty Two Only</span>
                         </div>
                     </div>
                 </div>

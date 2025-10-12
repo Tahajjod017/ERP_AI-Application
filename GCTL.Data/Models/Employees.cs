@@ -988,5 +988,4 @@ public partial class Employees
     public virtual ICollection<YearlyEndBonusTypes> YearlyEndBonusTypesDeletedByNavigation { get; set; } = new List<YearlyEndBonusTypes>();
 
     public virtual ICollection<YearlyEndBonusTypes> YearlyEndBonusTypesUpdatedByNavigation { get; set; } = new List<YearlyEndBonusTypes>();
-
 }

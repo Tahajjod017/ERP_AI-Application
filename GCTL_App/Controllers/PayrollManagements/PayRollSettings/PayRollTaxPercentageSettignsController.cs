@@ -114,6 +114,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayRollSettings
 
 
         #region Create
+        [Route("PayRollTaxPercentageSettigns/Create")]
         //[Permission("Create", "BloodGroups")]
         [ValidateAntiForgeryToken]
         [HttpPost]

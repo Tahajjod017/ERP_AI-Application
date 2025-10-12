@@ -29,6 +29,8 @@ public partial class PSettings
 
     public int? DeletedBy { get; set; }
 
+    public byte? SalaryDay { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

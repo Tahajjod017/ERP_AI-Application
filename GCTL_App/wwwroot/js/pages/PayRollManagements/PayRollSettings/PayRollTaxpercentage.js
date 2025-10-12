@@ -15,6 +15,8 @@
                     PSettingID: $('#PSettingID').val(),
                     OrganizationID: $('#OrganizationID').val(),
                     TaxPercentage: $('#TaxPercentage').val(),
+                    SalaryDay: $('#SalaryDay').val() ? parseInt($('#SalaryDay').val()) : 0
+
                 }
 
                 validateName();
@@ -57,8 +59,8 @@
                     success: function (response) {
                         if (response.isSuccess) {
                             var data = response.data;
-                            debugger
                             $('#PSettingID').val(data.pSettingID);
+                            $('#SalaryDay').val(data.salaryDay);
                             $('#TaxPercentage').val(data.taxPercentage);
                             choiceManager.setChoiceValue('OrganizationID', data.organizationID);
                             $('#PayRolltaxSettings-form #PayRolltaxSettings-saveBtn').text('Update');
@@ -344,7 +346,8 @@
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.organizationName}</td>
-                             <td class="align-middle white-space-nowrap ps-0">${item.taxPercentage}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.taxPercentage}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.salaryDay}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 PayRolltaxSettings-bulkDelete" href="#!" id="PayRolltaxSettings-edit" data-id="${item.pSettingID}"><i class="fas fa-edit"></i></a>

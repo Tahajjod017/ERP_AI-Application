@@ -115,7 +115,10 @@
 
                     // Totals
                     $('#TotalSalary').text(parseFloat(data.totalSalary).toFixed(2));
-                    $('#SalaryInWords').text(data.salaryInWords);
+                    $('#NetPay').text('Net Pay : ' + parseFloat(data.netPay).toFixed(2));
+                    $('#TotalDeductions').text(parseFloat(data.totalDeductions).toFixed(2));
+                    $('#ProfessionalTax').text(parseFloat(data.professionalTax).toFixed(2));
+                    $('#SalaryInWords').text(data.salaryInWords);  
                 } else {
                     toastr.error('Failed to load payslip: ' + response.message);
                 }

@@ -13,5 +13,6 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollSettings
         public string? OrganizationName { get; set; }
 
         public decimal? TaxPercentage { get; set; }
+        public byte? SalaryDay { get; set; }
     }
 }

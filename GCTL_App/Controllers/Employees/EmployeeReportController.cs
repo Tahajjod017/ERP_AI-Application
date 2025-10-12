@@ -2,10 +2,12 @@
 using GCTL.Service.Employees.EmployeeReport;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.Employees
 {
+    [Authorize]
     public class EmployeeReportController : BaseController
     {
         private readonly IEmployeeReportService _employeeReportService;
