@@ -29,7 +29,7 @@ namespace GCTL_App.Controllers
                     .Select(a => a.TargetType).Distinct().ToListAsync();
 
                 var actionNames = await appDbContext.ActionLogs
-                    .Where(a => !string.IsNullOrEmpty(a.ActionName))
+                    .Where(a => !string.IsNullOrEmpty(a.ActionName) && a.ActionName != "Error Exception")
                     .Select(a => a.ActionName).Distinct().ToListAsync();
 
                 var userNameEmail = await appDbContext.ActionLogs

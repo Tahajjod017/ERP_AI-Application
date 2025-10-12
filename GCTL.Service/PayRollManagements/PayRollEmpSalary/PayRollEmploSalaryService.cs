@@ -13,6 +13,7 @@ using GCTL.Service.Employees.EmployeeBenifit;
 using GCTL.Service.FileHandler;
 using GCTL.Service.Pagination;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Index.HPRtree;
 using QuestPDF.Fluent;
@@ -32,6 +33,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 {
+    [Authorize]
     public class PayRollEmploSalaryService : IPayRollEmpSalaryService
     {
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfoRepository;
@@ -46,8 +48,9 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         private readonly IUserInfoService userInfoService;
         private readonly IGenericRepository<PaySlips> paySlipsRepository;
         private readonly IPdfFileHandler _pdfFileHandlerService;
+        private readonly IGenericRepository<PSettings> pSettingsRepository;
         int pk = 0;
-        public PayRollEmploSalaryService(IGenericRepository<EmployeeBaseBenefits> employeeBenefitsRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository, IGenericRepository<EmployeeAllowances> employeeAllowancesRepository, IGenericRepository<EmployeeBaseAllowances> employeeBaseAllowancesRepository, IGenericRepository<Benefits> benefitsRepository, IGenericRepository<BenefitSetups> benefitSetupsRepository, IGenericRepository<BenefitTypes> benefitType, IUserInfoService userInfoService, IGenericRepository<PaySlips> paySlipsRepository, IPdfFileHandler pdfFileHandlerService)
+        public PayRollEmploSalaryService(IGenericRepository<EmployeeBaseBenefits> employeeBenefitsRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository, IGenericRepository<EmployeeAllowances> employeeAllowancesRepository, IGenericRepository<EmployeeBaseAllowances> employeeBaseAllowancesRepository, IGenericRepository<Benefits> benefitsRepository, IGenericRepository<BenefitSetups> benefitSetupsRepository, IGenericRepository<BenefitTypes> benefitType, IUserInfoService userInfoService, IGenericRepository<PaySlips> paySlipsRepository, IPdfFileHandler pdfFileHandlerService, IGenericRepository<PSettings> pSettingsRepository)
         {
             _employeeBaseBenefitsRepository = employeeBenefitsRepository;
             _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
@@ -61,6 +64,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             this.userInfoService = userInfoService;
             this.paySlipsRepository = paySlipsRepository;
             _pdfFileHandlerService = pdfFileHandlerService;
+            this.pSettingsRepository = pSettingsRepository;
         }
 
         #region Get All Table 
@@ -120,24 +124,31 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                          EmployeeImage = !string.IsNullOrEmpty(b.Employee?.EmployeeImageFileName) ? imgSrcThumb + b.Employee.EmployeeImageFileName : "",
                          EmpDepartment = _employeeOfficeInfoRepository.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
                          Salary = employeeSalarySettingsRepository.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Select(x => x.Salary).FirstOrDefault(),
-                         //Deduction = CalculateDeduction(b.EmployeeID),
-
 
                      });
-                
+
+              
                 foreach (var item in result.Data)
                 {
                     try
                     {
                         var paySlip = await GetPaySlip((int)item.EmployeeId);
                         var a = paySlip.Data as PayRollPaySlipEmpVM;
+
+                        // Bonus
                         item.Bonus = a?.TotalBonus ?? 0;
-                        item.NetSalary = a?.TotalSalary
-                            ?? employeeSalarySettingsRepository
-                                .AllActive()
-                                .Where(e => e.EmployeeID == item.EmployeeId)
-                                .Select(x => x.Salary)
-                                .FirstOrDefault();
+
+                        // Deduction
+                        item.Deduction = a?.TotalDeductions ?? 0;
+
+                        // Net Salary
+                        decimal baseSalary = employeeSalarySettingsRepository.AllActive()
+                            .Where(e => e.EmployeeID == item.EmployeeId)
+                            .Select(x => x.Salary ?? 0) .FirstOrDefault();
+
+                        decimal totalSalary = a?.TotalSalary ?? baseSalary;
+
+                        item.NetSalary = totalSalary - item.Deduction;
                     }
                     catch (Exception exRow)
                     {
@@ -145,6 +156,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                         await userInfoService.ActionLogExceptionAsync("Pay Slip Row", exRow, item.EmployeeId, ActionName.Error);
                     }
                 }
+
                 return result;
 
 
@@ -263,7 +275,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                 await paySlipsRepository.AddRangeAsync(entities);
                 await paySlipsRepository.CommitTransactionAsync();
 
-                // ✅ Optional: log each save
+                //// ✅ Optional: log each save
                 //foreach (var entity in entityVMList)
                 //{
                 //    await userInfoService.ActionLogAsync("Pay Slip Save", ActionName.DataAdd, null, entity, entities.FirstOrDefault().PaySlipID, entity);
@@ -297,13 +309,17 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         {
             try
             {
+                
+
                 var baseQuery = await _employeeOfficeInfoRepository.AllActive()
-                    .Include(x => x.Employee)
-                        .ThenInclude(x => x.EmployeeSalarySettingsEmployee)
-                    .Where(x => x.EmployeeID == id)
-                    .Include(x => x.Organization)
+                         .Include(x => x.Employee)
+                         .ThenInclude(x => x.EmployeeSalarySettingsEmployee)
+                         .Where(x => x.EmployeeID == id)
+                         .Include(x => x.Organization)
                         .ThenInclude(x => x.EmployeeAllowances)
-                    .FirstOrDefaultAsync();
+                        .FirstOrDefaultAsync();
+                var orgPercent = await pSettingsRepository.AllActive()
+               .Where(x => x.OrganizationID == baseQuery.OrganizationID).Select(x => x.TaxPercentage).FirstOrDefaultAsync() ?? 0;
 
                 if (baseQuery == null)
                 {
@@ -441,16 +457,13 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     // Organization Allowances fallback
                     var allowancesList = await employeeAllowancesRepository.AllActive()
                         .Include(ea => ea.EmployeeAllowanceType)
-                        .Include(ea => ea.EmployeeAllowanceSetup)
-                        .Where(ea => ea.OrganizationID == baseQuery.OrganizationID && ea.IsActive == true)
-                        .ToListAsync();
+                        .Include(ea => ea.EmployeeAllowanceSetup) .Where(ea => ea.OrganizationID == baseQuery.OrganizationID && ea.IsActive == true).ToListAsync();
 
                     foreach (var allowance in allowancesList)
                     {
                         var setup = allowance.EmployeeAllowanceSetup
                             .Where(s => (s.SalaryMin == null || basicsalary >= s.SalaryMin) &&
-                                        (s.SalaryMax == null || basicsalary <= s.SalaryMax))
-                            .FirstOrDefault();
+                                        (s.SalaryMax == null || basicsalary <= s.SalaryMax)).FirstOrDefault();
 
                         if (setup != null)
                         {
@@ -485,14 +498,16 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     + (allowanceVMs?.Sum(a => a.AllowanceSalary ?? 0) ?? 0)
                     + (benefitsVMs?.Sum(b => b.BenefitsSalary ?? 0) ?? 0);
 
+                decimal taxPercentage = orgPercent;
+                decimal taxAmount = totalSalaryEarning * taxPercentage / 100;
+                decimal totalAfterTax = totalSalaryEarning - taxAmount ;
+
                 var paySlipVM = new PayRollPaySlipEmpVM
                 {
                     OrganizationName = baseQuery.Organization?.OrganizationName ?? "",
                     OrganizationAddress = baseQuery.Organization?.Address ?? "",
                     OrganizationEmailAddress = baseQuery?.Organization?.EmailAddress ?? "",
-                    //OrganizationLogoPic = baseQuery?.Organization?.LogoLink ?? "",
                     OrganizationLogoPic = baseQuery?.Organization?.LogoLink != null? $"/media/company/logo/{baseQuery.Organization.LogoLink}" : "",
-
                     EmployeeName = $"{baseQuery?.Employee.FirstName} {baseQuery?.Employee.LastName}",
                     EmployeeAddress = $"{baseQuery?.Employee.State} {baseQuery?.Employee.City},{baseQuery?.Employee.HouseNo} {baseQuery?.Employee.PostalCode}",
                     EmployeeEmail = baseQuery?.Employee.Email,
@@ -500,8 +515,11 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     Allowances = allowanceVMs,
                     BeneFits = benefitsVMs,
                     TotalSalary = totalSalaryEarning,
-                    SalaryInWords = NumberToWordsConverter.NumberToWords((int)totalSalaryEarning) + " Only",
+                    SalaryInWords = NumberToWordsConverter.NumberToWords((int)totalAfterTax) + " Only",
                     TotalBonus = (allowanceVMs?.Sum(a => a.AllowanceSalary ?? 0) ?? 0)+ (benefitsVMs?.Sum(b => b.BenefitsSalary ?? 0) ?? 0),
+                    TotalDeductions= taxAmount,
+                    NetPay= totalAfterTax,
+                    ProfessionalTax= taxAmount,
                 };
                 
                 return new CommonReturnViewModel
@@ -513,7 +531,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             }
             catch (Exception ex)
             {
-                await userInfoService.ActionLogExceptionAsync("Pay Slip according to EmpoyeeID", ex, id, ActionName.Error);
+                await userInfoService.ActionLogExceptionAsync("Pay Slip Get Method", ex, id, ActionName.Error);
                 return new CommonReturnViewModel
                 {
                     Success = false,

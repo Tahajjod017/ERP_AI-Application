@@ -60,6 +60,7 @@ namespace GCTL.Service.ActionLogAudit
                     };
                 }
 
+                query = query.Where(x => x.ActionName != "Error Exception");
 
                 var result = await PaginationService<ActionLogs, ActionLogSetupVM>.GetPaginatedData(
 
@@ -189,8 +190,7 @@ namespace GCTL.Service.ActionLogAudit
                         TargetID = b.TargetID ?? 0,
                         TargetType = b.TargetType ?? "",
                         EmployeeUserName = b.CreatedByNavigation != null
-                            ? $"{b.CreatedByNavigation.FirstName} {b.CreatedByNavigation.LastName}"
-                            : ""
+                            ? $"{b.CreatedByNavigation.FirstName} {b.CreatedByNavigation.LastName}" : ""
                     });
                 return result;
             }

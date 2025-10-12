@@ -26,5 +26,6 @@ namespace GCTL.Service.BackgroundServices
             // Your task logic here
             return Task.CompletedTask;
         }
+
     }
 }
