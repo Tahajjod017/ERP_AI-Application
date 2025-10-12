@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using SkiaSharp;
 
 namespace GCTL_App.Controllers.Employees
 {
@@ -340,6 +341,64 @@ namespace GCTL_App.Controllers.Employees
 
         #endregion
 
+
+        [HttpGet]
+        public async Task<IActionResult> SearchEmployees(string search = "", int page = 1, int pageSize = 50)
+        {
+            try
+            {
+                // Base query
+                var query = _employeeRepository.AllActive()
+                    .AsQueryable();
+
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    search = search.Trim().ToLower();
+                    query = query.Where(e =>
+                        e.FirstName.ToLower().Contains(search) ||
+                        e.LastName.ToLower().Contains(search) ||
+                        e.EmployeeCode.ToLower().Contains(search) ||
+                        e.Email.ToLower().Contains(search)
+                    );
+                }
+
+                // Order by
+                query = query.OrderBy(e => e.FirstName);
+
+                // Get total count for pagination
+                var totalCount = await query.CountAsync();
+                var hasMore = (page * pageSize) < totalCount;
+
+                // Get paginated results
+                var employees = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(e => new
+                    {
+                        value = e.EmployeeID.ToString(),
+                        label = $"{e.FirstName} {e.LastName}({e.EmployeeCode})" // Format as needed
+                    })
+                    .ToListAsync();
+
+                return Json(new
+                {
+                    items = employees,
+                    hasMore = hasMore,
+                    totalCount = totalCount
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                return Json(new
+                {
+                    items = new List<object>(),
+                    hasMore = false,
+                    error = "Failed to load employees"
+                });
+            }
+        }
 
     }
 }

@@ -51,7 +51,7 @@ namespace GCTL_App.Controllers.Employees
         public async Task<IActionResult> Index(int id)
         {
 
-            ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
+          //  ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
 
 
             ViewBag.LicenseTypeDD = _licenceTypesRepository.GetSelectListById(e => e.LicenceTypeID, e => e.LicenceTypeName);
