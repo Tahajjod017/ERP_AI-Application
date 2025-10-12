@@ -935,7 +935,7 @@ choiceXA.reset('myDropdown');
 //            const selected = instance.getValue(true); // `true` returns raw value(s)
 //            return selected;
 //        } else {
-           
+
 //            return $(`#${id}`).val(); // or document.getElementById(id).value
 //        }
 //    }
@@ -1004,7 +1004,7 @@ choiceXA.reset('myDropdown');
 //    }
 
 
-   
+
 
 
 //    setChoiceValue(id, value) {
@@ -1033,3 +1033,386 @@ choiceXA.reset('myDropdown');
 
 //#endregion
 
+
+
+
+
+
+
+//#region Server-Side Pagination Service for Choices.js Version 3
+
+
+//#region usage
+
+
+//paginationService.getValue('EmployeePersonalId')
+//paginationService.setValue('EmployeePersonalId', '123')
+//paginationService.setValue('EmployeePersonalId', '')
+//paginationService.reset('EmployeePersonalId')
+
+//#endregion
+
+
+class ChoicesPaginationService {
+    constructor() {
+        this.activeInstances = {};
+    }
+
+    /**
+     * Initialize a Choices dropdown with server-side pagination
+     * @param {string} id - The select element ID
+     * @param {Object} config - Configuration object
+     * @param {string} config.apiUrl - The API endpoint URL
+     * @param {number} [config.pageSize=50] - Items per page
+     * @param {number} [config.minSearchLength=3] - Minimum characters to trigger search
+     * @param {number} [config.debounceDelay=500] - Debounce delay in ms
+     * @param {string} [config.placeholder='Select one...'] - Placeholder text
+     * @param {string} [config.searchPlaceholder='Type to search...'] - Search placeholder
+     * @param {string} [config.noChoicesText='Type 3 or more characters...'] - No choices text
+     * @param {boolean} [config.loadInitial=true] - Load initial data on init
+     * @param {Function} [config.onError] - Error callback
+     * @param {Object} [config.extraParams] - Additional query params
+     */
+    init(id, config = {}) {
+        const selectEl = document.getElementById(id);
+        if (!selectEl) {
+            console.error(`Element with ID "${id}" not found`);
+            return null;
+        }
+
+        // Merge with defaults
+        const settings = {
+            apiUrl: '',
+            pageSize: 50,
+            minSearchLength: 3,
+            debounceDelay: 500,
+            placeholder: 'Select one...',
+            searchPlaceholder: 'Type to search...',
+            noChoicesText: `Type ${config.minSearchLength || 3} or more characters...`,
+            loadInitial: true,
+            onError: (error) => console.error('Pagination error:', error),
+            extraParams: {},
+            ...config
+        };
+
+        if (!settings.apiUrl) {
+            console.error('apiUrl is required in config');
+            return null;
+        }
+
+        // Initialize state
+        const state = {
+            loading: false,
+            currentPage: 1,
+            lastSearch: '',
+            hasMore: true,
+            debounceTimer: null,
+            scrollHandler: null
+        };
+
+        // Initialize Choices
+        const choices = new Choices(selectEl, {
+            searchEnabled: true,
+            placeholder: true,
+            placeholderValue: settings.placeholder,
+            searchPlaceholderValue: settings.searchPlaceholder,
+            noChoicesText: settings.noChoicesText,
+            searchResultLimit: -1,
+            shouldSort: false,
+            duplicateItemsAllowed: false,
+            itemSelectText: '',
+            removeItemButton: true,
+            searchChoices: false,
+            fuseOptions: false,
+            searchFn: () => true
+        });
+
+        // Fetch function
+        const fetchOptions = async (search, page = 1) => {
+            state.loading = true;
+            try {
+                const params = new URLSearchParams({
+                    search: search || '',
+                    page: page,
+                    pageSize: settings.pageSize,
+                    ...settings.extraParams
+                });
+
+                const res = await fetch(`${settings.apiUrl}?${params}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const data = await res.json();
+                state.hasMore = data.hasMore;
+
+                if (deb) console.debug(`Fetched page ${page} for "${search}": ${data.items?.length || 0} items, hasMore: ${state.hasMore}`);
+                return data;
+            } catch (error) {
+                settings.onError(error);
+                return { items: [], hasMore: false };
+            } finally {
+                state.loading = false;
+            }
+        };
+
+        // Scroll handler
+        const handleScroll = async (e) => {
+            const dropdownList = e.target;
+            const scrollBottom = dropdownList.scrollTop + dropdownList.clientHeight;
+            const isNearBottom = scrollBottom >= dropdownList.scrollHeight - 50;
+
+            if (deb) console.debug(`Scroll: ${Math.round(scrollBottom)}/${dropdownList.scrollHeight}, loading: ${state.loading}, hasMore: ${state.hasMore}`);
+
+            if (!state.loading && state.hasMore && isNearBottom) {
+                state.currentPage++;
+                if (deb) console.debug(`Loading page ${state.currentPage}...`);
+
+                const data = await fetchOptions(state.lastSearch, state.currentPage);
+                if (data.items && data.items.length > 0) {
+                    choices.setChoices(data.items, 'value', 'label', false);
+                    if (deb) console.debug(`Appended ${data.items.length} items`);
+                }
+            }
+        };
+
+        // Store scroll handler reference
+        state.scrollHandler = handleScroll;
+
+        // Search handler
+        selectEl.addEventListener('search', (e) => {
+            const searchTerm = e.detail.value;
+            clearTimeout(state.debounceTimer);
+
+            // If search is cleared, reload initial data
+            if (!searchTerm || searchTerm.length === 0) {
+                state.debounceTimer = setTimeout(async () => {
+                    state.currentPage = 1;
+                    state.lastSearch = '';
+                    state.hasMore = true;
+                    const data = await fetchOptions('', state.currentPage);
+                    choices.clearChoices();
+                    if (data.items && data.items.length > 0) {
+                        choices.setChoices(data.items, 'value', 'label', true);
+                    }
+                }, settings.debounceDelay);
+                return;
+            }
+
+            if (searchTerm.length < settings.minSearchLength) {
+                return;
+            }
+
+            state.debounceTimer = setTimeout(async () => {
+                state.currentPage = 1;
+                state.lastSearch = searchTerm;
+                state.hasMore = true;
+                const data = await fetchOptions(searchTerm, state.currentPage);
+                choices.clearChoices();
+                if (data.items && data.items.length > 0) {
+                    choices.setChoices(data.items, 'value', 'label', true);
+                }
+            }, settings.debounceDelay);
+        });
+
+        // Attach scroll listener when dropdown opens
+        const attachScrollListener = () => {
+            // Use a small delay to ensure DOM is ready
+            setTimeout(() => {
+                const choicesContainer = selectEl.closest('.choices');
+                if (!choicesContainer) {
+                    if (deb) console.warn('Choices container not found');
+                    return;
+                }
+
+                const dropdownList = choicesContainer.querySelector('.choices__list--dropdown .choices__list');
+
+                if (dropdownList) {
+                    // Remove existing listener if any
+                    dropdownList.removeEventListener('scroll', state.scrollHandler);
+                    // Add new listener
+                    dropdownList.addEventListener('scroll', state.scrollHandler, { passive: true });
+                    if (deb) console.debug('Scroll listener attached for:', id);
+                } else {
+                    if (deb) console.warn('Dropdown list not found for:', id);
+                }
+            }, 100);
+        };
+
+        // Listen for dropdown open event
+        selectEl.addEventListener('showDropdown', () => {
+            if (deb) console.debug('Dropdown opened for:', id);
+            attachScrollListener();
+        });
+
+        // Handle item removal (cross button click)
+        selectEl.addEventListener('removeItem', async (e) => {
+            if (deb) console.debug('Item removed for:', id);
+
+            // Reset state
+            state.currentPage = 1;
+            state.lastSearch = '';
+            state.hasMore = true;
+
+            // Clear search input if exists
+            const choicesContainer = selectEl.closest('.choices');
+            if (choicesContainer) {
+                const searchInput = choicesContainer.querySelector('.choices__input--cloned');
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+            }
+
+            // Reload initial data if configured
+            if (settings.loadInitial) {
+                const data = await fetchOptions('', 1);
+                choices.clearChoices();
+                if (data.items && data.items.length > 0) {
+                    choices.setChoices(data.items, 'value', 'label', true);
+                    if (deb) console.debug('Reloaded initial data after item removal');
+                }
+            }
+        });
+
+        // Also try MutationObserver as fallback
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'aria-expanded') {
+                    const expanded = selectEl.getAttribute('aria-expanded') === 'true';
+                    if (expanded) {
+                        attachScrollListener();
+                    }
+                }
+            });
+        });
+
+        observer.observe(selectEl, { attributes: true });
+
+        // Store instance
+        this.activeInstances[id] = {
+            choices,
+            state,
+            settings,
+            fetchOptions,
+            selectEl,
+            observer
+        };
+
+        // Load initial data if configured
+        if (settings.loadInitial) {
+            setTimeout(async () => {
+                if (deb) console.debug('Loading initial data for:', id);
+                const data = await fetchOptions('', 1);
+                if (data.items && data.items.length > 0) {
+                    choices.setChoices(data.items, 'value', 'label', true);
+                    if (deb) console.debug(`Loaded ${data.items.length} initial items`);
+                }
+            }, 100);
+        }
+
+        if (deb) console.debug(`Server pagination initialized for ID: ${id}`);
+        return choices;
+    }
+
+    /**
+     * Manually trigger a search
+     * @param {string} id - The select element ID
+     * @param {string} searchTerm - Search term
+     */
+    async search(id, searchTerm = '') {
+        const instance = this.activeInstances[id];
+        if (!instance) {
+            console.warn(`No pagination instance found for ID: ${id}`);
+            return;
+        }
+
+        instance.state.currentPage = 1;
+        instance.state.lastSearch = searchTerm;
+        instance.state.hasMore = true;
+        const data = await instance.fetchOptions(searchTerm, 1);
+        instance.choices.clearChoices();
+        if (data.items && data.items.length > 0) {
+            instance.choices.setChoices(data.items, 'value', 'label', true);
+        }
+    }
+
+    /**
+     * Reset a dropdown to initial state
+     * @param {string} id - The select element ID
+     */
+    async reset(id) {
+        const instance = this.activeInstances[id];
+        if (!instance) {
+            console.warn(`No pagination instance found for ID: ${id}`);
+            return;
+        }
+
+        instance.state.currentPage = 1;
+        instance.state.lastSearch = '';
+        instance.state.hasMore = true;
+        instance.choices.clearChoices();
+        instance.choices.removeActiveItems();
+
+        // Reload initial data if configured
+        if (instance.settings.loadInitial) {
+            const data = await instance.fetchOptions('', 1);
+            if (data.items && data.items.length > 0) {
+                instance.choices.setChoices(data.items, 'value', 'label', true);
+            }
+        }
+
+        if (deb) console.debug(`Reset pagination for ID: ${id}`);
+    }
+
+    /**
+     * Destroy a pagination instance
+     * @param {string} id - The select element ID
+     */
+    destroy(id) {
+        const instance = this.activeInstances[id];
+        if (!instance) {
+            console.warn(`No pagination instance found for ID: ${id}`);
+            return;
+        }
+
+        // Disconnect observer
+        if (instance.observer) {
+            instance.observer.disconnect();
+        }
+
+        instance.choices.destroy();
+        delete this.activeInstances[id];
+        if (deb) console.debug(`Destroyed pagination for ID: ${id}`);
+    }
+
+    /**
+     * Get current value
+     * @param {string} id - The select element ID
+     */
+    getValue(id) {
+        const instance = this.activeInstances[id];
+        if (!instance) {
+            console.warn(`No pagination instance found for ID: ${id}`);
+            return null;
+        }
+        return instance.choices.getValue(true);
+    }
+
+    /**
+     * Set value programmatically
+     * @param {string} id - The select element ID
+     * @param {string} value - Value to set
+     */
+    setValue(id, value) {
+        const instance = this.activeInstances[id];
+        if (!instance) {
+            console.warn(`No pagination instance found for ID: ${id}`);
+            return;
+        }
+        instance.choices.setChoiceByValue(String(value));
+    }
+}
+
+// Initialize global service
+const paginationService = new ChoicesPaginationService();
+window.paginationService = paginationService;
+
+//#endregion
