@@ -353,7 +353,7 @@ namespace GCTL.Service.Finance.AddSubAccount
             // If no SubAccountCode exists, start with "0001"
             if (result == null)
             {
-                return prefix + "0001";  // "01010001"
+                return prefix + "001";  // "01010001"
             }
 
             // Step 3: Extract the numeric part from the last SubAccountCode
@@ -365,7 +365,7 @@ namespace GCTL.Service.Finance.AddSubAccount
             var newCodeNumber = lastCodeNumber + 1;  // E.g., 4
 
             // Ensure the new numeric part is 4 digits long with leading zeros
-            var newCodeNumberPadded = newCodeNumber.ToString("D4");  // E.g., "0004"
+            var newCodeNumberPadded = newCodeNumber.ToString("D3");  // E.g., "0004"
 
             // Step 5: Return the new SubAccountCode by combining the prefix and new numeric part
             return prefix + newCodeNumberPadded;
