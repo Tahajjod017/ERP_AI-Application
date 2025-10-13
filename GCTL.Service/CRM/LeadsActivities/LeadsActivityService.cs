@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
+using GCTL.Service.AttendanceManagement;
 using GCTL.Service.FileHandler;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -19,17 +20,19 @@ namespace GCTL.Service.CRM.LeadsActivities
         private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
         private readonly IPdfFileHandler _pdfFileHandlerService;
         public readonly IGenericRepository<LeadProjectTeams> _leadProjectTeamsRepository;
-
+        private readonly IEmailService _emailService;
 
 
         public LeadsActivityService(
             IGenericRepository<LeadDetails> leadDetailsRepository,
             IPdfFileHandler pdfFileHandlerService,
-            IGenericRepository<LeadProjectTeams> leadProjectTeamsRepository)
+            IGenericRepository<LeadProjectTeams> leadProjectTeamsRepository,
+            IEmailService emailService)
         {
             _leadDetailsRepository = leadDetailsRepository;
             _pdfFileHandlerService = pdfFileHandlerService;
             _leadProjectTeamsRepository = leadProjectTeamsRepository;
+            _emailService = emailService;
         }
         #endregion
 
@@ -280,7 +283,7 @@ namespace GCTL.Service.CRM.LeadsActivities
 
             var pdfBytes = document.GeneratePdf();
 
-            var emailService = new EmailService1();
+            //var emailService = new EmailService1();
             string recipientEmail = emailOverride ?? model.Email;
 
             // 🔹 Build the table rows using foreach
@@ -756,14 +759,24 @@ namespace GCTL.Service.CRM.LeadsActivities
                 TransferEncoding = TransferEncoding.Base64
             };
 
-            await emailService.SendEmailAsync(
-                recipientEmail,
-                subject,
-                body,
-                pdfBytes,
-                $"{model.EmployeeName ?? "Admin"}_ActivityReport.pdf",
-                new List<LinkedResource> { logo }
-            );
+            //var emailResult = await _emailService.SendEmailAsync(
+            //    toEmail: recipientEmail,
+            //    subject: "Set Your Password",
+            //    razorTemplateFile: body,
+            //    null,
+            //    null,
+            //    null
+            //);
+
+            //await _emailService.SendEmailAsync2(
+            //    recipientEmail,
+            //    subject,
+            //    body,
+            //    pdfBytes,
+            //    $"{model.EmployeeName ?? "Admin"}_ActivityReport.pdf",
+            //    new List<LinkedResource> { logo }
+                
+            //);
 
             Console.WriteLine($"📧 Email sent successfully to {recipientEmail}");
         }
