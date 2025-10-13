@@ -21,7 +21,7 @@ namespace GCTL.Core.ViewModels.Finance.TransactionAccountVM
         public int? SubAccountID { get; set; }
 
         [Required(ErrorMessage = "{0} is required!"), StringLength(12, ErrorMessage = "{0} must be at most {1} characters long."), Display(Name = "Transaction Account Code")]
-        [RegularExpression(@"^.{12}$", ErrorMessage = "{0} must be exactly 12 characters long.")]
+        [RegularExpression(@"^.{11}$", ErrorMessage = "{0} must be exactly 11 characters long.")]
         public string TrxAccCode { get; set; }
 
         [Required(ErrorMessage = "{0} is required!"), StringLength(100, ErrorMessage = "{0} must be at most {1} characters long."), Display(Name = "Transaction Account Name")]

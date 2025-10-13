@@ -14,22 +14,16 @@
     </div>
 
     <div class="d-flex gap-2 flex-wrap">
-        <button class="btn btn-phoenix-secondary p-2 rounded-circle" id="chevron-left"><span data-feather="chevron-left"></span></button>
-        <span class="mt-1 fw-semibold date-range-label"></span>
-        <button class="btn btn-phoenix-secondary p-2 rounded-circle" id="chevron-right"><span data-feather="chevron-right"></span></button>
-    </div>
-</div>
-
-<div class="mx-n4 px-4 mx-lg-n6 px-lg-6 border-top py-3">
-    <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3 pb-5">
-        <div class="dropdown me-2">
+        <div class="">
             <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
             <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
                 <option value="">@Html.SmartLocalize("Select Organization")...</option>
             </select>
         </div>
+    </div>
 
-        <div class="dropdown me-2">
+    <div class="d-flex gap-2 flex-wrap">
+        <div class="">
             <label class="form-label" asp-for="DepartmentIDs">@Html.SmartLocalize("Department Name")</label>
             <select class="form-multi-select"
                     asp-for="DepartmentIDs"
@@ -40,8 +34,10 @@
                     data-coreui-placeholder="@Html.SmartLocalize("Select Department")...">
             </select>
         </div>
+    </div>
 
-        <div class="dropdown me-2">
+    <div class="d-flex gap-2 flex-wrap">
+        <div class="">
             <label class="form-label" asp-for="EmployeeIDs">@Html.SmartLocalize("Employee Name")</label>
             <select class="form-multi-select"
                     asp-for="EmployeeIDs"
@@ -61,6 +57,15 @@
             </select>
         </div>
     </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-phoenix-secondary p-2 rounded-circle" id="chevron-left"><span data-feather="chevron-left"></span></button>
+        <span class="mt-1 fw-semibold date-range-label"></span>
+        <button class="btn btn-phoenix-secondary p-2 rounded-circle" id="chevron-right"><span data-feather="chevron-right"></span></button>
+    </div>
+</div>
+
+<div class="mx-n4 px-4 mx-lg-n6 px-lg-6 py-3">
 
     <div class="row g-3 justify-content-between align-items-end mb-2">
         <div class="col-12 col-sm-auto">
