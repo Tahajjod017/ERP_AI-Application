@@ -31,7 +31,7 @@ namespace GCTL.Service.BackgroundServices
         }
 
         public string Name => "GenerateAllPayslipsTask";
-        public TimeSpan ScheduledTime => new TimeSpan(17,5, 0);
+       public TimeSpan ScheduledTime => new TimeSpan(10,5, 0);
 
         public DateTime? RunOnDate
         {
@@ -55,10 +55,17 @@ namespace GCTL.Service.BackgroundServices
                         var daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
                         if (day > daysInMonth) day = (byte)daysInMonth;
 
-                        var runDate = new DateTime(now.Year, now.Month, day);
-                        if (now.Date == runDate.Date)
+                        //var runDate = new DateTime(now.Year, now.Month, day);
+                        //if (now.Date == runDate.Date)
+                        //{
+                        //    return runDate;
+                        //}
+                        var runDateTime = new DateTime(now.Year, now.Month, day, ScheduledTime.Hours, ScheduledTime.Minutes, ScheduledTime.Seconds);
+
+                        // Run only if current time has passed the scheduled time
+                        if (now >= runDateTime && now.Date == runDateTime.Date)
                         {
-                            return runDate;
+                            return runDateTime;
                         }
                     }
                 }

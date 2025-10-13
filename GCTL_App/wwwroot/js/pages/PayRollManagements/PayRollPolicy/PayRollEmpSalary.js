@@ -35,8 +35,112 @@
     // #endregion
 
 
+    //#region
+
+
+
+    //$("#PayRollPaySlip-check-all").on("change", function () {
+    //    $(".PayRolltaxSettings-selectItem").prop("checked", $(this).prop("checked"));
+    //});
+
+    //$("#export-pdf-btn").on("click", async function (e) {
+    //    e.preventDefault();
+
+    //    // Get selected employee IDs
+    //    let selectedIds = $(".PayRolltaxSettings-selectItem:checked")
+    //        .map(function () { return $(this).data("id"); })
+    //        .get();
+
+    //    if (selectedIds.length === 0) {
+    //        toastr.info("Please select at least one employee!");
+    //        return;
+    //    }
+
+    //    try {
+
+
+    //        // Send request to server
+    //        const response = await $.ajax({
+    //            url: "/PaySlipForEmp/GenerateMultiplePDFs",
+    //            type: "POST",
+    //            contentType: "application/json",
+    //            data: JSON.stringify({ EmployeeIDs: selectedIds })
+    //        });
+
+    //        if (response.success) {
+    //            toastr.success(response.message || "Payslips saved successfully!");
+    //        } else {
+    //            toastr.error(response.message || "Failed to save payslips!");
+    //        }
+    //    } catch (err) {
+    //        console.error("Error:", err);
+    //        toastr.info("Error generating payslips. Please try again.");
+    //    } finally {
+    //        // Reset UI
+    //        $("#export-pdf-btn").prop("disabled", false).text("Export PDF");
+    //        $(".PayRolltaxSettings-selectItem").prop("checked", false);
+    //        $("#PayRollPaySlip-check-all").prop("checked", false);
+    //    }
+    //});
+
+
+
+    $("#PayRollPaySlip-check-all").on("change", function () {
+        $(".PayRolltaxSettings-selectItem").prop("checked", $(this).prop("checked"));
+    });
+
+    $("#export-pdf-btn").on("click", async function (e) {
+        e.preventDefault();
+
+        let selectedIds = $(".PayRolltaxSettings-selectItem:checked")
+            .map(function () { return $(this).data("id"); })
+            .get();
+
+        if (selectedIds.length === 0) {
+            toastr.info("Please select at least one employee!");
+            return;
+        }
+
+        const $button = $("#export-pdf-btn");
+
+        try {
+            // Disable button and show spinner
+            $button.prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+            showLoadingIndicator();
+
+            // Send async request
+            const response = await $.ajax({
+                url: "/PaySlipForEmp/GenerateMultiplePDFs",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ EmployeeIDs: selectedIds }),
+            });
+
+            // Handle response
+            if (response.success || response.Success) {
+                toastr.success(response.message || "Payslips saved successfully!");
+            } else {
+                toastr.error(response.message || "Failed to save payslips!");
+            }
+
+        } catch (err) {
+            console.error("Error generating payslips:", err);
+            toastr.error("Error generating payslips. Please try again.");
+        } finally {
+            // Re-enable button and reset UI
+            $button.prop("disabled", false).html('<span data-feather="download"></span> PDF');
+            $(".PayRolltaxSettings-selectItem").prop("checked", false);
+            $("#PayRollPaySlip-check-all").prop("checked", false);
+            hideLoadingIndicator();
+        }
+    });
+
+
+    //#endregion
+
+
     var currentPage = 1;
-    var pageSize = 5;
+    var pageSize = 10;
 
     $('#payRollEmp-pageSizeSelect').on('change', function () {
         var selectedSize = $(this).val();
@@ -151,8 +255,12 @@
                         
                         tableBody.append(`
                 <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                     
+                    <td class="text-center text-middle align-middle" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input PayRolltaxSettings-selectItem" data-id="${item.employeeId}" />
+                     </td>
                     <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
-                        <span>#${item.employeeId || 'N/A'}</span>
+                        <span>${item.employeeCode || 'N/A'}</span>
                     </td>
                     <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
                         <div class="d-flex align-items-center file-name-icon">
