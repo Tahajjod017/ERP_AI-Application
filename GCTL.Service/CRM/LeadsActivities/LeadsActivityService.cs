@@ -1,11 +1,15 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
+using GCTL.Service.AttendanceManagement;
 using GCTL.Service.FileHandler;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
+using System.Buffers.Text;
+using System.Net.Mail;
+using System.Net.Mime;
 using System.Text;
-using Microsoft.AspNetCore.Hosting;
 
 
 namespace GCTL.Service.CRM.LeadsActivities
@@ -16,17 +20,19 @@ namespace GCTL.Service.CRM.LeadsActivities
         private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
         private readonly IPdfFileHandler _pdfFileHandlerService;
         public readonly IGenericRepository<LeadProjectTeams> _leadProjectTeamsRepository;
-
+        private readonly IEmailService _emailService;
 
 
         public LeadsActivityService(
             IGenericRepository<LeadDetails> leadDetailsRepository,
             IPdfFileHandler pdfFileHandlerService,
-            IGenericRepository<LeadProjectTeams> leadProjectTeamsRepository)
+            IGenericRepository<LeadProjectTeams> leadProjectTeamsRepository,
+            IEmailService emailService)
         {
             _leadDetailsRepository = leadDetailsRepository;
             _pdfFileHandlerService = pdfFileHandlerService;
             _leadProjectTeamsRepository = leadProjectTeamsRepository;
+            _emailService = emailService;
         }
         #endregion
 
@@ -277,7 +283,7 @@ namespace GCTL.Service.CRM.LeadsActivities
 
             var pdfBytes = document.GeneratePdf();
 
-            var emailService = new EmailService1();
+            //var emailService = new EmailService1();
             string recipientEmail = emailOverride ?? model.Email;
 
             // 🔹 Build the table rows using foreach
@@ -664,7 +670,7 @@ namespace GCTL.Service.CRM.LeadsActivities
                           <table width=""100%"">
                               <tr>
                                   <td align=""left"">
-                                        <p>{model.CompanyName}
+                                    <img  src=""cid:CompanyLogo"" alt=""Company Logo"" style=""max-width:200px; height:auto;"" />
                                   </td>
                                   <td align=""right"">
                                       <span id=""emailHeaderAddress"">{model.CompanyAddress}</span><br>
@@ -739,14 +745,38 @@ namespace GCTL.Service.CRM.LeadsActivities
               </body>
             </html>
                ";
+            // 3️⃣ AlternateView for HTML
+            var htmlView = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
+            byte[] imageBytes = File.ReadAllBytes(@"D:\HRM\GCTL_App\wwwroot\images\ms.png");
 
-            await emailService.SendEmailAsync(
-                recipientEmail,
-                subject,
-                body,
-                pdfBytes,
-                $"{model.EmployeeName ?? "Admin"}_ActivityReport.pdf"
-            );
+            // 2️⃣ Create a MemoryStream from the bytes
+            var ms = new MemoryStream(imageBytes);
+
+            // 4️⃣ Attach the logo as LinkedResource
+            var logo = new LinkedResource(ms, MediaTypeNames.Image.Png)
+            {
+                ContentId = "CompanyLogo", // must match HTML src
+                TransferEncoding = TransferEncoding.Base64
+            };
+
+            //var emailResult = await _emailService.SendEmailAsync(
+            //    toEmail: recipientEmail,
+            //    subject: "Set Your Password",
+            //    razorTemplateFile: body,
+            //    null,
+            //    null,
+            //    null
+            //);
+
+            //await _emailService.SendEmailAsync2(
+            //    recipientEmail,
+            //    subject,
+            //    body,
+            //    pdfBytes,
+            //    $"{model.EmployeeName ?? "Admin"}_ActivityReport.pdf",
+            //    new List<LinkedResource> { logo }
+                
+            //);
 
             Console.WriteLine($"📧 Email sent successfully to {recipientEmail}");
         }
