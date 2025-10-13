@@ -13,6 +13,7 @@ namespace GCTL.Core.ViewModels.CRM
         public string? Email { get; set; }
         public bool? IsTeamHead { get; set; }
         public int? TotalActivities { get; set; }
+        public string? CompnayLogoBase64 { get; set; }
 
         // New property: for grouping multiple members in one PDF
         public List<ActivityPDFModel>? SubEmployees { get; set; }

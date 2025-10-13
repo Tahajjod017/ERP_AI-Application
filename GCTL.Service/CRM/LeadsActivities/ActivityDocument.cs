@@ -119,9 +119,9 @@ namespace GCTL.Service.CRM.LeadsActivities
                            try
                            {
                                if (model.CompanyLogo != null)
-                                   el.Image(model.CompanyLogo, ImageScaling.FitArea);
+                                   el.PaddingTop(15).Image(model.CompanyLogo, ImageScaling.FitArea);
                                else
-                                   el.Placeholder();
+                                   el.PaddingTop(15).Placeholder();
                            }
                            catch (Exception e)
                            {

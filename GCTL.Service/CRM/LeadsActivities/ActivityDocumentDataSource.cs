@@ -53,6 +53,21 @@ public class ActivityDocumentDataSource
 
                 if (memberActivities.Any() && member.IsTeamHead != true)
                 {
+                    string extension = Path.GetExtension(member.LogoLink)?.ToLower();
+                    string mimeType = extension switch
+                    {
+                        ".png" => "image/png",
+                        ".jpg" => "image/jpeg",
+                        ".jpeg" => "image/jpeg",
+                        ".gif" => "image/gif",
+                        _ => "image/png"
+                    };
+
+                    byte[] imageBytes = File.ReadAllBytes(member.LogoLink);
+                    string base64 = Convert.ToBase64String(imageBytes);
+                    string base64Image = $"data:{mimeType};base64,{base64}";
+
+
                     individualList.Add(new ActivityPDFModel
                     {
                         CompanyName = member.CompanyName ?? "",
@@ -60,6 +75,7 @@ public class ActivityDocumentDataSource
                         CompanyEmail = member.CompanyEmail ?? "",
                         CompanyPhone = member.CompanyPhone ?? "",
                         CompanyLogo = member.LogoLink,
+                        CompnayLogoBase64 = base64Image,
                         TeamName = team.TeamName,
                         EmployeeName = member.LeadProjectTeamMemberName,
                         Email = "debanjandevelopment@gmail.com",

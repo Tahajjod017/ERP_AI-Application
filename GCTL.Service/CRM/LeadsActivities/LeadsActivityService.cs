@@ -2,10 +2,13 @@
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using GCTL.Service.FileHandler;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
+using System.Buffers.Text;
+using System.Net.Mail;
+using System.Net.Mime;
 using System.Text;
-using Microsoft.AspNetCore.Hosting;
 
 
 namespace GCTL.Service.CRM.LeadsActivities
@@ -664,7 +667,7 @@ namespace GCTL.Service.CRM.LeadsActivities
                           <table width=""100%"">
                               <tr>
                                   <td align=""left"">
-                                        <p>{model.CompanyName}
+                                    <img  src=""cid:CompanyLogo"" alt=""Company Logo"" style=""max-width:200px; height:auto;"" />
                                   </td>
                                   <td align=""right"">
                                       <span id=""emailHeaderAddress"">{model.CompanyAddress}</span><br>
@@ -739,13 +742,27 @@ namespace GCTL.Service.CRM.LeadsActivities
               </body>
             </html>
                ";
+            // 3️⃣ AlternateView for HTML
+            var htmlView = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
+            byte[] imageBytes = File.ReadAllBytes(@"D:\HRM\GCTL_App\wwwroot\images\ms.png");
+
+            // 2️⃣ Create a MemoryStream from the bytes
+            var ms = new MemoryStream(imageBytes);
+
+            // 4️⃣ Attach the logo as LinkedResource
+            var logo = new LinkedResource(ms, MediaTypeNames.Image.Png)
+            {
+                ContentId = "CompanyLogo", // must match HTML src
+                TransferEncoding = TransferEncoding.Base64
+            };
 
             await emailService.SendEmailAsync(
                 recipientEmail,
                 subject,
                 body,
                 pdfBytes,
-                $"{model.EmployeeName ?? "Admin"}_ActivityReport.pdf"
+                $"{model.EmployeeName ?? "Admin"}_ActivityReport.pdf",
+                new List<LinkedResource> { logo }
             );
 
             Console.WriteLine($"📧 Email sent successfully to {recipientEmail}");
