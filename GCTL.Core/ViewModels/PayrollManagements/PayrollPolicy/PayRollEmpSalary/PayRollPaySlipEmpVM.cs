@@ -27,7 +27,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
         public decimal TDS { get; set; }
         public decimal TotalDeductions { get; set; }
         public decimal NetPay { get; set; }
-        public string? PayslipNo { get; set; }
+        public int? PayslipNo { get; set; }
         public DateTime PaymentDate { get; set; }
         public List<AllowanceVM> Allowances { get; set; } = new();
         public List<BeneFitsVM>  BeneFits { get; set; } = new();

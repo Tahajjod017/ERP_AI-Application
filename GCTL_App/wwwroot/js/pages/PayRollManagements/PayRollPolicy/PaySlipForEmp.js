@@ -119,6 +119,8 @@
                     $('#TotalDeductions').text(parseFloat(data.totalDeductions).toFixed(2));
                     $('#ProfessionalTax').text(parseFloat(data.professionalTax).toFixed(2));
                     $('#SalaryInWords').text(data.salaryInWords);  
+
+                    $('#paySlipNo').text(data.payslipNo)
                 } else {
                     toastr.error('Failed to load payslip: ' + response.message);
                 }

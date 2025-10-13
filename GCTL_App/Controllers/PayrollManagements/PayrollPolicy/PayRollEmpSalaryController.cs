@@ -1,13 +1,17 @@
 ﻿
+using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.LipLmacAddress;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary;
 using GCTL.Data.Models;
+using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Language;
 using GCTL.Service.PayRollManagements.PayRollEmpAllowance;
 using GCTL.Service.PayRollManagements.PayRollEmpSalary;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -118,5 +122,30 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         #endregion
 
 
+        #region save pdf 
+
+        [HttpPost]
+        [Route("PaySlipForEmp/GenerateMultiplePDFs")]
+       
+        public async Task<IActionResult> GenerateMultiplePDFs([FromBody] PayRollEmpSalarySaveVM model)
+        {
+            try
+            {
+                var saveResult = await payRollEmpSalaryService.SaveExportAsync(model);
+
+                if (!saveResult.Success || saveResult.Data == null)
+                    return Json(new { Success = false, Message = saveResult.Message });
+                return Json(new { Success = true, Message = saveResult.Message });
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            // 1️⃣ Save payslip
+           
+        }
+
+        #endregion
     }
 }

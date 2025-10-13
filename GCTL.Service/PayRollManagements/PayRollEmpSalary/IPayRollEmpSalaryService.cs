@@ -17,6 +17,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null, string imgSrcThumb = null,List<int> ? deptID=null, List<int> ? empID=null);
         Task<CommonReturnViewModel> GetPaySlip(int id);
         Task<CommonReturnViewModel> SaveAsync(PayRollEmpSalarySaveVM entityVM);
+        Task<CommonReturnViewModel> SaveExportAsync(PayRollEmpSalarySaveVM entityVM);
         Task<CommonReturnViewModel> SaveBulkAsync(List<PayRollEmpSalarySaveVM> entityVMList);
         Task<byte[]> GeneratePdf(int id);
     }

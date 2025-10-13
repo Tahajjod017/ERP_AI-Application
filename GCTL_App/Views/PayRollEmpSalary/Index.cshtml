@@ -149,7 +149,7 @@
                     Export <i class="fa-solid fa-file-export"></i>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" id="export-pdf-btn"><span data-feather="download"></span>PDF</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0);" id="export-pdf-btn"><span data-feather="download"></span>PDF</a></li>
                     <li><a class="dropdown-item" href="javascript:void(0);" id="exportToExcelTaxOverview"><span data-feather="download"></span>Excel</a></li>
                 </ul>
             </div>
@@ -202,7 +202,7 @@
                     <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
                     <div style="width: 100%;">
                         <select id="payRollEmp-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
-                            <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                          @*   <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option> *@
                             <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
                             <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
                             <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
@@ -239,6 +239,9 @@
                 <table class="table table-sm fs-9 leads-table">
                     <thead>
                         <tr>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input" id="PayRollPaySlip-check-all" />
+                            </th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empId">Employee Id</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empName">Employee Name</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDept">Department</th>
