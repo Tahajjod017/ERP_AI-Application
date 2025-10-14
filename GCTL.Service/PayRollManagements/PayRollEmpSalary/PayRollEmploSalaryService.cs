@@ -22,6 +22,7 @@ using QuestPDF.Infrastructure;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mail;
@@ -68,11 +69,12 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         }
 
         #region Get All Table 
-        public async Task<PaginationService<EmployeeSalarySettings, PayRollEmpSalaryGetAllVM>.PaginationResult<PayRollEmpSalaryGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null, string imgSrcThumb = null, List<int>? deptID = null, List<int>? empID = null)
+        public async Task<PaginationService<EmployeeSalarySettings, PayRollEmpSalaryGetAllVM>.PaginationResult<PayRollEmpSalaryGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null, string imgSrcThumb = null, List<int>? deptID = null, List<int>? empID = null, bool ? paidUnpaid=null, string? month = null)
         {
             try
             {
-
+                var currentMonth = DateTime.Now.Month;
+                var currentYear = DateTime.Now.Year;
                 var query = employeeSalarySettingsRepository.AllActive().Include(x => x.Employee)
                     .ThenInclude(e => e.EmployeeOfficeInfoEmployee).ThenInclude(o => o.Department).AsQueryable();
                 if (query == null)
@@ -94,6 +96,31 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     query = query.Where(x => _employeeOfficeInfoRepository.AllActive()
                         .Any(eo => eo.EmployeeID == x.EmployeeID && deptID.Contains((int)eo.DepartmentID)));
                 }
+                
+                if (DateTime.TryParseExact(month, "MMMM yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+                {
+                    var firstDay = new DateOnly(parsedDate.Year, parsedDate.Month, 1);
+                    var lastDay = firstDay.AddMonths(1).AddDays(-1);
+
+                    query = query.Where(x =>
+                        paySlipsRepository.AllActive()
+                            .Any(p =>
+                                p.PayPeriodStart <= lastDay &&
+                                p.PayPeriodEnd >= firstDay
+                            )
+                    );
+                }
+                if (paidUnpaid.HasValue)
+                {
+                
+                    query = query.Where(x =>
+                        paySlipsRepository.AllActive()
+                            .Any(p => p.EmployeeID == x.EmployeeID
+                                   && p.PayPeriodStart.Month == currentMonth
+                                   && p.PayPeriodStart.Year == currentYear
+                                   && p.IsPaid == paidUnpaid.Value));
+                }
+
 
                 Expression<Func<EmployeeBaseBenefits, object>> orderByExpression = currentSortColumn?.ToLower() switch
                 {
@@ -125,7 +152,9 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                          EmployeeImage = !string.IsNullOrEmpty(b.Employee?.EmployeeImageFileName) ? imgSrcThumb + b.Employee.EmployeeImageFileName : "",
                          EmpDepartment = _employeeOfficeInfoRepository.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
                          Salary = employeeSalarySettingsRepository.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Select(x => x.Salary).FirstOrDefault(),
-
+                         //IsPaid = paySlipsRepository.AllActive().Where(x=>x.EmployeeID==b.EmployeeID).Select(x=>x.IsPaid).FirstOrDefault(),
+                         IsPaid = paySlipsRepository.AllActive()
+                             .Where(x => x.EmployeeID == b.EmployeeID  && x.PayPeriodStart.Month == currentMonth && x.PayPeriodStart.Year == currentYear).Select(x => x.IsPaid).FirstOrDefault(),
                      });
 
 
@@ -301,70 +330,101 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         #endregion
 
         #region Save pdf emp Saalry
-        public async Task<CommonReturnViewModel> SaveExportAsync(PayRollEmpSalarySaveVM entityVM)
+    
+
+
+        public async Task<CommonReturnViewModel> SaveExportAsync(PaySlipRequestVM model)
         {
             var result = new CommonReturnViewModel();
 
-            if (entityVM == null || (entityVM.EmployeeIDs == null && !entityVM.EmployeeID.HasValue))
+            if (model == null || model.Employees == null || !model.Employees.Any())
             {
                 result.Success = false;
-                result.Message = "Invalid payslip data!";
+                result.Message = "No employee data received!";
                 return result;
             }
 
             await paySlipsRepository.BeginTransactionAsync();
+          
+
 
             try
             {
-                
-                var employeeIds = entityVM.EmployeeIDs ?? new List<int> { entityVM.EmployeeID.Value };
+                var employeeIds = model.Employees.Select(e => e.EmployeeID).ToList();
 
-                // ✅ Fetch all salaries in a single query (no concurrency)
+               
+
+                var currentYear = DateTime.Now.Year;
+                var currentMonth = DateTime.Now.Month;
+
+                // ✅ Check for duplicate payslips for this month where IsPaid == true
+                var duplicatePayslips = await paySlipsRepository.AllActive()
+                    .Where(p => employeeIds.Contains((int)p.EmployeeID)
+                                && p.PayPeriodStart.Month == currentMonth
+                                && p.PayPeriodStart.Year == currentYear
+                                && p.IsPaid==true)
+                    .ToListAsync();
+
+                if (duplicatePayslips.Any())
+                {
+                    var duplicateEmpIds = string.Join(", ", duplicatePayslips.Select(p => p.EmployeeID));
+                    result.Success = false;
+                    result.Message = $"Payslips already exist for employees: {duplicateEmpIds} (Paid this month)";
+                    return result;
+                }
+                //
+
                 var salaries = await employeeSalarySettingsRepository.AllActive()
                     .Where(x => employeeIds.Contains((int)x.EmployeeID))
                     .Select(x => new { x.EmployeeID, x.Salary })
                     .ToListAsync();
 
-                // ✅ Build payslips
-                var paySlipsList = salaries.Select(emp => new PaySlips
+                var paySlipsList = salaries.Select(emp =>
                 {
-                    EmployeeID = emp.EmployeeID,
-                    BasicSalary = emp.Salary ?? 0,
-                    PayPeriodStart = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1),
-                    PayPeriodEnd = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)),
-                    IsPaid = true,
-                    LIP = entityVM.LIP,
-                    LMAC = entityVM.LMAC,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = entityVM.CreatedBy,
+                    var empData = model.Employees.First(e => e.EmployeeID == emp.EmployeeID);
+
+                    return new PaySlips
+                    {
+                        EmployeeID = emp.EmployeeID,
+                        BasicSalary = emp.Salary ?? 0,
+                        PayPeriodStart = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, 1),
+                        PayPeriodEnd = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month)),
+                        IsPaid = empData.IsPaid,         
+                        LIP = model.LIP,                 
+                        LMAC = model.LMAC,                
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = model.CreatedBy       
+                    };
                 }).ToList();
 
                 await paySlipsRepository.AddRangeAsync(paySlipsList);
                 await paySlipsRepository.CommitTransactionAsync();
+
                 result.Success = true;
                 result.Message = "Payslips saved successfully!";
                 result.Data = paySlipsList;
 
-                var savedPayslips = (List<PaySlips>)result.Data;
-                foreach (var ps in savedPayslips)
-                {
-                    
+                //var savedPayslips = (List<PaySlips>)result.Data;
+                //foreach (var ps in savedPayslips)
+                //{
 
-                    try
-                    {
-                        var pdfBytes = await GeneratePdf(ps.PaySlipID);
-                        string folderPath = Path.Combine("D:\\Payslips", $"Payslip_{DateTime.Now.Year}");
-                        Directory.CreateDirectory(folderPath);
 
-                        string filePath = Path.Combine(folderPath, $"PaySlip_{ps.PaySlipID}.pdf");
-                        await File.WriteAllBytesAsync(filePath, pdfBytes);
+                //    try
+                //    {
+                //        var pdfBytes = await GeneratePdf(ps.PaySlipID);
+                //        string folderPath = Path.Combine("D:\\Payslips", $"Payslip_{DateTime.Now.Year}");
+                //        Directory.CreateDirectory(folderPath);
 
-                    }
-                    catch (Exception ex)
-                    {
-                        await userInfoService.ActionLogExceptionAsync("Pay Slip PDF generation", ex, ps.EmployeeID, ActionName.Error);
-                    }
-                }
+                //        string filePath = Path.Combine(folderPath, $"PaySlip_{ps.PaySlipID}.pdf");
+                //        await File.WriteAllBytesAsync(filePath, pdfBytes);
+
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        await userInfoService.ActionLogExceptionAsync("Pay Slip PDF generation", ex, ps.EmployeeID, ActionName.Error);
+                //    }
+                //}
+               
             }
             catch (Exception ex)
             {
@@ -377,6 +437,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 
             return result;
         }
+
 
         //
 

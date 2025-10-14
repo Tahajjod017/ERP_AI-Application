@@ -139,35 +139,7 @@
     });
 
 
-    // for pdf generate
-
-
-    //$(".print a").on("click", function (e) {
-    //    e.preventDefault();
-
-    //    let empId = $("#EmployeeID").val(); // Hidden field with employee ID
-
-    //    fetch("/PaySlipForEmp/Pdf?id=" + empId, {
-    //        method: "POST"
-    //    })
-    //        .then(response => response.blob())
-    //        .then(blob => {
-    //            const url = window.URL.createObjectURL(blob);
-    //            const a = document.createElement("a");
-    //            a.href = url;
-    //            a.download = `PaySlip_${empId}.pdf`; // File name
-    //            document.body.appendChild(a);
-    //            a.click();
-    //            a.remove();
-    //            window.URL.revokeObjectURL(url);
-    //        })
-    //        .catch(error => {
-    //            alert("Error generating PDF: " + error);
-    //        });
-    //});
-
-
-    //
+   
 
     $(document).on('click', '#PaySlipSave, .print a', async function (e) {
         e.preventDefault();

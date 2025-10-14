@@ -189,6 +189,12 @@
                 <input class="form-control ps-6 flatpickr-input" id="year-month-picker-1" type="text" readonly="readonly" placeholder="Select Month">
                 <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
             </div>
+            <div class="flatpickr-input-container me-3 d-none" id="markAsSaveContainer">
+                <button id="MarkasSaved" class="btn btn-primary btn-sm">
+                    Mark as Save
+                </button>
+            </div>
+
         </div>
 
     </div>
@@ -222,6 +228,16 @@
                         <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="payRollEmp-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
                     </div>
                 </div>
+              
+                <div class="dropdown me-3 d-flex align-items-center">
+                    <label for="PaidUnpaid" class="me-2 fw-semibold">@Html.SmartLocalize("Salary Status"):</label>
+                    <select id="PaidUnpaid" class="form-select form-select-sm" style="width: auto;" tabindex="10">
+                        <option value="">@Html.SmartLocalize("Select")</option>
+                        <option value="true">@Html.SmartLocalize("Paid")</option>
+                        <option value="false">@Html.SmartLocalize("UnPaid")</option>
+                    </select>
+                </div>
+
                 <div class="dropdown me-3" id="payRollEmp-searchBox">
                     <form class="position-relative" id="payRollEmp-searchForm">
                         <input class="form-control search-input" id="payRollEmp-searchInput" type="search"
@@ -243,14 +259,14 @@
                                 <input type="checkbox" class="form-check-input" id="PayRollPaySlip-check-all" />
                             </th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empId">Employee Id</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empName">Employee Name</th>
+                            <th class="sort align-middle ps-1 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empName">Employee Name</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDept">Department</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empSalary">Salary</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empBonus">Bonus</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDeduction">Deductions</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="netSalary">Net Salary</th>
+                            <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col">Status</th>
                             <th class="align-middle ps-4 pe-5 text-uppercase text-nowrap">Payslip</th>
-                            
                         </tr>
                     </thead>
                     <tbody  id="PayRollEmpSalary-sellers-body">
