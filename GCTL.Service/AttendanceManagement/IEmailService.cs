@@ -12,14 +12,14 @@ namespace GCTL.Service.AttendanceManagement
     public interface IEmailService
     {
         Task SendEmailAsync(EmailVM model, int? orgId);
-        //Task SendEmailAsync2(
-        //            string toEmail,
-        //            string subject,
-        //            string body,
-        //            byte[] attachmentBytes = null,
-        //            string attachmentName = null,
-        //            List<LinkedResource> linkedResources = null,
-        //            int? empId = null);
+        Task SendAsync(
+            int organizationId,
+            string toEmail,
+            string subject,
+            string body,
+            byte[]? attachmentBytes = null,
+            string? attachmentName = null,
+            List<LinkedResource>? linkedResources = null);
         Task SendEmailLeaveRequest(EmailVM model, int? orgId);
     }
 }

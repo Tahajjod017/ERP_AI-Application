@@ -1,60 +1,62 @@
-﻿
-namespace GCTL.Service.CRM
-{
+﻿//using GCTL.Service.AttendanceManagement;
+//using System.Net.Mail;
+//using System.Net.Mime;
 
-    using System.Net;
-    using System.Net.Mail;
-    using System.Net.Mime;
-    using System.Threading.Tasks;
+//namespace GCTL.Service.CRM
+//{
+//    public class SendEmailAsync
+//    {
+//        private readonly EmailService _emailService;
 
-    public class EmailService1
-    {
-        private readonly string _fromEmail = "systemtestmailuse@gmail.com";
-        private readonly string _appPassword = "sege zxge jjub eyra";
+//        public SendEmailAsync(EmailService emailService)
+//        {
+//            _emailService = emailService;
+//        }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string body, byte[] attachmentBytes = null, string attachmentName = null, List<LinkedResource> linkedResources = null
-)
-        {
-            using (var client = new SmtpClient("smtp.gmail.com", 587))
-            {
-                client.Credentials = new NetworkCredential(_fromEmail, _appPassword);
-                client.EnableSsl = true;
+//        public async Task SendAsync(
+//            int organizationId,
+//            string toEmail,
+//            string subject,
+//            string body,
+//            byte[]? attachmentBytes = null,
+//            string? attachmentName = null,
+//            List<LinkedResource>? linkedResources = null)
+//        {
+//            var emailConfig = await _emailService.GetEmailConfigAsync(organizationId);
+//            using (var client = await _emailService.GetSmtpClientAsync(organizationId))
+//            {
+//                using (var mail = new MailMessage(emailConfig.UserName, toEmail))
+//                {
+//                    mail.Subject = subject;
+//                    mail.IsBodyHtml = true;
 
-                var mail = new MailMessage(_fromEmail, toEmail, subject, body)
-                {
-                    IsBodyHtml = true
-                };
-                // ✅ Use AlternateView for HTML body if CID images are provided
-                if (linkedResources != null && linkedResources.Any())
-                {
-                    var htmlView = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
-                    foreach (var resource in linkedResources)
-                    {
-                        htmlView.LinkedResources.Add(resource);
-                    }
-                    mail.AlternateViews.Add(htmlView);
-                }
-                else
-                {
-                    mail.Body = body;
-                }
+//                    if (linkedResources != null && linkedResources.Any())
+//                    {
+//                        var htmlView = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
+//                        foreach (var resource in linkedResources)
+//                            htmlView.LinkedResources.Add(resource);
+//                        mail.AlternateViews.Add(htmlView);
+//                    }
+//                    else
+//                    {
+//                        mail.Body = body;
+//                    }
 
+//                    if (attachmentBytes != null && !string.IsNullOrEmpty(attachmentName))
+//                    {
+//                        using (var stream = new MemoryStream(attachmentBytes))
+//                        {
+//                            mail.Attachments.Add(new Attachment(stream, attachmentName));
+//                            await client.SendMailAsync(mail);
+//                        }
+//                    }
+//                    else
+//                    {
+//                        await client.SendMailAsync(mail);
+//                    }
+//                }
+//            }
+//        }
 
-                if (attachmentBytes != null && attachmentName != null)
-                {
-                    using (var stream = new System.IO.MemoryStream(attachmentBytes))
-                    {
-                        mail.Attachments.Add(new Attachment(stream, attachmentName));
-                        await client.SendMailAsync(mail);
-                    }
-                }
-                else
-                {
-                    await client.SendMailAsync(mail);
-                }
-            }
-        }
-    }
-
-
-}
+//    }
+//}

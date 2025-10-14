@@ -3,10 +3,9 @@ using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement;
 using GCTL.Service.FileHandler;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
-using System.Buffers.Text;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Text;
@@ -21,18 +20,24 @@ namespace GCTL.Service.CRM.LeadsActivities
         private readonly IPdfFileHandler _pdfFileHandlerService;
         public readonly IGenericRepository<LeadProjectTeams> _leadProjectTeamsRepository;
         private readonly IEmailService _emailService;
-
+        public readonly IGenericRepository<Organization> _organizationRepository;
+        private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public LeadsActivityService(
             IGenericRepository<LeadDetails> leadDetailsRepository,
             IPdfFileHandler pdfFileHandlerService,
             IGenericRepository<LeadProjectTeams> leadProjectTeamsRepository,
-            IEmailService emailService)
+            IEmailService emailService, RoleManager<ApplicationRole> roleManager,
+            UserManager<ApplicationUser> userManager, IGenericRepository<Organization> organizationRepository)
         {
             _leadDetailsRepository = leadDetailsRepository;
             _pdfFileHandlerService = pdfFileHandlerService;
             _leadProjectTeamsRepository = leadProjectTeamsRepository;
             _emailService = emailService;
+            _roleManager = roleManager;
+            _userManager = userManager;
+            _organizationRepository = organizationRepository;
         }
         #endregion
 
@@ -188,17 +193,29 @@ namespace GCTL.Service.CRM.LeadsActivities
         }
         #endregion
 
+        public async Task<List<ApplicationUser>> GetAdminUsersAsync(int orgId)
+        {
+            var adminRole = await _roleManager.Roles
+                .FirstOrDefaultAsync(r => r.OrganizationID == orgId && r.Name == "1_1_ADMIN");
+
+            if (adminRole == null)
+                return new List<ApplicationUser>();
+
+            var users = await _userManager.GetUsersInRoleAsync(adminRole.Name);
+            return users.ToList();
+        }
+
+
         #region Generate PDF
         public async Task<bool> GenerateAndSendEmployeePDFsAsync(string wwwRootPath)
         {
             try
             {
-
-                var allTeam = await _leadProjectTeamsRepository.AllActive()
+                var teams = await _leadProjectTeamsRepository.AllActive()
                     .Include(t => t.LeadProjectTeamMembers)
                         .ThenInclude(m => m.Employee)
                             .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
-                              .ThenInclude(o => o.Organization)
+                                .ThenInclude(o => o.Organization)
                     .Select(l => new TeamDto
                     {
                         TeamID = l.LeadProjectTeamID,
@@ -206,25 +223,54 @@ namespace GCTL.Service.CRM.LeadsActivities
                         TeamMembers = l.LeadProjectTeamMembers
                             .Select(m => new TeamMemberDto
                             {
+                                ComapanyID = m.Employee.EmployeeOfficeInfoEmployee
+                                    .Select(x => x.Organization.OrganizationID)
+                                    .FirstOrDefault(),
                                 CompanyName = m.Employee.EmployeeOfficeInfoEmployee
                                     .Select(x => x.Organization.OrganizationName)
                                     .FirstOrDefault(),
-                                CompanyAddress = m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.Address).FirstOrDefault(),
-                                CompanyEmail = m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.EmailAddress).FirstOrDefault(),
-                                CompanyPhone = m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.Phone).FirstOrDefault(),
-                                LogoLink = !string.IsNullOrEmpty(m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.LogoLink).FirstOrDefault())
-                               ? Path.Combine(wwwRootPath, "images", m.Employee.EmployeeOfficeInfoEmployee.Select(x => x.Organization.LogoLink).FirstOrDefault())
-                               : "",
+                                CompanyAddress = m.Employee.EmployeeOfficeInfoEmployee
+                                    .Select(x => x.Organization.Address)
+                                    .FirstOrDefault(),
+                                CompanyEmail = m.Employee.EmployeeOfficeInfoEmployee
+                                    .Select(x => x.Organization.EmailAddress)
+                                    .FirstOrDefault(),
+                                CompanyPhone = m.Employee.EmployeeOfficeInfoEmployee
+                                    .Select(x => x.Organization.Phone)
+                                    .FirstOrDefault(),
+                                LogoLink = !string.IsNullOrEmpty(m.Employee.EmployeeOfficeInfoEmployee
+                                    .Select(x => x.Organization.LogoLink).FirstOrDefault())
+                                    ? Path.Combine(wwwRootPath, "images", m.Employee.EmployeeOfficeInfoEmployee
+                                        .Select(x => x.Organization.LogoLink).FirstOrDefault() ?? "")
+                                    : "",
                                 LeadProjectTeamMemberID = m.EmployeeID,
                                 LeadProjectTeamMemberName = $"{m.Employee.FirstName} {m.Employee.LastName}",
                                 LeadProjectTeamMemberEmail = m.Employee.Email,
-                                IsTeamHead = m.IsTeamHead.GetValueOrDefault() 
+                                IsTeamHead = m.IsTeamHead.GetValueOrDefault()
                             })
                             .ToList()
-                    })
-                    .ToListAsync();
+                    }).ToListAsync();
 
-                var activityDataSource = new ActivityDocumentDataSource(_leadDetailsRepository, allTeam);
+                // Get first organization ID from first team member
+                int firstOrgId = teams
+                    .SelectMany(t => t.TeamMembers)
+                    .Select(tm => tm.ComapanyID)
+                    .FirstOrDefault() ?? 0; // 0 if no members
+
+                var organization = await _organizationRepository.AllActive().Where(t => t.OrganizationID == firstOrgId).FirstOrDefaultAsync();
+                var TeamRowData = new TeamPageMainDto
+                {
+                    Teams = teams,
+                    AdminIds = await GetAdminUsersAsync(firstOrgId),
+                    OrganizationID = organization.OrganizationID,
+                    OrganizationEmail = organization.EmailAddress,
+                    OrganizationName = organization.OrganizationName,
+                    OrganizationAddress = organization.Address,
+                    OrganizationPhone = organization.Phone,
+                    LogoLink = organization.LogoLink,
+                };
+
+                var activityDataSource = new ActivityDocumentDataSource(_leadDetailsRepository, TeamRowData);
                 var result = await activityDataSource.GetActivitiesByRole();
 
                 List<ActivityPDFModel> individualList = result.individual;
@@ -254,15 +300,39 @@ namespace GCTL.Service.CRM.LeadsActivities
                     await SendPdfEmail(leaderModel);
                 }
 
-                string adminEmail = "debanjandevelopment@gmail.com";
-                foreach (var adminModel in adminList)
-                {
-                    if ((adminModel.Activities == null || !adminModel.Activities.Any()) &&
-                        (adminModel.SubEmployees == null || !adminModel.SubEmployees.Any(a => a.Activities != null && a.Activities.Any())))
-                        continue; // skip if nothing
+                //string adminEmail = "debanjandevelopment@gmail.com";
+                //foreach (var adminModel in adminList)
+                //{
+                //    if ((adminModel.Activities == null || !adminModel.Activities.Any()) &&
+                //        (adminModel.SubEmployees == null || !adminModel.SubEmployees.Any(a => a.Activities != null && a.Activities.Any())))
+                //        continue; // skip if nothing
 
-                    await SendPdfEmail(adminModel, adminEmail);
+                //    await SendPdfEmail(adminModel, adminEmail);
+                //}
+                // 🔹 Fetch all admin users dynamically for the organization
+                var adminUsers = await GetAdminUsersAsync(firstOrgId);
+
+                if (adminUsers != null && adminUsers.Any())
+                {
+                    foreach (var admin in adminUsers)
+                    {
+                        foreach (var adminModel in adminList)
+                        {
+                            if ((adminModel.Activities == null || !adminModel.Activities.Any()) &&
+                                (adminModel.SubEmployees == null || !adminModel.SubEmployees.Any(a => a.Activities != null && a.Activities.Any())))
+                                continue;
+
+                            // Send to each admin, personalized by name
+                            adminModel.EmployeeName = $"";
+                            await SendPdfEmail(adminModel);
+                        }
+                    }
                 }
+                else
+                {
+                    Console.WriteLine("⚠️ No admin users found for this organization.");
+                }
+
 
                 Console.WriteLine("✅ All activity reports sent successfully.");
                 return true;
@@ -310,6 +380,24 @@ namespace GCTL.Service.CRM.LeadsActivities
             else
             {
                 activityRows.AppendLine("<tr><td colspan='7' style='text-align:center;'>No activities found</td></tr>");
+            }
+
+            string formattedAddress = string.Empty;
+
+            if (model.CompanyAddress != null && !string.IsNullOrWhiteSpace(model.CompanyAddress))
+            {
+                //var parts = orgainfo.Address.Split(',');
+                string addressWithCommas = model.CompanyAddress.Replace("\r\n", ",")
+                                           .Replace("\n", ",")
+                                           .Replace("\r", ",");
+
+                // Split by comma
+                var parts = model.CompanyAddress.Split(',');
+                formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
+            }
+            else
+            {
+                formattedAddress = "No address available";
             }
 
             string subject = $"Upcoming Activity Report - {model.EmployeeName ?? "Admin"}";
@@ -646,9 +734,6 @@ namespace GCTL.Service.CRM.LeadsActivities
                     padding: 7px 5px;
         
                   }}
-                #emailHeaderAddress {{
-                    width: 150px;
-                }}
                   /* Responsive */
                   @media only screen and (max-width: 600px) {{
                     .header-bg td {{
@@ -663,18 +748,21 @@ namespace GCTL.Service.CRM.LeadsActivities
                 </style>
               </head>
               <body>
-                <table class=""email-container"">
+                <table width=""800"" align=""center"" cellpadding=""0"" cellspacing=""0""
+                    style=""width:800px; margin: auto; background-color:#ffffff; border:1px solid #e0e0e0; border-collapse:collapse;"">
                         <!-- Header -->
                   <tr>
                       <td class=""header-bg"">
                           <table width=""100%"">
                               <tr>
                                   <td align=""left"">
-                                    <img  src=""cid:CompanyLogo"" alt=""Company Logo"" style=""max-width:200px; height:auto;"" />
+                                    <img  src=""cid:CompanyLogo"" alt=""Company Logo"" style=""max-width:85px; height:auto;"" />
                                   </td>
-                                  <td align=""right"">
-                                      <span id=""emailHeaderAddress"">{model.CompanyAddress}</span><br>
-                                      {model.CompanyEmail}<br>
+                                  <td align=""right"" style=""color: white"">
+                                      <span>{formattedAddress}</span><br>
+                                       <a href=""mailto:{{model.CompanyEmail}}"" style=""color:white !important; text-decoration:none;"">
+                                            {model.CompanyEmail}
+                                        </a><br>
                                       {model.CompanyPhone}
                                   </td>
                               </tr>
@@ -685,8 +773,8 @@ namespace GCTL.Service.CRM.LeadsActivities
                 <!-- Greeting -->
                   <tr>
                       <td class=""content section-greeting"">
-                          <p>Dear HR Team,</p>
-                          <p>This is an automated leave request submitted by an employee. Please find the details below:</p>
+                          <p>Dear {model.EmployeeName},</p>
+                          <p>This is an automated notification of upcoming activities. Please find the details below:</p>
                       </td>
                   </tr>
                         <!-- Approval Timeline (Horizontal) -->
@@ -748,6 +836,7 @@ namespace GCTL.Service.CRM.LeadsActivities
             // 3️⃣ AlternateView for HTML
             var htmlView = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
             byte[] imageBytes = File.ReadAllBytes(@"D:\HRM\GCTL_App\wwwroot\images\ms.png");
+            //byte[] imageBytes = File.ReadAllBytes(@"D:\HRM\GCTL_App\wwwroot\images\ms.png");
 
             // 2️⃣ Create a MemoryStream from the bytes
             var ms = new MemoryStream(imageBytes);
@@ -759,24 +848,16 @@ namespace GCTL.Service.CRM.LeadsActivities
                 TransferEncoding = TransferEncoding.Base64
             };
 
-            //var emailResult = await _emailService.SendEmailAsync(
-            //    toEmail: recipientEmail,
-            //    subject: "Set Your Password",
-            //    razorTemplateFile: body,
-            //    null,
-            //    null,
-            //    null
-            //);
-
-            //await _emailService.SendEmailAsync2(
-            //    recipientEmail,
-            //    subject,
-            //    body,
-            //    pdfBytes,
-            //    $"{model.EmployeeName ?? "Admin"}_ActivityReport.pdf",
-            //    new List<LinkedResource> { logo }
-                
-            //);
+            await _emailService.SendAsync(
+                organizationId: 1,
+                //organizationId: model.ComapanyID ?? 0,
+                toEmail: recipientEmail,
+                subject: subject,
+                body: body,
+                attachmentBytes: pdfBytes,
+                attachmentName: $"{model.EmployeeName ?? "Admin"}_ActivityReport.pdf",
+                linkedResources: new List<LinkedResource> { logo }
+            );
 
             Console.WriteLine($"📧 Email sent successfully to {recipientEmail}");
         }
