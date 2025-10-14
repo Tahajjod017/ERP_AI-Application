@@ -48,32 +48,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         #endregion
 
         #region Save Pay slip
-        //[Route("PaySlipForEmp/Save")]
-        //[HttpPost]
-        //public async Task<IActionResult> Save([FromBody]PayRollEmpSalarySaveVM model) 
-        //{
-        //    try
-        //    {
-        //        if (!ModelState.IsValid)
-        //        {
-        //            // Collect all validation errors
-        //            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-
-        //            return Json(new
-        //            {
-        //                Success = false,Message =errors, 
-        //            });
-        //        }
-        //        var data=await payRollEmpSalaryService.SaveAsync(model);
-        //        return Json(new { Success = data.Success, Message = data.Message});
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-
-        //}
+      
 
         [Route("PaySlipForEmp/SaveAndPdf")]
         [HttpPost]
@@ -113,15 +88,8 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         }
         #endregion
 
-        #region Pay slip
-        [Route("PaySlipForEmp/Pdf")]
-        [HttpPost]
-        public async Task<IActionResult> GenerateIndiEmpDetailsPDF(int id)
-        {
-            var pdfBytes = await payRollEmpSalaryService.GeneratePdf(id);
-            return File(pdfBytes, "application/pdf", $"Pay Slip{id}.pdf");
-        }
-        #endregion
+       
+
 
 
     }

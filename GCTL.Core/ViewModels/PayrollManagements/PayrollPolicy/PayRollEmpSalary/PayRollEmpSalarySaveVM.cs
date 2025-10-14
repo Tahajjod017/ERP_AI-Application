@@ -17,6 +17,18 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
 
         public decimal BasicSalary { get; set; }
 
-        public bool? IsPaid { get; set; }=true;
+        public bool? IsPaid { get; set; }
     }
+
+    public class PaySlipRequestVM: BaseViewModel
+    {
+        public List<PaySlipEmployeeVM> Employees { get; set; } = new();
+    }
+
+    public class PaySlipEmployeeVM
+    {
+        public int EmployeeID { get; set; }
+        public bool IsPaid { get; set; }
+    }
+
 }
