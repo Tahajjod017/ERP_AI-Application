@@ -41,28 +41,6 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.ActivityTypeDD = new SelectList(_leadActivityTypeService.AllActive().Select(e => new { e.LeadActivityTypeID, e.LeadActivityName }), "LeadActivityTypeID", "LeadActivityName");
             return View();
         }
-        public async Task<bool> SendEmailWithPdf(byte[] pdfBytes)
-        {
-            try
-            {
-                var emailService = new EmailService1();
-
-                string receiverEmail = "debanjandevelopment@gmail.com";
-                string subject = "Hello from Gmail SMTP";
-                string body = "<h2>This email is sent using EmailService with PDF attachment!</h2>";
-
-                // Pass PDF as attachment
-                await emailService.SendEmailAsync(receiverEmail, subject, body, pdfBytes, "report.pdf");
-
-                Console.WriteLine("✅ Email sent successfully with PDF!");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Email sending failed: {ex.Message}");
-                return false;
-            }
-        }
         #endregion
 
         #region get Upcomming Activity

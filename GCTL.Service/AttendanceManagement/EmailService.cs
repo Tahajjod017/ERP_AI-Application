@@ -1,17 +1,11 @@
-﻿using GCTL.Core.Helpers;
-using GCTL.Core.Repository;
+﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GCTL.Service.AttendanceManagement
 {
@@ -72,84 +66,109 @@ namespace GCTL.Service.AttendanceManagement
             }
         }
 
-        //public async Task SendEmailAsync2(
-        //    string toEmail,
-        //    string subject,
-        //    string body,
-        //    byte[] attachmentBytes = null,
-        //    string attachmentName = null,
-        //    List<LinkedResource> linkedResources = null,
-        //    int? empId = null)
-        //        {
-        //            // Get employee if empId is provided
-        //            EmployeeOfficeInfo employee = null;
-        //            if (empId.HasValue)
-        //            {
-        //                employee = await _employeeOfficeInfo.AllActive()
-        //                                                     .FirstOrDefaultAsync(x => x.EmployeeID == empId.Value);
-        //                if (employee == null)
-        //                    return;
-        //            }
+        public async Task<SmtpClient> GetSmtpClientAsync(int organizationId)
+        {
+            var emailConfig = await _emailSettings.AllActive()
+                .FirstOrDefaultAsync(x => x.OrganizationID == organizationId);
 
-        //            // Get email configuration
-        //            var emailConfig = employee != null
-        //                ? await _emailSettings.AllActive()
-        //                                      .FirstOrDefaultAsync(x => x.OrganizationID == employee.OrganizationID)
-        //                : await _emailSettings.AllActive().FirstOrDefaultAsync(); // fallback default
+            if (emailConfig == null)
+                throw new InvalidOperationException("Email settings not configured in database.");
 
-        //            if (emailConfig == null)
-        //                throw new InvalidOperationException("Email settings not configured in database.");
+            var smtpClient = new SmtpClient(emailConfig.Host, emailConfig.Port)
+            {
+                EnableSsl = emailConfig.IsSSLRequired,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = emailConfig.IsDefaultCredential
+            };
 
-        //            using (var smtpClient = new SmtpClient(emailConfig.Host, emailConfig.Port))
-        //            {
-        //                smtpClient.EnableSsl = emailConfig.IsSSLRequired;
-        //                smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-        //                smtpClient.UseDefaultCredentials = emailConfig.IsDefaultCredential;
+            if (!emailConfig.IsDefaultCredential)
+            {
+                smtpClient.Credentials = new NetworkCredential(emailConfig.UserName, emailConfig.Password);
+            }
 
-        //                if (!emailConfig.IsDefaultCredential)
-        //                {
-        //                    smtpClient.Credentials = new NetworkCredential(emailConfig.UserName, emailConfig.Password);
-        //                }
+            return smtpClient;
+        }
+        public class EmailConfigDto
+        {
+            public string UserName { get; set; }
+            public string Password { get; set; }
+            public string Host { get; set; }
+            public int Port { get; set; }
+        }
 
-        //                if (string.IsNullOrEmpty(toEmail))
-        //                    throw new ArgumentNullException(nameof(toEmail), "Recipient email address is required.");
 
-        //                var mailMessage = new MailMessage(emailConfig.UserName, toEmail)
-        //                {
-        //                    Subject = string.IsNullOrEmpty(subject) ? "No Subject" : subject,
-        //                    IsBodyHtml = true
-        //                };
+        public async Task SendAsync(
+            int organizationId,
+            string toEmail,
+            string subject,
+            string body,
+            byte[]? attachmentBytes = null,
+            string? attachmentName = null,
+            List<LinkedResource>? linkedResources = null)
+         {
+            var emailConfig = await _emailSettings.AllActive()
+                .FirstOrDefaultAsync(x => x.OrganizationID == organizationId);
 
-        //                // Use linked resources (CID images) if provided
-        //                if (linkedResources != null && linkedResources.Any())
-        //                {
-        //                    var htmlView = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
-        //                    foreach (var resource in linkedResources)
-        //                    {
-        //                        htmlView.LinkedResources.Add(resource); // inline images
-        //                    }
-        //                    mailMessage.AlternateViews.Add(htmlView);
-        //                }
-        //                else
-        //                {
-        //                    mailMessage.Body = body;
-        //                }
+            var smtpClient = new SmtpClient(emailConfig.Host, emailConfig.Port)
+            {
+                EnableSsl = true, // or emailConfig.IsSSLRequired
+                Credentials = new NetworkCredential(emailConfig.UserName, emailConfig.Password),
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false
+            };
+            using (smtpClient)
+            {
+                using (var mail = new MailMessage(emailConfig.UserName, toEmail))
+                {
+                    mail.Subject = subject;
+                    mail.IsBodyHtml = true;
 
-        //                // Attachments if any
-        //                if (attachmentBytes != null && !string.IsNullOrEmpty(attachmentName))
-        //                {
-        //                    using (var stream = new MemoryStream(attachmentBytes))
-        //                    {
-        //                        mailMessage.Attachments.Add(new Attachment(stream, attachmentName));
-        //                        await smtpClient.SendMailAsync(mailMessage);
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    await smtpClient.SendMailAsync(mailMessage);
-        //                }
-        //            }
-        //        }
+                    if (linkedResources != null && linkedResources.Any())
+                    {
+                        var htmlView = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
+                        foreach (var resource in linkedResources)
+                            htmlView.LinkedResources.Add(resource);
+                        mail.AlternateViews.Add(htmlView);
+                    }
+                    else
+                    {
+                        mail.Body = body;
+                    }
+
+                    if (attachmentBytes != null && !string.IsNullOrEmpty(attachmentName))
+                    {
+                        using (var stream = new MemoryStream(attachmentBytes))
+                        {
+                            mail.Attachments.Add(new Attachment(stream, attachmentName));
+                            await smtpClient.SendMailAsync(mail);
+                        }
+                    }
+                    else
+                    {
+                        await smtpClient.SendMailAsync(mail);
+                    }
+                }
+            }
+        }
+
+     
+        public async Task<EmailConfigDto> GetEmailConfigAsync(int organizationId)
+        {
+            var emailConfig = await _emailSettings.AllActive()
+                .FirstOrDefaultAsync(x => x.OrganizationID == organizationId);
+
+            if (emailConfig == null)
+                throw new InvalidOperationException("Email settings not found.");
+
+            return new EmailConfigDto
+            {
+                UserName = emailConfig.UserName,
+                Password = emailConfig.Password,
+                Host = emailConfig.Host,
+                Port = emailConfig.Port
+            };
+        }
+
 
         #region  leave Request
         public async Task SendEmailLeaveRequest(EmailVM model, int? empId)

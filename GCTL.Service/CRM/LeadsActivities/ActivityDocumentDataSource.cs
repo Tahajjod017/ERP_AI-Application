@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 public class ActivityDocumentDataSource
 {
     private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
-    private readonly List<TeamDto> _teamList;
+    private readonly TeamPageMainDto _teamList;
 
-    public ActivityDocumentDataSource(IGenericRepository<LeadDetails> leadDetailsRepository, List<TeamDto> teamList)
+    public ActivityDocumentDataSource(IGenericRepository<LeadDetails> leadDetailsRepository, TeamPageMainDto teamList)
     {
         _leadDetailsRepository = leadDetailsRepository;
         _teamList = teamList;
@@ -21,7 +21,8 @@ public class ActivityDocumentDataSource
         var teamLeaderList = new List<ActivityPDFModel>();
         var adminList = new List<ActivityPDFModel>();
 
-        foreach (var team in _teamList)
+        var teamList = _teamList.Teams;
+        foreach (var team in teamList)
         {
             var members = team.TeamMembers;
             var memberIds = members.Select(m => m.LeadProjectTeamMemberID).ToList();
@@ -53,20 +54,23 @@ public class ActivityDocumentDataSource
 
                 if (memberActivities.Any() && member.IsTeamHead != true)
                 {
-                    string extension = Path.GetExtension(member.LogoLink)?.ToLower();
-                    string mimeType = extension switch
+                    // Convert logo to Base64 for email embedding
+                    string base64Image = "";
+                    if (!string.IsNullOrEmpty(member.LogoLink) && File.Exists(member.LogoLink))
                     {
-                        ".png" => "image/png",
-                        ".jpg" => "image/jpeg",
-                        ".jpeg" => "image/jpeg",
-                        ".gif" => "image/gif",
-                        _ => "image/png"
-                    };
-
-                    byte[] imageBytes = File.ReadAllBytes(member.LogoLink);
-                    string base64 = Convert.ToBase64String(imageBytes);
-                    string base64Image = $"data:{mimeType};base64,{base64}";
-
+                        string extension = Path.GetExtension(member.LogoLink)?.ToLower();
+                        string mimeType = extension switch
+                        {
+                            ".png" => "image/png",
+                            ".jpg" => "image/jpeg",
+                            ".jpeg" => "image/jpeg",
+                            ".gif" => "image/gif",
+                            _ => "image/png"
+                        };
+                        byte[] imageBytes = File.ReadAllBytes(member.LogoLink);
+                        string base64 = Convert.ToBase64String(imageBytes);
+                        base64Image = $"data:{mimeType};base64,{base64}";
+                    }
 
                     individualList.Add(new ActivityPDFModel
                     {
@@ -79,7 +83,7 @@ public class ActivityDocumentDataSource
                         TeamName = team.TeamName,
                         EmployeeName = member.LeadProjectTeamMemberName,
                         Email = "debanjandevelopment@gmail.com",
-                        //Email = member.LeadProjectTeamMemberEmail, // send to real email
+                        //Email = member.LeadProjectTeamMemberEmail, // ✅ actual email
                         IsTeamHead = member.IsTeamHead,
                         Activities = memberActivities,
                         TotalActivities = memberActivities.Count()
@@ -87,6 +91,7 @@ public class ActivityDocumentDataSource
                 }
             }
 
+            // Team Leader
             var leader = members.FirstOrDefault(m => m.IsTeamHead == true);
             if (leader != null && upcomingActivities.Any())
             {
@@ -100,7 +105,7 @@ public class ActivityDocumentDataSource
                     TeamName = team.TeamName,
                     EmployeeName = leader.LeadProjectTeamMemberName,
                     Email = "debanjandevelopment@gmail.com",
-                    //Email = leader.LeadProjectTeamMemberEmail,
+                    //Email = leader.LeadProjectTeamMemberEmail, // ✅ actual email
                     IsTeamHead = true,
                     Activities = upcomingActivities, // all team activities
                     TotalActivities = upcomingActivities.Count(),
@@ -115,25 +120,32 @@ public class ActivityDocumentDataSource
                 });
             }
 
-            // Admin PDFs (all team member activities, if any)
+            // Admin PDFs (all team member activities)
             if (upcomingActivities.Any())
             {
-                adminList.Add(new ActivityPDFModel
+                foreach (var adminUser in _teamList.AdminIds) // ✅ fetch admins from team
                 {
-                    CompanyName = "YourCompany",
-                    CompanyAddress = "Your Address",
-                    TeamName = team.TeamName,
-                    Activities = upcomingActivities,
-                    TotalActivities = upcomingActivities.Count(),
-                    SubEmployees = members
-                        .Select(m => new ActivityPDFModel
-                        {
-                            EmployeeName = m.LeadProjectTeamMemberName,
-                            Activities = upcomingActivities
-                                .Where(a => a.LeadOwnerId == m.LeadProjectTeamMemberID)
-                                .ToList()
-                        }).ToList()
-                });
+                    adminList.Add(new ActivityPDFModel
+                    {
+                        CompanyName = adminUser.Organization?.OrganizationName ?? "YourCompany",
+                        CompanyAddress = adminUser.Organization?.Address ?? "Your Address",
+                        CompanyEmail = adminUser.Email ?? "",
+                        TeamName = team.TeamName,
+                        EmployeeName = $"",
+                        Email = "debanjandevelopment@gmail.com", // ✅ send to admin
+                        //Email = adminUser.Email, // ✅ send to admin
+                        Activities = upcomingActivities,
+                        TotalActivities = upcomingActivities.Count(),
+                        SubEmployees = members
+                            .Select(m => new ActivityPDFModel
+                            {
+                                EmployeeName = m.LeadProjectTeamMemberName,
+                                Activities = upcomingActivities
+                                    .Where(a => a.LeadOwnerId == m.LeadProjectTeamMemberID)
+                                    .ToList()
+                            }).ToList()
+                    });
+                }
             }
         }
 
