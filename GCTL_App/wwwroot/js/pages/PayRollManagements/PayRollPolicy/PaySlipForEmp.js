@@ -9,38 +9,8 @@
         return;
     }
 
+    $('#EmployeeID').val(id);
 
-    //$(document).on('click', '#PaySlipSave', async function () {
-    //    const postData = {
-    //        EmployeeID: id,
-    //        PayPeriodStart: $('#PayPeriodStart').val(),
-    //        PayPeriodEnd: $('#PayPeriodEnd').val(),
-    //        IsPaid: $('#IsPaid').is(':checked')
-    //    };
-
-    //    try {
-    //        const response = await $.ajax({
-    //            url: '/PaySlipForEmp/Save',
-    //            type: 'POST',
-    //            contentType: 'application/json',
-    //            data: JSON.stringify(postData),
-    //            dataType: 'json'
-    //        });
-
-    //        if (response.success) {
-    //            toastr.success(response.message || "Payslip saved successfully!");
-    //        } else {
-    //            if (Array.isArray(response.message)) {
-    //                response.Message.forEach(err => toastr.error(err));
-    //            } else if (typeof response.message === 'string') {
-    //                toastr.error(response.message);
-    //            }
-    //        }
-    //    } catch (err) {
-    //        console.error("AJAX Error:", err);
-    //        toastr.error("An error occurred while saving the payslip.");
-    //    }
-    //});
 
 
   
@@ -141,6 +111,10 @@
 
    
 
+
+
+
+    
     $(document).on('click', '#PaySlipSave, .print a', async function (e) {
         e.preventDefault();
 
@@ -151,13 +125,20 @@
             PayPeriodEnd: $('#PayPeriodEnd').val(),
             IsPaid: $('#IsPaid').is(':checked')
         };
+        const $button = $("#PaySlipSave,.print a");
 
         try {
+            // Disable button and show spinner
+            $button.prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+            showLoadingIndicator();
+
             const pdfResponse = await fetch("/PaySlipForEmp/SaveAndPdf", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(postData)
             });
+
+            if (!pdfResponse.ok) throw new Error("Failed to save payslip or generate PDF");
 
             const blob = await pdfResponse.blob();
             const url = window.URL.createObjectURL(blob);
@@ -168,15 +149,22 @@
             a.click();
             a.remove();
             window.URL.revokeObjectURL(url);
+
             toastr.success("Payslip saved and PDF generated!");
+            $(".print").html(`<a href="#"><i class="fa fa-print"></i> Print this receipt</a>`);
         } catch (err) {
             console.error(err);
             toastr.error("Error saving payslip or generating PDF.");
+        } finally {
+            // Always hide loading indicator and re-enable button
+            hideLoadingIndicator();
+            $button.prop("disabled", false).html('Save Payslip');
         }
     });
 
 
-    //
+ 
+
 
 
 });

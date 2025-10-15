@@ -34,7 +34,7 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM
 
         public int CalculationTypeID { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Value must be numeric and >= 0")]
+        [Range(0, 100000, ErrorMessage = "Value must be numeric and >= 0")]
         public decimal Value { get; set; }
 
         // ✅ Custom validation

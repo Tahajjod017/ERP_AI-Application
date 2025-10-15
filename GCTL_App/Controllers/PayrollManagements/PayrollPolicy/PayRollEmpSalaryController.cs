@@ -185,7 +185,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
                         var pdfBytes = await payRollEmpSalaryService.GeneratePdf(ps.PaySlipID);
 
                         // ✅ Create folder path dynamically
-                        string folderPath = Path.Combine("D:\\Payslips", $"Payslip_{DateTime.Now:yyyy}");
+                        string folderPath = Path.Combine("D:\\Payslips", $"Payslip_{DateTime.Now:MMM yyyy}");
                         Directory.CreateDirectory(folderPath);
 
                         // ✅ Define full file path
