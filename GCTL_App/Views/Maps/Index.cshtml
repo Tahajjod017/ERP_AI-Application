@@ -1,0 +1,115 @@
+﻿<div class="pb-6">
+    <h2 class="mb-4">MAP</h2>
+
+    <div class="row">
+        <div class="col-md-4">
+            <!-- <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5>All Service Appointments</h5>
+              <button class="btn btn-primary btn-sm">New List View</button>
+            </div> -->
+
+            <div class="mb-2">
+                <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#tab-home" role="tab" aria-controls="tab-home" aria-selected="true">Project</a></li>
+                    <li class="nav-item"><a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#tab-profile" role="tab" aria-controls="tab-profile" aria-selected="false">Employee</a></li>
+                </ul>
+                <div class="tab-content mt-3" id="myTabContent">
+                    <div class="tab-pane fade show active" id="tab-home" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="mb-2">
+                            <label for="horizon" class="form-label">Select Date</label>
+                            <input class="form-control datetimepicker" id="timepicker2" type="text" placeholder="Date Range" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' />
+
+                        </div>
+
+
+
+                        <input type="text" class="form-control form-control-sm mb-3" placeholder="Search Service Appointment...">
+
+                        <div class="list-group small">
+                            <div class="list-group-item appointment-row d-flex justify-content-between">
+                                <div><strong>SA-0020</strong><br><span class="text-success">Dispatched</span></div>
+                                <div class="text-end"><small>10/3/2018<br>4:53 AM</small></div>
+                            </div>
+                            <div class="list-group-item appointment-row d-flex justify-content-between">
+                                <div><strong>SA-0009</strong><br><span class="text-warning">Scheduled</span></div>
+                                <div class="text-end"><small>10/3/2018<br>4:53 AM</small></div>
+                            </div>
+                            <div class="list-group-item appointment-row d-flex justify-content-between">
+                                <div><strong>SA-0013</strong><br><span class="text-warning">Scheduled</span></div>
+                                <div class="text-end"><small>10/3/2018<br>4:53 AM</small></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <div class="mb-2">
+                            <label for="horizon" class="form-label">Horizon</label>
+                            <input class="form-control datetimepicker" id="datepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="horizon" class="form-label">Employee</label>
+                            <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option>Juwel Rana</option>
+                                <option>Nozib Ullah</option>
+                            </select>
+                        </div>
+
+
+
+                        <input type="text" class="form-control form-control-sm mb-3" placeholder="Search Service Appointment...">
+
+                        <div class="list-group small">
+                            <div class="list-group-item appointment-row d-flex justify-content-between">
+                                <div><strong>SA-0020</strong><br><span class="text-success">Dispatched</span></div>
+                                <div class="text-end"><small>10/3/2018<br>4:53 AM</small></div>
+                            </div>
+                            <div class="list-group-item appointment-row d-flex justify-content-between">
+                                <div><strong>SA-0009</strong><br><span class="text-warning">Scheduled</span></div>
+                                <div class="text-end"><small>10/3/2018<br>4:53 AM</small></div>
+                            </div>
+                            <div class="list-group-item appointment-row d-flex justify-content-between">
+                                <div><strong>SA-0013</strong><br><span class="text-warning">Scheduled</span></div>
+                                <div class="text-end"><small>10/3/2018<br>4:53 AM</small></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Right Panel -->
+        <div class="col-md-8">
+            <!-- Map Overlay -->
+            <!-- <div class="map-overlay">
+              <ul class="nav nav-tabs" id="mapTabs">
+                <li class="nav-item"><a class="nav-link active map-tab" href="#">Markers</a></li>
+                <li class="nav-item"><a class="nav-link map-tab" href="#">Service Resources</a></li>
+                <li class="nav-item"><a class="nav-link map-tab" href="#">Reports</a></li>
+                <li class="nav-item"><a class="nav-link map-tab" href="#">Polygons</a></li>
+              </ul>
+              <input type="text" class="form-control form-control-sm mt-2" placeholder="Search resources...">
+              <div class="mt-1 small">SHOWING ALL RESOURCES</div>
+            </div> -->
+            <!-- Google Map -->
+            <div class="row ps-3">
+                <ul class="nav nav-tabs" id="mapTabs">
+                    <li class="nav-item"><a class="nav-link map-tab" href="#">Markers</a></li>
+                    <li class="nav-item"><a class="nav-link map-tab" href="#">Reports</a></li>
+                </ul>
+            </div>
+            <div id="map">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3713.9743141183694!2d92.0126222750432!3d21.430254580321478!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30adc7004ca0d447%3A0xa6cae203b8e06e73!2sCox%E2%80%99s%20Bazar%20Railway%20Station%20South%20View!5e0!3m2!1sen!2sbd!4v1752973402779!5m2!1sen!2sbd"
+                        style="border:0; height: 30rem;" class="col-md-12" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+</div>
