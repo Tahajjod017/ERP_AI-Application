@@ -48,7 +48,7 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
         #endregion
 
         #region Save Pay slip
-      
+
 
         [Route("PaySlipForEmp/SaveAndPdf")]
         [HttpPost]
@@ -68,6 +68,9 @@ namespace GCTL_App.Controllers.PayrollManagements.PayrollPolicy
 
             return File(pdfBytes, "application/pdf", $"PaySlip_{payslipId}.pdf");
         }
+
+
+
         // for auto save pdf
         [HttpPost]
         public async Task<IActionResult> SaveAndGeneratePDF([FromBody] List<PayRollEmpSalarySaveVM> model)

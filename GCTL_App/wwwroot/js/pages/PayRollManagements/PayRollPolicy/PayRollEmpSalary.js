@@ -2,8 +2,7 @@
 {
     //#region Month Picker
     let today = new Date();
-    today.setMonth(today.getMonth() - 1);
-   
+    
     $('#year-month-picker-1').flatpickr({
         mode: "single",
         dateFormat: "F Y",
