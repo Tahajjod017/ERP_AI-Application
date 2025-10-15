@@ -15,7 +15,7 @@
 
     <div class="d-flex gap-2 flex-wrap">
         <div class="">
-            <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")<span style="color:red;">&nbsp;*</span></label>
+            <label class="form-label" asp-for="OrganizationID">@Html.SmartLocalize("Organization Name")</label>
             <select class="form-select" asp-for="OrganizationID" asp-items="@ViewBag.OrganizationDD as SelectList">
                 <option value="">@Html.SmartLocalize("Select Organization")...</option>
             </select>
