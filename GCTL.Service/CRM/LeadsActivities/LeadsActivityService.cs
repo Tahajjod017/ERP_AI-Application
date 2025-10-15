@@ -359,35 +359,12 @@ namespace GCTL.Service.CRM.LeadsActivities
             // 🔹 Build the table rows using foreach
             var activityRows = new StringBuilder();
 
-            foreach (var item in model.Activities) {
-                var activityTableHtml = $@"
-                        <tr>
-                          <td style=""padding: 0 20px 20px 20px;"">
-                            <table id=""data-table"" border=""1"" cellspacing=""0"" cellpadding=""5"" style=""border-collapse: collapse; width: 100%;"">
-                              <thead style=""background-color: #f2f2f2; text-transform: uppercase;"">
-                                <tr>
-                                  <th>#</th>
-                                  <th>Lead Name</th>
-                                  <th>Customer Name</th>
-                                  <th>Activity Type</th>
-                                  <th>Date & Time</th>
-                                  <th>Note</th>
-                                  <th>Owner Name</th>
-                                  <th>Team Name</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                            ";
-                activityRows.AppendLine(activityTableHtml);
-
-
-
-                if (model.Activities != null && model.Activities.Any())
+            if (model.Activities != null && model.Activities.Any())
+            {
+                int index = 1;
+                foreach (var activity in model.Activities)
                 {
-                    int index = 1;
-                    foreach (var activity in model.Activities)
-                    {
-                        activityRows.AppendLine($@"
+                    activityRows.AppendLine($@"
                 <tr>
                     <td style=""text-align:center;"">{index}</td>
                     <td>{activity.LeadName}</td>
@@ -398,27 +375,13 @@ namespace GCTL.Service.CRM.LeadsActivities
                     <td>{activity.LeadOwner}</td>
                     <td>{model.TeamName}</td>
                 </tr>");
-                        index++;
-                    }
+                    index++;
                 }
-                else
-                {
-                    activityRows.AppendLine("<tr><td colspan='7' style='text-align:center;'>No activities found</td></tr>");
-                }
-
-
-
-                var endCode = $@"  </tbody>
-                            </table>
-                          </td>
-                        </tr>"";";
-
-                activityRows.AppendLine(endCode);
             }
-
-
-
-         
+            else
+            {
+                activityRows.AppendLine("<tr><td colspan='7' style='text-align:center;'>No activities found</td></tr>");
+            }
 
             string formattedAddress = string.Empty;
 
@@ -842,7 +805,25 @@ namespace GCTL.Service.CRM.LeadsActivities
 
 
                   <!-----Table Data --> 
-                  {activityRows}
+                  <tr>
+                    <td style=""padding: 0 20px 20px 20px;"">
+                      <table id=""data-table"">
+                        <thead>
+                          <th>#</th>
+                          <th>Lead Name</th>
+                          <th>Customer Name</th>
+                          <th>Activity Type</th>
+                          <th>Date & Time</th>
+                          <th>Note</th>
+                          <th>Owner Name</th>
+                          <th>Team Name</th>
+                        </thead>
+                        <tbody>
+                         {activityRows}
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
       
               <!-- Footer -->
                   <tr>
