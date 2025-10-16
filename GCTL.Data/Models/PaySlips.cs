@@ -35,6 +35,12 @@ public partial class PaySlips
 
     public int? DeletedBy { get; set; }
 
+    public decimal? TotalAmount { get; set; }
+
+    public decimal? PaidAmount { get; set; }
+
+    public decimal? BasicPaidAmount { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

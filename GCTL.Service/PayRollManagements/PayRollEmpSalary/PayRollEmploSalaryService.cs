@@ -52,7 +52,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         private readonly IGenericRepository<PSettings> pSettingsRepository;
         private readonly IGenericRepository<PayDeductions> payDeductionsRepository;
         private readonly IGenericRepository<PayAllowancBenifits> payAllowancBenifitsRepository;
-        int pk = 0;
         public PayRollEmploSalaryService(IGenericRepository<EmployeeBaseBenefits> employeeBenefitsRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Data.Models.Employees> employee, IGenericRepository<EmployeeSalarySettings> employeeSalarySettingsRepository, IGenericRepository<EmployeeAllowances> employeeAllowancesRepository, IGenericRepository<EmployeeBaseAllowances> employeeBaseAllowancesRepository, IGenericRepository<Benefits> benefitsRepository, IGenericRepository<BenefitSetups> benefitSetupsRepository, IGenericRepository<BenefitTypes> benefitType, IUserInfoService userInfoService, IGenericRepository<PaySlips> paySlipsRepository, IPdfFileHandler pdfFileHandlerService, IGenericRepository<PSettings> pSettingsRepository, IGenericRepository<PayDeductions> payDeductionsRepository, IGenericRepository<PayAllowancBenifits> payAllowancBenifitsRepository)
         {
             _employeeBaseBenefitsRepository = employeeBenefitsRepository;
@@ -90,6 +89,10 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
                     .ThenInclude(o => o.Department)
                     .AsQueryable();
+
+
+
+
 
                 if (query == null)
                 {
@@ -170,7 +173,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                         EmployeeId = b.EmployeeID,
                         EmployeeName = $"{b.Employee?.FirstName} {b.Employee?.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee?.EmployeeImageFileName) ? imgSrcThumb + b.Employee.EmployeeImageFileName : "",
-                        EmpDepartment =  b.Employee?.EmployeeOfficeInfoEmployee?.Select(m => m.Department?.DepartmentName).FirstOrDefault() ?? "N/A",
+                        EmpDepartment = b.Employee?.EmployeeOfficeInfoEmployee?.Select(m => m.Department?.DepartmentName).FirstOrDefault() ?? "N/A",
 
                         Salary = b.Salary,
                         IsPaid = paySlips.Where(x => x.EmployeeID == b.EmployeeID).Select(x => x.IsPaid).FirstOrDefault()
@@ -215,7 +218,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                             // ---------------- Organization-level Benefits fallback ----------------
                             var orgBenefits = await benefitsRepository.AllActive()
                                 .Include(b => b.BenefitSetups)
-                                .Where(b => b.OrganizationID == orgId && b.IsActive== true && b.EffectiveDate >= startOfMonth
+                                .Where(b => b.OrganizationID == orgId && b.IsActive == true && b.EffectiveDate >= startOfMonth
                 && b.EffectiveDate <= endOfMonth)
                                 .ToListAsync();
 
@@ -258,7 +261,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                             // ---------------- Organization-level Allowance fallback ----------------
                             var orgAllowances = await employeeAllowancesRepository.AllActive()
                                 .Include(a => a.EmployeeAllowanceSetup)
-                                .Where(a => a.OrganizationID == orgId && a.IsActive==true)
+                                .Where(a => a.OrganizationID == orgId && a.IsActive == true)
                                 .ToListAsync();
 
                             foreach (var allowance in orgAllowances)
@@ -291,6 +294,8 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                         item.Bonus = totalBonus;
                         item.Deduction = totalDeductions;
                         item.NetSalary = netSalary;
+
+
                     }
                     catch (Exception exRow)
                     {
@@ -314,12 +319,13 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         }
 
 
+
+
+
         #endregion
 
 
         #region Save PaySlip
-
-
 
         public async Task<CommonReturnViewModel> SaveAsync(PayRollEmpSalarySaveVM entityVM)
         {
@@ -374,6 +380,11 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     PayPeriodStart = new DateOnly(currentYear, currentMonth, 1),
                     PayPeriodEnd = new DateOnly(currentYear, currentMonth, DateTime.DaysInMonth(currentYear, currentMonth)),
                     IsPaid = true,
+
+                    TotalAmount=0,
+                    PaidAmount=0,
+                    BasicPaidAmount=0,
+
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedAt = DateTime.UtcNow,
@@ -415,10 +426,11 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                         var payBenefit = new PayAllowancBenifits
                         {
                             PaySlipID = entity.PaySlipID,
-                            PayAllowancBenifitName = benefit.Type,          // Name of the benefit
-                            Amount = (decimal)benefit.BenefitsSalary,       // Calculated salary
-                            IsPercentage = isPercentage,                    // True if percentage
-                            PercentageOfBasic = percentageBasicOf,         // Store the percentage value
+                            PayAllowancBenifitName = benefit.Type,          
+                            Amount = (decimal)benefit.BenefitsSalary,       
+                            IsPercentage = isPercentage,                    
+                            PercentageOfBasic = percentageBasicOf,  
+                            PaidAmount=0 ,
                             CreatedAt = DateTime.UtcNow,
                             CreatedBy = entityVM.CreatedBy,
                             LIP = entityVM.LIP,
@@ -428,38 +440,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                         await payAllowancBenifitsRepository.AddAsync(payBenefit);
                     }
                 }
-
-                // Similarly for Allowances
-                if (paySlipVM.Allowances != null)
-                {
-                    foreach (var allowance in paySlipVM.Allowances)
-                    {
-                        bool isPercentage = false;
-                        decimal percentageBasicOf = 0;
-
-                        if (allowance.DisplayValue.EndsWith("%"))
-                        {
-                            isPercentage = true;
-                            decimal.TryParse(allowance.DisplayValue.TrimEnd('%'), out percentageBasicOf);
-                        }
-
-                        var payAllowance = new PayAllowancBenifits
-                        {
-                            PaySlipID = entity.PaySlipID,
-                            PayAllowancBenifitName = allowance.Type,
-                            Amount = (decimal)allowance.AllowanceSalary,
-                            IsPercentage = isPercentage,
-                            PercentageOfBasic = percentageBasicOf,
-                            CreatedAt = DateTime.UtcNow,
-                            CreatedBy = entityVM.CreatedBy,
-                            LIP = entityVM.LIP,
-                            LMAC = entityVM.LMAC
-                        };
-
-                        await payAllowancBenifitsRepository.AddAsync(payAllowance);
-                    }
-                }
-
 
                 //------------------------- SAVE DEDUCTIONS ----------------------------
                 var payDeduction = new PayDeductions
@@ -814,6 +794,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 
         #endregion
 
+
         #region Get PaySlip 
 
 
@@ -839,8 +820,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                 var orgPercent = await pSettingsRepository.AllActive()
                .Where(x => x.OrganizationID == baseQuery.OrganizationID).Select(x => x.TaxPercentage).FirstOrDefaultAsync() ?? 0;
 
-
-
                 if (baseQuery == null)
                 {
                     return new CommonReturnViewModel
@@ -849,8 +828,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                         Message = "Employee not found."
                     };
                 }
-
-               
 
                 // Get basic salary
                 decimal? basicsalary = await employeeSalarySettingsRepository.AllActive()
@@ -921,7 +898,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                             decimal benefitSalary = 0;
                             string display = "";
 
-                            if (setup.CalculationTypeID == 2) // Percentage
+                            if (setup.CalculationTypeID == 2) 
                             {
                                 benefitSalary = (decimal)(basicsalary * (setup.Value ?? 0) / 100);
                                 display = $"{(setup.Value ?? 0).ToString("0")}%";
@@ -961,7 +938,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     if (baseAllowances.CalculationTypeID == 2) 
                     {
                         allowanceSalary = (decimal)(basicsalary * (baseAllowances.AllowanceValue ?? 0) / 100);
-                        // display = $"{baseAllowances.AllowanceValue}%";
                         display = $"{(baseAllowances.AllowanceValue ?? 0).ToString("0")}%"; // ✅ fixed
                     }
                     else // Fixed
@@ -997,11 +973,11 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                             decimal allowanceSalary = 0;
                             string display = "";
 
-                            if (setup.CalculationTypeID ==2)
+                            if (setup.CalculationTypeID ==2) // percentage 
                             {
                                 allowanceSalary = (decimal)(basicsalary * (setup.Value ?? 0) / 100);
                                 // display = $"{setup.Value}%";
-                                display = $"{(setup.Value ?? 0).ToString("0")}%"; // ✅ fixed
+                                display = $"{(setup.Value ?? 0).ToString("0")}%"; 
                             }
                             else // Fixed
                             {

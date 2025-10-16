@@ -32,7 +32,6 @@ namespace GCTL_App.Controllers.PayrollManagements.LoanManagements
         public async Task<IActionResult> Index()
         {
             PayrollLoanEntryPageVM model = new PayrollLoanEntryPageVM();
-            //ViewBag.OrganizationDD = new SelectList(await _commonService.GetOrganizations(), "Id", "Name");
             var result = await _commonService.GetOrganizations(search: "", page: 1, pageSize: 50);
             var organizations = result.Items;
             if (organizations.Count == 1)
