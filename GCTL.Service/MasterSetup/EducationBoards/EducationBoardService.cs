@@ -90,7 +90,7 @@ namespace GCTL.Service.MasterSetup.EducationBoards
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<EducationBoardVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<EducationBoardVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.EducationBoardName = model.EducationBoardName;
                 entity.UpdatedAt = DateTime.Now;
@@ -100,7 +100,7 @@ namespace GCTL.Service.MasterSetup.EducationBoards
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<EducationBoardVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<EducationBoardVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Education Board", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EducationBoardID, model);
 
                 await _genericRepository.CommitTransactionAsync();

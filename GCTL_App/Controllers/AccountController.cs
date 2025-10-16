@@ -19,6 +19,7 @@ using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using GCTL.Core;
 using System.Web;
+using GCTL.Core.Helpers.LipLmacAddress;
 
 namespace GCTL_App.Controllers
 {
@@ -168,8 +169,8 @@ namespace GCTL_App.Controllers
                         CreatedBy = user.EmployeeId,
                         UserEmail = model.Email,
                         ActionName = ActionName.LogIn,
-                        LIP = GetLocalIP(),
-                        LMAC = GetMacAddress(),
+                        LIP = NetworkHelper.GetLocalIP(),
+                        LMAC = NetworkHelper.GetMacAddress(),
                         CreatedAt = DateTime.Now
                     };
 
@@ -467,8 +468,8 @@ namespace GCTL_App.Controllers
                 CreatedBy = user?.EmployeeId,
                 UserEmail = userEmail,
                 ActionName = ActionName.LogOut,
-                LIP = GetLocalIP(),
-                LMAC = GetMacAddress(),
+                LIP = NetworkHelper.GetLocalIP(),
+                LMAC = NetworkHelper.GetMacAddress(),
                 CreatedAt = DateTime.Now
             };
             await actionLogs.AddAsync(actiondata);
@@ -991,46 +992,7 @@ namespace GCTL_App.Controllers
             return View();
         }
 
-        //Added LIP LMacAddress
-        public string GetLocalIP()
-        {
-            string ipAddress = string.Empty;
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
-
-            foreach (var networkInterface in networkInterfaces)
-            {
-                var properties = networkInterface.GetIPProperties();
-                var ipv4Address = properties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-
-                if (ipv4Address != null)
-                {
-                    ipAddress = ipv4Address.Address.ToString();
-                    break;
-                }
-            }
-
-            return ipAddress;
-        }
-
-
-        public string GetMacAddress()
-        {
-            string macAddress = string.Empty;
-            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
-           .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType != NetworkInterfaceType.Loopback);
-            foreach (var networkInterface in networkInterfaces)
-            {
-                macAddress = networkInterface.GetPhysicalAddress().ToString();
-                if (!string.IsNullOrEmpty(macAddress))
-                {
-                    break;
-                }
-            }
-
-            return macAddress;
-        }
-
+       
         //
 
         // Forget Password

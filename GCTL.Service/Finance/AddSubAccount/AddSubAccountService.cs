@@ -45,12 +45,12 @@ namespace GCTL.Service.Finance.AddSubAccount
                 var generatedSubAccountCode = await GenerateNextCodeAsync((int)model.MainAccountID);
                 model.SubAccountCode = generatedSubAccountCode;
 
-                var exixtingEntity = await _genericRepository.FirstOrDefaultAsync(x => x.SubAccountName.ToLower() == model.SubAccountName.ToLower() && x.DeletedAt != null);
+                var exixtingEntity = await _genericRepository.FirstOrDefaultAsync(x => x.SubAccountName.Trim().ToLower() == model.SubAccountName.Trim().ToLower() && x.DeletedAt != null);
                 if (exixtingEntity != null)
                 {
                     exixtingEntity.MainAccountID = (int)model.MainAccountID;
                     exixtingEntity.SubAccountCode = generatedSubAccountCode;
-                    exixtingEntity.SubAccountName = model.SubAccountName;
+                    exixtingEntity.SubAccountName = model.SubAccountName.Trim();
                     exixtingEntity.Description = model.Description;
 
                     exixtingEntity.CreatedAt = DateTime.UtcNow;
@@ -71,7 +71,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                     SubAccounts entity = new SubAccounts();
                     entity.MainAccountID = (int)model.MainAccountID;
                     entity.SubAccountCode = generatedSubAccountCode;
-                    entity.SubAccountName = model.SubAccountName;
+                    entity.SubAccountName = model.SubAccountName.Trim();
                     entity.Description = model.Description;
 
                     entity.CreatedAt = DateTime.UtcNow;
@@ -123,7 +123,7 @@ namespace GCTL.Service.Finance.AddSubAccount
 
                 entity.MainAccountID = (int)model.MainAccountID;
                 entity.SubAccountCode = model.SubAccountCode.Trim();
-                entity.SubAccountName = model.SubAccountName;
+                entity.SubAccountName = model.SubAccountName.Trim();
                 entity.Description = model.Description;
 
                 entity.UpdatedAt = DateTime.UtcNow;
@@ -287,7 +287,7 @@ namespace GCTL.Service.Finance.AddSubAccount
         {
             try
             {
-                name = name.ToLower();
+                name = name.Trim().ToLower();
                 var query = _genericRepository.AllActive();
 
                 if (excludeId.HasValue)
@@ -295,7 +295,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                     query = query.Where(x => x.SubAccountID != excludeId.Value);
                 }
 
-                var exists = await query.AnyAsync(x => x.SubAccountName.ToLower() == name);
+                var exists = await query.AnyAsync(x => x.SubAccountName.Trim().ToLower() == name);
 
                 return !exists;
             }
@@ -312,6 +312,7 @@ namespace GCTL.Service.Finance.AddSubAccount
         {
             try
             {
+                code = code.Trim();
                 var query = _genericRepository.AllActive();
 
                 if (excludeId.HasValue)
@@ -319,7 +320,7 @@ namespace GCTL.Service.Finance.AddSubAccount
                     query = query.Where(x => x.SubAccountID != excludeId.Value);
                 }
 
-                var exists = await query.AnyAsync(x => x.SubAccountCode == code);
+                var exists = await query.AnyAsync(x => x.SubAccountCode.Trim() == code);
 
                 return !exists;
             }
@@ -352,7 +353,7 @@ namespace GCTL.Service.Finance.AddSubAccount
             // If no SubAccountCode exists, start with "0001"
             if (result == null)
             {
-                return prefix + "0001";  // "01010001"
+                return prefix + "001";  // "01010001"
             }
 
             // Step 3: Extract the numeric part from the last SubAccountCode
@@ -364,7 +365,7 @@ namespace GCTL.Service.Finance.AddSubAccount
             var newCodeNumber = lastCodeNumber + 1;  // E.g., 4
 
             // Ensure the new numeric part is 4 digits long with leading zeros
-            var newCodeNumberPadded = newCodeNumber.ToString("D4");  // E.g., "0004"
+            var newCodeNumberPadded = newCodeNumber.ToString("D3");  // E.g., "0004"
 
             // Step 5: Return the new SubAccountCode by combining the prefix and new numeric part
             return prefix + newCodeNumberPadded;

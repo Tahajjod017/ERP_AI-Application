@@ -168,7 +168,7 @@ namespace GCTL.Service.MasterSetup.BloodGroups
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<BloodGroupVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<BloodGroupVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.BloodGroupID).ToList();
 
                 foreach (var item in data)

@@ -1,7 +1,9 @@
 ﻿@using GCTL.Core.Configurations
 @using GCTL_App.ViewComponents
 @inject Microsoft.Extensions.Options.IOptions<ApplicationSettings> AppSettings
-
+@{
+    var date = DateTime.Now.Year;
+}
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr" data-navigation-type="default" data-navbar-horizontal-shape="default">
 <head>
@@ -20,10 +22,10 @@
     <meta name="theme-color" content="#ffffff">
    
     <!-- Fonts & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    @* <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"> *@
 
     <!-- Vendor CSS -->
     <link href="~/js/vendors/simplebar/simplebar.min.css" rel="stylesheet" />
@@ -50,8 +52,9 @@
 
 
     @* cdn will have to remove on deploy time *@
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/css/intlTelInput.css">
-
+    @* <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/css/intlTelInput.css"> *@
+    @* <link href="~/lib/intl-tel-input/build/css/intltelinput.css" rel="stylesheet" /> *@
+    <link href="~/lib/intl-tel-input/build/css/intltelinput.min.css" rel="stylesheet" />
     <link href="~/css/Layout.css" rel="stylesheet" />
 
 
@@ -129,7 +132,7 @@
                             <p class="mb-0 mt-2 mt-sm-0 text-body">
                                 @Html.SmartLocalize("Thank you for creating with GCTL")
                                 <span class="d-none d-sm-inline-block mx-1">|</span>
-                                <br class="d-sm-none" />2024 &copy;
+                                <br class="d-sm-none" />@date &copy;
                                 <a class="mx-1" href="http://gctlinfosys.com" target="_blank">@Html.SmartLocalize("GCTL")</a>
                             </p>
                         </div>

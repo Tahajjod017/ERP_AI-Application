@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.Grade;
 using GCTL.Core.ViewModels.MasterSetup.LicenceType;
@@ -93,7 +94,7 @@ namespace GCTL.Service.MasterSetup.LicenceType
                 {
                     return false;
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<LicenceTypeVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<LicenceTypeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 entity.LicenceTypeName = model.LicenceTypeName;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -101,7 +102,7 @@ namespace GCTL.Service.MasterSetup.LicenceType
                 entity.LMAC = model.LMAC;
                 entity.UpdatedBy = model.UpdatedBy ?? null;
                 await _genericRepository.UpdateAsync(entity);
-                var afterEntity = JsonConvert.DeserializeObject<LicenceTypeVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<LicenceTypeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Licence Type", ActionName.DataUpdated, beforeEntity, afterEntity, entity.LicenceTypeID, model);
                 await _genericRepository.CommitTransactionAsync();
 
@@ -165,7 +166,7 @@ namespace GCTL.Service.MasterSetup.LicenceType
                         Message = "No data found to delete."
                     };
                 }
-                var beforeEntity = JsonConvert.DeserializeObject<List<LicenceTypeVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<LicenceTypeVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.LicenceTypeID).ToList();
                 foreach (var item in data)
                 {

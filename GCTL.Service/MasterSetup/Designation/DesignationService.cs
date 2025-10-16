@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.Designations;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.Designations;
+using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using GCTL.Data.Models;
 
 namespace GCTL.Service.MasterSetup.Designation
 {
@@ -94,7 +95,7 @@ namespace GCTL.Service.MasterSetup.Designation
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<DesignationVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<DesignationVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.DesignationName = model.DesignationName;
                 entity.UpdatedAt = DateTime.Now;
@@ -104,7 +105,7 @@ namespace GCTL.Service.MasterSetup.Designation
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<DesignationVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<DesignationVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Designation", ActionName.DataUpdated, beforeEntity, afterEntity, entity.DesignationID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -169,7 +170,7 @@ namespace GCTL.Service.MasterSetup.Designation
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<DesignationVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<DesignationVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.DesignationID).ToList();
 
                 foreach (var item in data)

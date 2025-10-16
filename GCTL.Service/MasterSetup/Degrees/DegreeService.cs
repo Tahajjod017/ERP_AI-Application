@@ -170,7 +170,7 @@ namespace GCTL.Service.MasterSetup.Degrees
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<DegreeVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<DegreeVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.DegreeID).ToList();
 
                 foreach (var item in data)

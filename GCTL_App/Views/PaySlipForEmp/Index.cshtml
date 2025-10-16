@@ -3,21 +3,22 @@
     DateTime date = DateTime.Now;
 }
 <div class="mb-9 mt-1">
-
+    @* <button type="button" id="PaySlipSave" class="btn-outline-info">Pay Slip Save</button> *@
     <div class="card p-4">
         <div class="invoice-wrapper">
             <div class="d-flex justify-content-center">
                 <span class="h4">Payslip for the month of @date.ToString("MMMM yyyy")</span>
             </div>
-            <input id="EmployeeID" value="@employeeId" type="hidden"/>
+            <input id="EmployeeID"  type="hidden" />
             <div class="payment-info">
                 <div class="row border-bottom">
                     <div class="col-sm-6 mb-3">
-                        <span>Payslip No.</span><strong>859654</strong>
+                        <span>Payslip No.</span><strong id="paySlipNo">0001</strong>
                     </div>
                     <div class="col-sm-6 text-end">
                         <span>Payment Date</span>
-                        <strong>@date.ToString("MMM dd, yyyy - hh:mm tt")</strong>
+                        <strong id="paymentDateTime"></strong>
+                       @*  <strong>@date.ToString("MMM dd, yyyy - hh:mm tt")</strong> *@
                     </div>
                 </div>
             </div>
@@ -33,7 +34,7 @@
                         <span>Payment To</span>
                         <strong id="empName"></strong>
                         <p id="empAddress">
-                           
+
                         </p>
                     </div>
                 </div>
@@ -51,19 +52,15 @@
                                             <span class=" me-2 float-end" id="BasicSalary"></span>
                                         </td>
                                     </tr>
-                                    
+
                                 <tbody id="allowanceTable"></tbody>
-                              @*       <tr>
-                                        <td>
-                                            <strong class="ms-2">Bonus</strong><span class="me-2 float-end">-</span>
-                                        </td>
-                                    </tr> *@
+
                                 <tbody id="benefitTable"></tbody>
-                                    <tr>
-                                        <td>
+                                <tr>
+                                    <td>
                                         <strong class="ms-2">Total Earnings</strong><span class="me-2 float-end"><strong id="TotalSalary"></strong></span>
-                                        </td>
-                                    </tr>
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -76,32 +73,32 @@
                                 <tbody class="me-2">
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">Provident Fund</strong><span class="me-2 float-end">1000</span>
+                                            <strong class="ms-2">Provident Fund</strong><span class="me-2 float-end">0.00</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">Professional Tax</strong><span class="me-2 float-end">2000</span>
+                                            <strong class="ms-2">Professional Tax</strong><span class="me-2 float-end" id="ProfessionalTax">0.00</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">ESI</strong><span class="me-2 float-end">0</span>
+                                            <strong class="ms-2">ESI</strong><span class="me-2 float-end">0.00</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">Home Loan</strong><span class="me-2 float-end">20000</span>
+                                            <strong class="ms-2">Home Loan</strong><span class="me-2 float-end">0.00</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">TDS</strong><span class="me-2 float-end">10000</span>
+                                            <strong class="ms-2">TDS</strong><span class="me-2 float-end">0.00</span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <strong class="ms-2">Total Deductions</strong><span class="me-2 float-end"><strong>35000</strong></span>
+                                            <strong class="ms-2">Total Deductions</strong><span class="me-2 float-end"><strong id="TotalDeductions">0.00</strong></span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -110,7 +107,7 @@
                     </div>
                     <div class="col-sm-12">
                         <div class="col-sm-12">
-                            <span class="fw-bold">Net Pay : 8,552.00</span><br><br><span id="SalaryInWords">Eight Thousand Five Hundred Fifty Two Only</span>
+                            <span class="fw-bold" id="NetPay">Net Pay :</span><br><br><span id="SalaryInWords">Eight Thousand Five Hundred Fifty Two Only</span>
                         </div>
                     </div>
                 </div>
@@ -134,5 +131,5 @@
     }
 
     <script src="~/js/pages/payrollmanagements/PayRollPolicy/PaySlipForEmp.js"></script>
-    
+
 }

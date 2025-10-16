@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,14 +21,34 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.EmployeeUpdateVM
         public List<BenefitSetupVM>? BenefitSetups { get; set; }
     }
 
-    public class BenefitSetupVM
+
+    public class BenefitSetupVM : IValidatableObject
     {
         public int BenefitSetupID { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "SalaryMin must be a valid positive number")]
         public decimal SalaryMin { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "SalaryMax must be a valid positive number")]
         public decimal SalaryMax { get; set; }
+
         public int CalculationTypeID { get; set; }
+
+        [Range(0, 100000, ErrorMessage = "Value must be numeric and >= 0")]
         public decimal Value { get; set; }
+
+        // ✅ Custom validation
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (SalaryMin > SalaryMax)
+            {
+                yield return new ValidationResult(
+                    "SalaryMin cannot be greater than SalaryMax",
+                    new[] { nameof(SalaryMin), nameof(SalaryMax) });
+            }
+        }
     }
+
 
 
     #region for get 

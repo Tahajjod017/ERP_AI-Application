@@ -42,12 +42,15 @@ namespace GCTL.Service.Finance.TransactionAccount
             {
                 await _genericRepository.BeginTransactionAsync();
 
-                var exixtingEntity = await _genericRepository.FirstOrDefaultAsync(x => x.TrxAccName.ToLower() == model.TrxAccName.ToLower() && x.DeletedAt != null);
+                var generatedNextCode = await GenerateNextCodeAsync((int)model.SubAccountID);
+                model.TrxAccCode = generatedNextCode;
+
+                var exixtingEntity = await _genericRepository.FirstOrDefaultAsync(x => x.TrxAccName.Trim().ToLower() == model.TrxAccName.Trim().ToLower() && x.DeletedAt != null);
                 if (exixtingEntity != null)
                 {
                     exixtingEntity.SubAccountID = (int)model.SubAccountID;
                     exixtingEntity.TrxAccCode = model.TrxAccCode.Trim();
-                    exixtingEntity.TrxAccName = model.TrxAccName;
+                    exixtingEntity.TrxAccName = model.TrxAccName.Trim();
                     exixtingEntity.IsActive = model.IsActive;
                     exixtingEntity.Description = model.Description;
 
@@ -69,7 +72,7 @@ namespace GCTL.Service.Finance.TransactionAccount
                     TransactionAccounts entity = new TransactionAccounts();
                     entity.SubAccountID = (int)model.SubAccountID;
                     entity.TrxAccCode = model.TrxAccCode.Trim();
-                    entity.TrxAccName = model.TrxAccName;
+                    entity.TrxAccName = model.TrxAccName.Trim();
                     entity.IsActive = model.IsActive;
                     entity.Description = model.Description;
 
@@ -123,7 +126,7 @@ namespace GCTL.Service.Finance.TransactionAccount
 
                 entity.SubAccountID = (int)model.SubAccountID;
                 entity.TrxAccCode = model.TrxAccCode.Trim();
-                entity.TrxAccName = model.TrxAccName;
+                entity.TrxAccName = model.TrxAccName.Trim();
                 entity.IsActive = model.IsActive;
                 entity.Description = model.Description;
 
@@ -301,7 +304,7 @@ namespace GCTL.Service.Finance.TransactionAccount
         {
             try
             {
-                name = name.ToLower();
+                name = name.Trim().ToLower();
                 var query = _genericRepository.AllActive();
 
                 if (excludeId.HasValue)
@@ -309,7 +312,7 @@ namespace GCTL.Service.Finance.TransactionAccount
                     query = query.Where(x => x.TrxAccID != excludeId.Value);
                 }
 
-                var exists = await query.AnyAsync(x => x.TrxAccName.ToLower() == name);
+                var exists = await query.AnyAsync(x => x.TrxAccName.Trim().ToLower() == name);
 
                 return !exists;
             }
@@ -326,6 +329,7 @@ namespace GCTL.Service.Finance.TransactionAccount
         {
             try
             {
+                code = code.Trim();
                 var query = _genericRepository.AllActive();
 
                 if (excludeId.HasValue)
@@ -373,7 +377,7 @@ namespace GCTL.Service.Finance.TransactionAccount
 
                 // Step 3: Extract the numeric part from the last SubAccountCode
                 var lastCode = Regex.Replace(result.TrxAccCode, @"\s+", "");  // E.g., "01010003"
-                var lastCodeNumericPart = lastCode.Substring(8);  // E.g., "0003"
+                var lastCodeNumericPart = lastCode.Substring(7);  // E.g., "0003"
                 if(lastCodeNumericPart == null || lastCodeNumericPart == "")
                 {
                     return lastCode + "0001";

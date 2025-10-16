@@ -1,149 +1,222 @@
-﻿using Bogus.DataSets;
-using GCTL.Core.ViewModels.CRM;
+﻿using GCTL.Core.ViewModels.CRM;
 using GCTL.Service.FileHandler;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace GCTL.Service.CRM.LeadsActivities
 {
     public class ActivityDocument : IDocument
     {
-        public ActivityPDFModel Model { get; }
+        public List<ActivityPDFModel> Model { get; }
         private readonly IPdfFileHandler _pdfFileHandlerService;
 
-        public ActivityDocument(ActivityPDFModel model, IPdfFileHandler pdfFileHandlerService)
+        public ActivityDocument(List<ActivityPDFModel> model, IPdfFileHandler pdfFileHandlerService)
         {
             Model = model;
             _pdfFileHandlerService = pdfFileHandlerService;
         }
+
         public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
         public DocumentSettings GetSettings() => DocumentSettings.Default;
 
         public void Compose(IDocumentContainer container)
         {
-            container
-                .Page(page =>
-                {
-                    page.Margin(15);
-                    //page.Header().Element(ComposeHeader);
-                    page.Header().Element(header =>
-                    {
-                        //if (company != null)
-                        //{
-                        //    if (company.OrganizationID > 0)
-                        //    {
-
-
-                        //    }
-                        //}
-                        header.Column(column =>
-                        {
-                            column.Item().Element(h => _pdfFileHandlerService.ComposeHeader(h, 2, true));
-                            column.Item().Element(container =>
-                            {
-                                container.PaddingBottom(10).Text("Upcoming Activity").AlignCenter().FontSize(16).FontColor(Colors.Blue.Medium);
-                            });
-                        });
-
-                    });
-                    //page.Header().Height(100).Background(Colors.Grey.Lighten3);
-                    page.Content().Element(ComposeContent);
-                    //page.Content().Background(Colors.Grey.Lighten3);
-                    page.Footer().Row(row =>
-                    {
-                        row.RelativeItem().Column(column =>
-                        {
-                            // Left-aligned created date
-                            column.Item().Element(Cellstyle).AlignLeft().Text($"Created: {DateTime.Now:g}");
-
-                            // Right-aligned page numbers
-                            column.Item().Element(Cellstyle).AlignRight().Text(text =>
-                            {
-                                text.Span("Page ").SemiBold();
-                                text.CurrentPageNumber();
-                                text.Span(" of ");
-                                text.TotalPages();
-                            });
-
-                            static IContainer Cellstyle(IContainer container)
-                            {
-                                return container.DefaultTextStyle(x => x.FontSize(8))
-                                                .PaddingVertical(4);
-                            }
-                        });
-                    });
-                });
-
-            void ComposeHeader(IContainer container)
+            container.Page(page =>
             {
-                container.Row(row =>
+                page.Margin(20);
+
+                // Header
+                //page.Header().Element(header =>
+                //{
+                //    header.Column(column =>
+                //    {
+                //        column.Item().Element(h => _pdfFileHandlerService.ComposeHeader(h, 2, true));
+                //        column.Item().Element(container =>
+                //        {
+                //            container
+                //                .PaddingBottom(10)
+                //                .Text("Upcoming Activities Report")
+                //                .AlignCenter()
+                //                .FontSize(18)
+                //                .FontColor(Colors.Blue.Medium)
+                //                .Bold();
+                //        });
+                //    });
+                //});
+
+                // Content (each employee section)
+                page.Content().PaddingVertical(10).Column(column =>
                 {
-                    row.RelativeItem().AlignCenter().AlignCenter().Column(column =>
+                    foreach (var model in Model)
                     {
-                        column.Item().Text($"{Model.CompanyName}").FontSize(22).SemiBold().AlignCenter();
-                        column.Item().Text($"{Model.CompanyAddress}").FontSize(12);
-                        column.Item().Text($"Upcoming Activity List").FontSize(8);
-                        column.Item().Text($"Date: ").FontSize(8);
-                    });
-                    if (!string.IsNullOrWhiteSpace(Model.CompanyLogo))
-                        row.ConstantItem(50).AlignRight().Image(Model.CompanyLogo);
-                });
-
-            }
-            void ComposeContent(IContainer container)
-            {
-                container.Table(table =>
-                {
-                    table.ColumnsDefinition(columns =>
-                    {
-                        columns.ConstantColumn(25);
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                        columns.RelativeColumn();
-                    });
-                    table.Header(header =>
-                    {
-                        header.Cell().Element(CellStyle).Text("#").AlignCenter();
-                        header.Cell().Element(CellStyle).Text("Lead Name").AlignCenter();
-                        header.Cell().Element(CellStyle).Text("Customer Name").AlignCenter();
-                        header.Cell().Element(CellStyle).Text("Service Name").AlignCenter();
-                        header.Cell().Element(CellStyle).Text("Date & Time").AlignCenter();
-                        header.Cell().Element(CellStyle).Text("Note").AlignCenter();
-                        header.Cell().Element(CellStyle).Text("Owner Name").AlignCenter();
-
-                        static IContainer CellStyle(IContainer container)
-                        {
-                            return container.DefaultTextStyle(x => x.SemiBold().FontSize(9)).Background(Colors.Grey.Lighten1).Border(1).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5);
-                        }
-                    });
-
-                    foreach( var item in Model.Activities)
-                    {
-                        table.Cell().Element(CellStyle).Text((Model.Activities.IndexOf(item) + 1).ToString());
-                        table.Cell().Element(CellStyle).Text(item.LeadName);
-                        table.Cell().Element(CellStyle).Text(item.CustomerName);
-                        table.Cell().Element(CellStyle).Text(item.ActivityType);
-                        table.Cell().Element(CellStyle).Text(item.ActivityDateTime.Value.ToString("dd/MM/yyyy hh:mm tt"));
-                        table.Cell().Element(CellStyle).Text(item.ActivityNote);
-                        table.Cell().Element(CellStyle).Text(item.LeadOwner);
-                        
-                        static IContainer CellStyle(IContainer container)
-                        {
-                            return container.DefaultTextStyle(x=> x.FontSize(8)).Border(1).BorderColor(Colors.Grey.Lighten2).Padding(5).AlignMiddle();
-                        }
+                        column.Item().Element(_ => ComposeEmployeeSection(_, model));
+                        column.Item().PageBreak(); // add page break between employees
                     }
                 });
-            }
+
+                // Footer
+                page.Footer().Row(row =>
+                {
+                    row.RelativeItem().Column(column =>
+                    {
+                        column.Item().Element(CellStyle).AlignLeft().Text($"Created: {DateTime.Now:g}");
+                        column.Item().Element(CellStyle).AlignRight().Text(text =>
+                        {
+                            text.Span("Page ").SemiBold();
+                            text.CurrentPageNumber();
+                            text.Span(" of ");
+                            text.TotalPages();
+                        });
+
+                        static IContainer CellStyle(IContainer container)
+                        {
+                            return container.DefaultTextStyle(x => x.FontSize(8)).PaddingVertical(4);
+                        }
+                    });
+                });
+            });
+        }
+
+        // Renders each employee's activities
+        private void ComposeEmployeeSection(IContainer container, ActivityPDFModel model)
+        {
+            container.PaddingBottom(15).Column(column =>
+            {
+                column.Item().Background(Colors.Grey.Lighten4).Row(row =>
+                {
+                    // Left text: take all remaining space
+                    row.RelativeItem().Padding(10).AlignMiddle().Element(el =>
+                    {
+                        el.Column(col =>
+                        {
+                            col.Item().Text($"{model.CompanyName}")
+                                  .FontSize(16).SemiBold().FontColor(Colors.Blue.Darken1);
+                            col.Item().Text($"{model.CompanyAddress}")
+                                  .FontSize(10).FontColor(Colors.Grey.Darken1);
+
+                            col.Item().Text($"Team: {model.TeamName}")
+                                  .FontSize(11).FontColor(Colors.Grey.Darken2);
+
+                            col.Item().Text($"Employee: {model.EmployeeName}")
+                                  .FontSize(11).Bold().FontColor(Colors.Black);
+
+                            col.Item().Text("Subject: Upcoming Activities")
+                                  .FontSize(11).FontColor(Colors.Grey.Darken2);
+                        });
+                    });
+
+                    // Right logo: fixed size, vertically centered
+                    row.ConstantItem(100)
+                       .Height(60)
+                       .AlignMiddle()
+                       .AlignCenter()
+                       .Element(el =>
+                       {
+                           try
+                           {
+                               if (model.CompanyLogo != null)
+                                   el.PaddingTop(15).Image(model.CompanyLogo, ImageScaling.FitArea);
+                               else
+                                   el.PaddingTop(15).Placeholder();
+                           }
+                           catch (Exception e)
+                           {
+                               el.Placeholder();
+                           }
+
+                       });
+                });
+
+
+
+                column.Item().PaddingTop(10);
+
+                // Activities
+                if (model.SubEmployees?.Any() == true)
+                {
+                    foreach (var sub in model.SubEmployees)
+                    {
+                        column.Item().Text($"Activities for: {sub.EmployeeName}").Bold();
+                        column.Item().Element(_ => ComposeActivitiesTable(_, sub));
+                        column.Item().PaddingTop(10);
+                    }
+                }
+                else if (model.Activities?.Any() == true)
+                {
+                    column.Item().Element(_ => ComposeActivitiesTable(_, model));
+                }
+                else
+                {
+                    column.Item().Text("No upcoming activities found.")
+                          .FontColor(Colors.Grey.Darken1)
+                          .Italic()
+                          .AlignCenter();
+                }
+            });
+        }
+
+
+        // Renders table of activities
+        private void ComposeActivitiesTable(IContainer container, ActivityPDFModel model)
+        {
+            container.Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.ConstantColumn(25);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(3);
+                    columns.RelativeColumn(2);
+                });
+
+                // Header Row
+                table.Header(header =>
+                {
+                    header.Cell().Element(CellHeader).Text("#").AlignCenter();
+                    header.Cell().Element(CellHeader).Text("Lead Name").AlignCenter();
+                    header.Cell().Element(CellHeader).Text("Customer Name").AlignCenter();
+                    header.Cell().Element(CellHeader).Text("Activity Type").AlignCenter();
+                    header.Cell().Element(CellHeader).Text("Date & Time").AlignCenter();
+                    header.Cell().Element(CellHeader).Text("Note").AlignCenter();
+                    header.Cell().Element(CellHeader).Text("Owner Name").AlignCenter();
+
+                    static IContainer CellHeader(IContainer container)
+                    {
+                        return container.DefaultTextStyle(x => x.SemiBold().FontSize(9))
+                         .Background(Colors.Grey.Lighten1)
+                         .Border(1)
+                         .BorderColor(Colors.Grey.Lighten2)
+                         .PaddingVertical(5)
+                         .AlignMiddle();
+                    }
+                });
+
+                // Data Rows
+                int index = 1;
+                foreach (var item in model.Activities)
+                {
+                    table.Cell().Element(CellBody).Text(index++.ToString()).AlignCenter();
+                    table.Cell().Element(CellBody).Text(item.LeadName);
+                    table.Cell().Element(CellBody).Text(item.CustomerName);
+                    table.Cell().Element(CellBody).Text(item.ActivityType);
+                    table.Cell().Element(CellBody).Text(item.ActivityDateTime?.ToString("dd/MM/yyyy hh:mm tt"));
+                    table.Cell().Element(CellBody).Text(item.ActivityNote ?? "-");
+                    table.Cell().Element(CellBody).Text(item.LeadOwner);
+
+                    static IContainer CellBody(IContainer container)
+                    {
+                        return container.DefaultTextStyle(x => x.FontSize(8))
+                         .Border(1)
+                         .BorderColor(Colors.Grey.Lighten2)
+                         .Padding(5)
+                         .AlignMiddle();
+                    }
+                }
+            });
         }
     }
 }

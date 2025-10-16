@@ -38,6 +38,7 @@ using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.EmployeeShiftView;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OffDayRoster;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.OfficeDayRoster;
+using GCTL.Service.BackgroundServices;
 using GCTL.Service.CommonService;
 using GCTL.Service.CRM;
 using GCTL.Service.CRM.AddTeam;
@@ -195,6 +196,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IAddMainAccountService, AddMainAccountService>();
             services.AddScoped<IAddSubAccountService, AddSubAccountService>();
             services.AddScoped<ITransactionAccountService, TransactionAccountService>();
+            services.AddSingleton<IBackgroundTask, AttendanceTask>();
             #endregion
 
 
@@ -218,6 +220,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IPayRollEarlyPaymentService, PayRollEarlyPaymentService>();
             services.AddScoped<IPayRollOrgaBenefitsTypeService, PayRollOrgaBenefitsTypeService>();
             services.AddScoped<ICommonDroDownService, CommonDropDownService>();
+            services.AddSingleton<IBackgroundTask, GeneratePayslipTask>();
             #endregion
 
             #region Asad
@@ -312,6 +315,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeadActivityTypeService, LeadActivityTypeService>();
             services.AddScoped<IAddTeamService, AddTeamService>();
             #endregion
+
+            services.AddHostedService<ScheduledTaskService>();
         }
     }
 }

@@ -14,7 +14,11 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
     public interface IPayRollEmpSalaryService
     {
         Task<PaginationService<EmployeeSalarySettings, PayRollEmpSalaryGetAllVM>.PaginationResult<PayRollEmpSalaryGetAllVM>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null, string imgSrcThumb = null);
+        string currentSortColumn = "", string currentSortOrder = "", int? organizationId = null, string imgSrcThumb = null,List<int> ? deptID=null, List<int> ? empID=null, bool ? paidUnpaid=null, string? month = null);
         Task<CommonReturnViewModel> GetPaySlip(int id);
+        Task<CommonReturnViewModel> SaveAsync(PayRollEmpSalarySaveVM entityVM);
+        Task<CommonReturnViewModel> SaveExportAsync(PaySlipRequestVM model);
+        Task<CommonReturnViewModel> SaveBulkAsync(List<PayRollEmpSalarySaveVM> entityVMList);
+        Task<byte[]> GeneratePdf(int id);
     }
 }

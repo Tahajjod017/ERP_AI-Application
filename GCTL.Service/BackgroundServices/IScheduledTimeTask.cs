@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
+namespace GCTL.Service.BackgroundServices
 {
-    public class PayRollEmpSalaryUpdateVM
+    public interface IScheduledTimeTask
     {
+        TimeSpan ScheduledTime { get; }
     }
 }

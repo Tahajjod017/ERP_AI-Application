@@ -2,14 +2,13 @@
 {
     //#region Month Picker
     let today = new Date();
-    today.setMonth(today.getMonth() - 1);
-    var currentDate = new Date();
+    
     $('#year-month-picker-1').flatpickr({
         mode: "single",
         dateFormat: "F Y",
         altFormat: "F Y",
         defaultDate: today,
-        maxDate: currentDate, 
+       
         plugins: [
             new monthSelectPlugin({
                 shorthand: true,
@@ -35,8 +34,114 @@
     // #endregion
 
 
+    //#region
+
+
+
+    
+
+   
+
+    $("#PayRollPaySlip-check-all").on("change", function () {
+        $(".PayRolltaxSettings-selectItem").prop("checked", $(this).prop("checked"));
+    });
+
+
+    // 🟢 Show or hide "Mark as Save" button when checkboxes change
+    $(document).on("change", ".PayRolltaxSettings-selectItem, #PayRollPaySlip-check-all", function () {
+        let anyChecked = $(".PayRolltaxSettings-selectItem:checked").length > 0;
+
+        if (anyChecked) {
+            $("#markAsSaveContainer").removeClass("d-none"); // show button
+        } else {
+            $("#markAsSaveContainer").addClass("d-none"); // hide button
+        }
+    });
+
+    // 🟢 Handle Save click
+    $("#MarkasSaved").on("click", async function (e) {
+        e.preventDefault();
+
+        let selectedItems = $(".PayRolltaxSettings-selectItem:checked").map(function () {
+            let empId = $(this).data("id");
+            let isPaid = $(`.IsPaidCheckbox-selectItem[data-id='${empId}']`).prop("checked");
+            return { EmployeeID: empId, IsPaid: isPaid };
+        }).get();
+
+        if (selectedItems.length === 0) {
+            toastr.info("Please select at least one employee!");
+            return;
+        }
+
+        const $button = $("#MarkasSaved");
+
+        try {
+            $button.prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+            showLoadingIndicator();
+
+            const response = await $.ajax({
+                url: "/PaySlipForEmp/GenerateMultiplePDFs",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ Employees: selectedItems }),
+            });
+
+            if (response.success || response.Success) {
+                toastr.success(response.message || "Payslips saved successfully!");
+                loadTableData();
+            } else {
+                toastr.error(response.message || "Failed to save payslips!");
+            }
+        } catch (err) {
+            console.error("Error generating payslips:", err);
+            toastr.error("Error generating payslips. Please try again.");
+        } finally {
+            $button.prop("disabled", false).html("Mark as Save");
+            $(".PayRolltaxSettings-selectItem").prop("checked", false);
+            $("#PayRollPaySlip-check-all").prop("checked", false);
+            $(`.IsPaidCheckbox-selectItem`).prop("checked", false);
+            hideLoadingIndicator();
+            $("#markAsSaveContainer").addClass("d-none"); 
+        }
+    });
+
+
+
+
+    $("#export-pdf-btn").on("click", async function (e) {
+        e.preventDefault();
+
+        const $btn = $(this);
+        $btn.prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i> Generating...');
+
+        try {
+            const response = await $.ajax({
+                url: "/PaySlipForEmp/pdf",
+                type: "POST"
+            });
+
+            if (response.success || response.Success)
+            {
+                toastr.success(response.message || "All payslips exported successfully!");
+            } else
+            {
+                toastr.error(response.message || "Failed to generate payslip PDFs.");
+            }
+        } catch (err)
+        {
+            console.error("Error exporting PDFs:", err);
+            toastr.error("An error occurred while generating payslips.");
+        } finally
+        {
+            $btn.prop("disabled", false).html('<span data-feather="download"></span> PDF');
+        }
+    });
+
+    //#endregion
+
+
     var currentPage = 1;
-    var pageSize = 5;
+    var pageSize = 10;
 
     $('#payRollEmp-pageSizeSelect').on('change', function () {
         var selectedSize = $(this).val();
@@ -98,23 +203,34 @@
         });
     }
 
-    $(document).on("change", "#StatusIDFilterDD,#LeaveTypeIDFilterDD", function () {
+    $(document).on("change", "#OrganizationID", function () {
 
         currentPage = 1;
         loadTableData();
     });
 
-    $('#OrganizationIDD').on('changed.coreui.multi-select', function () {
+    $('#EmployeeID,#DepartmentID').on('changed.coreui.multi-select', function () {
         currentPage = 1;
         loadTableData(); // Make AJAX call or reload the table
     });
 
+    $('#PaidUnpaid').on('change', function () {
+        currentPage = 1;
+        loadTableData(); // Reload table with Paid/Unpaid filter
+    });
+    $('#year-month-picker-1').on('click', function () {
+        currentPage = 1;
+        loadTableData(); // Reload table with Paid/Unpaid filter
+    });
     // Filtering according to formdate to ToDate
 
     function loadTableData(currentSortColumn, currentSortOrder) {
         var searchTerm = $("#payRollEmp-searchInput").val();
-        const organizationId = $('#OrganizationIDD').val();
-
+        const organizationId = $('#OrganizationID').val();
+        const empID = $('#EmployeeID').val();
+        const deptID = $('#DepartmentID').val();
+        const paidUnpaid = $('#PaidUnpaid').val();
+        const selectedMonth = $('#year-month-picker-1').val(); // ✅ new line
         $.ajax({
             url: '/PayRollEmpSalary/GetAllTableListAsync',
             method: 'GET',
@@ -126,6 +242,10 @@
                 currentSortColumn: currentSortColumn,
                 currentSortOrder: currentSortOrder,
                 organizationId: organizationId,
+                deptID: deptID || [],
+                empID: empID || [],
+                paidUnpaid: paidUnpaid,
+                month: selectedMonth,
             },
             
             success: function (response) {
@@ -145,13 +265,17 @@
                             : totalItems - ((currentPage - 1) * pageSize + index);
 
                         const avatar = getAvatarHtml(item);
-                        
+
                         tableBody.append(`
                 <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+
+                    <td class="text-center text-middle align-middle" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input PayRolltaxSettings-selectItem IsPaidCheckbox-selectItem" data-id="${item.employeeId}" />
+                     </td>
                     <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
-                        <span>#${item.employeeId || 'N/A'}</span>
+                        <span>${item.employeeCode || 'N/A'}</span>
                     </td>
-                    <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
+                    <td class="approveByEmployee align-middle white-space-nowrap fw-semibold text-body-emphasis ps-1 py-1">
                         <div class="d-flex align-items-center file-name-icon">
                             <div class="avatar avatar-m avatar-bordered me-2">
                                 ${avatar}
@@ -163,19 +287,31 @@
                         </div>
                     </td>
                     <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.empDepartment || 'N/A'}</td>
-                    <td class="empSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.salary || 0}</td>
-                    <td class="empBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.bonus || 0}</td>
-                    <td class="empDeduction align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.deduction || 0}</td>
-                    <td class="netSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.netSalary || 0}</td>
-                    <td class="paySlip align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
-                        <a href="/PaySlipForEmp/Index/${item.employeeId}"><i class="fas fa-download text-success"></i></a>
-                    </td>
+                    <td class="empSalary align-right white-space-nowrap ps-4 fw-semibold text-body py-1">${item.salary || 0}</td>
+                    <td class="empBonus align-right white-space-nowrap ps-4 fw-semibold text-body py-1">${item.bonus || 0}</td>
+                    <td class="empDeduction align-right white-space-nowrap ps-4 fw-semibold text-body py-1">${item.deduction || 0}</td>
+                    <td class="netSalary align-right white-space-nowrap ps-4 fw-semibold text-body py-1">${item.netSalary || 0}</td>
+                     <!-- Paid/Unpaid Checkbox -->
+               
+                <!-- Paid/Unpaid Label -->
+                <td class="align-middle ps-4 fw-semibold text-body py-1">
+                    ${item.isPaid ? '<span class="badge bg-success">Paid</span>' : '<span class="badge bg-danger">Unpaid</span>'}
+                </td>
+
+                <!-- Payslip -->
+                <td class="paySlip align-middle ps-4 fw-semibold text-body py-1">
+                    <a href="/PaySlipForEmp/Index/${item.employeeId}"><i class="fas fa-download text-success"></i></a>
+                </td>
                 </tr>
             `);
                     });
                 } else {
                     tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
                 }
+
+
+        
+
 
                 var paginationInfo = response.paginationInfo;
                 $("#payRollEmp-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);

@@ -1,16 +1,11 @@
-﻿using GCTL.Core.Helpers;
-using GCTL.Core.Repository;
+﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Mime;
 
 namespace GCTL.Service.AttendanceManagement
 {
@@ -71,7 +66,110 @@ namespace GCTL.Service.AttendanceManagement
             }
         }
 
-        
+        public async Task<SmtpClient> GetSmtpClientAsync(int organizationId)
+        {
+            var emailConfig = await _emailSettings.AllActive()
+                .FirstOrDefaultAsync(x => x.OrganizationID == organizationId);
+
+            if (emailConfig == null)
+                throw new InvalidOperationException("Email settings not configured in database.");
+
+            var smtpClient = new SmtpClient(emailConfig.Host, emailConfig.Port)
+            {
+                EnableSsl = emailConfig.IsSSLRequired,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = emailConfig.IsDefaultCredential
+            };
+
+            if (!emailConfig.IsDefaultCredential)
+            {
+                smtpClient.Credentials = new NetworkCredential(emailConfig.UserName, emailConfig.Password);
+            }
+
+            return smtpClient;
+        }
+        public class EmailConfigDto
+        {
+            public string UserName { get; set; }
+            public string Password { get; set; }
+            public string Host { get; set; }
+            public int Port { get; set; }
+        }
+
+
+        public async Task SendAsync(
+            int organizationId,
+            string toEmail,
+            string subject,
+            string body,
+            byte[]? attachmentBytes = null,
+            string? attachmentName = null,
+            List<LinkedResource>? linkedResources = null)
+         {
+            var emailConfig = await _emailSettings.AllActive()
+                .FirstOrDefaultAsync(x => x.OrganizationID == organizationId);
+
+            var smtpClient = new SmtpClient(emailConfig.Host, emailConfig.Port)
+            {
+                EnableSsl = true, // or emailConfig.IsSSLRequired
+                Credentials = new NetworkCredential(emailConfig.UserName, emailConfig.Password),
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false
+            };
+            using (smtpClient)
+            {
+                using (var mail = new MailMessage(emailConfig.UserName, toEmail))
+                {
+                    mail.Subject = subject;
+                    mail.IsBodyHtml = true;
+
+                    if (linkedResources != null && linkedResources.Any())
+                    {
+                        var htmlView = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
+                        foreach (var resource in linkedResources)
+                            htmlView.LinkedResources.Add(resource);
+                        mail.AlternateViews.Add(htmlView);
+                    }
+                    else
+                    {
+                        mail.Body = body;
+                    }
+
+                    if (attachmentBytes != null && !string.IsNullOrEmpty(attachmentName))
+                    {
+                        using (var stream = new MemoryStream(attachmentBytes))
+                        {
+                            mail.Attachments.Add(new Attachment(stream, attachmentName));
+                            await smtpClient.SendMailAsync(mail);
+                        }
+                    }
+                    else
+                    {
+                        await smtpClient.SendMailAsync(mail);
+                    }
+                }
+            }
+        }
+
+     
+        public async Task<EmailConfigDto> GetEmailConfigAsync(int organizationId)
+        {
+            var emailConfig = await _emailSettings.AllActive()
+                .FirstOrDefaultAsync(x => x.OrganizationID == organizationId);
+
+            if (emailConfig == null)
+                throw new InvalidOperationException("Email settings not found.");
+
+            return new EmailConfigDto
+            {
+                UserName = emailConfig.UserName,
+                Password = emailConfig.Password,
+                Host = emailConfig.Host,
+                Port = emailConfig.Port
+            };
+        }
+
+
         #region  leave Request
         public async Task SendEmailLeaveRequest(EmailVM model, int? empId)
         {

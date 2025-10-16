@@ -9,21 +9,24 @@
         return;
     }
 
-    //let id = parseInt($('#EmployeeID').val());
-    //debugger
-    //// If input is empty or invalid, fallback to URL
-    //if (!id || isNaN(id)) {
-    //    const pathSegments = window.location.pathname.split('/');
-    //    const idString = pathSegments.length > 2 ? pathSegments[pathSegments.length - 1] : null;
-    //    id = idString ? parseInt(idString) : null;
-    //}
+    $('#EmployeeID').val(id);
 
-    //if (!id || isNaN(id)) {
-    //    toastr.error("Id Not Found or Invalid");
-    //    return;
-    //}
 
-    
+
+  
+    function updatePaymentTime() {
+        const now = new Date();
+        const options = {
+            month: 'short', day: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: true
+        };
+        document.getElementById('paymentDateTime').innerText = now.toLocaleString('en-US', options);
+    }
+
+    // Update immediately and then every second
+    updatePaymentTime();
+    setInterval(updatePaymentTime, 1000);
 
     function getPaySlip() {
         $.ajax({
@@ -82,7 +85,12 @@
 
                     // Totals
                     $('#TotalSalary').text(parseFloat(data.totalSalary).toFixed(2));
-                    $('#SalaryInWords').text(data.salaryInWords);
+                    $('#NetPay').text('Net Pay : ' + parseFloat(data.netPay).toFixed(2));
+                    $('#TotalDeductions').text(parseFloat(data.totalDeductions).toFixed(2));
+                    $('#ProfessionalTax').text(parseFloat(data.professionalTax).toFixed(2));
+                    $('#SalaryInWords').text(data.salaryInWords);  
+
+                    $('#paySlipNo').text(data.payslipNo)
                 } else {
                     toastr.error('Failed to load payslip: ' + response.message);
                 }
@@ -99,4 +107,64 @@
     $('#refreshPaySlip').on('click', function () {
         getPaySlip();
     });
+
+
+   
+
+
+
+
+    
+    $(document).on('click', '#PaySlipSave, .print a', async function (e) {
+        e.preventDefault();
+
+        const empId = $("#EmployeeID").val();
+        const postData = {
+            EmployeeID: empId,
+            PayPeriodStart: $('#PayPeriodStart').val(),
+            PayPeriodEnd: $('#PayPeriodEnd').val(),
+            IsPaid: $('#IsPaid').is(':checked')
+        };
+        const $button = $("#PaySlipSave,.print a");
+
+        try {
+            // Disable button and show spinner
+            $button.prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+            showLoadingIndicator();
+
+            const pdfResponse = await fetch("/PaySlipForEmp/SaveAndPdf", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(postData)
+            });
+
+            if (!pdfResponse.ok) throw new Error("Failed to save payslip or generate PDF");
+
+            const blob = await pdfResponse.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `PaySlip_${empId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            toastr.success("Payslip saved and PDF generated!");
+            $(".print").html(`<a href="#"><i class="fa fa-print"></i> Print this receipt</a>`);
+        } catch (err) {
+            console.error(err);
+            toastr.error("Error saving payslip or generating PDF.");
+        } finally {
+            // Always hide loading indicator and re-enable button
+            hideLoadingIndicator();
+            $button.prop("disabled", false).html('Save Payslip');
+        }
+    });
+
+
+ 
+
+
+
 });

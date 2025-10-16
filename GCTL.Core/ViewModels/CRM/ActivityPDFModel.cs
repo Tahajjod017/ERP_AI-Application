@@ -3,10 +3,23 @@ namespace GCTL.Core.ViewModels.CRM
 {
     public class ActivityPDFModel
     {
-        public string CompanyName { get; set; }
-        public string CompanyLogo { get; set; }
+        public int? ComapanyID { get; set; }
+        public string? CompanyName { get; set; }
+        public string? CompanyLogo { get; set; }
         public string? CompanyAddress { get; set; }
-        public List<Activity> Activities { get; set; }
+        public string? CompanyPhone { get; set; }
+        public string? CompanyEmail { get; set; }
+        public string? TeamName { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? Email { get; set; }
+        public bool? IsTeamHead { get; set; }
+        public int? TotalActivities { get; set; }
+        public string? CompnayLogoBase64 { get; set; }
+
+        // New property: for grouping multiple members in one PDF
+        public List<ActivityPDFModel>? SubEmployees { get; set; }
+
+        public List<Activity> Activities { get; set; } = new List<Activity>();
 
     }
     public class Activity
@@ -22,6 +35,7 @@ namespace GCTL.Core.ViewModels.CRM
         public string? LeadSource { get; set; }
         public decimal? LeadProbability { get; set; }
         public string? LeadOwner { get; set; }
+        public int? LeadOwnerId { get; set; }
 
     }
 }

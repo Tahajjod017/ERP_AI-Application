@@ -1,7 +1,7 @@
-﻿using GCTL.Core.Repository;
+﻿
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
-using GCTL.Core.ViewModels.MasterSetup.LeadStatuses;
 using GCTL.Data.Models;
 using GCTL.Service.CRM;
 using GCTL.Service.CRM.LeadsActivities;
@@ -9,26 +9,30 @@ using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using NuGet.Protocol;
 
 namespace GCTL_App.Controllers.CRM
 {
     public class LeadsActivitiesController : BaseController
     {
+        #region services
         private readonly ILeadsActivityService _activityService;
         public readonly IGenericRepository<LeadStatuses> _leadStatusesRepository;
         private readonly IGenericRepository<AddressTypes> _addressTypeService;
         private readonly IGenericRepository<LeadActivityTypes> _leadActivityTypeService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
 
-        public LeadsActivitiesController(ITranslateService translateService, IUserProfileService userProfileService, ILeadsActivityService activityService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Services> servicesRepository, IGenericRepository<AddressTypes> addressTypeService, IGenericRepository<LeadActivityTypes> leadActivityTypeService) : base(translateService, userProfileService)
+        public LeadsActivitiesController(ITranslateService translateService, IUserProfileService userProfileService, ILeadsActivityService activityService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Services> servicesRepository, IGenericRepository<AddressTypes> addressTypeService, IGenericRepository<LeadActivityTypes> leadActivityTypeService, IWebHostEnvironment webHostEnvironment) : base(translateService, userProfileService)
         {
             _activityService = activityService;
             _leadStatusesRepository = leadStatusesRepository;
             _addressTypeService = addressTypeService;
             _leadActivityTypeService = leadActivityTypeService;
+            _webHostEnvironment = webHostEnvironment;
         }
+        #endregion
 
+        #region index
         public IActionResult Index()
         {
 
@@ -37,32 +41,10 @@ namespace GCTL_App.Controllers.CRM
             ViewBag.ActivityTypeDD = new SelectList(_leadActivityTypeService.AllActive().Select(e => new { e.LeadActivityTypeID, e.LeadActivityName }), "LeadActivityTypeID", "LeadActivityName");
             return View();
         }
-        public async Task<bool> SendEmailWithPdf(byte[] pdfBytes)
-        {
-            try
-            {
-                var emailService = new EmailService1();
+        #endregion
 
-                string receiverEmail = "debanjandevelopment@gmail.com";
-                string subject = "Hello from Gmail SMTP";
-                string body = "<h2>This email is sent using EmailService with PDF attachment!</h2>";
-
-                // Pass PDF as attachment
-                await emailService.SendEmailAsync(receiverEmail, subject, body, pdfBytes, "report.pdf");
-
-                Console.WriteLine("✅ Email sent successfully with PDF!");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Email sending failed: {ex.Message}");
-                return false;
-            }
-        }
-
-
-
-        [HttpPost]
+        #region get Upcomming Activity
+        [System.Web.Mvc.HttpPost]
         public async Task<IActionResult> GetUpcomingActivities([FromForm] UpcomingActivityVM model)
         
         {
@@ -87,17 +69,20 @@ namespace GCTL_App.Controllers.CRM
             var result = await _activityService.GetUpcomingActivityList(page, itemPagePage, search, sort, direction, model.DateRange, model.CreatedBy, model.CustomerTypeID, model.LeadStatusID, model.ActivityTypeID);
             return Ok(result);
         }
+        #endregion
 
+        #region Generate PDF and Send Email
         //=======================
         // generatePDF
         //=======================
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         public async Task<IActionResult> GeneratePDF()
         {
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
 
-            var pdfBytes = await _activityService.GeneratePDF();
-            await SendEmailWithPdf(pdfBytes);
-            return File(pdfBytes, "application/pdf", "report.pdf");
+            var pdfBytes = await _activityService.GenerateAndSendEmployeePDFsAsync(wwwRootPath);
+            return Ok(pdfBytes);
         }
+        #endregion
     }
 }

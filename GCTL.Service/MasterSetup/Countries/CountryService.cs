@@ -1,17 +1,18 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
-using GCTL.Core.ViewModels.MasterSetup.Country;
 using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.MasterSetup.Country;
+using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GCTL.Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.MasterSetup.Countries
 {
@@ -93,7 +94,7 @@ namespace GCTL.Service.MasterSetup.Countries
                     return false;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<CountryVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<CountryVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.CountryCode = model.CountryCode;
                 entity.CountryName = model.CountryName;
@@ -104,7 +105,7 @@ namespace GCTL.Service.MasterSetup.Countries
 
                 await _genericRepository.UpdateAsync(entity);
 
-                var afterEntity = JsonConvert.DeserializeObject<CountryVM>(JsonConvert.SerializeObject(entity));
+                var afterEntity = JsonConvert.DeserializeObject<CountryVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 await _userInfoService.ActionLogAsync("Country", ActionName.DataUpdated, beforeEntity, afterEntity, entity.CountryID, model);
 
                 await _genericRepository.CommitTransactionAsync();
@@ -171,7 +172,7 @@ namespace GCTL.Service.MasterSetup.Countries
                     };
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<List<CountryVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<CountryVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.CountryID).ToList();
 
                 foreach (var item in data)

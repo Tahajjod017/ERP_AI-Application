@@ -1,11 +1,13 @@
 ﻿
 using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.LeadSource;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.MasterSetup.LeadStatuses;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace GCTL.Service.MasterSetup.LeadSource
 {
@@ -43,7 +45,7 @@ namespace GCTL.Service.MasterSetup.LeadSource
                     entityToRestore.UpdatedAt = DateTime.Now;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
-                    await _userInfoService.ActionLogAsync("GCTL.Data.Models.LeadSources", ActionName.DataAdd, null, entityToRestore, entityToRestore.LeadSourceID, model);
+                    await _userInfoService.ActionLogAsync("LeadSource", ActionName.DataAdd, null, entityToRestore, entityToRestore.LeadSourceID, model);
                 }
                 else
                 {
@@ -51,11 +53,10 @@ namespace GCTL.Service.MasterSetup.LeadSource
                     entity.LeadSourceName = model.LeadSourceName;
                     entity.CreatedAt = DateTime.Now;
                     entity.CreatedBy = model.CreatedBy;
-                    //entity.LIP = model.LIP;
                     entity.LMAC = model.LMAC;
 
                     await _genericRepository.AddAsync(entity);
-                    await _userInfoService.ActionLogAsync("GCTL.Data.Models.LeadSources", ActionName.DataAdd, null, entity, entity.LeadSourceID, model);
+                    await _userInfoService.ActionLogAsync("LeadSource", ActionName.DataAdd, null, entity, entity.LeadSourceID, model);
                 }
 
                 await _genericRepository.CommitTransactionAsync();
@@ -144,7 +145,7 @@ namespace GCTL.Service.MasterSetup.LeadSource
                     return false;
                 }
 
-                //var beforeEntity = JsonConvert.DeserializeObject<LeadSourceVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<LeadSourceVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.LeadSourceName = model.LeadSourceName;
                 entity.UpdatedAt = DateTime.Now;
@@ -154,8 +155,8 @@ namespace GCTL.Service.MasterSetup.LeadSource
 
                 await _genericRepository.UpdateAsync(entity);
 
-                //var afterEntity = JsonConvert.DeserializeObject<LeadSourceVM>(JsonConvert.SerializeObject(entity));
-                //await _userInfoService.ActionLogAsync("Service", ActionName.DataUpdated, beforeEntity, afterEntity, entity.LeadSourceID, model);
+                var afterEntity = JsonConvert.DeserializeObject<LeadSourceVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                await _userInfoService.ActionLogAsync("LeadSource", ActionName.DataUpdated, beforeEntity, afterEntity, entity.LeadSourceID, model);
 
                 await _genericRepository.CommitTransactionAsync();
 
@@ -184,7 +185,7 @@ namespace GCTL.Service.MasterSetup.LeadSource
                     };
                 }
 
-                //var beforeEntity = JsonConvert.DeserializeObject<List<LeadSourceVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<LeadSourceVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.LeadSourceID).ToList();
 
                 foreach (var item in data)
@@ -197,7 +198,7 @@ namespace GCTL.Service.MasterSetup.LeadSource
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                //await _userInfoService.ActionLogDeleteAsync("Service", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+                await _userInfoService.ActionLogDeleteAsync("LeadSource", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

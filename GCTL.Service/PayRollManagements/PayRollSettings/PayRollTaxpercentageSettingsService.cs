@@ -36,6 +36,7 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
             #region AddAsync
             public async Task<bool> AddAsync(PayRollTaxPercentageSaveVM model)
             {
+            int pk = 0;
                 await _genericRepository.BeginTransactionAsync();
                 try
                 {
@@ -50,11 +51,11 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
                         entityToRestore.CreatedBy = model.CreatedBy;
                         entityToRestore.LIP = model.LIP;
                         entityToRestore.LMAC = model.LMAC;
-
                         entityToRestore.DeletedAt = null;
                         entityToRestore.UpdatedAt = DateTime.Now;
-
+                        entityToRestore.SalaryDay = model.SalaryDay;
                         await _genericRepository.UpdateAsync(entityToRestore);
+                         pk=entityToRestore.PSettingID;
                         await _userInfoService.ActionLogAsync("Tax Perceentage", ActionName.DataAdd, null, entityToRestore, entityToRestore.PSettingID, model);
                     }
                     else
@@ -66,8 +67,9 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
                         entity.CreatedBy = model.CreatedBy;
                         entity.LIP = model.LIP;
                         entity.LMAC = model.LMAC;
-
+                       entity.SalaryDay = model.SalaryDay;
                         await _genericRepository.AddAsync(entity);
+                        pk=entity.PSettingID;
                         await _userInfoService.ActionLogAsync("Tax Percentage", ActionName.DataAdd, null, entity, entity.PSettingID, model);
                     }
 
@@ -75,11 +77,11 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
 
                     return true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     await _genericRepository.RollbackTransactionAsync();
-                    //throw ex;
-                    return false;
+                await _userInfoService.ActionLogExceptionAsync("Tax Percentage", ex, pk, ActionName.Error);
+                return false;
                 }
             }
             #endregion
@@ -97,7 +99,7 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
                         return false;
                     }
 
-                    var beforeEntity = JsonConvert.DeserializeObject<PayRollTaxpercentageUpdateVM>(JsonConvert.SerializeObject(entity));
+                    var beforeEntity = JsonConvert.DeserializeObject<PayRollTaxpercentageUpdateVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                     entity.OrganizationID = model.OrganizationID;
                     entity.TaxPercentage=model.TaxPercentage;
@@ -105,20 +107,21 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
                     entity.UpdatedBy = model.UpdatedBy;
                     entity.LIP = model.LIP;
                     entity.LMAC = model.LMAC;
-
+                    entity.SalaryDay=model.SalaryDay;
                     await _genericRepository.UpdateAsync(entity);
 
-                    var afterEntity = JsonConvert.DeserializeObject<PayRollTaxpercentageUpdateVM>(JsonConvert.SerializeObject(entity));
+                    var afterEntity = JsonConvert.DeserializeObject<PayRollTaxpercentageUpdateVM>(JsonConvert.SerializeObject(entity,JsonSettings.IgnoreReferenceLoop));
                     await _userInfoService.ActionLogAsync("Tax Percenatge", ActionName.DataUpdated, beforeEntity, afterEntity, entity.PSettingID, model);
 
                     await _genericRepository.CommitTransactionAsync();
 
                     return true;
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
                     await _genericRepository.RollbackTransactionAsync();
-                    return false;
+                await _userInfoService.ActionLogExceptionAsync("Pay Roll Update", ex, model.PSettingID, ActionName.Error);
+                return false;
                 }
             }
             #endregion
@@ -137,12 +140,13 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
                         PSettingID=data.PSettingID,
                         OrganizationID = data.OrganizationID,
                         TaxPercentage = data.TaxPercentage,
+                        SalaryDay = data.SalaryDay,
                     };
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    
-                    throw; // Rethrow or return an error-specific response
+                await _userInfoService.ActionLogExceptionAsync("Pay Roll Settings Get", ex, id, ActionName.Error);
+                throw; // Rethrow or return an error-specific response
                 }
             }
             #endregion
@@ -251,7 +255,8 @@ namespace GCTL.Service.PayRollManagements.PayRollSettings
                     {
                         PSettingID = x.PSettingID,
                         OrganizationName = x.Organization != null ? x.Organization.OrganizationName ?? "-" : "-",
-                        TaxPercentage = x.TaxPercentage
+                        TaxPercentage = x.TaxPercentage ?? 0,
+                        SalaryDay = x.SalaryDay ?? 0,
                     });
 
                 return result;

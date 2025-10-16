@@ -4,10 +4,12 @@ using GCTL.Service.CommonService;
 using GCTL.Service.Finance.TransactionAccount;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.Finance
 {
+    [Authorize]
     public class TransactionAccountController : BaseController
     {
         #region Services
@@ -77,7 +79,7 @@ namespace GCTL_App.Controllers.Finance
                     }
 
                     await _transactionAccountService.AddAsync(model);
-                    return Json(new { isSuccess = true, message = "Saved Successfully." });
+                    return Json(new { isSuccess = true, message = "Saved Successfully.", classId = model.ClassID, mainAccId = model.MainAccountID, subAccId = model.SubAccountID });
                 }
 
                 var orderedKeys = new[] { "ClassID", "MainAccountID", "SubAccountID", "TrxAccName", "TrxAccCode" };

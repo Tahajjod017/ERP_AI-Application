@@ -108,14 +108,11 @@ $(function () {
     // save lead activity function
     //==============================
     async function saveActivityFunction(e) {
-        debugger;
         const userFor = $(".option-btn.active").data("usefor");
-        showDev(userFor)
         const buttonName = (userFor === "Won" || userFor === "Lost")
             ? userFor
             : $(".option-btn.active").text().trim();
 
-        showDev(buttonName);
 
         const buttonID = $(".option-btn.active").data('id');
         const leadID = $(ids.leadID).val();
@@ -209,7 +206,6 @@ $(function () {
     // ============================
 
     function validation(placeName) {
-        debugger
         clearAllValidationBorders();
 
         let requiredField = [];
@@ -319,8 +315,6 @@ $(function () {
                 success: function (response) {
                     showLeadCreatorPercentage(response.successPercentage, response.lostPercentage, response.cancelPercentage)
 
-                    debugger;
-                    showDev(response);
 
                     if (response.closingDate != null) {
                         showClosedDate(response.closingDate);
@@ -328,15 +322,12 @@ $(function () {
                         hideClosedDate();
                     }
 
-                    // show or hide upcoming activity or add acitivity
                     $("#activity-label").text(tabName);
                     if (!response.activities || response.activities.length === 0) {
                         noMoreDataDown = true;
-                        //return;
                     } else {
                         $("#all-activity-div").removeClass("d-none");
                     }
-                    // select won/lost/nothing todo 
                     $(ids.cSpecialBtn).removeClass('active2');
                     isWon = response.isWon;
                     
@@ -351,14 +342,13 @@ $(function () {
 
                     if (response.isWon === true || response.isWon === false) {
                         $(ids.restoreBtn).removeClass('d-none');
-                        //$(ids.addActiveBtn).removeAttr('disabled');
                         makeDisabledState();
                     } else {
                         $(ids.restoreBtn).addClass('d-none');
                     }
 
                     response.activities.forEach(item => {
-                        if (!item.leadDetailID) return; // skip invalid
+                        if (!item.leadDetailID) return;
                         if (!loadedIds.has(item.leadDetailID)) {
                             loadedIds.add(item.leadDetailID);
                             const activityDate = new Date(item.activityDateTime).toLocaleString('en-GB', options);

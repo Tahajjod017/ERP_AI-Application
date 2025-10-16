@@ -1,4 +1,6 @@
-﻿<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+﻿@using GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <!-- Include Month Select Plugin CSS (important to load for correct styling) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
@@ -147,8 +149,8 @@
                     Export <i class="fa-solid fa-file-export"></i>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" id="export-pdf-btn"><span data-feather="download"></span>PDF</a></li>
-                    <li><a class="dropdown-item" href="javascript:void(0);" id="exportToExcelTaxOverview"><span data-feather="download"></span>Excel</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0);" id="export-pdf-btn"><span data-feather="download"></span>PDF</a></li>
+                    @* <li><a class="dropdown-item" href="javascript:void(0);" id="exportToExcelTaxOverview"><span data-feather="download"></span>Excel</a></li> *@
                 </ul>
             </div>
 
@@ -159,38 +161,40 @@
         <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
 
             <div class="dropdown me-2">
-                <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                    <option value="">Select Company...</option>
-                    <option>CSL</option>
-                    <option>GCTL</option>
+                <select class="form-select" id="OrganizationID" asp-items="@ViewBag.OrganizationDD" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Select Company</option>
                 </select>
             </div>
 
             <div class="dropdown me-2">
-                <select class="form-multi-select" id="multiple-dep-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+                <select class="form-multi-select" asp-items="@ViewBag.DepartmentDD" id="DepartmentID" multiple data-coreui-selection-type="counter" data-coreui-search="true">
                     <option value="">Select Department</option>
-                    <option>Developer</option>
-                    <option>Designer</option>
-                    <option>Finance</option>
                 </select>
             </div>
 
             <div class="dropdown me-2">
-                <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                    <optgroup label="Developer">
-                        <option value="2">Alam</option>
-                        <option value="3">Momin</option>
-                    </optgroup>
-                    <optgroup label="Designer">
-                        <option value="4">Name (id)</option>
-                        <option value="5">Name (id)</option>
-                    </optgroup>
+                <select class="form-multi-select" id="EmployeeID" multiple data-coreui-selection-type="counter" data-coreui-search="true">
+                    @foreach (var group in (Dictionary<string, List<EmployeeGroupVM>>)ViewBag.GroupedEmployees)
+                    {
+                        <optgroup label="@group.Key">
+                            @foreach (var emp in group.Value)
+                            {
+                                <option value="@emp.EmployeeID">@emp.FullName</option>
+                            }
+                        </optgroup>
+                    }
                 </select>
             </div>
             <div class="flatpickr-input-container me-3">
                 <input class="form-control ps-6 flatpickr-input" id="year-month-picker-1" type="text" readonly="readonly" placeholder="Select Month">
                 <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
             </div>
+            <div class="flatpickr-input-container me-3 d-none" id="markAsSaveContainer">
+                <button id="MarkasSaved" class="btn btn-primary btn-sm">
+                    Mark as Save
+                </button>
+            </div>
+
         </div>
 
     </div>
@@ -204,7 +208,7 @@
                     <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
                     <div style="width: 100%;">
                         <select id="payRollEmp-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
-                            <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                          @*   <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option> *@
                             <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
                             <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
                             <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
@@ -224,6 +228,16 @@
                         <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="payRollEmp-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
                     </div>
                 </div>
+              
+                <div class="dropdown me-3 d-flex align-items-center">
+                    <label for="PaidUnpaid" class="me-2 fw-semibold">@Html.SmartLocalize("Salary Status"):</label>
+                    <select id="PaidUnpaid" class="form-select form-select-sm" style="width: auto;" tabindex="10">
+                        <option value="">@Html.SmartLocalize("Select")</option>
+                        <option value="true">@Html.SmartLocalize("Paid")</option>
+                        <option value="false">@Html.SmartLocalize("UnPaid")</option>
+                    </select>
+                </div>
+
                 <div class="dropdown me-3" id="payRollEmp-searchBox">
                     <form class="position-relative" id="payRollEmp-searchForm">
                         <input class="form-control search-input" id="payRollEmp-searchInput" type="search"
@@ -241,15 +255,18 @@
                 <table class="table table-sm fs-9 leads-table">
                     <thead>
                         <tr>
+                            <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input" id="PayRollPaySlip-check-all" />
+                            </th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empId">Employee Id</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empName">Employee Name</th>
+                            <th class="sort align-middle ps-1 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empName">Employee Name</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDept">Department</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empSalary">Salary</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empBonus">Bonus</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDeduction">Deductions</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="netSalary">Net Salary</th>
+                            <th class="sort align-middle ps-0 pe-0 text-uppercase text-nowrap" scope="col">Status</th>
                             <th class="align-middle ps-4 pe-5 text-uppercase text-nowrap">Payslip</th>
-                            
                         </tr>
                     </thead>
                     <tbody  id="PayRollEmpSalary-sellers-body">

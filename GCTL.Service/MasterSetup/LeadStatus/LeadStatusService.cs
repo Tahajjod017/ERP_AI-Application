@@ -1,11 +1,13 @@
 ﻿
 using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.MasterSetup.LeadStatuses;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.MasterSetup.LeadStatuses;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 namespace GCTL.Service.MasterSetup.LeadStatus
 {
     public class LeadStatusService : AppService<GCTL.Data.Models.LeadStatuses>, ILeadStatusService
@@ -43,7 +45,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                     entityToRestore.UpdatedAt = DateTime.Now;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
-                    await _userInfoService.ActionLogAsync("LeadStatuses", ActionName.DataAdd, null, entityToRestore, entityToRestore.LeadStatusID, model);
+                    await _userInfoService.ActionLogAsync("LeadStatus", ActionName.DataAdd, null, entityToRestore, entityToRestore.LeadStatusID, model);
                 }
                 else
                 {
@@ -147,7 +149,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                     return false;
                 }
 
-                //var beforeEntity = JsonConvert.DeserializeObject<LeadStatusVM>(JsonConvert.SerializeObject(entity));
+                var beforeEntity = JsonConvert.DeserializeObject<LeadStatusVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.LeadStatusName = model.LeadStatusName;
                 entity.IsSpecial = model.IsSpecial;
@@ -158,8 +160,8 @@ namespace GCTL.Service.MasterSetup.LeadStatus
 
                 await _genericRepository.UpdateAsync(entity);
 
-                //var afterEntity = JsonConvert.DeserializeObject<LeadStatusVM>(JsonConvert.SerializeObject(entity));
-                //await _userInfoService.ActionLogAsync("Service", ActionName.DataUpdated, beforeEntity, afterEntity, entity.LeadStatusID, model);
+                var afterEntity = JsonConvert.DeserializeObject<LeadStatusVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                await _userInfoService.ActionLogAsync("LeadStatus", ActionName.DataUpdated, beforeEntity, afterEntity, entity.LeadStatusID, model);
 
                 await _genericRepository.CommitTransactionAsync();
 
@@ -188,7 +190,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                     };
                 }
 
-                //var beforeEntity = JsonConvert.DeserializeObject<List<LeadStatusVM>>(JsonConvert.SerializeObject(data));
+                var beforeEntity = JsonConvert.DeserializeObject<List<LeadStatusVM>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
                 var targetIds = data.Select(x => (int?)x.LeadStatusID).ToList();
 
                 foreach (var item in data)
@@ -200,9 +202,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                 }
 
                 await _genericRepository.UpdateRangeAsync(data);
-
-                //await _userInfoService.ActionLogDeleteAsync("Service", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
-
+                await _userInfoService.ActionLogDeleteAsync("LeadStatus", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
                 await _genericRepository.CommitTransactionAsync();
 
                 return new LeadStatusVM

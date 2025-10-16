@@ -1,37 +1,51 @@
-﻿$(document).ready(function () {
+﻿
+
+$(document).ready(function () {
 
     //#region employeeChoices with onchange
 
-    let employeeChoices;
-    function initEmployeeChoices() {
-        employeeChoices = new Choices('#EmployeePersonalId', {
-            removeItemButton: true,
-            shouldSort: false,
-            placeholderValue: 'Select Employee'
-        });
 
-        const employeeElement = document.getElementById('EmployeePersonalId');
-        if (employeeElement) {
-            employeeElement.addEventListener('change', function (e) {
-                const selectedEmployeeId = e.detail.value || e.target.value;
-                if (selectedEmployeeId && selectedEmployeeId !== '') {
-                     loadEmployeeAdditionalData(selectedEmployeeId);
-                    TabChange(selectedEmployeeId) // this function is located in EmployeeTabChange.js
-                } else {
-                    clearForm();
-                }
-            });
+
+
+    //paginationService.init('EmployeePersonalId', {
+    //    apiUrl: '/EmployeePersonal/SearchEmployees',
+    //    pageSize: 50,
+    //    minSearchLength: 2,
+    //    placeholder: 'Select Employee',
+    //    searchPlaceholder: 'Type to search employees...',
+    //    noChoicesText: 'Type 2 or more characters...',
+    //    debounceDelay: 500,
+    //    extraParams: {
+
+    //    },
+    //    onError: (error) => {
+    //        console.error('Employee search failed:', error);
+    //        toastr.error('Failed to load employees');
+    //    }
+    //});
+
+
+   
+    paginationService.init('EmployeePersonalId', {
+        apiUrl: '/EmployeePersonal/SearchEmployees',
+        pageSize: 50,
+        minSearchLength: 2,
+        loadInitial: true,  
+        placeholder: 'Select Employee',
+        searchPlaceholder: 'Type to search...'
+    });
+
+    $('#EmployeePersonalId').on('change', function (e) {
+        const selectedEmployeeId = e.target.value;
+        showDev(selectedEmployeeId, 'Selected Employee ID:');
+        debugger;
+        if (selectedEmployeeId) {
+            loadEmployeeAdditionalData(selectedEmployeeId);
+            TabChange(selectedEmployeeId);
+        } else {
+            clearForm();
         }
-
-        //const lastInt = getLastIntFromUrl();
-        //if (lastInt) {
-        //    loadEmployeeAdditionalData(lastInt);
-        //    TabChange(lastInt);
-        //}
-
-    }
-    document.addEventListener('DOMContentLoaded', initEmployeeChoices);
-    initEmployeeChoices();
+    });
 
     //#endregion
 
@@ -40,13 +54,16 @@
         return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
     }
 
-    //const lastInt = getLastIntFromUrl();
-    //console.log('Last int:', lastInt);
+    const lastInt = getLastIntFromUrl();
+    showDev(lastInt ,'Last int:' );
 
-    //if (lastInt) {
-    //    loadEmployeeContactData(lastInt);
-    //    TabChange(lastInt);
-    //}
+    if (lastInt) {
+        loadEmployeeAdditionalData(lastInt);
+        paginationService.setValue('EmployeePersonalId', lastInt);
+
+
+        //TabChange(lastInt);
+    }
 
 
 
@@ -60,9 +77,9 @@
             data: { id: selectedEmployeeId },
             success: function (data) {
 
-               
+                showDev(data, 'Employee Additional Data:');
 
-                choiceManager.setChoiceValue('EmployeePersonalId', data.employeePersonalId);
+               // choiceManager.setChoiceValue('EmployeePersonalId', data.employeePersonalId);
                 $('#PersonalEmail').val(data.personalEmail);
                 $('#PersonalPhone').val(data.personalPhone);
 
@@ -125,8 +142,12 @@
         $('#WorkPermitExpireDate').val('');
         $('#VisaExpireDate').val('');
 
-        // Reset date pickers if necessary
-        $('.datetimepicker').flatpickr().clear();
+       
+       // $('.datetimepicker').flatpickr().clear();
+
+        paginationService.reset('EmployeePersonalId');
+        $('#PersonalEmail').val('');
+        $('#PersonalPhone').val('');
     }
 
     //#endregion
