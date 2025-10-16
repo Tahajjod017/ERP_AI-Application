@@ -138,6 +138,68 @@
 </style>
 <div class="card">
 
+
+    <div class="flatpickr-input-container me-3 d-none" id="markAsSaveContainerPartial">
+        <button id="MarkasSavedPartial" class="btn btn-primary btn-sm">
+            Mark as Paid Partial
+        </button>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmMarkPaidModalPartial" tabindex="-1" aria-labelledby="confirmMarkPaidModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmMarkPaidModalLabel">Confirm Mark as Paid Partial</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="col-sm-6">
+                                <span>Name: <strong id="empName"></strong></span>
+                            </div>
+                            <p class="extra-notes"><strong>Earnings</strong></p>
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <strong class="ms-2">Basic</strong>
+                                            <span class="me-2 float-end" id="BasicSalary"></span>
+                                        </td>
+                                    </tr>
+                                <tbody id="allowanceTable"></tbody>
+                                <tbody id="benefitTable"></tbody>
+                                <tr>
+                                    <td>
+                                        <strong class="ms-2">Total Earnings</strong>
+                                        <span class="me-2 float-end">
+                                            <strong id="TotalSalary"></strong>
+                                        </span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                           
+                            <h6 id="NetPay"></h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="confirmMarkPaidBtnPartial">
+                        Yes, Mark as Paid Partial
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="card-header mb-0 pb-2">
 
 
@@ -189,11 +251,34 @@
                 <input class="form-control ps-6 flatpickr-input" id="year-month-picker-1" type="text" readonly="readonly" placeholder="Select Month">
                 <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
             </div>
+
             <div class="flatpickr-input-container me-3 d-none" id="markAsSaveContainer">
                 <button id="MarkasSaved" class="btn btn-primary btn-sm">
-                    Mark as Save
+                    Mark as Paid
                 </button>
             </div>
+
+            <!-- Confirmation Modal -->
+            <div class="modal fade" id="confirmMarkPaidModal" tabindex="-1" aria-labelledby="confirmMarkPaidModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmMarkPaidModalLabel">Confirm Mark as Paid</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to mark the selected employees as <strong>Paid</strong>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary btn-sm" id="confirmMarkPaidBtn">Yes, Mark as Paid</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
 
         </div>
 
@@ -228,7 +313,10 @@
                         <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="payRollEmp-bulkDelBtn">@Html.SmartLocalize("Delete")</button>
                     </div>
                 </div>
-              
+
+
+                
+
                 <div class="dropdown me-3 d-flex align-items-center">
                     <label for="PaidUnpaid" class="me-2 fw-semibold">@Html.SmartLocalize("Salary Status"):</label>
                     <select id="PaidUnpaid" class="form-select form-select-sm" style="width: auto;" tabindex="10">
@@ -293,6 +381,8 @@
     </div>
 
 </div>
+
+
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 

@@ -34,6 +34,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+
     public virtual DbSet<Attendance> Attendance { get; set; }
 
     public virtual DbSet<AttendanceLog> AttendanceLog { get; set; }
@@ -582,8 +583,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
-.HasDiscriminator<string>("Discriminator")
-.HasValue<ApplicationUser>("ApplicationUser");
+ .HasDiscriminator<string>("Discriminator")
+ .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
@@ -751,7 +752,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.SalaryMax).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.SalaryMin).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Value).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.Value).HasColumnType("decimal(10, 2)");
 
             entity.HasOne(d => d.Benefit).WithMany(p => p.BenefitSetups)
                 .HasForeignKey(d => d.BenefitID)
@@ -1740,7 +1741,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.SalaryMax).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.SalaryMin).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Value).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.Value).HasColumnType("decimal(10, 2)");
 
             entity.HasOne(d => d.CalculationType).WithMany(p => p.EmployeeAllowanceSetup)
                 .HasForeignKey(d => d.CalculationTypeID)
@@ -4007,6 +4008,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.IsPercentage).HasDefaultValue(false);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.PaidAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.PayAllowancBenifitName).HasMaxLength(200);
             entity.Property(e => e.PercentageOfBasic).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
@@ -4069,6 +4071,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("PaySlips", "Payroll");
 
+            entity.Property(e => e.BasicPaidAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.BasicSalary).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -4077,6 +4080,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.IsPaid).HasDefaultValue(false);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.PaidAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PaySlipsCreatedByNavigation)

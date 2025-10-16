@@ -35,6 +35,8 @@ public partial class PayAllowancBenifits
 
     public int? DeletedBy { get; set; }
 
+    public decimal? PaidAmount { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

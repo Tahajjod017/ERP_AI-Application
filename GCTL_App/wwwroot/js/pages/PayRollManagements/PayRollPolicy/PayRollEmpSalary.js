@@ -34,6 +34,139 @@
     // #endregion
 
 
+    $(document).on("change", ".PayRolltaxSettings-selectItem, #PayRollPaySlip-check-all", function () {
+        let anyChecked = $(".PayRolltaxSettings-selectItem:checked").length > 0;
+
+        if (anyChecked) {
+            $("#markAsSaveContainerPartial").removeClass("d-none"); // show button
+        } else {
+            $("#markAsSaveContainerPartial").addClass("d-none"); // hide button
+        }
+    });
+
+
+    // 🟢 Show partial payment modal with data
+    $("#MarkasSavedPartial").on("click", async function (e) {
+        e.preventDefault();
+
+        // Assuming you have a selected employee or stored ID
+        let selectedEmployeeId = $(".PayRolltaxSettings-selectItem:checked").first().data("id");
+        if (!selectedEmployeeId) {
+            toastr.info("Please select an employee first!");
+            return;
+        }
+
+        // Load payslip data
+        try {
+            const response = await $.ajax({
+                url: '/PaySlipForEmp/GetPaySlip',
+                type: 'GET',
+                data: { id: selectedEmployeeId },
+                dataType: 'json'
+            });
+
+            if (response.success) {
+                const data = response.data;
+                console.log("Partial Pay Data:", data);
+                $('#empName').text(data.employeeName);
+                // Fill modal fields
+                $('#BasicSalary').text(parseFloat(data.basicSalary).toFixed(2));
+
+                // ✅ Allowances (use AllowanceSalary from backend)
+                let allowanceRows = "";
+                data.allowances.forEach(a => {
+                    allowanceRows += `
+                 <tr>
+                     <td class="align-middle border-end" style="width:60%;">
+                         <strong class="ms-2">${a.type} (${a.displayValue})</strong>
+                     </td>
+                     <td class="align-middle text-end border-end" style="width:20%;">
+                         ${Math.floor(a.allowanceSalary).toFixed(2)}
+                     </td>
+                     <td class="align-middle text-end" style="width:20%;">
+                         <input type="number" class="form-control form-control-sm text-end allowance-input" 
+                                style="max-width: 138px; margin: 0 auto;" 
+                                data-type="${a.type}" value="${Math.floor(a.allowanceSalary)}" />
+                     </td>
+                 </tr>`;
+                             });
+                $("#allowanceTable").html(allowanceRows);
+
+                // ✅ Benefits (same structure)
+                let benefitRows = "";
+                data.beneFits.forEach(b => {
+                    benefitRows += `
+                   <tr>
+                       <td class="align-middle border-end" style="width:60%;">
+                           <strong class="ms-2">${b.type} (${b.displayValue})</strong>
+                       </td>
+                       <td class="align-middle text-end border-end" style="width:20%;">
+                           ${Math.floor(b.benefitsSalary).toFixed(2)}
+                       </td>
+                       <td class="align-middle text-end" style="width:20%;">
+                           <input type="number" class="form-control form-control-sm text-end benefit-input" 
+                                  style="max-width:138px; margin: 0 auto;" 
+                                  data-type="${b.type}" value="${Math.floor(b.benefitsSalary)}" />
+                       </td>
+                   </tr>`;
+                });
+                $('#benefitTable').html(benefitRows);
+
+
+
+                // Totals
+                $('#TotalSalary').text(parseFloat(data.totalSalary).toFixed(2));
+                $('#NetPay').text('Net Pay: ' + parseFloat(data.netPay).toFixed(2));
+
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('confirmMarkPaidModalPartial'));
+                modal.show();
+
+                // Save employee ID to modal data for later
+                $("#confirmMarkPaidModalPartial").data("employeeId", selectedEmployeeId);
+            } else {
+                toastr.error("Failed to load payslip: " + response.message);
+            }
+        } catch (err) {
+            console.error("Error fetching payslip:", err);
+            toastr.error("An error occurred while fetching the payslip.");
+        }
+    });
+
+    // 🟢 Confirm "Mark as Paid Partial" button
+    $("#confirmMarkPaidBtnPartial").on("click", async function () {
+        const empId = $("#confirmMarkPaidModalPartial").data("employeeId");
+        if (!empId) return;
+
+        try {
+            showLoadingIndicator();
+            const response = await $.ajax({
+                url: "/PaySlipForEmp/MarkPartialPaid",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ EmployeeID: empId })
+            });
+
+            if (response.success) {
+                toastr.success(response.message || "Marked as partially paid!");
+                loadTableData();
+            } else {
+                toastr.error(response.message || "Failed to mark partial payment!");
+            }
+        } catch (err) {
+            console.error("Error marking partial payment:", err);
+            toastr.error("Something went wrong.");
+        } finally {
+            hideLoadingIndicator();
+            const modalEl = document.getElementById('confirmMarkPaidModalPartial');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide(); 
+        }
+    });
+
+
+
+
     //#region
 
 
@@ -59,7 +192,10 @@
     });
 
     // 🟢 Handle Save click
-    $("#MarkasSaved").on("click", async function (e) {
+    //
+
+    // 🟢 Handle Save click - show confirmation first
+    $("#MarkasSaved").on("click", function (e) {
         e.preventDefault();
 
         let selectedItems = $(".PayRolltaxSettings-selectItem:checked").map(function () {
@@ -73,12 +209,23 @@
             return;
         }
 
-        const $button = $("#MarkasSaved");
+        // Store selectedItems temporarily in modal data
+        $("#confirmMarkPaidModal").data("selectedItems", selectedItems);
+
+        // Show confirmation modal
+        var modal = new bootstrap.Modal(document.getElementById('confirmMarkPaidModal'));
+        modal.show();
+    });
+
+    // 🟢 Confirm button in modal
+    $("#confirmMarkPaidBtn").on("click", async function () {
+        var $button = $("#MarkasSaved");
+        var selectedItems = $("#confirmMarkPaidModal").data("selectedItems");
+
+        $button.prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+        showLoadingIndicator();
 
         try {
-            $button.prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
-            showLoadingIndicator();
-
             const response = await $.ajax({
                 url: "/PaySlipForEmp/GenerateMultiplePDFs",
                 type: "POST",
@@ -96,16 +243,19 @@
             console.error("Error generating payslips:", err);
             toastr.error("Error generating payslips. Please try again.");
         } finally {
-            $button.prop("disabled", false).html("Mark as Save");
-            $(".PayRolltaxSettings-selectItem").prop("checked", false);
-            $("#PayRollPaySlip-check-all").prop("checked", false);
-            $(`.IsPaidCheckbox-selectItem`).prop("checked", false);
+            $button.prop("disabled", false).html("Mark as Paid");
+            $(".PayRolltaxSettings-selectItem, #PayRollPaySlip-check-all, .IsPaidCheckbox-selectItem").prop("checked", false);
             hideLoadingIndicator();
-            $("#markAsSaveContainer").addClass("d-none"); 
+            $("#markAsSaveContainer").addClass("d-none");
+
+            // Hide modal
+            var modalEl = document.getElementById('confirmMarkPaidModal');
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
         }
     });
 
-
+    //
 
 
     $("#export-pdf-btn").on("click", async function (e) {
