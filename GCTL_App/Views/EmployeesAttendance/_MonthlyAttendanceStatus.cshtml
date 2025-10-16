@@ -2,21 +2,56 @@
 @*
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
+<link href="~/css/responsivecode/attendencestatus.css" rel="stylesheet" />
+<style>
+    #days-counter {
+        background-color: var(--bs-body-bg);
+        border: 1px solid var(--bs-border-color);
+    }
 
+</style>
 <div class="row my-4 ">
     <div class="col-12 col-lg-12 col-md-12 flex-column">
         <div class="row g-3 row-deck">
 
-            <div class="col-12 col-xl-4 col-md-4">
+            @* <div class="col-12 col-xl-4 col-md-4">
                 <div class="card">
                     <div class="card-header py-3">
-                        <h3 class="text-body-emphasis">Monthly Attendance Status</h3>
+                        <h4 class="text-body-emphasis">Monthly Attendance Status(@DateTime.Now.ToString("MMMM"))</h4>
                     </div>
                     <div class="card-body">
                         <div id="employee-attendance-status-piechart" style="position: relative; height: 20rem; overflow: hidden;"></div>
                     </div>
+                    <div class="days-counter" id="days-counter">
+                        <span class="days_present" id="days-present">14</span>
+                        <span class="days_caption" id="days-caption">out of 30 days</span>
+                    </div>
+                </div>
+            </div> *@
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100">
+                    <div class="card-header py-3 text-center text-md-start">
+                        <h4 class="text-body-emphasis mb-0">
+                            Monthly Attendance Status <span class="text-secondary" id="month-label">(October)</span>
+                        </h4>
+                    </div>
+
+                    <div class="card-body">
+                        <div id="employee-attendance-status-piechart"
+                             style="position: relative; height: 20rem; overflow: hidden;"></div>
+                    </div>
+
+                    <!-- Minimal days counter (centered, no box) -->
+                    <div class="card-footer bg-transparent border-0 text-center py-3">
+                        <div id="days-counter" class="d-flex flex-column align-items-center">
+                            <span id="days-present" class="fw-bold fs-4 text-dark">13</span>
+                            <span id="days-caption" class="text-secondary small fw-semibold">out of 31 days</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+
 
 
         

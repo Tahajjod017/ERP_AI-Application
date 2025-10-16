@@ -486,7 +486,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             {
                 //TotalWorkingHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes + totalLateMinutes + totalEarlyMinutes),
                 TotalWorkingHours = FormatTime(shiftDurationMinutes),
-                ProductiveHours = FormatTime(totalRegularMinutes + totalOvertimeMinutes),
+                ProductiveHours = FormatTime(totalRegularMinutes),
                 BreakHours = FormatTime(totalBreakMinutes),
                 Overtime = FormatTime(totalOvertimeMinutes),
                 LateHours = FormatTime(totalLateMinutes),
@@ -532,11 +532,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                             && x.Attendance.EmployeeID == userId
                             && x.CHECKTIME_UTC >= today
                             && x.CHECKTIME_UTC < tomorrow)
-                .OrderByDescending(x => x.CHECKTIME_UTC)
+                .OrderBy(x => x.CHECKTIME_UTC)
                 .Select(x => x.CHECKTIME_UTC)
                 
                 .ToListAsync();
-            int count = punchTimes.Count;
+           // int count = punchTimes.Count;
 
             var result = punchTimes
                // consistent with your ViewBag logic
@@ -547,8 +547,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                 
 
                    // var type = index % 2 == 0 ? "Punch In" : "Punch Out";
-                    int chronologicalIndex = count - 1 - index;
-                    var type = chronologicalIndex % 2 == 0 ? "Punch In" : "Punch Out";
+                  //  int chronologicalIndex = count - 1 - index;
+                    var type = index % 2 == 0 ? "Punch In" : "Punch Out";
 
                     return new PunchActivityDto
                     {
@@ -1070,6 +1070,10 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             var now = DateTime.UtcNow;
             var from = new DateOnly(now.Year, now.Month, 1);
             var to = DateOnly.FromDateTime(now);
+
+            
+            var daysInMonth = DateTime.DaysInMonth(now.Year, now.Month);
+
             // All days in [from..to]
             var allDays = Enumerable.Range(0, to.Day)
                                     .Select(i => from.AddDays(i))
@@ -1089,8 +1093,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             var holidays = await _genericHolidays.All()
                 .Where(h => h.OrganizationID == organizationId
                             && (organizationBranchId == null || h.OrganizationBranchID == organizationBranchId)
-                            && DateOnly.FromDateTime(h.StartDate.Value) <= from
-                            && DateOnly.FromDateTime(h.EndDate.Value) >= to)
+                            && DateOnly.FromDateTime(h.StartDate.Value) >= from
+                            && DateOnly.FromDateTime(h.EndDate.Value) <= to)
                 .ToListAsync();
 
             HashSet<DateOnly> holidayDays = new();
@@ -1142,13 +1146,15 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
             int totalAbsent = workingDays.Count - totalPresent;
             int totalLate = attendanceData.Count(a => a.LateTimeMinutes.HasValue);
             int totalEarlyLeave = attendanceData.Count(a => a.EarlyTimeMinutes.HasValue);
-
+            var daysElapsed = workingDays.Count(d => d <= to); // 1..31 (includes today)
             return new EmployeeStatusReportVM
             {
                 Present = totalPresent,
                 Absent = totalAbsent,
                 Late = totalLate,
-                Early = totalEarlyLeave
+                Early = totalEarlyLeave,
+                DaysElapsed = daysElapsed,
+                DaysInMonth = daysInMonth,
 
             };
 
