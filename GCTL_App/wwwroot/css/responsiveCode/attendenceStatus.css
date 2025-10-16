@@ -1,0 +1,38 @@
+﻿@media (max-width: 576px) {
+  #days-counter {
+    min-width: 100px;
+    padding: 0.6rem 1rem;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 992px) {
+  #days-counter {
+    min-width: 120px;
+  }
+}
+
+@media (min-width: 993px) {
+  #days-counter {
+    min-width: 140px;
+  }
+}
+
+#days-counter {
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+#days-present {
+    line-height: 1;
+}
+
+@media (max-width: 576px) {
+    #days-present {
+        font-size: 1.25rem;
+    }
+
+    #days-caption {
+        font-size: 0.8rem;
+    }
+}
+

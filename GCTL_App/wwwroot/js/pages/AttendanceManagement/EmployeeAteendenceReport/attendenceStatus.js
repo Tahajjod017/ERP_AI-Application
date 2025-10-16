@@ -425,7 +425,7 @@ function fetchSessionData(dateStr) {
     const input = document.getElementById("dateRangePicker");
     const selectedDate = dateStr || (input ? input.value : "");
 
-    if (!selectedDate) return; // তারিখ না থাকলে কল না দেই
+    if (!selectedDate) return; 
 
     $.ajax({
         url: "/EmployeesAttendance/GetAttendanceProgressBar",
@@ -435,7 +435,7 @@ function fetchSessionData(dateStr) {
 
         success: function (response) {
             if (response) {
-                // আপনার বিদ্যমান ফাংশন—আগে থেকেই আছে ধরে নিচ্ছি
+              
                 updateSessionHours(response);
                 updateProgressBars(response);
                 const $badgeBox = $("#statusBadge");
@@ -443,7 +443,7 @@ function fetchSessionData(dateStr) {
                 const $totalHoursBox = $("#totalHoursBox");
 
                 const hasCheckIn = !!response.hasCheckIn;
-                const production = response.productionTime || response.productiveHours || "";
+                const production = response.productiveHours || "";
                 const checkInTime = response.checkInTime || "";
                 const totalWorkingHours = response.totalWorkingHours || "";
 
@@ -642,12 +642,17 @@ function updateAttendancePieChart(present, absent, leave, late) {
         },
         series: [
             {
+                //name: 'Monthly Report',
+                //type: 'pie',
+                //radius: ['0%', '70%'],
+                //center: ['50%', '70%'],
+                //startAngle: 180,
+                //endAngle: 360,
                 name: 'Monthly Report',
                 type: 'pie',
-                radius: ['40%', '70%'],
-                center: ['50%', '70%'],
-                startAngle: 180,
-                endAngle: 360,
+                radius: ['0%', '70%'],
+                center: ['50%', '50%'], // Optional: move center vertically to balance layout
+                startAngle: 90,
                 data: [
                     {
                         value: present, name: 'Present',
@@ -699,6 +704,13 @@ function AttendancePieChar() {
             if (response) {
                 // Update session hours using pre-calculated data
                 updateAttendancePieChart(response.present, response.absent, response.late, response.early);
+                // NEW: show "till now days out of total days"
+                // “till now out of total (month)”
+                document.getElementById('days-present').textContent = response.daysElapsed;
+                document.getElementById('days-caption').textContent = `out of ${response.daysInMonth} days`;
+
+                const month = new Date().toLocaleString(undefined, { month: 'long', year: 'numeric' });
+                document.getElementById('month-label').textContent = `(${month})`;
 
             } else {
                 console.error("Invalid data received");
