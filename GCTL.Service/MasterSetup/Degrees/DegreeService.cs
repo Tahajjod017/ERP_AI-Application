@@ -76,6 +76,7 @@ namespace GCTL.Service.MasterSetup.Degrees
                 return false;
             }
         }
+
         #endregion
 
 
@@ -95,6 +96,7 @@ namespace GCTL.Service.MasterSetup.Degrees
                 {
                     return false;
                 }
+
                 var beforeEntity = JsonConvert.DeserializeObject<DegreeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
                 entity.DegreeName = model.DegreeName;
                 entity.UpdatedAt = DateTime.Now;
