@@ -355,37 +355,61 @@ namespace GCTL.Service.CRM.LeadsActivities
 
             //var emailService = new EmailService1();
             string recipientEmail = emailOverride ?? model.Email;
-
-            // 🔹 Build the table rows using foreach
             var activityRows = new StringBuilder();
 
-            foreach (var item in model.Activities) {
-                var activityTableHtml = $@"
-                        <tr>
-                          <td style=""padding: 0 20px 20px 20px;"">
-                            <table id=""data-table"" border=""1"" cellspacing=""0"" cellpadding=""5"" style=""border-collapse: collapse; width: 100%;"">
-                              <thead style=""background-color: #f2f2f2; text-transform: uppercase;"">
-                                <tr>
-                                  <th>#</th>
-                                  <th>Lead Name</th>
-                                  <th>Customer Name</th>
-                                  <th>Activity Type</th>
-                                  <th>Date & Time</th>
-                                  <th>Note</th>
-                                  <th>Owner Name</th>
-                                  <th>Team Name</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                            ";
-                activityRows.AppendLine(activityTableHtml);
+            if (model.Activities != null && model.Activities.Any())
+            {
+                // Group all activities by LeadOwnerId
+                var groupedActivities = model.Activities
+                    .GroupBy(a => a.LeadOwnerId)
+                    .ToList();
 
-
-
-                if (model.Activities != null && model.Activities.Any())
+                foreach (var group in groupedActivities)
                 {
+                    // Get owner info from first activity in the group
+                    var ownerName = group.First().LeadOwner ?? "Unknown Owner";
+                    var teamName = model.TeamName ?? "Unknown Team";
+                    if (roleName == "admin" && model.SubEmployees != null && model.SubEmployees.Any())
+                    {
+                        var matchingSub = model.SubEmployees.FirstOrDefault(sub =>
+                            sub.Activities.Any(a => a.LeadOwnerId == group.First().LeadOwnerId));
+
+                        if (matchingSub != null && !string.IsNullOrEmpty(matchingSub.TeamName))
+                        {
+                            teamName = matchingSub.TeamName;
+                        }
+                    }
+                    var totalCount = group.Count();
+
+                    // Section Header
+                    activityRows.AppendLine($@"
+            <tr>
+                <td style=""padding: 10px 20px;"">
+                    <h3 style=""margin: 10px 0; color: #333;"">Owner: {ownerName}</h3>
+                    <p style=""margin: 0 0 10px 0; font-size: 13px; color: #555;"">
+                        Team: {teamName} | Total Activities: {totalCount}
+                    </p>
+
+                    <table id=""data-table"" border=""1"" cellspacing=""0"" cellpadding=""5"" 
+                           style=""border-collapse: collapse; width: 100%; font-size: 13px;"">
+                        <thead style=""background-color: #f2f2f2; text-transform: uppercase;"">
+                            <tr>
+                                <th>#</th>
+                                <th>Lead Name</th>
+                                <th>Customer Name</th>
+                                <th>Activity Type</th>
+                                <th>Date & Time</th>
+                                <th>Note</th>
+                                <th>Lead Stage</th>
+                                <th>Lead Priority</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        ");
+
+                    // Table Rows
                     int index = 1;
-                    foreach (var activity in model.Activities)
+                    foreach (var activity in group)
                     {
                         activityRows.AppendLine($@"
                 <tr>
@@ -395,30 +419,31 @@ namespace GCTL.Service.CRM.LeadsActivities
                     <td>{activity.ActivityType}</td>
                     <td>{activity.ActivityDateTime:dd-MMM-yyyy hh:mm tt}</td>
                     <td>{activity.ActivityNote}</td>
-                    <td>{activity.LeadOwner}</td>
-                    <td>{model.TeamName}</td>
+                    <td>{activity.LeadStage}</td>
+                    <td>{activity.LeadPriority}</td>
                 </tr>");
                         index++;
                     }
+
+                    // Close group table
+                    activityRows.AppendLine(@"
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        ");
                 }
-                else
-                {
-                    activityRows.AppendLine("<tr><td colspan='7' style='text-align:center;'>No activities found</td></tr>");
-                }
-
-
-
-                var endCode = $@"  </tbody>
-                            </table>
-                          </td>
-                        </tr>"";";
-
-                activityRows.AppendLine(endCode);
+            }
+            else
+            {
+                activityRows.AppendLine("<tr><td colspan='8' style='text-align:center;'>No activities found</td></tr>");
             }
 
 
 
-         
+
+
+
 
             string formattedAddress = string.Empty;
 
@@ -816,29 +841,6 @@ namespace GCTL.Service.CRM.LeadsActivities
                       </td>
                   </tr>
                         <!-- Approval Timeline (Horizontal) -->
-
-
-
-                        <!-- Employee Info -->
-                  <tr>
-                      <td class=""content section-info"">
-                          <h2>Employee Information</h2>
-                          <table class=""info-table"" style=""margin-bottom: 10px;"">
-                              <tr>
-                                  <th>Name</th>
-                                  <td>{model.EmployeeName}</td>
-                              </tr>
-                              <tr>
-                                  <th>Team Name</th>
-                                  <td>{model.TeamName}</td>
-                              </tr>
-                              <tr>
-                                  <th>Total Activities</th>
-                                  <td> {model.TotalActivities} </td>
-                              </tr>
-                          </table>
-                      </td>
-                  </tr>
 
 
                   <!-----Table Data --> 

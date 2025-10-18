@@ -22,6 +22,11 @@ public class ActivityDocumentDataSource
         var adminList = new List<ActivityPDFModel>();
 
         var teamList = _teamList.Teams;
+
+        // 🔹 We'll collect all activities from all teams here
+        var allTeamActivities = new List<Activity>();
+        var allTeamMembers = new List<(string TeamName, string MemberName, int? MemberId)>();
+
         foreach (var team in teamList)
         {
             var members = team.TeamMembers;
@@ -31,6 +36,7 @@ public class ActivityDocumentDataSource
                 .Include(u => u.Lead).ThenInclude(l => l.Customer)
                 .Include(u => u.Lead).ThenInclude(l => l.LeadOwner)
                 .Include(u => u.LeadActivityType)
+                .Include(u => u.Lead.LeadStatus)
                 .Where(u => u.Lead.LeadOwnerID.HasValue && memberIds.Contains(u.Lead.LeadOwnerID.Value)
                             && u.ActivityDateTime >= DateTime.UtcNow)
                 .OrderBy(u => u.ActivityDateTime)
@@ -42,10 +48,22 @@ public class ActivityDocumentDataSource
                     ActivityDateTime = u.ActivityDateTime,
                     CustomerName = u.Lead.Customer.FullName,
                     LeadOwner = u.Lead.LeadOwner.FirstName + " " + u.Lead.LeadOwner.LastName,
+                    LeadStage = u.Lead.LeadStatus.LeadStatusName ?? " ",
+                    LeadPriority = u.Lead.ProbabilityPercentage.ToString() ?? " ",
                     LeadOwnerId = u.Lead.LeadOwnerID
                 })
                 .ToListAsync();
 
+            // 🧩 Add this team's activities to the global admin pool
+            allTeamActivities.AddRange(upcomingActivities);
+
+            // Store member info (for sub-grouping later)
+            foreach (var m in members)
+            {
+                allTeamMembers.Add((team.TeamName, m.LeadProjectTeamMemberName, m.LeadProjectTeamMemberID));
+            }
+
+            // 👇 Individual Members
             foreach (var member in members)
             {
                 var memberActivities = upcomingActivities
@@ -54,24 +72,6 @@ public class ActivityDocumentDataSource
 
                 if (memberActivities.Any() && member.IsTeamHead != true)
                 {
-                    // Convert logo to Base64 for email embedding
-                    string base64Image = "";
-                    if (!string.IsNullOrEmpty(member.LogoLink) && File.Exists(member.LogoLink))
-                    {
-                        string extension = Path.GetExtension(member.LogoLink)?.ToLower();
-                        string mimeType = extension switch
-                        {
-                            ".png" => "image/png",
-                            ".jpg" => "image/jpeg",
-                            ".jpeg" => "image/jpeg",
-                            ".gif" => "image/gif",
-                            _ => "image/png"
-                        };
-                        byte[] imageBytes = File.ReadAllBytes(member.LogoLink);
-                        string base64 = Convert.ToBase64String(imageBytes);
-                        base64Image = $"data:{mimeType};base64,{base64}";
-                    }
-
                     individualList.Add(new ActivityPDFModel
                     {
                         CompanyName = member.CompanyName ?? "",
@@ -79,19 +79,17 @@ public class ActivityDocumentDataSource
                         CompanyEmail = member.CompanyEmail ?? "",
                         CompanyPhone = member.CompanyPhone ?? "",
                         CompanyLogo = member.LogoLink,
-                        CompnayLogoBase64 = base64Image,
                         TeamName = team.TeamName,
                         EmployeeName = member.LeadProjectTeamMemberName,
-                        Email = "debanjandevelopment@gmail.com",
-                        //Email = member.LeadProjectTeamMemberEmail, // ✅ actual email
+                        Email = "debanjandevelopment@gmail.com", // or member email
                         IsTeamHead = member.IsTeamHead,
                         Activities = memberActivities,
-                        TotalActivities = memberActivities.Count()
+                        TotalActivities = memberActivities.Count
                     });
                 }
             }
 
-            // Team Leader
+            // 👇 Team Leader
             var leader = members.FirstOrDefault(m => m.IsTeamHead == true);
             if (leader != null && upcomingActivities.Any())
             {
@@ -104,11 +102,10 @@ public class ActivityDocumentDataSource
                     CompanyLogo = leader.LogoLink,
                     TeamName = team.TeamName,
                     EmployeeName = leader.LeadProjectTeamMemberName,
-                    Email = "debanjandevelopment@gmail.com",
-                    //Email = leader.LeadProjectTeamMemberEmail, // ✅ actual email
+                    Email = "debanjandevelopment@gmail.com", // or leader email
                     IsTeamHead = true,
-                    Activities = upcomingActivities, // all team activities
-                    TotalActivities = upcomingActivities.Count(),
+                    Activities = upcomingActivities,
+                    TotalActivities = upcomingActivities.Count,
                     SubEmployees = members
                         .Select(m => new ActivityPDFModel
                         {
@@ -119,36 +116,39 @@ public class ActivityDocumentDataSource
                         }).ToList()
                 });
             }
+        }
 
-            // Admin PDFs (all team member activities)
-            if (upcomingActivities.Any())
+        // 🔹 ADMIN SECTION (gets all team activities)
+        if (allTeamActivities.Any())
+        {
+
+            foreach (var adminUser in _teamList.AdminIds)
             {
-                foreach (var adminUser in _teamList.AdminIds) // ✅ fetch admins from team
+                adminList.Add(new ActivityPDFModel
                 {
-                    adminList.Add(new ActivityPDFModel
-                    {
-                        CompanyName = adminUser.Organization?.OrganizationName ?? "YourCompany",
-                        CompanyAddress = adminUser.Organization?.Address ?? "Your Address",
-                        CompanyEmail = adminUser.Email ?? "",
-                        TeamName = team.TeamName,
-                        EmployeeName = $"",
-                        Email = "debanjandevelopment@gmail.com", // ✅ send to admin
-                        //Email = adminUser.Email, // ✅ send to admin
-                        Activities = upcomingActivities,
-                        TotalActivities = upcomingActivities.Count(),
-                        SubEmployees = members
-                            .Select(m => new ActivityPDFModel
-                            {
-                                EmployeeName = m.LeadProjectTeamMemberName,
-                                Activities = upcomingActivities
-                                    .Where(a => a.LeadOwnerId == m.LeadProjectTeamMemberID)
-                                    .ToList()
-                            }).ToList()
-                    });
-                }
+                    CompanyName = adminUser.Organization?.OrganizationName ?? "YourCompany",
+                    CompanyAddress = adminUser.Organization?.Address ?? "Your Address",
+                    CompanyEmail = adminUser.Email ?? "",
+                    CompanyPhone = "",
+                    TeamName = "All Teams",
+                    EmployeeName = "Admin Overview",
+                    Email = "debanjandevelopment@gmail.com", // or adminUser.Email
+                    Activities = allTeamActivities,
+                    TotalActivities = allTeamActivities.Count,
+                    SubEmployees = allTeamMembers
+                        .Select(m => new ActivityPDFModel
+                        {
+                            TeamName = m.TeamName,
+                            EmployeeName = m.MemberName,
+                            Activities = allTeamActivities
+                                .Where(a => a.LeadOwnerId == m.MemberId)
+                                .ToList()
+                        }).ToList()
+                });
             }
         }
 
         return (individualList, teamLeaderList, adminList);
     }
+
 }

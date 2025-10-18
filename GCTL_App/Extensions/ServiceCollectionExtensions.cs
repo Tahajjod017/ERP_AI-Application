@@ -66,6 +66,7 @@ using GCTL.Service.Employees.EmployeeStatus.Promotion;
 using GCTL.Service.Employees.EmployeeTermination;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmpTransfer;
+using GCTL.Service.FieldServices;
 using GCTL.Service.FileHandler;
 using GCTL.Service.Finance.AddMainAccount;
 using GCTL.Service.Finance.AddSubAccount;
@@ -314,6 +315,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeadsActivityService, LeadsActivityService>();
             services.AddScoped<ILeadActivityTypeService, LeadActivityTypeService>();
             services.AddScoped<IAddTeamService, AddTeamService>();
+            services.AddScoped<ICreateJobService, CreateJobService>();
             #endregion
 
             services.AddHostedService<ScheduledTaskService>();

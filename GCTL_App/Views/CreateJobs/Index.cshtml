@@ -1,4 +1,6 @@
-﻿<style>
+﻿
+@model CreateJobVM
+<style>
     .card-header {
         font-size: 22px!important;
         text-transform: uppercase !important;
@@ -13,13 +15,16 @@
     <h5 class="card-header">Create A New Job</h5>
     <div class="row col-md-12 m-0 pb-3">
         <form action="shift-roster-ui.html">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="CreateJobID" value="" />
             <div class="modal-body pb-0">
                 <div class="row mt-3">
 
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" for="exampleFormControlInput">Customer Name <a class="ms-4" data-bs-toggle="modal" data-bs-target="#addCompanyModal">+add Customer</a></label>
-                            <select class="form-select" id="" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <select class="form-select" asp-for="ServiceID" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
 
                                 <option>Mahamudul Hasan</option>
                                 <option>Mashum Billah</option>
@@ -32,7 +37,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" for="exampleFormControlInput">Job Title</label>
-                            <input class="form-control" id="" type="text" />
+                            <input class="form-control" asp-for="JobTitle" type="text" />
                         </div>
                     </div>
 
@@ -40,7 +45,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" for="organizerMultiple">Job Type</label>
-                            <select class="form-select" id="" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <select class="form-select" asp-for="ServiceID" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
                                 <option value="">Sales</option>
                                 <option>Services</option>
                             </select>
@@ -51,7 +56,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" for="exampleFormControlInput">Team Members</label>
-                            <select class="form-select" id="organizerMultiple" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <select class="form-select" asp-for="TeamMembers" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
                                 <option>Juewal Rana</option>
                                 <option>Nozib Ullah</option>
                                 <option>Korim Shekh</option>
@@ -61,14 +66,14 @@
 
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" for="organizerMultiple">Start Date Time</label>
+                            <label class="form-label" asp-for="StartDate" for="organizerMultiple">Start Date Time</label>
                             <input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" for="organizerMultiple">End Date Time</label>
+                            <label class="form-label" asp-for="EndDate" for="organizerMultiple">End Date Time</label>
                             <input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
                         </div>
                     </div>
@@ -76,7 +81,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label" for="organizerMultiple">Status</label>
-                            <select class="form-select" id="" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                            <select class="form-select" asp-for="StatusID" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
                                 <option value="">New</option>
                                 <option>Close</option>
                                 <option>Done</option>
@@ -90,23 +95,23 @@
                                 <input class="form-check-input" id="flexSwitchCheckDefault" type="checkbox" />
                                 <label class="form-check-label" for="flexSwitchCheckDefault">Job Location Same as Customer Location</label>
                             </div>
-                            <input class="form-control" id="" type="text" />
+                            <input class="form-control" asp-for="JobLocation" id="" type="text" />
                         </div>
                     </div>
 
                     <div class="col-md-6 ">
                         <div class="mb-3">
-                            <label class="form-label" for="exampleFormControlInput">Note</label>
+                            <label class="form-label" asp-for="Note" for="exampleFormControlInput">Note</label>
                             <textarea class="form-control border-translucent" id="" rows="6"></textarea>
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" for="exampleFormControlInput">File Upload</label>
+                            <label class="form-label"  for="exampleFormControlInput">File Upload</label>
                             <div class="dropzone dropzone-multiple p-0" id="dropzone" data-dropzone="data-dropzone" data-options='{"url":"valid/url","maxFiles":1,"dictDefaultMessage":"Choose or Drop a file here"}'>
                                 <div class="fallback">
-                                    <input type="file" name="file" />
+                                    <input type="file" asp-for="file" name="file" />
                                 </div>
                                 <div class="dz-message" data-dz-message="data-dz-message">
                                     <div class="dz-message-text"><img class="me-2" src="../../../assets/img/icons/cloud-upload.svg" width="25" alt="" />Drop your file here</div>

@@ -33,6 +33,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="ViewModels\FieldServices\" />
 		<Folder Include="ViewModels\ProjectManagements\" />
 		<Folder Include="Views\LeadSources\" />
 		<Folder Include="Views\LeadActivityTypes\" />
