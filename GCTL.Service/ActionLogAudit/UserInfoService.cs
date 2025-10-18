@@ -73,31 +73,115 @@ namespace GCTL.Service.ActionLogAudit
         }
 
 
-        public async Task ActionLogAsync<T>(string tergetType, string actionName, T before, T after, int? targetID, BaseViewModel entityVM)
+        //public async Task ActionLogAsync<T>(string tergetType, string actionName, T before, T after, int? targetID, BaseViewModel entityVM)
+        //{
+        //    var jsonSettings = new JsonSerializerSettings
+        //    {
+        //        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        //    };
+        //    var log = new ActionLogs
+        //    {
+        //        CreatedBy = entityVM.CreatedBy,
+        //        ActionName = actionName,
+        //        ActionBefore = JsonConvert.SerializeObject(before, jsonSettings),
+        //        ActionAfter = JsonConvert.SerializeObject(after, jsonSettings),
+        //        UserEmail = entityVM.UserEmail,
+        //        LIP = entityVM.LIP,
+        //        LMAC = entityVM.LMAC,
+        //        CreatedAt = DateTime.UtcNow,
+        //        TargetType = tergetType,
+        //        TargetID = targetID
+
+        //    };
+        //    await _context.ActionLogs.AddAsync(log);
+        //    await _context.SaveChangesAsync();
+        //}
+
+
+
+
+
+        public async Task ActionLogAsync<T>(
+      string targetType,
+      string actionName,
+      T before,
+      T after,
+      int? targetID,
+      BaseViewModel entityVM)
         {
             var jsonSettings = new JsonSerializerSettings
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
+                {
+                    NamingStrategy = new Newtonsoft.Json.Serialization.CamelCaseNamingStrategy(),
+                }
             };
+
+            object FilterEntity(object entity)
+            {
+                if (entity == null) return null;
+
+                var type = entity.GetType();
+                var props = type.GetProperties()
+                    .Where(p =>
+                        p.PropertyType.IsPrimitive ||
+                        p.PropertyType == typeof(string) ||
+                        p.PropertyType == typeof(DateTime) ||
+                        p.PropertyType == typeof(decimal) ||
+                        p.PropertyType == typeof(Guid) ||
+                        p.PropertyType == typeof(int) ||
+                        Nullable.GetUnderlyingType(p.PropertyType)?.IsPrimitive == true ||
+                        Nullable.GetUnderlyingType(p.PropertyType) == typeof(DateTime) ||
+                        Nullable.GetUnderlyingType(p.PropertyType) == typeof(decimal))
+                    .ToDictionary(p => p.Name, p => p.GetValue(entity));
+
+                // Exclude global unwanted keys
+                var globalExcludeKeys = new[] { "Message", "UserId", "UserEmail" };
+                props = props.Where(p => !globalExcludeKeys.Contains(p.Key))
+                             .ToDictionary(p => p.Key, p => p.Value);
+
+                // Apply action-specific exclusions
+                if (actionName == ActionName.DataAdd)
+                {
+                    var excludeKeys = new[] { "UpdatedAt", "UpdatedBy", "DeletedAt", "DeletedBy" };
+                    props = props.Where(p => !excludeKeys.Contains(p.Key))
+                                 .ToDictionary(p => p.Key, p => p.Value);
+                }
+                else if (actionName == ActionName.DataUpdated)
+                {
+                    var excludeKeys = new[] { "CreatedAt", "CreatedBy", "DeletedAt", "DeletedBy" };
+                    props = props.Where(p => !excludeKeys.Contains(p.Key))
+                                 .ToDictionary(p => p.Key, p => p.Value);
+                }
+                else if (actionName == ActionName.DataDeleted)
+                {
+                    var excludeKeys = new[] { "CreatedAt", "CreatedBy", "UpdatedAt", "UpdatedBy" };
+                    props = props.Where(p => !excludeKeys.Contains(p.Key))
+                                 .ToDictionary(p => p.Key, p => p.Value);
+                }
+
+                return props;
+            }
+
             var log = new ActionLogs
             {
                 CreatedBy = entityVM.CreatedBy,
                 ActionName = actionName,
-                ActionBefore = JsonConvert.SerializeObject(before, jsonSettings),
-                ActionAfter = JsonConvert.SerializeObject(after, jsonSettings),
+                ActionBefore = JsonConvert.SerializeObject(FilterEntity(before), jsonSettings),
+                ActionAfter = JsonConvert.SerializeObject(FilterEntity(after), jsonSettings),
                 UserEmail = entityVM.UserEmail,
                 LIP = entityVM.LIP,
                 LMAC = entityVM.LMAC,
                 CreatedAt = DateTime.UtcNow,
-                TargetType = tergetType,
+                TargetType = targetType,
                 TargetID = targetID
-
             };
+
             await _context.ActionLogs.AddAsync(log);
             await _context.SaveChangesAsync();
         }
 
-        
 
 
         public async Task ActionLogDeleteAsync<T>(string targetType, string actionName, List<T> beforeList, List<T> afterList, List<int?> targetIds, BaseViewModel entityVM)
@@ -132,10 +216,60 @@ namespace GCTL.Service.ActionLogAudit
             await _context.SaveChangesAsync();
         }
 
+
+
+
+
+
         #endregion
 
         #region Without BaseViewModel
 
+      
+
+        public async Task ActionLogExceptionAsync(string targetType, Exception exception, int? targetId, string actionName)
+        {
+            try
+            {
+                var jsonSettings = new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                };
+                var entityVM = new BaseViewModel();
+                var user = _httpContextAccessor.HttpContext?.User;
+                if (user?.Identity?.IsAuthenticated == true)
+                {
+                    SetUserInfo(entityVM, user, _httpContextAccessor.HttpContext);
+                }
+                var exceptionDetails = new
+                {
+                    exception.Message,
+                    //exception.StackTrace,
+                    //InnerException = exception.InnerException?.Message
+                };
+
+                var log = new ActionLogs
+                {
+                    CreatedBy = entityVM?.CreatedBy,
+                    UserEmail = entityVM?.UserEmail,
+                    LIP = entityVM?.LIP,
+                    LMAC = entityVM?.LMAC,
+                    ActionName = actionName,
+                    ActionBefore = null,
+                    ActionAfter = JsonConvert.SerializeObject(exceptionDetails, jsonSettings),
+                    CreatedAt = DateTime.UtcNow,
+                    TargetType = targetType,
+                    TargetID = targetId
+                };
+
+                await _context.ActionLogs.AddAsync(log);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception logEx)
+            {
+                Console.WriteLine("Failed to log exception: " + logEx.Message);
+            }
+        }
         public async Task ActionLogDeleteAsync<T>(string targetType, string actionName, List<T> beforeList, List<T> afterList, List<int?> targetIds)
         {
             var logs = new List<ActionLogs>();
@@ -173,6 +307,8 @@ namespace GCTL.Service.ActionLogAudit
             await _context.SaveChangesAsync();
         }
 
+
+
         public async Task ActionLogAsync<T>(string tergetType, string actionName, T before, T after, int? targetID)
         {
             var jsonSettings = new JsonSerializerSettings
@@ -201,49 +337,6 @@ namespace GCTL.Service.ActionLogAudit
             };
             await _context.ActionLogs.AddAsync(log);
             await _context.SaveChangesAsync();
-        }
-        public async Task ActionLogExceptionAsync(string targetType, Exception exception, int? targetId, string actionName)
-        {
-            try
-            {
-                var jsonSettings = new JsonSerializerSettings
-                {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                };
-                var entityVM = new BaseViewModel();
-                var user = _httpContextAccessor.HttpContext?.User;
-                if (user?.Identity?.IsAuthenticated == true)
-                {
-                    SetUserInfo(entityVM, user, _httpContextAccessor.HttpContext);
-                }
-                var exceptionDetails = new
-                {
-                    exception.Message,
-                    exception.StackTrace,
-                    InnerException = exception.InnerException?.Message
-                };
-
-                var log = new ActionLogs
-                {
-                    CreatedBy = entityVM?.CreatedBy,
-                    UserEmail = entityVM?.UserEmail,
-                    LIP = entityVM?.LIP,
-                    LMAC = entityVM?.LMAC,
-                    ActionName = actionName,
-                    ActionBefore = null,
-                    ActionAfter = JsonConvert.SerializeObject(exceptionDetails, jsonSettings),
-                    CreatedAt = DateTime.UtcNow,
-                    TargetType = targetType,
-                    TargetID = targetId
-                };
-
-                await _context.ActionLogs.AddAsync(log);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception logEx)
-            {
-                Console.WriteLine("Failed to log exception: " + logEx.Message);
-            }
         }
         #endregion
 
