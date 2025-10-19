@@ -14,7 +14,7 @@ using System.Text;
 namespace GCTL.Service.CRM.LeadsActivities
 {
     public class LeadsActivityService : ILeadsActivityService
-    {
+    { 
         #region services
         private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
         private readonly IPdfFileHandler _pdfFileHandlerService;
@@ -425,7 +425,6 @@ namespace GCTL.Service.CRM.LeadsActivities
                         index++;
                     }
 
-                    // Close group table
                     activityRows.AppendLine(@"
                         </tbody>
                     </table>
@@ -438,11 +437,6 @@ namespace GCTL.Service.CRM.LeadsActivities
             {
                 activityRows.AppendLine("<tr><td colspan='8' style='text-align:center;'>No activities found</td></tr>");
             }
-
-
-
-
-
 
 
             string formattedAddress = string.Empty;

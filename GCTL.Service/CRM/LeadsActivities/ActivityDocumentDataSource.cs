@@ -113,7 +113,7 @@ public class ActivityDocumentDataSource
                             Activities = upcomingActivities
                                 .Where(a => a.LeadOwnerId == m.LeadProjectTeamMemberID)
                                 .ToList()
-                        }).ToList()
+                        }).Where(t=> t.Activities.Count > 0).ToList()
                 });
             }
         }
@@ -143,7 +143,7 @@ public class ActivityDocumentDataSource
                             Activities = allTeamActivities
                                 .Where(a => a.LeadOwnerId == m.MemberId)
                                 .ToList()
-                        }).ToList()
+                        }).Where(t=> t.Activities.Count > 0).ToList()
                 });
             }
         }
