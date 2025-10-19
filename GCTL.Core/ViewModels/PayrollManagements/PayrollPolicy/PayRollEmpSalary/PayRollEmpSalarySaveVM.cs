@@ -35,6 +35,8 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
     public class PaySlipRequestVM: BaseViewModel
     {
         public List<PaySlipEmployeeVM> Employees { get; set; } = new();
+        public decimal PaidPercentageBasic { get; set; }
+        public decimal PaidPercentageBonus { get; set; }
     }
 
     public class PaySlipEmployeeVM

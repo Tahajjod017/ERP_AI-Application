@@ -34,29 +34,19 @@
     // #endregion
 
 
-    $(document).on("change", ".PayRolltaxSettings-selectItem, #PayRollPaySlip-check-all", function () {
-        let anyChecked = $(".PayRolltaxSettings-selectItem:checked").length > 0;
-
-        if (anyChecked) {
-            $("#markAsSaveContainerPartial").removeClass("d-none"); // show button
-        } else {
-            $("#markAsSaveContainerPartial").addClass("d-none"); // hide button
-        }
-    });
+    
 
 
-    // 🟢 Show partial payment modal with data
-    $("#MarkasSavedPartial").on("click", async function (e) {
+    // 🟢 Open partial pay modal when clicking the % icon
+    $(document).on("click", ".markPaidPartial", async function (e) {
         e.preventDefault();
 
-        // Assuming you have a selected employee or stored ID
-        let selectedEmployeeId = $(".PayRolltaxSettings-selectItem:checked").first().data("id");
+        const selectedEmployeeId = $(this).data('id');
         if (!selectedEmployeeId) {
-            toastr.info("Please select an employee first!");
+            toastr.info("Invalid employee!");
             return;
         }
 
-        // Load payslip data
         try {
             const response = await $.ajax({
                 url: '/PaySlipForEmp/GetPaySlip',
@@ -67,103 +57,111 @@
 
             if (response.success) {
                 const data = response.data;
-                console.log("Partial Pay Data:", data);
+
                 $('#empName').text(data.employeeName);
-                // Fill modal fields
                 $('#BasicSalary').text(parseFloat(data.basicSalary).toFixed(2));
 
-                // ✅ Allowances (use AllowanceSalary from backend)
+                // ✅ Allowances
                 let allowanceRows = "";
                 data.allowances.forEach(a => {
                     allowanceRows += `
-                 <tr>
-                     <td class="align-middle border-end" style="width:60%;">
-                         <strong class="ms-2">${a.type} (${a.displayValue})</strong>
-                     </td>
-                     <td class="align-middle text-end border-end" style="width:20%;">
-                         ${Math.floor(a.allowanceSalary).toFixed(2)}
-                     </td>
-                     <td class="align-middle text-end" style="width:20%;">
-                         <input type="number" class="form-control form-control-sm text-end allowance-input" 
-                                style="max-width: 138px; margin: 0 auto;" 
-                                data-type="${a.type}" value="${Math.floor(a.allowanceSalary)}" />
-                     </td>
-                 </tr>`;
-                             });
+                    <tr>
+                        <td style="width:60%">
+                            <strong>${a.type} (${a.displayValue})</strong>
+                        </td>
+                        <td class="text-end" style="width:20%">
+                            ${parseFloat(a.allowanceSalary).toFixed(2)}
+                        </td>
+                        <td class="text-end" style="width:20%">
+                            <input type="number" class="form-control form-control-sm text-end allowance-input"
+                                data-type="${a.type}" value="${parseFloat(a.allowanceSalary).toFixed(2)}" />
+                        </td>
+                    </tr>`;
+                });
                 $("#allowanceTable").html(allowanceRows);
 
-                // ✅ Benefits (same structure)
+                // ✅ Benefits
                 let benefitRows = "";
                 data.beneFits.forEach(b => {
                     benefitRows += `
-                   <tr>
-                       <td class="align-middle border-end" style="width:60%;">
-                           <strong class="ms-2">${b.type} (${b.displayValue})</strong>
-                       </td>
-                       <td class="align-middle text-end border-end" style="width:20%;">
-                           ${Math.floor(b.benefitsSalary).toFixed(2)}
-                       </td>
-                       <td class="align-middle text-end" style="width:20%;">
-                           <input type="number" class="form-control form-control-sm text-end benefit-input" 
-                                  style="max-width:138px; margin: 0 auto;" 
-                                  data-type="${b.type}" value="${Math.floor(b.benefitsSalary)}" />
-                       </td>
-                   </tr>`;
+                    <tr>
+                        <td style="width:60%">
+                            <strong>${b.type} (${b.displayValue})</strong>
+                        </td>
+                        <td class="text-end" style="width:20%">
+                            ${parseFloat(b.benefitsSalary).toFixed(2)}
+                        </td>
+                        <td class="text-end" style="width:20%">
+                            <input type="number" class="form-control form-control-sm text-end benefit-input"
+                                data-type="${b.type}" value="${parseFloat(b.benefitsSalary).toFixed(2)}" />
+                        </td>
+                    </tr>`;
                 });
-                $('#benefitTable').html(benefitRows);
+                $("#benefitTable").html(benefitRows);
 
-
-
-                // Totals
                 $('#TotalSalary').text(parseFloat(data.totalSalary).toFixed(2));
-                $('#NetPay').text('Net Pay: ' + parseFloat(data.netPay).toFixed(2));
+                $('#NetPay').text("Net Pay: " + parseFloat(data.netPay).toFixed(2));
+
+                // Save employee ID
+                $("#confirmMarkPaidModalPartial").data("employeeId", selectedEmployeeId);
 
                 // Show modal
                 const modal = new bootstrap.Modal(document.getElementById('confirmMarkPaidModalPartial'));
                 modal.show();
-
-                // Save employee ID to modal data for later
-                $("#confirmMarkPaidModalPartial").data("employeeId", selectedEmployeeId);
             } else {
-                toastr.error("Failed to load payslip: " + response.message);
+                toastr.error(response.message || "Failed to load payslip!");
             }
         } catch (err) {
-            console.error("Error fetching payslip:", err);
-            toastr.error("An error occurred while fetching the payslip.");
+            console.error("Error loading payslip:", err);
+            toastr.error("An error occurred while loading payslip.");
         }
     });
 
-    // 🟢 Confirm "Mark as Paid Partial" button
+
+    // 🟢 Confirm partial payment
     $("#confirmMarkPaidBtnPartial").on("click", async function () {
         const empId = $("#confirmMarkPaidModalPartial").data("employeeId");
         if (!empId) return;
 
+        // Collect partial values
+        const allowances = $(".allowance-input").map(function () {
+            return { Type: $(this).data("type"), Value: parseFloat($(this).val()) || 0 };
+        }).get();
+
+        const benefits = $(".benefit-input").map(function () {
+            return { Type: $(this).data("type"), Value: parseFloat($(this).val()) || 0 };
+        }).get();
+
         try {
             showLoadingIndicator();
+
             const response = await $.ajax({
                 url: "/PaySlipForEmp/MarkPartialPaid",
                 type: "POST",
                 contentType: "application/json",
-                data: JSON.stringify({ EmployeeID: empId })
+                data: JSON.stringify({
+                    EmployeeID: empId,
+                    Allowances: allowances,
+                    Benefits: benefits
+                })
             });
 
             if (response.success) {
-                toastr.success(response.message || "Marked as partially paid!");
+                toastr.success("Marked as partially paid successfully!");
                 loadTableData();
             } else {
                 toastr.error(response.message || "Failed to mark partial payment!");
             }
         } catch (err) {
-            console.error("Error marking partial payment:", err);
+            console.error("Partial pay error:", err);
             toastr.error("Something went wrong.");
         } finally {
             hideLoadingIndicator();
             const modalEl = document.getElementById('confirmMarkPaidModalPartial');
             const modal = bootstrap.Modal.getInstance(modalEl);
-            modal.hide(); 
+            modal.hide();
         }
     });
-
 
 
 
@@ -217,20 +215,37 @@
         modal.show();
     });
 
+
     // 🟢 Confirm button in modal
     $("#confirmMarkPaidBtn").on("click", async function () {
         var $button = $("#MarkasSaved");
         var selectedItems = $("#confirmMarkPaidModal").data("selectedItems");
+
+        // 🔹 Get Paid Percentage values from modal inputs
+        let paidPercentageBasic = parseFloat($("#paidPercentageBasic").val()) || 0;
+        let paidPercentageBonus = parseFloat($("#paidPercentageBonus").val()) || 0;
+
+        if (paidPercentageBasic < 0 || paidPercentageBasic > 100 || paidPercentageBonus < 0 || paidPercentageBonus > 100) {
+            toastr.warning("Percentage values must be between 0 and 100!");
+            return;
+        }
+
+        // 🔹 Create model for backend
+        let model = {
+            Employees: selectedItems,
+            PaidPercentageBasic: paidPercentageBasic,
+            PaidPercentageBonus: paidPercentageBonus
+        };
 
         $button.prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
         showLoadingIndicator();
 
         try {
             const response = await $.ajax({
-                url: "/PaySlipForEmp/GenerateMultiplePDFs",
+                url: "/PaySlipForEmp/GenerateMultiplePDFs",  // your controller endpoint
                 type: "POST",
                 contentType: "application/json",
-                data: JSON.stringify({ Employees: selectedItems }),
+                data: JSON.stringify(model)
             });
 
             if (response.success || response.Success) {
@@ -254,6 +269,7 @@
             modal.hide();
         }
     });
+
 
     //
 
@@ -361,16 +377,16 @@
 
     $('#EmployeeID,#DepartmentID').on('changed.coreui.multi-select', function () {
         currentPage = 1;
-        loadTableData(); // Make AJAX call or reload the table
+        loadTableData(); 
     });
 
     $('#PaidUnpaid').on('change', function () {
         currentPage = 1;
-        loadTableData(); // Reload table with Paid/Unpaid filter
+        loadTableData(); 
     });
     $('#year-month-picker-1').on('click', function () {
         currentPage = 1;
-        loadTableData(); // Reload table with Paid/Unpaid filter
+        loadTableData(); 
     });
     // Filtering according to formdate to ToDate
 
@@ -420,8 +436,11 @@
                 <tr class="hover-actions-trigger btn-reveal-trigger position-static">
 
                     <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input PayRolltaxSettings-selectItem IsPaidCheckbox-selectItem" data-id="${item.employeeId}" />
-                     </td>
+                      <input type="checkbox"
+                     class="form-check-input PayRolltaxSettings-selectItem IsPaidCheckbox-selectItem ${item.isPaid ? 'bg-success' : ''}"
+                     data-id="${item.employeeId}"  />
+                   </td>
+
                     <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
                         <span>${item.employeeCode || 'N/A'}</span>
                     </td>
@@ -444,14 +463,22 @@
                      <!-- Paid/Unpaid Checkbox -->
                
                 <!-- Paid/Unpaid Label -->
-                <td class="align-middle ps-4 fw-semibold text-body py-1">
-                    ${item.isPaid ? '<span class="badge bg-success">Paid</span>' : '<span class="badge bg-danger">Unpaid</span>'}
-                </td>
+               <td class="align-middle ps-4 fw-semibold text-body py-1">
+                               ${item.isPaid ? '<span class="badge bg-success">Paid</span>' : item.partialPaid
+                               ? '<span class="badge bg-warning">Partial Paid</span>' : '<span class="badge bg-danger">Unpaid</span>'}
+                 </td>
 
+                
                 <!-- Payslip -->
                 <td class="paySlip align-middle ps-4 fw-semibold text-body py-1">
-                    <a href="/PaySlipForEmp/Index/${item.employeeId}"><i class="fas fa-download text-success"></i></a>
-                </td>
+                 <a href="/PaySlipForEmp/Index/${item.employeeId}" title="Download Payslip">
+                         <i class="fas fa-download text-success"></i>
+                 </a>
+          <a href="#" class="markPaidPartial ms-2" data-id="${item.employeeId}" title="Mark as Paid (Partial)">
+              <i class="fas fa-percent text-primary"></i>
+        </a>
+    </td>
+                 
                 </tr>
             `);
                     });

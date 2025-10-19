@@ -18,5 +18,6 @@ namespace GCTL.Core.ViewModels.PayrollManagements.PayrollPolicy.PayRollEmpSalary
         public string? EmployeeImage { get; set; }
         public decimal? Deduction { get; set; } 
         public bool? IsPaid { get; set; }
+        public bool PartialPaid { get; set; }
     }
 }

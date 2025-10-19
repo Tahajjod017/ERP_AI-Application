@@ -39,9 +39,12 @@ namespace GCTL.Service.MasterSetup.Degrees
                 if (existingEntity.Any())
                 {
                     var entityToRestore = existingEntity.FirstOrDefault();
-
+                    if(entityToRestore==null)
+                    {
+                        return false;
+                    }
                     entityToRestore.DegreeName = model.DegreeName;
-                    entityToRestore.CreatedAt = DateTime.Now;
+                    entityToRestore.CreatedAt = DateTime.UtcNow;
                     entityToRestore.CreatedBy = model.CreatedBy;
                     entityToRestore.LIP = model.LIP;
                     entityToRestore.LMAC = model.LMAC;
