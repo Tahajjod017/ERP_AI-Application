@@ -141,20 +141,19 @@
 
    
 
-    <!-- Confirmation Modal -->
+    <!-- Confirm Partial Paid Modal -->
     <div class="modal fade" id="confirmMarkPaidModalPartial" tabindex="-1" aria-labelledby="confirmMarkPaidModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmMarkPaidModalLabel">Confirm Mark as Paid Partial</h5>
+                    <h5 class="modal-title">Confirm Mark as Paid (Partial)</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body">
-
                     <div class="row">
                         <div class="col-sm-12">
-                            <div class="col-sm-6">
+                            <div class="mb-3">
                                 <span>Name: <strong id="empName"></strong></span>
                             </div>
                             <p class="extra-notes"><strong>Earnings</strong></p>
@@ -171,16 +170,12 @@
                                 <tr>
                                     <td>
                                         <strong class="ms-2">Total Earnings</strong>
-                                        <span class="me-2 float-end">
-                                            <strong id="TotalSalary"></strong>
-                                        </span>
+                                        <span class="me-2 float-end"><strong id="TotalSalary"></strong></span>
                                     </td>
                                 </tr>
                                 </tbody>
                             </table>
-
-                           
-                            <h6 id="NetPay"></h6>
+                            <h6 id="NetPay" class="text-end pe-2"></h6>
                         </div>
                     </div>
                 </div>
@@ -253,12 +248,12 @@
                     Mark as Paid
                 </button>
             </div>
-
+@* 
             <div class="flatpickr-input-container me-3 d-none" id="markAsSaveContainerPartial">
                 <button id="MarkasSavedPartial" class="btn btn-primary btn-sm">
                     Mark as Paid Partial
                 </button>
-            </div>
+            </div> *@
             <!-- Confirmation Modal -->
             <div class="modal fade" id="confirmMarkPaidModal" tabindex="-1" aria-labelledby="confirmMarkPaidModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -267,9 +262,29 @@
                             <h5 class="modal-title" id="confirmMarkPaidModalLabel">Confirm Mark as Paid</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+ 
                         <div class="modal-body">
-                            Are you sure you want to mark the selected employees as <strong>Paid</strong>?
+                            <p>Are you sure you want to mark the selected employees as <strong>Paid</strong>?</p>
+
+                            <div class="row align-items-center mb-3">
+                                <label for="paidPercentageBasic" class="col-sm-5 col-form-label">Basic(%)</label>
+                                <div class="col-sm-7">
+                                    <input type="number" class="form-control" id="paidPercentageBasic" name="PaidPercentageBasic"
+                                           placeholder="%" min="0" max="100" step="0.01" required>
+                                </div>
+                            </div>
+
+                            <div class="row align-items-center mb-3">
+                                <label for="paidPercentageBonus" class="col-sm-5 col-form-label">Bonus(%)</label>
+                                <div class="col-sm-7">
+                                    <input type="number" class="form-control" id="paidPercentageBonus" name="PaidPercentageBonus"
+                                           placeholder="%" min="0" max="100" step="0.01" required>
+                                </div>
+                            </div>
                         </div>
+
+
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
                             <button type="button" class="btn btn-primary btn-sm" id="confirmMarkPaidBtn">Yes, Mark as Paid</button>

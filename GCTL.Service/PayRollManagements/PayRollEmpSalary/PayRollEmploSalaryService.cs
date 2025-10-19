@@ -144,6 +144,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                 var paySlips = await paySlipsRepository.AllActive()
                     .Where(p => employeeIds.Contains(p.EmployeeID) && p.PayPeriodStart.Month == currentMonth && p.PayPeriodStart.Year == currentYear)
                     .ToListAsync();
+        
                 var baseBenefits = await _employeeBaseBenefitsRepository.AllActive()
                     .Include(x => x.Benefit).ThenInclude(b => b.BenefitType)
                     .Where(x => employeeIds.Contains(x.EmployeeID))
@@ -167,17 +168,20 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     currentSortColumn,
                     currentSortOrder,
                     term => b => string.IsNullOrEmpty(term) || EF.Functions.Like(b.EmployeeID.ToString(), $"%{term}%"),
-                    b => new PayRollEmpSalaryGetAllVM
+                   
+                b =>  new PayRollEmpSalaryGetAllVM
                     {
-                        EmployeeCode = b.Employee.EmployeeCode ?? "N/A",
+                        EmployeeCode = b.Employee.EmployeeCode ?? " ",
                         EmployeeId = b.EmployeeID,
                         EmployeeName = $"{b.Employee?.FirstName} {b.Employee?.LastName}",
                         EmployeeImage = !string.IsNullOrEmpty(b.Employee?.EmployeeImageFileName) ? imgSrcThumb + b.Employee.EmployeeImageFileName : "",
                         EmpDepartment = b.Employee?.EmployeeOfficeInfoEmployee?.Select(m => m.Department?.DepartmentName).FirstOrDefault() ?? "N/A",
-
                         Salary = b.Salary,
-                        IsPaid = paySlips.Where(x => x.EmployeeID == b.EmployeeID).Select(x => x.IsPaid).FirstOrDefault()
-                    });
+                        //IsPaid = paySlips.Where(x => x.EmployeeID == b.EmployeeID && x.TotalAmount==x.PaidAmount).Select(x => x.IsPaid).FirstOrDefault(),
+                        IsPaid = paySlips .Where(x => x.EmployeeID == b.EmployeeID).Any(x => x.TotalAmount == x.PaidAmount && x.IsPaid==true),
+                        PartialPaid = paySlips .Where(x => x.EmployeeID == b.EmployeeID).Any(x => x.PaidAmount > 0 && x.PaidAmount < x.TotalAmount)
+
+                });
 
                 // ✅ Calculate payslip details for each employee (same logic as GetPaySlip)
                 foreach (var item in result.Data)
@@ -218,17 +222,14 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                             // ---------------- Organization-level Benefits fallback ----------------
                             var orgBenefits = await benefitsRepository.AllActive()
                                 .Include(b => b.BenefitSetups)
-                                .Where(b => b.OrganizationID == orgId && b.IsActive == true && b.EffectiveDate >= startOfMonth
-                && b.EffectiveDate <= endOfMonth)
-                                .ToListAsync();
+                                .Where(b => b.OrganizationID == orgId && b.IsActive == true && b.EffectiveDate >= startOfMonth && b.EffectiveDate <= endOfMonth).ToListAsync();
 
                             foreach (var benefit in orgBenefits)
                             {
                                 var setup = benefit.BenefitSetups
                                     .Where(s => (s.SalaryMin == null || basicSalary >= s.SalaryMin) &&
                                                 (s.SalaryMax == null || basicSalary <= s.SalaryMax))
-                                    .OrderByDescending(s => s.CreatedAt ?? DateTime.MinValue)
-                                    .FirstOrDefault();
+                                    .OrderByDescending(s => s.CreatedAt ?? DateTime.MinValue).FirstOrDefault();
 
                                 if (setup != null)
                                 {
@@ -551,6 +552,8 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 
 
 
+
+        //
         //public async Task<CommonReturnViewModel> SaveExportAsync(PaySlipRequestVM model)
         //{
         //    var result = new CommonReturnViewModel();
@@ -564,23 +567,19 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 
         //    await paySlipsRepository.BeginTransactionAsync();
 
-
-
         //    try
         //    {
         //        var employeeIds = model.Employees.Select(e => e.EmployeeID).ToList();
 
-
-
         //        var currentYear = DateTime.Now.Year;
         //        var currentMonth = DateTime.Now.Month;
 
-        //        // ✅ Check for duplicate payslips for this month where IsPaid == true
+        //        // Check duplicate payslips
         //        var duplicatePayslips = await paySlipsRepository.AllActive()
         //            .Where(p => employeeIds.Contains((int)p.EmployeeID)
         //                        && p.PayPeriodStart.Month == currentMonth
         //                        && p.PayPeriodStart.Year == currentYear
-        //                        && p.IsPaid==true)
+        //                        && p.IsPaid == true)
         //            .ToListAsync();
 
         //        if (duplicatePayslips.Any())
@@ -590,43 +589,111 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         //            result.Message = $"Payslips already exist for employees: {duplicateEmpIds} (Paid this month)";
         //            return result;
         //        }
-        //        //
 
+        //        // Get salaries
         //        var salaries = await employeeSalarySettingsRepository.AllActive()
         //            .Where(x => employeeIds.Contains((int)x.EmployeeID))
         //            .Select(x => new { x.EmployeeID, x.Salary })
         //            .ToListAsync();
 
+        //        var paySlipsList = new List<PaySlips>();
 
-        //        // 1️⃣ Create and add all payslips first
-        //        var paySlipsList = salaries.Select(emp =>
+        //        // 1️⃣ Create payslips
+        //        foreach (var emp in salaries)
         //        {
         //            var empData = model.Employees.First(e => e.EmployeeID == emp.EmployeeID);
 
-        //            return new PaySlips
+        //            var entity = new PaySlips
         //            {
         //                EmployeeID = emp.EmployeeID,
         //                BasicSalary = emp.Salary ?? 0,
         //                PayPeriodStart = new DateOnly(currentYear, currentMonth, 1),
         //                PayPeriodEnd = new DateOnly(currentYear, currentMonth, DateTime.DaysInMonth(currentYear, currentMonth)),
         //                IsPaid = empData.IsPaid,
+        //                TotalAmount = 0,
+        //                PaidAmount = 0,
+        //                BasicPaidAmount = 0,
         //                LIP = model.LIP,
         //                LMAC = model.LMAC,
         //                CreatedAt = DateTime.UtcNow,
         //                CreatedBy = model.CreatedBy
         //            };
-        //        }).ToList();
 
-        //        await paySlipsRepository.AddRangeAsync(paySlipsList);
+        //            await paySlipsRepository.AddAsync(entity);
+        //            paySlipsList.Add(entity);
+        //        }
+
+        //        // 2️⃣ Calculate benefits/allowances for each employee
+        //        foreach (var payslip in paySlipsList)
+        //        {
+        //            var paySlipResult = await GetPaySlip((int)payslip.EmployeeID);
+        //            if (!paySlipResult.Success) continue;
+
+        //            var paySlipVM = (PayRollPaySlipEmpVM)paySlipResult.Data;
+
+        //            // Save Benefits
+        //            if (paySlipVM.BeneFits != null)
+        //            {
+        //                foreach (var benefit in paySlipVM.BeneFits)
+        //                {
+        //                    bool isPercentage = benefit.DisplayValue.EndsWith("%");
+        //                    decimal percentageBasicOf = 0;
+
+        //                    if (isPercentage)
+        //                        decimal.TryParse(benefit.DisplayValue.TrimEnd('%'), out percentageBasicOf);
+
+        //                    var payBenefit = new PayAllowancBenifits
+        //                    {
+        //                        PaySlipID = payslip.PaySlipID,
+        //                        PayAllowancBenifitName = benefit.Type,
+        //                        Amount = (decimal)benefit.BenefitsSalary,
+        //                        IsPercentage = isPercentage,
+        //                        PercentageOfBasic = percentageBasicOf,
+        //                        //PaidAmount = benefit,
+        //                        CreatedAt = DateTime.UtcNow,
+        //                        CreatedBy = model.CreatedBy,
+        //                        LIP = model.LIP,
+        //                        LMAC = model.LMAC
+        //                    };
+
+        //                    await payAllowancBenifitsRepository.AddAsync(payBenefit);
+        //                }
+        //            }
+
+        //            // Save Allowances
+        //            if (paySlipVM.Allowances != null)
+        //            {
+        //                foreach (var allowance in paySlipVM.Allowances)
+        //                {
+        //                    bool isPercentage = allowance.DisplayValue.EndsWith("%");
+        //                    decimal percentageBasicOf = 0;
+
+        //                    if (isPercentage)
+        //                        decimal.TryParse(allowance.DisplayValue.TrimEnd('%'), out percentageBasicOf);
+
+        //                    var payAllowance = new PayAllowancBenifits
+        //                    {
+        //                        PaySlipID = payslip.PaySlipID,
+        //                        PayAllowancBenifitName = allowance.Type,
+        //                        Amount = (decimal)allowance.AllowanceSalary,
+        //                        IsPercentage = isPercentage,
+        //                        PercentageOfBasic = percentageBasicOf,
+        //                        CreatedAt = DateTime.UtcNow,
+        //                        CreatedBy = model.CreatedBy,
+        //                        LIP = model.LIP,
+        //                        LMAC = model.LMAC
+        //                    };
+
+        //                    await payAllowancBenifitsRepository.AddAsync(payAllowance);
+        //                }
+        //            }
+        //        }
 
         //        await paySlipsRepository.CommitTransactionAsync();
 
         //        result.Success = true;
         //        result.Message = "Payslips saved successfully!";
         //        result.Data = paySlipsList;
-
-
-
         //    }
         //    catch (Exception ex)
         //    {
@@ -634,14 +701,192 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
         //        result.Success = false;
         //        result.Message = ex.Message;
         //        result.Errors.Add(ex.Message);
-        //        await userInfoService.ActionLogExceptionAsync("Pay Slip Save", ex, null, ActionName.Error);
+        //        await userInfoService.ActionLogExceptionAsync("Pay Slip Save Export", ex, null, ActionName.Error);
         //    }
 
         //    return result;
         //}
 
 
-        //
+
+        //public async Task<CommonReturnViewModel> SaveExportAsync(PaySlipRequestVM model)
+        //{
+        //    var result = new CommonReturnViewModel();
+
+        //    if (model == null || model.Employees == null || !model.Employees.Any())
+        //    {
+        //        result.Success = false;
+        //        result.Message = "No employee data received!";
+        //        return result;
+        //    }
+
+        //    await paySlipsRepository.BeginTransactionAsync();
+
+        //    try
+        //    {
+        //        var employeeIds = model.Employees.Select(e => e.EmployeeID).ToList();
+        //        var currentYear = DateTime.Now.Year;
+        //        var currentMonth = DateTime.Now.Month;
+
+        //        // 🔍 Check for duplicate payslips
+        //        var duplicatePayslips = await paySlipsRepository.AllActive()
+        //            .Where(p => employeeIds.Contains((int)p.EmployeeID)
+        //                        && p.PayPeriodStart.Month == currentMonth
+        //                        && p.PayPeriodStart.Year == currentYear
+        //                        && p.IsPaid == true)
+        //            .ToListAsync();
+
+        //        if (duplicatePayslips.Any())
+        //        {
+        //            var duplicateEmpIds = string.Join(", ", duplicatePayslips.Select(p => p.EmployeeID));
+        //            result.Success = false;
+        //            result.Message = $"Payslips already exist for employees: {duplicateEmpIds} (Paid this month)";
+        //            return result;
+        //        }
+
+        //        // 💰 Get employee base salaries
+        //        var salaries = await employeeSalarySettingsRepository.AllActive()
+        //            .Where(x => employeeIds.Contains((int)x.EmployeeID))
+        //            .Select(x => new { x.EmployeeID, x.Salary })
+        //            .ToListAsync();
+
+        //        var paySlipsList = new List<PaySlips>();
+
+        //        // 1️⃣ Create base payslip records
+        //        foreach (var emp in salaries)
+        //        {
+        //            var empData = model.Employees.First(e => e.EmployeeID == emp.EmployeeID);
+
+        //            var entity = new PaySlips
+        //            {
+        //                EmployeeID = emp.EmployeeID,
+        //                BasicSalary = emp.Salary ?? 0,
+        //                PayPeriodStart = new DateOnly(currentYear, currentMonth, 1),
+        //                PayPeriodEnd = new DateOnly(currentYear, currentMonth, DateTime.DaysInMonth(currentYear, currentMonth)),
+        //                IsPaid = false, // determined after applying percentages
+        //                TotalAmount = 0,
+        //                PaidAmount = 0,
+        //                BasicPaidAmount = 0,
+        //                LIP = model.LIP,
+        //                LMAC = model.LMAC,
+        //                CreatedAt = DateTime.UtcNow,
+        //                CreatedBy = model.CreatedBy
+        //            };
+
+        //            await paySlipsRepository.AddAsync(entity);
+        //            paySlipsList.Add(entity);
+        //        }
+
+        //        // 2️⃣ Calculate payslip details (benefits, allowances, totals)
+        //        foreach (var payslip in paySlipsList)
+        //        {
+        //            var paySlipResult = await GetPaySlip((int)payslip.EmployeeID);
+        //            if (!paySlipResult.Success) continue;
+
+        //            var paySlipVM = (PayRollPaySlipEmpVM)paySlipResult.Data;
+
+        //            decimal basicSalary = paySlipVM.BasicSalary ?? 0;
+        //            decimal totalEarning = paySlipVM.TotalSalary;
+        //            decimal totalDeduction = paySlipVM.TotalDeductions;
+        //            decimal netSalary = paySlipVM.NetPay;
+
+        //            // 🔹 Handle percentages from modal (default full if 0 or null)
+        //            decimal paidPercentageBasic = model.PaidPercentageBasic > 0 ? model.PaidPercentageBasic / 100m : 1;
+        //            decimal paidPercentageBonus = model.PaidPercentageBonus > 0 ? model.PaidPercentageBonus / 100m : 1;
+
+        //            // 🔹 Compute paid amounts
+        //            decimal basicPaid = basicSalary * paidPercentageBasic;
+        //            decimal bonusPaid = (totalEarning - basicSalary) * paidPercentageBonus; // allowances + benefits
+        //            decimal totalPaid = basicPaid + bonusPaid;
+
+        //            // ✅ Update payslip
+        //            payslip.BasicPaidAmount = basicPaid;
+        //            payslip.TotalAmount = totalEarning;
+        //            payslip.PaidAmount = totalPaid;
+        //            payslip.IsPaid = totalPaid >= netSalary;
+
+        //            await paySlipsRepository.UpdateAsync(payslip);
+
+        //            // --- Save Benefits ---
+        //            if (paySlipVM.BeneFits != null)
+        //            {
+        //                foreach (var benefit in paySlipVM.BeneFits)
+        //                {
+        //                    bool isPercentage = benefit.DisplayValue.EndsWith("%");
+        //                    decimal percentageBasicOf = 0;
+
+        //                    if (isPercentage)
+        //                        decimal.TryParse(benefit.DisplayValue.TrimEnd('%'), out percentageBasicOf);
+
+        //                    var payBenefit = new PayAllowancBenifits
+        //                    {
+        //                        PaySlipID = payslip.PaySlipID,
+        //                        PayAllowancBenifitName = benefit.Type,
+        //                        Amount = (decimal)benefit.BenefitsSalary,
+        //                        PaidAmount = (decimal)benefit.BenefitsSalary * paidPercentageBonus, // apply bonus %
+        //                        IsPercentage = isPercentage,
+        //                        PercentageOfBasic = percentageBasicOf,
+        //                        CreatedAt = DateTime.UtcNow,
+        //                        CreatedBy = model.CreatedBy,
+        //                        LIP = model.LIP,
+        //                        LMAC = model.LMAC
+        //                    };
+
+        //                    await payAllowancBenifitsRepository.AddAsync(payBenefit);
+        //                }
+        //            }
+
+        //            // --- Save Allowances ---
+        //            if (paySlipVM.Allowances != null)
+        //            {
+        //                foreach (var allowance in paySlipVM.Allowances)
+        //                {
+        //                    bool isPercentage = allowance.DisplayValue.EndsWith("%");
+        //                    decimal percentageBasicOf = 0;
+
+        //                    if (isPercentage)
+        //                        decimal.TryParse(allowance.DisplayValue.TrimEnd('%'), out percentageBasicOf);
+
+        //                    var payAllowance = new PayAllowancBenifits
+        //                    {
+        //                        PaySlipID = payslip.PaySlipID,
+        //                        PayAllowancBenifitName = allowance.Type,
+        //                        Amount = (decimal)allowance.AllowanceSalary,
+        //                        PaidAmount = (decimal)allowance.AllowanceSalary * paidPercentageBonus, // apply bonus %
+        //                        IsPercentage = isPercentage,
+        //                        PercentageOfBasic = percentageBasicOf,
+        //                        CreatedAt = DateTime.UtcNow,
+        //                        CreatedBy = model.CreatedBy,
+        //                        LIP = model.LIP,
+        //                        LMAC = model.LMAC
+        //                    };
+
+        //                    await payAllowancBenifitsRepository.AddAsync(payAllowance);
+        //                }
+        //            }
+        //        }
+
+        //        // ✅ Commit transaction after all successful inserts
+        //        await paySlipsRepository.CommitTransactionAsync();
+
+        //        result.Success = true;
+        //        result.Message = "Payslips saved successfully!";
+        //        result.Data = paySlipsList;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await paySlipsRepository.RollbackTransactionAsync();
+        //        result.Success = false;
+        //        result.Message = ex.Message;
+        //        result.Errors.Add(ex.Message);
+        //        await userInfoService.ActionLogExceptionAsync("Pay Slip Save Export", ex, null, ActionName.Error);
+        //    }
+
+        //    return result;
+        //}
+
+
+
         public async Task<CommonReturnViewModel> SaveExportAsync(PaySlipRequestVM model)
         {
             var result = new CommonReturnViewModel();
@@ -658,27 +903,17 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
             try
             {
                 var employeeIds = model.Employees.Select(e => e.EmployeeID).ToList();
-
                 var currentYear = DateTime.Now.Year;
                 var currentMonth = DateTime.Now.Month;
 
-                // Check duplicate payslips
-                var duplicatePayslips = await paySlipsRepository.AllActive()
+                // 🔹 Get existing payslips for the current month
+                var existingPayslips = await paySlipsRepository.AllActive()
                     .Where(p => employeeIds.Contains((int)p.EmployeeID)
                                 && p.PayPeriodStart.Month == currentMonth
-                                && p.PayPeriodStart.Year == currentYear
-                                && p.IsPaid == true)
+                                && p.PayPeriodStart.Year == currentYear)
                     .ToListAsync();
 
-                if (duplicatePayslips.Any())
-                {
-                    var duplicateEmpIds = string.Join(", ", duplicatePayslips.Select(p => p.EmployeeID));
-                    result.Success = false;
-                    result.Message = $"Payslips already exist for employees: {duplicateEmpIds} (Paid this month)";
-                    return result;
-                }
-
-                // Get salaries
+                // 🔹 Get employee base salaries
                 var salaries = await employeeSalarySettingsRepository.AllActive()
                     .Where(x => employeeIds.Contains((int)x.EmployeeID))
                     .Select(x => new { x.EmployeeID, x.Salary })
@@ -686,44 +921,82 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 
                 var paySlipsList = new List<PaySlips>();
 
-                // 1️⃣ Create payslips
                 foreach (var emp in salaries)
                 {
                     var empData = model.Employees.First(e => e.EmployeeID == emp.EmployeeID);
 
-                    var entity = new PaySlips
+                    // 🔹 Check if payslip already exists
+                    var payslip = existingPayslips.FirstOrDefault(p => p.EmployeeID == emp.EmployeeID);
+
+                    if (payslip == null)
                     {
-                        EmployeeID = emp.EmployeeID,
-                        BasicSalary = emp.Salary ?? 0,
-                        PayPeriodStart = new DateOnly(currentYear, currentMonth, 1),
-                        PayPeriodEnd = new DateOnly(currentYear, currentMonth, DateTime.DaysInMonth(currentYear, currentMonth)),
-                        IsPaid = empData.IsPaid,
-                        LIP = model.LIP,
-                        LMAC = model.LMAC,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = model.CreatedBy
-                    };
+                        // Create new payslip if not exists
+                        payslip = new PaySlips
+                        {
+                            EmployeeID = emp.EmployeeID,
+                            BasicSalary = emp.Salary ?? 0,
+                            PayPeriodStart = new DateOnly(currentYear, currentMonth, 1),
+                            PayPeriodEnd = new DateOnly(currentYear, currentMonth, DateTime.DaysInMonth(currentYear, currentMonth)),
+                            IsPaid = false,
+                            TotalAmount = 0,
+                            PaidAmount = 0,
+                            BasicPaidAmount = 0,
+                            LIP = model.LIP,
+                            LMAC = model.LMAC,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = model.CreatedBy
+                        };
+                        await paySlipsRepository.AddAsync(payslip);
+                    }
 
-                    await paySlipsRepository.AddAsync(entity);
-                    paySlipsList.Add(entity);
-                }
-
-                // 2️⃣ Calculate benefits/allowances for each employee
-                foreach (var payslip in paySlipsList)
-                {
+                    // 🔹 Calculate payslip
                     var paySlipResult = await GetPaySlip((int)payslip.EmployeeID);
                     if (!paySlipResult.Success) continue;
 
                     var paySlipVM = (PayRollPaySlipEmpVM)paySlipResult.Data;
 
-                    // Save Benefits
+                    decimal basicSalary = paySlipVM.BasicSalary ?? 0;
+                    decimal totalEarning = paySlipVM.TotalSalary;
+                    decimal totalDeduction = paySlipVM.TotalDeductions;
+                    decimal netSalary = paySlipVM.NetPay;
+
+                    decimal paidPercentageBasic = model.PaidPercentageBasic > 0 ? model.PaidPercentageBasic / 100m : 1;
+                    decimal paidPercentageBonus = model.PaidPercentageBonus > 0 ? model.PaidPercentageBonus / 100m : 1;
+
+                    decimal basicPaid = basicSalary * paidPercentageBasic;
+                    decimal bonusPaid = (totalEarning - basicSalary) * paidPercentageBonus;
+                    decimal totalPaid = basicPaid + bonusPaid;
+
+                    // 🔹 Update payslip
+                    payslip.BasicPaidAmount = basicPaid;
+                    payslip.TotalAmount = totalEarning;
+                    payslip.PaidAmount = totalPaid;
+                    payslip.IsPaid = totalPaid >= netSalary;
+
+                    await paySlipsRepository.UpdateAsync(payslip);
+
+                    paySlipsList.Add(payslip);
+
+                    // 🔹 Remove old benefits/allowances to avoid duplicates
+                    var existingBenefits = await payAllowancBenifitsRepository.AllActive()
+                        .Where(x => x.PaySlipID == payslip.PaySlipID)
+                        .ToListAsync();
+                    if (existingBenefits.Any())
+                    {
+                        foreach (var b in existingBenefits)
+                        {
+                            await payAllowancBenifitsRepository.DeleteAsync(b.PayAllowancBenifitID);
+                        }
+
+                    }
+
+                    // 🔹 Save Benefits
                     if (paySlipVM.BeneFits != null)
                     {
                         foreach (var benefit in paySlipVM.BeneFits)
                         {
                             bool isPercentage = benefit.DisplayValue.EndsWith("%");
                             decimal percentageBasicOf = 0;
-
                             if (isPercentage)
                                 decimal.TryParse(benefit.DisplayValue.TrimEnd('%'), out percentageBasicOf);
 
@@ -732,6 +1005,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                                 PaySlipID = payslip.PaySlipID,
                                 PayAllowancBenifitName = benefit.Type,
                                 Amount = (decimal)benefit.BenefitsSalary,
+                                PaidAmount = (decimal)benefit.BenefitsSalary * paidPercentageBonus,
                                 IsPercentage = isPercentage,
                                 PercentageOfBasic = percentageBasicOf,
                                 CreatedAt = DateTime.UtcNow,
@@ -739,19 +1013,17 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                                 LIP = model.LIP,
                                 LMAC = model.LMAC
                             };
-
                             await payAllowancBenifitsRepository.AddAsync(payBenefit);
                         }
                     }
 
-                    // Save Allowances
+                    // 🔹 Save Allowances
                     if (paySlipVM.Allowances != null)
                     {
                         foreach (var allowance in paySlipVM.Allowances)
                         {
                             bool isPercentage = allowance.DisplayValue.EndsWith("%");
                             decimal percentageBasicOf = 0;
-
                             if (isPercentage)
                                 decimal.TryParse(allowance.DisplayValue.TrimEnd('%'), out percentageBasicOf);
 
@@ -760,6 +1032,7 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                                 PaySlipID = payslip.PaySlipID,
                                 PayAllowancBenifitName = allowance.Type,
                                 Amount = (decimal)allowance.AllowanceSalary,
+                                PaidAmount = (decimal)allowance.AllowanceSalary * paidPercentageBonus,
                                 IsPercentage = isPercentage,
                                 PercentageOfBasic = percentageBasicOf,
                                 CreatedAt = DateTime.UtcNow,
@@ -767,7 +1040,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                                 LIP = model.LIP,
                                 LMAC = model.LMAC
                             };
-
                             await payAllowancBenifitsRepository.AddAsync(payAllowance);
                         }
                     }
@@ -790,7 +1062,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
 
             return result;
         }
-
 
         #endregion
 
@@ -817,9 +1088,6 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                          .Include(x => x.Organization)
                         .ThenInclude(x => x.EmployeeAllowances)
                         .FirstOrDefaultAsync();
-                var orgPercent = await pSettingsRepository.AllActive()
-               .Where(x => x.OrganizationID == baseQuery.OrganizationID).Select(x => x.TaxPercentage).FirstOrDefaultAsync() ?? 0;
-
                 if (baseQuery == null)
                 {
                     return new CommonReturnViewModel
@@ -829,11 +1097,24 @@ namespace GCTL.Service.PayRollManagements.PayRollEmpSalary
                     };
                 }
 
+                var orgPercent = await pSettingsRepository.AllActive()
+               .Where(x => x.OrganizationID == baseQuery.OrganizationID).Select(x => x.TaxPercentage).FirstOrDefaultAsync() ?? 0;
+
+                
                 // Get basic salary
                 decimal? basicsalary = await employeeSalarySettingsRepository.AllActive()
                     .Where(x => x.EmployeeID == id)
                     .Select(x => x.Salary)
                     .FirstOrDefaultAsync();
+                if(basicsalary == null)
+                {
+                    return new CommonReturnViewModel 
+                    { 
+                    Success=false,
+                    Message="Basic Salary Does not exists"
+                    };
+
+                }
 
                 //------------------------- BENEFITS ----------------------------
                 var benefitsVMs = new List<BeneFitsVM>();
