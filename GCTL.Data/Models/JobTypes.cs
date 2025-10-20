@@ -5,13 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Customers
+public partial class JobTypes
 {
-    public int CustomerID { get; set; }
+    public int JobTypeID { get; set; }
 
-    public string FullName { get; set; }
-
-    public bool? IsPerson { get; set; }
+    public string JobTypeName { get; set; }
 
     public string LIP { get; set; }
 
@@ -29,23 +27,11 @@ public partial class Customers
 
     public int? DeletedBy { get; set; }
 
-    public int? HeadID { get; set; }
-
-    public virtual ICollection<CompanyBranches> CompanyBranches { get; set; } = new List<CompanyBranches>();
-
-    public virtual ICollection<CompanyWarehouses> CompanyWarehouses { get; set; } = new List<CompanyWarehouses>();
-
     public virtual Employees CreatedByNavigation { get; set; }
-
-    public virtual ICollection<CustomerAddresses> CustomerAddresses { get; set; } = new List<CustomerAddresses>();
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Heads Head { get; set; }
-
     public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
-
-    public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
