@@ -1859,8 +1859,4 @@ $(document).ready(function () {
                 choiceManager.setChoiceValue(idMap.shipping.country, dataValue);
         }
     })
-
-
-
-
 });

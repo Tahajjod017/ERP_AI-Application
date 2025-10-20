@@ -11,14 +11,47 @@ namespace GCTL.Service.FieldServices
 {
     public class CreateJobService : AppService<LeadActivityTypes>, ICreateJobService
     {
-        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository) : base(genericRepository)
+        private readonly IGenericRepository<Jobs> _jobsRepository;
+        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository) : base(genericRepository)
         {
+            _jobsRepository = jobsRepository;
         }
 
-        public Task<bool> AddAsync(CreateJobVM model)
+        public async Task<bool> AddAsync(CreateJobVM model)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Jobs job = new Jobs
+                {
+                    JobTitle = model.JobTitle,
+                    JobTypeID = model.JobID,
+                    CustomerID = model.CustomerID,
+                    JobStatusID = model.StatusID,
+                    StartDateTime = model.StartDate,
+                    EndDateTime = model.EndDate,
+                    Note = model.Note,
+                    FileLink = model.FileLink
+                };
+
+                if (model.TeamMembers != null)
+                {
+                    foreach (var memberId in model.TeamMembers)
+                    {
+                        job.JobTeams.Add(new JobTeams {EmployeeID  = memberId , JobID = job.JobID});
+                    }
+                }
+
+               await _jobsRepository.AddAsync(job);
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
+
 
         public Task<PaginationService<Grade, CreateJobVM>.PaginationResult<CreateJobVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CreateJobID", string sortOrder = "asc")
         {

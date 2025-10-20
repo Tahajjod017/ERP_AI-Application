@@ -1,30 +1,45 @@
-﻿var actions = {
-    create : "",
-    update : "",
+﻿//#region and ids
+var actions = {
+    create: "/CreateJobs/Upsert",
     delete : "",
     getLists : "",
     getItemData: ""
 }
 
 var ids = {
-    formID : "#",
-    submitBtn: "#",
-    resetBtn: "#",
+    formID: "#CreateJob-form",
+    submitBtn: "#submitBtn",
+    resetBtn: "#resetBtn",
 }
+//#endregion
+
 
 $(function () {
-    (document).on("click", ids.submitBtn, function () {
+    //#region submit function
+    $(ids.submitBtn).on("click", function (e) {
+        e.preventDefault();
         try {
-            const id = $(this).data("id");
-            const 
-            const action = id === 0 ? actions.create : ac.update;
-            const formData = {}
+            const formData =
+            {
+                CreateJobID: $("#CreateJobID").val(),
+                CustomerID: 1,
+                //CustomerID: $("#CustomerID").val(),
+                JobTitle: $("#JobTitle").val(),
+                JobID: $("#JobID").val(),
+                TeamMembers: $("#TeamMembers").val(),
+                StartDate: $("#StartDate").val(),
+                EndDate: $("#EndDate").val(),
+                StatusID: $("#StatusID").val(),
+                JobLocation: $("#JobLocation").val(),
+                Note: $("#Note").val(),
+                FileLink: $("#FileLink").val()
+            }
+            showDev(formData);
             $.ajax({
-                url: action,
+                url: actions.create,
                 type: "POST",
                 data: formData,
                 headers: {
-                    // send anti-forgery token header
                     "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
                 },
                 success: function (data) {
@@ -40,8 +55,9 @@ $(function () {
                 }
             });
         } catch (ex) {
-            Toast.error(ex);
+            toastr.error(ex);
         }
         
     });
+    //#endregion
 });

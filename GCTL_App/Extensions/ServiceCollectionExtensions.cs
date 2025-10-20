@@ -88,6 +88,7 @@ using GCTL.Service.MasterSetup.EmployeeTypes;
 using GCTL.Service.MasterSetup.EmploymentNatures;
 using GCTL.Service.MasterSetup.Gender;
 using GCTL.Service.MasterSetup.Grades;
+using GCTL.Service.MasterSetup.JobTypes;
 using GCTL.Service.MasterSetup.LeadActivityType;
 using GCTL.Service.MasterSetup.LeadSource;
 using GCTL.Service.MasterSetup.LeadStatus;
@@ -316,6 +317,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ILeadActivityTypeService, LeadActivityTypeService>();
             services.AddScoped<IAddTeamService, AddTeamService>();
             services.AddScoped<ICreateJobService, CreateJobService>();
+            services.AddScoped<IJobTypeService, JobTypeService>();
             #endregion
 
             services.AddHostedService<ScheduledTaskService>();

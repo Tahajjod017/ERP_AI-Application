@@ -66,21 +66,6 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-
-        #region GetLeadWonerList
-        //public async Task<IActionResult> GetLeadWonerList(string query)
-        //{
-        //    var employees = await _employeeRepository.AllActive()
-        //        .Where(e => e.FirstName.Contains(query) || e.LastName.Contains(query))
-        //        .Select(e => new { id = e.EmployeeID, text = e.FirstName + " " + e.LastName })
-        //        .Take(10) // limit results
-        //        .ToListAsync();
-
-        //    return Json(employees);
-        //}
-        #endregion
-
-
         #region IsUniqueAsync
         [HttpGet]
         private async Task<bool> IsUniqueAsync(string queryText, string type, int id)
@@ -118,7 +103,6 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-
         #region UniquenessCheck
         public async Task<IActionResult> UniquenessCheck(string queryText, string type, int id)
         {
@@ -126,7 +110,6 @@ namespace GCTL_App.Controllers.CRM
             return Json(new { unique = isUnique });
         }
         #endregion
-
 
         #region GetCustomerList
         [HttpGet]

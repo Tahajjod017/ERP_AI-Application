@@ -221,7 +221,6 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="leadStatusId">@Html.SmartLocalize("Status Name")</label>
@@ -244,7 +243,6 @@
                             </select>
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
@@ -283,7 +281,6 @@
 
                 </div>
             </div>
-
             <div id="customerInfoContainer" style="display: none;">
                 @* // create person code *@
                 <h5 class="mb-2 ms-2 text-body-highlight my-3 fs-8" id="iInformationTitle"></h5>
@@ -415,8 +412,6 @@
                     </div>
                 </div>
             </div>
-
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-light me-2">Cancel</button>
                 <button type="submit" id="indexSaveBtn" class="btn btn-primary">Save</button>
@@ -430,26 +425,9 @@
     <partial name="_companyView" />
 </div>
 
-
-
 @section Scripts{
-    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" defer></script> *@
-    
-    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/js/intlTelInput.min.js"></script>
-    
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgZTw6AA9Lc3EKX47xObpNOdJ2vFQ0B0w&libraries=places"></script>
-
-    
-
-
-
-    <script type="text/javascript">
-             
-
-    </script>
     <script src="~/js/pages/CRM/intlTelInput.min.js"></script>
     <script src="~/js/pages/CRM/utils.js"></script>
     <script src="~/js/pages/crm/createlead.js"></script>
-    <script src="~/js/pages/crm/company.js"></script>
-
 }

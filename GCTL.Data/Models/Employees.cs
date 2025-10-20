@@ -531,6 +531,32 @@ public partial class Employees
 
     public virtual ICollection<Employees> InverseUpdatedByNavigation { get; set; } = new List<Employees>();
 
+    public virtual ICollection<JobTeamActivities> JobTeamActivitiesCreatedByNavigation { get; set; } = new List<JobTeamActivities>();
+
+    public virtual ICollection<JobTeamActivities> JobTeamActivitiesDeletedByNavigation { get; set; } = new List<JobTeamActivities>();
+
+    public virtual ICollection<JobTeamActivities> JobTeamActivitiesUpdatedByNavigation { get; set; } = new List<JobTeamActivities>();
+
+    public virtual ICollection<JobTeams> JobTeamsCreatedByNavigation { get; set; } = new List<JobTeams>();
+
+    public virtual ICollection<JobTeams> JobTeamsDeletedByNavigation { get; set; } = new List<JobTeams>();
+
+    public virtual ICollection<JobTeams> JobTeamsEmployee { get; set; } = new List<JobTeams>();
+
+    public virtual ICollection<JobTeams> JobTeamsUpdatedByNavigation { get; set; } = new List<JobTeams>();
+
+    public virtual ICollection<JobTypes> JobTypesCreatedByNavigation { get; set; } = new List<JobTypes>();
+
+    public virtual ICollection<JobTypes> JobTypesDeletedByNavigation { get; set; } = new List<JobTypes>();
+
+    public virtual ICollection<JobTypes> JobTypesUpdatedByNavigation { get; set; } = new List<JobTypes>();
+
+    public virtual ICollection<Jobs> JobsCreatedByNavigation { get; set; } = new List<Jobs>();
+
+    public virtual ICollection<Jobs> JobsDeletedByNavigation { get; set; } = new List<Jobs>();
+
+    public virtual ICollection<Jobs> JobsUpdatedByNavigation { get; set; } = new List<Jobs>();
+
     public virtual ICollection<LeadActivityTypes> LeadActivityTypesCreatedByNavigation { get; set; } = new List<LeadActivityTypes>();
 
     public virtual ICollection<LeadActivityTypes> LeadActivityTypesDeletedByNavigation { get; set; } = new List<LeadActivityTypes>();
