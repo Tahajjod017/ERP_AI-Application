@@ -27,11 +27,11 @@ namespace GCTL.Core.Helpers.FeviconDynamic
         {
             var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return "/media/company/fevicon/default.png";
+                return "/media/company/fevicon/default2.png";
 
             var userFetch = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (userFetch?.OrganizationID == null)
-                return "/media/company/fevicon/default.png";
+                return "/media/MultipleCompany/default.png";
 
             var faviconFileName = await _orgnRepository.AllActive()
                 .Where(x => x.OrganizationID == userFetch.OrganizationID)
@@ -39,7 +39,7 @@ namespace GCTL.Core.Helpers.FeviconDynamic
                 .FirstOrDefaultAsync();
 
             return string.IsNullOrEmpty(faviconFileName)
-                ? "/media/company/fevicon/default.png"
+                ? "/media/company/fevicon/default2.png"
                 : $"/media/company/fevicon/{faviconFileName}";
         }
 
@@ -47,11 +47,11 @@ namespace GCTL.Core.Helpers.FeviconDynamic
         {
             var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return "/media/company/logo/default.png";
+                return "/media/company/logo/default2.png";
 
             var userFetch = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (userFetch?.OrganizationID == null)
-                return "/media/company/logo/default.png";
+                return "/media/MultipleCompany/default.png";
 
             var logoFileName = await _orgnRepository.AllActive()
                 .Where(x => x.OrganizationID == userFetch.OrganizationID)
@@ -59,7 +59,7 @@ namespace GCTL.Core.Helpers.FeviconDynamic
                 .FirstOrDefaultAsync();
 
             return string.IsNullOrEmpty(logoFileName)
-                ? "/media/company/logo/default.png"
+                ? "/media/company/logo/default2.png"
                 : $"/media/company/logo/{logoFileName}";
         }
 
