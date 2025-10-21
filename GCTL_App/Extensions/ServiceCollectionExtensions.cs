@@ -2,6 +2,7 @@
 using GCTL.Core.Configurations;
 using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Core.Helpers.CommonSelectMasterDropDown;
+using GCTL.Core.Helpers.FeviconDynamic;
 using GCTL.Core.Repository;
 //using GCTL.Core.SeedData;
 using GCTL.Data.Models;
@@ -248,6 +249,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IMonthlyReportService, MonthlyReportService>();
             services.AddScoped<IYearlyReportService, YearlyReportService>();
             services.AddScoped<ILocalizationSettingService, LocalizationSettingService>();
+            services.AddScoped<IBrandingAssetService, BrandingAssetService>();
           
             #endregion
 

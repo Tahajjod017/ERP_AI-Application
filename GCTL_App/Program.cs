@@ -1,3 +1,4 @@
+using GCTL.Core.Helpers.FeviconDynamic;
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
 using GCTL.Service;
@@ -108,6 +109,7 @@ builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<IAccessControlService, AccessControlService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<UserInfoActionFilter>();
+//builder.Services.AddScoped<IBrandingAssetService, BrandingAssetService>();
 #endregion
 
 

@@ -1,9 +1,13 @@
-﻿@inject GCTL.Service.Language.ILanguageTableService TranslationService
+﻿@inject IBrandingAssetService BrandingAssetService
+@inject GCTL.Service.Language.ILanguageTableService TranslationService
 @inject IHttpContextAccessor HttpContextAccessor
+@using GCTL.Core.Helpers.FeviconDynamic
 @using GCTL_App.ViewComponents
 @{
     // Access HttpContext via HttpContextAccessor
     var languageCode = HttpContextAccessor.HttpContext?.Items["Language"] as string ?? "en";
+    var logoPath = await BrandingAssetService.GetLogoPathForUserAsync(User);
+    ViewData["LogoPath"] = logoPath;
 }
 
 @{
@@ -17,7 +21,7 @@
             <a class="navbar-brand me-1 me-sm-3" asp-area="" asp-controller="Home" asp-action="Index">
                 <div class="d-flex align-items-center">
                     <div class="d-flex align-items-center">
-                        <img src="~/media/company/logo/logo.png" alt="Logo" width="50" />
+                        @Html.LogoImage(ViewData["LogoPath"]?.ToString(), "Logo", 50)
                         <h5 class="logo-text ms-2 d-none d-sm-block">@Html.SmartLocalize("HRM")</h5>
                     </div>
                 </div>
