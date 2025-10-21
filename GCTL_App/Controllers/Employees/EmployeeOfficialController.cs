@@ -6,6 +6,7 @@ using GCTL.Service.Employees.EmployeeNavigation;
 using GCTL.Service.Employees.EmployeeOfficial;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using GCTL_App.Controllers.AttendanceManagement.AttentendceReports.DailyReport;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -112,6 +113,9 @@ namespace GCTL_App.Controllers.Employees
                     }
                     else
                     {
+
+                        ViewBag.empId = empid;
+
                         EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod((int)loggedUser.EmployeeId);
                         return View(model);
                     }
@@ -119,6 +123,9 @@ namespace GCTL_App.Controllers.Employees
                    
                 }
                 else {
+
+                    ViewBag.empId = id;
+
                     EmployeeOfficialPostViewModel model = GetEmployeeDetailsMethod(id);
                     return View(model);
                 }
@@ -493,43 +500,7 @@ namespace GCTL_App.Controllers.Employees
 
 
 
-        [Route("EmployeeOfficial/GetEmployeeSupDDbyComp")]
-        [HttpGet]
-        public async Task<IActionResult> GetEmployeeSupDDbyComp(int id, int empID, string search = "", int page = 1, int pageSize = 50)
-        {
-            try
-            {
-                var query = from emp in _employeeRepository.AllActive()
-                            join office in _employeeOfficialRepository.AllActive()
-                                on emp.EmployeeID equals office.EmployeeID into officeJoin
-                            from official in officeJoin.DefaultIfEmpty()
-                            where emp.EmployeeID != empID
-                                  && (official == null || official.OrganizationID == id)
-                                  && (string.IsNullOrEmpty(search) || (emp.FirstName + " " + emp.LastName).Contains(search, StringComparison.OrdinalIgnoreCase))
-                            select new
-                            {
-                                value = emp.EmployeeID,
-                                label = emp.FirstName + " " + emp.LastName
-                            };
-
-                var totalCount = await query.CountAsync();
-                var employeeList = await query
-                                .Skip((page - 1) * pageSize)
-                                .Take(pageSize)
-                                .ToListAsync();
-
-                return Ok(new
-                {
-                    items = employeeList,
-                    hasMore = totalCount > (page * pageSize)
-                });
-            }
-            catch (Exception ex)
-            {
-                // Log exception
-                return StatusCode(500, new { error = ex.Message });
-            }
-        }
+       
 
         [HttpGet]
         public IActionResult GetEmployeeHOD(int id, string search = "", int page = 1, int pageSize = 50)
@@ -569,5 +540,164 @@ namespace GCTL_App.Controllers.Employees
 
 
         #endregion
+
+
+        private async Task<IQueryable<GCTL.Data.Models.Employees>> ApplyPermissionFilter(IQueryable<GCTL.Data.Models.Employees> query)
+        {
+            var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+            if (loggedUser == null) return query;
+
+            var userId = loggedUser.Id;
+            var user = await _userManagerRepository2.FindByIdAsync(userId);
+            var roleNames = await _userManagerRepository2.GetRolesAsync(user);
+            var roleIds = _roleManagerRepository2.Roles
+                .Where(r => roleNames.Contains(r.Name))
+                .Select(r => r.Id)
+                .ToList();
+
+            bool hasEmployeePermission = await _elementPermissionService
+                .HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+            if (!hasEmployeePermission)
+            {
+                var empid = loggedUser.EmployeeId;
+                query = query.Where(e => e.EmployeeID == empid);
+            }
+
+            return query;
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeeSupDDbyComp(    string search = "", int page = 1, int pageSize = 50,    int? organizationId = null, int? employeePersonalId = null)
+        {
+            try
+            {
+                var query = _employeeRepository.AllActive().Include(e=>e.EmployeeOfficeInfoEmployee).AsQueryable();
+
+                // ---- Permission filter (same as employee) ----
+                query = await ApplyPermissionFilter(query);
+
+                // ---- Optional filters (sent from the front-end) ----
+                if (organizationId.HasValue)
+                {
+                    query = query.Where(e => e.EmployeeOfficeInfoEmployee.FirstOrDefault().OrganizationID == organizationId.Value);
+                }
+
+                if (employeePersonalId.HasValue)
+                {
+                    // Example: exclude the selected employee himself
+                    query = query.Where(e => e.EmployeeID != employeePersonalId.Value);
+                }
+
+                // ---- Search term ----
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    search = search.Trim().ToLower();
+                    query = query.Where(e =>
+                        e.FirstName.ToLower().Contains(search) ||
+                        e.LastName.ToLower().Contains(search) ||
+                        e.EmployeeCode.ToLower().Contains(search) ||
+                        e.Email.ToLower().Contains(search));
+                }
+
+                query = query.OrderBy(e => e.FirstName);
+
+                var totalCount = await query.CountAsync();
+                var hasMore = (page * pageSize) < totalCount;
+
+                var items = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(e => new
+                    {
+                        value = e.EmployeeID.ToString(),
+                        label = $"{e.FirstName} {e.LastName} ({e.EmployeeCode})"
+                    })
+                    .ToListAsync();
+
+                return Json(new
+                {
+                    items,
+                    hasMore,
+                    totalCount
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    items = new List<object>(),
+                    hasMore = false,
+                    error = "Failed to load supervisors"
+                });
+            }
+        }
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeeHOD(    string search = "", int page = 1, int pageSize = 50,    int? departmentId = null)
+        {
+            try
+            {
+                var query = _employeeRepository.AllActive().Include(e=>e.EmployeeOfficeInfoEmployee).AsQueryable();
+
+                query = await ApplyPermissionFilter(query);
+
+                if (departmentId.HasValue)
+                {
+                    // Assuming you have a navigation property or a join table
+                    // Example: Employee.DepartmentID
+                    query = query.Where(e => e.EmployeeOfficeInfoEmployee.FirstOrDefault().DepartmentID == departmentId.Value);
+                }
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    search = search.Trim().ToLower();
+                    query = query.Where(e =>
+                        e.FirstName.ToLower().Contains(search) ||
+                        e.LastName.ToLower().Contains(search) ||
+                        e.EmployeeCode.ToLower().Contains(search));
+                }
+
+                query = query.OrderBy(e => e.FirstName);
+
+                var totalCount = await query.CountAsync();
+                var hasMore = (page * pageSize) < totalCount;
+
+                var items = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(e => new
+                    {
+                        value = e.EmployeeID.ToString(),
+                        label = $"{e.FirstName} {e.LastName} ({e.EmployeeCode}) - HOD"
+                    })
+                    .ToListAsync();
+
+                return Json(new
+                {
+                    items,
+                    hasMore,
+                    totalCount
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    items = new List<object>(),
+                    hasMore = false,
+                    error = "Failed to load HOD"
+                });
+            }
+        }
+
+
+
+
+
     }
 }

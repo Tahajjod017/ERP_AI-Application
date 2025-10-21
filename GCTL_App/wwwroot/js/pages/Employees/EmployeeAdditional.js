@@ -7,25 +7,14 @@ $(document).ready(function () {
 
 
 
-    //paginationService.init('EmployeePersonalId', {
-    //    apiUrl: '/EmployeePersonal/SearchEmployees',
-    //    pageSize: 50,
-    //    minSearchLength: 2,
-    //    placeholder: 'Select Employee',
-    //    searchPlaceholder: 'Type to search employees...',
-    //    noChoicesText: 'Type 2 or more characters...',
-    //    debounceDelay: 500,
-    //    extraParams: {
+    var initData = $('#initEmp').val();
 
-    //    },
-    //    onError: (error) => {
-    //        console.error('Employee search failed:', error);
-    //        toastr.error('Failed to load employees');
-    //    }
-    //});
+    if (initData && initData !== '') {
+        setTimeout(function () {
+            loadAndSelectEmployee(initData);
+        }, 300);
+    }
 
-
-   
     paginationService.init('EmployeePersonalId', {
         apiUrl: '/EmployeePersonal/SearchEmployees',
         pageSize: 50,
@@ -34,6 +23,45 @@ $(document).ready(function () {
         placeholder: 'Select Employee',
         searchPlaceholder: 'Type to search...'
     });
+
+   
+
+
+
+    async function loadAndSelectEmployee(employeeId) {
+        try {
+            // Fetch the specific employee data from server
+            const response = await fetch(`/EmployeePersonal/GetEmployeeByIdCC?id=${employeeId}`);
+            const employee = await response.json();
+
+            if (employee && employee.value) {
+                // Get the Choices instance
+                const instance = paginationService.activeInstances['EmployeePersonalId'];
+
+                if (instance && instance.choices) {
+                    // Add this specific employee to choices first
+                    instance.choices.setChoices([{
+                        value: employee.value,
+                        label: employee.label,
+                        selected: true
+                    }], 'value', 'label', false);
+
+                    // Set the value
+                    instance.choices.setChoiceByValue(employee.value);
+
+                    // Update the underlying select
+                    $('#EmployeePersonalId').val(employee.value).trigger('change');
+
+                    console.log('Employee preselected:', employee.label);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading preselected employee:', error);
+        }
+    }
+
+
+
 
     $('#EmployeePersonalId').on('change', function (e) {
         const selectedEmployeeId = e.target.value;
@@ -49,6 +77,9 @@ $(document).ready(function () {
 
     //#endregion
 
+
+    //#region Get Last Int from URL
+
     function getLastIntFromUrl() {
         const parts = window.location.pathname.split('/').filter(Boolean).reverse();
         return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
@@ -59,13 +90,20 @@ $(document).ready(function () {
 
     if (lastInt) {
         loadEmployeeAdditionalData(lastInt);
-        paginationService.setValue('EmployeePersonalId', lastInt);
+       // paginationService.setValue('EmployeePersonalId', lastInt);
+
+
+       
+        setTimeout(function () {
+            loadAndSelectEmployee(lastInt);
+        }, 300);
+       
 
 
         //TabChange(lastInt);
     }
 
-
+    //#endregion
 
     //#region Load Data
 

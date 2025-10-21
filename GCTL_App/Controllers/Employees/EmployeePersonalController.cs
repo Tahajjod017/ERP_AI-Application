@@ -342,16 +342,42 @@ namespace GCTL_App.Controllers.Employees
         #endregion
 
 
+        #region choice chip employee dropdown
+
         [HttpGet]
         public async Task<IActionResult> SearchEmployees(string search = "", int page = 1, int pageSize = 50)
         {
             try
             {
-                // Base query
-                var query = _employeeRepository.AllActive()
-                    .AsQueryable();
 
-                // Apply search filter
+                var query = _employeeRepository.AllActive().AsQueryable();
+
+                var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+                
+                if (loggedUser != null)
+                {
+                    var userId = loggedUser.Id;
+
+                    var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+                    var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+
+                    var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
+
+
+                    bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                    if (!hasEmployeePermission)
+                    {
+                        var empid = loggedUser.EmployeeId;
+                        query = query.Where(e => e.EmployeeID == empid);
+                    }
+                }
+
+
+
+                
+               
+               
                 if (!string.IsNullOrWhiteSpace(search))
                 {
                     search = search.Trim().ToLower();
@@ -399,6 +425,36 @@ namespace GCTL_App.Controllers.Employees
                 });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEmployeeByIdCC(int id)
+        {
+            try
+            {
+                var employee = await _employeeRepository.AllActive()
+                    .Where(e => e.EmployeeID == id)
+                    .Select(e => new
+                    {
+                        value = e.EmployeeID.ToString(),
+                        label = $"{e.FirstName} {e.LastName}({e.EmployeeCode})"
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (employee == null)
+                {
+                    return NotFound();
+                }
+
+                return Json(employee);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+
+        #endregion
 
     }
 }
