@@ -45,5 +45,15 @@ namespace GCTL_App.Controllers.FieldServices
             }
         }
         #endregion
+
+        #region get Customer
+        [HttpGet("GetCustomers")]
+        public async Task<IActionResult> GetCustomers(string search = "", int page = 1, int pageSize = 10)
+        {
+            var result = await _createJobService.GetPagedEmployeesAsync(search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0);
+
+            return Ok(result);
+        }
+        #endregion
     }
 }

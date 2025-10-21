@@ -632,6 +632,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Settings].[AppSettings]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Settings].[DateFormats]",
          "ObjectType": 0
       },

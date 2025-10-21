@@ -109,6 +109,12 @@ public partial class Employees
 
     public virtual ICollection<Alerts> AlertsUpdatedByNavigation { get; set; } = new List<Alerts>();
 
+    public virtual ICollection<AppSettings> AppSettingsCreatedByNavigation { get; set; } = new List<AppSettings>();
+
+    public virtual ICollection<AppSettings> AppSettingsDeletedByNavigation { get; set; } = new List<AppSettings>();
+
+    public virtual ICollection<AppSettings> AppSettingsUpdatedByNavigation { get; set; } = new List<AppSettings>();
+
     public virtual ICollection<ApprovalDesignation> ApprovalDesignationCreatedByNavigation { get; set; } = new List<ApprovalDesignation>();
 
     public virtual ICollection<ApprovalDesignation> ApprovalDesignationDeletedByNavigation { get; set; } = new List<ApprovalDesignation>();

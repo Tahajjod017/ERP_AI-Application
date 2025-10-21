@@ -10,8 +10,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol;
-using SkiaSharp;
 
 
 namespace GCTL_App.Controllers.CRM
@@ -116,7 +114,7 @@ namespace GCTL_App.Controllers.CRM
         public async Task<IActionResult> GetCustomerList()
         {
             var customers = await _customerAddressesRepository
-                    .Find(u => u.AddressType.AddressTypeName == "billing" || u.AddressType.AddressTypeName == "company")
+                    .Find(u => u.AddressType.AddressTypeName == "individual" || u.AddressType.AddressTypeName == "company")
                     .OrderBy(n => n.Customer.FullName)
                     .Select(n => new
                     {
@@ -131,7 +129,6 @@ namespace GCTL_App.Controllers.CRM
             return Json(customers);
         }
         #endregion
-
 
         #region addCountry
         [HttpGet]

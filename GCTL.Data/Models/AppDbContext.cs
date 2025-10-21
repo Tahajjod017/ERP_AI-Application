@@ -26,24 +26,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<Alerts> Alerts { get; set; }
 
+    public virtual DbSet<AppSettings> AppSettings { get; set; }
+
     public virtual DbSet<ApprovalDesignation> ApprovalDesignation { get; set; }
 
     public virtual DbSet<ApprovalSettings> ApprovalSettings { get; set; }
 
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
-
-    //public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
-
-    //public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
-
-    //public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
-
-    //public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
-
-    //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
-
-    //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
-
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
@@ -497,6 +486,40 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.AlertsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__Alerts__UpdatedB__113584D1");
+        });
+
+        modelBuilder.Entity<AppSettings>(entity =>
+        {
+            entity.HasKey(e => e.AppSettingID).HasName("PK__AppSetti__8CCD7876B6599113");
+
+            entity.ToTable("AppSettings", "Settings");
+
+            entity.Property(e => e.AppName).HasMaxLength(20);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.FaviconLink).HasMaxLength(100);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LogoLink).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.AppSettingsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__AppSettin__Creat__448B0BA5");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.AppSettingsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__AppSettin__Delet__47677850");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.AppSettings)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__AppSettin__Organ__4396E76C");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.AppSettingsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__AppSettin__Updat__457F2FDE");
         });
 
         modelBuilder.Entity<ApprovalDesignation>(entity =>
@@ -1325,6 +1348,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Head).WithMany(p => p.Customers)
                 .HasForeignKey(d => d.HeadID)
                 .HasConstraintName("FK_Heads_HeadID_Customers");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.Customers)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK_Organization_OrganizationID_Customers");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.CustomersUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
