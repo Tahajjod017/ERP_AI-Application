@@ -7,6 +7,8 @@
         </div>
     </div>
 
+    <input  type="hidden" id="initEmp"  value="@ViewBag.empId"/>
+
     <div class="px-3 mb-5">
         <div class="row">
             <form asp-controller="EmployeeAdditional" id="additionalForm" asp-action="Index" method="post">
@@ -67,14 +69,14 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating">
                                                         <input asp-for="PasportName" class="form-control " type="text" placeholder="@Html.SmartLocalize("Enter Passport Name")" />
-                                                        <label asp-for="PasportName">@Html.SmartLocalize("Passport Name")</label>
+                                                        <label class="req" asp-for="PasportName">@Html.SmartLocalize("Passport Name")</label>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating">
                                                         <input asp-for="PasportNo" class="form-control" type="text" placeholder="@Html.SmartLocalize("Enter Passport No.")" />
-                                                        <label asp-for="PasportNo">@Html.SmartLocalize("Passport No.")</label>
+                                                        <label class="req" asp-for="PasportNo">@Html.SmartLocalize("Passport No.")</label>
                                                     </div>
                                                 </div>
 
@@ -109,7 +111,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating">
                                                         <input asp-for="DrivingLicenceNo" class="form-control" type="text" placeholder="@Html.SmartLocalize("License No")" required />
-                                                        <label asp-for="DrivingLicenceNo">@Html.SmartLocalize("License No")</label>
+                                                        <label class="req" asp-for="DrivingLicenceNo">@Html.SmartLocalize("License No")</label>
                                                     </div>
                                                 </div>
 
@@ -145,7 +147,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating">
                                                         <input asp-for="SymbolOfVehicleClass" class="form-control" type="text" placeholder="@Html.SmartLocalize("Symbol Of Vehicle Class")" />
-                                                        <label asp-for="SymbolOfVehicleClass">@Html.SmartLocalize("Symbol Of Vehicle Class")</label>
+                                                        <label class="req" asp-for="SymbolOfVehicleClass">@Html.SmartLocalize("Symbol Of Vehicle Class")</label>
                                                     </div>
                                                 </div>
 

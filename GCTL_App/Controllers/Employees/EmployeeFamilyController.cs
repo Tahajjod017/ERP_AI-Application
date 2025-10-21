@@ -61,6 +61,20 @@ namespace GCTL_App.Controllers.Employees
 
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "FamilyInfo");
                 ViewBag.Navigation = navigationModel;
+
+
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+                    ViewBag.empId = empid;
+                }
+                else
+                {
+                    ViewBag.empId = id;
+                }
+
             }
 
            

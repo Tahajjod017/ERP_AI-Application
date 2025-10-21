@@ -2,6 +2,10 @@
 @model GCTL.Core.ViewModels.Employee.EmployeeOfficial.EmployeeOfficialPostViewModel
 
 
+
+<input type="hidden" id="initEmp" value="@ViewBag.empId" />
+
+
 <div class="mb-9">
 
 
@@ -26,7 +30,7 @@
                         <div class="col-md-2">
                             <div class="form-floating form-floating-advance-select mb-2">
                                 <label asp-for="EmployeePersonalId">@Html.SmartLocalize("Choose Employee")</label>
-                                <select class="form-select choiceDD" asp-for="EmployeePersonalId" id="EmployeePersonalId">
+                                <select class="form-select " asp-for="EmployeePersonalId" id="EmployeePersonalId">
                                     <option value="">@Html.SmartLocalize("Select Employee")</option>
                                 </select>
 
@@ -156,7 +160,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label asp-for="SeniorSupervisorId">@Html.SmartLocalize("Senior Supervisor")</label>
-                                                        <select class="form-select choiceDD" asp-for="SeniorSupervisorId" id="SeniorSupervisorId" >
+                                                        <select class="form-select " asp-for="SeniorSupervisorId" id="SeniorSupervisorId" >
                                                             <option value="">@Html.SmartLocalize("Select Senior Supervisor")</option>
                                                         </select>
                                                     </div>
@@ -165,7 +169,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label asp-for="ImmediateSupervisorId">@Html.SmartLocalize("Immediate Supervisor")</label>
-                                                        <select class="form-select choiceDD" asp-for="ImmediateSupervisorId" id="ImmediateSupervisorId">
+                                                        <select class="form-select " asp-for="ImmediateSupervisorId" id="ImmediateSupervisorId">
                                                             <option value="">@Html.SmartLocalize("Select Immediate Supervisor")</option>
                                                         </select>
                                                     </div>
@@ -174,7 +178,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label asp-for="HeadOfDepartmentId">@Html.SmartLocalize("Head of Department")</label>
-                                                        <select class="form-select choiceDD" asp-for="HeadOfDepartmentId" id="HeadOfDepartmentId">
+                                                        <select class="form-select " asp-for="HeadOfDepartmentId" id="HeadOfDepartmentId">
                                                             <option value="">@Html.SmartLocalize("Select Head of Department")</option>
                                                         </select>
                                                     </div>
