@@ -5,19 +5,21 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class TransactionAccounts
+public partial class PostingRuleDetails
 {
-    public int TrxAccID { get; set; }
+    public int PostingRuleDetailID { get; set; }
 
-    public int SubAccountID { get; set; }
+    public int? PostingRuleID { get; set; }
 
-    public string TrxAccCode { get; set; }
+    public int? SubDebitAccountID { get; set; }
 
-    public string TrxAccName { get; set; }
+    public int? SubCreditAccountID { get; set; }
 
-    public bool IsActive { get; set; }
+    public int? TrxDebitAccountID { get; set; }
 
-    public string Description { get; set; }
+    public int? TrxCreditAccountID { get; set; }
+
+    public bool? IsActive { get; set; }
 
     public string LIP { get; set; }
 
@@ -35,19 +37,19 @@ public partial class TransactionAccounts
 
     public int? DeletedBy { get; set; }
 
-    public int? HeadID { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Heads Head { get; set; }
+    public virtual PostingRules PostingRule { get; set; }
 
-    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsTrxCreditAccount { get; set; } = new List<PostingRuleDetails>();
+    public virtual SubAccounts SubCreditAccount { get; set; }
 
-    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsTrxDebitAccount { get; set; } = new List<PostingRuleDetails>();
+    public virtual SubAccounts SubDebitAccount { get; set; }
 
-    public virtual SubAccounts SubAccount { get; set; }
+    public virtual TransactionAccounts TrxCreditAccount { get; set; }
+
+    public virtual TransactionAccounts TrxDebitAccount { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -57,6 +57,8 @@ public partial class Organization
 
     public string FullAddress { get; set; }
 
+    public virtual ICollection<AppSettings> AppSettings { get; set; } = new List<AppSettings>();
+
     public virtual ICollection<ApprovalSettings> ApprovalSettings { get; set; } = new List<ApprovalSettings>();
 
     public virtual ICollection<ApprovalTypes> ApprovalTypes { get; set; } = new List<ApprovalTypes>();
@@ -74,6 +76,8 @@ public partial class Organization
     public virtual Country Country { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
+
+    public virtual ICollection<Customers> Customers { get; set; } = new List<Customers>();
 
     public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
 

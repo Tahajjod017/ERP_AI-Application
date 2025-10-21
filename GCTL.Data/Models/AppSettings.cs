@@ -5,19 +5,17 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class TransactionAccounts
+public partial class AppSettings
 {
-    public int TrxAccID { get; set; }
+    public int AppSettingID { get; set; }
 
-    public int SubAccountID { get; set; }
+    public int? OrganizationID { get; set; }
 
-    public string TrxAccCode { get; set; }
+    public string AppName { get; set; }
 
-    public string TrxAccName { get; set; }
+    public string LogoLink { get; set; }
 
-    public bool IsActive { get; set; }
-
-    public string Description { get; set; }
+    public string FaviconLink { get; set; }
 
     public string LIP { get; set; }
 
@@ -35,19 +33,11 @@ public partial class TransactionAccounts
 
     public int? DeletedBy { get; set; }
 
-    public int? HeadID { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Heads Head { get; set; }
-
-    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsTrxCreditAccount { get; set; } = new List<PostingRuleDetails>();
-
-    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsTrxDebitAccount { get; set; } = new List<PostingRuleDetails>();
-
-    public virtual SubAccounts SubAccount { get; set; }
+    public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
