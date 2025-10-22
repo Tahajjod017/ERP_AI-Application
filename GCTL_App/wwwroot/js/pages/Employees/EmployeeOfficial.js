@@ -1,52 +1,266 @@
 ﻿$(document).ready(function () {
-    // Wait for choiceManager to initialize
-    function initializePaginatedDropdowns() {
-        console.debug('Initializing paginated dropdowns');
-        const dropdownConfigs = [
-            {
-                selectId: 'EmployeePersonalId',
-                endpoint: '/EmployeePersonal/SearchEmployeeDD',
-                placeholderText: 'Select Employee...',
-                minSearchLength: 3,
-                pageSize: 50
-            },
-            // keep the two supervisor configs you already have …
-            {
-                selectId: 'SeniorSupervisorId',
-                endpoint: '/EmployeeOfficial/GetEmployeeSupDDbyComp',
-                placeholderText: 'Select Senior Supervisor...',
-                minSearchLength: 3,
-                pageSize: 50,
-                dependencies: ['OrganizationID', 'EmployeePersonalId']
-            },
-            {
-                selectId: 'ImmediateSupervisorId',
-                endpoint: '/EmployeeOfficial/GetEmployeeSupDDbyComp',
-                placeholderText: 'Select Immediate Supervisor...',
-                minSearchLength: 3,
-                pageSize: 50,
-                dependencies: ['OrganizationID', 'EmployeePersonalId']
-            },
-            {
-                selectId: 'HeadOfDepartmentId',
-                endpoint: '/EmployeeOfficial/GetEmployeeHOD',
-                placeholderText: 'Select Head of Department...',
-                minSearchLength: 3,
-                pageSize: 50,
-                dependencies: ['DepartmentID']
-            }
-        ];
+    
+   // const choicesInstances = initializePaginatedDropdowns();
 
-        const choicesInstances = {};
-        dropdownConfigs.forEach(config => {
-            console.debug(`Initializing Choices for ${config.selectId}`);
-            choicesInstances[config.selectId] = initPaginatedChoices(config);
-            if (!choicesInstances[config.selectId]) {
-                console.error(`Failed to initialize Choices for ${config.selectId}`);
+    
+    let choicesInstances = {};
+
+    try {
+        if (typeof initializePaginatedDropdowns === 'function') {
+            choicesInstances = initializePaginatedDropdowns();
+        }
+    } catch (error) {
+        console.warn('initializePaginatedDropdowns not available, using empty object');
+        choicesInstances = {};
+    }
+   
+
+   
+    //#region employeeChoices with onchange
+
+
+
+
+    var initData = $('#initEmp').val();
+
+    if (initData && initData !== '') {
+        setTimeout(function () {
+            loadAndSelectEmployee(initData);
+        }, 300);
+    }
+
+    paginationService.init('EmployeePersonalId', {
+        apiUrl: '/EmployeePersonal/SearchEmployees',
+        pageSize: 50,
+        minSearchLength: 2,
+        loadInitial: true,
+        placeholder: 'Select Employee',
+        searchPlaceholder: 'Type to search...'
+    });
+
+
+
+
+    $("#OrganizationID").change(function () {
+        const selectedId = $(this).val();
+        const empID = choiceManager.getChoiceValue('EmployeePersonalId') || '';
+
+        // Refresh supervisor Select2 dropdowns
+        const supervisorIds = ['SeniorSupervisorId', 'ImmediateSupervisorId', 'HeadOfDepartmentId'];
+
+        supervisorIds.forEach(fieldId => {
+            const $select = $('#' + fieldId);
+            if ($select.length) {
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    // This is a Select2 dropdown - clear it
+                    $select.val(null).trigger('change');
+                } else {
+                    // This might be a choices.js dropdown - refresh it
+                    const paginatedInstance = choicesInstances[fieldId];
+                    if (paginatedInstance && paginatedInstance.refresh) {
+                        paginatedInstance.refresh();
+                    }
+                }
             }
         });
-        return choicesInstances;
+
+        // Refresh EmployeePersonalId (choices.js)
+        const employeeInstance = choicesInstances['EmployeePersonalId'];
+        if (employeeInstance && employeeInstance.refresh) {
+            employeeInstance.refresh();
+        }
+
+        GetBranches(selectedId);
+    });
+
+    $("#DepartmentID").change(function () {
+        const selectedId = $(this).val();
+
+        // Handle Head of Department refresh
+        const $headOfDept = $('#HeadOfDepartmentId');
+        if ($headOfDept.length) {
+            if ($headOfDept.hasClass('select2-hidden-accessible')) {
+                // Select2 dropdown - clear it
+                $headOfDept.val(null).trigger('change');
+            } else {
+                // Choices.js dropdown - refresh it
+                const paginatedInstance = choicesInstances['HeadOfDepartmentId'];
+                if (paginatedInstance && paginatedInstance.refresh) {
+                    paginatedInstance.refresh();
+                }
+            }
+        }
+    });
+
+
+
+
+    //#region Initialize Select2 for Supervisor Dropdowns
+    function initializeSupervisorSelect2() {
+        const commonConfig = {
+            width: '100%',
+            ajax: {
+                url: '/EmployeeOfficial/GetSupervisors',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    
+                    //const organizationId = $('#OrganizationID').val();
+                    //const departmentId = $('#DepartmentID').val();
+
+                    const organizationId = choiceManager.getChoiceValue('OrganizationID');
+                    const departmentId = choiceManager.getChoiceValue('DepartmentID');
+
+                    return {
+                        search: params.term || '',
+                        page: params.page || 1,
+                        organizationId: organizationId,
+                        departmentId: departmentId,
+                        roleType: $(this).attr('id') // This will be the select element ID
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results,
+                        pagination: {
+                            more: data.pagination.more
+                        }
+                    };
+                },
+                cache: true
+            }
+        };
+
+        // Senior Supervisor
+        $('#SeniorSupervisorId').select2({
+            ...commonConfig,
+            placeholder: 'Select Senior Supervisor'
+        });
+
+        // Immediate Supervisor
+        $('#ImmediateSupervisorId').select2({
+            ...commonConfig,
+            placeholder: 'Select Immediate Supervisor'
+        });
+
+        // Head of Department
+        $('#HeadOfDepartmentId').select2({
+            ...commonConfig,
+            placeholder: 'Select Head of Department'
+        });
+
+        // Refresh supervisor dropdowns when organization or department changes
+        $('#OrganizationID, #DepartmentID').on('change', function () {
+            refreshSupervisorDropdowns();
+        });
     }
+
+    function refreshSupervisorDropdowns() {
+        const organizationId = $('#OrganizationID').val();
+        const departmentId = $('#DepartmentID').val();
+
+        if (!organizationId) {
+            // Clear all supervisor dropdowns if no organization selected
+            $('#SeniorSupervisorId, #ImmediateSupervisorId, #HeadOfDepartmentId')
+                .val(null).trigger('change');
+            return;
+        }
+
+        // Refresh each dropdown
+        $('#SeniorSupervisorId').val(null).trigger('change');
+        $('#ImmediateSupervisorId').val(null).trigger('change');
+        $('#HeadOfDepartmentId').val(null).trigger('change');
+    }
+
+    // Initialize Select2 dropdowns
+    initializeSupervisorSelect2();
+    //#endregion
+
+
+    async function loadAndSelectEmployee(employeeId) {
+        try {
+            // Fetch the specific employee data from server
+            const response = await fetch(`/EmployeePersonal/GetEmployeeByIdCC?id=${employeeId}`);
+            const employee = await response.json();
+
+            if (employee && employee.value) {
+                // Get the Choices instance
+                const instance = paginationService.activeInstances['EmployeePersonalId'];
+
+                if (instance && instance.choices) {
+                    // Add this specific employee to choices first
+                    instance.choices.setChoices([{
+                        value: employee.value,
+                        label: employee.label,
+                        selected: true
+                    }], 'value', 'label', false);
+
+                    // Set the value
+                    instance.choices.setChoiceByValue(employee.value);
+
+                    // Update the underlying select
+                    $('#EmployeePersonalId').val(employee.value).trigger('change');
+
+                    console.log('Employee preselected:', employee.label);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading preselected employee:', error);
+        }
+    }
+
+
+
+
+    $('#EmployeePersonalId').on('change', function (e) {
+        const selectedEmployeeId = e.target.value;
+        showDev(selectedEmployeeId, 'Selected Employee ID:');
+       
+        if (selectedEmployeeId) {
+            LoadEmployeeOfficData(selectedEmployeeId);
+            TabChange(selectedEmployeeId);
+        } else {
+            clearForm();
+        }
+    });
+
+    //#endregion
+
+
+    //#region Get Last Int from URL
+
+    function getLastIntFromUrl() {
+        const parts = window.location.pathname.split('/').filter(Boolean).reverse();
+        return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
+    }
+
+    const lastInt = getLastIntFromUrl();
+    showDev(lastInt, 'Last int:');
+
+    if (lastInt) {
+        LoadEmployeeOfficData(lastInt);
+       
+
+
+        setTimeout(function () {
+            loadAndSelectEmployee(lastInt);
+        }, 300);
+
+
+
+        //TabChange(lastInt);
+    }
+
+    //#endregion
+
+
+
+  
+
+  
+
+
 
     //#region Form Validation and Submission
     function isValidEmail(email) {
@@ -227,113 +441,7 @@
 
 
     //#endregion
-    
-    $("#OrganizationID").change(function () {
-        const selectedId = $(this).val();
-        const empID = choiceManager.getChoiceValue('EmployeePersonalId') || '';
-
-        ['SeniorSupervisorId', 'ImmediateSupervisorId'/*, 'EmployeePersonalId'*/].forEach(fieldId => {
-            const paginatedInstance = choicesInstances[fieldId];
-            if (paginatedInstance && paginatedInstance.refresh) {
-                paginatedInstance.refresh();               // <-- already correct
-            }
-        });
-
-        GetBranches(selectedId);
-    });
-
-    $("#DepartmentID").change(function () {
-        const selectedId = $(this).val();
-        const paginatedInstance = choicesInstances['HeadOfDepartmentId'];
-
-        if (paginatedInstance && paginatedInstance.refresh) {
-            // ✅ Use the refresh method
-            paginatedInstance.refresh();
-        }
-    });
-
-    $("#EmployeePersonalId").change(function () {
-        const selectedId = $(this).val();
-        TabChange(selectedId);
-
-        const orgId = choiceManager.getChoiceValue('OrganizationID') || '';
-
-        ['SeniorSupervisorId', 'ImmediateSupervisorId'].forEach(fieldId => {
-            const paginatedInstance = choicesInstances[fieldId];
-            if (paginatedInstance && paginatedInstance.refresh) {
-                // ✅ Refresh with new dependencies
-                paginatedInstance.refresh();
-            }
-        });
-
-        LoadEmployeeOfficData(selectedId);
-    });
-
-
-
-    const lastInt = getLastIntFromUrl();
-    if (lastInt) {
-        // 1. fetch the employee (same endpoint you already use)
-        fetch(`/EmployeePersonal/GetEmployeeById?id=${lastInt}`)
-            .then(r => r.json())
-            .then(employee => {
-                const inst = choicesInstances['EmployeePersonalId'];
-                if (!inst) throw new Error('EmployeePersonalId instance not ready');
-
-                // 2. inject the single item (paginated Choices understands static items)
-                inst.choices.setChoices([{
-                    value: employee.id,
-                    label: employee.name,
-                    selected: true
-                }], 'value', 'label', false);
-
-                // 3. select it
-                inst.choices.setChoiceByValue(employee.id.toString());
-
-                // 4. fire native change so the rest of the page reacts
-                $('#EmployeePersonalId').val(employee.id).trigger('change');
-
-                // 5. load the rest of the form
-                LoadEmployeeOfficData(lastInt);
-            })
-            .catch(err => console.error('Pre-select employee failed:', err));
-    }
-
-  
-
-    // Load a specific employee by ID into the dropdown
-    async function loadEmployeeById(empId) {
-        try {
-            console.debug(`Loading employee with ID: ${empId}`);
-            const res = await fetch(`/EmployeePersonal/GetEmployeeById?id=${empId}`);
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            const employee = await res.json();
-            if (employee && choicesInstances['EmployeePersonalId']) {
-                console.debug(`Populating EmployeePersonalId with:`, employee);
-                choiceManager.populator.populateStatic('EmployeePersonalId', [{
-                    value: employee.id,
-                    label: employee.name,
-                    selected: true
-                }], {
-                    labelKey: 'label',
-                    valueKey: 'value',
-                    placeholder: choiceManager.getPlaceholderFromHtml('EmployeePersonalId') || 'Select Employee...'
-                });
-            }
-        } catch (error) {
-            console.error('Error loading employee by ID:', error);
-        }
-    }
-
-
-    function getLastIntFromUrl() {
-        const parts = window.location.pathname.split('/').filter(Boolean).reverse();
-        return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
-    }
-
-    // Other existing functions
+   
     function GetBranches(selectedId) {
         $.ajax({
             url: '/EmployeeOfficial/GetBranches',
@@ -384,6 +492,7 @@
         }
     }
 
+    //#region Modified populateChoicesDropdowns function for Select2
     function populateChoicesDropdowns(response) {
         const mapping = [
             { id: 'OrganizationID', value: response.organizationID },
@@ -393,34 +502,59 @@
             { id: 'EmploymentNatureID', value: response.employmentNatureID },
             { id: 'ProvisionPeriodTtimeTypeID', value: response.provisionPeriodTtimeTypeID },
             { id: 'EmploymentStatusId', value: response.employmentStatusId },
-
-            // ---- paginated ones ----
-          //  { id: 'EmployeePersonalId', value: response.employeePersonalId },
-            { id: 'SeniorSupervisorId', value: response.seniorSupervisorId },
-            { id: 'ImmediateSupervisorId', value: response.immediateSupervisorId },
-            { id: 'HeadOfDepartmentId', value: response.headOfDepartmentId },
-
             { id: 'OrganizationBranchID', value: response.organizationBranchID }
         ];
 
-        mapping.forEach(m => {
-            if (!m.value) return;
-
-            const inst = choicesInstances[m.id];
-            if (inst && inst.choices) {
-                // inject + select
-                inst.choices.setChoices([{
-                    value: m.value.toString(),
-                    label: ''   // label will be filled by the server when the user opens the dropdown
-                }], 'value', 'label', false);
-                inst.choices.setChoiceByValue(m.value.toString());
-                $(`#${m.id}`).val(m.value).trigger('change');
-            } else {
-                // fallback for non-paginated dropdowns (OrganizationID, etc.)
-                choiceManager.setChoiceValue(m.id, m.value.toString());
-            }
+        mapping.forEach(item => {
+            choiceManager.setChoiceValue(item.id, item.value);
         });
+
+        
+        // Set supervisor values after a delay to ensure dropdowns are initialized
+        setTimeout(function () {
+            // Set organization and department first
+            if (response.organizationID) {
+                $('#OrganizationID').val(response.organizationID).trigger('change');
+            }
+
+            if (response.departmentID) {
+                $('#DepartmentID').val(response.departmentID).trigger('change');
+            }
+
+            // Then set supervisor values
+            setTimeout(function () {
+                debugger
+                if (response.seniorSupervisorId && response.seniorSupervisorName) {
+                    setSelectedSupervisor('SeniorSupervisorId', response.seniorSupervisorId, response.seniorSupervisorName);
+                }
+                if (response.immediateSupervisorId && response.immediateSupervisorName) {
+                    setSelectedSupervisor('ImmediateSupervisorId', response.immediateSupervisorId, response.immediateSupervisorName);
+                }
+                if (response.headOfDepartmentId && response.headOfDepartmentName) {
+                    setSelectedSupervisor('HeadOfDepartmentId', response.headOfDepartmentId, response.headOfDepartmentName);
+                }
+            }, 1000);
+        }, 500);
     }
+
+    // Function to set selected supervisor in Select2
+    function setSelectedSupervisor(selectId, supervisorId, supervisorName) {
+        if (supervisorId && supervisorName) {
+            var $select = $('#' + selectId);
+
+            // Create and append the option
+            if ($select.find('option[value="' + supervisorId + '"]').length === 0) {
+                var option = new Option(supervisorName, supervisorId, true, true);
+                $select.append(option);
+            }
+
+            // Set the value and trigger change
+            $select.val(supervisorId).trigger('change');
+        }
+    }
+    //#endregion
+
+
 
     function populateFormFields(response) {
         const fieldMappings = {
@@ -498,12 +632,18 @@
         $("#floatingInputConfirmationDate, #floatingInputContractEndDate").val('');
         choiceManager.resetAllChoices();
         $("input[name='EmployeeOfficeInfoID']").val('');
+
+
+        $('#SeniorSupervisorId').val(null).trigger('change');
+        $('#ImmediateSupervisorId').val(null).trigger('change');
+        $('#HeadOfDepartmentId').val(null).trigger('change');
+
     }
 
     //#endregion
 
     // Initialize paginated dropdowns after choiceManager
-    const choicesInstances = initializePaginatedDropdowns();
+   // const choicesInstances = initializePaginatedDropdowns();
 });
 
 
