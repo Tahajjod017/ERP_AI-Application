@@ -60,15 +60,14 @@
             <!-- Vital dashboard Information -->
             <div class="border rounded">
                 <div class="row gx-0">
-
                     <div class="col-md col-sm-4 border-end">
                         <div class="p-3">
                             <span class="fw-medium mb-1 d-block">Present</span>
                             <div class="d-flex align-items-center justify-content-between">
-                                <h5>300</h5>
+                                <h5 id="present-count">0</h5>
                                 <span class="badge badge-phoenix badge-phoenix-success">
                                     <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    75 %
+                                    <span id="present-percent">0 %</span>
                                 </span>
                             </div>
                         </div>
@@ -78,10 +77,10 @@
                         <div class="p-3">
                             <span class="fw-medium mb-1 d-block">Late Present</span>
                             <div class="d-flex align-items-center justify-content-between">
-                                <h5>50</h5>
+                                <h5 id="late-present-count">0</h5>
                                 <span class="badge badge-phoenix badge-phoenix-danger">
                                     <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    12 %
+                                    <span id="late-present-percent">0 %</span>
                                 </span>
                             </div>
                         </div>
@@ -89,25 +88,12 @@
 
                     <div class="col-md col-sm-4 border-end">
                         <div class="p-3">
-                            <span class="fw-medium mb-1 d-block">Leave</span>
+                            <span class="fw-medium mb-1 d-block"> Early out</span>
                             <div class="d-flex align-items-center justify-content-between">
-                                <h5>20</h5>
+                                <h5 id="leave-count">0</h5>
                                 <span class="badge badge-phoenix badge-phoenix-warning">
                                     <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    03 %
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md col-sm-4 border-end">
-                        <div class="p-3">
-                            <span class="fw-medium mb-1 d-block">Site Visit</span>
-                            <div class="d-flex align-items-center justify-content-between">
-                                <h5>25</h5>
-                                <span class="badge badge-phoenix badge-phoenix-success">
-                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    06 %
+                                    <span id="leave-percent">0 %</span>
                                 </span>
                             </div>
                         </div>
@@ -117,10 +103,10 @@
                         <div class="p-3">
                             <span class="fw-medium mb-1 d-block">Absent</span>
                             <div class="d-flex align-items-center justify-content-between">
-                                <h5>10</h5>
+                                <h5 id="absent-count">0</h5>
                                 <span class="badge badge-phoenix badge-phoenix-danger">
                                     <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    03 %
+                                    <span id="absent-percent">0 %</span>
                                 </span>
                             </div>
                         </div>

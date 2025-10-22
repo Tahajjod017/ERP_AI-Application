@@ -159,5 +159,45 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
             return result;
         }
 
+        public async Task<AttendanceSummaryDto> GetSummaryAll()
+        {
+            var today = DateTime.Today;
+
+            var attendancesToday = _genericRepository.All()
+                .Where(x => x.DeletedAt == null && x.AttendanceDate == DateOnly.FromDateTime(today)); // Fix: Compare DateOnly with DateOnly
+
+            var totalLate = await attendancesToday
+                .Where(x => x.LateTimeMinutes > 0)
+                .CountAsync();
+
+            var totalLeave = await attendancesToday
+                .Where(x => x.EarlyTimeMinutes > 0)
+                .CountAsync();
+
+            var totalAbsent = await attendancesToday
+                .Where(x => x.OvertimeMinutes > 0)
+                .CountAsync();
+
+            // Present = total who punched in, excluding those who were late, left early, or had overtime
+            var totalPresent = await attendancesToday
+                .Where(x => x.LateTimeMinutes == 0 && x.EarlyTimeMinutes == 0 && x.OvertimeMinutes == 0)
+                .CountAsync();
+
+            var total = totalPresent + totalLate + totalLeave + totalAbsent;
+            total = total == 0 ? 1 : total;
+
+            return new AttendanceSummaryDto
+            {
+                Present = totalPresent,
+                LatePresent = totalLate,
+                Leave = totalLeave,
+                Absent = totalAbsent,
+
+                PresentPercent = (int)Math.Round((double)totalPresent / total * 100),
+                LatePresentPercent = (int)Math.Round((double)totalLate / total * 100),
+                LeavePercent = (int)Math.Round((double)totalLeave / total * 100),
+                AbsentPercent = (int)Math.Round((double)totalAbsent / total * 100)
+            };
+        }
     }
 }
