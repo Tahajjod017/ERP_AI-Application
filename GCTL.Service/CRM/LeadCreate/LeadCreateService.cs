@@ -25,6 +25,7 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly IGenericRepository<CompanyBranches> _companyBranchesRepository;
         private readonly IGenericRepository<CompanyBranchAddresses> _companyBranchAddressesRepository;
         private readonly IGenericRepository<LeadServices> _leadServicesRepository;
+        private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfoRepository;
         private readonly AppDbContext _context;
 
         #region Added by Md. Rakib Hasan
@@ -35,7 +36,7 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly ITransactionAccountService _transactionAccountService;
         #endregion
 
-        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, ITransactionAccountService transactionAccountService)
+        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, ITransactionAccountService transactionAccountService, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository)
         {
             _countryRepository = countryRepository;
             _addressesRepository = addressesRepository;
@@ -54,6 +55,7 @@ namespace GCTL.Service.CRM.LeadCreate
             _transactionAccounts = transactionAccounts;
             _subAccounts = subAccounts;
             _transactionAccountService = transactionAccountService;
+            _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
         }
         #endregion
 
@@ -1019,6 +1021,56 @@ namespace GCTL.Service.CRM.LeadCreate
                                     }).FirstOrDefaultAsync();
 
             return customerObj;
+        }
+
+
+        #endregion
+
+        #region get Technician List 
+        public async Task<ReturnDataView<CustomerInfoVM>> GetLeadOwnerListAsync(string search, int page, int pageSize, int organizationID)
+        {
+            var query = _employeeOfficeInfoRepository
+                .AllActive()
+                .Where(q => q.OrganizationID == organizationID);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.Employee.FirstName, pattern) ||
+                        EF.Functions.Like(c.Employee.LastName, pattern) ||
+                        EF.Functions.Like(c.Employee.LastName, pattern) ||
+                        EF.Functions.Like(c.Employee.Email, pattern) ||
+                        EF.Functions.Like(c.Employee.MobileNumber, pattern)
+                    ));
+            }
+
+            query = query
+                .Include(t => t.Employee);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(c => c.Employee.FirstName ?? "")
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize).Select(t => new CustomerInfoVM
+                {
+                    LeadID = t.EmployeeID ?? 0,
+                    Email = t.Employee.Email,
+                    LeadName = t.Employee.FirstName + " " + t.Employee.LastName,
+                    Phone = t.Employee.MobileNumber,
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<CustomerInfoVM>
+            {
+                data = items,
+                totalItem = totalCount,
+                message = "Data loaded"
+            };
         }
         #endregion
     }

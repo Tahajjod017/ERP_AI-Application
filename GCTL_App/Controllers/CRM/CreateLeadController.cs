@@ -217,7 +217,6 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-
         #region getAllCustomerList
         [HttpPost]
         public async Task<IActionResult> getAllCustomerList([FromBody] string query)
@@ -253,7 +252,6 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-
         #region getCompnayList
         [HttpPost]
         public async Task<IActionResult> getCompnayList([FromBody] string query)
@@ -284,7 +282,6 @@ namespace GCTL_App.Controllers.CRM
             return Json(results);
         }
         #endregion
-
 
         #region GetCustomerInfo
         [HttpPost]
@@ -323,7 +320,6 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-
         #region InsertPerson
         [Permission("Create", "CreateLead")]
         [HttpPost]
@@ -347,7 +343,6 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-
         #region InsertCompany
         [HttpPost]
         public async Task<IActionResult> InsertCompany([FromBody] CompanyVM companyVM)
@@ -369,7 +364,6 @@ namespace GCTL_App.Controllers.CRM
             return Ok(results); 
         }
         #endregion
-
 
         #region InsertBranch
         public async Task<IActionResult> InsertBranch([FromBody] BranchVM branchVM)
@@ -395,7 +389,6 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-
         #region InsertWarehouse
         public async Task<IActionResult> InsertWarehouse([FromBody] WarehouseVM warehouseVM)
         {
@@ -420,7 +413,6 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-
         #region InsertShippingAddress
         [HttpPost]
         public async Task<IActionResult> InsertShippingAddress([FromBody] ShippingVM shippingVM)
@@ -437,7 +429,6 @@ namespace GCTL_App.Controllers.CRM
             return Ok(false); 
         }
         #endregion
-
 
         #region CreateLeadData
         [Permission("Create", "CreateLead")]
@@ -461,7 +452,6 @@ namespace GCTL_App.Controllers.CRM
 
         }
         #endregion
-
 
         #region GetEmployeeList
         [HttpGet]
@@ -491,5 +481,30 @@ namespace GCTL_App.Controllers.CRM
 
 
         #endregion
+
+        #region Get LeadOwner List
+        [HttpGet]
+        public async Task<IActionResult> GetLeadOwnerList(string search = "", int page = 1, int pageSize = 20)
+        {
+            var result = await _leadCreateService.GetLeadOwnerListAsync(
+               search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+            var hasMore = (page * pageSize) < result.totalItem;
+            var formatted = new
+            {
+                items = result.data.Select(c => new
+                {
+                    value = c.LeadID,
+                    label = $"{c.LeadName} {c.Phone} {c.Email}",
+                    group = ""
+                }),
+                hasMore
+            };
+
+            return Json(formatted);
+        }
+        
+        #endregion
+
     }
 }
