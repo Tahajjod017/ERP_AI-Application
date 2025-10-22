@@ -38,3 +38,28 @@ label.req::after {
         opacity: 0;
     }
 }
+
+
+.select2-container .select2-selection--single {
+    height: 47px !important;
+    line-height: 50px !important;
+    padding: 4px 10px 10px 10px !important;
+    font-size: 16px !important;
+    display: flex;
+    align-items: center;
+    border-color: rgb(203, 208, 221) !important;
+}
+
+.select2-selection--single .select2-selection__arrow {
+    margin-bottom: 24px !important;
+    margin-right: 11px !important;
+}
+
+
+.select2-selection--single .select2-selection__rendered {
+    padding-top : 10px !important
+}
+
+.select2-selection__arrow {
+    height: 38px !important;
+}

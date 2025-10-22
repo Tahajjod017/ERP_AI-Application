@@ -308,6 +308,53 @@ namespace GCTL_App.Controllers.Employees
 
         #endregion
 
+
+        #region Get Supervisors
+        [HttpGet]
+        public async Task<IActionResult> GetSupervisors(string search = "", int page = 1, int pageSize = 10,
+            string roleType = "", int organizationId = 0, int departmentId = 0)
+        {
+            try
+            {
+                // Validate organization ID
+                if (organizationId == 0)
+                {
+                    return Ok(new
+                    {
+                        results = new List<object>(),
+                        pagination = new { more = false }
+                    });
+                }
+
+                var result = await _employeeOfficialService.GetPagedSupervisorsAsync(
+                    search, page, pageSize, organizationId, departmentId, roleType
+                );
+
+                var more = (page * pageSize) < result.totalItem;
+
+                var formatted = new
+                {
+                    results = result.data.Select(s => new
+                    {
+                        id = s.EmployeeId,
+                        text = $"{s.FullName} - {s.Department} - {s.Position}",
+                        department = s.Department,
+                        position = s.Position,
+                        email = s.Email
+                    }),
+                    pagination = new { more }
+                };
+
+                return Ok(formatted);
+            }
+            catch (Exception ex)
+            {
+               
+                return StatusCode(500, new { error = "Internal server error" });
+            }
+        }
+        #endregion
+
         #region SyncUserEmailFromEmployeeAsync
         private async Task<JsonResult> SyncUserEmailFromEmployeeAsync(int? employeeOfficeInfoId)
         {

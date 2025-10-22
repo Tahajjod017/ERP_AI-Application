@@ -160,7 +160,7 @@
                                                 <div class="col-sm-12 col-md-4">
                                                     <div class="form-floating form-floating-advance-select mb-2">
                                                         <label asp-for="SeniorSupervisorId">@Html.SmartLocalize("Senior Supervisor")</label>
-                                                        <select class="form-select " asp-for="SeniorSupervisorId" id="SeniorSupervisorId" >
+                                                        <select class="form-select " asp-for="SeniorSupervisorId" id="SeniorSupervisorId">
                                                             <option value="">@Html.SmartLocalize("Select Senior Supervisor")</option>
                                                         </select>
                                                     </div>
@@ -340,4 +340,10 @@
     <script src="~/js/pages/Employees/choicesPagination.js"></script>
     <script src="~/js/pages/employees/employeeofficial.js"></script>
     <script src="~/js/pages/employees/employeetabchange.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 }
