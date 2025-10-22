@@ -1,4 +1,27 @@
-﻿
+﻿$(document).ready(function () {
+    loadAttendanceSummary();
+});
+function loadAttendanceSummary() {
+    $.ajax({
+        url: '/DailyReportForAll/summary',
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            function update(idPrefix, count, percent) {
+                $(`#${idPrefix}-count`).text(count);
+                $(`#${idPrefix}-percent`).text(`${percent} %`);
+            }
+
+            update('present', data.present, data.presentPercent);
+            update('late-present', data.latePresent, data.latePresentPercent);
+            update('leave', data.leave, data.leavePercent);
+            update('absent', data.absent, data.absentPercent);
+        },
+        error: function (err) {
+            console.error('Error fetching attendance summary:', err);
+        }
+    });
+}
 
 function populateOrganizationDropdown(organizations) {
     $.ajax({

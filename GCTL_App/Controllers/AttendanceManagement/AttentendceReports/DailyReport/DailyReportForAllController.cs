@@ -24,11 +24,17 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.DailyRepo
             var result = await _dailyReportService.GetAllEmployee(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
             return Json(result);
         }
+        [HttpGet("summary")]
+        public async Task<IActionResult> GetSummary()
+        {
+            var summary = await _dailyReportService.GetSummaryAll();
+            return new JsonResult(summary); // Explicit JSON return
+        }
 
         #endregion
         //public async Task<IActionResult> GetOrganization()
         //{
-            
+
         //}
     }
 }
