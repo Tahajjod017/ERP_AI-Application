@@ -7,6 +7,7 @@ using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.CRM.LeadDetail;
 using GCTL.Service.Employees.EmployeeResign;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 namespace GCTL_App.Controllers.CRM
 {
-    //[Authorize]
+    [Authorize]
     public class CRMController : BaseController
     {
         private readonly ILeadCreateService _leadCreateService;
@@ -144,6 +145,7 @@ namespace GCTL_App.Controllers.CRM
         }
 
         [HttpPost]
+        [Permission("Create", "CRM")]
         public async Task<IActionResult> EditLeadData([FromBody] LeadUpdateVM leadUpdateVM)
         {
             if (ModelState.IsValid)

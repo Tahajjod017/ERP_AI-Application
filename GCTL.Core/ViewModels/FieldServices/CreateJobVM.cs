@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -19,9 +20,9 @@ namespace GCTL.Core.ViewModels.FieldServices
         [Display(Name = "Team Members")]
         public List<int>? TeamMembers { get; set; }
         [Display(Name = "Start Date Timee")]
-        public DateTime? StartDate { get; set; }
+        public string? StartDate { get; set; }
         [Display(Name = "End Date Time")]
-        public DateTime? EndDate { get; set; }
+        public string? EndDate { get; set; }
         [Display(Name = "Status")]
         public int StatusID { get; set; }
         [Display(Name = "Job Location Same as Customer Location")]
@@ -29,6 +30,6 @@ namespace GCTL.Core.ViewModels.FieldServices
         [Display(Name = "Note")]
         public string? Note { get; set; }
         [Display(Name = "File Upload")]
-        public string? FileLink { get; set; }
+        public IFormFile? FileLink { get; set; }
     }
 }

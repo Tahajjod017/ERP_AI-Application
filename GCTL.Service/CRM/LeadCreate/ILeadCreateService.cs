@@ -23,6 +23,7 @@ namespace GCTL.Service.CRM.LeadCreate
         Task<ReturnView> CreateBranch(BranchVM branchVM);
         Task<ReturnView> CreateWarehouse(WarehouseVM warehouseVM);
         public Task<object?> getcustomerInfo(int? id);
+        Task<ReturnDataView<CustomerInfoVM>> GetLeadOwnerListAsync(string search, int page, int pageSize, int organizationID);
         #endregion
     }
 }

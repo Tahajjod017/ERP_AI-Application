@@ -68,7 +68,7 @@
                 <div class="row mt-3">
                     <div class="col-md-6">
                         <label class="form-label" asp-for="CustomerID"></label>
-                        <select id="select2" class="form-select-lg">
+                        <select asp-for="CustomerID" class="form-select-lg">
                             <option value="">Select...</option>
 
                         </select>
@@ -90,14 +90,20 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <div class="mb-2">
+                    <div class="flatpickr-input-container col-md-6">
+                        <div class="mb-3">
                             <label class="form-label" asp-for="TeamMembers"></label>
-                            <select class="form-multi-select form-multi-select-lg" multiple sp-for="TeamMembers" asp-items="@ViewBag.StatusDD as SelectList">
-                                <option value="" disabled selected>@Html.SmartLocalize("Select Members")...</option>
+                            <select class="form-multi-select coreUiDD"
+                                asp-for="TeamMembers"
+                                multiple
+                                data-coreui-selection-type="counter"
+                                data-coreui-search="true"
+                                data-coreui-placeholder="Select Team Members...">
                             </select>
                         </div>
                     </div>
+
+
 
                     <div class="col-md-6">
                         <div class="mb-2">

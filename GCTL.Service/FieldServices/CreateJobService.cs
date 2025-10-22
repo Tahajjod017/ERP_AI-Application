@@ -5,8 +5,7 @@ using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+using System.Globalization;
 
 
 namespace GCTL.Service.FieldServices
@@ -15,26 +14,31 @@ namespace GCTL.Service.FieldServices
     {
         private readonly IGenericRepository<Jobs> _jobsRepository;
         private readonly IGenericRepository<Customers> _customersRepository;
-        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository) : base(genericRepository)
+        private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfoRepository;
+        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository) : base(genericRepository)
         {
             _jobsRepository = jobsRepository;
             _customersRepository = customersRepository;
+            _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
         }
 
         public async Task<bool> AddAsync(CreateJobVM model)
         {
             try
             {
+                DateTime startDate = DateTime.ParseExact(model.StartDate?? "", "dd/MM/yy HH:mm", CultureInfo.InvariantCulture);
+                DateTime endDate = DateTime.ParseExact(model.EndDate?? "", "dd/MM/yy HH:mm", CultureInfo.InvariantCulture);
+
                 Jobs job = new Jobs
                 {
                     JobTitle = model.JobTitle,
-                    JobTypeID = model.JobID,
                     CustomerID = model.CustomerID,
+                    JobTypeID = model.JobID,
                     JobStatusID = model.StatusID,
-                    StartDateTime = model.StartDate,
-                    EndDateTime = model.EndDate,
+                    StartDateTime = startDate,
+                    EndDateTime = endDate,
                     Note = model.Note,
-                    FileLink = model.FileLink
+                    FileLink = null
                 };
 
                 if (model.TeamMembers != null)
@@ -105,6 +109,53 @@ namespace GCTL.Service.FieldServices
             };
         }
 
+        #endregion
+        #region get Technician List 
+        public async Task<ReturnDataView<CustomerInfoVM>> GetTechnicianListAsync(string search, int page, int pageSize, int organizationID)
+        {
+            var query = _employeeOfficeInfoRepository
+                .AllActive()
+                .Where(q => q.OrganizationID == organizationID);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.Employee.FirstName, pattern) ||
+                        EF.Functions.Like(c.Employee.LastName, pattern) ||
+                        EF.Functions.Like(c.Employee.LastName, pattern) ||
+                        EF.Functions.Like(c.Employee.Email, pattern) ||
+                        EF.Functions.Like(c.Employee.MobileNumber, pattern)
+                    ));
+            }
+
+            query = query
+                .Include(t => t.Employee);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(c => c.Employee.FirstName?? "")
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize).Select(t => new CustomerInfoVM
+                {
+                    LeadID = t.EmployeeID ?? 0,
+                    Email = t.Employee.Email,
+                    LeadName = t.Employee.FirstName + " " + t.Employee.LastName,
+                    Phone = t.Employee.MobileNumber,
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<CustomerInfoVM>
+            {
+                data = items,
+                totalItem = totalCount,
+                message = "Data loaded"
+            };
+        }
         #endregion
 
         public Task<PaginationService<Grade, CreateJobVM>.PaginationResult<CreateJobVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CreateJobID", string sortOrder = "asc")

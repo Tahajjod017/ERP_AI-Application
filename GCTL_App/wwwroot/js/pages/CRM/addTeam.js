@@ -309,25 +309,6 @@
         });
     }
 
-
-    // ===========================
-    // edit Team Name and members
-    // ===========================
-    //$(document).on("click", ".addTeam-edit", async function (e) {
-    //    e.preventDefault();
-    //    let id = $(this).data("teamid");
-    //    const response = await fetch(`/AddTeams/GetIndivudialTeamDetails?id=${id}`);
-    //    if (!response.ok) throw new Error('Network response was not ok');
-    //    const result = await response.json();
-    //    showDev(result);
-    //    $(ids.teamName).val(result.teamName);
-    //    showDev(result.teamMemberIDs);
-    //    $('#EmployeeIds').val(result.teamMemberIDs).each(function () {
-    //        coreui.MultiSelect.getInstance('#EmployeeIds')?.update();
-    //    });
-    //});
-
-
     $(document).on("click", ".addTeam-edit", async function (e) {
         e.preventDefault();
         page = 1; 
