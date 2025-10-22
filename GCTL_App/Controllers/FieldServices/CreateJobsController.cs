@@ -45,5 +45,52 @@ namespace GCTL_App.Controllers.FieldServices
             }
         }
         #endregion
+
+        #region get Customer
+        [HttpGet]
+        public async Task<IActionResult> GetCustomers(string search = "", int page = 1, int pageSize = 10)
+        {
+            var result = await _createJobService.GetPagedEmployeesAsync(
+                search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+
+            var more = (page * pageSize) < result.totalItem;
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.LeadID,                          
+                    text = $"{c.LeadName} {c.Phone} {c.Email}" 
+                }),
+                pagination = new { more }
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
+
+        //#region Get Technician Employee List
+        //public async Task<IActionResult> GetTechnicianList(string search = "", int page = 1, int pageSize = 10)
+        //{
+        //    var result = await _createJobService.GetPagedEmployeesAsync(
+        //       search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+        //    );
+
+        //    var more = (page * pageSize) < result.totalItem;
+
+        //    var formatted = new
+        //    {
+        //        results = result.data.Select(c => new
+        //        {
+        //            id = c.LeadID,
+        //            text = $"{c.LeadName} {c.Phone} {c.Email}"
+        //        }),
+        //        pagination = new { more }
+        //    };
+
+        //    return Ok(formatted);
+        //}
+        //#endregion
     }
 }

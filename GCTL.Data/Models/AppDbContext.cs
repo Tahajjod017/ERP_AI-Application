@@ -33,7 +33,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<ApprovalSettings> ApprovalSettings { get; set; }
 
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
-
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
