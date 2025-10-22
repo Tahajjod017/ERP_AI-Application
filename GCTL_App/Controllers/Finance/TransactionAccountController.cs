@@ -36,7 +36,7 @@ namespace GCTL_App.Controllers.Finance
 
                 SetSmartPageCode(203700);
 
-                ViewBag.BodyTabs = await _transactionAccountService.GetBodyTabsAsync();
+                ViewBag.BodyTabs = await _commonService.GetFinanceBodyTabsAsync();
                 ViewBag.AccountClassDD = await _commonService.GetAccountClass();
                 ViewBag.MainAccDD = await _commonService.GetMainAccount();
                 //if (accountClass.Count == 1)
@@ -284,7 +284,7 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region GetSubAccByClassIdMainAccId
-        public async Task<IActionResult> GetSubAccByClassIdMainAccId(int classId, int? mainAccId)
+        public async Task<IActionResult> GetSubAccByClassIdMainAccId(int? classId, int? mainAccId)
         {
             try
             {

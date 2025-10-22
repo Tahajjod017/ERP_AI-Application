@@ -39,9 +39,7 @@ public partial class SubAccounts
 
     public virtual MainAccounts MainAccount { get; set; }
 
-    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsSubCreditAccount { get; set; } = new List<PostingRuleDetails>();
-
-    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsSubDebitAccount { get; set; } = new List<PostingRuleDetails>();
+    public virtual ICollection<PostingRuleDetails> PostingRuleDetails { get; set; } = new List<PostingRuleDetails>();
 
     public virtual ICollection<TransactionAccounts> TransactionAccounts { get; set; } = new List<TransactionAccounts>();
 

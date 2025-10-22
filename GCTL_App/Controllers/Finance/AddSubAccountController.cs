@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.Finance.AddSubAccountVM;
 using GCTL.Service.CommonService;
 using GCTL.Service.Finance.AddSubAccount;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +27,7 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region Index
-        //[Permission("View", "AddSubAccount")]
+        [Permission("View", "AddSubAccount")]
         public async Task<IActionResult> Index()
         {
             try
@@ -36,7 +37,7 @@ namespace GCTL_App.Controllers.Finance
 
                 SetSmartPageCode(203700);
 
-                ViewBag.BodyTabs = await _addSubAccountService.GetBodyTabsAsync();
+                ViewBag.BodyTabs = await _commonService.GetFinanceBodyTabsAsync();
                 ViewBag.AccountClassDD = await _commonService.GetAccountClass();
                 //ViewBag.AccountGroupDD = await _commonService.GetAccountGroup();
                 //if (accountClass.Count == 1)

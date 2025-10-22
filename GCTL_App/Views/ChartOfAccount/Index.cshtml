@@ -1,10 +1,38 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = @Html.SmartLocalize("Chart of Account");
+    var bodyTabs = ViewBag.BodyTabs as List<GCTL.Data.Models.MenuTab>;
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 }
 
-<ul class="nav nav-underline fs-9" id="myTab" role="tablist">
-    <li class="nav-item"><a class="nav-link" href="/AddMainAccount/Index">@Html.SmartLocalize("Add Main Account")</a></li>
-    <li class="nav-item"><a class="nav-link" href="/AddSubAccount/Index">@Html.SmartLocalize("Add Sub Account")</a></li>
-    <li class="nav-item"><a class="nav-link" href="/TransactionAccount/Index">@Html.SmartLocalize("Transaction Account")</a></li>
+@section Styles {
+    <style>
+
+    </style>
+}
+
+<ul class="nav nav-underline fs-9">
+    @if (bodyTabs != null && bodyTabs.Any())
+    {
+        foreach (var tab in bodyTabs)
+        {
+            var isActive = tab.ControllerName.Equals(currentController, StringComparison.OrdinalIgnoreCase)
+            ? "active" : "";
+
+            <li class="nav-item">
+                <a class="nav-link @isActive"
+                   href="@Url.Action("Index", tab.ControllerName)">
+                    @if (!string.IsNullOrEmpty(tab.Icon))
+                    {
+                        <i class="@tab.Icon me-1"></i>
+                    }
+                    @Html.SmartLocalize(tab.Title)
+                </a>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="nav-item"><span class="text-muted">No menu items found</span></li>
+    }
 </ul>

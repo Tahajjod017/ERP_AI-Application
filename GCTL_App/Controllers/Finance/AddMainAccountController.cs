@@ -38,7 +38,7 @@ namespace GCTL_App.Controllers.Finance
 
                 SetSmartPageCode(203700);
 
-                ViewBag.BodyTabs = await _addMainAccountService.GetBodyTabsAsync();
+                ViewBag.BodyTabs = await _commonService.GetFinanceBodyTabsAsync();
                 ViewBag.ClassDD = await _commonService.GetAccountClass();
 
                 //if (accountClass.Count == 1)

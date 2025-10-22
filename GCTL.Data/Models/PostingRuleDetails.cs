@@ -11,15 +11,9 @@ public partial class PostingRuleDetails
 
     public int? PostingRuleID { get; set; }
 
-    public int? SubDebitAccountID { get; set; }
+    public int? SubAccountID { get; set; }
 
-    public int? SubCreditAccountID { get; set; }
-
-    public int? TrxDebitAccountID { get; set; }
-
-    public int? TrxCreditAccountID { get; set; }
-
-    public bool? IsActive { get; set; }
+    public int? TrxAccID { get; set; }
 
     public string LIP { get; set; }
 
@@ -37,19 +31,17 @@ public partial class PostingRuleDetails
 
     public int? DeletedBy { get; set; }
 
+    public string TrxType { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual PostingRules PostingRule { get; set; }
 
-    public virtual SubAccounts SubCreditAccount { get; set; }
+    public virtual SubAccounts SubAccount { get; set; }
 
-    public virtual SubAccounts SubDebitAccount { get; set; }
-
-    public virtual TransactionAccounts TrxCreditAccount { get; set; }
-
-    public virtual TransactionAccounts TrxDebitAccount { get; set; }
+    public virtual TransactionAccounts TrxAcc { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
