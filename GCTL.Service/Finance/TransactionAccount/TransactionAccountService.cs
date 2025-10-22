@@ -399,26 +399,5 @@ namespace GCTL.Service.Finance.TransactionAccount
             }
         }
         #endregion
-
-
-        #region GetBodyTabsAsync
-        public async Task<List<MenuTab>> GetBodyTabsAsync()
-        {
-            try
-            {
-                var allowedControllers = new[] { "AddMainAccount", "AddSubAccount", "TransactionAccount" };
-
-                var menuTabs = await _menuTabRepository.AllActive()
-                    .Where(mt => allowedControllers.Contains(mt.ControllerName) && !mt.IsActive)
-                    //.OrderBy(mt => mt.TabOrder)
-                    .ToListAsync();
-                return menuTabs;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("An error occurred while retrieving menu tabs.", ex);
-            }
-        }
-        #endregion
     }
 }

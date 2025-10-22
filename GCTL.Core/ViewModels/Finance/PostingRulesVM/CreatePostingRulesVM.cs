@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.Finance.PostingRulesVM
 {
-    public class CreatePostingRulesVM
+    public class CreatePostingRulesVM : BaseViewModel
     {
         public int? PostingRuleID { get; set; }
 
@@ -18,8 +18,6 @@ namespace GCTL.Core.ViewModels.Finance.PostingRulesVM
         [Required(ErrorMessage = "{0} is Required!"), Display(Name = "Scenario Name")]
         public string ScenarioName { get; set; }
 
-        public bool? IsActive { get; set; }
-
-        public IList<CreatePostingRuleDetailsVM>? PostingRuleDetailsVMs { get; set; } = new List<CreatePostingRuleDetailsVM>();
+        public IList<CreatePostingRuleDetailsVM> PostingRuleDetailsVMs { get; set; } = new List<CreatePostingRuleDetailsVM>();
     }
 }

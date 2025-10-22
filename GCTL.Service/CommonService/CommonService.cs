@@ -44,6 +44,8 @@ namespace GCTL.Service.CommonService
         //private readonly IGenericRepository<Groups> _groups;
         private readonly IGenericRepository<MainAccounts> _mainAccounts;
         private readonly IGenericRepository<SubAccounts> _subAccounts;
+        private readonly IGenericRepository<MenuTab> _menuTabRepository;
+        private readonly IGenericRepository<TransactionAccounts> _transactionAccount;
 
         public CommonService(
             IGenericRepository<Organization> organization,
@@ -67,7 +69,9 @@ namespace GCTL.Service.CommonService
             IGenericRepository<BaseAccounts> baseAccounts,
             IGenericRepository<Classes> classes,
             IGenericRepository<SubAccounts> subAccounts,
-            IGenericRepository<MainAccounts> mainAccounts)
+            IGenericRepository<MainAccounts> mainAccounts,
+            IGenericRepository<MenuTab> menuTabRepository,
+            IGenericRepository<TransactionAccounts> transactionAccount)
         {
             _organization = organization;
             _organizationBranches = organizationBranches;
@@ -91,6 +95,8 @@ namespace GCTL.Service.CommonService
             _classes = classes;
             _subAccounts = subAccounts;
             _mainAccounts = mainAccounts;
+            _menuTabRepository = menuTabRepository;
+            _transactionAccount = transactionAccount;
         }
         #endregion
 
@@ -414,7 +420,7 @@ namespace GCTL.Service.CommonService
 
 
         #region GetSubAccByClassIdMainAccId
-        public async Task<List<CommonSelectVM>> GetSubAccByClassIdMainAccId(int classId, int? mainAccId)
+        public async Task<List<CommonSelectVM>> GetSubAccByClassIdMainAccId(int? classId, int? mainAccId)
         {
             var data = await _subAccounts.AllActive()
                 .Include(x => x.MainAccount)
@@ -426,6 +432,68 @@ namespace GCTL.Service.CommonService
                     Id = m.SubAccountID,
                     Name = $"{m.SubAccountCode}-{m.SubAccountName}" ?? "-",
                     GroupName = $"{m.MainAccount.Class.ClassName}-{m.MainAccount.MainAccountName}" ?? "-"
+                }).ToListAsync();
+
+            return data;
+        }
+        #endregion
+
+
+        #region GetSubAccByMainAccId
+        public async Task<List<CommonSelectVM>> GetSubAccByMainAccId(int? mainAccId)
+        {
+            var data = await _subAccounts.AllActive()
+                .Include(x => x.MainAccount)
+                .ThenInclude(g => g.Class)
+                .Where(m => m.MainAccountID == mainAccId)
+                .AsNoTracking()
+                .Select(m => new CommonSelectVM
+                {
+                    Id = m.SubAccountID,
+                    Name = $"{m.SubAccountCode}-{m.SubAccountName}" ?? "-",
+                    GroupName = $"{m.MainAccount.Class.ClassName}-{m.MainAccount.MainAccountName}" ?? "-"
+                }).ToListAsync();
+
+            return data;
+        }
+        #endregion
+
+
+        #region GetTrxAccByMainAccIdSubAccId
+        public async Task<List<CommonSelectVM>> GetTrxAccByMainAccIdSubAccId(int? mainAccId, int? subAccId)
+        {
+            var data = await _transactionAccount.AllActive()
+               .Include(x => x.SubAccount)
+                   .ThenInclude(x => x.MainAccount)
+                   .ThenInclude(g => g.Class)
+               .Where(m => m.SubAccount.MainAccountID == mainAccId && m.SubAccountID == subAccId)
+               .AsNoTracking()
+               .Select(m => new CommonSelectVM
+               {
+                   Id = m.TrxAccID,
+                   Name = $"{m.TrxAccCode}-{m.TrxAccName}" ?? "-",
+                   GroupName = $"{m.SubAccount.SubAccountName}-{m.SubAccount.SubAccountCode}" ?? "-"
+               }).ToListAsync();
+
+            return data;
+        }
+        #endregion
+
+
+        #region GetTrxAccByClassIdMainAccIdSubAccId
+        public async Task<List<CommonSelectVM>> GetTrxAccByClassIdMainAccIdSubAccId(int? classId, int? mainAccId, int? subAccId)
+        {
+            var data = await _transactionAccount.AllActive()
+                .Include(x => x.SubAccount)
+                    .ThenInclude(x => x.MainAccount)
+                    .ThenInclude(g => g.Class)
+                .Where(m => m.SubAccount.MainAccount.ClassID == classId && m.SubAccount.MainAccountID == mainAccId && m.SubAccountID == subAccId)
+                .AsNoTracking()
+                .Select(m => new CommonSelectVM
+                {
+                    Id = m.TrxAccID,
+                    Name = $"{m.TrxAccCode}-{m.TrxAccName}" ?? "-",
+                    GroupName = $"{m.SubAccount.SubAccountName}-{m.SubAccount.SubAccountCode}" ?? "-"
                 }).ToListAsync();
 
             return data;
@@ -1043,6 +1111,27 @@ namespace GCTL.Service.CommonService
             {
                 // Handle exceptions appropriately
                 throw new Exception("Error fetching weekend settings", ex);
+            }
+        }
+        #endregion
+
+
+        #region BodyTabs
+        public async Task<List<MenuTab>> GetFinanceBodyTabsAsync()
+        {
+            try
+            {
+                var allowedControllers = new[] { "AddMainAccount", "AddSubAccount", "TransactionAccount", "PostingRules" };
+
+                var menuTabs = await _menuTabRepository.AllActive()
+                    .Where(mt => allowedControllers.Contains(mt.ControllerName) && !mt.IsActive)
+                    //.OrderBy(mt => mt.TabOrder)
+                    .ToListAsync();
+                return menuTabs;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving menu tabs.", ex);
             }
         }
         #endregion

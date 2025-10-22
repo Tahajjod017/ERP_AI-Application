@@ -13,8 +13,6 @@ public partial class PostingRules
 
     public string ScenarioName { get; set; }
 
-    public bool? IsActive { get; set; }
-
     public string LIP { get; set; }
 
     public string LMAC { get; set; }

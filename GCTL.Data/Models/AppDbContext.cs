@@ -651,7 +651,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany(t => t.AspNetUsers)
                 .HasForeignKey(u => u.TenantInfoId)
                 .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-        
+
         modelBuilder.Entity<ApplicationRole>()
                 .HasOne(r => r.Organization)
                 .WithMany(o => o.AspNetRoles)
@@ -4403,7 +4403,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<PostingRuleDetails>(entity =>
         {
-            entity.HasKey(e => e.PostingRuleDetailID).HasName("PK__PostingR__DA77FE263CE8221F");
+            entity.HasKey(e => e.PostingRuleDetailID).HasName("PK__PostingR__DA77FE26C2CF68A1");
 
             entity.ToTable("PostingRuleDetails", "COA");
 
@@ -4413,44 +4413,39 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.TrxType)
+                .IsRequired()
+                .HasMaxLength(50);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PostingRuleDetailsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__PostingRu__Creat__54C1736E");
+                .HasConstraintName("FK__PostingRu__Creat__6F7569AA");
 
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PostingRuleDetailsDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__PostingRu__Delet__579DE019");
+                .HasConstraintName("FK__PostingRu__Delet__70698DE3");
 
             entity.HasOne(d => d.PostingRule).WithMany(p => p.PostingRuleDetails)
                 .HasForeignKey(d => d.PostingRuleID)
-                .HasConstraintName("FK__PostingRu__Posti__4FFCBE51");
+                .HasConstraintName("FK__PostingRu__Posti__715DB21C");
 
-            entity.HasOne(d => d.SubCreditAccount).WithMany(p => p.PostingRuleDetailsSubCreditAccount)
-                .HasForeignKey(d => d.SubCreditAccountID)
-                .HasConstraintName("FK__PostingRu__SubCr__51E506C3");
+            entity.HasOne(d => d.SubAccount).WithMany(p => p.PostingRuleDetails)
+                .HasForeignKey(d => d.SubAccountID)
+                .HasConstraintName("FK__PostingRu__SubAc__7251D655");
 
-            entity.HasOne(d => d.SubDebitAccount).WithMany(p => p.PostingRuleDetailsSubDebitAccount)
-                .HasForeignKey(d => d.SubDebitAccountID)
-                .HasConstraintName("FK__PostingRu__SubDe__50F0E28A");
-
-            entity.HasOne(d => d.TrxCreditAccount).WithMany(p => p.PostingRuleDetailsTrxCreditAccount)
-                .HasForeignKey(d => d.TrxCreditAccountID)
-                .HasConstraintName("FK__PostingRu__TrxCr__53CD4F35");
-
-            entity.HasOne(d => d.TrxDebitAccount).WithMany(p => p.PostingRuleDetailsTrxDebitAccount)
-                .HasForeignKey(d => d.TrxDebitAccountID)
-                .HasConstraintName("FK__PostingRu__TrxDe__52D92AFC");
+            entity.HasOne(d => d.TrxAcc).WithMany(p => p.PostingRuleDetails)
+                .HasForeignKey(d => d.TrxAccID)
+                .HasConstraintName("FK__PostingRu__TrxAc__7345FA8E");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PostingRuleDetailsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__PostingRu__Updat__55B597A7");
+                .HasConstraintName("FK__PostingRu__Updat__743A1EC7");
         });
 
         modelBuilder.Entity<PostingRules>(entity =>
         {
-            entity.HasKey(e => e.PostingRuleID).HasName("PK__PostingR__C1598AF0BAEEBC53");
+            entity.HasKey(e => e.PostingRuleID).HasName("PK__PostingR__C1598AF04ECE93DB");
 
             entity.ToTable("PostingRules", "COA");
 
@@ -4466,15 +4461,15 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PostingRulesCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__PostingRu__Creat__4A43E4FB");
+                .HasConstraintName("FK__PostingRu__Creat__69BC9054");
 
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PostingRulesDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__PostingRu__Delet__4D2051A6");
+                .HasConstraintName("FK__PostingRu__Delet__6AB0B48D");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PostingRulesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__PostingRu__Updat__4B380934");
+                .HasConstraintName("FK__PostingRu__Updat__6BA4D8C6");
         });
 
         modelBuilder.Entity<Priorities>(entity =>
