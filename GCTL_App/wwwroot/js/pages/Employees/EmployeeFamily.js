@@ -1,45 +1,106 @@
 ﻿$(document).ready(function () {
 
 
-    const lastInt = getLastIntFromUrl();
-    if (lastInt) {
-       
-        loadEmployeeFamilyData(lastInt);
+    //#region employeeChoices with onchange
+
+
+
+
+    var initData = $('#initEmp').val();
+
+    if (initData && initData !== '') {
+        setTimeout(function () {
+            loadAndSelectEmployee(initData);
+        }, 300);
     }
+
+    paginationService.init('EmployeePersonalId', {
+        apiUrl: '/EmployeePersonal/SearchEmployees',
+        pageSize: 50,
+        minSearchLength: 2,
+        loadInitial: true,
+        placeholder: 'Select Employee',
+        searchPlaceholder: 'Type to search...'
+    });
+
+
+
+
+
+    async function loadAndSelectEmployee(employeeId) {
+        try {
+            // Fetch the specific employee data from server
+            const response = await fetch(`/EmployeePersonal/GetEmployeeByIdCC?id=${employeeId}`);
+            const employee = await response.json();
+
+            if (employee && employee.value) {
+                // Get the Choices instance
+                const instance = paginationService.activeInstances['EmployeePersonalId'];
+
+                if (instance && instance.choices) {
+                    // Add this specific employee to choices first
+                    instance.choices.setChoices([{
+                        value: employee.value,
+                        label: employee.label,
+                        selected: true
+                    }], 'value', 'label', false);
+
+                    // Set the value
+                    instance.choices.setChoiceByValue(employee.value);
+
+                    // Update the underlying select
+                    $('#EmployeePersonalId').val(employee.value).trigger('change');
+
+                    console.log('Employee preselected:', employee.label);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading preselected employee:', error);
+        }
+    }
+
+
+
+
+    $('#EmployeePersonalId').on('change', function (e) {
+        const selectedEmployeeId = e.target.value;
+        showDev(selectedEmployeeId, 'Selected Employee ID:');
+       
+        if (selectedEmployeeId) {
+            loadEmployeeFamilyData(selectedEmployeeId);
+           // TabChange(selectedEmployeeId);
+        } else {
+            clearForm();
+        }
+    });
+
+    //#endregion
+
+
+    //#region Get Last Int from URL
 
     function getLastIntFromUrl() {
         const parts = window.location.pathname.split('/').filter(Boolean).reverse();
         return parts.find(part => !isNaN(part) && Number.isInteger(Number(part)));
     }
 
+    const lastInt = getLastIntFromUrl();
+    showDev(lastInt, 'Last int:');
 
-    //#region employeeChoices with onchange
+    if (lastInt) {
+        loadEmployeeFamilyData(lastInt);
+        // paginationService.setValue('EmployeePersonalId', lastInt);
 
-    let employeeChoices;
-    function initEmployeeChoices() {
-        employeeChoices = new Choices('#EmployeePersonalId', {
-            removeItemButton: true,
-            shouldSort: false,
-            placeholderValue: 'Select Employee'
-        });
 
-        const employeeElement = document.getElementById('EmployeePersonalId');
-        if (employeeElement) {
-            employeeElement.addEventListener('change', function (e) {
-                const selectedEmployeeId = e.detail.value || e.target.value;
-                if (selectedEmployeeId && selectedEmployeeId !== '') {
-                    loadEmployeeFamilyData(selectedEmployeeId);
-                    TabChange(selectedEmployeeId) // this function is located in EmployeeTabChange.js
-                } else {
-                    clearForm();
-                }
-            });
-        }
 
-       
+        setTimeout(function () {
+            loadAndSelectEmployee(lastInt);
+        }, 300);
+
+
+
+        //TabChange(lastInt);
     }
-    document.addEventListener('DOMContentLoaded', initEmployeeChoices);
-    initEmployeeChoices();
 
     //#endregion
 
@@ -64,7 +125,7 @@
 
                 $('#PersonalEmail').val(employee.personalEmail);
                 $('#PersonalPhone').val(employee.personalPhone);
-                choiceManager.setChoiceValue('EmployeePersonalId', employee.employeePersonalId)
+               // choiceManager.setChoiceValue('EmployeePersonalId', employee.employeePersonalId)
 
                 const tableBody = $('#employeeFamilyTable tbody');
                 tableBody.empty();

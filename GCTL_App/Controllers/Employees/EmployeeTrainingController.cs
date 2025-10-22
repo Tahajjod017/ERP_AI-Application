@@ -70,9 +70,22 @@ namespace GCTL_App.Controllers.Employees
 
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "TrainingInfo");
                 ViewBag.Navigation = navigationModel;
+
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                if (!hasEmployeePermission)
+                {
+                    var empid = loggedUser.EmployeeId;
+                    ViewBag.empId = empid;
+                }
+                else
+                {
+                    ViewBag.empId = id;
+                }
+
+
             }
 
-            
 
             ViewBag.EmployeeDD = new SelectList(_employeeRepository.AllActive().Select(e => new { e.EmployeeID, FullName = e.FirstName + " " + e.LastName }), "EmployeeID", "FullName");
             ViewBag.Country = _countryRepository.GetActiveSelectListById(c => c.CountryID, c => c.CountryName);

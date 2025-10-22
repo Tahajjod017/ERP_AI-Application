@@ -95,6 +95,9 @@ namespace GCTL_App.Controllers.Employees
                     }
                     else
                     {
+
+                        ViewBag.empId = empid;
+
                         var employee = _employeeAdditionalService.GetEmployeeAdditionalByIdAsync((int)empid).Result;
 
                         return View(employee);
@@ -104,6 +107,7 @@ namespace GCTL_App.Controllers.Employees
                 }
                 else
                 {
+                    ViewBag.empId = id;
                     var employee = _employeeAdditionalService.GetEmployeeAdditionalByIdAsync(id).Result;
 
                     return View(employee);

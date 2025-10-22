@@ -102,7 +102,7 @@ namespace GCTL_App.Controllers.Employees
                     }
                     else
                     {
-
+                        ViewBag.empId = empid;
 
                         var eduList = _employeeEducationalService.GetEmployeeAdditionalByIdAsync((int)empid).Result;
 
@@ -117,7 +117,7 @@ namespace GCTL_App.Controllers.Employees
                 else
                 {
 
-
+                    ViewBag.empId = id;
                     var eduList = _employeeEducationalService.GetEmployeeAdditionalByIdAsync(id).Result;
 
                     ViewBag.EduList = eduList;

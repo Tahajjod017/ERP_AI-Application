@@ -14,11 +14,11 @@ namespace GCTL.Service.FieldServices
     public class CreateJobService : AppService<LeadActivityTypes>, ICreateJobService
     {
         private readonly IGenericRepository<Jobs> _jobsRepository;
-        private readonly IGenericRepository<Leads> _LeadsRepository;
-        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Leads> leadsRepository) : base(genericRepository)
+        private readonly IGenericRepository<Customers> _customersRepository;
+        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository) : base(genericRepository)
         {
             _jobsRepository = jobsRepository;
-            _LeadsRepository = leadsRepository;
+            _customersRepository = customersRepository;
         }
 
         public async Task<bool> AddAsync(CreateJobVM model)
@@ -59,20 +59,19 @@ namespace GCTL.Service.FieldServices
         #region get Customer List 
         public async Task<ReturnDataView<CustomerInfoVM>> GetPagedEmployeesAsync(string search, int page, int pageSize, int organizationID)
         {
-            // Base query: filter first
-            var query = _LeadsRepository
+            var query = _customersRepository
                 .AllActive()
-                .Where(q => q.Customer.OrganizationID == organizationID);
+                .Where(q => q.OrganizationID == organizationID);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 string pattern = $"%{search}%";
 
                 query = query.Where(c =>
-                    c.Customer != null &&
+                    c != null &&
                     (
-                        EF.Functions.Like(c.Customer.FullName, pattern) ||
-                        c.Customer.CustomerAddresses.Any(ca =>
+                        EF.Functions.Like(c.FullName, pattern) ||
+                        c.CustomerAddresses.Any(ca =>
                             ca.Address != null &&
                             EF.Functions.Like(ca.Address.Email, pattern) ||
                             EF.Functions.Like(ca.Address.Phone, pattern)
@@ -81,20 +80,20 @@ namespace GCTL.Service.FieldServices
             }
 
             query = query
-                .Include(i => i.Customer)
-                    .ThenInclude(t => t.CustomerAddresses)
-                        .ThenInclude(t => t.Address);
+                .Include(t => t.CustomerAddresses)
+                    .ThenInclude(t => t.Address);
 
             var totalCount = await query.CountAsync();
 
             var items = await query
-                .OrderBy(c => c.Customer.FullName)
+                .OrderBy(c => c.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize).Select(t => new CustomerInfoVM
                 {
-                    Email = t.Customer.CustomerAddresses.Select(ca=> ca.Address.Email).FirstOrDefault(),
-                    LeadName=t.LeadName,
-                    Phone = t.Customer.CustomerAddresses.Select(ca => ca.Address.Phone).FirstOrDefault(),
+                    LeadID = t.CustomerID,
+                    Email = t.CustomerAddresses.Select(ca=> ca.Address.Email).FirstOrDefault(),
+                    LeadName=t.FullName,
+                    Phone = t.CustomerAddresses.Select(ca => ca.Address.Phone).FirstOrDefault(),
                 })
                 .ToListAsync();
 

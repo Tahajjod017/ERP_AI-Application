@@ -43,6 +43,10 @@ public partial class TransactionAccounts
 
     public virtual Heads Head { get; set; }
 
+    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsTrxCreditAccount { get; set; } = new List<PostingRuleDetails>();
+
+    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsTrxDebitAccount { get; set; } = new List<PostingRuleDetails>();
+
     public virtual SubAccounts SubAccount { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }

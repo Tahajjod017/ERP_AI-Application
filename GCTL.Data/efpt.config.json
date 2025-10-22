@@ -4,7 +4,7 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "MinimumProductVersion": "2.6.0",
+   "MinimumProductVersion": "2.6.1080",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -33,6 +33,14 @@
       },
       {
          "Name": "[COA].[MainAccounts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[PostingRuleDetails]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[PostingRules]",
          "ObjectType": 0
       },
       {

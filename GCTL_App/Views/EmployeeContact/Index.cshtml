@@ -24,6 +24,10 @@
         }
 </style>
 
+
+<input type="hidden" id="initEmp" value="@ViewBag.empId" />
+
+
 <div class="mb-9">
     <div class="row align-items-center justify-content-between g-3 ">
         <div class="col-auto">
@@ -52,7 +56,7 @@
                         <div class="col-md-2" style="margin-bottom: -1%;">
                             <div class="form-floating form-floating-advance-select mb-2">
                                 <label asp-for="EmployeePersonalId">@Html.SmartLocalize("Choose Employee")</label>
-                                <select class="form-select choiceDD" asp-for="EmployeePersonalId" asp-items="@(ViewBag.EmployeeDD as SelectList)" id="EmployeePersonalId">
+                                <select class="form-select " asp-for="EmployeePersonalId" asp-items="@(ViewBag.EmployeeDD as SelectList)" id="EmployeePersonalId">
                                     <option value="">@Html.SmartLocalize("Select Employee")</option>
                                 </select>
                                 <span asp-validation-for="EmployeePersonalId" class="text-danger"></span>

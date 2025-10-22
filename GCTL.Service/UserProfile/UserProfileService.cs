@@ -1,8 +1,10 @@
-﻿using GCTL.Data.Models;
+﻿using GCTL.Core.Repository;
+using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,10 +13,12 @@ namespace GCTL.Service.UserProfile
     public class UserProfileService : IUserProfileService
     {
         private readonly AppDbContext _context;
+        private readonly IGenericRepository<Organization> _orgnRepository;
 
-        public UserProfileService(AppDbContext context)
+        public UserProfileService(AppDbContext context, IGenericRepository<Organization> orgnRepository)
         {
             _context = context;
+            _orgnRepository = orgnRepository;
         }
 
         public (string FullName, string ProfilePicturePath) GetUserProfileAsync(string userId)
@@ -81,6 +85,31 @@ namespace GCTL.Service.UserProfile
 
             return currentEmployeeId;
         }
+
+        public async Task<string> GetFaviconPathForUserAsync(ClaimsPrincipal user)
+        {
+            var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return "/media/company/fevicon/default.png";
+
+            var userFetch = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (userFetch == null || userFetch.OrganizationID == null)
+                return "/media/company/fevicon/default.png";
+
+            var faviconFileName = await _orgnRepository.AllActive()
+                .Where(x => x.OrganizationID == userFetch.OrganizationID)
+                .Select(x => x.FaviconLink)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrEmpty(faviconFileName))
+                return "/media/company/fevicon/default.png";
+
+            return $"/media/company/fevicon/{faviconFileName}";
+        }
+
+
     }
 
 }

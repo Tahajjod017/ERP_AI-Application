@@ -35,6 +35,7 @@ $(function () {
                 params.page = params.page || 1;
 
                 return {
+                    
                     results: data.results,
                     pagination: {
                         more: data.pagination.more

@@ -797,6 +797,18 @@ public partial class Employees
 
     public virtual ICollection<Percentages> PercentagesUpdatedByNavigation { get; set; } = new List<Percentages>();
 
+    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsCreatedByNavigation { get; set; } = new List<PostingRuleDetails>();
+
+    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsDeletedByNavigation { get; set; } = new List<PostingRuleDetails>();
+
+    public virtual ICollection<PostingRuleDetails> PostingRuleDetailsUpdatedByNavigation { get; set; } = new List<PostingRuleDetails>();
+
+    public virtual ICollection<PostingRules> PostingRulesCreatedByNavigation { get; set; } = new List<PostingRules>();
+
+    public virtual ICollection<PostingRules> PostingRulesDeletedByNavigation { get; set; } = new List<PostingRules>();
+
+    public virtual ICollection<PostingRules> PostingRulesUpdatedByNavigation { get; set; } = new List<PostingRules>();
+
     public virtual ICollection<Priorities> PrioritiesCreatedByNavigation { get; set; } = new List<Priorities>();
 
     public virtual ICollection<Priorities> PrioritiesDeletedByNavigation { get; set; } = new List<Priorities>();
