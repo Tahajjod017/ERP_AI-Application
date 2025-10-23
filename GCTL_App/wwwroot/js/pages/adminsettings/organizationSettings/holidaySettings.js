@@ -28,6 +28,8 @@ $(document).ready(function () {
                 if (response.isSuccess) {
                     toastr.success(response.message, '');
                     clear();
+                    choiceManager.resetChoice('OrganizationID');
+                    choiceManager.resetChoice('StatusID');
                 } else {
                     const allFields = ["OrganizationID", "HolidayTitle", "StartDate", "EndDate", "TotalDays", "StatusID"];
 

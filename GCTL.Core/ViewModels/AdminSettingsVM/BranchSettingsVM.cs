@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,11 +9,14 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
 {
     public class BranchSettingsVM:BaseViewModel
     {
+        
         public int? OrganizationBranchID { get; set; }
-
+        [Required(ErrorMessage = "Department name is required")]
+        [StringLength(100, MinimumLength = 2)]
         public int? OrganizationID { get; set; }
         public string? OrganizationName { get; set; }
-
+        [Required(ErrorMessage = "Branch name is required")]
+        [StringLength(100, MinimumLength = 2)]
         public string? OrganizationBranchName { get; set; }
         public string? EmailAddress { get; set; }
 

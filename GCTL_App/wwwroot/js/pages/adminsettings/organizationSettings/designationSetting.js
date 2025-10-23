@@ -13,6 +13,7 @@ $('#designationSettingsForm').on('submit', function (e) {
             if (response.isSuccess) {
                 toastr.success(response.message, '');
                 form.trigger("reset");
+                choiceManager.resetChoice('OrganizationID');
             } else {
                 toastr.error(response.message, 'Error');
             }

@@ -2,7 +2,13 @@
 $(document).ready(function () {
     $('#branchSettingsForm').on('submit', function (e) {
         e.preventDefault();  // Prevent the default form submission
-
+        // === ONLY OrganizationID Validation ===
+        if (!$('#OrganizationID').val()) {
+            $('#OrganizationID').closest('.choices').addClass('is-invalid');
+            toastr.error('Please select an organization');
+            $('span[data-valmsg-for="OrganizationID"]').html('Organization is required');
+            return;
+        }
         var form = $(this);
         var formData = new FormData(form[0]);  // Create a FormData object from the form
 
@@ -18,6 +24,7 @@ $(document).ready(function () {
                     toastr.success(response.message, '');
                     form.trigger("reset");
                     loadTableData();
+                    choiceManager.resetChoice('OrganizationID');
                 } else {
                     toastr.error(response.message, 'Error');
                 }
@@ -28,7 +35,11 @@ $(document).ready(function () {
         });
     });
 });
-
+// Clear validation when user selects organization
+$('#OrganizationID').on('change', function () {
+    $(this).closest('.choices').removeClass('is-invalid');
+    $('span[data-valmsg-for="OrganizationID"]').html('');
+});
 $(document).on('click', '#addBranchSettings-singleDelBtn', function () {
     var approvalSettingID = $(this).data('id');
     $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal

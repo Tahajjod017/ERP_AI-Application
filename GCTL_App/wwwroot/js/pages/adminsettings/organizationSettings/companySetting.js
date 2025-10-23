@@ -108,7 +108,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.isSuccess) {
                     toastr.success(response.message, '');
-                   
+                    form.trigger('reset'); // Reset the form
                     loadTableData();
                 } else {
                     toastr.error(response.message, 'Error');

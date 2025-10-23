@@ -1,11 +1,28 @@
-﻿@{
+﻿@model GCTL.Core.ViewModels.AdminSettingsVM.DepartmentSettingsVM
+@{
     var mainTab = "CompanySetting";
     var subTab = "DepartmentSettings";
 }
 
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_MainSettingsTabPartial.cshtml" model="mainTab" />
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_NavCompanySettingsPartial.cshtml" model="subTab" />
+<style>
+    .input-validation-error {
+        border-color: #dc3545 !important;
+        background-color: #fff !important;
+    }
+    .field-validation-error {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        display: block;
+    }
 
+    .is-invalid .choices__inner {
+        border-color: #dc3545 !important;
+    }
+
+</style>
 
 <div class="col-xl-12 mt-3">
     <div class="card mb-4">
@@ -28,8 +45,8 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label" for="OrganizationID">Organization Name</label>
-                                <select id="OrganizationID" name="OrganizationID" class="form-select choiceDD">
+                                <label class="form-label" asp-for="OrganizationID">Organization Name</label>
+                                <select id="OrganizationID" asp-for="OrganizationID" class="form-select choiceDD" data-required="true">
                                     <option value="">-- Select Organization --</option>
                                     @if (ViewBag.Organizations != null)
                                     {
@@ -39,13 +56,16 @@
                                         }
                                     }
                                 </select>
+                                <span asp-validation-for="OrganizationID" class="text-danger"></span>
                             </div>
+
                         </div>
 
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label" for="DepartmentName">Department Name</label>
-                                <input class="form-control" id="DepartmentName" type="text" name="DepartmentName" placeholder="Department Name" />
+                                <label asp-for="DepartmentName" class="form-label" for="DepartmentName">Department Name</label>
+                                <input asp-for="DepartmentName" class="form-control" id="DepartmentName" type="text" name="DepartmentName" placeholder="Department Name" />
+                                <span asp-validation-for="DepartmentName" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-4">
