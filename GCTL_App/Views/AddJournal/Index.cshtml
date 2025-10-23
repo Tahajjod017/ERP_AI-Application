@@ -1,321 +1,186 @@
-﻿<style>
-    .no-border-input {
-      border: 1px solid #f3f7fc !important;
-      box-shadow: none !important;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-      outline: none;
-    }
+﻿@{
+    ViewData["Title"] = @Html.SmartLocalize("New Journal");
+}
 
-    .no-border-input:hover,
-    .no-border-input:focus {
-      border-color: #a6b1c1 !important;
-      box-shadow: none !important;
-    }
-    .form-select {
-      border-color: #eef5fa;
-    }
-    .form-select:hover {
-      border-color: #a6b1c1;
-    }
+@section Styles {
+    <style>
+        .no-border-input {
+            border: 1px solid #f3f7fc !important;
+            box-shadow: none !important;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+            outline: none;
+        }
 
-    .bgradius{
-      border-radius: 5%;
-    }
+            .no-border-input:hover,
+            .no-border-input:focus {
+                border-color: #a6b1c1 !important;
+                box-shadow: none !important;
+            }
 
-</style>
+        .form-select {
+            border-color: #eef5fa;
+        }
 
-<div class="content bg-white">
-    <div class="mb-3 border-bottom">
+            .form-select:hover {
+                border-color: #a6b1c1;
+            }
+
+    </style>
+}
+
+<div class="p-3 bg-white">
+    <div class="border-bottom">
         <h4>New Journal</h4>
     </div>
 
-
-
-
-    <div class="tab-content mt-3">
-        <div class="col-xl-10">
-            <form action="" class="row">
-                <div class="col-md-6">
+    <div class="tab-content">
+        <form>
+            <div class="row">
+                <div class="col-md-4">
                     <div class="mb-3">
                         <label class="form-label" for="">Journal Id</label>
-                        <input class="form-control no-border-input bg-transparent" id="" type="text" placeholder="32" />
+                        <input class="form-control no-border-input " id="" type="text" placeholder="32" />
                     </div>
                 </div>
-                <div class="col-md-6">
+
+                <div class="col-md-4">
                     <div class="mb-3">
                         <label class="form-label" for="">Journal Type</label>
-                        <select class="form-select " id="journalType">
-                            <option selected>Select Journal Type</option>
-                            <option value="Manual Journal">Manual Journal</option>
-                            <option value="Recurring Journal">Recurring Journal</option>
+                        <select class="form-select " id="JournalTypeID">
+                            <option>Select Journal Type</option>
+                            <option value="1" selected>Regular Journal</option>
+                            <option value="2">Correction Journal</option>
                         </select>
                     </div>
                 </div>
 
-                <div id="showRecurringJournal" style="display:none;">
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label" for="">Recurrence Pattern</label>
-                                    <select class="form-select ">
-                                        <option selected>Select Recurrence Pattern</option>
-                                        <option value="1">Monthly</option>
-                                        <option value="2">Quarterly</option>
-                                        <option value="2">Annually</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label" for="">Start Date</label>
-                                    <input class="form-control no-border-input datetimepicker" id="" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label" for="">End Date</label>
-                                    <input class="form-control no-border-input datetimepicker" id="" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label" for="">Auto Post</label>
-                                    <select class="form-select bg-transparent">
-                                        <option selected>Select Auto Post Type</option>
-                                        <option value="1">Yes</option>
-                                        <option value="2">No</option>
-                                    </select>
-                                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label" for="">Scenario Type</label>
+                        <select class="form-select " id="journalType1">
+                            <option selected>Select Scenario Type</option>
+                            <option value="">Cash Sale (Direct)</option>
+                            <option value="">Bank Sale (Transfer)</option>
+                            <option value="">Credit Sale</option>
+                            <option value="">Customer Receipt – Cash</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row d-none" id="correctionJournalDiv">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label" for="">Reference Party(Customer/Supplier)</label>
+                            <div class="d-flex">
+                                <select class="form-select " id="">
+                                    <option>Select Class Type</option>
+                                    <option value="" selected>Customer</option>
+                                    <option value="">Supplier</option>
+                                    <option value="">Employee</option>
+                                </select>
+                                <select class="form-select " id="">
+                                    <option>Select Class Type</option>
+                                    <option value="" selected>Customer A</option>
+                                    <option value="">Customer B</option>
+                                </select>
                             </div>
                         </div>
+                    </div>
 
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label" for="">Reference Documents(PO/Invoice)</label>
+                            <div class="d-flex">
+                                <select class="form-select " id="">
+                                    <option>Select Class Type</option>
+                                    <option value="" selected>PO</option>
+                                    <option value="">Invoice</option>
+                                </select>
+                                <select class="form-select " id="">
+                                    <option>Select PO Type</option>
+                                    <option value="" selected>Purchase Order</option>
+                                    <option value="">Sales Order</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <script>
-                    document.getElementById("journalType").addEventListener("change", function() {
-                      const recurringDiv = document.getElementById("showRecurringJournal");
-                      if (this.value === "Recurring Journal") {
-                        recurringDiv.style.display = "block";
-                      } else {
-                        recurringDiv.style.display = "none";
-                      }
-                    });
-                </script>
+                                
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label" for="">Account Id</label>
-                        <input class="form-control no-border-input bg-transparent" id="" type="text" placeholder="3300" />
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label" for="">Transaction Type</label>
-                        <select class="form-select bg-transparent">
-                            <option selected>Select Transaction Type</option>
-                            <option value="1">Adjustment</option>
-                            <option value="2">Accrual</option>
-                            <option value="2">Provision</option>
-                            <option value="2">Amortization</option>
+                        <label class="form-label" for="">Transaction Year</label>
+                        <select class="form-select ">
+                            <option selected>Select Transaction Year</option>
+                            <option value="1">2025-2026</option>
+                            <option value="2">2026 -2027</option>
                         </select>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label" for="">Currency Type</label>
-                        <select class="form-select bg-transparent">
-                            <option selected>Select Currency Type</option>
-                            <option value="1">EURO</option>
-                            <option value="2">USD</option>
-                        </select>
-                    </div>
-                </div>
+
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label" for="">Date</label>
-                        <input class="form-control no-border-input bg-transparent datetimepicker" id="datepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+                        <input class="form-control no-border-input  datetimepicker" id="datepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label" for="">Reference</label>
-                        <input class="form-control no-border-input bg-transparent" id="" type="text" placeholder="1" />
-                    </div>
-                </div>
+
                 <div class="col-md-12">
                     <div class="mb-3">
                         <label class="form-label" for="">Note</label>
-                        <textarea class="form-control bg-transparent" id="exampleTextarea" rows="3" placeholder="Note"> </textarea>
+                        <textarea class="form-control " id="exampleTextarea" rows="2" placeholder="Note"> </textarea>
                     </div>
                 </div>
-
-
-            </form>
-        </div>
+            </div>
+        </form>
 
         <div class="col-xl-12 mt-3">
             <table class="table  table-responsive scrollbar fs-9">
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 20%;">Account</th>
-                        <th scope="col" style="width: 20%;">Description</th>
-                        <th scope="col" style="width: 19%;">Contact</th>
-                        <th scope="col" style="width: 19%;">
-                            Transaction Type
-                            <a class=" btn-sm m-1" data-bs-toggle="tooltip" data-bs-placement="top" title="If you select the transaction type as Sales, tax will be tracked in the Output Tax Account. If you select Purchase, tax will be tracked in the Input Tax Account.">
-                                <span data-feather="alert-circle"></span>
-                            </a>
-                        </th>
-                        <th scope="col" style="width: 10%;">Debits</th>
-                        <th scope="col" style="width: 10%;">Credits</th>
-                        <th class="border-0" scope="col" style="width: 2%;"></th>
+                        <th scope="col" style="width: 15%;">@Html.SmartLocalize("Main Account")</th>
+                        <th scope="col" style="width: 20%;">@Html.SmartLocalize("Sub Account")</th>
+                        <th scope="col" style="width: 20%;">@Html.SmartLocalize("Transaction Account")</th>
+                        <th scope="col" style="width: 20%;">@Html.SmartLocalize("Description")</th>
+                        <th scope="col" style="width: 10%;">@Html.SmartLocalize("Debit")</th>
+                        <th scope="col" style="width: 10%;">@Html.SmartLocalize("Credit")</th>
+                        <th scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <th scope="row">
-                            <select class="form-select bg-transparent">
-                                <option value="">Select Base Account</option>
-                                <optgroup label="Fixed Assets">
-                                    <option value="00">Intangible Assets</option>
-                                    <option value="01">Tangible Assets</option>
-                                    <option value="02">Financial Assets</option>
-                                    <option value="05">Depreciation Accumulated</option>
-                                </optgroup>
-                                <optgroup label="Current Assets">
-                                    <option value="10">Cash & Bank</option>
-                                    <option value="12">Receivables</option>
-                                    <option value="14">Inventory</option>
-                                    <option value="16">Other Current Assets</option>
-                                    <option value="17">Taxes Receivable</option>
-                                </optgroup>
-                                <optgroup label="Liabilities">
-                                    <option value="20">Trade Payables</option>
-                                    <option value="21">Other Current Liabilities</option>
-                                    <option value="22">Intangible</option>
-                                </optgroup>
-                                <optgroup label="Equity & Reserves">
-                                    <option value="30">Share Capital</option>
-                                    <option value="31">Capital Reserves</option>
-                                    <option value="32">Retained Earnings</option>
-                                </optgroup>
-                                <optgroup label="Revenues / Sales Income">
-                                    <option value="40">Domestic Sales</option>
-                                    <option value="41">Export Sales</option>
-                                    <option value="42">Adjustments & Deductions</option>
-                                </optgroup>
-                                <optgroup label="Operating Expenses">
-                                    <option value="50">Cost of Goods Sold</option>
-                                    <option value="51">Procurement & Supplier Costs</option>
-                                    <option value="52">Logistics & Transportation</option>
-                                </optgroup>
-                                <optgroup label="Overheads & Administrative">
-                                    <option value="60">Personnel Costs</option>
-                                    <option value="61">Rent & Utilities</option>
-                                    <option value="62">IT & Systems</option>
-                                </optgroup>
+                        <td>
+                            <select class="form-select initChoices mainAccDD">
+                                <option value="">@Html.SmartLocalize("Select Main Account")...</option>
                             </select>
-                        </th>
+                            <span id="MainAccountIDError" class="text-danger" style="display:none;"></span>
+                        </td>
+                        <td>
+                            <select class="form-select initChoices mainAccDD">
+                                <option value="">@Html.SmartLocalize("Select Sub Account")...</option>
+                            </select>
+                            <span id="MainAccountIDError" class="text-danger" style="display:none;"></span>
+                        </td>
+                        <td>
+                            <select class="form-select initChoices mainAccDD">
+                                <option value="">@Html.SmartLocalize("Select Transaction Account")...</option>
+                            </select>
+                            <span id="MainAccountIDError" class="text-danger" style="display:none;"></span>
+                        </td>
                         <td>
                             <textarea class="form-control no-border-input bg-transparent" id="" rows="2"> </textarea>
                         </td>
                         <td>
-                            <select class="form-select bg-transparent">
-                                <option selected>Select Contact</option>
-                                <option value="1">Contact 1</option>
-                                <option value="2">Contact 2</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="form-select bg-transparent">
-                                <option selected>Select a Type</option>
-                                <option value="1">Sales</option>
-                                <option value="2">bg-transparent</option>
-                            </select>
-                        </td>
-                        <td>
                             <input class="form-control no-border-input bg-transparent" id="" type="text" placeholder="" />
                         </td>
                         <td>
                             <input class="form-control no-border-input bg-transparent" id="" type="text" placeholder="" />
                         </td>
-                        <td class="border-0">
-                            <a>
-                                <span class="text-danger" data-feather="x"></span>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">
-                            <select class="form-select bg-transparent">
-                                <option value="">Select Base Account</option>
-                                <optgroup label="Fixed Assets">
-                                    <option value="00">Intangible Assets</option>
-                                    <option value="01">Tangible Assets</option>
-                                    <option value="02">Financial Assets</option>
-                                    <option value="05">Depreciation Accumulated</option>
-                                </optgroup>
-                                <optgroup label="Current Assets">
-                                    <option value="10">Cash & Bank</option>
-                                    <option value="12">Receivables</option>
-                                    <option value="14">Inventory</option>
-                                    <option value="16">Other Current Assets</option>
-                                    <option value="17">Taxes Receivable</option>
-                                </optgroup>
-                                <optgroup label="Liabilities">
-                                    <option value="20">Trade Payables</option>
-                                    <option value="21">Other Current Liabilities</option>
-                                    <option value="22">Intangible</option>
-                                </optgroup>
-                                <optgroup label="Equity & Reserves">
-                                    <option value="30">Share Capital</option>
-                                    <option value="31">Capital Reserves</option>
-                                    <option value="32">Retained Earnings</option>
-                                </optgroup>
-                                <optgroup label="Revenues / Sales Income">
-                                    <option value="40">Domestic Sales</option>
-                                    <option value="41">Export Sales</option>
-                                    <option value="42">Adjustments & Deductions</option>
-                                </optgroup>
-                                <optgroup label="Operating Expenses">
-                                    <option value="50">Cost of Goods Sold</option>
-                                    <option value="51">Procurement & Supplier Costs</option>
-                                    <option value="52">Logistics & Transportation</option>
-                                </optgroup>
-                                <optgroup label="Overheads & Administrative">
-                                    <option value="60">Personnel Costs</option>
-                                    <option value="61">Rent & Utilities</option>
-                                    <option value="62">IT & Systems</option>
-                                </optgroup>
-                            </select>
-                        </th>
                         <td>
-                            <textarea class="form-control no-border-input bg-transparent" id="" rows="2"> </textarea>
-                        </td>
-                        <td>
-                            <select class="form-select bg-transparent">
-                                <option selected>Select Contact</option>
-                                <option value="1">Contact 1</option>
-                                <option value="2">Contact 2</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="form-select bg-transparent">
-                                <option selected>Select a Type</option>
-                                <option value="1">Sales</option>
-                                <option value="2">bg-transparent</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input class="form-control no-border-input bg-transparent" id="" type="text" placeholder="" />
-                        </td>
-                        <td>
-                            <input class="form-control no-border-input bg-transparent" id="" type="text" placeholder="" />
-                        </td>
-                        <td class="border-0">
-                            <a>
-                                <span class="text-danger" data-feather="x"></span>
+                            <button class="btn btn-outline-light btn-icon" id="detailsAddBtn">
+                                <i class="fa-regular fa-square-plus"></i>
+                            </button>
+                            <a href="#!" class="btn btn-outline-light btn-icon postingRules-single-deleteBtn" id="detailsDelBtn">
+                                <i class="far fa-trash-alt text-black"></i>
                             </a>
                         </td>
                     </tr>
@@ -327,15 +192,20 @@
             <!-- Summary Section -->
             <div class="row">
                 <div class="col-md-4">
-                    <!-- Add Row Button -->
-                    <button class="btn btn-outline-primary mb-4">+ Add New Row</button>
-                </div>
-                <div class="col-md-6 bg-body  p-3">
-                    <div class="row  p-3">
-                        <div class="col-md-6">Sub Total</div>
-                        <div class="col-md-3">0.00</div>
-                        <div class="col-md-3">0.00</div>
+                    <label class="form-label fw-bold">
+                        Attachments
+                    </label>
+                    <div class="input-group mb-2">
+                        <input type="file" class="form-control">
                     </div>
+                    <small class="text-muted">You can upload a maximum of 5 files, 10MB each</small>
+                </div>
+
+                <div cite="col-md-2">
+
+                </div>
+
+                <div class="col-md-6 bg-body p-3">
                     <div class="row  p-3 fs-7">
                         <div class="col-md-6">Total (BDT)</div>
                         <div class="col-md-3">0.00</div>
@@ -346,26 +216,20 @@
                         <div class="col-md-3"></div>
                         <div class="col-md-3">0.00</div>
                     </div>
-
                 </div>
-                <div class="col-md-2"></div>
             </div>
-
-            <div class="row  p-3 text-danger">
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">
-                        <!-- <span  data-feather="upload" ></span> -->
-                        Attachments
-                    </label>
-                    <div class="input-group mb-2">
-                        <input type="file" class="form-control">
-                    </div>
-                    <small class="text-muted">You can upload a maximum of 5 files, 10MB each</small>
-                </div>
-                <div class="col-md-8"></div>
-            </div>
-
         </div>
-
     </div>
 </div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="~/js/pages/finance/addjournal.js"></script>
+    <script>
+        $(function () {
+            $.addjournal({
+                baseUrl: '@Url.Action("", "AddJournal")'
+            });
+        });
+    </script>
+}

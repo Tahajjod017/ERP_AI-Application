@@ -10,7 +10,7 @@
 
 @section Styles {
     <style>
-        
+
     </style>
 }
 
@@ -66,7 +66,8 @@
                 <div class="col-md-9">
                     @for (int i = 0; i < Model.PostingRuleDetailsVMs.Count; i++)
                     {
-                        <div class="row mb-3">
+                        <input type="hidden" asp-for="PostingRuleDetailsVMs[@i].PostingRuleDetailID" class="PostingRuleDetailID" />
+                        <div class="row PostingRuleDetailsVM">
                             <div class="col-md-3">
                                 <label class="form-label" asp-for="PostingRuleDetailsVMs[@i].MainAccountID">@Html.SmartLocalize("Select Main Account")<span style="color:red;">*</span></label>
                                 <select class="form-select initChoices mainAccDD" asp-for="PostingRuleDetailsVMs[@i].MainAccountID">
@@ -81,6 +82,7 @@
                                         </optgroup>
                                     }
                                 </select>
+                                <span asp-validation-for="PostingRuleDetailsVMs[@i].MainAccountID" id="MainAccountIDError" class="text-danger" style="display:none;"></span>
                             </div>
 
                             <div class="col-md-3">
@@ -88,6 +90,7 @@
                                 <select class="form-select initChoices subAccDD" asp-for="PostingRuleDetailsVMs[@i].SubAccID">
                                     <option value="">@Html.SmartLocalize("Select Sub Account")...</option>
                                 </select>
+                                <span asp-validation-for="PostingRuleDetailsVMs[@i].SubAccID" id="SubAccIDError" class="text-danger" style="display:none;"></span>
                             </div>
 
                             <div class="col-md-4">
@@ -104,9 +107,11 @@
                                     <option value="Debit">Debit</option>
                                     <option value="Credit">Credit</option>
                                 </select>
+                                <span asp-validation-for="PostingRuleDetailsVMs[@i].DebitCredit" id="DebitCreditError" class="text-danger" style="display:none;"></span>
                             </div>
                         </div>
                     }
+                    <span asp-validation-for="PostingRuleDetailsVMs" id="PostingRuleDetailsVMsError" class="text-danger" style="display:none;"></span>
                 </div>
 
                 <div class="col-12 mb-4">
@@ -169,7 +174,6 @@
                                         </th>
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="SecnarioName">@Html.SmartLocalize("Scenario Name")</th>
                                         <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="ScenarioCode">@Html.SmartLocalize("Scenario Code")</th>
-                                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="IsActive">@Html.SmartLocalize("Is Active")</th>
                                         <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Action")</th>
                                     </tr>
                                 </thead>

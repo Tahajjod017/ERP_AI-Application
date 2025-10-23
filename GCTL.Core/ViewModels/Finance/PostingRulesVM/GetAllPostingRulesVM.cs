@@ -9,10 +9,10 @@ namespace GCTL.Core.ViewModels.Finance.PostingRulesVM
 {
     public class GetAllPostingRulesVM
     {
+        public int? PostingRuleID { get; set; }
+
         public string? ScenarioCode { get; set; }
 
         public string? ScenarioName { get; set; }
-
-        public bool? IsActive { get; set; }
     }
 }

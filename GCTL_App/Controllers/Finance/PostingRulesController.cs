@@ -64,6 +64,11 @@ namespace GCTL_App.Controllers.Finance
         {
             try
             {
+                if (model.PostingRuleDetailsVMs == null || !model.PostingRuleDetailsVMs.Any())
+                {
+                    ModelState.AddModelError("PostingRuleDetailsVMs", "Posting Details is Required!");
+                }
+
                 if (ModelState.IsValid)
                 {
                     var uniqueName = await _postingRulesService.IsNameUniqueAsync(model.ScenarioName, model.PostingRuleID);
@@ -82,7 +87,7 @@ namespace GCTL_App.Controllers.Finance
                     return Json(new { isSuccess = true, message = "Saved Successfully." });
                 }
 
-                var orderedKeys = new[] { "ScenarioName", "ScenarioCode", "SubAccountID", "TrxAccName", "TrxAccCode" };
+                var orderedKeys = new[] { "ScenarioName", "ScenarioCode", "PostingRuleDetailsVMs", "MainAccountID", "SubAccID", "DebitCredit" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -98,6 +103,95 @@ namespace GCTL_App.Controllers.Finance
             catch (Exception ex)
             {
                 return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region Update
+        //[Permission("Edit", "TransactionAccount")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<IActionResult> Update(UpdatePostingRulesVM model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var uniqueName = await _postingRulesService.IsNameUniqueAsync(model.ScenarioName, model.PostingRuleID);
+                    if (!uniqueName)
+                    {
+                        return Json(new { isSuccess = false, message = $"{model.ScenarioName} already exists!" });
+                    }
+
+                    var uniqueCode = await _postingRulesService.IsCodeUniqueAsync(model.ScenarioCode, model.PostingRuleID);
+                    if (!uniqueCode)
+                    {
+                        return Json(new { isSuccess = false, message = $"{model.ScenarioCode} already exists!" });
+                    }
+
+                    var result = await _postingRulesService.UpdateAsync(model);
+                    return Json(new
+                    {
+                        isSuccess = result.Success,
+                        message = result.Message,
+                        errors = result.Errors, // optional
+                        data = result.Data      // optional
+                    });
+                }
+
+                var orderedKeys = new[] { "ScenarioName", "ScenarioCode", "PostingRuleDetailsVMs", "MainAccountID", "SubAccID", "DebitCredit" };
+                foreach (var key in orderedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                }
+                var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region GetById
+        public async Task<IActionResult> GetById(int id)
+        {
+            try
+            {
+                var result = await _postingRulesService.GetByIdAsync(id);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "No data found!" });
+                }
+
+                return Json(new { isSuccess = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+        #endregion
+
+
+        #region GetAll
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PostingRuleID", string sortOrder = "desc")
+        {
+            try
+            {
+                var result = await _postingRulesService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
             }
         }
         #endregion
