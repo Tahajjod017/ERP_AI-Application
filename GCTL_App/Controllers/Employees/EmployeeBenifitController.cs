@@ -77,7 +77,13 @@ namespace GCTL_App.Controllers.Employees
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "PayrollInfo" , "EmployeeBenefits");
                 ViewBag.Navigation = navigationModel;
                 ViewBag.PercenatageDD = new SelectList(percentagesService.AllActive(), "PercentageValue", "PercentageValue");
-                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                var pageId = 2;
+                var elementKey = "EmployeeDropDown";
+
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, pageId, elementKey);
+
+               // bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
 
                 if (!hasEmployeePermission)
                 {

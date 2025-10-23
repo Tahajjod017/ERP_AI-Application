@@ -1,7 +1,7 @@
 ﻿$(document).ready(function () {
     
    // const choicesInstances = initializePaginatedDropdowns();
-
+    let branchLoad = true;
     
     let choicesInstances = {};
 
@@ -30,7 +30,7 @@
     }
 
     paginationService.init('EmployeePersonalId', {
-        apiUrl: '/EmployeePersonal/SearchEmployees',
+        apiUrl: '/EmployeePersonal/SearchEmployeesAll',
         pageSize: 50,
         minSearchLength: 2,
         loadInitial: true,
@@ -70,7 +70,11 @@
             employeeInstance.refresh();
         }
 
-        GetBranches(selectedId);
+        if (branchLoad) {
+            GetBranches(selectedId);
+        }
+
+        
     });
 
     $("#DepartmentID").change(function () {
@@ -135,18 +139,35 @@
         // Senior Supervisor
         $('#SeniorSupervisorId').select2({
             ...commonConfig,
+            allowClear: true,
+
             placeholder: 'Select Senior Supervisor'
         });
+
+
+        //const initializeSelect = () => {
+        //    $('#SeniorSupervisorId').select2({
+        //        width: '100%',
+        //        allowClear: true,
+        //        placeholder: 'Select an option',
+        //        language: { noResults: () => 'No results found' },
+        //        escapeMarkup: markup => markup
+        //    });
+        //};
 
         // Immediate Supervisor
         $('#ImmediateSupervisorId').select2({
             ...commonConfig,
+            allowClear: true,
+
             placeholder: 'Select Immediate Supervisor'
         });
 
         // Head of Department
         $('#HeadOfDepartmentId').select2({
             ...commonConfig,
+            allowClear: true,
+
             placeholder: 'Select Head of Department'
         });
 
@@ -448,10 +469,10 @@
             type: 'GET',
             data: { id: selectedId },
             success: function (response) {
-                console.log('Branches fetched:', response);
+                showDev(response, '/GetBranches')
                 choiceManager.populateDropdown('OrganizationBranchID', response, {
-                    labelKey: 'OrganizationBranchName',
-                    valueKey: 'OrganizationBranchID'
+                    labelKey: 'name',
+                    valueKey: 'id'
                 });
             },
             error: function (xhr, status, error) {
@@ -470,7 +491,10 @@
                 type: "GET",
                 data: { id: selectedId },
                 success: function (response) {
-                    console.log("Response received:", response);
+                    showDev(response, 'office response')
+
+                    branchLoad = false;
+
                     populateChoicesDropdowns(response);
                     populateFormFields(response);
                     populateDateFields(response);
@@ -478,6 +502,9 @@
                         $("input[name='EmployeeOfficeInfoID']").val(response.employeeOfficeInfoID);
                     }
                     $(".form-control").prop('disabled', false);
+
+                    branchLoad = true;
+
                     console.log("Employee data loaded successfully");
                 },
                 error: function (xhr, status, error) {
@@ -512,27 +539,40 @@
         
         // Set supervisor values after a delay to ensure dropdowns are initialized
         setTimeout(function () {
-            // Set organization and department first
-            if (response.organizationID) {
-                $('#OrganizationID').val(response.organizationID).trigger('change');
-            }
+           
+            //if (response.organizationID) {
+            //    $('#OrganizationID').val(response.organizationID).trigger('change');
+            //}
 
-            if (response.departmentID) {
-                $('#DepartmentID').val(response.departmentID).trigger('change');
-            }
+            //if (response.departmentID) {
+            //    $('#DepartmentID').val(response.departmentID).trigger('change');
+            //}
 
-            // Then set supervisor values
+            
             setTimeout(function () {
-                debugger
-                if (response.seniorSupervisorId && response.seniorSupervisorName) {
-                    setSelectedSupervisor('SeniorSupervisorId', response.seniorSupervisorId, response.seniorSupervisorName);
+               
+
+
+                if (response.seniorSupervisorId) { //&& response.seniorSupervisorName) {
+
+                    var seniorSupervisorName = GetEmpNameById(response.seniorSupervisorId);
+
+                    setSelectedSupervisor('SeniorSupervisorId', response.seniorSupervisorId, seniorSupervisorName);
                 }
-                if (response.immediateSupervisorId && response.immediateSupervisorName) {
-                    setSelectedSupervisor('ImmediateSupervisorId', response.immediateSupervisorId, response.immediateSupervisorName);
+                if (response.immediateSupervisorId) {  // && response.immediateSupervisorName) {
+
+                    var immediateSupervisorName = GetEmpNameById(response.immediateSupervisorId);
+
+                    setSelectedSupervisor('ImmediateSupervisorId', response.immediateSupervisorId, immediateSupervisorName);
                 }
-                if (response.headOfDepartmentId && response.headOfDepartmentName) {
-                    setSelectedSupervisor('HeadOfDepartmentId', response.headOfDepartmentId, response.headOfDepartmentName);
+                if (response.headOfDepartmentId) { // && response.headOfDepartmentName) {
+
+                    var headOfDepartmentName = GetEmpNameById(response.headOfDepartmentId);
+
+                    setSelectedSupervisor('HeadOfDepartmentId', response.headOfDepartmentId, headOfDepartmentName);
                 }
+
+
             }, 1000);
         }, 500);
     }
@@ -554,6 +594,27 @@
     }
     //#endregion
 
+
+
+    //#region get emp name by id synchronously
+
+    function GetEmpNameById(empId) {
+        var empName = '';
+        $.ajax({
+            url: '/EmployeePersonal/GetEmployeeNameById',
+            type: 'GET',
+            data: { id: empId },
+            async: false, // Synchronous request
+            success: function (response) {
+                empName = response.name;
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching employee name:', error);
+            }
+        });
+        return empName;
+    }
+    //#endregion
 
 
     function populateFormFields(response) {

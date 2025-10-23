@@ -1,0 +1,76 @@
+﻿<div class="p-4 bg-white">
+
+    <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
+        <li class="nav-item"><a class="nav-link active" id="SingleProduct-tab" data-bs-toggle="tab" href="#tab-SingleProduct" role="tab" aria-controls="tab-SingleProduct" aria-selected="true">Single Product</a></li>
+        <li class="nav-item"><a class="nav-link" id="attributeProduct-tab" data-bs-toggle="tab" href="#tab-attributeProduct" role="tab" aria-controls="tab-attributeProduct" aria-selected="false">Attribute Product</a></li>
+        <li class="nav-item"><a class="nav-link" id="bxgy-tab" data-bs-toggle="tab" href="#tab-bxgy" role="tab" aria-controls="tab-bxgy" aria-selected="false">Buy x Get Y</a></li>
+        <li class="nav-item"><a class="nav-link" id="cp-tab" data-bs-toggle="tab" href="#tab-cp" role="tab" aria-controls="tab-cp" aria-selected="false">Combo Product</a></li>
+        <li class="nav-item"><a class="nav-link" id="ser-tab" data-bs-toggle="tab" href="#tab-ser" role="tab" aria-controls="tab-ser" aria-selected="false">Service</a></li>
+
+    </ul>
+    <div class="tab-content mt-3" id="myTabContent1">
+
+        <div class="tab-pane fade show active" id="tab-SingleProduct" role="tabpanel" aria-labelledby="SingleProduct-tab">
+
+            <partial name="_SingleProduct" />
+
+        </div>
+
+        <div class="tab-pane fade" id="tab-attributeProduct" role="tabpanel" aria-labelledby="attributeProduct-tab">
+            <partial name="_AtributeProduct" />
+        </div>
+
+        <div class="tab-pane fade" id="tab-bxgy" role="tabpanel" aria-labelledby="bxgy-tab">
+            <ul class="nav nav-underline fs-9" id="myTab2" role="tablist">
+                <li class="nav-item"><a class="nav-link active" id="bxgyf-tab" data-bs-toggle="tab" href="#tab-bxgyf" role="tab" aria-controls="tab-bxgyf" aria-selected="true">Buy X Get Y Free</a></li>
+                <li class="nav-item"><a class="nav-link" id="bxgyd-tab" data-bs-toggle="tab" href="#tab-bxgyd" role="tab" aria-controls="tab-bxgyd" aria-selected="false">Buy X Get Y Discount</a></li>
+                <li class="nav-item"><a class="nav-link" id="bcgg-tab" data-bs-toggle="tab" href="#tab-bcgg" role="tab" aria-controls="tab-bcgg" aria-selected="false">Buy Collection Get Gift</a></li>
+            </ul>
+            <div class="tab-content mt-3" id="myTabContent2">
+                <div class="tab-pane fade show active" id="tab-bxgyf" role="tabpanel" aria-labelledby="bxgyf-tab">
+
+                    <partial name="_BuyGetFree" />
+
+                </div>
+                <div class="tab-pane fade" id="tab-bxgyd" role="tabpanel" aria-labelledby="bxgyd-tab">
+                    <partial name="_BuyGetDiscount" />
+                </div>
+                <div class="tab-pane fade" id="tab-bcgg" role="tabpanel" aria-labelledby="bcgg-tab">
+                    <partial name="_BuyCollectionGetGift" />
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-cp" role="tabpanel" aria-labelledby="cp-tab">
+
+            <partial name="_ComboProduct" />
+
+
+
+        </div>
+
+        <div class="tab-pane fade" id="tab-ser" role="tabpanel" aria-labelledby="ser-tab">
+
+            <partial name="_Service" />
+
+
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/pages/POS/Product/SingleProduct.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+}

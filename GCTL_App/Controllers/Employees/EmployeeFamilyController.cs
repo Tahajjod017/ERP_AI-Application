@@ -62,8 +62,13 @@ namespace GCTL_App.Controllers.Employees
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "FamilyInfo");
                 ViewBag.Navigation = navigationModel;
 
+                var pageId = 2;
+                var elementKey = "EmployeeDropDown";
 
-                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, pageId, elementKey);
+
+
+               // bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
 
                 if (!hasEmployeePermission)
                 {
@@ -134,7 +139,13 @@ namespace GCTL_App.Controllers.Employees
             if (loggedUser != null)
             {
                 var userId = loggedUser.Id;
-                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                var pageId = 2;
+                var elementKey = "EmployeeDropDown";
+
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, pageId, elementKey);
+
+               // bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
 
                 if (!hasEmployeePermission)
                 {
@@ -180,7 +191,13 @@ namespace GCTL_App.Controllers.Employees
                 if (loggedUser != null)
                 {
                     var userId = loggedUser.Id;
-                    bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                    var pageId = 2;
+                    var elementKey = "EmployeeDropDown";
+
+                    bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, pageId, elementKey);
+
+                   // bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
 
                     if (!hasEmployeePermission)
                     {

@@ -96,6 +96,20 @@ namespace GCTL_App.Controllers.Employees
             
         }
 
+        public async Task<IActionResult> GetEmployeeNameById(int id)
+        {
+            var employee = await _employeePersonalService.GetEmployeeById(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            return Json(new
+            {
+                id = employee.Id,
+                name = employee.Name
+            });
+        }
+
         private void PopulateViewBag()
         {
             ViewBag.MaritalStatusDD = new SelectList(_maritalRepository.All(), "MaritalStatusID", "MaritalStatusName");
@@ -363,8 +377,99 @@ namespace GCTL_App.Controllers.Employees
 
                     var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
 
+                    var pageId = 2;
+                    var elementKey = "EmployeeDropDown";
 
-                    bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+                    bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, pageId, elementKey);
+
+                   // bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+
+                    if (!hasEmployeePermission)
+                    {
+                        var empid = loggedUser.EmployeeId;
+                        query = query.Where(e => e.EmployeeID == empid);
+                    }
+                }
+
+
+
+                
+               
+               
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    search = search.Trim().ToLower();
+                    query = query.Where(e =>
+                        e.FirstName.ToLower().Contains(search) ||
+                        e.LastName.ToLower().Contains(search) ||
+                        e.EmployeeCode.ToLower().Contains(search) ||
+                        e.Email.ToLower().Contains(search)
+                    );
+                }
+
+                // Order by
+                query = query.OrderBy(e => e.FirstName);
+
+                // Get total count for pagination
+                var totalCount = await query.CountAsync();
+                var hasMore = (page * pageSize) < totalCount;
+
+                // Get paginated results
+                var employees = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(e => new
+                    {
+                        value = e.EmployeeID.ToString(),
+                        label = $"{e.FirstName} {e.LastName}({e.EmployeeCode})" // Format as needed
+                    })
+                    .ToListAsync();
+
+                return Json(new
+                {
+                    items = employees,
+                    hasMore = hasMore,
+                    totalCount = totalCount
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                return Json(new
+                {
+                    items = new List<object>(),
+                    hasMore = false,
+                    error = "Failed to load employees"
+                });
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> SearchEmployeesAll(string search = "", int page = 1, int pageSize = 50)
+        {
+            try
+            {
+
+                var query = _employeeRepository.All().AsQueryable();
+
+                var loggedUser = await _userManagerRepository2.GetUserAsync(User);
+                
+                if (loggedUser != null)
+                {
+                    var userId = loggedUser.Id;
+
+                    var user = await _userManagerRepository2.FindByIdAsync(userId); // Get the ApplicationUser
+                    var roleNames = await _userManagerRepository2.GetRolesAsync(user); // List<string> of role names
+
+                    var roleIds = _roleManagerRepository2.Roles.Where(role => roleNames.Contains(role.Name)).Select(role => role.Id).ToList();
+
+                    var pageId = 2;
+                    var elementKey = "EmployeeDropDown";
+
+                    bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, pageId, elementKey);
+
+                   // bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
 
                     if (!hasEmployeePermission)
                     {

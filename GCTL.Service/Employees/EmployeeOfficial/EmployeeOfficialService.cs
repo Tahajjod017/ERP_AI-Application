@@ -4,13 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ServiceExtensions;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Employee.EmployeeOfficial;
 using GCTL.Core.ViewModels.Employee.EmployeePersonal;
 using GCTL.Data.Models;
+using GCTL.Service.ActionLogAudit;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using SkiaSharp;
 using static Dapper.SqlMapper;
 
@@ -21,11 +25,16 @@ namespace GCTL.Service.Employees.EmployeeOfficial
 
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeePersonalRepository;
         private readonly IGenericRepository<GCTL.Data.Models.EmployeeOfficeInfo> _employeeOfficialRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.Statuses> _statusRepository;
+        private readonly IUserInfoService _userInfoService;
 
-        public EmployeeOfficialService(IGenericRepository<Data.Models.Employees> employeePersonalRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository)
+
+        public EmployeeOfficialService(IGenericRepository<Data.Models.Employees> employeePersonalRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficialRepository, IUserInfoService userInfoService, IGenericRepository<Statuses> statusRepository)
         {
             _employeePersonalRepository = employeePersonalRepository;
             _employeeOfficialRepository = employeeOfficialRepository;
+            _userInfoService = userInfoService;
+            _statusRepository = statusRepository;
         }
 
 
@@ -155,6 +164,8 @@ namespace GCTL.Service.Employees.EmployeeOfficial
         {
             var result = new CommonReturnViewModel();
 
+            await _employeeOfficialRepository.BeginTransactionAsync();
+
             try
             {
                 if (model == null)
@@ -207,20 +218,15 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                     if (entity.EmploymentStatusId == 0) entity.EmploymentStatusId = null;
                     if (entity.ProvisionPeriodTtimeTypeID == 0) entity.ProvisionPeriodTtimeTypeID = null;
 
-                    //foreach (var property in typeof(EmployeeOfficeInfo).GetProperties())
-                    //{
-                    //    if (property.PropertyType == typeof(int?))
-                    //    {
-                    //        var value = (int?)property.GetValue(entity);
-                    //        if (value == 0)
-                    //        {
-                    //            property.SetValue(entity, null);
-                    //        }
-                    //    }
-                    //}
+                    
 
 
                     await _employeeOfficialRepository.AddAsync(entity);
+
+                    await _userInfoService.ActionLogAsync("EmpOffice", ActionName.DataAdd, null, entity, entity.EmployeeOfficeInfoID, model);
+
+
+                    await _employeeOfficialRepository.CommitTransactionAsync();
 
                     result.Success = true;
                     result.Message = "Employee official info saved successfully.";
@@ -228,6 +234,8 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                 }
                 else
                 {
+
+                    await _employeeOfficialRepository.CommitTransactionAsync();
                     model.EmployeeOfficeInfoID = chk.EmployeeOfficeInfoID;
                     var a = await UpdateEmployeeOfficialInfo(model);
                     result.Success = a.Success;
@@ -240,6 +248,8 @@ namespace GCTL.Service.Employees.EmployeeOfficial
             }
             catch (Exception ex)
             {
+                await _employeeOfficialRepository.RollbackTransactionAsync();
+
                 result.Success = false;
                 result.Message = $"An error occurred: {ex.Message}";
             }
@@ -251,6 +261,8 @@ namespace GCTL.Service.Employees.EmployeeOfficial
         public async Task<CommonReturnViewModel> UpdateEmployeeOfficialInfo(EmployeeOfficialPostViewModel model)
         {
             var result = new CommonReturnViewModel();
+
+            await _employeeOfficialRepository.BeginTransactionAsync();
 
             try
             {
@@ -270,6 +282,56 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                     result.Message = "Employee office info not found.";
                     return result;
                 }
+
+                var beforeEntity = JsonConvert.DeserializeObject<EmployeeOfficialPostViewModel>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+
+                var activeStatus = await _statusRepository.AllActive().Where(e => e.StatusName.ToLower() == "active").FirstOrDefaultAsync();
+                var inActiveStatus = await _statusRepository.AllActive().Where(e => e.StatusName.ToLower() == "inactive").FirstOrDefaultAsync();
+
+                if (model.EmploymentStatusId == inActiveStatus.StatusID && entity.EmploymentStatusId == activeStatus.StatusID)
+                {
+                    entity.DeletedAt = DateTime.UtcNow;
+                    entity.DeletedBy = model.DeletedBy;
+
+                    var empEntity = await _employeePersonalRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == entity.EmployeeID);
+                    if (empEntity == null)
+                    {
+                        result.Success = false;
+                        result.Message = "Employee not found.";
+                        return result;
+                    }
+                    else
+                    {
+
+
+                        empEntity.DeletedAt = DateTime.UtcNow;
+                        empEntity.DeletedBy = model.DeletedBy;
+                        await _employeePersonalRepository.UpdateAsync(empEntity);
+                    }
+                 }
+
+
+                if (model.EmploymentStatusId == activeStatus.StatusID && entity.EmploymentStatusId == inActiveStatus.StatusID)
+                {
+                    entity.DeletedAt = null;
+                    entity.DeletedBy = null;
+
+                    var empEntity = await _employeePersonalRepository.AllActive().FirstOrDefaultAsync(e => e.EmployeeID == entity.EmployeeID);
+                    if (empEntity == null)
+                    {
+                        result.Success = false;
+                        result.Message = "Employee not found.";
+                        return result;
+                    }
+                    else
+                    {
+
+
+                        empEntity.DeletedAt = null;
+                        empEntity.DeletedBy = null;
+                        await _employeePersonalRepository.UpdateAsync(empEntity);
+                    }
+                 }
 
                 entity.EmployeeOfficeId = model.EmployeeOfficeId;
                 entity.OrganizationID = model.OrganizationID;
@@ -306,19 +368,17 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                 if (entity.EmploymentStatusId == 0) entity.EmploymentStatusId = null;
                 if (entity.ProvisionPeriodTtimeTypeID == 0) entity.ProvisionPeriodTtimeTypeID = null;
 
-                //foreach (var property in typeof(EmployeeOfficeInfo).GetProperties())
-                //{
-                //    if (property.PropertyType == typeof(int?))
-                //    {
-                //        var value = (int?)property.GetValue(entity);
-                //        if (value == 0)
-                //        {
-                //            property.SetValue(entity, null);
-                //        }
-                //    }
-                //}
+                
 
                 await _employeeOfficialRepository.UpdateAsync(entity);
+
+
+                var afterEntity = JsonConvert.DeserializeObject<EmployeeOfficialPostViewModel>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+
+                await _userInfoService.ActionLogAsync("EmpOffice Update", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EmployeeOfficeInfoID, model);
+
+
+                await _employeeOfficialRepository.CommitTransactionAsync();
 
                 result.Success = true;
                 result.Message = "Employee official info updated successfully.";
@@ -327,6 +387,7 @@ namespace GCTL.Service.Employees.EmployeeOfficial
             }
             catch (Exception ex)
             {
+                await _employeeOfficialRepository.RollbackTransactionAsync();
                 result.Success = false;
                 result.Message = $"An error occurred: {ex.Message}";
             }
