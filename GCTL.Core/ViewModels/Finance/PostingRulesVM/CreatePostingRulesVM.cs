@@ -18,6 +18,7 @@ namespace GCTL.Core.ViewModels.Finance.PostingRulesVM
         [Required(ErrorMessage = "{0} is Required!"), Display(Name = "Scenario Name")]
         public string ScenarioName { get; set; }
 
-        public IList<CreatePostingRuleDetailsVM> PostingRuleDetailsVMs { get; set; } = new List<CreatePostingRuleDetailsVM>();
+        [Required(ErrorMessage = "Posting Details is Required!")]
+        public IList<CreatePostingRuleDetailsVM>? PostingRuleDetailsVMs { get; set; } = new List<CreatePostingRuleDetailsVM>();
     }
 }
