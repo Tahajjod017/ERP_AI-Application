@@ -97,7 +97,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<bbResult>("EXEC @returnValue = [dbo].[bb] @SchemaTable = @SchemaTable, @ColumnPositions = @ColumnPositions", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<bbResult>("EXEC @returnValue = [dbo].[bb] @SchemaTable = @SchemaTable, @ColumnPositions = @ColumnPositions", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -141,7 +141,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<GetPaginatedEmployeeAttendanceResult>("EXEC @returnValue = [dbo].[GetPaginatedEmployeeAttendance] @Month = @Month, @Year = @Year, @PageNumber = @PageNumber, @PageSize = @PageSize", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<GetPaginatedEmployeeAttendanceResult>("EXEC @returnValue = [dbo].[GetPaginatedEmployeeAttendance] @Month = @Month, @Year = @Year, @PageNumber = @PageNumber, @PageSize = @PageSize", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -231,7 +231,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<sp_GetAllEmployeeShiftsResult>("EXEC @returnValue = [dbo].[sp_GetAllEmployeeShifts] @pageNumber = @pageNumber, @pageSize = @pageSize, @searchTerm = @searchTerm, @daysToShow = @daysToShow, @startDate = @startDate", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_GetAllEmployeeShiftsResult>("EXEC @returnValue = [dbo].[sp_GetAllEmployeeShifts] @pageNumber = @pageNumber, @pageSize = @pageSize, @searchTerm = @searchTerm, @daysToShow = @daysToShow, @startDate = @startDate", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -258,7 +258,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<sp_InsertOrUpdateShiftsResult>("EXEC @returnValue = [dbo].[sp_InsertOrUpdateShifts] @ShiftInputs = @ShiftInputs", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_InsertOrUpdateShiftsResult>("EXEC @returnValue = [dbo].[sp_InsertOrUpdateShifts] @ShiftInputs = @ShiftInputs", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -319,7 +319,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<sp_ProcessPunchResult>("EXEC @returnValue = [dbo].[sp_ProcessPunch] @enroll_id = @enroll_id, @CHECKTIME = @CHECKTIME, @DeviceSN = @DeviceSN, @SourceType = @SourceType, @Latitude = @Latitude, @Longitude = @Longitude", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_ProcessPunchResult>("EXEC @returnValue = [dbo].[sp_ProcessPunch] @enroll_id = @enroll_id, @CHECKTIME = @CHECKTIME, @DeviceSN = @DeviceSN, @SourceType = @SourceType, @Latitude = @Latitude, @Longitude = @Longitude", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 

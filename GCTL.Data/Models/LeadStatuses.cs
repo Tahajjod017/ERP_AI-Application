@@ -29,11 +29,15 @@ public partial class LeadStatuses
 
     public bool? IsSpecial { get; set; }
 
+    public int? OrganizationID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
+
+    public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

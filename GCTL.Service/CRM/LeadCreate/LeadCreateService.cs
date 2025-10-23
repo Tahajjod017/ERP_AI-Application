@@ -20,6 +20,9 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly IGenericRepository<AddressTypes> _addressTypesRepository;
         private readonly IGenericRepository<CustomerAddresses> _customerAddressesRepository;
         private readonly IGenericRepository<Leads> _leadsRepository;
+        private readonly IGenericRepository<Priorities> _prioritiesRepository;
+        private readonly IGenericRepository<LeadStatuses> _statusesRepository;
+        private readonly IGenericRepository<LeadSources> _sourcesRepository;
         private readonly IGenericRepository<CompanyWarehouses> _companyWarehousesRepository;
         private readonly IGenericRepository<CompanyWarehouseAddresses> _companyWarehouseAddressesRepository;
         private readonly IGenericRepository<CompanyBranches> _companyBranchesRepository;
@@ -36,7 +39,7 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly ITransactionAccountService _transactionAccountService;
         #endregion
 
-        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, ITransactionAccountService transactionAccountService, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository)
+        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, ITransactionAccountService transactionAccountService, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<LeadStatuses> statusesRepository, IGenericRepository<LeadSources> sourcesRepository)
         {
             _countryRepository = countryRepository;
             _addressesRepository = addressesRepository;
@@ -56,6 +59,9 @@ namespace GCTL.Service.CRM.LeadCreate
             _subAccounts = subAccounts;
             _transactionAccountService = transactionAccountService;
             _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
+            _prioritiesRepository = prioritiesRepository;
+            _statusesRepository = statusesRepository;
+            _sourcesRepository = sourcesRepository;
         }
         #endregion
 
@@ -1026,7 +1032,7 @@ namespace GCTL.Service.CRM.LeadCreate
 
         #endregion
 
-        #region get Technician List 
+        #region get Owner List 
         public async Task<ReturnDataView<CustomerInfoVM>> GetLeadOwnerListAsync(string search, int page, int pageSize, int organizationID)
         {
             var query = _employeeOfficeInfoRepository
@@ -1071,6 +1077,142 @@ namespace GCTL.Service.CRM.LeadCreate
                 totalItem = totalCount,
                 message = "Data loaded"
             };
+        }
+        #endregion
+
+        #region get Source List 
+        public async Task<ReturnDataView<CommonSelectVM>> GetLeadSourceListAsync(string search, int page, int pageSize, int organizationID)
+        {
+            try
+            {
+                var query = _sourcesRepository
+                .AllActive()
+                .Where(q => q.OrganizationID == organizationID);
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    string pattern = $"%{search}%";
+
+                    query = query.Where(c =>
+                        c != null &&
+                        (
+                            EF.Functions.Like(c.LeadSourceName, pattern) ||
+                            EF.Functions.Like(c.CreatedAt.ToString(), pattern)
+                        ));
+                }
+
+                var totalCount = await query.CountAsync();
+
+                var items = await query
+                    .OrderBy(c => c.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize).Select(t => new CommonSelectVM
+                    {
+                        Id = t.LeadSourceID,
+                        Name = t.LeadSourceName,
+                    })
+                    .ToListAsync();
+
+                return new ReturnDataView<CommonSelectVM>
+                {
+                    data = items,
+                    totalItem = totalCount,
+                    message = "Data loaded"
+                };
+            }
+            catch (Exception ex) { return new ReturnDataView<CommonSelectVM>(); }
+            
+        }
+        #endregion
+
+        #region get Status List 
+        public async Task<ReturnDataView<CommonSelectVM>> GetLeadStatusListAsync(string search, int page, int pageSize, int organizationID)
+        {
+            try
+            {
+                var query = _statusesRepository
+                .AllActive()
+                .Where(q => q.OrganizationID == organizationID);
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    string pattern = $"%{search}%";
+
+                    query = query.Where(c =>
+                        c != null &&
+                        (
+                            EF.Functions.Like(c.LeadStatusName, pattern) ||
+                            EF.Functions.Like(c.CreatedAt.ToString(), pattern)
+                        ));
+                }
+
+                var totalCount = await query.CountAsync();
+
+                var items = await query
+                    .OrderBy(c => c.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize).Select(t => new CommonSelectVM
+                    {
+                        Id = t.LeadStatusID,
+                        Name = t.LeadStatusName,
+                    })
+                    .ToListAsync();
+
+                return new ReturnDataView<CommonSelectVM>
+                {
+                    data = items,
+                    totalItem = totalCount,
+                    message = "Data loaded"
+                };
+            }
+            catch (Exception ex) { return new ReturnDataView<CommonSelectVM>(); }
+            
+        }
+        #endregion
+
+        #region get Priority List 
+        public async Task<ReturnDataView<CommonSelectVM>> GetPriorityListAsync(string search, int page, int pageSize, int organizationID)
+        {
+            try
+            {
+                var query = _prioritiesRepository
+                .AllActive()
+                .Where(q => q.OrganizationID == organizationID);
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    string pattern = $"%{search}%";
+
+                    query = query.Where(c =>
+                        c != null &&
+                        (
+                            EF.Functions.Like(c.PriorityName, pattern) ||
+                            EF.Functions.Like(c.CreatedAt.ToString(), pattern)
+                        ));
+                }
+
+
+                var totalCount = await query.CountAsync();
+
+                var items = await query
+                    .OrderBy(c => c.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize).Select(t => new CommonSelectVM
+                    {
+                        Id = t.PriorityID,
+                        Name = t.PriorityName,
+                    })
+                    .ToListAsync();
+
+                return new ReturnDataView<CommonSelectVM>
+                {
+                    data = items,
+                    totalItem = totalCount,
+                    message = "Data loaded"
+                };
+            }
+            catch (Exception ex) { return new ReturnDataView<CommonSelectVM>(); }
+            
         }
         #endregion
     }

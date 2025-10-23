@@ -497,6 +497,12 @@ public partial class Employees
 
     public virtual ICollection<EmploymentNature> EmploymentNatureUpdatedByNavigation { get; set; } = new List<EmploymentNature>();
 
+    public virtual ICollection<FinancialYears> FinancialYearsCreatedByNavigation { get; set; } = new List<FinancialYears>();
+
+    public virtual ICollection<FinancialYears> FinancialYearsDeletedByNavigation { get; set; } = new List<FinancialYears>();
+
+    public virtual ICollection<FinancialYears> FinancialYearsUpdatedByNavigation { get; set; } = new List<FinancialYears>();
+
     public virtual Genders Gender { get; set; }
 
     public virtual ICollection<Genders> GendersCreatedByNavigation { get; set; } = new List<Genders>();
@@ -562,6 +568,24 @@ public partial class Employees
     public virtual ICollection<Jobs> JobsDeletedByNavigation { get; set; } = new List<Jobs>();
 
     public virtual ICollection<Jobs> JobsUpdatedByNavigation { get; set; } = new List<Jobs>();
+
+    public virtual ICollection<JournalDetails> JournalDetailsCreatedByNavigation { get; set; } = new List<JournalDetails>();
+
+    public virtual ICollection<JournalDetails> JournalDetailsDeletedByNavigation { get; set; } = new List<JournalDetails>();
+
+    public virtual ICollection<JournalDetails> JournalDetailsUpdatedByNavigation { get; set; } = new List<JournalDetails>();
+
+    public virtual ICollection<JournalTypes> JournalTypesCreatedByNavigation { get; set; } = new List<JournalTypes>();
+
+    public virtual ICollection<JournalTypes> JournalTypesDeletedByNavigation { get; set; } = new List<JournalTypes>();
+
+    public virtual ICollection<JournalTypes> JournalTypesUpdatedByNavigation { get; set; } = new List<JournalTypes>();
+
+    public virtual ICollection<Journals> JournalsCreatedByNavigation { get; set; } = new List<Journals>();
+
+    public virtual ICollection<Journals> JournalsDeletedByNavigation { get; set; } = new List<Journals>();
+
+    public virtual ICollection<Journals> JournalsUpdatedByNavigation { get; set; } = new List<Journals>();
 
     public virtual ICollection<LeadActivityTypes> LeadActivityTypesCreatedByNavigation { get; set; } = new List<LeadActivityTypes>();
 

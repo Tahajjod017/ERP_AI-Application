@@ -101,22 +101,19 @@ namespace GCTL_App.Controllers.FieldServices
         [HttpGet]
         public async Task<IActionResult> GetOwnerList(string search = "", int page = 1, int pageSize = 20)
         {
-            // Fetch technicians from service
             var result = await _createJobService.GetTechnicianListAsync(
                search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
             );
 
-            // Determine if there are more pages
             var hasMore = (page * pageSize) < result.totalItem;
 
-            // Format response to match { items: [], hasMore: true/false }
             var formatted = new
             {
                 items = result.data.Select(c => new
                 {
-                    value = c.LeadID,                 // matches `value` in SearchOrganizations
-                    label = $"{c.LeadName} {c.Phone} {c.Email}", // matches `label`
-                    group = "" // optional if you want to categorize employees
+                    value = c.LeadID,   
+                    label = $"{c.LeadName} {c.Phone} {c.Email}",
+                    group = ""
                 }),
                 hasMore
             };

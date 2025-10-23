@@ -33,6 +33,8 @@ public partial class PostingRules
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<Journals> Journals { get; set; } = new List<Journals>();
+
     public virtual ICollection<PostingRuleDetails> PostingRuleDetails { get; set; } = new List<PostingRuleDetails>();
 
     public virtual Employees UpdatedByNavigation { get; set; }

@@ -29,11 +29,15 @@ public partial class LeadServices
 
     public int? DeletedBy { get; set; }
 
+    public int? OrganizationID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Leads Lead { get; set; }
+
+    public virtual Organization Organization { get; set; }
 
     public virtual Services Service { get; set; }
 
