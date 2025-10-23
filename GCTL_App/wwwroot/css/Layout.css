@@ -127,3 +127,15 @@ label.req::after {
     border: 1px solid #e5d9d9 !important;
   
 }
+
+.select2-results__option {
+    padding: 2px 1rem !important;
+}
+
+.select2-container {
+    z-index: 9999 !important;
+}
+
+.select2-dropdown {
+    z-index: 9999 !important;
+}
