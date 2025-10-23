@@ -24,11 +24,27 @@
          "ObjectType": 0
       },
       {
+         "Name": "[COA].[FinancialYears]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[COA].[HeadDetails]",
          "ObjectType": 0
       },
       {
          "Name": "[COA].[Heads]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[JournalDetails]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[Journals]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[JournalTypes]",
          "ObjectType": 0
       },
       {

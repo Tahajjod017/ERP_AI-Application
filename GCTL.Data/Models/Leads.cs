@@ -49,6 +49,8 @@ public partial class Leads
 
     public int? CustomerID { get; set; }
 
+    public int? OrganizationID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Customers Customer { get; set; }
@@ -66,6 +68,8 @@ public partial class Leads
     public virtual LeadStatuses LeadStatus { get; set; }
 
     public virtual ICollection<LeadTypes> LeadTypes { get; set; } = new List<LeadTypes>();
+
+    public virtual Organization Organization { get; set; }
 
     public virtual Priorities Priority { get; set; }
 

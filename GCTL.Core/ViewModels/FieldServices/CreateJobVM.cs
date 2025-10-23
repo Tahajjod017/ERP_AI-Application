@@ -13,7 +13,7 @@ namespace GCTL.Core.ViewModels.FieldServices
         public int CreateJobID { get; set; }
         [Display(Name = "Customer Name")]
         public int? CustomerID { get; set; }
-        [Display(Name = "Customer Name")]
+        [Display(Name = "Job Title")]
         public string JobTitle { get; set; }
         [Display(Name = "Job Type")]
         public int? JobID { get; set; }
@@ -31,5 +31,8 @@ namespace GCTL.Core.ViewModels.FieldServices
         public string? Note { get; set; }
         [Display(Name = "File Upload")]
         public IFormFile? FileLink { get; set; }
+
+        public string? StatusName { get; set; }
+        public string? JobType { get; set; }
     }
 }

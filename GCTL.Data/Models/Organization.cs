@@ -109,6 +109,20 @@ public partial class Organization
 
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
+    public virtual ICollection<LeadActivityTypes> LeadActivityTypes { get; set; } = new List<LeadActivityTypes>();
+
+    public virtual ICollection<LeadProjectTeams> LeadProjectTeams { get; set; } = new List<LeadProjectTeams>();
+
+    public virtual ICollection<LeadServices> LeadServices { get; set; } = new List<LeadServices>();
+
+    public virtual ICollection<LeadSources> LeadSources { get; set; } = new List<LeadSources>();
+
+    public virtual ICollection<LeadStatuses> LeadStatuses { get; set; } = new List<LeadStatuses>();
+
+    public virtual ICollection<LeadTypes> LeadTypes { get; set; } = new List<LeadTypes>();
+
+    public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
+
     public virtual ICollection<LeaveTypes> LeaveTypes { get; set; } = new List<LeaveTypes>();
 
     public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
@@ -120,6 +134,8 @@ public partial class Organization
     public virtual ICollection<OrganizationBranches> OrganizationBranches { get; set; } = new List<OrganizationBranches>();
 
     public virtual ICollection<PSettings> PSettings { get; set; } = new List<PSettings>();
+
+    public virtual ICollection<Priorities> Priorities { get; set; } = new List<Priorities>();
 
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettings { get; set; } = new List<ProbetionPeriodSettings>();
 

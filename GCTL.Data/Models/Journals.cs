@@ -5,13 +5,23 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LeadActivityTypes
+public partial class Journals
 {
-    public int LeadActivityTypeID { get; set; }
+    public int JournalID { get; set; }
 
-    public string LeadActivityIcon { get; set; }
+    public int? JournalTypeID { get; set; }
 
-    public string LeadActivityName { get; set; }
+    public string JournalCode { get; set; }
+
+    public int? PostingRuleID { get; set; }
+
+    public int? FinancialYearID { get; set; }
+
+    public string Note { get; set; }
+
+    public DateTime? JournalDate { get; set; }
+
+    public string FileLink { get; set; }
 
     public string LIP { get; set; }
 
@@ -29,17 +39,17 @@ public partial class LeadActivityTypes
 
     public int? DeletedBy { get; set; }
 
-    public string UseFor { get; set; }
-
-    public int? OrganizationID { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<LeadDetails> LeadDetails { get; set; } = new List<LeadDetails>();
+    public virtual FinancialYears FinancialYear { get; set; }
 
-    public virtual Organization Organization { get; set; }
+    public virtual ICollection<JournalDetails> JournalDetails { get; set; } = new List<JournalDetails>();
+
+    public virtual JournalTypes JournalType { get; set; }
+
+    public virtual PostingRules PostingRule { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -3,7 +3,6 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
-using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
@@ -12,16 +11,21 @@ namespace GCTL.Service.FieldServices
 {
     public class CreateJobService : AppService<LeadActivityTypes>, ICreateJobService
     {
+        #region service & repository
         private readonly IGenericRepository<Jobs> _jobsRepository;
         private readonly IGenericRepository<Customers> _customersRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfoRepository;
-        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository) : base(genericRepository)
+        private readonly AppDbContext _context;
+        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, AppDbContext context) : base(genericRepository)
         {
             _jobsRepository = jobsRepository;
             _customersRepository = customersRepository;
             _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
+            _context = context;
         }
+        #endregion
 
+        #region AddAsync
         public async Task<bool> AddAsync(CreateJobVM model)
         {
             try
@@ -59,6 +63,7 @@ namespace GCTL.Service.FieldServices
                 return false;
             }
         }
+        #endregion
 
         #region get Customer List 
         public async Task<ReturnDataView<CustomerInfoVM>> GetPagedEmployeesAsync(string search, int page, int pageSize, int organizationID)
@@ -110,6 +115,7 @@ namespace GCTL.Service.FieldServices
         }
 
         #endregion
+
         #region get Technician List 
         public async Task<ReturnDataView<CustomerInfoVM>> GetTechnicianListAsync(string search, int page, int pageSize, int organizationID)
         {
@@ -158,11 +164,53 @@ namespace GCTL.Service.FieldServices
         }
         #endregion
 
-        public Task<PaginationService<Grade, CreateJobVM>.PaginationResult<CreateJobVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CreateJobID", string sortOrder = "asc")
+        #region GetAllAsync
+        public async Task<ReturnDataView<CreateJobVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5,
+            string searchTerm = "", string sortColumn = "CreateJobID", string sortOrder = "asc")
         {
-            throw new NotImplementedException();
-        }
+            var query = _context.Jobs
+                .AsNoTracking()
+                .Where(t => t.Customer.OrganizationID == organizationID);
 
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(t => EF.Functions.Like(t.JobTitle, $"%{searchTerm}%"));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            query = sortColumn.ToLower() switch
+            {
+                "jobtitle" => sortOrder == "asc" ? query.OrderBy(t => t.JobTitle) : query.OrderByDescending(t => t.JobTitle),
+                "startdatetime" => sortOrder == "asc" ? query.OrderBy(t => t.StartDateTime) : query.OrderByDescending(t => t.StartDateTime),
+                _ => query.OrderByDescending(t => t.StartDateTime)
+            };
+
+            var data = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(t => new CreateJobVM
+                {
+                    JobID = t.JobID,
+                    JobTitle = t.JobTitle,
+                    StartDate = t.StartDateTime.ToString(),
+                    EndDate = t.EndDateTime.ToString(),
+                    StatusName = t.JobStatus.StatusName,
+                    JobLocation = t.Location,
+                    Note = t.Note,
+                    JobType = t.JobType.JobTypeName,
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<CreateJobVM>
+            {
+                data = data,
+                totalItem = totalCount,
+            };
+        }
+        #endregion
+
+        #region pending
         public Task<CreateJobVM> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
@@ -177,6 +225,6 @@ namespace GCTL.Service.FieldServices
         {
             throw new NotImplementedException();
         }
-
+        #endregion
     }
 }

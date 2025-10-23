@@ -12,10 +12,10 @@ namespace GCTL.Service.FieldServices
         Task<bool> UpdateAsync(CreateJobVM model);
         Task<CreateJobVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<CreateJobVM> GetByIdAsync(int id);
-        Task<PaginationService<Grade, CreateJobVM>.PaginationResult<CreateJobVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-        string sortColumn = "CreateJobID", string sortOrder = "asc");
         Task<ReturnDataView<CustomerInfoVM>> GetPagedEmployeesAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CustomerInfoVM>> GetTechnicianListAsync(string search, int page, int pageSize, int organizationID);
+        Task<ReturnDataView<CreateJobVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5,
+            string searchTerm = "", string sortColumn = "CreateJobID", string sortOrder = "asc");
         #endregion
     }
 }
