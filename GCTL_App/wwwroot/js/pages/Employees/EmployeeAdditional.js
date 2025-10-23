@@ -126,21 +126,23 @@ $(document).ready(function () {
                 $('#PasportName').val(data.pasportName);
                 $('#PasportNo').val(data.pasportNo);
                 $('#PasportPlaceOfIssue').val(data.pasportPlaceOfIssue);
-                $('#PasportIssueDate').val(data.pasportIssueDate);
-                $('#PasportExpireDate').val(data.pasportExpireDate);
                 $('#DrivingLicenceNo').val(data.drivingLicenceNo);
                 // $('#LicenceTypeID').val(data.licenceTypeID);
                 choiceManager.setChoiceValue('LicenceTypeID', data.licenceTypeID);
 
-                $('#DrivingLicenceIssueDate').val(data.drivingLicenceIssueDate);
-                $('#DrivingLicenceExpireDate').val(data.drivingLicenceExpireDate);
                 $('#SymbolOfVehicleClass').val(data.symbolOfVehicleClass);
                 $('#DrivingLicencePlaceOfIssue').val(data.drivingLicencePlaceOfIssue);
-                $('#WorkPermaitNumber').val(data.workPermitNumber);
+                $('#WorkPermaitNumber').val(data.workPermaitNumber);
                 $('#WorkPermitType').val(data.workPermitType);
-                $('#WorkPermitEffectiveDate').val(data.workPermitEffectiveDate);
-                $('#WorkPermitExpireDate').val(data.workPermitExpireDate);
-                $('#VisaExpireDate').val(data.visaExpireDate);
+
+
+                $('#PasportIssueDate').val(extractDateOnly(data.pasportIssueDate));
+                $('#PasportExpireDate').val(extractDateOnly(data.pasportExpireDate));
+                $('#DrivingLicenceIssueDate').val(extractDateOnly(data.drivingLicenceIssueDate));
+                $('#DrivingLicenceExpireDate').val(extractDateOnly(data.drivingLicenceExpireDate));
+                $('#WorkPermitEffectiveDate').val(extractDateOnly(data.workPermitEffectiveDate));
+                $('#WorkPermitExpireDate').val(extractDateOnly(data.workPermitExpireDate));
+                $('#VisaExpireDate').val(extractDateOnly(data.visaExpireDate));
 
 
                
@@ -160,6 +162,12 @@ $(document).ready(function () {
             }
         });
     }
+
+    function extractDateOnly(isoString) {
+        return isoString ? isoString.split('T')[0] : '';
+    }
+
+
 
     function clearForm() {
         // Clear all input fields

@@ -100,7 +100,10 @@ namespace GCTL_App.Controllers.Employees
                 var navigationModel = _employeeNavigationService.GetEmployeeNavigation(menuTabs, "OfficialInfo");
                 ViewBag.Navigation = navigationModel;
 
-                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+                var pageId = 2; 
+                var elementKey = "EmployeeDropDown";
+
+                bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, pageId, elementKey);
 
                 if (!hasEmployeePermission)
                 {
@@ -470,7 +473,7 @@ namespace GCTL_App.Controllers.Employees
 
         public IActionResult GetBranches(int id)
         {
-            var branches = _branchRepository.AllActive().Where(e => e.OrganizationID == id).Select(r => new { r.OrganizationBranchID, r.OrganizationBranchName }).ToList();
+            var branches = _branchRepository.AllActive().Where(e => e.OrganizationID == id).Select(r => new {id = r.OrganizationBranchID, name = r.OrganizationBranchName }).ToList();
             return Ok(branches);
         }
 
@@ -490,8 +493,8 @@ namespace GCTL_App.Controllers.Employees
         
         private EmployeeOfficialPostViewModel GetEmployeeDetailsMethod(int id)
         {
-            var empPersonal = _employeeRepository.AllActive().FirstOrDefault(e => e.EmployeeID == id);
-            var empOfficial = _employeeOfficialRepository.AllActive().FirstOrDefault(e => e.EmployeeID == id);
+            var empPersonal = _employeeRepository.All().FirstOrDefault(e => e.EmployeeID == id);
+            var empOfficial = _employeeOfficialRepository.All().FirstOrDefault(e => e.EmployeeID == id);
 
             EmployeeOfficialPostViewModel model = new EmployeeOfficialPostViewModel();
 
@@ -602,8 +605,13 @@ namespace GCTL_App.Controllers.Employees
                 .Select(r => r.Id)
                 .ToList();
 
-            bool hasEmployeePermission = await _elementPermissionService
-                .HasPermissionForElementAsync(userId, 2, "EmployeeTable");
+            var pageId = 2;
+            var elementKey = "EmployeeDropDown";
+
+            bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, pageId, elementKey);
+
+
+           // bool hasEmployeePermission = await _elementPermissionService.HasPermissionForElementAsync(userId, 2, "EmployeeTable");
 
             if (!hasEmployeePermission)
             {

@@ -40,7 +40,7 @@ label.req::after {
 }
 
 
-.select2-container .select2-selection--single {
+.form-floating-advance-select .select2-container .select2-selection--single {
     height: 47px !important;
     line-height: 50px !important;
     padding: 4px 10px 10px 10px !important;
@@ -50,16 +50,80 @@ label.req::after {
     border-color: rgb(203, 208, 221) !important;
 }
 
-.select2-selection--single .select2-selection__arrow {
+ .select2-container .select2-selection--single {
+    height: 38px !important;
+    line-height: 50px !important;
+    padding: 4px 10px 10px 10px !important;
+    font-size: 16px !important;
+    display: flex;
+    align-items: center;
+    border-color: rgb(203, 208, 221) !important;
+}
+
+  .select2-selection--single .select2-selection__arrow {
     margin-bottom: 24px !important;
     margin-right: 11px !important;
 }
 
 
-.select2-selection--single .select2-selection__rendered {
-    padding-top : 10px !important
+.form-floating-advance-select .select2-selection--single .select2-selection__rendered {
+    padding-top: 10px !important
 }
 
-.select2-selection__arrow {
+ .select2-selection__arrow {
     height: 38px !important;
+}
+
+
+ .select2-search__field {
+    border: none !important;
+}
+
+
+ .select2-search__field:focus {
+    outline: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+ .select2-results {
+    background-color: rgba(208, 213, 225, 0.54) !important;
+}
+
+
+
+ .select2-selection--single {
+    position: relative;
+}
+
+
+ .select2-selection__clear {
+    position: absolute;
+    top: 10%;
+    right: 0px;
+    transform: translateY(-50%);
+    z-index: 10;
+    color: #bebebe;
+}
+
+
+
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    border-color: transparent transparent #333 transparent !important;
+    border-width: 0 5px 5px 5px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: #333 transparent transparent transparent !important;
+    border-width: 5px 5px 0 5px !important;
+    left: 70% !important;
+  
+}
+
+
+.select2-dropdown {
+    
+    
+    border: 1px solid #e5d9d9 !important;
+  
 }
