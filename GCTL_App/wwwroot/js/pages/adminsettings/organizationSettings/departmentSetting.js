@@ -1,7 +1,17 @@
 ﻿
 $('#departmentSettingsForm').on('submit', function (e) {
     e.preventDefault();
+    // Add this simple validation check
 
+    // === ONLY OrganizationID Validation ===
+    if (!$('#OrganizationID').val()) {
+        $('#OrganizationID').closest('.choices').addClass('is-invalid');
+        toastr.error('Please select an organization');
+        $('span[data-valmsg-for="OrganizationID"]').html('Organization is required');
+        return;
+    }
+    // === END VALIDATION ===
+    if (!$(this).valid()) return; // Built-in validation check
     var form = $(this);
     var formData = form.serialize();
 
@@ -13,6 +23,7 @@ $('#departmentSettingsForm').on('submit', function (e) {
             if (response.isSuccess) {
                 toastr.success(response.message, '');
                 form.trigger("reset");
+                choiceManager.resetChoice('OrganizationID');
             } else {
                 toastr.error(response.message, 'Error');
             }
@@ -23,7 +34,11 @@ $('#departmentSettingsForm').on('submit', function (e) {
     });
 });
  
-
+// Clear validation when user selects organization
+$('#OrganizationID').on('change', function () {
+    $(this).closest('.choices').removeClass('is-invalid');
+    $('span[data-valmsg-for="OrganizationID"]').html('');
+});
 $(document).on('click', '#addDepartmentSettings-singleDelBtn', function () {
     var approvalSettingID = $(this).data('id');
     $('#confirmDeleteModal').modal('show'); // Show the delete confirmation modal

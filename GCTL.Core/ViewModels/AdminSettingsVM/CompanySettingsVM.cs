@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace GCTL.Core.ViewModels.AdminSettingsVM
     {
         public int OrganizationID { get; set; }
 
+        [Required(ErrorMessage = "OrganizationName is required")]
         public string? OrganizationName { get; set; }   
         public string? EmailAddress { get; set; }
 

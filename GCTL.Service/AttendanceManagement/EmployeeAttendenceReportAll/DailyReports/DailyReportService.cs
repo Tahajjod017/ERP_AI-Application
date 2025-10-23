@@ -142,13 +142,13 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                     StatusID = x.StatusID,
                     StatusName = x.Status?.StatusName ?? "-",
                     AttendanceDate = x.AttendanceDate.ToString("yyyy-MM-dd") ?? "-",
-                    CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
-                    CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
+                    CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString(@"hh\:mm") : "-", // Fix for CS0029
+                    CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString(@"hh\:mm") : "-", // Fix for CS0029
                                                                                                            //LateHour = x.LateTimeMinutes.HasValue ? x.LateTimeMinutes.Value.ToString("F2") : "-",
-                    LateHour = x.LateTimeMinutes.HasValue ? (x.LateTimeMinutes.Value).ToString("H") : "-",
+                    LateHour = x.LateTimeMinutes.HasValue ? x.LateTimeMinutes.Value.ToString() : "-",
                     //EarlyHour = x.EarlyHour.HasValue ? x.EarlyHour.Value.ToString("F2") : "-",
-                    EarlyHour = x.EarlyTimeMinutes.HasValue ? (x.EarlyTimeMinutes.Value).ToString("H") : "-",
-                    OvertimeHour = x.OvertimeMinutes.HasValue ? x.OvertimeMinutes.Value.ToString("H") : "-",
+                    EarlyHour = x.EarlyTimeMinutes.HasValue ? (x.EarlyTimeMinutes.Value).ToString() : "-",
+                    OvertimeHour = x.OvertimeMinutes.HasValue ? x.OvertimeMinutes.Value.ToString() : "-",
                     WorkingHours = "-",
                     Break = "-",
 

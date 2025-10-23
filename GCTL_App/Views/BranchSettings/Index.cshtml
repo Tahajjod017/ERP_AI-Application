@@ -1,11 +1,32 @@
-﻿@{
+﻿@model GCTL.Core.ViewModels.AdminSettingsVM.BranchSettingsVM
+@{
     var mainTab = "CompanySetting";
     var subTab = "BranchSettings";
 }
 
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_MainSettingsTabPartial.cshtml" model="mainTab" />
 <partial name="~/Views/Shared/AdminsettingsNavs/CompanySettingsNavs/_NavCompanySettingsPartial.cshtml" model="subTab" />
+<style>
+    .input-validation-error {
+        border-color: #dc3545 !important;
+        background-color: #fff !important;
+    }
 
+    .field-validation-error {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .is-invalid .choices__inner {
+        border-color: #dc3545 !important;
+    }
+    /* Your margin */
+    .choices {
+        margin-bottom: 2px;
+    }
+</style>
 
     <div class="col-xl-12 mt-3">
         <div class="card mb-4">
@@ -36,13 +57,15 @@
                                         }
                                     }
                                 </select>
+                                <span asp-validation-for="OrganizationID" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="OrganizationBranchName">Branch Name</label>
-                                <input class="form-control" id="OrganizationBranchName" type="text" name="OrganizationBranchName" placeholder="Branch Name" />
+                                <input class="form-control" asp-for="OrganizationBranchName" id="OrganizationBranchName" type="text" name="OrganizationBranchName" placeholder="Branch Name" />
+                                <span asp-validation-for="OrganizationBranchName" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-6">

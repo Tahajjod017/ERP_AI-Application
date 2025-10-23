@@ -45,6 +45,9 @@ $(document).ready(function () {
                 if (response.isSuccess) {
                     toastr.success(response.message, '');
                     form.trigger("reset");
+                    choiceManager.resetChoice('OrganizationID');
+                    choiceManager.resetChoice('OrganizationBranchID');
+                    choiceManager.resetChoice('WeekendDays');
                 } else {
                     toastr.error(response.message, 'Error');
                 }
