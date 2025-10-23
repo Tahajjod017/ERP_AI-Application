@@ -2,9 +2,10 @@
 
 @{
     ViewData["Title"] = @Html.SmartLocalize("Posting Rules");
-    // var bodyTabs = ViewBag.BodyTabs as List<GCTL.Data.Models.MenuTab>;
-    // var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
-    // var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var bodyTabs = ViewBag.BodyTabs as List<GCTL.Data.Models.MenuTab>;
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var mainAccDD = ViewBag.MainAccDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
 }
 
 @section Styles {
@@ -13,7 +14,7 @@
     </style>
 }
 
-@* <ul class="nav nav-underline fs-9">
+<ul class="nav nav-underline fs-9">
     @if (bodyTabs != null && bodyTabs.Any())
     {
         foreach (var tab in bodyTabs)
@@ -37,7 +38,7 @@
     {
         <li class="nav-item"><span class="text-muted">No menu items found</span></li>
     }
-</ul> *@
+</ul>
 
 <div class="tab-content mt-3">
     <div class="tab-pane fade show active">
@@ -46,83 +47,77 @@
 
                 @Html.AntiForgeryToken()
 
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <input type="hidden" asp-for="PostingRuleID" />
 
                     <div class="mb-3">
-                        <label class="form-label" asp-for="ScenarioName">@Html.SmartLocalize("Main Account Code")<span style="color:red;">*&nbsp;</span></label>
-                        <input class="form-control" asp-for="ScenarioName" type="text" placeholder="@Html.SmartLocalize("Input Main Account Code")" />
+                        <label class="form-label" asp-for="ScenarioName">@Html.SmartLocalize("Scenario Name")<span style="color:red;">*&nbsp;</span></label>
+                        <input class="form-control" asp-for="ScenarioName" type="text" placeholder="@Html.SmartLocalize("Input Scenario Name")" />
                         <span asp-validation-for="ScenarioName" id="ScenarioNameError" class="text-danger" style="display:none;"></span>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label" asp-for="ScenarioCode">@Html.SmartLocalize("Scenario Code")<span style="color:red;">*&nbsp;</span></label>
-                        <input class="form-control" asp-for="ScenarioCode" type="text" placeholder="@Html.SmartLocalize("Scenario Code")" />
+                        <input class="form-control" asp-for="ScenarioCode" type="text" placeholder="@Html.SmartLocalize("Scenario Code")" readonly />
                         <span asp-validation-for="ScenarioCode" id="ScenarioCodeError" class="text-danger" style="display:none;"></span>
-                    </div>
-                    
-                    <div class="mb-3 d-inline-flex align-items-center">
-                        @* <label class="form-check-label me-2" asp-for="IsActive">@Html.SmartLocalize("Is Active")</label>
-                        <div class="form-check form-switch ">
-                            <input class="form-check-input mt-2" type="checkbox" asp-for="IsActive">
-                        </div> *@
-                    </div>
-
-                    <div class="col-12 mb-4">
-                        <div class="row g-3 justify-content-end">
-                            <div class="col-auto">
-                                <button type="reset" class="btn btn-phoenix-primary px-5" id="postingRules-resetBtn">@Html.SmartLocalize("Reset")</button>
-                            </div>
-                            <div class="col-auto">
-                                <button type="submit" class="btn btn-primary px-5 px-sm-15" id="postingRules-saveBtn">@Html.SmartLocalize("Save")</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <table class="table fs-9 mb-0 border-top border-translucent">
-                        <thead>
-                            <tr>
-                                <th class="white-space-nowrap align-middle ps-0" scope="col">@Html.SmartLocalize("SubDebitAccountID")</th>
-                                <th class="white-space-nowrap align-middle ps-0" scope="col">@Html.SmartLocalize("SubCreditAccountID")</th>
-                                <th class="white-space-nowrap align-middle ps-0" scope="col">@Html.SmartLocalize("TrxDebitAccountID")</th>
-                                <th class="white-space-nowrap align-middle ps-0" scope="col">@Html.SmartLocalize("TrxCreditAccountID")</th>
-                                <th class="white-space-nowrap align-middle ps-0" scope="col">@Html.SmartLocalize("IsActive")</th>
-                                <th class="white-space-nowrap align-middle ps-0" scope="col">
-                                    <button type="button" class="btn btn-success btn-sm" id="add-detail"><i class="fa fa-plus"></i></button>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="postingRulesDetails-tBody">
-                            @for (int i = 0; i < Model.PostingRuleDetailsVMs.Count; i++)
-                            {
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" class="form-check-input row-check" />
-                                    </td>
-                                    <td>
-                                        <input asp-for="PostingRuleDetailsVMs[@i].SubDebitAccountID" class="form-control" />
-                                    </td>
-                                    <td>
-                                        <input asp-for="PostingRuleDetailsVMs[@i].SubCreditAccountID" class="form-control" />
-                                    </td>
-                                    <td>
-                                        <input asp-for="PostingRuleDetailsVMs[@i].TrxDebitAccountID" class="form-control" />
-                                    </td>
-                                    <td>
-                                        <input asp-for="PostingRuleDetailsVMs[@i].TrxCreditAccountID" class="form-control" />
-                                    </td>
-                                    <td class="text-center">
-                                        <input type="checkbox" asp-for="PostingRuleDetailsVMs[@i].IsActive" class="form-check-input" />
-                                    </td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-danger btn-sm remove-detail"><i class="fa fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                <div class="col-md-9">
+                    @for (int i = 0; i < Model.PostingRuleDetailsVMs.Count; i++)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label" asp-for="PostingRuleDetailsVMs[@i].MainAccountID">@Html.SmartLocalize("Select Main Account")<span style="color:red;">*</span></label>
+                                <select class="form-select initChoices mainAccDD" asp-for="PostingRuleDetailsVMs[@i].MainAccountID">
+                                    <option value="">@Html.SmartLocalize("Select Main Account")...</option>
+                                    @foreach (var group in mainAccDD.GroupBy(e => e.GroupName))
+                                    {
+                                        <optgroup label="@group.Key">
+                                            @foreach (var emp in group)
+                                            {
+                                                <option value="@emp.Id">@emp.Name</option>
+                                            }
+                                        </optgroup>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label" asp-for="PostingRuleDetailsVMs[@i].SubAccID">@Html.SmartLocalize("Select Sub Account")<span style="color:red;">*</span></label>
+                                <select class="form-select initChoices subAccDD" asp-for="PostingRuleDetailsVMs[@i].SubAccID">
+                                    <option value="">@Html.SmartLocalize("Select Sub Account")...</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label" asp-for="PostingRuleDetailsVMs[@i].TrxAccID">@Html.SmartLocalize("Select Transaction Account")</label>
+                                <select class="form-select initChoices trxAccDD" asp-for="PostingRuleDetailsVMs[@i].TrxAccID">
+                                    <option value="">@Html.SmartLocalize("Select Transaction Account")...</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label" asp-for="PostingRuleDetailsVMs[@i].DebitCredit">@Html.SmartLocalize("Select Debit/Credit")<span style="color:red;">*</span></label>
+                                <select class="form-select initDrCr" asp-for="PostingRuleDetailsVMs[@i].DebitCredit">
+                                    <option value="">@Html.SmartLocalize("Select")...</option>
+                                    <option value="Debit">Debit</option>
+                                    <option value="Credit">Credit</option>
+                                </select>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="col-12 mb-4">
+                    <div class="row g-3 justify-content-end">
+                        <div class="col-auto">
+                            <button type="reset" class="btn btn-phoenix-primary px-5" id="postingRules-resetBtn">@Html.SmartLocalize("Reset")</button>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary px-5 px-sm-15" id="postingRules-saveBtn">@Html.SmartLocalize("Save")</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>

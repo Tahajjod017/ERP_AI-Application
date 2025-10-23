@@ -234,6 +234,77 @@ $(document).ready(function () {
     initCutomer();
 
 
+    $('#customerID').select2({
+        placeholder: 'Select Customer',
+        width: '100%',
+        ajax: {
+            url: '/CreateJobs/GetCustomers',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || '',
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+
+                return {
+
+                    results: data.results,
+                    pagination: {
+                        more: data.pagination.more
+                    }
+                };
+            },
+            cache: true
+        },
+        language: {
+            noResults: function () {
+                return $(
+                    `<span>Data not found. Create</span> <span class="d-flex align-items-center">
+                    <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn">Business</button>
+                    <span class="mx-2">Or</span>
+                    <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn2">Person</button>
+                </span>`
+                );
+            }
+        },
+        
+        width: '100%'
+    });
+    $('#leadOwnerId').select2({
+        placeholder: 'Select Lead Owner',
+        width: '100%',
+        ajax: {
+            url: '/CreateLead/GetLeadOwnerList',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || '',
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+
+                return {
+                    results: data.items.map(item => ({
+                        id: item.value,
+                        text: item.label
+                    })),
+                    pagination: {
+                        more: data.hasMore
+                    }
+                };
+            },
+            cache: true
+        }
+    });
+
+
     function getCustomerInfo(customerId) {
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -575,8 +646,9 @@ $(document).ready(function () {
     }
 
 
-    $('#addNewContactNameBtn').on('click', async function () {
+    $(document).on('click',"#addNewContactNameBtn" ,async function () {
 
+        debugger;
         $('#addCustomerModal').modal('show');
 
         await companyTabWork();
@@ -598,7 +670,7 @@ $(document).ready(function () {
    
 
 
-    $('#addNewContactNameBtn2').on('click', async function () {
+    $(document).on('click', "#addNewContactNameBtn2", async function () {
         await personTabWork();
         $('#addCustomerModal').modal('show');
         await mapInit();
@@ -1431,73 +1503,6 @@ $(document).ready(function () {
     // #endregion
     
 
-    let currentPage = 1;
-    let search = "";
-    let loading = false; // Add loading flag to prevent multiple simultaneous requests
-
-    // Initialize Choices.js for #leadOwnerId
-    const leadOwnerSelect = new Choices('#leadOwnerId', {
-        searchEnabled: true,
-        placeholderValue: 'Select Lead Owner',
-        removeItemButton: true,
-        shouldSort: false // Prevent sorting to maintain server order
-    });
-
-    function updateEmployee() {
-        if (loading) return; // Prevent multiple requests
-        loading = true;
-
-        $.ajax({
-            url: '/CreateLead/GetEmployeeList', // Verify this URL matches your controller route
-            method: 'GET',
-            data: { query: search, page: currentPage },
-            success: function (response) {
-                console.log('Response:', response);
-                // Assuming response is an array of { employeeID, firstName, lastName }
-                if (Array.isArray(response) && response.length > 0) {
-                    // Convert response to Choices.js format
-                    const newChoices = response.map(employee => ({
-                        value: employee.employeeID,
-                        label: `${employee.firstName} ${employee.lastName}`
-                    }));
-
-                    // Append new choices to existing ones
-                    leadOwnerSelect.setChoices(newChoices, 'value', 'label', false);
-
-                    
-                } else {
-                    console.log('No more data to load');
-                    toastr.info('No more employees to load.');
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log('AJAX Error:', {
-                    status: jqXHR.status,
-                    statusText: jqXHR.statusText,
-                    textStatus: textStatus,
-                    errorThrown: errorThrown,
-                    responseText: jqXHR.responseText
-                });
-                toastr.error('Failed to load employees: ' + textStatus);
-            },
-            complete: function () {
-                loading = false; // Reset loading flag
-            }
-        });
-    }
-
-    // Initial load
-    updateEmployee();
-
-    // Scroll event for infinite scrolling
-    $('#leadOwnerContainer').on('scroll', function () {
-        const container = $(this);
-        if (!loading && container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 10) {
-            currentPage++;
-            updateEmployee(); // Fetch next page of employees
-        }
-    });
-
     $("#indexSaveBtn").on("click", async function (e) {
         e.preventDefault();
         let services = $("#serviceTypes").val();
@@ -1516,6 +1521,7 @@ $(document).ready(function () {
                 LeadDescription: $("#" + idMapIndex.indexBase.leadDescription).val(),
                 ServiceTypeIds: $("#" +idMapIndex.indexBase.ServiceTypeIds).val() || [],
             };
+            showDev(data);
             $.ajax({
                 url: '/CreateLead/CreateLeadData',
                 method: 'POST',
@@ -1584,6 +1590,7 @@ $(document).ready(function () {
             ];
         } else if (targetTab === "index") {
             return [
+                idMapIndex.indexBase.customerID,
                 idMapIndex.indexBase.leadName,
                 idMapIndex.indexBase.leadStatusID,
                 idMapIndex.indexBase.leadSourceID,
@@ -1595,16 +1602,16 @@ $(document).ready(function () {
         }
     }
     function exListForValidation() {
-       return targetTab === "shipping" ? 'personSearch'
+        return targetTab === "shipping" ? 'personSearch'
             : targetTab === 'branch' ? 'bCompanySearch'
-                : targetTab === "warehouse" ? 'wCompanySearch'
-                    : targetTab === "index" ? idMapIndex.indexBase.customerName
-                        : "";
+                : targetTab === "warehouse" ? 'wCompanySearch':"";
+                    
     }
     function extraFieldIdValidation() {
+        debugger;
         return new Promise((resove, reject) => {
             let tergetField = exListForValidation();
-
+            debugger;
             if (tergetField != "") {
                 let hiddenFieldVal = $("#" + tergetField).siblings(".idBank")
 
@@ -1627,6 +1634,7 @@ $(document).ready(function () {
     }
 
     async function uniquenPhoneCheck() {
+        debugger;
         let isValid = true;
         const targetedField = targetTab === 'person' ? [[idMap.person.phone, idMap.person.otherPhone, idMap.person.primaryID, idMap.person.email]]
             //: targetTab === 'shipping' ? [[idMap.shipping.phone, idMap.shipping.otherPhone, idMap.shipping.primaryID, idMap.shipping.email]]
@@ -1725,38 +1733,67 @@ $(document).ready(function () {
     }
 
     async function fieldValidation() {
+        debugger;
         const selectedTab = targetListForValidation();
         runtimeValidationCheck();
+
         let isValid = true;
         isValid = await uniquenPhoneCheck();
-        isValid = isValid === false ? false :  await extraFieldIdValidation();
-        //isValid = isValid === false ? false : await exRuntimeValidationCheck();
+        isValid = isValid === false ? false : await extraFieldIdValidation();
+        // isValid = isValid === false ? false : await exRuntimeValidationCheck();
+
         let errorCount = 0;
+
         selectedTab.filter(Boolean).forEach(e => {
+            debugger;
             let obj = $(`#${e}`);
-            const name = obj.val().trim();
+            const name = (obj.val() || "").toString().trim();
             let target;
 
-            if (obj.closest('.choices').length > 0) {
-                target = obj.closest('.choices').find('.choices__inner');
-            } else {
-                target = obj;
-            }
+            if (name === '' || name === '0') { // consider "0" as invalid for selects
+                // Select2
+                if (obj.hasClass("select2-hidden-accessible")) {
+                    let select2Container = obj.nextAll("span.select2").first();
+                    if (select2Container.length) {
+                        let selection = select2Container.find(".select2-selection--single")[0];
+                        if (selection) {
+                            selection.style.setProperty("border", "1px solid red", "important");
+                        }
+                    }
+                }
+                // Choices.js
+                else if (obj.closest('.choices').length > 0) {
+                    target = obj.closest('.choices').find('.choices__inner');
+                    target.css('border', '1px solid red');
+                }
+                // Normal input/select
+                else {
+                    obj.css('border', '1px solid red');
+                }
 
-            if (name === '') {
-                target.css('border', '1px solid red');
                 errorCount += 1;
-               
             } else {
-                target.css('border', '1px solid #ccc');
+                // Remove error styles
+                if (obj.hasClass("select2-hidden-accessible")) {
+                    let select2Container = obj.nextAll("span.select2").first();
+                    if (select2Container.length) {
+                        let selection = select2Container.find(".select2-selection--single")[0];
+                        if (selection) {
+                            selection.style.setProperty("border", "1px solid rgb(203, 208, 221)", "important");
+                        }
+                    }
+                } else if (obj.closest('.choices').length > 0) {
+                    target = obj.closest('.choices').find('.choices__inner');
+                    target.css('border', '1px solid #ccc');
+                } else {
+                    obj.css('border', '1px solid #ccc');
+                }
             }
         });
 
         if (errorCount > 0) {
             isValid = false;
             toastr.warning(errorCount === 1 ? "This field is required" : "These fields are required");
-           
-        } else {
         }
 
         return isValid;

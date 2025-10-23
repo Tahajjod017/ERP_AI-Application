@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.ViewModels;
+using GCTL.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -37,7 +38,13 @@ namespace GCTL.Service.CommonService
 
         Task<List<CommonSelectVM>> GetMainAccByClassId(int classId);
 
-        Task<List<CommonSelectVM>> GetSubAccByClassIdMainAccId(int classId, int? mainAccId);
+        Task<List<CommonSelectVM>> GetSubAccByMainAccId(int? mainAccId);
+
+        Task<List<CommonSelectVM>> GetTrxAccByMainAccIdSubAccId(int? mainAccId, int? subAccId);
+
+        Task<List<CommonSelectVM>> GetSubAccByClassIdMainAccId(int? classId, int? mainAccId);
+
+        Task<List<CommonSelectVM>> GetTrxAccByClassIdMainAccIdSubAccId(int? classId, int? mainAccId, int? subAccId);
         #endregion
                        
 
@@ -66,6 +73,11 @@ namespace GCTL.Service.CommonService
         #region GetWeekendByOrganization, GetWeekDaysByOrganization, GetEmployeeByWeekent
         Task<IEnumerable<object>> GetWeekendByOrganization(int id);
         Task<IEnumerable<object>> GetWeekDaysByOrganization(int id);
+        #endregion
+
+
+        #region BodyTabs
+        Task<List<MenuTab>> GetFinanceBodyTabsAsync();
         #endregion
     }
 }

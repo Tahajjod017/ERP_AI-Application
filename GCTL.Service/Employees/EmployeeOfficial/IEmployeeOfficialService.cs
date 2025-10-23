@@ -17,5 +17,6 @@ namespace GCTL.Service.Employees.EmployeeOfficial
         Task<EmployeeOfficialPostViewModel> GetEmployeeOfficalDetails(int id);
         Task<EmployeeOfficialGetViewModel> GetFullEmployeeOfficalDetails(int id);
         Task<IEnumerable<EmployeeOfficialGetViewModel>> GetAllEmployeeOfficialDetailsByCompanyAsync(int compId);
+        Task<(List<SupervisorDto> data, int totalItem)> GetPagedSupervisorsAsync(string search, int page, int pageSize, int organizationId, int departmentId, string roleType);
     }
 }

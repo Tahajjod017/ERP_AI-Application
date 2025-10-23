@@ -11,6 +11,7 @@ using GCTL.Core.ViewModels.Employee.EmployeeOfficial;
 using GCTL.Core.ViewModels.Employee.EmployeePersonal;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 using static Dapper.SqlMapper;
 
 namespace GCTL.Service.Employees.EmployeeOfficial
@@ -573,5 +574,87 @@ namespace GCTL.Service.Employees.EmployeeOfficial
 
         #endregion
 
+
+
+        public async Task<(List<SupervisorDto> data, int totalItem)> GetPagedSupervisorsAsync(    string search, int page, int pageSize, int organizationId, int departmentId = 0, string roleType = "")
+        {
+            // Base query - only active employees in the specified organization
+            var query = _employeeOfficialRepository.AllActive().Include(e=>e.Employee)
+                .Where(e => e.OrganizationID == organizationId );
+
+            // Filter by department for Head of Department
+            if (!string.IsNullOrEmpty(roleType) && roleType == "HeadOfDepartmentId" && departmentId > 0)
+            {
+                query = query.Where(e => e.DepartmentID == departmentId);
+            }
+
+            // Filter supervisors based on position/title
+            if (!string.IsNullOrEmpty(roleType))
+            {
+                switch (roleType)
+                {
+                    case "SeniorSupervisorId":
+                       
+                        break;
+
+                    case "ImmediateSupervisorId":
+                       
+                        break;
+
+                    case "HeadOfDepartmentId":
+                       
+                        break;
+                }
+            }
+
+            // Search filter
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(e =>
+                    e.Employee.FirstName.Contains(search) ||
+                    e.Employee.LastName.Contains(search) ||
+                    e.Employee.EmployeeCode.Contains(search) ||
+                    e.Department.DepartmentName.Contains(search) ||
+                    e.Designation.DesignationName.Contains(search) ||
+                    e.OfficeEmail.Contains(search)
+                );
+            }
+
+            var totalItem = await query.CountAsync();
+
+            var data = await query
+                .OrderBy(e => e.Designation.Ranking)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(e => new SupervisorDto
+                {
+                    EmployeeId = e.Employee.EmployeeID,
+                    FullName = e.Employee.FirstName + " " + e.Employee.LastName,
+                    Department = e.Department.DepartmentName,
+                    Position = e.Designation.DesignationName,
+                    Email = e.OfficeEmail,
+                    Phone = e.OfficePhone,
+                    DepartmentId = e.DepartmentID
+                })
+                .ToListAsync();
+
+            return (data, totalItem);
+        }
+
+
+
+
+    }
+
+
+    public class SupervisorDto
+    {
+        public int EmployeeId { get; set; }
+        public string FullName { get; set; }
+        public string Department { get; set; }
+        public int? DepartmentId { get; set; }
+        public string Position { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
     }
 }

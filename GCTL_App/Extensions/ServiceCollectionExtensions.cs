@@ -72,6 +72,7 @@ using GCTL.Service.FileHandler;
 using GCTL.Service.Finance.AddMainAccount;
 using GCTL.Service.Finance.AddSubAccount;
 using GCTL.Service.Finance.BaseAccount;
+using GCTL.Service.Finance.PostingRule;
 using GCTL.Service.Finance.SecondTab;
 using GCTL.Service.Finance.TransactionAccount;
 using GCTL.Service.HRMsettings.ProbationService;
@@ -199,6 +200,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IAddMainAccountService, AddMainAccountService>();
             services.AddScoped<IAddSubAccountService, AddSubAccountService>();
             services.AddScoped<ITransactionAccountService, TransactionAccountService>();
+            services.AddScoped<IPostingRulesService, PostingRulesService>();
             services.AddSingleton<IBackgroundTask, AttendanceTask>();
             #endregion
 

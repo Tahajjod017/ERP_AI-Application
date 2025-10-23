@@ -27,7 +27,6 @@ namespace GCTL.Service.Finance.AddSubAccount
         Task<bool> IsNameUniqueAsync(string name, int? excludeId = null);
         Task<bool> IsCodeUniqueAsync(string name, int? excludeId = null);
         Task<string> GenerateNextCodeAsync(int mainAccId);
-        Task<List<MenuTab>> GetBodyTabsAsync();
         #endregion
     }
 }

@@ -36,13 +36,92 @@ namespace GCTL_App.Controllers.FieldServices
             {
                 if (createJobVM.CreateJobID == 0) {
                     var result = await _createJobService.AddAsync(createJobVM);
-                    return Ok(result);
+                    if (result)
+                    {
+                        return Ok(new { Success = true, Message = "Job Created" });
+                    }
+                    return Ok(new { Success = false, Message = "Something goes to wrong" });
                 }
                 return Ok(new { Success = false, Message = "Id is not valid" });
             } catch(Exception ex)
             {
                 return Ok(new { Success = false, Message = ex });
             }
+        }
+        #endregion
+
+        #region get Customer
+        [HttpGet]
+        public async Task<IActionResult> GetCustomers(string search = "", int page = 1, int pageSize = 10)
+        {
+            var result = await _createJobService.GetPagedEmployeesAsync(
+                search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+
+            var more = (page * pageSize) < result.totalItem;
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.LeadID,                          
+                    text = $"{c.LeadName} {c.Phone} {c.Email}" 
+                }),
+                pagination = new { more }
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
+
+        #region Get Technician Employee List
+        [HttpGet]
+        public async Task<IActionResult> GetTechnicianList(string search = "", int page = 1, int pageSize = 20)
+        {
+            var result = await _createJobService.GetTechnicianListAsync(
+               search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+            var hasMore = (page * pageSize) < result.totalItem;
+            var formatted = new
+            {
+                items = result.data.Select(c => new
+                {
+                    value = c.LeadID,      
+                    label = $"{c.LeadName} {c.Phone} {c.Email}",
+                    group = "" 
+                }),
+                hasMore
+            };
+
+            return Json(formatted);
+        }
+        #endregion
+
+        #region LeadOwner List
+        [HttpGet]
+        public async Task<IActionResult> GetOwnerList(string search = "", int page = 1, int pageSize = 20)
+        {
+            // Fetch technicians from service
+            var result = await _createJobService.GetTechnicianListAsync(
+               search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+
+            // Determine if there are more pages
+            var hasMore = (page * pageSize) < result.totalItem;
+
+            // Format response to match { items: [], hasMore: true/false }
+            var formatted = new
+            {
+                items = result.data.Select(c => new
+                {
+                    value = c.LeadID,                 // matches `value` in SearchOrganizations
+                    label = $"{c.LeadName} {c.Phone} {c.Email}", // matches `label`
+                    group = "" // optional if you want to categorize employees
+                }),
+                hasMore
+            };
+
+            return Json(formatted);
         }
         #endregion
     }

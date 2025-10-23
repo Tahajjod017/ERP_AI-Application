@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -13,6 +14,8 @@ namespace GCTL.Service.FieldServices
         Task<CreateJobVM> GetByIdAsync(int id);
         Task<PaginationService<Grade, CreateJobVM>.PaginationResult<CreateJobVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "CreateJobID", string sortOrder = "asc");
+        Task<ReturnDataView<CustomerInfoVM>> GetPagedEmployeesAsync(string search, int page, int pageSize, int organizationID);
+        Task<ReturnDataView<CustomerInfoVM>> GetTechnicianListAsync(string search, int page, int pageSize, int organizationID);
         #endregion
     }
 }

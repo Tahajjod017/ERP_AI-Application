@@ -177,6 +177,38 @@
         .choices__list--dropdown .choices__list::-webkit-scrollbar {
             display: none; /* Chrome, Safari, Edge */
         }
+
+
+        /* select2 */
+
+    .select2-container .select2-selection--single {
+        height: 48px !important;
+        line-height: 50px !important;
+        padding: 23px 10px 10px 10px !important;
+        font-size: 16px !important;
+        display: flex;
+        align-items: center;
+        border-color: rgb(203, 208, 221) !important;
+    }
+
+    .select2-selection--single .select2-selection__arrow {
+        margin-bottom: 24px !important;
+        margin-right: 11px !important;
+    }
+
+    .select2-selection__arrow {
+        top: 8px !important;
+        height: 38px !important;
+    }
+
+    .select2-floating {
+        position: relative;
+    }
+
+        .select2-floating label {
+        padding-top: 4px;
+    }
+
 </style>
 
 <div class="container p-0 d-flex flex-column align-items-center">
@@ -186,28 +218,18 @@
             <div class="modal-body pb-2">
                 <div class="row gy-3 ">
 
-                    <div class="col-sm-12 customerDiv col-md-6">
-                        <div class="form-floating mbs-4 position-relative">
-                            <input type="text" id="ContactNameSearch" class="form-control searchField" required placeholder="@Html.SmartLocalize("Search ContactName...")">
-                            <input type="hidden" id="customerID" class="idBank">
-                            <input type="hidden" id="customerType">
-
-                            <label for="floatingSelectLitigation"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
-
-                            <div class="list-group position-absolute bg-white p-0 border" id="customerList" style="display: none; width:100%; z-index:10012;">
-                                <!-- ContactName items will be populated here by JavaScript -->
-                            </div>
-                            <div class="no-results position-absolute bg-white p-2 border" id="noResults" style="display: none; width:100%; z-index:1000;">
-                                @Html.SmartLocalize("Item Not Found. Are you add new item?")
-                                <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn">@Html.SmartLocalize("Business")</button>
-                                <span>Or</span>
-                                <button type="button" class="btn btn-sm btn-link p-0" id="addNewContactNameBtn2">@Html.SmartLocalize("Person")</button>
-                            </div>
+                    <div class="col-md-6">
+                        <div class="form-floating select2-floating">
+                            <select id="customerID" class="idBank select2">
+                                <option value="">Select Customer</option>
+                                
+                            </select>
+                            <label for="customerID">Customer Name</label>
                         </div>
                     </div>
-                    
+
                     <div class="col-md-6">
-                        <div class="form-floating">
+                        <div class="form-floating select2">
                             <input class="form-control" id="leadName" type="text" placeholder="" required />
                             <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Lead Name")</label>
                         </div>
@@ -243,14 +265,24 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    @* <div class="col-md-6">
                         <div class="form-floating form-floating-advance-select">
                             <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Owner Name")</label>
                             <select class="form-select" id="leadOwnerId" aria-label="Default select example">
                                 <option value="" selected disabled>Open this select menu</option>
                             </select>
                         </div>
+                    </div> *@
+
+                    <div class="col-md-6">
+                        <div class="form-floating select2-floating">
+                            <label class="form-label">Lead Owner Name</label>
+                            <select id="leadOwnerId" class="form-select-lg">
+                                <option value="">Select...</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div class="col-md-6">
                         <div class="form-floating">
                             <input class="form-control" id="approximateDealValue" type="text" placeholder="" />
