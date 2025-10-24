@@ -1,6 +1,6 @@
-﻿using GCTL.Core.ViewModels.Finance.PostingRuleDetailsVM;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels.Finance.PostingRuleDetailsVM;
 using GCTL.Core.ViewModels.Finance.PostingRulesVM;
-using GCTL.Core.ViewModels.Finance.TransactionAccountVM;
 using GCTL.Data.Models;
 using GCTL.Service.CommonService;
 using GCTL.Service.Finance.PostingRule;
@@ -192,6 +192,30 @@ namespace GCTL_App.Controllers.Finance
             catch (Exception ex)
             {
                 return Json(ex.Message);
+            }
+        }
+        #endregion
+
+
+        #region SoftDelete
+        [Permission("Delete", "PostingRules")]
+        [HttpDelete]
+        public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                var result = await _postingRulesService.SoftDeleteAsync(requestVM);
+                return Json(new
+                {
+                    isSuccess = result.Success,
+                    message = result.Message,
+                    errors = result.Errors, // optional
+                    data = result.Data      // optional
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
             }
         }
         #endregion

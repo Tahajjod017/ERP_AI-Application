@@ -16,7 +16,7 @@
         var getByIdUrl = settings.baseUrl + "/GetById";
         var createUrl = settings.baseUrl + "/Create";
         var updateUrl = settings.baseUrl + "/Update";
-        var deleteUrl = settings.baseUrl + "/Delete";
+        var deleteUrl = settings.baseUrl + "/SoftDelete";
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
         var generateNextCodeUrl = settings.baseUrl + "/GenerateThreeDigitCodeAsync";
@@ -43,6 +43,7 @@
                 // Collect all PostingRuleDetailsVMs data
                 $('#postingRules-form .PostingRuleDetailsVM').each(function () {
                     const details = {
+                        PostingRuleDetailID: $(this).find('.PostingRuleDetailID').val(),
                         MainAccountID: $(this).find('.mainAccDD').val(),
                         SubAccID: $(this).find('.subAccDD').val(),
                         TrxAccID: $(this).find('.trxAccDD').val(),
@@ -148,6 +149,38 @@
                     $('.postingRules-editBtn').prop('disabled', false).html('<i class="fas fa-edit text-black"></i>');
                 }
             })
+            // #endregion
+
+
+            // #region Bulk Delete
+            $(document).on('click', settings.singleDeleteBtn, function (e) {
+                e.preventDefault();
+
+                var id = $(this).data('id');
+
+                if (id) {
+                    showDeleteModal(function () {
+                        $.ajax({
+                            url: deleteUrl,
+                            method: 'DELETE',
+                            data: { ids: [id] },
+                            success: function (response) {
+                                if (response.isSuccess) {
+                                    toastr.success(response.message);
+                                    clear();
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                            },
+                            error: function () {
+                                toastr.error('An unexpected error occurred.');
+                            }
+                        });
+                    });
+                } else {
+                    toastr.error('Invalid ID for deletion.');
+                }
+            });
             // #endregion
 
 
@@ -640,7 +673,7 @@
                                             <a href="#!" class="btn btn-outline-light btn-icon postingRules-editBtn" id="postingRules-editBtn" data-id="${item.postingRuleID}">
                                                 <i class="fas fa-edit text-black"></i>
                                             </a>
-                                            <a href="#!" class="btn btn-outline-light btn-icon postingRules-single-deleteBtn" id="postingRules-single-delete" data-id="${item.postingRuleID}">
+                                            <a href="#!" class="btn btn-outline-light btn-icon postingRules-singleDelBtn" id="postingRules-singleDelBtn" data-id="${item.postingRuleID}">
                                                 <i class="far fa-trash-alt text-black"></i>
                                             </a>
                                         </div>
