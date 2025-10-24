@@ -3,7 +3,6 @@ using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Finance.PostingRulesVM;
-using GCTL.Core.ViewModels.Finance.TransactionAccountVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
@@ -16,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static Dapper.SqlMapper;
 
 namespace GCTL.Service.Finance.PostingRule
 {
@@ -82,6 +82,50 @@ namespace GCTL.Service.Finance.PostingRule
                     exixtingEntity.UpdatedAt = null;
                     exixtingEntity.UpdatedBy = null;
 
+                    var findExistingDetails = await _postingRuleDetailsRepository.FindAsync(x => x.PostingRuleID == exixtingEntity.PostingRuleID);
+                    foreach (var existingDetail in findExistingDetails)
+                    {
+                        var detailsToRestore = model.PostingRuleDetailsVMs?.FirstOrDefault(vm => vm.SubAccID == existingDetail.SubAccountID);
+
+                        if (detailsToRestore != null)
+                        {
+                            if (existingDetail.DeletedAt != null && existingDetail.DeletedBy != null)
+                            {
+                                existingDetail.TrxAccID = detailsToRestore.TrxAccID;
+                                existingDetail.TrxType = detailsToRestore.DebitCredit;
+
+                                existingDetail.DeletedAt = null;
+                                existingDetail.DeletedBy = null;
+                                existingDetail.UpdatedAt = DateTime.UtcNow;
+                                existingDetail.UpdatedBy = model.CreatedBy;
+
+                                existingDetail.LIP = model.LIP;
+                                existingDetail.LMAC = model.LMAC;
+
+                                await _postingRuleDetailsRepository.UpdateAsync(existingDetail);
+                            }
+                        }
+                    }
+
+                    if (model.PostingRuleDetailsVMs != null)
+                    {
+                        foreach (var detailVM in model.PostingRuleDetailsVMs)
+                        {
+                            PostingRuleDetails detailEntity = new PostingRuleDetails();
+                            detailEntity.PostingRuleID = exixtingEntity.PostingRuleID;
+                            detailEntity.SubAccountID = detailVM.SubAccID;
+                            detailEntity.TrxAccID = detailVM.TrxAccID;
+                            detailEntity.TrxType = detailVM.DebitCredit;
+
+                            detailEntity.CreatedAt = DateTime.UtcNow;
+                            detailEntity.CreatedBy = model.CreatedBy;
+                            detailEntity.LIP = model.LIP;
+                            detailEntity.LMAC = model.LMAC;
+
+                            await _postingRuleDetailsRepository.AddAsync(detailEntity);
+                        }
+                    }
+
                     await _genericRepository.UpdateAsync(exixtingEntity);
                     await _userInfoService.ActionLogAsync("Posting Rules", ActionName.DataAdd, null, exixtingEntity, exixtingEntity.PostingRuleID, model);
                 }
@@ -96,9 +140,6 @@ namespace GCTL.Service.Finance.PostingRule
                     entity.LIP = model.LIP;
                     entity.LMAC = model.LMAC;
 
-                    //await _genericRepository.AddAsync(entity);
-                    //await _userInfoService.ActionLogAsync("Posting Rules", ActionName.DataAdd, null, entity, entity.PostingRuleID, model);
-
                     entity.PostingRuleDetails = new List<PostingRuleDetails>();
 
                     if (model.PostingRuleDetailsVMs != null)
@@ -106,10 +147,14 @@ namespace GCTL.Service.Finance.PostingRule
                         foreach (var detailVM in model.PostingRuleDetailsVMs)
                         {
                             PostingRuleDetails detailEntity = new PostingRuleDetails();
-                            //detailEntity.PostingRuleID = entity.PostingRuleID;
                             detailEntity.SubAccountID = detailVM.SubAccID;
                             detailEntity.TrxAccID = detailVM.TrxAccID;
                             detailEntity.TrxType = detailVM.DebitCredit;
+
+                            detailEntity.CreatedAt = DateTime.UtcNow;
+                            detailEntity.CreatedBy = model.CreatedBy;
+                            detailEntity.LIP = model.LIP;
+                            detailEntity.LMAC = model.LMAC;
 
                             entity.PostingRuleDetails.Add(detailEntity);
                         }
@@ -117,23 +162,6 @@ namespace GCTL.Service.Finance.PostingRule
 
                     await _genericRepository.AddAsync(entity);
                     await _userInfoService.ActionLogAsync("Posting Rules", ActionName.DataAdd, null, entity, entity.PostingRuleID, model);
-
-
-                    //// Prepare the details list
-                    //var details = model.PostingRuleDetailsVMs?
-                    //    .Select(detailVM => new PostingRuleDetails
-                    //    {
-                    //        PostingRuleID = entity.PostingRuleID,  // FK set here
-                    //        SubAccountID = detailVM.SubAccID,
-                    //        TrxAccID = detailVM.TrxAccID,
-                    //        TrxType = detailVM.DebitCredit
-                    //    }).ToList();
-
-                    //// Add all details at once
-                    //if (details != null && details.Any())
-                    //{
-                    //    await _postingRuleDetailsRepository.AddRangeAsync(details);
-                    //}
                 }
 
                 await _genericRepository.CommitTransactionAsync();
@@ -168,13 +196,6 @@ namespace GCTL.Service.Finance.PostingRule
                     result.Message = "Posting Rule not found.";
                     return result;
                 }
-
-                //if (model.SubAccountID != entity.SubAccountID)
-                //{
-                //    result.Success = false;
-                //    result.Message = "You cannot change the sub account!";
-                //    return result;
-                //}
 
                 var beforeEntity = JsonConvert.DeserializeObject<UpdatePostingRulesVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
@@ -216,6 +237,11 @@ namespace GCTL.Service.Finance.PostingRule
                             existingDetail.TrxAccID = detailVM.TrxAccID;
                             existingDetail.TrxType = detailVM.DebitCredit;
 
+                            existingDetail.UpdatedAt = DateTime.UtcNow;
+                            existingDetail.UpdatedBy = model.UpdatedBy;
+                            existingDetail.LIP = model.LIP;
+                            existingDetail.LMAC = model.LMAC;
+
                             await _postingRuleDetailsRepository.UpdateAsync(existingDetail);
                         }
                     }
@@ -227,7 +253,12 @@ namespace GCTL.Service.Finance.PostingRule
                             PostingRuleID = entity.PostingRuleID,
                             SubAccountID = detailVM.SubAccID,
                             TrxAccID = detailVM.TrxAccID,
-                            TrxType = detailVM.DebitCredit
+                            TrxType = detailVM.DebitCredit,
+
+                            UpdatedAt = DateTime.UtcNow,
+                            UpdatedBy = model.UpdatedBy,
+                            LIP = model.LIP,
+                            LMAC = model.LMAC
                         };
 
                         await _postingRuleDetailsRepository.AddAsync(newDetail);
@@ -278,7 +309,9 @@ namespace GCTL.Service.Finance.PostingRule
                     PostingRuleID = data.PostingRuleID,
                     ScenarioName = data.ScenarioName,
                     ScenarioCode = data.ScenarioCode,
-                    PostingRuleDetailsVMs = data.PostingRuleDetails?.Select(detail => new GetByIdPostingRulesDetailsVM
+                    PostingRuleDetailsVMs = data.PostingRuleDetails?
+                    .Where(detail => detail.DeletedAt == null && detail.DeletedBy == null)
+                    .Select(detail => new GetByIdPostingRulesDetailsVM
                     {
                         PostingRuleDetailID = detail.PostingRuleDetailID,
                         PostingRuleID = detail.PostingRuleID,
@@ -333,6 +366,66 @@ namespace GCTL.Service.Finance.PostingRule
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while retrieving Transaction Accounts.", ex);
+            }
+        }
+        #endregion
+
+
+        #region SoftDeleteAsync
+        public async Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM)
+        {
+            var result = new CommonReturnViewModel();
+            try
+            {
+                await _genericRepository.BeginTransactionAsync();
+
+                var entity = await _genericRepository.AllActive()
+                    .Include(x => x.PostingRuleDetails)
+                    .FirstOrDefaultAsync(x => requestVM.Ids.Contains(x.PostingRuleID));
+
+                if (entity == null)
+                {
+                    result.Success = false;
+                    result.Message = "Posting Rule not found.";
+                    return result;
+                }
+                var beforeEntityMaster = JsonConvert.DeserializeObject<CommonReturnViewModel>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+
+                var targetIds = requestVM.Ids;
+
+                foreach (var detail in entity.PostingRuleDetails.Where(d => targetIds.Contains((int)d.PostingRuleID)))
+                {
+                    detail.DeletedAt = DateTime.UtcNow;
+                    detail.DeletedBy = requestVM.DeletedBy;
+                    detail.LIP = requestVM.LIP;
+                    detail.LMAC = requestVM.LMAC;
+
+                    await _postingRuleDetailsRepository.UpdateAsync(detail);
+                }
+
+                entity.DeletedAt = DateTime.UtcNow;
+                entity.DeletedBy = requestVM.DeletedBy;
+                entity.LIP = requestVM.LIP;
+                entity.LMAC = requestVM.LMAC;
+
+                await _genericRepository.UpdateAsync(entity);
+                var afterEntityMaster = JsonConvert.DeserializeObject<CommonReturnViewModel>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                await _userInfoService.ActionLogAsync("Posting Rules", ActionName.DataDeleted, beforeEntityMaster, afterEntityMaster, entity.PostingRuleID, requestVM);
+                await _genericRepository.CommitTransactionAsync();
+
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = $"Deleted Successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                result.Success = false;
+                result.Message = "An error occurred while deleting the Posting Rule.";
+                result.Errors.Add(ex.Message);
+                return result;
             }
         }
         #endregion

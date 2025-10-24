@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Finance.PostingRulesVM;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -16,6 +17,7 @@ namespace GCTL.Service.Finance.PostingRule
         Task<PaginationService<PostingRules, GetAllPostingRulesVM>.PaginationResult<GetAllPostingRulesVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PostingRuleID", string sortOrder = "desc");
         Task<bool> AddAsync(CreatePostingRulesVM model);
         Task<CommonReturnViewModel> UpdateAsync(UpdatePostingRulesVM model);
+        Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<bool> IsNameUniqueAsync(string name, int? excludeId = null);
         Task<bool> IsCodeUniqueAsync(string code, int? excludeId = null);
         Task<string> GenerateThreeDigitCodeAsync();
