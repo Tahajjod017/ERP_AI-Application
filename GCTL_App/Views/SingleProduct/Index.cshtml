@@ -1,4 +1,9 @@
-﻿<div class="p-4 bg-white">
+﻿@model GCTL.Core.ViewModels.POS.Product.SingleProduct.SingleProductPageViewModel
+
+
+
+
+<div class="p-4 bg-white">
 
     <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
         <li class="nav-item"><a class="nav-link active" id="SingleProduct-tab" data-bs-toggle="tab" href="#tab-SingleProduct" role="tab" aria-controls="tab-SingleProduct" aria-selected="true">Single Product</a></li>
@@ -12,12 +17,12 @@
 
         <div class="tab-pane fade show active" id="tab-SingleProduct" role="tabpanel" aria-labelledby="SingleProduct-tab">
 
-            <partial name="_SingleProduct" />
+            <partial name="_SingleProduct" model="@Model.SingleProduct" />
 
         </div>
 
         <div class="tab-pane fade" id="tab-attributeProduct" role="tabpanel" aria-labelledby="attributeProduct-tab">
-            <partial name="_AtributeProduct" />
+            <partial name="_AtributeProduct" model="@Model.AttrProduct" />
         </div>
 
         <div class="tab-pane fade" id="tab-bxgy" role="tabpanel" aria-labelledby="bxgy-tab">
@@ -29,21 +34,21 @@
             <div class="tab-content mt-3" id="myTabContent2">
                 <div class="tab-pane fade show active" id="tab-bxgyf" role="tabpanel" aria-labelledby="bxgyf-tab">
 
-                    <partial name="_BuyGetFree" />
+                    <partial name="_BuyGetFree" model="@Model.BGFreeOfferViewModel"/>
 
                 </div>
                 <div class="tab-pane fade" id="tab-bxgyd" role="tabpanel" aria-labelledby="bxgyd-tab">
-                    <partial name="_BuyGetDiscount" />
+                    <partial name="_BuyGetDiscount" model="@Model.BGDisOffer" />
                 </div>
                 <div class="tab-pane fade" id="tab-bcgg" role="tabpanel" aria-labelledby="bcgg-tab">
-                    <partial name="_BuyCollectionGetGift" />
+                    <partial name="_BuyCollectionGetGift" model="@Model.BGGiftBuyingProduct" />
                 </div>
             </div>
         </div>
 
         <div class="tab-pane fade" id="tab-cp" role="tabpanel" aria-labelledby="cp-tab">
 
-            <partial name="_ComboProduct" />
+            <partial name="_ComboProduct" model="@Model.ComboOfferList" />
 
 
 
@@ -51,7 +56,7 @@
 
         <div class="tab-pane fade" id="tab-ser" role="tabpanel" aria-labelledby="ser-tab">
 
-            <partial name="_Service" />
+            <partial name="_Service" model="@Model.Service" />
 
 
 

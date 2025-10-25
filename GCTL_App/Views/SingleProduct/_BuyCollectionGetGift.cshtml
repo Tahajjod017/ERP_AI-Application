@@ -1,128 +1,105 @@
-﻿<div class="col-9 row p3 mt-2">
+﻿@model GCTL.Core.ViewModels.POS.Product.SingleProduct.BGGiftOfferViewModel
 
+<div class="col-12 row p3 mt-2">
     <div class="col-md-6">
-        <h4>Customer Buys</h4>
+        <h4>@Html.SmartLocalize("Customer Buys")</h4>
         <h5 class="border-bottom"></h5>
-
         <div class="mb-3">
-            <label class="form-label" for="">Name</label>
-            <input class="form-control" id="" type="text" placeholder="Buy two product get 1 Gift" />
+            <label asp-for="BGGiftName">@Html.SmartLocalize("Name")</label>
+            <span asp-validation-for="BGGiftName" class="text-danger"></span>
+            <input asp-for="BGGiftName" class="form-control" id="bgGiftName" type="text" placeholder="Buy two product get 1 Gift" />
         </div>
-
         <div class="">
-            <div class="row mb-3">
-                <div class="col-md-9">
-                    <label class="form-label" for="organizerMultiple">Select Buying Product</label>
-                    <select class="form-select searchableSelect" id="" >
-                        <option value="">Select Product</option>
-                        <option selected>Product 1</option>
-                        <option>Product 2</option>
-                        <option>Product 3</option>
-                    </select>
+            @for (int i = 0; i < Model.BGGiftBuyingProducts.Count; i++)
+            {
+                <div class="row mb-3">
+                    <div class="col-md-9">
+                        <label asp-for="BGGiftBuyingProducts[i].BGGiftProduct">@Html.SmartLocalize("Select Buying Product")</label>
+                        <span asp-validation-for="BGGiftBuyingProducts[i].BGGiftProduct" class="text-danger"></span>
+                        <select asp-for="BGGiftBuyingProducts[i].BGGiftProduct" class="form-select searchableSelect" id="bgGiftProduct@(i)">
+                            <option value="">@Html.SmartLocalize("Select Product")</option>
+                            <option value="Product1">@Html.SmartLocalize("Product 1")</option>
+                            <option value="Product2">@Html.SmartLocalize("Product 2")</option>
+                            <option value="Product3">@Html.SmartLocalize("Product 3")</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="BGGiftBuyingProducts[i].BGGiftQuantity">@Html.SmartLocalize("Quantity")</label>
+                        <span asp-validation-for="BGGiftBuyingProducts[i].BGGiftQuantity" class="text-danger"></span>
+                        <input asp-for="BGGiftBuyingProducts[i].BGGiftQuantity" class="form-control" id="bgGiftQuantity@(i)" type="number" value="2" />
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label" for="organizerMultiple">Quantity</label>
-                    <input class="form-control" id="" type="text" value="2" />
-                </div>
-            </div>
-
+            }
             <div class="row">
-                <div class="col-md-9">
-                    <select class="form-select searchableSelect" id="" >
-                        <option value="">Select Product</option>
-                        <option>Product 1</option>
-                        <option>Product 2</option>
-                        <option>Product 3</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <input class="form-control" id="" type="text" placeholder="2" />
-                </div>
+                <a href="#" class="btn" id="bgGiftAddButton">@Html.SmartLocalize("+ add")</a>
             </div>
-
-            <div class="row"><a href="" class="btn">+ add</a></div>
-
         </div>
-
-
-
         <div class="">
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label class="form-label" for="">Start Date Time</label>
-                    <input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
+                    <label asp-for="BGGiftStartDateTime">@Html.SmartLocalize("Start Date Time")</label>
+                    <span asp-validation-for="BGGiftStartDateTime" class="text-danger"></span>
+                    <input asp-for="BGGiftStartDateTime" class="form-control datetimepicker caiCon" id="bgGiftStartDateTime" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label" for="">Start Date Time</label>
-                    <input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
+                    <label asp-for="BGGiftEndDateTime">@Html.SmartLocalize("End Date Time")</label>
+                    <span asp-validation-for="BGGiftEndDateTime" class="text-danger"></span>
+                    <input asp-for="BGGiftEndDateTime" class="form-control datetimepicker caiCon" id="bgGiftEndDateTime" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
                 </div>
             </div>
         </div>
-
-
-
     </div>
-
     <div class="col-md-6">
-        <h4>Customer Gets</h4>
+        <h4>@Html.SmartLocalize("Customer Gets")</h4>
         <h5 class="border-bottom"></h5>
         <div class="mb-3">
-            <label class="form-label" for="organizerMultiple">Select Gets Product</label>
-            <select class="form-select searchableSelect" id="" >
-                <option value="">Select Product</option>
-                <option>Product 1</option>
-                <option>Product 2</option>
-                <option>Product 3</option>
+            <label asp-for="BGGiftSelectGetsProduct">@Html.SmartLocalize("Select Gets Product")</label>
+            <span asp-validation-for="BGGiftSelectGetsProduct" class="text-danger"></span>
+            <select asp-for="BGGiftSelectGetsProduct" class="form-select searchableSelect" id="bgGiftSelectGetsProduct">
+                <option value="">@Html.SmartLocalize("Select Product")</option>
+                <option value="Product1">@Html.SmartLocalize("Product 1")</option>
+                <option value="Product2">@Html.SmartLocalize("Product 2")</option>
+                <option value="Product3">@Html.SmartLocalize("Product 3")</option>
             </select>
         </div>
-
         <div class="mb-3">
-            <label class="form-label" for="">Gift Quantity</label>
-            <input class="form-control" id="" type="text" placeholder="1" />
+            <label asp-for="BGGiftGiftQuantity">@Html.SmartLocalize("Gift Quantity")</label>
+            <span asp-validation-for="BGGiftGiftQuantity" class="text-danger"></span>
+            <input asp-for="BGGiftGiftQuantity" class="form-control" id="bgGiftGiftQuantity" type="number" placeholder="1" />
         </div>
-
         <div class="mb-3">
-            <label class="form-label" for="">Maximum time to get this offer</label>
-            <input class="form-control" id="" type="text" placeholder="2" />
+            <label asp-for="BGGiftMaxTimeOffer">@Html.SmartLocalize("Maximum time to get this offer")</label>
+            <span asp-validation-for="BGGiftMaxTimeOffer" class="text-danger"></span>
+            <input asp-for="BGGiftMaxTimeOffer" class="form-control" id="bgGiftMaxTimeOffer" type="number" placeholder="2" />
         </div>
         <div class="mb-3 end-0">
             <div class="d-flex justify-content-end">
-                <button class="btn btn-sm btn-primary px-4 ms-2" type="button" data-list-pagination="next"><span>Create</span></button>
+                <button type="submit" class="btn btn-sm btn-primary px-4 ms-2" id="bgGiftCreateButton">@Html.SmartLocalize("Create")</button>
             </div>
         </div>
-
     </div>
-
     <div class="card-header border-top d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4 pt-3">
-        <h3>Offer List</h3>
+        <h3>@Html.SmartLocalize("Offer List")</h3>
         <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-
-
-
             <div class="dropdown me-3">
                 <div class="input-group">
-
-                    <input class="form-control" type="text" placeholder="Search " aria-label="Categories" aria-describedby="basic-addon2" />
+                    <input asp-for="BGGiftSearch" class="form-control" id="bgGiftSearch" type="text" placeholder="@Html.SmartLocalize("Search")" aria-label="Categories" aria-describedby="basic-addon2" />
                     <span class="input-group-text" id="basic-addon2"> <i class="fa fa-search" aria-hidden="true"></i></span>
                 </div>
             </div>
-
             <div class="dropdown">
-                <select class="form-select searchableSelect" id="organizerSingle2" >
-                    <option value="">Sort by Last 7 days</option>
-                    <option>Sort by Last 15 days</option>
-                    <option>Sort by Last 1 Month</option>
-                    <option>Sort by Last 3 Month</option>
-                    <option>Sort by Last 6 Month</option>
+                <select asp-for="BGGiftSort" class="form-select searchableSelect" id="bgGiftSort">
+                    <option value="">@Html.SmartLocalize("Sort by Last 7 days")</option>
+                    <option value="15days">@Html.SmartLocalize("Sort by Last 15 days")</option>
+                    <option value="1month">@Html.SmartLocalize("Sort by Last 1 Month")</option>
+                    <option value="3months">@Html.SmartLocalize("Sort by Last 3 Month")</option>
+                    <option value="6months">@Html.SmartLocalize("Sort by Last 6 Month")</option>
                 </select>
             </div>
-
         </div>
     </div>
-
     <div class="border-top border-translucent p-3">
-        <div id="collectionGift" >
-
+        <div id="collectionGift">
             <div class="table-responsive scrollbar mx-n1 px-1">
                 <table class="table table-sm fs-9 leads-table">
                     <thead>
@@ -132,65 +109,64 @@
                                     <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
                                 </div>
                             </th>
-                            <th class="sort align-middle ps-5 pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemName">Combo Name</th>
-                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemCost">Product List</th>
-                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemPrice">Start Date</th>
-                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemCatagories1">End Date</th>
-                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemCatagories4">Gift Product</th>
-                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemCatagories4">Quantity</th>
-                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemCatagories2">Maximum Time</th>
+                            <th class="sort align-middle ps-5 pe-5 text-uppercase text-nowrap" scope="col" data-sort="comboName">@Html.SmartLocalize("Combo Name")</th>
+                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="productList">@Html.SmartLocalize("Product List")</th>
+                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="startDate">@Html.SmartLocalize("Start Date")</th>
+                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="endDate">@Html.SmartLocalize("End Date")</th>
+                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="giftProduct">@Html.SmartLocalize("Gift Product")</th>
+                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="quantity">@Html.SmartLocalize("Quantity")</th>
+                            <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="maximumTime">@Html.SmartLocalize("Maximum Time")</th>
                             <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
                         </tr>
                     </thead>
                     <tbody class="list" id="collectionGift-body">
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                            <td class="fs-9 align-middle py-0">
-                                <div class="form-check mb-0 fs-8">
-                                    <input class="form-check-input" type="checkbox" data-bulk-select-row='{"itemName":"Casonut Salad","itemCost":"3$","itemPrice":"5$","itemCatagories":"Salad"}' />
-                                </div>
-                            </td>
-                            <td class="itemName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-2">
-                                <div class="d-flex align-items-center position-relative">
-                                    <div class="flex-1">
-                                        <a class="fw-bold mb-0 text-body-emphasis" href="#">Combo Offer 1</a>
-                                        <p class="fs-10 mb-0 text-body-tertiary text-opacity-85 fw-semibold">
-                                            11-07-2025<span class="fa-solid fa-circle text-body-quaternary text-opacity-50" data-fa-transform="shrink-10 down-2"></span>08:18:11
-                                        </p>
+                        @for (int i = 0; i < Model.BGGiftOffers.Count; i++)
+                        {
+                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                                <td class="fs-9 align-middle py-0">
+                                    <div class="form-check mb-0 fs-8">
+                                        <input class="form-check-input" type="checkbox"  />
                                     </div>
-                                </div>
-                            </td>
-                            <td class="itemCost align-middle white-space-nowrap text-start pe-0 ps-1">
-                                <span>Product 1(2 pic)</span> <br>
-                                <span>Product 2(1 pic)</span>
-                            </td>
-                            <td class="itemPrice align-middle white-space-nowrap text-start pe-0 ps-1">11-Jan-2025</td>
-                            <td class="itemPrice align-middle white-space-nowrap text-start pe-0 ps-1">11-Feb-2025</td>
-                            <td class="itemCatagories align-middle white-space-nowrap text-start pe-0 ps-1">Product 5</td>
-                            <td class="itemCatagories align-middle white-space-nowrap text-start pe-0 ps-1">1</td>
-                            <td class="itemCatagories align-middle white-space-nowrap text-start pe-0 ps-1">2</td>
-                            <td class="align-middle white-space-nowrap text-start pe-0 ps-1">
-                                <div class="btn-reveal-trigger position-static">
-                                    <a href="#" class="nav-item mx-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#edit_user">
-                                        <i class="fas fa-edit text-success"></i>
-                                    </a>
-
-                                    <a href="#" class="nav-item mx-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                        <i class="fas fa-trash text-danger"></i>
-                                    </a>
-
-                                </div>
-                            </td>
-
-                        </tr>
+                                </td>
+                                <td class="comboName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-2">
+                                    <div class="d-flex align-items-center position-relative">
+                                        <div class="flex-1">
+                                            <a class="fw-bold mb-0 text-body-emphasis" href="#">@Model.BGGiftOffers[i].BGGiftComboName</a>
+                                            <p class="fs-10 mb-0 text-body-tertiary text-opacity-85 fw-semibold">
+                                                @Model.BGGiftOffers[i].BGGiftCreatedDate<span class="fa-solid fa-circle text-body-quaternary text-opacity-50" data-fa-transform="shrink-10 down-2"></span>@Model.BGGiftOffers[i].BGGiftCreatedTime
+                                            </p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="productList align-middle white-space-nowrap text-start pe-0 ps-1">
+                                    @foreach (var product in Model.BGGiftOffers[i].BGGiftProductListDetails)
+                                    {
+                                        <span>@product.BGGiftProductName ()</span><br>
+                                    }
+                                </td>
+                                <td class="startDate align-middle white-space-nowrap text-start pe-0 ps-1">@Model.BGGiftOffers[i].BGGiftStartDate</td>
+                                <td class="endDate align-middle white-space-nowrap text-start pe-0 ps-1">@Model.BGGiftOffers[i].BGGiftEndDate</td>
+                                <td class="giftProduct align-middle white-space-nowrap text-start pe-0 ps-1">@Model.BGGiftOffers[i].BGGiftGiftProduct</td>
+                                <td class="quantity align-middle white-space-nowrap text-start pe-0 ps-1">@Model.BGGiftOffers[i].BGGiftQuantity</td>
+                                <td class="maximumTime align-middle white-space-nowrap text-start pe-0 ps-1">@Model.BGGiftOffers[i].BGGiftMaximumTime</td>
+                                <td class="align-middle white-space-nowrap text-start pe-0 ps-1">
+                                    <div class="btn-reveal-trigger position-static">
+                                        <a href="#" class="nav-item mx-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#edit_user">
+                                            <i class="fas fa-edit text-success"></i>
+                                        </a>
+                                        <a href="#" class="nav-item mx-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                            <i class="fas fa-trash text-danger"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
-
             <div class="row align-items-center justify-content-between pe-0 fs-9">
                 <div class="col-auto d-flex">
                     <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
-                   
                 </div>
                 <div class="col-auto d-flex">
                     <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
@@ -198,8 +174,6 @@
                     <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
                 </div>
             </div>
-
         </div>
     </div>
-
 </div>

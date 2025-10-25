@@ -1,80 +1,70 @@
-﻿<div class="col-12 row p3 mt-2">
+﻿@model GCTL.Core.ViewModels.POS.Product.SingleProduct.ServiceViewModel
 
-    <div class="col-md-10">
-        <h4>Customer Buys</h4>
+<div class="col-12 row p3 mt-2">
+    <div class="col-md-12">
+        <h4>@Html.SmartLocalize("Customer Buys")</h4>
         <h5 class="border-bottom"></h5>
-
-        <div class=" mb-3">
+        <div class="mb-3">
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label class="form-label" for="organizerMultiple">Select Service</label>
-                    <select class="form-select searchableSelect" id="" >
-                        <option value="">Select Service</option>
-                        <option selected>Service 1</option>
-                        <option>Service 2</option>
-                        <option>Service 3</option>
+                    <label asp-for="ServiceSelectService">@Html.SmartLocalize("Select Service")</label>
+                    <span asp-validation-for="ServiceSelectService" class="text-danger"></span>
+                    <select asp-for="ServiceSelectService" class="form-select searchableSelect" id="serviceSelectService">
+                        <option value="">@Html.SmartLocalize("Select Service")</option>
+                        <option value="Service1">@Html.SmartLocalize("Service 1")</option>
+                        <option value="Service2">@Html.SmartLocalize("Service 2")</option>
+                        <option value="Service3">@Html.SmartLocalize("Service 3")</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label" for="organizerMultiple">Hourly Rate</label>
-                    <input class="form-control" id="" type="text" value="2" />
+                    <label asp-for="ServiceHourlyRate">@Html.SmartLocalize("Hourly Rate")</label>
+                    <span asp-validation-for="ServiceHourlyRate" class="text-danger"></span>
+                    <input asp-for="ServiceHourlyRate" class="form-control" id="serviceHourlyRate" type="number" step="0.01" value="2" />
                 </div>
-
                 <div class="col-md-2">
-                    <label class="form-label" for="organizerMultiple">Daily Rate</label>
-                    <input class="form-control" id="" type="text" value="150 " />
+                    <label asp-for="ServiceDailyRate">@Html.SmartLocalize("Daily Rate")</label>
+                    <span asp-validation-for="ServiceDailyRate" class="text-danger"></span>
+                    <input asp-for="ServiceDailyRate" class="form-control" id="serviceDailyRate" type="number" step="0.01" value="150" />
                 </div>
-
                 <div class="col-md-2">
-                    <label class="form-label" for="organizerMultiple">Per Job Rate</label>
-                    <input class="form-control" id="" type="text" value="300 " />
+                    <label asp-for="ServicePerJobRate">@Html.SmartLocalize("Per Job Rate")</label>
+                    <span asp-validation-for="ServicePerJobRate" class="text-danger"></span>
+                    <input asp-for="ServicePerJobRate" class="form-control" id="servicePerJobRate" type="number" step="0.01" value="300" />
                 </div>
-
                 <div class="col-md-2">
-                    <label class="form-label" for="organizerMultiple">Per Meter Rate</label>
-                    <input class="form-control" id="" type="text" value="300 " />
+                    <label asp-for="ServicePerMeterRate">@Html.SmartLocalize("Per Meter Rate")</label>
+                    <span asp-validation-for="ServicePerMeterRate" class="text-danger"></span>
+                    <input asp-for="ServicePerMeterRate" class="form-control" id="servicePerMeterRate" type="number" step="0.01" value="300" />
                 </div>
-
             </div>
-
         </div>
-
         <div class="mb-3 end-0">
             <div class="d-flex justify-content-end">
-                <button class="btn btn-sm btn-primary px-4 ms-2" type="button" data-list-pagination="next"><span>Create</span></button>
+                <button type="submit" class="btn btn-sm btn-primary px-4 ms-2" id="serviceCreateButton">@Html.SmartLocalize("Create")</button>
             </div>
         </div>
-
         <div class="card-header border-top d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4 pt-3">
-            <h3>Service List</h3>
+            <h3>@Html.SmartLocalize("Service List")</h3>
             <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-
-
-
                 <div class="dropdown me-3">
                     <div class="input-group">
-
-                        <input class="form-control" type="text" placeholder="Search " aria-label="Categories" aria-describedby="basic-addon2" />
+                        <input asp-for="ServiceSearch" class="form-control" id="serviceSearch" type="text" placeholder="@Html.SmartLocalize("Search")" aria-label="Categories" aria-describedby="basic-addon2" />
                         <span class="input-group-text" id="basic-addon2"> <i class="fa fa-search" aria-hidden="true"></i></span>
                     </div>
                 </div>
-
                 <div class="dropdown">
-                    <select class="form-select searchableSelect" id="organizerSingle2" >
-                        <option value="">Sort by Last 7 days</option>
-                        <option>Sort by Last 15 days</option>
-                        <option>Sort by Last 1 Month</option>
-                        <option>Sort by Last 3 Month</option>
-                        <option>Sort by Last 6 Month</option>
+                    <select asp-for="ServiceSort" class="form-select searchableSelect" id="serviceSort">
+                        <option value="">@Html.SmartLocalize("Sort by Last 7 days")</option>
+                        <option value="15days">@Html.SmartLocalize("Sort by Last 15 days")</option>
+                        <option value="1month">@Html.SmartLocalize("Sort by Last 1 Month")</option>
+                        <option value="3months">@Html.SmartLocalize("Sort by Last 3 Month")</option>
+                        <option value="6months">@Html.SmartLocalize("Sort by Last 6 Month")</option>
                     </select>
                 </div>
-
             </div>
         </div>
-
         <div class="border-top border-translucent p-3">
             <div id="serTable">
-
                 <div class="table-responsive scrollbar mx-n1 px-1">
                     <table class="table table-sm fs-9 leads-table">
                         <thead>
@@ -84,57 +74,57 @@
                                         <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
                                     </div>
                                 </th>
-                                <th class="sort align-middle ps-5 pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemName">Service Name</th>
-                                <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemCost">Hourly Rate</th>
-                                <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemCost">Daily Rate</th>
-                                <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemPrice">Per Job Rate</th>
-                                <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemCata">Per Meter Rate</th>
+                                <th class="sort align-middle ps-5 pe-5 text-uppercase text-nowrap" scope="col" data-sort="serviceName">@Html.SmartLocalize("Service Name")</th>
+                                <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="hourlyRate">@Html.SmartLocalize("Hourly Rate")</th>
+                                <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="dailyRate">@Html.SmartLocalize("Daily Rate")</th>
+                                <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="perJobRate">@Html.SmartLocalize("Per Job Rate")</th>
+                                <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="perMeterRate">@Html.SmartLocalize("Per Meter Rate")</th>
                                 <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
                             </tr>
                         </thead>
                         <tbody class="list" id="serTable-body">
-                            <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-
-                                <td class="fs-9 align-middle py-0">
-                                    <div class="form-check mb-0 fs-8">
-                                        <input class="form-check-input" type="checkbox" data-bulk-select-row='{"itemName":"Casonut Salad","itemCost":"3$","itemPrice":"5$","itemCatagories":"Salad"}' />
-                                    </div>
-                                </td>
-                                <td class="itemName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-2">
-                                    <div class="d-flex align-items-center position-relative">
-                                        <div class="flex-1">
-                                            <a class="fw-bold mb-0 text-body-emphasis" href="#">Service 1</a>
-                                            <p class="fs-10 mb-0 text-body-tertiary text-opacity-85 fw-semibold">
-                                                11-07-2025<span class="fa-solid fa-circle text-body-quaternary text-opacity-50" data-fa-transform="shrink-10 down-2"></span>08:18:11
-                                            </p>
+                            @for (int i = 0; i < Model.ServiceServices.Count; i++)
+                            {
+                                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                                    <td class="fs-9 align-middle py-0">
+                                        <div class="form-check mb-0 fs-8">
+                                            <input class="form-check-input" type="checkbox"  />
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="itemPrice align-middle white-space-nowrap text-start pe-0 ps-1">500</td>
-                                <td class="itemPrice align-middle white-space-nowrap text-start pe-0 ps-1">2000</td>
-                                <td class="itemCatagories align-middle white-space-nowrap text-start pe-0 ps-1">5000</td>
-                                <td class="itemCatagories align-middle white-space-nowrap text-start pe-0 ps-1">50</td>
-                                <td class="align-middle white-space-nowrap text-start pe-0 ps-1">
-                                    <div class="btn-reveal-trigger position-static">
-                                        <a href="#" class="nav-item mx-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#edit_user">
-                                            <i class="fas fa-edit text-success"></i>
-                                        </a>
-
-                                        <a href="#" class="nav-item mx-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-
-                                    </div>
-                                </td>
-
-                            </tr>
+                                    </td>
+                                    <td class="serviceName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-2">
+                                        <div class="d-flex align-items-center position-relative">
+                                            <div class="flex-1">
+                                                <a class="fw-bold mb-0 text-body-emphasis" href="#">@Model.ServiceServices[i].ServiceServiceName</a>
+                                                <p class="fs-10 mb-0 text-body-tertiary text-opacity-85 fw-semibold">
+                                                    @Model.ServiceServices[i].ServiceCreatedDate<span class="fa-solid fa-circle text-body-quaternary text-opacity-50" data-fa-transform="shrink-10 down-2"></span>@Model.ServiceServices[i].ServiceCreatedTime
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="hourlyRate align-middle white-space-nowrap text-start pe-0 ps-1">@Model.ServiceServices[i].ServiceHourlyRate</td>
+                                    <td class="dailyRate align-middle white-space-nowrap text-start pe-0 ps-1">@Model.ServiceServices[i].ServiceDailyRate</td>
+                                    <td class="perJobRate align-middle white-space-nowrap text-start pe-0 ps-1">@Model.ServiceServices[i].ServicePerJobRate</td>
+                                    <td class="perMeterRate align-middle white-space-nowrap text-start pe-0 ps-1">@Model.ServiceServices[i].ServicePerMeterRate</td>
+                                    <td class="align-middle white-space-nowrap text-start pe-0 ps-1">
+                                        <div class="btn-reveal-trigger position-static">
+                                            <a href="#" class="nav-item mx-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#edit_user">
+                                                <i class="fas fa-edit text-success"></i>
+                                            </a>
+                                            <a href="#" class="nav-item mx-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
-
                 <div class="row align-items-center justify-content-between pe-0 fs-9">
                     <div class="col-auto d-flex">
-                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                        <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                        <a class="fw-semibold" href="#!" data-list-view="*">@Html.SmartLocalize("View all")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
+                        <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
                     </div>
                     <div class="col-auto d-flex">
                         <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
@@ -142,12 +132,7 @@
                         <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
                     </div>
                 </div>
-
             </div>
         </div>
-
-
     </div>
-
-
 </div>
