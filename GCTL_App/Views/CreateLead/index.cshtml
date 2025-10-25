@@ -179,8 +179,6 @@
         }
 
 
-        /* select2 */
-
     .select2-container .select2-selection--single {
         height: 48px !important;
         line-height: 50px !important;
@@ -219,7 +217,7 @@
                 <div class="row gy-3 ">
 
                     <div class="col-md-6">
-                        <div class="form-floating select2-floating">
+                        <div class="form-floating form-floating-advance-select select2-floating">
                             <select id="customerID" class="idBank select2">
                                 <option value="">Select Customer</option>
                                 
@@ -231,38 +229,34 @@
                     <div class="col-md-6">
                         <div class="form-floating select2">
                             <input class="form-control" id="leadName" type="text" placeholder="" required />
-                            <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Lead Name")</label>
+                            <label class="form-label" >@Html.SmartLocalize("Lead Name")</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating form-floating-advance-select select2-floating">
+                            <select id="leadSourceId" class="idBank select2">
+                                <option value="">Select Lead Source</option>
+                            </select>
+                            <label for="leadSourceId">Lead Source</label>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Lead Sources") </label>
-                            <select class="form-select choiceDD" id="leadSourceId" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
-                                <option value="" selected>@Html.SmartLocalize("Select Sources")...</option>
+                        <div class="form-floating form-floating-advance-select select2-floating">
+                            <select id="leadStatusId" class="idBank select2">
+                                <option value="">Select Lead Status</option>
+
                             </select>
+                            <label for="customerID">Lead Status</label>
                         </div>
                     </div>
+                    
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label class="form-label" for="leadStatusId">@Html.SmartLocalize("Status Name")</label>
-                            <select class="form-select choiceDD" id="leadStatusId" required>
-                                <option value="">@Html.SmartLocalize("Select Status")</option>
-                                @foreach (var status in ViewBag.LeadStatusDD as SelectList)
-                                {
-                                    <option value="@status.Value" selected="@(status.Text == "New" ? "selected" : null)">
-                                        @status.Text
-                                    </option>
-                                }
+                        <div class="form-floating form-floating-advance-select select2-floating">
+                            <select id="priorityID" class="idBank select2">
+                                <option value="">Select Priority</option>
                             </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label class="form-label" for="organizerMultiple">@Html.SmartLocalize("Priority Name")</label>
-                            <select class="form-select choiceDD" id="priorityID" asp-items="@ViewBag.LeadPriorities as SelectList" required>
-                                <option value="" selected>@Html.SmartLocalize("Select Status")</option>
-                            </select>
+                            <label for="priorityID">Priority Name</label>
                         </div>
                     </div>
 
@@ -306,7 +300,6 @@
                 </div>
             </div>
             <div id="customerInfoContainer" style="display: none;">
-                @* // create person code *@
                 <h5 class="mb-2 ms-2 text-body-highlight my-3 fs-8" id="iInformationTitle"></h5>
                 <div class="border-top pb-0 mb-3"></div>
                 <div class="row p-0">

@@ -1,0 +1,139 @@
+﻿<div class="d-flex flex-column h-100 my-3">
+    <h5 class="mb-3 text-body-highlight ms-4 fs-7 fw-semibold ms-2">Add Branch</h5>
+    <div class="row g-3" id="branchForm">
+        <form action="">
+            <input type="number" id="bId" name="name" hidden />
+            <div class="row px-5">
+                <!-- Left Section -->
+                <div class="col-md-6">
+                    <div class="col-12 mb-3 customerDiv" id="personCustomerSearchMainDiv">
+                        <div class="form-floating mbs-4">
+                            <input type="text" id="bCompanySearch" class="form-control searchField" placeholder="@Html.SmartLocalize("Search ContactName...")">
+                            <input type="number" class="idBank" id="bCId" hidden>
+
+                            <label for="personContactNameSearch"><i class="fa-solid fa-magnifying-glass"></i> @Html.SmartLocalize("Customer Search")</label>
+                            <div class="list-group bg-white p-0 border position-absolute" id="bCustomerList" style="display: none; width:100%; z-index:10012;">
+                                <!-- ContactName items will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3 form-floating">
+                                <input type="text" id="bName" class="form-control" placeholder="Address">
+                                <label class="form-label">Branch Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pe-1 col-sm-6">
+                            <div class="mb-3 form-floating">
+                                <input type="text" id="bFirstName" class="form-control" placeholder="">
+                                <label class="form-label req">First Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 ps-1 col-sm-6">
+                            <div class="mb-3 form-floating">
+                                <input type="text" id="bLastName" class="form-control" placeholder="">
+                                <label class="form-label">Last Name</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <input class="form-control" id="bPhone" type="tel" placeholder="Phone Number" />
+                        <div class="text-danger" id="errorShow"></div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <input class="form-control" id="bOtherPhone" type="tel" placeholder="Other Phone" />
+                        <div class="text-danger" id="errorShow"></div>
+                    </div>
+                    <div class="col-12">
+                        <div class="mb-3 form-floating">
+                            <input type="text" id="bEmail" class="form-control" placeholder="">
+                            <label class="form-label">Email</label>
+                            <div class="text-danger" id="errorShow"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Section -->
+                <div class="col-md-6">
+                    <div class="col-md-12">
+                        <div class="mb-3 form-floating">
+                            <input type="text" id="bFullAddress" class="form-control" placeholder="Address">
+                            <label class="form-label">Full Address</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6 pe-1 col-sm-6">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" id="bStreet" class="form-control" placeholder="Street">
+                                    <label class="form-label">Street</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 ps-1 col-sm-6">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" id="bCity" class="form-control" placeholder="City">
+                                    <label class="form-label">City</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6 pe-1 col-sm-6">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" id="bAdditionalAddress" class="form-control" placeholder="">
+                                    <label class="form-label">Additional Address</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 ps-1 col-sm-6">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" id="bState" class="form-control" placeholder="">
+                                    <label class="form-label">State/Province</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6 pe-1 col-sm-6">
+                                <div class="mb-3 form-floating">
+                                    <input id="bPostalCode" type="text" class="form-control" placeholder="">
+                                    <label class="form-label">Zip/Postal Code</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 ps-1 col-sm-6">
+                                <div class="form-floating form-floating-advance-select">
+                                    <label class="form-label">@Html.SmartLocalize("Country")</label>
+                                    <select class="form-select choiceDD" id="bCountry" asp-items="@ViewBag.CountryDD as SelectList">
+                                        <option value="" selected>@Html.SmartLocalize("Select Country")</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6 pe-1 col-sm-6">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" id="bLatitude" class="form-control" placeholder="">
+                                    <label class="form-label">Latitude</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 ps-1 col-sm-6">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" id="bLongitude" class="form-control" placeholder="">
+                                    <label class="form-label">Longitude</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer border-0 pt-0 pb-2">
+                <button type="button" class="btn btn-light" id="saveAndgoWarehouseTab">Save & Add Shipping Address</button>
+                <button type="button" class="btn btn-primary" id="branchSaveAndExit">Save & Exit</button>
+            </div>
+        </form>
+    </div>
+</div>

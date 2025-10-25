@@ -1,13 +1,12 @@
-﻿using GCTL.Data.Models;
-using System.ComponentModel.DataAnnotations;
-
+﻿using System.ComponentModel.DataAnnotations;
 namespace GCTL.Core.ViewModels.CRM
 {
-    public class CustomerVM:BaseViewModel
+    public class CustomerVM : BaseViewModel
     {
-        public int PrimaryID { get; set; }
+        public int ID { get; set; }
+        public string Name{get; set;}   
 
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         public string? LastName { get; set; }
 
@@ -23,8 +22,7 @@ namespace GCTL.Core.ViewModels.CRM
 
         public string? PostalCode { get; set; }
 
-        public int? CountryId { get; set; }
-        public string? CountryCode { get; set; }
+        public int? CountryID { get; set; }
 
         public decimal? Latitude { get; set; }
 
@@ -34,7 +32,7 @@ namespace GCTL.Core.ViewModels.CRM
 
         public string? OtherPhone { get; set; }
 
-        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$",ErrorMessage = "Invalid email format")]
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format")]
         public string? Email { get; set; }
     }
 }
