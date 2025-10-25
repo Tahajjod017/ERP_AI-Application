@@ -16,11 +16,15 @@ namespace GCTL.Service.Finance.AddJournal
     {
         private readonly IGenericRepository<Journals> _genericRepository;
         private readonly IGenericRepository<JournalDetails> _journalDetails;
+        private readonly IGenericRepository<PostingRules> _postingRules;
+        private readonly IGenericRepository<PostingRuleDetails> _postingRuleDetails;
 
-        public AddJournalService(IGenericRepository<Journals> genericRepository, IGenericRepository<JournalDetails> journalDetails) : base(genericRepository)
+        public AddJournalService(IGenericRepository<Journals> genericRepository, IGenericRepository<JournalDetails> journalDetails, IGenericRepository<PostingRules> postingRules, IGenericRepository<PostingRuleDetails> postingRuleDetails) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _journalDetails = journalDetails;
+            _postingRules = postingRules;
+            _postingRuleDetails = postingRuleDetails;
         }
 
 
@@ -136,5 +140,31 @@ namespace GCTL.Service.Finance.AddJournal
             }
         }
         #endregion
+
+
+        public async Task<GetByPostingRuleIdVM> GetDataByPostingRuleID(int id)
+        {
+            try
+            {
+                var data = await _postingRuleDetails.AllActive()
+                .Include(x => x.SubAccount)
+                .ThenInclude(x => x.MainAccount)
+                .ThenInclude(x => x.Class)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.PostingRuleID == id);
+
+                return new GetByPostingRuleIdVM
+                {
+                    PostingRuleID = data.PostingRuleID,
+                    MainAccountID = data.SubAccount.MainAccountID,
+                    SubAccountID = data.SubAccountID,
+                    TrxAccountID = data.TrxAccID,
+                };
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }

@@ -20,5 +20,6 @@ namespace GCTL.Service.Finance.AddJournal
         //Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<bool> IsCodeUniqueAsync(string code, int? excludeId = null);
         Task<string> GenerateThreeDigitCodeAsync();
+        Task<GetByPostingRuleIdVM> GetDataByPostingRuleID(int id);
     }
 }

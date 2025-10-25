@@ -151,11 +151,11 @@
                     <tbody id="journalDetails-TBody">
                         @for (int i = 0;  i < Model.CreateJournalDetailsVMs.Count; i++)
                         {
-                            <tr>
+                            <tr class="CreateJournalDetailsVMs">
                                 <input type="hidden" asp-for="CreateJournalDetailsVMs[@i].JournalDetailID" class="JournalDetailID" />
                                 <td>
-                                    <select class="form-select initChoices mainAccDD" asp-for="CreateJournalDetailsVMs[@i].MainAccountID">
-                                        <option value="">@Html.SmartLocalize("Select Main Account")...</option>
+                                    <select class="form-select mainAccDD" asp-for="CreateJournalDetailsVMs[@i].MainAccountID">
+                                        <option value="">@Html.SmartLocalize("Select")...</option>
                                         @foreach (var group in mainAccDD.GroupBy(e => e.GroupName))
                                         {
                                             <optgroup label="@group.Key">
@@ -168,12 +168,12 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="form-select initChoices subAccDD" asp-for="CreateJournalDetailsVMs[@i].SubAccountID">
+                                    <select class="form-select subAccDD" asp-for="CreateJournalDetailsVMs[@i].SubAccountID">
                                         <option value="">@Html.SmartLocalize("Select")...</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="form-select initChoices trxAccDD" asp-for="CreateJournalDetailsVMs[@i].TransactionAccountID">
+                                    <select class="form-select trxAccDD" asp-for="CreateJournalDetailsVMs[@i].TransactionAccountID">
                                         <option value="">@Html.SmartLocalize("Select")...</option>
                                     </select>
                                 </td>
