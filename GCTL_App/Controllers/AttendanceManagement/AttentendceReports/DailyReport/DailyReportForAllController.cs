@@ -1,20 +1,26 @@
-﻿using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
+﻿using GCTL.Core.Repository;
+using GCTL.Data.Models;
+using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.DailyReport
 {
     public class DailyReportForAllController : BaseController
     {
         private readonly IDailyReportService _dailyReportService;
-        public DailyReportForAllController(ITranslateService translateService, IUserProfileService userProfileService, IDailyReportService dailyReportService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Organization> _organizationRepository;
+        public DailyReportForAllController(ITranslateService translateService, IUserProfileService userProfileService, IDailyReportService dailyReportService, IGenericRepository<Organization> organizationRepository) : base(translateService, userProfileService)
         {
             _dailyReportService = dailyReportService;
+            _organizationRepository = organizationRepository;
         }
 
         public IActionResult Index()
         {
+            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
             return View();
         }
 
