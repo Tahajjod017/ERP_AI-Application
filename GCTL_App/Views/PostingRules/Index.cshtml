@@ -58,7 +58,7 @@
 
                     <div class="mb-3">
                         <label class="form-label" asp-for="ScenarioCode">@Html.SmartLocalize("Scenario Code")<span style="color:red;">*&nbsp;</span></label>
-                        <input class="form-control" asp-for="ScenarioCode" type="text" placeholder="@Html.SmartLocalize("Scenario Code")" readonly />
+                        <input class="form-control bg-light" asp-for="ScenarioCode" type="text" readonly />
                         <span asp-validation-for="ScenarioCode" id="ScenarioCodeError" class="text-danger" style="display:none;"></span>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
                     @for (int i = 0; i < Model.PostingRuleDetailsVMs.Count; i++)
                     {
                         <input type="hidden" asp-for="PostingRuleDetailsVMs[@i].PostingRuleDetailID" class="PostingRuleDetailID" />
-                        <div class="row PostingRuleDetailsVM">
+                        <div class="row mb-3 PostingRuleDetailsVM">
                             <div class="col-md-3">
                                 <label class="form-label" asp-for="PostingRuleDetailsVMs[@i].MainAccountID">@Html.SmartLocalize("Select Main Account")<span style="color:red;">*</span></label>
                                 <select class="form-select initChoices mainAccDD" asp-for="PostingRuleDetailsVMs[@i].MainAccountID">

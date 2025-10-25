@@ -1,5 +1,8 @@
-﻿@{
+﻿@model GCTL.Core.ViewModels.Finance.AddJournalVM.CreateAddJournalVM
+
+@{
     ViewData["Title"] = @Html.SmartLocalize("New Journal");
+    var mainAccDD = ViewBag.MainAccDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
 }
 
 @section Styles {
@@ -30,40 +33,40 @@
 
 <div class="p-3 bg-white">
     <div class="border-bottom">
-        <h4>New Journal</h4>
+        <h4>@Html.SmartLocalize("New Journal")</h4>
     </div>
 
     <div class="tab-content">
-        <form>
+        <form asp-controller="AddJournal" asp-action="Create" method="post" enctype="multipart/form-data" id="addJournals-form">
             <div class="row">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="JournalID" />
+
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <label class="form-label" for="">Journal Id</label>
-                        <input class="form-control no-border-input " id="" type="text" placeholder="32" />
+                        <label class="form-label" asp-for="JournalCode">@Html.SmartLocalize("Journal Id")<span style="color:red;">*&nbsp;</span></label>
+                        <input class="form-control no-border-input bg-light" asp-for="JournalCode" type="text" readonly />
+                        <span asp-validation-for="JournalCode" id="JournalCodeError" class="text-danger" style="display:none;"></span>
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <label class="form-label" for="">Journal Type</label>
-                        <select class="form-select " id="JournalTypeID">
-                            <option>Select Journal Type</option>
-                            <option value="1" selected>Regular Journal</option>
-                            <option value="2">Correction Journal</option>
+                        <label class="form-label" asp-for="JournalTypeID">@Html.SmartLocalize("Journal Type")<span style="color:red;">*&nbsp;</span></label>
+                        <select class="form-select" asp-for="JournalTypeID" asp-items="@ViewBag.JournalTypeDD as SelectList">
+                            <option value="">@Html.SmartLocalize("Select Journal Type")</option>
                         </select>
+                        <span asp-validation-for="JournalTypeID" id="JournalTypeIDError" class="text-danger" style="display:none;"></span>
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="mb-3">
-                        <label class="form-label" for="">Scenario Type</label>
-                        <select class="form-select " id="journalType1">
-                            <option selected>Select Scenario Type</option>
-                            <option value="">Cash Sale (Direct)</option>
-                            <option value="">Bank Sale (Transfer)</option>
-                            <option value="">Credit Sale</option>
-                            <option value="">Customer Receipt – Cash</option>
+                        <label class="form-label" asp-for="PostingRuleID">@Html.SmartLocalize("Scenario Type")<span style="color:red;">*&nbsp;</span></label>
+                        <select class="form-select" asp-for="PostingRuleID" asp-items="@ViewBag.ScenarioTypeDD as SelectList">
+                            <option value="">@Html.SmartLocalize("Select Scenario Type")</option>
                         </select>
+                        <span asp-validation-for="PostingRuleID" id="PostingRuleIDError" class="text-danger" style="display:none;"></span>
                     </div>
                 </div>
 
@@ -108,117 +111,140 @@
                                 
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label" for="">Transaction Year</label>
-                        <select class="form-select ">
-                            <option selected>Select Transaction Year</option>
-                            <option value="1">2025-2026</option>
-                            <option value="2">2026 -2027</option>
+                        <label class="form-label" asp-for="FinancialYearID">@Html.SmartLocalize("Transaction Year")<span style="color:red;">*&nbsp;</span></label>
+                        <select class="form-select" asp-for="FinancialYearID" asp-items="@ViewBag.FinancialYearDD as SelectList">
+                            <option value="">@Html.SmartLocalize("Select Transaction Year")</option>
                         </select>
+                        <span asp-validation-for="FinancialYearID" id="FinancialYearIDError" class="text-danger" style="display:none;"></span>
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label" for="">Date</label>
-                        <input class="form-control no-border-input  datetimepicker" id="datepicker" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+                        <label class="form-label" asp-for="JournalDate">@Html.SmartLocalize("Date")<span style="color:red;">*&nbsp;</span></label>
+                        <input class="form-control no-border-input datetimepicker" asp-for="JournalDate" type="text" placeholder="DD/MM/YYYY" />
+                        <span asp-validation-for="JournalDate" id="JournalDateError" class="text-danger" style="display:none;"></span>
                     </div>
                 </div>
 
                 <div class="col-md-12">
                     <div class="mb-3">
                         <label class="form-label" for="">Note</label>
-                        <textarea class="form-control " id="exampleTextarea" rows="2" placeholder="Note"> </textarea>
+                        <textarea class="form-control" asp-for="Note" rows="2" placeholder="Note"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-12 mt-3">
+                <table class="table  table-responsive scrollbar fs-9">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 15%;">@Html.SmartLocalize("Main Account")</th>
+                            <th scope="col" style="width: 20%;">@Html.SmartLocalize("Sub Account")</th>
+                            <th scope="col" style="width: 20%;">@Html.SmartLocalize("Transaction Account")</th>
+                            <th scope="col" style="width: 20%;">@Html.SmartLocalize("Description")</th>
+                            <th scope="col" style="width: 10%;">@Html.SmartLocalize("Debit")</th>
+                            <th scope="col" style="width: 10%;">@Html.SmartLocalize("Credit")</th>
+                            <th scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
+                        </tr>
+                    </thead>
+                    <tbody id="journalDetails-TBody">
+                        @for (int i = 0;  i < Model.CreateJournalDetailsVMs.Count; i++)
+                        {
+                            <tr>
+                                <input type="hidden" asp-for="CreateJournalDetailsVMs[@i].JournalDetailID" class="JournalDetailID" />
+                                <td>
+                                    <select class="form-select initChoices mainAccDD" asp-for="CreateJournalDetailsVMs[@i].MainAccountID">
+                                        <option value="">@Html.SmartLocalize("Select Main Account")...</option>
+                                        @foreach (var group in mainAccDD.GroupBy(e => e.GroupName))
+                                        {
+                                            <optgroup label="@group.Key">
+                                                @foreach (var emp in group)
+                                                {
+                                                    <option value="@emp.Id">@emp.Name</option>
+                                                }
+                                            </optgroup>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-select initChoices subAccDD" asp-for="CreateJournalDetailsVMs[@i].SubAccountID">
+                                        <option value="">@Html.SmartLocalize("Select")...</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-select initChoices trxAccDD" asp-for="CreateJournalDetailsVMs[@i].TransactionAccountID">
+                                        <option value="">@Html.SmartLocalize("Select")...</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <textarea class="form-control no-border-input bg-transparent description" asp-for="CreateJournalDetailsVMs[@i].Description" rows="2"> </textarea>
+                                </td>
+                                <td>
+                                    <input class="form-control no-border-input bg-transparent debitAmount" asp-for="CreateJournalDetailsVMs[@i].Debit" />
+                                    <span id="DebitError" class="text-danger" style="display:none;"></span>
+                                </td>
+                                <td>
+                                    <input class="form-control no-border-input bg-transparent creditAmount" asp-for="CreateJournalDetailsVMs[@i].Credit" />
+                                    <span id="CreditError" class="text-danger" style="display:none;"></span>
+                                </td>
+                                <td>
+                                    @if (i == Model.CreateJournalDetailsVMs.Count - 1)
+                                    {
+                                        <button class="btn btn-outline-light btn-icon detailsAddRowBtn" id="detailsAddBtn">
+                                            <i class="fa-regular fa-square-plus"></i>
+                                        </button>
+                                    }
+                                    <a href="#!" class="btn btn-outline-light btn-icon detailsRemoveRowBtn" id="detailsDelBtn">
+                                        <i class="far fa-trash-alt text-black"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Summary Section -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">
+                            Attachments
+                        </label>
+                        <div class="input-group mb-2">
+                            <input type="file" class="form-control">
+                        </div>
+                        <small class="text-muted">You can upload a maximum of 5 files, 10MB each</small>
+                    </div>
+
+                    <div class="col-md-2">
+                    </div>
+
+                    <div class="col-md-6 bg-body p-3">
+                        <div class="row  p-3 fs-7">
+                            <div class="col-md-6">Total Amount</div>
+                            <div class="col-md-3" id="totalDebitAmount"></div>
+                            <div class="col-md-3" id="totalCreditAmount"></div>
+                        </div>
+                        <div class="row  p-3 text-danger">
+                            <div class="col-md-6">Difference</div>
+                            <div class="col-md-3"></div>
+                            <div class="col-md-3" id="creditAmountDifference"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 mb-2 mt-3">
+                <div class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <button type="reset" class="btn btn-phoenix-primary px-5" id="addJournals-resetBtn">@Html.SmartLocalize("Reset")</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="addJournals-saveBtn">@Html.SmartLocalize("Save")</button>
                     </div>
                 </div>
             </div>
         </form>
-
-        <div class="col-xl-12 mt-3">
-            <table class="table  table-responsive scrollbar fs-9">
-                <thead>
-                    <tr>
-                        <th scope="col" style="width: 15%;">@Html.SmartLocalize("Main Account")</th>
-                        <th scope="col" style="width: 20%;">@Html.SmartLocalize("Sub Account")</th>
-                        <th scope="col" style="width: 20%;">@Html.SmartLocalize("Transaction Account")</th>
-                        <th scope="col" style="width: 20%;">@Html.SmartLocalize("Description")</th>
-                        <th scope="col" style="width: 10%;">@Html.SmartLocalize("Debit")</th>
-                        <th scope="col" style="width: 10%;">@Html.SmartLocalize("Credit")</th>
-                        <th scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <select class="form-select initChoices mainAccDD">
-                                <option value="">@Html.SmartLocalize("Select Main Account")...</option>
-                            </select>
-                            <span id="MainAccountIDError" class="text-danger" style="display:none;"></span>
-                        </td>
-                        <td>
-                            <select class="form-select initChoices mainAccDD">
-                                <option value="">@Html.SmartLocalize("Select Sub Account")...</option>
-                            </select>
-                            <span id="MainAccountIDError" class="text-danger" style="display:none;"></span>
-                        </td>
-                        <td>
-                            <select class="form-select initChoices mainAccDD">
-                                <option value="">@Html.SmartLocalize("Select Transaction Account")...</option>
-                            </select>
-                            <span id="MainAccountIDError" class="text-danger" style="display:none;"></span>
-                        </td>
-                        <td>
-                            <textarea class="form-control no-border-input bg-transparent" id="" rows="2"> </textarea>
-                        </td>
-                        <td>
-                            <input class="form-control no-border-input bg-transparent" id="" type="text" placeholder="" />
-                        </td>
-                        <td>
-                            <input class="form-control no-border-input bg-transparent" id="" type="text" placeholder="" />
-                        </td>
-                        <td>
-                            <button class="btn btn-outline-light btn-icon" id="detailsAddBtn">
-                                <i class="fa-regular fa-square-plus"></i>
-                            </button>
-                            <a href="#!" class="btn btn-outline-light btn-icon postingRules-single-deleteBtn" id="detailsDelBtn">
-                                <i class="far fa-trash-alt text-black"></i>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-
-
-            <!-- Summary Section -->
-            <div class="row">
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">
-                        Attachments
-                    </label>
-                    <div class="input-group mb-2">
-                        <input type="file" class="form-control">
-                    </div>
-                    <small class="text-muted">You can upload a maximum of 5 files, 10MB each</small>
-                </div>
-
-                <div cite="col-md-2">
-
-                </div>
-
-                <div class="col-md-6 bg-body p-3">
-                    <div class="row  p-3 fs-7">
-                        <div class="col-md-6">Total (BDT)</div>
-                        <div class="col-md-3">0.00</div>
-                        <div class="col-md-3">0.00</div>
-                    </div>
-                    <div class="row  p-3 text-danger">
-                        <div class="col-md-6">Difference</div>
-                        <div class="col-md-3"></div>
-                        <div class="col-md-3">0.00</div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 

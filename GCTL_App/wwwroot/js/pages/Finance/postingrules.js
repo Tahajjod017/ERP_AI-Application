@@ -52,8 +52,6 @@
                     formData.PostingRuleDetailsVMs.push(details);
                 });
 
-                console.log(formData);
-
                 const id = $(settings.addform).find('#PostingRuleID').val();
                 const url = id > 0 ? updateUrl : createUrl;
                 const type = 'POST';

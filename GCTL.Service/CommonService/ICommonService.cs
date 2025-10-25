@@ -45,8 +45,20 @@ namespace GCTL.Service.CommonService
         Task<List<CommonSelectVM>> GetSubAccByClassIdMainAccId(int? classId, int? mainAccId);
 
         Task<List<CommonSelectVM>> GetTrxAccByClassIdMainAccIdSubAccId(int? classId, int? mainAccId, int? subAccId);
+
+        Task<List<CommonSelectVM>> GetMainAccByScenarioTypeId(int? scenarioTypeId);
+
+        Task<List<CommonSelectVM>> GetSbuAccByScenarioTypeId(int? scenarioTypeId);
+
+        Task<List<CommonSelectVM>> GetTrxAccByScenarioTypeId(int? scenarioTypeId);
+
+        Task<List<CommonSelectVM>> GetJournalType();
+
+        Task<List<CommonSelectVM>> GetScenarioType();
+
+        Task<List<CommonSelectVM>> GetFinancialYears();
         #endregion
-                       
+
 
         #region Load Paginated
         Task<PaginatedResult<CommonSelectVM>> GetOrganizations(string search, int page = 1, int pageSize = 50);
