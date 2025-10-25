@@ -69,6 +69,7 @@ using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmpTransfer;
 using GCTL.Service.FieldServices;
 using GCTL.Service.FileHandler;
+using GCTL.Service.Finance.AddJournal;
 using GCTL.Service.Finance.AddMainAccount;
 using GCTL.Service.Finance.AddSubAccount;
 using GCTL.Service.Finance.BaseAccount;
@@ -202,6 +203,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ITransactionAccountService, TransactionAccountService>();
             services.AddScoped<IPostingRulesService, PostingRulesService>();
             services.AddSingleton<IBackgroundTask, AttendanceTask>();
+            services.AddScoped<IAddJournalService, AddJournalService>();
             #endregion
 
 
