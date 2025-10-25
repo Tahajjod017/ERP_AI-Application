@@ -3,7 +3,7 @@
 });
 function loadAttendanceSummary() {
     $.ajax({
-        url: '/DailyReportForAll/summary',
+        url: '/DailyReportForAll/GetSummary',
         method: 'GET',
         dataType: 'json',
         success: function (data) {
