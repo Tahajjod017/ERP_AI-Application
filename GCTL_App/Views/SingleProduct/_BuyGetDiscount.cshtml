@@ -1,55 +1,63 @@
-﻿<div class="col-9 row p3 mt-2">
+﻿@model GCTL.Core.ViewModels.POS.Product.SingleProduct.BGDisOfferViewModel
+
+
+<div class="col-12 row p3 mt-2">
     <div class="col-md-6">
-        <h4>Customer Buys</h4>
+        <h4>@Html.SmartLocalize("Customer Buys")</h4>
         <h5 class="border-bottom"></h5>
         <div class="mb-3">
-            <label for="organizerMultiple">Select Product</label>
-            <select class="form-select searchableSelect" id="" >
-                <option value="">Select Product</option>
-                <option>Product 1</option>
-                <option>Product 2</option>
-                <option>Product 3</option>
+            <label asp-for="BGDisSelectProductBuys">@Html.SmartLocalize("Select Product")</label>
+            <span asp-validation-for="BGDisSelectProductBuys" class="text-danger"></span>
+            <select asp-for="BGDisSelectProductBuys" class="form-select searchableSelect" id="bgDisProduct">
+                <option value="">@Html.SmartLocalize("Select Product")</option>
+                <option value="Product1">@Html.SmartLocalize("Product 1")</option>
+                <option value="Product2">@Html.SmartLocalize("Product 2")</option>
+                <option value="Product3">@Html.SmartLocalize("Product 3")</option>
             </select>
         </div>
         <div class="mb-3">
-            <label class="form-label" for="">Buying Quantity</label>
-            <input class="form-control" id="" type="email" placeholder="4" />
+            <label asp-for="BGDisBuyingQuantity">@Html.SmartLocalize("Buying Quantity")</label>
+            <span asp-validation-for="BGDisBuyingQuantity" class="text-danger"></span>
+            <input asp-for="BGDisBuyingQuantity" class="form-control" id="bgDisBuyingQuantity" type="number" placeholder="4" />
         </div>
         <div class="mb-3">
-            <label class="form-label" for="">Start Date Time</label>
-            <input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
+            <label asp-for="BGDisStartDateTime">@Html.SmartLocalize("Start Date Time")</label>
+            <span asp-validation-for="BGDisStartDateTime" class="text-danger"></span>
+            <input asp-for="BGDisStartDateTime" class="form-control datetimepicker caiCon" id="bgDisStartDateTime" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
         </div>
         <div class="mb-3">
-            <label class="form-label" for="">End Date Time</label>
-            <input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
+            <label asp-for="BGDisEndDateTime">@Html.SmartLocalize("End Date Time")</label>
+            <span asp-validation-for="BGDisEndDateTime" class="text-danger"></span>
+            <input asp-for="BGDisEndDateTime" class="form-control datetimepicker caiCon" id="bgDisEndDateTime" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
         </div>
     </div>
     <div class="col-md-6">
-        <h4>Customer Gets</h4>
+        <h4>@Html.SmartLocalize("Customer Gets")</h4>
         <h5 class="border-bottom"></h5>
         <div class="mb-3">
-            <label for="organizerMultiple">Select Product</label>
-            <select class="form-select searchableSelect" id="" >
-                <option value="">Select Product</option>
-                <option>Product 1</option>
-                <option>Product 2</option>
-                <option>Product 3</option>
+            <label asp-for="BGDisSelectProductGets">@Html.SmartLocalize("Select Product")</label>
+            <span asp-validation-for="BGDisSelectProductGets" class="text-danger"></span>
+            <select asp-for="BGDisSelectProductGets" class="form-select searchableSelect" id="bgDisOrganizerMultiple">
+                <option value="">@Html.SmartLocalize("Select Product")</option>
+                <option value="Product1">@Html.SmartLocalize("Product 1")</option>
+                <option value="Product2">@Html.SmartLocalize("Product 2")</option>
+                <option value="Product3">@Html.SmartLocalize("Product 3")</option>
             </select>
         </div>
-
         <div class="mb-3">
-            <label class="form-label" for="">Discount %</label>
-            <input class="form-control" id="" type="text" placeholder="25%" />
+            <label asp-for="BGDisDiscountPercentage">@Html.SmartLocalize("Discount %")</label>
+            <span asp-validation-for="BGDisDiscountPercentage" class="text-danger"></span>
+            <input asp-for="BGDisDiscountPercentage" class="form-control" id="bgDisDiscountPercentage" type="text" placeholder="25%" />
         </div>
         <div class="mb-3">
-            <label class="form-label" for="">Maximum time to get this offer</label>
-            <input class="form-control" id="" type="email" placeholder="2" />
+            <label asp-for="BGDisMaxTimeOffer">@Html.SmartLocalize("Maximum time to get this offer")</label>
+            <span asp-validation-for="BGDisMaxTimeOffer" class="text-danger"></span>
+            <input asp-for="BGDisMaxTimeOffer" class="form-control" id="bgDisMaxTimeOffer" type="number" placeholder="2" />
         </div>
         <div class="mb-3 end-0">
             <div class="d-flex justify-content-end">
-                <button class="btn btn-sm btn-primary px-4 ms-2" type="button" data-list-pagination="next"><span>Create</span></button>
+                <button type="submit" class="btn btn-sm btn-primary px-4 ms-2" id="bgDisCreateButton">@Html.SmartLocalize("Create")</button>
             </div>
         </div>
-
     </div>
 </div>
