@@ -626,13 +626,15 @@ namespace GCTL.Service.CommonService
                 var data = await _postingRuleDetails.AllActive()
                 .Include(x => x.SubAccount)
                 .ThenInclude(x => x.MainAccount)
+                .ThenInclude(x => x.Class)
                 .Where(x => x.PostingRuleID == scenarioTypeId)
                 .AsNoTracking()
                 .Select(m => new CommonSelectVM
                 {
                     Id = m.SubAccount.MainAccount.MainAccountID,
-                    Name = $"{m.SubAccount.MainAccount.MainAccountName}" ?? "-"
-                }).ToListAsync();
+                    Name = $"{m.SubAccount.MainAccount.MainAccountName}" ?? "-",
+                    GroupName = m.SubAccount.MainAccount.Class.ClassName ?? "-"
+                }).Distinct().ToListAsync();
 
                 return data;
             }

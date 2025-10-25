@@ -349,62 +349,110 @@
             // #endregion
 
 
-            $('#PostingRuleID').on('change', function () {
-                const id = $(this).val();
+            // #region Edit
+            $(document).on('change', '#PostingRuleID', async function (e) {
+                e.preventDefault();
 
-                $.ajax({
-                    url: '/AddJournal/GetMainAccByScenarioTypeId',
-                    type: 'GET',
-                    data: { scenarioTypeId : id },
-                    success: function (data) {
+                var scenarioTypeId = $(this).val();
+                try {
+                    const response = await $.get('/AddJournal/GetDataByPostingRuleID', { scenarioTypeId });
+                    if (response.isSuccess == true) {
+                        const data = response.data;
 
-                    },
-                    error: function () {
+                        //// Get the first select element (or any specific one) for mainAccountID update
+                        //const firstMainAccDD = $('.mainAccDD').eq(0)[0];  // Get first element
 
+                        //// Access the Choices.js instance stored on the element
+                        //const mainAccChoice = firstMainAccDD.mainAccDD;
 
+                        //if (mainAccChoice) {
+                        //    // Set the value (ensure to pass the correct value from data)
+                        //    mainAccChoice.setChoiceByValue(data.mainAccountID.toString());
+                        //} else {
+                        //    console.error("Choices instance is not initialized.");
+                        //}
+
+                        // Step 1: Get the first journal row
+                        const $firstRow = $('#journalDetails-TBody tr').eq(0);
+                        const $mainSelect = $firstRow.find('.mainAccDD');
+                        const $subSelect = $firstRow.find('.subAccDD');
+                        const $trxSelect = $firstRow.find('.trxAccDD');
+
+                        // Step 2: Get Choices instance for mainAcc
+                        const mainAccChoice = $mainSelect[0]?.mainAccDD;
+                        if (!mainAccChoice) {
+                            console.error('MainAcc Choices instance not found');
+                            return;
+                        }
+
+                        // Step 3: Set main account
+                        mainAccChoice.setChoiceByValue(data.mainAccountID.toString());
+
+                        // Step 4: Load sub accounts based on main
+                        await loadSubAccounts($mainSelect, data.subAccountID);
+
+                        // Step 5: After subAccDD is loaded, set the sub account
+                        const subAccChoice = $subSelect[0]?.subAccDD;
+                        if (subAccChoice) {
+                            subAccChoice.setChoiceByValue(data.subAccountID.toString());
+                        }
+
+                        // Step 6: Load trx accounts based on main + sub
+                        await loadTrxAccounts($subSelect, data.trxAccountID);
+
+                        // Step 7: After trxAccDD is loaded, set the trx account
+                        const trxAccChoice = $trxSelect[0]?.trxAccDD;
+                        if (trxAccChoice) {
+                            trxAccChoice.setChoiceByValue(data.trxAccountID.toString());
+                        }                        
+
+                    } else {
+                        toastr.warning(response.message);
                     }
-                })
+                } catch (error) {
+                    console.error("Edit load failed:", error);
+                }
             });
-
-
-            
+            // #endregion
 
 
             // #region Cascade MainAccount => SubAccount
             function initMainToSubAccCascade() {
-                $('.mainAccDD').on('change', function () {
+                // Use delegated event to support dynamically added rows
+                $(document).on('change', '.mainAccDD', function () {
                     const $mainSelect = $(this);
-
-                    // Call the async loader but don’t await here, since event handler is not async.
-                    // If you want, you can make event handler async as well:
                     loadSubAccounts($mainSelect);
                 });
             }
 
-
             async function loadSubAccounts($mainSelect, selectedSubAccId = null) {
                 const selectedMainAccId = $mainSelect.val();
-                const $row = $mainSelect.closest('.row');
+                const $row = $mainSelect.closest('tr');
                 const $subAccSelect = $row.find('.subAccDD');
 
-                // Destroy existing Choices instance if any
-                if ($subAccSelect[0].choicesInstance) {
-                    $subAccSelect[0].choicesInstance.destroy();
+                // Destroy existing Choices instance for sub account if exists
+                if ($subAccSelect[0]?.subAccDD) {
+                    $subAccSelect[0].subAccDD.destroy();
+                    delete $subAccSelect[0].subAccDD;
                 }
 
+                // Show loading text
                 $subAccSelect.html('<option value="">Loading...</option>');
 
+                if (!selectedMainAccId) {
+                    $subAccSelect.html('<option value="">Select Sub Account...</option>');
+                    return;
+                }
+
                 try {
-                    // Use fetch or $.ajax wrapped in a Promise
                     const data = await $.ajax({
-                        url: '/PostingRules/GetSubAccByMainAccId',
+                        url: '/AddJournal/GetSubAccByMainAccId',
                         method: 'GET',
                         data: { mainAccId: selectedMainAccId }
                     });
 
-                    $subAccSelect.empty();
-                    $subAccSelect.append('<option value="">Select Sub Account...</option>');
-
+                    // Populate sub account dropdown
+                    $subAccSelect.empty().append('<option value="">Select Sub Account...</option>');
                     $.each(data, function (i, item) {
                         $subAccSelect.append($('<option>', {
                             value: item.id,
@@ -412,24 +460,21 @@
                         }));
                     });
 
-                    // Reinitialize Choices
-                    const instance = new Choices($subAccSelect[0], {
+                    // Reinitialize Choices for this sub account dropdown
+                    const subAccDD = new Choices($subAccSelect[0], {
                         shouldSort: false,
                         searchEnabled: true,
                         itemSelectText: ''
                     });
+                    $subAccSelect[0].subAccDD = subAccDD;
 
-                    $subAccSelect[0].choicesInstance = instance;
-
-                    if (selectedSubAccId !== null) {
-                        // Set the value and update Choices UI
-                        instance.setChoiceByValue(selectedSubAccId.toString());
+                    // If editing, pre-select the saved value
+                    if (selectedSubAccId) {
+                        subAccDD.setChoiceByValue(selectedSubAccId.toString());
                     }
-
-                    return Promise.resolve();
                 } catch (error) {
+                    console.error('Error loading sub accounts:', error);
                     $subAccSelect.html('<option value="">Error loading sub accounts</option>');
-                    return Promise.reject(error);
                 }
             }
             // #endregion
@@ -437,36 +482,39 @@
 
             // #region Cascade SubAccount => TrxAccount (async)
             function initSubToTrxAccCascade() {
-                $('.subAccDD').on('change', function () {
+                // Use delegated event so it works for dynamically added rows
+                $(document).on('change', '.subAccDD', function () {
                     const $subAccSelect = $(this);
-                    // Call the async loader but don’t await here (event handler not async)
                     loadTrxAccounts($subAccSelect);
                 });
             }
 
             async function loadTrxAccounts($subAccSelect, selectedTrxAccId = null) {
-                const $row = $subAccSelect.closest('.row');
+                const $row = $subAccSelect.closest('tr');
                 const $mainSelect = $row.find('.mainAccDD');
                 const $trxAccSelect = $row.find('.trxAccDD');
 
                 const selectedSubAccId = $subAccSelect.val();
                 const selectedMainAccId = $mainSelect.val();
 
+                // If either not selected, reset
                 if (!selectedMainAccId || !selectedSubAccId) {
-                    $trxAccSelect.html('<option value="">Select transaction Account...</option>');
-                    return Promise.resolve();
+                    $trxAccSelect.html('<option value="">Select Transaction Account...</option>');
+                    return;
                 }
 
-                // Destroy existing Choices instance if any
-                if ($trxAccSelect[0].choicesInstance) {
-                    $trxAccSelect[0].choicesInstance.destroy();
+                // Destroy existing Choices instance for trxAccDD if exists
+                if ($trxAccSelect[0]?.trxAccDD) {
+                    $trxAccSelect[0].trxAccDD.destroy();
+                    delete $trxAccSelect[0].trxAccDD;
                 }
 
+                // Show loading message
                 $trxAccSelect.html('<option value="">Loading...</option>');
 
                 try {
                     const data = await $.ajax({
-                        url: '/PostingRules/GetTrxAccByMainAccIdSubAccId',
+                        url: '/AddJournal/GetTrxAccByMainAccIdSubAccId',
                         method: 'GET',
                         data: {
                             mainAccId: selectedMainAccId,
@@ -474,8 +522,8 @@
                         }
                     });
 
-                    $trxAccSelect.empty();
-                    $trxAccSelect.append('<option value="">Select transaction Account...</option>');
+                    // Populate dropdown
+                    $trxAccSelect.empty().append('<option value="">Select Transaction Account...</option>');
 
                     $.each(data, function (i, item) {
                         $trxAccSelect.append($('<option>', {
@@ -485,22 +533,21 @@
                     });
 
                     // Reinitialize Choices
-                    const instance = new Choices($trxAccSelect[0], {
+                    const trxAccDD = new Choices($trxAccSelect[0], {
                         shouldSort: false,
                         searchEnabled: true,
                         itemSelectText: ''
                     });
+                    $trxAccSelect[0].trxAccDD = trxAccDD;
 
-                    $trxAccSelect[0].choicesInstance = instance;
-
-                    if (selectedTrxAccId !== null) {
-                        instance.setChoiceByValue(selectedTrxAccId.toString());
+                    // Pre-select if editing
+                    if (selectedTrxAccId) {
+                        trxAccDD.setChoiceByValue(selectedTrxAccId.toString());
                     }
 
-                    return Promise.resolve();
                 } catch (error) {
+                    console.error('Error loading transaction accounts:', error);
                     $trxAccSelect.html('<option value="">Error loading transaction accounts</option>');
-                    return Promise.reject(error);
                 }
             }
             // #endregion
@@ -516,6 +563,52 @@
             }
             document.addEventListener('DOMContentLoaded', initJournalTypeDD);
             initJournalTypeDD();
+
+
+            function initMainAccDD() {
+                $('.mainAccDD').each(function () {
+                    const mainAccDD = new Choices(this, {
+                        shouldSort: false,
+                        searchEnabled: true,
+                        itemSelectText: ''
+                    });
+
+                    this.mainAccDD = mainAccDD;
+                });
+            }
+            //document.addEventListener('DOMContentLoaded', initMainAccDD);
+            initMainAccDD();
+
+
+            function initSubAccDD() {
+                $('.subAccDD').each(function () {
+                    const subAccDD = new Choices(this, {
+                        shouldSort: false,
+                        searchEnabled: true,
+                        itemSelectText: ''
+                    });
+
+                    this.subAccDD = subAccDD;
+                });
+            }
+            //document.addEventListener('DOMContentLoaded', initSubAccDD);
+            initSubAccDD();
+
+
+            function initTrxAccDD() {
+                $('.trxAccDD').each(function () {
+                    const trxAccDD = new Choices(this, {
+                        shouldSort: false,
+                        searchEnabled: true,
+                        itemSelectText: ''
+                    });
+
+                    this.trxAccDD = trxAccDD;
+                });
+            }
+            //document.addEventListener('DOMContentLoaded', initTrxAccDD);
+            initTrxAccDD();
+
 
             function initScenarioTypeDD() {
                 scenarioTypeDD = new Choices('#PostingRuleID', {

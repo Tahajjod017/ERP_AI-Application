@@ -101,12 +101,28 @@ namespace GCTL_App.Controllers.Finance
         #endregion
 
 
-        #region GetMainAccByScenarioTypeId
-        public async Task<IActionResult> GetMainAccByScenarioTypeId(int? scenarioTypeId)
+        #region GetDataByPostingRuleID
+        public async Task<IActionResult> GetDataByPostingRuleID(int scenarioTypeId)
         {
             try
             {
-                var result = await _commonService.GetMainAccByScenarioTypeId(scenarioTypeId);
+                var result = await _addJournalService.GetDataByPostingRuleID(scenarioTypeId);
+                return Json(new { isSuccess = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
+        }
+        #endregion
+
+
+        #region GetSubAccByMainAccId
+        public async Task<IActionResult> GetSubAccByMainAccId(int? mainAccId)
+        {
+            try
+            {
+                var result = await _commonService.GetSubAccByMainAccId(mainAccId);
                 return Json(result);
             }
             catch (Exception ex)
@@ -117,28 +133,12 @@ namespace GCTL_App.Controllers.Finance
         #endregion
 
 
-        #region GetSbuAccByScenarioTypeId
-        public async Task<IActionResult> GetSbuAccByScenarioTypeId(int? scenarioTypeId)
+        #region GetTrxAccByMainAccIdSubAccId
+        public async Task<IActionResult> GetTrxAccByMainAccIdSubAccId(int? mainAccId, int? subAccId)
         {
             try
             {
-                var result = await _commonService.GetSbuAccByScenarioTypeId(scenarioTypeId);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                return Json(ex.Message);
-            }
-        }
-        #endregion
-
-
-        #region GetTrxAccByScenarioTypeId
-        public async Task<IActionResult> GetTrxAccByScenarioTypeId(int? scenarioTypeId)
-        {
-            try
-            {
-                var result = await _commonService.GetTrxAccByScenarioTypeId(scenarioTypeId);
+                var result = await _commonService.GetTrxAccByMainAccIdSubAccId(mainAccId, subAccId);
                 return Json(result);
             }
             catch (Exception ex)
