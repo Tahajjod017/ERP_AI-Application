@@ -102,13 +102,6 @@ $(function () {
             },
             cache: true
         },
-        language: {
-            noResults: function () {
-                return $(
-                    `<span>Data not found. Create a <a id="createCustomer" href="#">Customer</a></span>`
-                );
-            }
-        },
         
         width: '100%'
     });
@@ -141,13 +134,6 @@ $(function () {
                 };
             },
             cache: true
-        },
-        language: {
-            noResults: function () {
-                return $(
-                    `<span>Data not found. Create a <a id="createCustomer" href="#">Customer</a></span>`
-                );
-            }
         },
         
         width: '100%'
@@ -182,13 +168,6 @@ $(function () {
                 };
             },
             cache: true
-        },
-        language: {
-            noResults: function () {
-                return $(
-                    `<span>Data not found. Create a <a id="createCustomer" href="#">Customer</a></span>`
-                );
-            }
         },
         
         width: '100%'
@@ -320,13 +299,26 @@ $(function () {
     });
     //#endregion
 
-    //#region show customer modal
-    $(document).on("click","#createCustomer", function () {
+    // When you load modal via AJAX
+    $(document).on("click", "#createCustomer", function () {
         $.get('/Customers/IndexModal', function (html) {
             $('#customerModalContent').html(html);
+
+            // Initialize newly added modal elements
+            $('#customerModalContent [data-init]').each(function () {
+                const el = this;
+                const key = el.dataset.init;
+                if (key && typeof window[key] === "function") {
+                    window[key](el);
+                    el.dataset.initialized = true; // optional flag
+                }
+            });
+
+            // Show modal
             var modal = new bootstrap.Modal(document.getElementById('customerModal'));
             modal.show();
         });
     });
-    //#endregion
+
+
 });
