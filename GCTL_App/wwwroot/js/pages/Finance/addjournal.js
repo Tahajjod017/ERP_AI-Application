@@ -329,36 +329,39 @@
                 let totalDebit = 0;
                 let totalCredit = 0;
 
-                $('.debitAmount').each(function () {
-                    const value = parseFloat($(this).val()) || 0;
+                // Loop through all rows to check the TrxType and Amount
+                $('tr.CreateJournalDetailsVMs').each(function () {
+                    const trxType = $(this).find('.initDrCr').val(); // Get TrxType (Debit or Credit)
+                    const amount = parseFloat($(this).find('.amount').val()) || 0; // Get Amount, default to 0 if empty
 
-                    totalDebit += value;
+                    // Check if the TrxType is Debit or Credit and update totals accordingly
+                    if (trxType === 'Debit') {
+                        totalDebit += amount;
+                    } else if (trxType === 'Credit') {
+                        totalCredit += amount;
+                    }
                 });
 
-                $('.creditAmount').each(function () {
-                    const value = parseFloat($(this).val()) || 0;
-
-                    totalCredit += value;
-                });
-
-                // Update totals
+                // Update the total Debit and Credit amounts in the UI
                 $('#totalDebitAmount').text(totalDebit.toFixed(2));
                 $('#totalCreditAmount').text(totalCredit.toFixed(2));
 
-                // Calculate and show difference
+                // Calculate the difference
                 const diff = (totalDebit - totalCredit).toFixed(2);
+
+                // Show the difference and apply styles (red for non-zero difference, green for zero difference)
                 $('#creditAmountDifference')
                     .text(diff)
-                    .toggleClass('text-danger', diff != 0)
-                    .toggleClass('text-success', diff == 0);
+                    .toggleClass('text-danger', diff !== 0) // red if non-zero difference
+                    .toggleClass('text-success', diff == 0); // green if zero difference
             }
 
-            // 🔁 Recalculate totals whenever debit or credit changes
-            $(document).on('input', '.debitAmount, .creditAmount', calculateJournalTotals);
+            // Recalculate totals whenever an input value changes
+            $(document).on('input', '.amount, .initDrCr', calculateJournalTotals);
 
-            // 🔁 Also recalc totals whenever a row is added or deleted
+            // Recalculate totals whenever a row is added or deleted
             $(document).on('click', '.detailsAddRowBtn, .detailsRemoveRowBtn', function () {
-                setTimeout(calculateJournalTotals, 100); // small delay to allow DOM update
+                setTimeout(calculateJournalTotals, 100); // small delay to ensure DOM update
             });
 
             // Run once on page load
