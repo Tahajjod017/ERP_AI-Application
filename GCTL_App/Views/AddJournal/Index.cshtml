@@ -218,7 +218,7 @@
                             Attachments
                         </label>
                         <div class="input-group mb-2">
-                            <input type="file" class="form-control">
+                            <input type="file" class="form-control" asp-for="FileLink">
                         </div>
                         <small class="text-muted">You can upload a maximum of 5 files, 10MB each</small>
                     </div>
@@ -228,8 +228,13 @@
 
                     <div class="col-md-6 bg-body p-3">
                         <div class="row  p-3 fs-7">
-                            <div class="col-md-6">Total Amount</div>
+                            <div class="col-md-6">Total Debit Amount</div>
+                            <div class="col-md-3"></div>
                             <div class="col-md-3" id="totalDebitAmount"></div>
+                        </div>
+                        <div class="row  p-3 fs-7">
+                            <div class="col-md-6">Total Credit Amount</div>
+                            <div class="col-md-3"></div>
                             <div class="col-md-3" id="totalCreditAmount"></div>
                         </div>
                         <div class="row  p-3 text-danger">

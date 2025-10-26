@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.ViewModels.Finance.JournalDetailsVM;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,8 @@ namespace GCTL.Core.ViewModels.Finance.AddJournalVM
         
         public string? Note { get; set; }
 
-        public string? FileLink { get; set; }
+        [Display(Name = "Attach File")]
+        public IFormFile? FileLink { get; set; }
 
         [Required(ErrorMessage = "Journal details is Required!")]
         public IList<CreateJournalDetailsVM?> CreateJournalDetailsVMs { get; set; } = new List<CreateJournalDetailsVM?>();
