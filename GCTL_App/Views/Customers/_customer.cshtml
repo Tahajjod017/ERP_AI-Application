@@ -1,135 +1,137 @@
 ﻿@model CustomerVM
-<div class="d-flex flex-column h-100 my-3">
-    <h5 class="mb-3 text-body-highlight ms-4 fs-7 fw-semibold ms-2">Add Customer</h5>
-    <div class="row g-3" id="branchForm">
-        <form action="">
-            <input type="number" asp-for="ID" name="name" hidden />
-            <div class="row px-5">
-                <!-- Left Section -->
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3 form-floating">
-                                <input type="text" class="form-control" asp-for="Name" placeholder="Company Name">
-                                <label class="form-label">Company Name</label>
+<div data-init="initCustomerForm">
+    <div class="d-flex flex-column h-100 my-3">
+        <h5 class="mb-3 text-body-highlight ms-4 fs-7 fw-semibold ms-2">Add Customer</h5>
+        <div class="row g-3" id="branchForm">
+            <form action="">
+                <input type="number" asp-for="ID" name="name" hidden />
+                <div class="row px-5">
+                    <!-- Left Section -->
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" class="form-control" asp-for="Name" placeholder="Company Name">
+                                    <label class="form-label">Company Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 pe-1 col-sm-6">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" class="form-control" asp-for="FirstName" placeholder="First Name">
+                                    <label class="form-label req">First Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 ps-1 col-sm-6">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" asp-for="LastName" class=" form-control" placeholder="">
+                                    <label class="form-label">Last Name</label>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6 pe-1 col-sm-6">
-                            <div class="mb-3 form-floating">
-                                <input type="text" class="form-control" asp-for="FirstName" placeholder="First Name">
-                                <label class="form-label req">First Name</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6 ps-1 col-sm-6">
-                            <div class="mb-3 form-floating">
-                                <input type="text" asp-for="LastName" class=" form-control" placeholder="">
-                                <label class="form-label">Last Name</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 mb-3">
-                        <input class="form-control" asp-for="Phone" type =" tel" placeholder="Phone Number" />
-                        <div class="text-danger" id="errorShow"></div>
-                    </div>
-                    <div class="col-12 mb-3">
-                        <input class="form-control" asp-for="OtherPhone" type="tel" placeholder="Other Phone" />
-                        <div class="text-danger" id="errorShow"></div>
-                    </div>
-                    <div class="col-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" asp-for="Email" class="form-control" placeholder="">
-                            <label class="form-label">Email</label>
+                        <div class="col-12 mb-3">
+                            <input class="form-control" asp-for="Phone" type =" tel" placeholder="Phone Number" />
                             <div class="text-danger" id="errorShow"></div>
                         </div>
-                    </div>
-                </div>
-                <!-- Right Section -->
-                <div class="col-md-6">
-                    <div class="col-md-12">
-                        <div class="mb-3 form-floating">
-                            <input type="text" asp-for="FullAddress" class="form-control" placeholder="Address">
-                            <label class="form-label">Full Address</label>
+                        <div class="col-12 mb-3">
+                            <input class="form-control" asp-for="OtherPhone" type="tel" placeholder="Other Phone" />
+                            <div class="text-danger" id="errorShow"></div>
                         </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="Street" class="form-control" placeholder="Street">
-                                    <label class="form-label">Street</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 ps-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="City" class="form-control" placeholder="City">
-                                    <label class="form-label">City</label>
-                                </div>
+                        <div class="col-12">
+                            <div class="mb-3 form-floating">
+                                <input type="text" asp-for="Email" class="form-control" placeholder="">
+                                <label class="form-label">Email</label>
+                                <div class="text-danger" id="errorShow"></div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="Additionaladdress" class="form-control" placeholder="">
-                                    <label class="form-label">Additional Address</label>
+                    <!-- Right Section -->
+                    <div class="col-md-6">
+                        <div class="col-md-12">
+                            <div class="mb-3 form-floating">
+                                <input type="text" asp-for="FullAddress" class="form-control" placeholder="Address">
+                                <label class="form-label">Full Address</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6 pe-1 col-sm-6">
+                                    <div class="mb-3 form-floating">
+                                        <input type="text" asp-for="Street" class="form-control" placeholder="Street">
+                                        <label class="form-label">Street</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 ps-1 col-sm-6">
+                                    <div class="mb-3 form-floating">
+                                        <input type="text" asp-for="City" class="form-control" placeholder="City">
+                                        <label class="form-label">City</label>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 ps-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="State" class="form-control" placeholder="">
-                                    <label class="form-label">State/Province</label>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6 pe-1 col-sm-6">
+                                    <div class="mb-3 form-floating">
+                                        <input type="text" asp-for="Additionaladdress" class="form-control" placeholder="">
+                                        <label class="form-label">Additional Address</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 ps-1 col-sm-6">
+                                    <div class="mb-3 form-floating">
+                                        <input type="text" asp-for="State" class="form-control" placeholder="">
+                                        <label class="form-label">State/Province</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6 pe-1 col-sm-6">
+                                    <div class="mb-3 form-floating">
+                                        <input asp-for="PostalCode" type="text" class="form-control" placeholder="">
+                                        <label class="form-label">Zip/Postal Code</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 pe-1 col-sm-6">
+                                    <div class="form-floating form-floating-advance-select select2-floating">
+                                        <select asp-for="CountryID" class="idBank select2">
+                                            <option value="">Select Country</option>
+                                        </select>
+                                        <label for="priorityID">Country</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6 pe-1 col-sm-6">
+                                    <div class="mb-3 form-floating">
+                                        <input type="text" asp-for="Latitude" class="form-control" placeholder="">
+                                        <label class="form-label">Latitude</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 ps-1 col-sm-6">
+                                    <div class="mb-3 form-floating">
+                                        <input type="text" asp-for="Longitude" class=" form-control" placeholder="">
+                                        <label class="form-label">Longitude</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input asp-for="PostalCode" type="text" class="form-control" placeholder="">
-                                    <label class="form-label">Zip/Postal Code</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <div class="form-floating form-floating-advance-select select2-floating">
-                                    <select asp-for="CountryID" class="idBank select2">
-                                        <option value="">Select Country</option>
-                                    </select>
-                                    <label for="priorityID">Country</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="Latitude" class="form-control" placeholder="">
-                                    <label class="form-label">Latitude</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 ps-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="Longitude" class=" form-control" placeholder="">
-                                    <label class="form-label">Longitude</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-            </div>
-            <div class="modal-footer border-0 pt-0 pb-2 gap-2 me-10">
-                <button type="button" class="btn btn-light" id="saveAndgoWarehouseTab">Save & Add Shipping Address</button>
-                <button type="button" class="btn btn-primary" id="branchSaveAndExit">Save & Exit</button>
-            </div>
-        </form>
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-2 gap-2 me-10">
+                    <button type="button" class="btn btn-light" id="saveAndgoWarehouseTab">Save & Add Shipping Address</button>
+                    <button type="button" class="btn btn-primary" id="branchSaveAndExit">Save & Exit</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
-
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgZTw6AA9Lc3EKX47xObpNOdJ2vFQ0B0w&libraries=places"></script>
-<script src="~/js/pages/CRM/intlTelInput.min.js"></script>
-<script src="~/js/pages/CRM/utils.js"></script>
 <script src="~/js/pages/crm/Customer/customer.js"></script>
+@section Scripts{
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgZTw6AA9Lc3EKX47xObpNOdJ2vFQ0B0w&libraries=places"></script>
+    <script src="~/js/pages/CRM/intlTelInput.min.js"></script>
+    <script src="~/js/pages/CRM/utils.js"></script>
+}
