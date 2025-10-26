@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class EmployeeAllowanceTypes
+public partial class BarcodeGenerateFrom
 {
-    public int EmployeeAllowanceTypeID { get; set; }
+    public int BarcodeGenerateFromID { get; set; }
 
-    public string EmployeeAllowanceTypeName { get; set; }
+    public string BarcodeGenerateFromName { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,15 +27,11 @@ public partial class EmployeeAllowanceTypes
 
     public int? DeletedBy { get; set; }
 
-    public int? OrganizationID { get; set; }
-
-    public bool IsApplyOnGrossSalary { get; set; }
+    public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeAllowances> EmployeeAllowances { get; set; } = new List<EmployeeAllowances>();
-
-    public virtual Organization Organization { get; set; }
+    public virtual ICollection<Products> Products { get; set; } = new List<Products>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

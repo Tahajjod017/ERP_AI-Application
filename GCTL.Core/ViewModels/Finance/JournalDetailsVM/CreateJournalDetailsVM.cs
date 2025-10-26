@@ -22,11 +22,11 @@ namespace GCTL.Core.ViewModels.Finance.JournalDetailsVM
 
         public string? Description { get; set; }
 
-        [Required(ErrorMessage = "{0} is Required!"), Display(Name = "Debit")]
-        public decimal? Debit { get; set; }
+        [Required(ErrorMessage = "{0} is Required!"), Display(Name = "Transaction Type")]
+        public string? TrxType { get; set; }
 
-        [Required(ErrorMessage = "{0} is Required!"), Display(Name = "Credit")]
-        public decimal? Credit { get; set; }
+        [Required(ErrorMessage = "{0} is Required!"), Display(Name = "Amount")]
+        public decimal? Amount { get; set; }
 
         public CreateAddJournalVM? CreateAddJournalVM { get; set; }
     }

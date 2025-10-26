@@ -41,5 +41,7 @@ public partial class Classes
 
     public virtual ICollection<MainAccounts> MainAccounts { get; set; } = new List<MainAccounts>();
 
+    public virtual ICollection<Products> Products { get; set; } = new List<Products>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

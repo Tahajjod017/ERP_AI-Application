@@ -656,6 +656,34 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[BarcodeGenerateFrom]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductBrands]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductCategories]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[Products]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductSubCategories]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[UnitTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Settings].[AppSettings]",
          "ObjectType": 0
       },
@@ -692,10 +720,6 @@
          "ObjectType": 1
       },
       {
-         "Name": "[dbo].[bb]",
-         "ObjectType": 1
-      },
-      {
          "Name": "[dbo].[GetPaginatedEmployeeAttendance]",
          "ObjectType": 1
       },
@@ -709,6 +733,14 @@
       },
       {
          "Name": "[dbo].[sp_InsertOrUpdateShifts]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_processFinalAtt]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_ProcessFinalDailyAttendance]",
          "ObjectType": 1
       },
       {
