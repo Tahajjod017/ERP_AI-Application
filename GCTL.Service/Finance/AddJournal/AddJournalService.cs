@@ -1,6 +1,7 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Finance.AddJournalVM;
+using GCTL.Core.ViewModels.Finance.PostingRuleDetailsVM;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -57,8 +58,8 @@ namespace GCTL.Service.Finance.AddJournal
                     {
                         JournalDetails journalDetails = new JournalDetails();
                         journalDetails.Description = details.Description;
-                        journalDetails.Debit = details.Debit;
-                        journalDetails.Credit = details.Credit;
+                        journalDetails.TrxType = details.TrxType;
+                        journalDetails.Amount = details.Amount;
 
                         journalDetails.CreatedAt = DateTime.UtcNow;
                         journalDetails.CreatedBy = model.CreatedBy;
@@ -74,7 +75,7 @@ namespace GCTL.Service.Finance.AddJournal
                 await _genericRepository.CommitTransactionAsync();
 
                 result.Success = true;
-                result.Message = "Update Successfully";
+                result.Message = "Saved Successfully";
 
                 return result;
             }
@@ -146,19 +147,25 @@ namespace GCTL.Service.Finance.AddJournal
         {
             try
             {
-                var data = await _postingRuleDetails.AllActive()
-                .Include(x => x.SubAccount)
-                .ThenInclude(x => x.MainAccount)
-                .ThenInclude(x => x.Class)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.PostingRuleID == id);
+                var data = await _postingRules.AllActive()
+                    .Include(x => x.PostingRuleDetails)
+                    .ThenInclude(x => x.SubAccount)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.PostingRuleID == id);
 
                 return new GetByPostingRuleIdVM
                 {
                     PostingRuleID = data.PostingRuleID,
-                    MainAccountID = data.SubAccount.MainAccountID,
-                    SubAccountID = data.SubAccountID,
-                    TrxAccountID = data.TrxAccID,
+                    ScenarioName = data.ScenarioName,
+                    ScenarioCode = data.ScenarioCode,
+                    GetByIdPostingRuleDetailsVMs = data.PostingRuleDetails.Select(d => new GetByIdPostingRuleDetailsVM
+                    {
+                        PostingRuleDetailID = d.PostingRuleDetailID,
+                        MainAccountID = d.SubAccount.MainAccountID,
+                        SubAccID = d.SubAccountID,
+                        TrxAccID = d.TrxAccID,
+                        DebitCredit = d.TrxType
+                    }).ToList()
                 };
             }
             catch (Exception ex)

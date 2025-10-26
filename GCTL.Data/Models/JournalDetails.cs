@@ -11,13 +11,11 @@ public partial class JournalDetails
 
     public int? JournalID { get; set; }
 
+    public string TrxType { get; set; }
+
+    public decimal? Amount { get; set; }
+
     public string Description { get; set; }
-
-    public decimal? Debit { get; set; }
-
-    public decimal? Credit { get; set; }
-
-    public decimal? AllowanceValue { get; set; }
 
     public string LIP { get; set; }
 

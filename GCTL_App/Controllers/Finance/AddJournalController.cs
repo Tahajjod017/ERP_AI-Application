@@ -40,7 +40,7 @@ namespace GCTL_App.Controllers.Finance
                 ViewBag.JournalTypeDD = new SelectList(await _commonService.GetJournalType(), "Id", "Name");
                 ViewBag.ScenarioTypeDD = new SelectList(await _commonService.GetScenarioType(), "Id", "Name");
                 ViewBag.FinancialYearDD = new SelectList(await _commonService.GetFinancialYears(), "Id", "Name");
-                ViewBag.MainAccDD = await _commonService.GetMainAccount();
+                //ViewBag.MainAccDD = await _commonService.GetMainAccount();
 
                 return View(model);
             }
@@ -80,7 +80,7 @@ namespace GCTL_App.Controllers.Finance
                     });
                 }
 
-                var orderedKeys = new[] { "JournalTypeID", "JournalCode", "PostingRuleID", "FinancialYearID", "JournalDate", "CreateJournalDetailsVMs", "Debit", "Credit" };
+                var orderedKeys = new[] { "JournalTypeID", "JournalCode", "PostingRuleID", "FinancialYearID", "JournalDate", "CreateJournalDetailsVMs", "TrxType", "Amount" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -112,6 +112,22 @@ namespace GCTL_App.Controllers.Finance
             catch (Exception ex)
             {
                 return Json(ex.Message);
+            }
+        }
+        #endregion
+
+
+        #region GetMainAccount
+        public async Task<IActionResult> GetMainAccount()
+        {
+            try
+            {
+                var result = await _commonService.GetMainAccount();
+                return Json(new { isSuccess = true, data = result });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
             }
         }
         #endregion

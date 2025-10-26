@@ -29,9 +29,9 @@ public partial class LeadActivityTypes
 
     public int? DeletedBy { get; set; }
 
-    public string UseFor { get; set; }
-
     public int? OrganizationID { get; set; }
+
+    public string UseFor { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 

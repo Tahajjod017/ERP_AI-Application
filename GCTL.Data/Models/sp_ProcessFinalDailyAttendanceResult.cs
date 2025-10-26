@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GCTL.Data.Models
 {
-    public partial class bbResult
+    public partial class sp_ProcessFinalDailyAttendanceResult
     {
     }
 }
