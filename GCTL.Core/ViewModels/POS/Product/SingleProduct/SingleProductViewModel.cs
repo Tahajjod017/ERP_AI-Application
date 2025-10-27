@@ -92,18 +92,18 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         public string VATPercentage { get; set; }
 
         // Attributes
-        [Display(Name = "Size Attribute")]
-        public bool HasSizeAttribute { get; set; }
+        //[Display(Name = "Size Attribute")]
+        //public bool HasSizeAttribute { get; set; }
 
-        [Display(Name = "Color Attribute")]
-        public bool HasColorAttribute { get; set; }
+        //[Display(Name = "Color Attribute")]
+        //public bool HasColorAttribute { get; set; }
 
-        [Display(Name = "Materials Attribute")]
-        public bool HasMaterialsAttribute { get; set; }
+        //[Display(Name = "Materials Attribute")]
+        //public bool HasMaterialsAttribute { get; set; }
 
-        public List<string> SelectedSizes { get; set; } = new List<string>();
-        public List<string> SelectedColors { get; set; } = new List<string>();
-        public List<string> SelectedMaterials { get; set; } = new List<string>();
+        //public List<string> SelectedSizes { get; set; } = new List<string>();
+        //public List<string> SelectedColors { get; set; } = new List<string>();
+        //public List<string> SelectedMaterials { get; set; } = new List<string>();
 
         // Barcode
         [Display(Name = "Barcode SKU")]
