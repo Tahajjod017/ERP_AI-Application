@@ -1,6 +1,6 @@
 ﻿@model GCTL.Core.ViewModels.POS.Product.SingleProduct.SingleProductViewModel
 
-<form asp-action="AddProduct" method="post" enctype="multipart/form-data" class="">
+<form asp-action="AddSingleProduct" asp-controller="SingleProduct" method="post" enctype="multipart/form-data" class="">
     <div class="add-product">
 
         <div class="accordions-items-seperate border-0" id="accordionSpacingExample">
@@ -262,12 +262,13 @@
                                     </div>
 
                                     <div class="phone-img mb-3">
-                                        <img src="../../assets/img/phone-add-1.png" alt="image">
+                                        <img src="~/media/products/phone-add-1.png" alt="image">
+                                       
                                         <a href="javascript:void(0);"><i data-feather="x" class="x-square-add remove-product"></i></a>
                                     </div>
 
                                     <div class="phone-img mb-3">
-                                        <img src="../../assets/img/phone-add-2.png" alt="image">
+                                        <img src="~/media/products/phone-add-2.png" alt="image">
                                         <a href="javascript:void(0);"><i data-feather="x" class="x-square-add remove-product"></i></a>
                                     </div>
                                 </div>
@@ -340,8 +341,8 @@
                 <a class="btn" type="button" data-bs-toggle="modal" data-bs-target="#advancedPricing">@Html.SmartLocalize("Set Advanced Price")</a>
             </div>
 
-            <!-- Product Attributes Section -->
-            <div class="accordion-item mb-4">
+          
+            @*<div class="accordion-item mb-4">
                 <h2 class="accordion-header" id="headingSpacingSix">
                     <div class="accordion-button collapsed bg-white" data-bs-toggle="collapse" data-bs-target="#SpacingSix"
                          aria-expanded="true" aria-controls="SpacingSix">
@@ -372,7 +373,7 @@
                                 </div>
                             </div>
 
-                            <!-- Size Options -->
+                           
                             <div class="col-md-12" id="singleSizeDiv" style="display: none;">
                                 <div class="row bor">
                                     <h4 class="mt-3">@Html.SmartLocalize("Size (20 Options)")</h4>
@@ -386,7 +387,7 @@
                                 </div>
                             </div>
 
-                            <!-- Color Options -->
+                          
                             <div class="col-md-12" id="singleColorDiv" style="display: none;">
                                 <div class="row">
                                     <h4 class="mt-3">@Html.SmartLocalize("Color (10 Options)")</h4>
@@ -454,7 +455,7 @@
                                 </div>
                             </div>
 
-                            <!-- Materials Options -->
+                            
                             <div class="col-md-12" id="singleMaterialsDiv" style="display: none;">
                                 <div class="row">
                                     <h4 class="mt-3">@Html.SmartLocalize("Materials (5 Options)")</h4>
@@ -495,7 +496,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>*@
 
             <!-- Barcode Section -->
             <div class="accordion-item mb-4">
