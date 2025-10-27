@@ -5,17 +5,17 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class TransactionAccounts
+public partial class OpeningBalances
 {
-    public int TrxAccID { get; set; }
+    public int OpeningBalanceID { get; set; }
 
-    public int SubAccountID { get; set; }
+    public int? TrxAccID { get; set; }
 
-    public string TrxAccCode { get; set; }
+    public string OpeningBalanceCode { get; set; }
 
-    public string TrxAccName { get; set; }
+    public decimal? Amount { get; set; }
 
-    public bool IsActive { get; set; }
+    public string TrxType { get; set; }
 
     public string Description { get; set; }
 
@@ -35,19 +35,11 @@ public partial class TransactionAccounts
 
     public int? DeletedBy { get; set; }
 
-    public int? HeadID { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Heads Head { get; set; }
-
-    public virtual ICollection<OpeningBalances> OpeningBalances { get; set; } = new List<OpeningBalances>();
-
-    public virtual ICollection<PostingRuleDetails> PostingRuleDetails { get; set; } = new List<PostingRuleDetails>();
-
-    public virtual SubAccounts SubAccount { get; set; }
+    public virtual TransactionAccounts TrxAcc { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

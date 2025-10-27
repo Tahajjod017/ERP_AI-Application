@@ -12,15 +12,15 @@ namespace GCTL.Core.ViewModels.Finance.AddJournalVM
     {
         public int? JournalID { get; set; }
 
-        public int? JournalTypeID { get; set; }
+        public string? JournalType { get; set; }
 
         public string? JournalCode { get; set; }
 
-        public int? PostingRuleID { get; set; }
+        public string? PostingRule { get; set; }
 
-        public int? FinancialYearID { get; set; }
+        public string? FinancialYear { get; set; }
 
-        public DateTime? JournalDate { get; set; }
+        public string? JournalDate { get; set; }
 
         public string? Note { get; set; }
 

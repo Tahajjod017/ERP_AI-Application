@@ -37,8 +37,8 @@ namespace GCTL_App.Controllers.Finance
                 {
                     PostingRuleDetailsVMs = new List<CreatePostingRuleDetailsVM>
                     {
-                        new CreatePostingRuleDetailsVM { DebitCredit = "Debit" },
-                        new CreatePostingRuleDetailsVM { DebitCredit = "Credit" }
+                        new CreatePostingRuleDetailsVM { DebitCredit = "D" },
+                        new CreatePostingRuleDetailsVM { DebitCredit = "C" }
                     }
                 };
                 SetSmartPageCode(203800);

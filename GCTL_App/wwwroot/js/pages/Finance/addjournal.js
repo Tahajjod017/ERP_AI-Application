@@ -20,6 +20,7 @@
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
         var generateNextCodeUrl = settings.baseUrl + "/GenerateThreeDigitCodeAsync";
+        var getJournalDetailsByIdUrl = settings.baseUrl + "/GetJournalDetailsByIdAsync";
 
         $(() => {
 
@@ -29,24 +30,6 @@
             initMainToSubAccCascade();
             initSubToTrxAccCascade();
             // #endregion
-
-            //$.fn.addJournalInit({
-            //    addform: settings.addform,
-            //    updateform: settings.updateform,
-            //    saveBtn: settings.saveBtn,
-            //    editBtn: settings.editBtn,
-            //    resetBtn: settings.resetBtn,
-            //    bulkDelBtn: settings.bulkDelBtn,
-            //    singleDeleteBtn: settings.singleDeleteBtn,
-            //    getAllUrl: getAllUrl,
-            //    getByIdUrl: getByIdUrl,
-            //    createUrl: createUrl,
-            //    updateUrl: updateUrl,
-            //    deleteUrl: deleteUrl,
-            //    checkNameUniqueUrl: checkNameUniqueUrl,
-            //    checkCodeUniqueUrl: checkCodeUniqueUrl,
-            //    generateNextCodeUrl: generateNextCodeUrl
-            //});
 
 
             // #region Save
@@ -131,16 +114,71 @@
                 $(settings.addform)[0].reset();
                 $('#JournalID').val('0');
                 resetValidation(["JournalTypeID", "JournalCode", "PostingRuleID", "FinancialYearID", "JournalDate", "CreateJournalDetailsVMs", "TrxType", "Amount"]);
-                $('.text-danger').hide();
+                $('.text-danger').not('.notResetDanger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
                     if ($(this).css('border-color') === 'rgb(255, 0, 0)') {
                         $(this).css('border-color', '#ccc');
                     }
                 });
+
+                if (journalTypeDD) {
+                    journalTypeDD.destroy();
+                }
+                initJournalTypeDD();
+
+                if (scenarioTypeDD) {
+                    scenarioTypeDD.destroy();
+                }
+                initScenarioTypeDD();
+
+                if (transactionYearDD) {
+                    transactionYearDD.destroy();
+                }
+                initTransactionYearDD();
+
+                $('.mainAccDD').each(function () {
+                    if (this.mainAccDD) {
+                        this.mainAccDD.destroy();
+                    }
+                });
+                initMainAccDD();
+
+                $('.subAccDD').each(function () {
+                    if (this.subAccDD) {
+                        this.subAccDD.destroy();
+                    }
+                });
+                initSubAccDD();
+
+                $('.trxAccDD').each(function () {
+                    if (this.trxAccDD) {
+                        this.trxAccDD.destroy();
+                    }
+                });
+                initTrxAccDD();
+
+                $('.initDrCr').each(function () {
+                    if (this.drCrDD) {
+                        this.drCrDD.destroy();
+                    }
+                });
+                initDrCrDD();
+
+                // ✅ Explicitly reset totals and show them visibly
+                $('#totalDebitAmount').text('0.00');
+                $('#totalCreditAmount').text('0.00');
+                $('#creditAmountDifference')
+                    .text('0.00')
+                    .removeClass('text-danger')
+                    .addClass('text-success') // 0.00 = balanced, so green
+                    .show(); // ensure visible
+
                 $(settings.addform).find(settings.saveBtn).text('Save');
 
+                setTimeout(() => calculateJournalTotals(), 50);
                 generateThreeDigitCodeAsync();
+                loadTableData();
             }
             // #endregion
 
@@ -158,46 +196,46 @@
 
                 // Build the row structure manually
                 $newRow.html(`
-        <input type="hidden" class="JournalDetailID" name="CreateJournalDetailsVMs[${newIndex}].JournalDetailID" value="" />
-        <td>
-            <select class="form-select mainAccDD" name="CreateJournalDetailsVMs[${newIndex}].MainAccountID" id="CreateJournalDetailsVMs_${newIndex}__MainAccountID">
-                <option value="">Loading...</option>
-            </select>
-        </td>
-        <td>
-            <select class="form-select subAccDD" name="CreateJournalDetailsVMs[${newIndex}].SubAccountID" id="CreateJournalDetailsVMs_${newIndex}__SubAccountID">
-                <option value="">Select...</option>
-            </select>
-        </td>
-        <td>
-            <select class="form-select trxAccDD" name="CreateJournalDetailsVMs[${newIndex}].TransactionAccountID" id="CreateJournalDetailsVMs_${newIndex}__TransactionAccountID">
-                <option value="">Select...</option>
-            </select>
-        </td>
-        <td>
-            <select class="form-select initDrCr" name="CreateJournalDetailsVMs[${newIndex}].TrxType" id="CreateJournalDetailsVMs_${newIndex}__TrxType">
-                <option value="">Select...</option>
-                <option value="Debit">Debit</option>
-                <option value="Credit">Credit</option>
-            </select>
-            <span id="DebitError" class="text-danger" style="display:none;"></span>
-        </td>
-        <td>
-            <textarea class="form-control no-border-input bg-transparent description" name="CreateJournalDetailsVMs[${newIndex}].Description" id="CreateJournalDetailsVMs_${newIndex}__Description" rows="2"></textarea>
-        </td>
-        <td>
-            <input class="form-control no-border-input bg-transparent amount" name="CreateJournalDetailsVMs[${newIndex}].Amount" id="CreateJournalDetailsVMs_${newIndex}__Amount" type="text" />
-            <span id="AmountError" class="text-danger" style="display:none;"></span>
-        </td>
-        <td>
-            <a href="#!" class="btn btn-outline-light btn-icon detailsRemoveRowBtn">
-                <i class="far fa-trash-alt text-black"></i>
-            </a>
-            <button class="btn btn-outline-light btn-icon detailsAddRowBtn">
-                <i class="fa-regular fa-square-plus text-black"></i>
-            </button>
-        </td>
-    `);
+                    <input type="hidden" class="JournalDetailID" name="CreateJournalDetailsVMs[${newIndex}].JournalDetailID" value="" />
+                    <td>
+                        <select class="form-select mainAccDD" name="CreateJournalDetailsVMs[${newIndex}].MainAccountID" id="CreateJournalDetailsVMs_${newIndex}__MainAccountID">
+                            <option value="">Loading...</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select subAccDD" name="CreateJournalDetailsVMs[${newIndex}].SubAccountID" id="CreateJournalDetailsVMs_${newIndex}__SubAccountID">
+                            <option value="">Select...</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select trxAccDD" name="CreateJournalDetailsVMs[${newIndex}].TransactionAccountID" id="CreateJournalDetailsVMs_${newIndex}__TransactionAccountID">
+                            <option value="">Select...</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select initDrCr" name="CreateJournalDetailsVMs[${newIndex}].TrxType" id="CreateJournalDetailsVMs_${newIndex}__TrxType">
+                            <option value="">Select...</option>
+                            <option value="D">Debit</option>
+                            <option value="C">Credit</option>
+                        </select>
+                        <span id="DebitError" class="text-danger" style="display:none;"></span>
+                    </td>
+                    <td>
+                        <textarea class="form-control no-border-input bg-transparent description" name="CreateJournalDetailsVMs[${newIndex}].Description" id="CreateJournalDetailsVMs_${newIndex}__Description" rows="2"></textarea>
+                    </td>
+                    <td>
+                        <input class="form-control no-border-input bg-transparent amount" name="CreateJournalDetailsVMs[${newIndex}].Amount" id="CreateJournalDetailsVMs_${newIndex}__Amount" type="text" />
+                        <span id="AmountError" class="text-danger" style="display:none;"></span>
+                    </td>
+                    <td>
+                        <a href="#!" class="btn btn-outline-light btn-icon detailsRemoveRowBtn">
+                            <i class="far fa-trash-alt text-black"></i>
+                        </a>
+                        <button class="btn btn-outline-light btn-icon detailsAddRowBtn">
+                            <i class="fa-regular fa-square-plus text-black"></i>
+                        </button>
+                    </td>
+                `);
 
                 // Remove old add button from last row
                 $lastRow.find('.detailsAddRowBtn').remove();
@@ -335,9 +373,9 @@
                     const amount = parseFloat($(this).find('.amount').val()) || 0; // Get Amount, default to 0 if empty
 
                     // Check if the TrxType is Debit or Credit and update totals accordingly
-                    if (trxType === 'Debit') {
+                    if (trxType === 'D') {
                         totalDebit += amount;
-                    } else if (trxType === 'Credit') {
+                    } else if (trxType === 'C') {
                         totalCredit += amount;
                     }
                 });
@@ -370,12 +408,12 @@
 
 
             // #region Move to next input/textarea on Enter
-            $(document).on('keydown', 'textarea, input.debitAmount, input.creditAmount', function (e) {
+            $(document).on('keydown', 'textarea, input.amount', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault(); // prevent form submit
 
                     const $inputs = $('#journalDetails-TBody')
-                        .find('textarea, input.debitAmount, input.creditAmount')
+                        .find('textarea, input.amount')
                         .filter(':visible'); // only visible fields
 
                     const index = $inputs.index(this);
@@ -390,7 +428,7 @@
                             $addBtn.trigger('click');
                             setTimeout(() => {
                                 $('#journalDetails-TBody')
-                                    .find('textarea, input.debitAmount, input.creditAmount')
+                                    .find('textarea, input.amount')
                                     .last()
                                     .focus();
                             }, 100);
@@ -436,8 +474,8 @@
                         const details = data.getByIdPostingRuleDetailsVMs;
 
                         // Separate Debit and Credit entries
-                        const debitDetail = details.find(d => d.debitCredit.toLowerCase() === 'debit');
-                        const creditDetail = details.find(d => d.debitCredit.toLowerCase() === 'credit');
+                        const debitDetail = details.find(d => d.debitCredit.toLowerCase() === 'd');
+                        const creditDetail = details.find(d => d.debitCredit.toLowerCase() === 'c');
 
                         // Ensure we have at least two rows in the journal table
                         const $tbody = $('#journalDetails-TBody');
@@ -504,7 +542,7 @@
             // #endregion
 
 
-            // Load and populate Main Account dropdowns dynamically
+            // #region Load and populate Main Account dropdowns dynamically
             async function loadMainAccounts($select, selectedId = null) {
                 try {
                     // 1️⃣ Destroy existing Choices instance if any
@@ -569,7 +607,7 @@
                     loadMainAccounts($(this)); 
                 });
             });
-
+            // #endregion
 
 
             // #region Cascade MainAccount => SubAccount
@@ -819,7 +857,268 @@
             });
             // #endregion
 
+
+            // #region toggle table checkbox
+            $(document).ready(function () {
+                $('#addJournals-check-all').on('change', function () {
+                    var isChecked = $(this).prop('checked');
+                    $('.addJournals-selectItem').prop('checked', isChecked);
+
+                    toggleBulkActions();
+                });
+
+                $(document).on('change', '.addJournals-selectItem', function () {
+                    toggleBulkActions();
+                });
+            });
+
+            function toggleBulkActions() {
+                const allItems = $('.addJournals-selectItem');
+                const checkedItems = $('.addJournals-selectItem:checked');
+
+                const allChecked = allItems.length === checkedItems.length;
+                const someChecked = checkedItems.length > 0 && !allChecked;
+
+                $('#addJournals-check-all').prop('checked', allChecked);
+                $('#addJournals-check-all').prop('indeterminate', someChecked);
+
+                if (checkedItems.length > 1) {
+                    $('#addJournals-bulkSelectActions').removeClass('d-none');
+                    $('#addJournals-searchBox').addClass('d-none');
+                    $('.addJournals-bulkDelete').addClass('disabled');
+                    $('.addJournals-bulkEdit').addClass('disabled');
+                } else {
+                    $('#addJournals-bulkSelectActions').addClass('d-none');
+                    $('#addJournals-searchBox').removeClass('d-none');
+                    $('.addJournals-bulkDelete').removeClass('disabled');
+                    $('.addJournals-bulkEdit').removeClass('disabled');
+                }
+            }
+            // #endregion
+
+
         });
+
+
+        // #region loadTableData
+        var currentPage = 1;
+        var pageSize = 5;
+
+        $('#addJournals-pageSizeSelect').on('change', function () {
+            var selectedSize = $(this).val();
+
+            if (selectedSize) {
+                pageSize = parseInt(selectedSize, 10);
+                currentPage = 1;
+                loadTableData();
+            }
+        });
+
+
+        $(document).ready(function () {
+            loadTableData();
+
+            $("#addJournals-searchInput").on("input", function () {
+                currentPage = 1;
+                loadTableData();
+            });
+
+            $("#addJournals-prevPageBtn").on('click', function () {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadTableData();
+                }
+            });
+
+            $("#addJournals-nextPageBtn").on('click', function () {
+                currentPage++;
+                loadTableData();
+            });
+        });
+
+
+        let currentSortColumn = 'JournalID';
+        let currentSortOrder = 'desc';
+
+        $('th.sort').on('click', function () {
+            const column = $(this).data('sort');
+
+            if (currentSortColumn === column) {
+                currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = column;
+                currentSortOrder = 'asc';
+            }
+
+            loadTableData(currentSortColumn, currentSortOrder);
+            updateSortingIndicator(column, currentSortOrder);
+        });
+
+
+        function updateSortingIndicator() {
+            $('th.sort').each(function () {
+                const $th = $(this);
+                const column = $th.data('sort');
+                $th.find('.sort-icon').remove();
+
+                if (column === currentSortColumn) {
+                    const iconClass = currentSortOrder === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+                    $th.append(`<span class="sort-icon ms-2"><i class="fas ${iconClass} small text-muted"></i></span>`);
+                } else {
+                    $th.append(`<span class="sort-icon ms-2"><i class="fas fa-sort small text-muted"></i></span>`);
+                }
+            });
+        }
+
+        function loadTableData(sortColumn, sortOrder) {
+            var searchTerm = $("#addJournals-searchInput").val();
+
+            $.ajax({
+                url: getAllUrl,
+                method: 'GET',
+                data: {
+                    pageNumber: currentPage,
+                    pageSize: pageSize,
+                    searchTerm: searchTerm,
+                    sortColumn: sortColumn,
+                    sortOrder: sortOrder
+                },
+                success: function (response) {
+                    var tableBody = $("#addJournals-tBody");
+                    tableBody.empty();
+                    if (response.data.length > 0) {
+                        response.data.forEach(function (item, index) {
+                            var rowIndex = (currentPage - 1) * pageSize + index + 1;
+                            tableBody.append(`
+                                <tr class="position-static">
+                                    <td class="text-center text-middle align-middle" style="width: 5%;">
+                                        <input type="checkbox" class="form-check-input addJournals-selectItem" data-id="${item.journalID}" />
+                                    </td>
+                                    <td class="align-middle text-start white-space-nowrap ps-0">${item.journalCode}</td>
+                                    <td class="align-middle text-start white-space-nowrap ps-0">${item.journalType}</td>
+                                    <td class="align-middle text-start white-space-nowrap ps-0">${item.postingRule}</td>
+                                    <td class="align-middle text-start white-space-nowrap ps-0">${item.financialYear}</td>
+                                    <td class="align-middle text-start white-space-nowrap ps-0">${item.journalDate}</td>
+                                    <td class="align-middle text-start white-space-nowrap ps-0">${item.note}</td>
+                                    <td class="align-middle text-start white-space-nowrap ps-0">${item.fileLink}</td>
+                                    <td class="align-middle text-start white-space-nowrap ps-0">
+                                        <div class="d-flex gap-2">
+                                            <a href="#!" class="btn btn-outline-light btn-icon addJournals-detailsBtn" id="addJournals-detailsBtn" data-id="${item.journalID}">
+                                                <i class="far fa-eye text-black"></i>
+                                            </a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon addJournals-editBtn" id="addJournals-editBtn" data-id="${item.journalID}">
+                                                <i class="fas fa-edit text-black"></i>
+                                            </a>
+                                            <a href="#!" class="btn btn-outline-light btn-icon addJournals-singleDelBtn" id="addJournals-singleDelBtn" data-id="${item.journalID}">
+                                                <i class="far fa-trash-alt text-black"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
+                    }
+
+                    var paginationInfo = response.paginationInfo;
+
+                    $("#addJournals-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                    $("#addJournals-totalCount").text(`(${paginationInfo.totalItems})`);
+
+                    updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
+                },
+                error: function () {
+                    console.log("Error! Fetching all data.");
+                }
+            });
+        }
+
+        function updatePagination(pageNumbers, currentPage, totalPages) {
+            const paginationLinks = $("#addJournals-paginationLinks");
+            paginationLinks.empty();
+            // Window size (number of pages before/after the current page)
+            const windowSize = 1;
+            const createPageButton = (page) => `
+                <li class="page-item ${page === currentPage ? 'active' : ''}">
+                    <button class="page-link page-btn" data-page="${page}">${page}</button>
+                </li>
+            `;
+            // Helper function for ellipsis
+            const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            // Add "First Page" and ellipsis if needed
+            if (currentPage > windowSize + 1) {
+                paginationLinks.append(createPageButton(1), addEllipsis());
+            }
+            // Add page number buttons within the window range
+            const startPage = Math.max(1, currentPage - windowSize);
+            const endPage = Math.min(totalPages, currentPage + windowSize);
+            for (let i = startPage; i <= endPage; i++) {
+                paginationLinks.append(createPageButton(i));
+            }
+            // Add ellipsis and "Last Page" button if needed
+            if (currentPage < totalPages - windowSize) {
+                paginationLinks.append(addEllipsis(), createPageButton(totalPages));
+            }
+            // Disable or enable previous/next buttons
+            $("#addJournals-prevPageBtn").prop('disabled', currentPage === 1);
+            $("#addJournals-nextPageBtn").prop('disabled', currentPage === totalPages);
+        }
+
+        $(document).on('click', '.page-btn', function () {
+            const page = $(this).data('page');
+            currentPage = page;
+            loadTableData();
+        });
+        // #endregion
+
+
+        // #region Show Journal Details Modal
+        $(document).on('click', '.addJournals-detailsBtn', function () {
+            const journalId = $(this).data('id');
+            const modal = new bootstrap.Modal(document.getElementById('addJournalDetailsModal'));
+            const detailsBody = $("#addJournalsDetails-tBody");
+
+            detailsBody.html(`
+                <tr>
+                    <td colspan="3" class="text-center text-muted py-3">Loading...</td>
+                </tr>
+            `);
+
+            modal.show();
+
+            $.ajax({
+                url: getJournalDetailsByIdUrl, 
+                type: 'GET',
+                data: { id: journalId },
+                success: function (data) {
+                    if (data.getByIdJournalDetailsVMs && data.getByIdJournalDetailsVMs.length > 0) {
+                        let rows = data.getByIdJournalDetailsVMs.map(d => `
+                    <tr>
+                        <td class="align-middle text-start">${d.trxType || '-'}</td>
+                        <td class="align-middle text-start">${parseFloat(d.amount || 0).toFixed(2)}</td>
+                        <td class="align-middle text-start">${d.description || '-'}</td>
+                    </tr>
+                `).join('');
+                        detailsBody.html(rows);
+                    } else {
+                        detailsBody.html(`
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-3">No details available</td>
+                    </tr>
+                `);
+                    }
+                },
+                error: function () {
+                    detailsBody.html(`
+                <tr>
+                    <td colspan="3" class="text-center text-danger py-3">Error loading journal details.</td>
+                </tr>
+            `);
+                }
+            });
+        });
+        // #endregion
 
     }
 }(jQuery));

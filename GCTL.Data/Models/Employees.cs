@@ -763,6 +763,12 @@ public partial class Employees
 
     public virtual ICollection<OTPSettings> OTPSettingsUpdatedByNavigation { get; set; } = new List<OTPSettings>();
 
+    public virtual ICollection<OpeningBalances> OpeningBalancesCreatedByNavigation { get; set; } = new List<OpeningBalances>();
+
+    public virtual ICollection<OpeningBalances> OpeningBalancesDeletedByNavigation { get; set; } = new List<OpeningBalances>();
+
+    public virtual ICollection<OpeningBalances> OpeningBalancesUpdatedByNavigation { get; set; } = new List<OpeningBalances>();
+
     public virtual ICollection<OrganizationBranches> OrganizationBranchesCreatedByNavigation { get; set; } = new List<OrganizationBranches>();
 
     public virtual ICollection<OrganizationBranches> OrganizationBranchesDeletedByNavigation { get; set; } = new List<OrganizationBranches>();

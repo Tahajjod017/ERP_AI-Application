@@ -7,26 +7,6 @@
 
 @section Styles {
     <style>
-        .no-border-input {
-            border: 1px solid #f3f7fc !important;
-            box-shadow: none !important;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-            outline: none;
-        }
-
-            .no-border-input:hover,
-            .no-border-input:focus {
-                border-color: #a6b1c1 !important;
-                box-shadow: none !important;
-            }
-
-        .form-select {
-            border-color: #eef5fa;
-        }
-
-            .form-select:hover {
-                border-color: #a6b1c1;
-            }
 
     </style>
 }
@@ -45,7 +25,7 @@
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label class="form-label" asp-for="JournalCode">@Html.SmartLocalize("Journal Id")<span style="color:red;">*&nbsp;</span></label>
-                        <input class="form-control no-border-input bg-light" asp-for="JournalCode" type="text" readonly />
+                        <input class="form-control bg-light" asp-for="JournalCode" type="text" readonly />
                         <span asp-validation-for="JournalCode" id="JournalCodeError" class="text-danger" style="display:none;"></span>
                     </div>
                 </div>
@@ -122,14 +102,14 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label" asp-for="JournalDate">@Html.SmartLocalize("Date")<span style="color:red;">*&nbsp;</span></label>
-                        <input class="form-control no-border-input datetimepicker" asp-for="JournalDate" type="text" placeholder="DD/MM/YYYY" />
+                        <input class="form-control datetimepicker" asp-for="JournalDate" type="text" placeholder="DD/MM/YYYY" />
                         <span asp-validation-for="JournalDate" id="JournalDateError" class="text-danger" style="display:none;"></span>
                     </div>
                 </div>
 
                 <div class="col-md-12">
                     <div class="mb-3">
-                        <label class="form-label" for="">Note</label>
+                        <label class="form-label" asp-for="Note">Note</label>
                         <textarea class="form-control" asp-for="Note" rows="2" placeholder="Note"></textarea>
                     </div>
                 </div>
@@ -183,16 +163,16 @@
                                 <td>
                                     <select class="form-select initDrCr" asp-for="CreateJournalDetailsVMs[@i].TrxType">
                                         <option value="">@Html.SmartLocalize("Select")...</option>
-                                        <option value="Debit">Debit</option>
-                                        <option value="Credit">Credit</option>
+                                        <option value="D">Debit</option>
+                                        <option value="C">Credit</option>
                                     </select>
                                     <span id="DebitError" class="text-danger" style="display:none;"></span>
                                 </td>
                                 <td>
-                                    <textarea class="form-control no-border-input bg-transparent description" asp-for="CreateJournalDetailsVMs[@i].Description" rows="2"> </textarea>
+                                    <textarea class="form-control bg-transparent description" asp-for="CreateJournalDetailsVMs[@i].Description" rows="2"> </textarea>
                                 </td>
                                 <td>
-                                    <input class="form-control no-border-input bg-transparent amount" asp-for="CreateJournalDetailsVMs[@i].Amount" />
+                                    <input class="form-control bg-transparent amount" asp-for="CreateJournalDetailsVMs[@i].Amount" />
                                     <span id="AmountError" class="text-danger" style="display:none;"></span>
                                 </td>
                                 <td>
@@ -237,7 +217,7 @@
                             <div class="col-md-3"></div>
                             <div class="col-md-3" id="totalCreditAmount"></div>
                         </div>
-                        <div class="row  p-3 text-danger">
+                        <div class="row  p-3 text-danger notResetDanger">
                             <div class="col-md-6">Difference</div>
                             <div class="col-md-3"></div>
                             <div class="col-md-3" id="creditAmountDifference"></div>
@@ -259,6 +239,8 @@
         </form>
     </div>
 </div>
+
+<partial name="_Table" />
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")

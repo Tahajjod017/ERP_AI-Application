@@ -104,8 +104,8 @@
                                 <label class="form-label" asp-for="PostingRuleDetailsVMs[@i].DebitCredit">@Html.SmartLocalize("Select Debit/Credit")<span style="color:red;">*</span></label>
                                 <select class="form-select initDrCr" asp-for="PostingRuleDetailsVMs[@i].DebitCredit">
                                     <option value="">@Html.SmartLocalize("Select")...</option>
-                                    <option value="Debit">Debit</option>
-                                    <option value="Credit">Credit</option>
+                                    <option value="D">Debit</option>
+                                    <option value="C">Credit</option>
                                 </select>
                                 <span asp-validation-for="PostingRuleDetailsVMs[@i].DebitCredit" id="DebitCreditError" class="text-danger" style="display:none;"></span>
                             </div>

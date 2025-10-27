@@ -236,6 +236,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<OTPSettings> OTPSettings { get; set; }
 
+    public virtual DbSet<OpeningBalances> OpeningBalances { get; set; }
+
     public virtual DbSet<Organization> Organization { get; set; }
 
     public virtual DbSet<OrganizationBranches> OrganizationBranches { get; set; }
@@ -3191,7 +3193,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.TrxType).HasMaxLength(50);
+            entity.Property(e => e.TrxType)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.JournalDetailsCreatedByNavigation)
@@ -4257,6 +4262,44 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__OTPSettin__Updat__17E28260");
         });
 
+        modelBuilder.Entity<OpeningBalances>(entity =>
+        {
+            entity.HasKey(e => e.OpeningBalanceID).HasName("PK__OpeningB__03913A82F10FB246");
+
+            entity.ToTable("OpeningBalances", "COA");
+
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.OpeningBalanceCode).HasMaxLength(10);
+            entity.Property(e => e.TrxType)
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OpeningBalancesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__OpeningBa__Creat__10EB6C0E");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.OpeningBalancesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__OpeningBa__Delet__13C7D8B9");
+
+            entity.HasOne(d => d.TrxAcc).WithMany(p => p.OpeningBalances)
+                .HasForeignKey(d => d.TrxAccID)
+                .HasConstraintName("FK__OpeningBa__TrxAc__0F03239C");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OpeningBalancesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__OpeningBa__Updat__11DF9047");
+        });
+
         modelBuilder.Entity<Organization>(entity =>
         {
             entity.HasKey(e => e.OrganizationID).HasName("PK__Organiza__CADB0B7270C9C49C");
@@ -4621,8 +4664,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.TrxType)
-                .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(1)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PostingRuleDetailsCreatedByNavigation)

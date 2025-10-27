@@ -10,7 +10,7 @@ namespace GCTL.Core.ViewModels.Finance.JournalDetailsVM
 {
     public class CreateJournalDetailsVM : BaseViewModel
     {
-        public int JournalDetailID { get; set; }
+        public int? JournalDetailID { get; set; }
 
         public int? MainAccountID { get; set; }
 

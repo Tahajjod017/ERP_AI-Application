@@ -74,6 +74,7 @@ using GCTL.Service.Finance.AddJournal;
 using GCTL.Service.Finance.AddMainAccount;
 using GCTL.Service.Finance.AddSubAccount;
 using GCTL.Service.Finance.BaseAccount;
+using GCTL.Service.Finance.OpeningBalance;
 using GCTL.Service.Finance.PostingRule;
 using GCTL.Service.Finance.SecondTab;
 using GCTL.Service.Finance.TransactionAccount;
@@ -205,6 +206,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IPostingRulesService, PostingRulesService>();
             services.AddSingleton<IBackgroundTask, AttendanceTask>();
             services.AddScoped<IAddJournalService, AddJournalService>();
+            services.AddScoped<IOpeningBalancesService, OpeningBalancesService>();
             #endregion
 
 
