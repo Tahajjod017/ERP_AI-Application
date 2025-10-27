@@ -43,6 +43,7 @@ using GCTL.Service.BackgroundServices;
 using GCTL.Service.CommonService;
 using GCTL.Service.CRM;
 using GCTL.Service.CRM.AddTeam;
+using GCTL.Service.CRM.Customer;
 using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.CRM.LeadDetail;
 using GCTL.Service.CRM.LeadsActivities;
@@ -324,6 +325,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<IAddTeamService, AddTeamService>();
             services.AddScoped<ICreateJobService, CreateJobService>();
             services.AddScoped<IJobTypeService, JobTypeService>();
+            services.AddScoped<ICustomerService, CustomerService>();
             #endregion
 
             services.AddHostedService<ScheduledTaskService>();

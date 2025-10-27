@@ -1,20 +1,16 @@
-﻿@model CustomerVM
+﻿@using GCTL.Core.ViewModels.CRM.Customer
+@model CustomerVM
 <div data-init="initCustomerForm">
     <div class="d-flex flex-column h-100 my-3">
-        <h5 class="mb-3 text-body-highlight ms-4 fs-7 fw-semibold ms-2">Add Customer</h5>
+        <h5 class="mb-3 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Customer</h5>
         <div class="row g-3" id="branchForm">
-            <form action="">
-                <input type="number" asp-for="ID" name="name" hidden />
+            <form id="customerForm" action="/Customers/SaveCustomer" method="post">
+                <input type="hidden" asp-for="ID" value="0" />
+
                 <div class="row px-5">
                     <!-- Left Section -->
                     <div class="col-md-6">
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" class="form-control" asp-for="Name" placeholder="Company Name">
-                                    <label class="form-label">Company Name</label>
-                                </div>
-                            </div>
                             <div class="col-md-6 pe-1 col-sm-6">
                                 <div class="mb-3 form-floating">
                                     <input type="text" class="form-control" asp-for="FirstName" placeholder="First Name">
@@ -25,6 +21,12 @@
                                 <div class="mb-3 form-floating">
                                     <input type="text" asp-for="LastName" class=" form-control" placeholder="">
                                     <label class="form-label">Last Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3 form-floating">
+                                    <input type="text" class="form-control" asp-for="Name" placeholder="Company Name">
+                                    <label class="form-label">Company Name</label>
                                 </div>
                             </div>
                         </div>
@@ -92,7 +94,7 @@
                                         <label class="form-label">Zip/Postal Code</label>
                                     </div>
                                 </div>
-                                <div class="col-md-6 pe-1 col-sm-6">
+                                <div class="col-md-6 ps-1 col-sm-6">
                                     <div class="form-floating form-floating-advance-select select2-floating">
                                         <select asp-for="CountryID" class="idBank select2">
                                             <option value="">Select Country</option>
@@ -121,9 +123,9 @@
                     </div>
 
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-2 gap-2 me-10">
+                <div class="modal-footer border-0 pt-0 pb-2 mx-5 gap-2">
                     <button type="button" class="btn btn-light" id="saveAndgoWarehouseTab">Save & Add Shipping Address</button>
-                    <button type="button" class="btn btn-primary" id="branchSaveAndExit">Save & Exit</button>
+                    <button type="button" class="btn btn-primary" id="saveAndExit">Save & Exit</button>
                 </div>
             </form>
         </div>

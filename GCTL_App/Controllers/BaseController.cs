@@ -1,12 +1,9 @@
-﻿using System.Net.NetworkInformation;
+﻿
 using System.Security.Claims;
-using GCTL.Data.Models;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore;
-using OpenQA.Selenium.DevTools.V134.Debugger;
 
 namespace GCTL_App.Controllers
 {
