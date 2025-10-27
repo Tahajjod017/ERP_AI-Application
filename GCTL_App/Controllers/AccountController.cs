@@ -126,13 +126,17 @@ namespace GCTL_App.Controllers
                                            .ToListAsync();
 
                     // Step 5: Fetch the user's permissions using role IDs
+                    //var userPermissions = await _Db.RoleModulePermissions
+                    //                               .Where(rmp => roleIds.Contains(rmp.RoleId) && rmp.IsGranted)
+                    //                               .Include(rmp => rmp.MenuTab)
+                    //                               .Include(rmp => rmp.Permission)
+                    //                               .Select(rmp => $"{rmp.MenuTab.Title}.{rmp.Permission.Name}")
+                    //                               .ToListAsync();
+                    // Step 5: Fetch the user's permissions using role IDs via stored procedure
+                    var roleIdsString = string.Join(",", roleIds);
                     var userPermissions = await _Db.RoleModulePermissions
-                                                   .Where(rmp => roleIds.Contains(rmp.RoleId) && rmp.IsGranted)
-                                                   .Include(rmp => rmp.MenuTab)
-                                                   .Include(rmp => rmp.Permission)
-                                                   .Select(rmp => $"{rmp.MenuTab.Title}.{rmp.Permission.Name}")
-                                                   .ToListAsync();
-
+                                        .FromSqlRaw("EXEC dbo.sp_GetUserPermissionsByRoleIds @RoleIds = {0}", roleIdsString)
+                                        .ToListAsync();
                     // Step 6: Create user claims
                     var claims = new List<Claim>
                                     {
@@ -148,7 +152,7 @@ namespace GCTL_App.Controllers
 
                     foreach (var permission in userPermissions)
                     {
-                        claims.Add(new Claim("Permission", permission));
+                        claims.Add(new Claim("Permission", permission.ToString()));
                     }
 
                     // Step 7: Create identity and sign in
