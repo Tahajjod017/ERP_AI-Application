@@ -36,6 +36,7 @@ namespace GCTL.Service.ActionLogAudit
                 var email = user.FindFirstValue(ClaimTypes.Email);
                 var userEmail = user.Identity.IsAuthenticated ? user.FindFirstValue(ClaimTypes.Email) : "Unknown";
                 var employeeId = _context.Users .Where(u => u.Email == email).Select(u => u.EmployeeId).FirstOrDefault();
+                var orgId = _context.Users .Where(u => u.Email == email).Select(u => u.OrganizationID).FirstOrDefault();
                 model.UserId = userId;
                 model.UserEmail = email;
                 model.CreatedBy = employeeId;
@@ -50,6 +51,7 @@ namespace GCTL.Service.ActionLogAudit
 
                 //model.LIP =NetworkHelper.GetLocalIP();
                 model.LMAC =NetworkHelper.GetMacAddress();
+                model.OrganizationID = orgId.HasValue ? orgId.Value : null;
 
             }
         }

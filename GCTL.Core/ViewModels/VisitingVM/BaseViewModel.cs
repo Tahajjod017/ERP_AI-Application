@@ -17,5 +17,6 @@ namespace GCTL.Core.ViewModels
         public string? LMAC { get; set; }
         public string? UserId { get; set; }
         public string? UserEmail { get; set; }
+        public int? OrganizationID { get; set; }
     }
 }

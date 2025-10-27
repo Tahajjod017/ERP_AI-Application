@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-namespace GCTL.Core.ViewModels.CRM
+namespace GCTL.Core.ViewModels.CRM.Customer
 {
     public class CustomerVM : BaseViewModel
     {

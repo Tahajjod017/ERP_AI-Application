@@ -101,14 +101,14 @@ namespace GCTL.Service.CRM.LeadCreate
         //        }
 
         //        // Fetch country
-        //        var countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == customerVM.CountryId);
+        //        //var countryObj = await _countryRepository.FirstOrDefaultAsync(u => u.CountryID == customerVM.CountryId);
 
         //        // Fetch individual address type
         //        var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "individual");
 
 
         //        #region Added by Md. Rakib Hasan
-        //        string schemaName = "Customer"; 
+        //        string schemaName = "Customer";
         //        string tableName = "Customers";
         //        int subAccId = 14;
 
@@ -124,7 +124,7 @@ namespace GCTL.Service.CRM.LeadCreate
         //            headDetail.LMAC = customerVM.LMAC;
         //            headDetail.CreatedAt = DateTime.UtcNow;
         //            headDetail.CreatedBy = customerVM.CreatedBy;
-                    
+
         //            await _headDetails.AddAsync(headDetail);
         //        }
 
@@ -147,7 +147,7 @@ namespace GCTL.Service.CRM.LeadCreate
 
         //        var subAccDetails = await _subAccounts.AllActive().FirstOrDefaultAsync(x => x.SubAccountID == subAccId);
 
-        //        if(subAccDetails == null)
+        //        if (subAccDetails == null)
         //        {
         //            return new ReturnView
         //            {
@@ -375,55 +375,55 @@ namespace GCTL.Service.CRM.LeadCreate
         //#endregion
 
 
-        #region SaveAddressType
-        public async Task<int> SaveAddressType(int? createdBy, string? LIP, string? LMAC)
-        {
-            // Begin transaction
-            await _addressTypesRepository.BeginTransactionAsync();
+        //#region SaveAddressType
+        //public async Task<int> SaveAddressType(int? createdBy, string? LIP, string? LMAC)
+        //{
+        //    // Begin transaction
+        //    await _addressTypesRepository.BeginTransactionAsync();
 
-            try
-            {
-                var items = await _addressTypesRepository.GetAllAsync();
-                int createdCount = 0;
+        //    try
+        //    {
+        //        var items = await _addressTypesRepository.GetAllAsync();
+        //        int createdCount = 0;
 
-                if (!items.Any())
-                {
-                    var addressTypes = new List<AddressTypes>();
-                    var listItem = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
+        //        if (!items.Any())
+        //        {
+        //            var addressTypes = new List<AddressTypes>();
+        //            var listItem = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
 
-                    foreach (var typeName in listItem)
-                    {
-                        addressTypes.Add(new AddressTypes()
-                        {
-                            AddressTypeName = typeName,
-                            CreatedAt = DateTime.UtcNow,
-                            CreatedBy = createdBy,
-                            LIP = LIP,
-                            LMAC = LMAC,
-                        });
-                    }
+        //            foreach (var typeName in listItem)
+        //            {
+        //                addressTypes.Add(new AddressTypes()
+        //                {
+        //                    AddressTypeName = typeName,
+        //                    CreatedAt = DateTime.UtcNow,
+        //                    CreatedBy = createdBy,
+        //                    LIP = LIP,
+        //                    LMAC = LMAC,
+        //                });
+        //            }
 
-                    await _addressTypesRepository.AddRangeAsync(addressTypes);
-                    createdCount = addressTypes.Count;
-                }
+        //            await _addressTypesRepository.AddRangeAsync(addressTypes);
+        //            createdCount = addressTypes.Count;
+        //        }
 
-                // Commit transaction
-                await _addressTypesRepository.CommitTransactionAsync();
+        //        // Commit transaction
+        //        await _addressTypesRepository.CommitTransactionAsync();
 
-                return createdCount;
-            }
-            catch (Exception ex)
-            {
-                // Rollback on error
-                await _addressTypesRepository.RollbackTransactionAsync();
-                // Optional: log ex
-                return 0;
-            }
-        }
-        #endregion
+        //        return createdCount;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Rollback on error
+        //        await _addressTypesRepository.RollbackTransactionAsync();
+        //        // Optional: log ex
+        //        return 0;
+        //    }
+        //}
+        //#endregion
 
 
-        #region SaveCountry
+        //#region SaveCountry
         //private async Task<int> saveCountry(string? countryCode, string? coutryName, int? CreatedBy, string? LIP, string? LMAC)
         //{
         //    int countryId = 0;
@@ -458,7 +458,7 @@ namespace GCTL.Service.CRM.LeadCreate
         //    }
         //    return countryId;
         //}
-        #endregion
+        //#endregion
 
 
         //#region CreateShippingAddress

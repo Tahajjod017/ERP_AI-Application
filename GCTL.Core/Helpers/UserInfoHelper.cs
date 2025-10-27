@@ -18,6 +18,7 @@ namespace GCTL.Core.Helpers
         public string? LMAC { get; set; }
         public int? UpdatedBy { get; set; }
         public int? DeletedBy { get; set; }
+        public int? OrganizationID { get; set; }
 
     }
 }
