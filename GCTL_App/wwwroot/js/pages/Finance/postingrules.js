@@ -205,6 +205,18 @@
                 $('.postingRules-selectItem').prop('checked', false);
                 $('.postingRules-ul').empty();
 
+                $('.initChoices').each(function () {
+                    if (this.choicesInstance) {
+                        this.choicesInstance.destroy();
+                    }
+                });
+
+                $('.initDrCr').each(function () {
+                    if (this.choicesInstance) {
+                        this.choicesInstance.destroy();
+                    }
+                });
+
                 initializeChoicesDropdowns();
                 generateThreeDigitCodeAsync();
                 loadTableData();
@@ -222,7 +234,7 @@
             // #endregion
 
 
-            // #region Initialize Choices
+            // #region Initialize Choices DD
             function initializeChoicesDropdowns() {
                 $('.initChoices').each(function () {
                     const choicesInstance = new Choices(this, {

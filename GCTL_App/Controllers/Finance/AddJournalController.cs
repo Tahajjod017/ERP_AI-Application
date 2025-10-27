@@ -4,13 +4,16 @@ using GCTL.Service.CommonService;
 using GCTL.Service.Finance.AddJournal;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.Finance
 {
+    [Authorize]
     public class AddJournalController : BaseController
     {
+        #region Services
         private readonly ICommonService _commonService;
         private readonly IAddJournalService _addJournalService;
 
@@ -19,6 +22,7 @@ namespace GCTL_App.Controllers.Finance
             _commonService = commonService;
             _addJournalService = addJournalService;
         }
+        #endregion
 
 
         #region Index
@@ -101,6 +105,40 @@ namespace GCTL_App.Controllers.Finance
         #endregion
 
 
+        #region GetAll
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "JournalID", string sortOrder = "desc")
+        {
+            try
+            {
+                var result = await _addJournalService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
+        }
+        #endregion
+
+
+        #region GetJournalDetailsByIdAsync
+        [HttpGet("AddJournal/GetJournalDetailsByIdAsync")]
+        public async Task<IActionResult> GetJournalDetailsByIdAsync(int id)
+        {
+            try
+            {
+                var result = await _addJournalService.GetJournalDetailsByIdAsync(id);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
+        }
+        #endregion
+
+
         #region GetDataByPostingRuleID
         public async Task<IActionResult> GetDataByPostingRuleID(int scenarioTypeId)
         {
@@ -172,7 +210,7 @@ namespace GCTL_App.Controllers.Finance
         {
             try
             {
-                var result = await _addJournalService.GenerateThreeDigitCodeAsync();
+                var result = await _addJournalService.GenerateSixDigitCodeAsync();
                 return Json(result);
             }
             catch (Exception ex)

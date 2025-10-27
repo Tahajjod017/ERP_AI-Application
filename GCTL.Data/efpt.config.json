@@ -52,6 +52,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[COA].[OpeningBalances]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[COA].[PostingRuleDetails]",
          "ObjectType": 0
       },

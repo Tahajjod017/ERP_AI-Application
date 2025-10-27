@@ -1,8 +1,10 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.Finance.AddJournalVM;
+using GCTL.Core.ViewModels.Finance.JournalDetailsVM;
 using GCTL.Core.ViewModels.Finance.PostingRuleDetailsVM;
 using GCTL.Data.Models;
+using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -42,26 +44,28 @@ namespace GCTL.Service.Finance.AddJournal
                 decimal? totalDebit = 0;
                 decimal? totalCredit = 0;
 
-                if(model.CreateJournalDetailsVMs != null)
+                if (model.CreateJournalDetailsVMs != null)
                 {
-                    foreach(var details in model.CreateJournalDetailsVMs)
+                    foreach (var details in model.CreateJournalDetailsVMs)
                     {
-                        if(details?.TrxType == "Debit")
+                        if (details?.TrxType == "D")
                         {
                             totalDebit += details.Amount;
                         }
-                        else if(details?.TrxType == "Credit")
+                        else if (details?.TrxType == "C")
                         {
                             totalCredit += details.Amount;
                         }
                     }
                 }
 
-                if(totalDebit != totalCredit)
+                if (totalDebit != totalCredit)
                 {
-                    result.Success = false;
-                    result.Message = "Debit & Credit amounts not match.";
-                    return result;
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Debit & Credit amounts do not match."
+                    };
                 }
 
                 await _genericRepository.BeginTransactionAsync();
@@ -83,11 +87,8 @@ namespace GCTL.Service.Finance.AddJournal
                 if (model.FileLink != null && model.FileLink.Length > 0)
                 {
                     // Get uploads folder
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/media/finance/journals");
-
-                    // Create folder if not exists
-                    if (!Directory.Exists(uploadsFolder))
-                        Directory.CreateDirectory(uploadsFolder);
+                    var uploadsFolder = Path.Combine("wwwroot", "media", "finance", "journals");
+                    Directory.CreateDirectory(uploadsFolder);
 
                     // Create unique filename
                     var uniqueFileName = $"{model.JournalCode}_{Path.GetFileName(model.FileLink.FileName)}";
@@ -103,12 +104,15 @@ namespace GCTL.Service.Finance.AddJournal
                     entity.FileLink = $"/media/finance/journals/{uniqueFileName}";
                 }
 
+                await _genericRepository.AddAsync(entity);
+
                 entity.JournalDetails = new List<JournalDetails>();
-                if(model.CreateJournalDetailsVMs != null)
+                if (model.CreateJournalDetailsVMs != null)
                 {
-                    foreach(var details in model.CreateJournalDetailsVMs)
+                    foreach (var details in model.CreateJournalDetailsVMs)
                     {
                         JournalDetails journalDetails = new JournalDetails();
+                        journalDetails.JournalID = entity.JournalID;
                         journalDetails.Description = details.Description;
                         journalDetails.TrxType = details.TrxType;
                         journalDetails.Amount = details.Amount;
@@ -121,8 +125,6 @@ namespace GCTL.Service.Finance.AddJournal
                         await _journalDetails.AddAsync(journalDetails);
                     }
                 }
-
-                await _genericRepository.AddAsync(entity);
 
                 await _genericRepository.CommitTransactionAsync();
 
@@ -137,6 +139,102 @@ namespace GCTL.Service.Finance.AddJournal
                 result.Success = false;
                 result.Message = "Error Saving Data!";
                 result.Errors.Add(ex.Message);
+                throw;
+            }
+        }
+        #endregion
+
+
+        #region GetAllAsync
+        public async Task<PaginationService<Journals, GetAllAddJournalVM>.PaginationResult<GetAllAddJournalVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "JournalID", string sortOrder = "desc")
+        {
+            try
+            {
+                var query = _genericRepository.AllActive()
+                    .Include(x => x.JournalDetails)
+                    .Include(x => x.JournalType)
+                    .Include(x => x.PostingRule)
+                    .Include(x => x.FinancialYear)
+                    .AsNoTracking()
+                    .Where(x => x.DeletedAt == null && x.DeletedBy == null);
+
+                if (!string.IsNullOrEmpty(sortColumn))
+                {
+                    query = sortColumn switch
+                    {
+                        "JournalID" => sortOrder == "desc" ? query.OrderByDescending(x => x.JournalID) : query.OrderBy(x => x.JournalID),
+                        "JournalCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.JournalCode) : query.OrderBy(x => x.JournalCode),
+                        "JournalTypeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.JournalType.JournalTypeName) : query.OrderBy(x => x.JournalType.JournalTypeName),
+                        "YearName" => sortOrder == "desc" ? query.OrderByDescending(x => x.FinancialYear.YearName) : query.OrderBy(x => x.FinancialYear.YearName),
+                        "ScenarioName" => sortOrder == "desc" ? query.OrderByDescending(x => x.PostingRule.ScenarioName) : query.OrderBy(x => x.PostingRule.ScenarioName),
+                        "Note" => sortOrder == "desc" ? query.OrderByDescending(x => x.Note) : query.OrderBy(x => x.Note),
+                        "JournalDate" => sortOrder == "desc" ? query.OrderByDescending(x => x.JournalDate) : query.OrderBy(x => x.JournalDate),
+                        _ => query.OrderBy(x => x.PostingRuleID)
+                    };
+                }
+
+                return await PaginationService<Journals, GetAllAddJournalVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
+                    term => x => EF.Functions.Like(x.JournalCode, $"%{term}%")
+                    || EF.Functions.Like(x.JournalType.JournalTypeName, $"%{term}%")
+                    || EF.Functions.Like(x.PostingRule.ScenarioName, $"%{term}%")
+                    || EF.Functions.Like(x.Note, $"%{term}%")
+                    || EF.Functions.Like(x.JournalDate, $"%{term}%")
+                    || EF.Functions.Like(x.FinancialYear.YearName, $"%{term}%"),
+                    x => new GetAllAddJournalVM
+                    {
+                        JournalID = x.JournalID,
+                        JournalCode = x.JournalCode,
+                        JournalType = x.JournalType?.JournalTypeName ?? "-",
+                        PostingRule = x.PostingRule?.ScenarioName ?? "-",
+                        FinancialYear = x.FinancialYear.YearName ?? "-",
+                        JournalDate = x.JournalDate.HasValue ? x.JournalDate.Value.ToString("dd/MM/yyyy") : "-",
+                        Note = x.Note ?? "-",
+                        FileLink = x.FileLink ?? "-",
+                        GetAllJournalDetailsVMs = x.JournalDetails
+                        .Select(d => d == null ? null : new CreateJournalDetailsVM
+                        {
+                            JournalDetailID = d.JournalDetailID,
+                            TrxType = d.TrxType ?? "-",
+                            Amount = d.Amount ?? 0,
+                            Description = d.Description ?? "-",
+                        }).ToList()
+                    });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving Transaction Accounts.", ex);
+            }
+        }
+        #endregion
+
+
+        #region GetJournalDetailsByIdAsync
+        public async Task<GetByIdAddJournalVM> GetJournalDetailsByIdAsync(int id)
+        {
+            try
+            {
+                var result = await _genericRepository.AllActive()
+                    .Include(x => x.JournalDetails)
+                    .AsNoTracking()
+                    .Where(x => x.JournalID == id)
+                    .Select(x => new GetByIdAddJournalVM
+                    {
+                        JournalID = x.JournalID,
+                        GetByIdJournalDetailsVMs = x.JournalDetails
+                        .Select(d => d == null ? null : new CreateJournalDetailsVM
+                        {
+                            JournalDetailID = d.JournalDetailID,
+                            TrxType = d.TrxType ?? "-",
+                            Amount = d.Amount ?? 0,
+                            Description = d.Description ?? "-",
+                        }).ToList()
+                    })
+                    .FirstOrDefaultAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
                 throw;
             }
         }
@@ -168,24 +266,24 @@ namespace GCTL.Service.Finance.AddJournal
         #endregion
 
 
-        #region GenerateThreeDigitCodeAsync
-        public async Task<string> GenerateThreeDigitCodeAsync()
+        #region GenerateSixDigitCodeAsync
+        public async Task<string> GenerateSixDigitCodeAsync()
         {
             try
             {
                 var lastCode = await _genericRepository.AllActive().OrderByDescending(x => x.JournalCode).Select(x => x.JournalCode).FirstOrDefaultAsync();
                 if (string.IsNullOrEmpty(lastCode))
                 {
-                    return "001";
+                    return "00001";
                 }
                 var lastNumber = int.Parse(lastCode.Substring(1));
 
                 var nextCode = lastNumber + 1;
 
-                if (nextCode > 999)
-                    throw new InvalidOperationException("Maximum 3-digit code limit reached.");
+                if (nextCode > 999999)
+                    throw new InvalidOperationException("Maximum 6-digit code limit reached.");
 
-                return nextCode.ToString("D3");
+                return nextCode.ToString("D6");
             }
             catch (Exception ex)
             {

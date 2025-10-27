@@ -14,12 +14,13 @@ namespace GCTL.Service.Finance.AddJournal
     public interface IAddJournalService
     {
         //Task<GetByIdAddJournalVM> GetByIdAsync(int id);
-        //Task<PaginationService<Journals, GetAllAddJournalVM>.PaginationResult<GetAllAddJournalVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "JournalID", string sortOrder = "desc");
+        Task<PaginationService<Journals, GetAllAddJournalVM>.PaginationResult<GetAllAddJournalVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "JournalID", string sortOrder = "desc");
+        Task<GetByIdAddJournalVM> GetJournalDetailsByIdAsync(int id);
         Task<CommonReturnViewModel> AddAsync(CreateAddJournalVM model);
         //Task<CommonReturnViewModel> UpdateAsync(UpdateAddJournalVM model);
         //Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<bool> IsCodeUniqueAsync(string code, int? excludeId = null);
-        Task<string> GenerateThreeDigitCodeAsync();
+        Task<string> GenerateSixDigitCodeAsync();
         Task<GetByPostingRuleIdVM> GetDataByPostingRuleID(int id);
     }
 }
