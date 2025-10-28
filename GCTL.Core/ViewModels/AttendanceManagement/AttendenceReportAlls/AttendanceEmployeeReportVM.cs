@@ -51,6 +51,20 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls
         public string? ProductionTimeMinute { get; set; }  // Calculated production time (CheckInTime to CurrentTime)
         public string? Overtime { get; set; }  // Calculated overtime if the production time exceeds working hours
 
+        public int? DepartmentID { get; set; }
+
+        public List<int>? DepartmentIDs { get; set; }
+
+        public string? DepartmentName { get; set; }
+
+      
+
+        public List<int>? EmployeeIDs { get; set; }
+
+       
+
+        public List<int>? ExcludedEmployeeIDs { get; set; }
+
 
     }
 }

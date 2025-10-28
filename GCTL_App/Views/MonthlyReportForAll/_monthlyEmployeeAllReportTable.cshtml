@@ -1,7 +1,9 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls.AttendanceEmployeeReportVM 
+@{
+    var departments = ViewBag.DepartmentDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.CommonSelectVM>;
+   
+}
 
 
 <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-4">
@@ -10,18 +12,24 @@
     <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
 
         <div class="dropdown me-3">
-            <select class="form-select choiceDD" id="organizationID" size="1" required="required">
-                <option value="">Select Organization</option>
-                <option value="1">Google LLC</option>
-                <option value="2">Microsoft</option>
+            <select class="form-select choiceDD" id="organizationID" asp-items="@ViewBag.OrganizationDD as SelectList" id="organizationid" name="OrganizationID">
+                <option value="">Select Company</option>
             </select>
         </div>
-
         <div class="dropdown me-2">
-            <select class="form-select choiceDD" id="departmentID" multiple>
-                <option value="">Select Department</option>
-                <option value="1">IT</option>
-
+            <select class="form-multi-select" asp-for="DepartmentIDs"
+                    multiple data-coreui-selection-type="counter"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Department")..."
+                    data-coreui-search="true">
+                @foreach (var group in departments.GroupBy(e => e.GroupName))
+                {
+                    <optgroup label="@group.Key">
+                        @foreach (var emp in group)
+                        {
+                            <option value="@emp.Id">@emp.Name</option>
+                        }
+                    </optgroup>
+                }
             </select>
         </div>
 

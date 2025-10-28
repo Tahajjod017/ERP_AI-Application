@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.AdminSettingsVM;
+﻿using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -17,6 +18,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
         Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetIndividualEmployee(int employeeId, int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "HolidayID", string sortOrder = "desc" , int? organizationID = null);
         Task<AttendanceSummaryDto> GetSummaryAll();
+        Task<List<CommonSelectVM>> GetDepartmentByOrgId(int? orgId);
+        Task<List<CommonSelectVM>> GetEmployeeByDepId(int? depId);
 
     }
 }

@@ -1,7 +1,9 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls.AttendanceEmployeeReportVM
+@{
+    var departments = ViewBag.DepartmentDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.CommonSelectVM>;
+
+}
 
 <!-- Search Information -->
 <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
@@ -15,15 +17,37 @@
             </select>
         </div>
         <div class="dropdown me-2">
-            <select class="form-multi-select" id="multiple-dep-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                <option value="">Select Department</option>
-                
+            <select class="form-multi-select" asp-for="DepartmentIDs"
+                    multiple data-coreui-selection-type="counter"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Department")..."
+                    data-coreui-search="true">
+                @foreach (var group in departments.GroupBy(e => e.GroupName))
+                {
+                    <optgroup label="@group.Key">
+                        @foreach (var emp in group)
+                        {
+                            <option value="@emp.Id">@emp.Name</option>
+                        }
+                    </optgroup>
+                }
             </select>
         </div>
 
+
         <div class="dropdown me-2">
-            <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-               
+            <select class="form-multi-select" asp-for="EmployeeIDs"
+                    multiple data-coreui-selection-type="counter"
+                    data-coreui-placeholder="@Html.SmartLocalize("Select Employee")..."
+                    data-coreui-search="true">
+                @foreach (var group in employees.GroupBy(e => e.GroupName))
+                {
+                    <optgroup label="@group.Key">
+                        @foreach (var emp in group)
+                        {
+                            <option value="@emp.Id">@emp.Name</option>
+                        }
+                    </optgroup>
+                }
             </select>
         </div>
         <div class="dropdown">
