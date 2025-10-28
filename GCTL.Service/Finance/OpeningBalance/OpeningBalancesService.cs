@@ -44,6 +44,8 @@ namespace GCTL.Service.Finance.OpeningBalance
                 {
                     existingEntity.TrxAccID = model.TrxAccID;
                     existingEntity.TrxType = model.TrxType;
+                    existingEntity.Amount = model.Amount;
+                    existingEntity.Description = model.Description;
 
                     existingEntity.CreatedAt = DateTime.UtcNow;
                     existingEntity.CreatedBy = model.CreatedBy;
