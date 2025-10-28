@@ -179,6 +179,12 @@ $(document).ready(function () {
 
     // Safe cleanup before form submit to avoid focus errors
     $('#aprovalSettingsForm').on('submit', function () {
+        if (!$('#OrganizationID').val()) {
+            $('#OrganizationID').closest('.choices').addClass('is-invalid');
+            toastr.error('Please select an organization');
+            $('span[data-valmsg-for="OrganizationID"]').html('Organization is required');
+            return;
+        }
         $(':input:disabled').removeAttr('required');
     });
 });

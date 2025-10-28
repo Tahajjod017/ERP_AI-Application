@@ -33,7 +33,12 @@ $(document).ready(function () {
 
     $('#weekendForm').on('submit', function (e) {
         e.preventDefault();
-
+        if (!$('#OrganizationID').val()) {
+            $('#OrganizationID').closest('.choices').addClass('is-invalid');
+            toastr.error('Please select an organization');
+            $('span[data-valmsg-for="OrganizationID"]').html('Organization is required');
+            return;
+        }
         var form = $(this);
         var formData = form.serialize();
 
