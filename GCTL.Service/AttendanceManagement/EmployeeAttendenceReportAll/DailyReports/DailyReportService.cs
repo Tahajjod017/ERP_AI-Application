@@ -1,8 +1,10 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls;
 using GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
 
 namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyReports
 {
@@ -20,16 +23,23 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
         private readonly IGenericRepository<Shifts> _genericRepositoryShift;
         private readonly IGenericRepository<EmployeeOfficeInfo> _genericEmployeeOfficeInfo;
         private readonly IGenericRepository<AttendanceLog> _genericAttendanceLog;
+        private readonly ILocalizationContext _localizationContext;
+        private readonly IGenericRepository<Departments> _genericDepartment;
+        private readonly IGenericRepository<GCTL.Data.Models.Employees> _genericEmployee;
 
-        public DailyReportService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, IGenericRepository<EmployeeOfficeInfo> genericEmployeeOfficeInfo) : base(genericRepository)
+        public DailyReportService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, IGenericRepository<EmployeeOfficeInfo> genericEmployeeOfficeInfo, ILocalizationContext localizationContext, IGenericRepository<Departments> genericDepartment, IGenericRepository<Data.Models.Employees> genericEmployee) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
             _genericEmployeeOfficeInfo = genericEmployeeOfficeInfo;
-        } 
+            _localizationContext = localizationContext;
+            _genericDepartment = genericDepartment;
+            _genericEmployee = genericEmployee;
+        }
         public async Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetAllEmployee(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
                               string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null)
         {
+            var today = DateOnly.FromDateTime(DateTime.Today);
             var query = _genericRepository.All()
                         .AsNoTracking()
                         .Include(x => x.Employee)
@@ -80,15 +90,17 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                     StatusID = x.StatusID,
                     StatusName = x.Status?.StatusName ?? "-",
                     AttendanceDate = x.AttendanceDate.ToString("yyyy-MM-dd") ?? "-",
-                    CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
-                    CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString("HH:mm") : "-", // Fix for CS0029
+                    CheckInTime = x.CheckInTime.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(x.CheckInTime.Value, DateTimeKind.Utc), _localizationContext) : "-",
+                    CheckOutTime = x.CheckOutTime.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(x.CheckOutTime.Value, DateTimeKind.Utc), _localizationContext)  // Convert UTC to local
+                                    : "-",
                     //LateHour = x.LateTimeMinutes.HasValue ? x.LateTimeMinutes.Value.ToString("F2") : "-",
-                    LateHour = x.LateTimeMinutes.HasValue ? (x.LateTimeMinutes.Value).ToString("H") : "-",
+                    LateHour = FormatTime(x.LateTimeMinutes),
                     //EarlyHour = x.EarlyTimeMinutes.HasValue ? x.EarlyTimeMinutes.Value.ToString("F2") : "-",
-                    EarlyHour = x.EarlyTimeMinutes.HasValue ? (x.EarlyTimeMinutes.Value).ToString("H") : "-",
-                    OvertimeHour = x.OvertimeMinutes.HasValue ? x.OvertimeMinutes.Value.ToString("H") : "-",
-                    WorkingHours = "-",
-                    Break = "-",
+                    EarlyHour = FormatTime(x.EarlyTimeMinutes),
+                    RegularHour = FormatTime(x.OfficeTimeMinutes),
+                    OvertimeHour = FormatTime(x.OvertimeMinutes),
+                    WorkingHours = FormatTime(x.WorkingTimeMinutes),
+                    Break = FormatTime(x.BreakTimeMinutes),
 
                     CreatedBy = x.CreatedBy,
                     UpdatedBy = x.UpdatedBy
@@ -96,7 +108,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
 
             return result;
         }
-
+       
         public async Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetIndividualEmployee(int employeeId, int pageNumber = 1, int pageSize = 5, string searchTerm = "",
                       string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null)
         {
@@ -142,15 +154,17 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                     StatusID = x.StatusID,
                     StatusName = x.Status?.StatusName ?? "-",
                     AttendanceDate = x.AttendanceDate.ToString("yyyy-MM-dd") ?? "-",
-                    CheckInTime = x.CheckInTime.HasValue ? x.CheckInTime.Value.ToString(@"hh\:mm") : "-", // Fix for CS0029
-                    CheckOutTime = x.CheckOutTime.HasValue ? x.CheckOutTime.Value.ToString(@"hh\:mm") : "-", // Fix for CS0029
-                                                                                                           //LateHour = x.LateTimeMinutes.HasValue ? x.LateTimeMinutes.Value.ToString("F2") : "-",
-                    LateHour = x.LateTimeMinutes.HasValue ? x.LateTimeMinutes.Value.ToString() : "-",
-                    //EarlyHour = x.EarlyHour.HasValue ? x.EarlyHour.Value.ToString("F2") : "-",
-                    EarlyHour = x.EarlyTimeMinutes.HasValue ? (x.EarlyTimeMinutes.Value).ToString() : "-",
-                    OvertimeHour = x.OvertimeMinutes.HasValue ? x.OvertimeMinutes.Value.ToString() : "-",
-                    WorkingHours = "-",
-                    Break = "-",
+                    CheckInTime = x.CheckInTime.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(x.CheckInTime.Value, DateTimeKind.Utc), _localizationContext) : "-",
+                    CheckOutTime = x.CheckOutTime.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(x.CheckOutTime.Value, DateTimeKind.Utc), _localizationContext)  // Convert UTC to local
+                                    : "-",
+                    //LateHour = x.LateTimeMinutes.HasValue ? x.LateTimeMinutes.Value.ToString("F2") : "-",
+                    LateHour = FormatTime(x.LateTimeMinutes),
+                    //EarlyHour = x.EarlyTimeMinutes.HasValue ? x.EarlyTimeMinutes.Value.ToString("F2") : "-",
+                    EarlyHour = FormatTime(x.EarlyTimeMinutes),
+                    RegularHour = FormatTime(x.OfficeTimeMinutes),
+                    OvertimeHour = FormatTime(x.OvertimeMinutes),
+                    WorkingHours = FormatTime(x.WorkingTimeMinutes),
+                    Break = FormatTime(x.BreakTimeMinutes),
 
                     CreatedBy = x.CreatedBy,
                     UpdatedBy = x.UpdatedBy
@@ -158,7 +172,16 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
 
             return result;
         }
+        private string FormatTime(int? minutes)
+        {
+            if (!minutes.HasValue)
+                return "-";
 
+            int hours = minutes.Value / 60;
+            int remainingMinutes = minutes.Value % 60;
+
+            return $"{hours:D2}:{remainingMinutes:D2}"; // Formats as "HH:mm"
+        }
         public async Task<AttendanceSummaryDto> GetSummaryAll()
         {
             var today = DateTime.Today;
@@ -198,6 +221,37 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                 LeavePercent = (int)Math.Round((double)totalLeave / total * 100),
                 AbsentPercent = (int)Math.Round((double)totalAbsent / total * 100)
             };
+        }
+
+        public async Task<List<CommonSelectVM>> GetDepartmentByOrgId(int? orgId)
+        {
+            var query = _genericDepartment.AllActive().AsNoTracking();
+
+            if (orgId.HasValue && orgId.Value != 0)
+                query = query.Where(b => b.OrganizationID == orgId.Value);
+
+            var result = await query.Select(b => new CommonSelectVM
+            {
+                Id = b.DepartmentID,
+                Name = b.DepartmentName ?? "-"
+            }).ToListAsync();
+
+            return result;
+        }
+        public async Task<List<CommonSelectVM>> GetEmployeeByDepId(int? depId)
+        {
+            var query = _genericEmployee.AllActive().Include(x => x.EmployeeOfficeInfoEmployee).AsNoTracking();
+
+            if (depId.HasValue && depId.Value != 0)
+                query = query.Where(b => b.EmployeeOfficeInfoEmployee.Any(d => d.Department.DepartmentID == depId.Value));
+
+            var result = await query.Select(b => new CommonSelectVM
+            {
+                Id = b.EmployeeID,
+                Name = b.FirstName + " " + b.LastName ?? "-"
+            }).ToListAsync();
+
+            return result;
         }
     }
 }

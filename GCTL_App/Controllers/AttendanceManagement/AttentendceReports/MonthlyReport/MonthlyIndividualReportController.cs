@@ -1,9 +1,12 @@
 ﻿using GCTL.Core.Helpers.AttendenceHelper;
+using GCTL.Core.Repository;
 using GCTL.Data.Models;
 using GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyReports;
+using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyReport
 {
@@ -12,15 +15,24 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyRe
         private readonly HolidayHelper _holidayHelper;
         private readonly WeekendHelper _weekendHelper;
         private readonly IMonthlyReportService _monthlyReportService;
-        public MonthlyIndividualReportController(ITranslateService translateService, IUserProfileService userProfileService, HolidayHelper holidayHelper, WeekendHelper weekendHelper, IMonthlyReportService monthlyReportService) : base(translateService, userProfileService)
+        private readonly ICommonService _commonService;
+        private readonly IGenericRepository<Organization> _organizationRepository;
+        public MonthlyIndividualReportController(ITranslateService translateService, IUserProfileService userProfileService, HolidayHelper holidayHelper, WeekendHelper weekendHelper, IMonthlyReportService monthlyReportService, ICommonService commonService, IGenericRepository<Organization> organizationRepository) : base(translateService, userProfileService)
         {
             _holidayHelper = holidayHelper;
             _weekendHelper = weekendHelper;
             _monthlyReportService = monthlyReportService;
+            _commonService = commonService;
+            _organizationRepository = organizationRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
+
+            ViewBag.DepartmentDD = await _commonService.GetDepartments();
+            ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
+
             return View();
         }
         public IActionResult SomeAction()

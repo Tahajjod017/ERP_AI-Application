@@ -197,7 +197,9 @@ namespace GCTL_App.Controllers
 
             // Load all modules (no tenant filtering)
             var modules = await _Db.MenuTab.ToListAsync();
-
+//            var modules = await _Db.MenuTab
+//.FromSqlRaw("EXEC dbo.GetModules @RoleId = {0}", roleId)
+//.ToListAsync();
             var primaryModules = modules
                 .Where(m => m.Type == "Primary")
                 .Select(pm => new PrimaryModuleViewModel

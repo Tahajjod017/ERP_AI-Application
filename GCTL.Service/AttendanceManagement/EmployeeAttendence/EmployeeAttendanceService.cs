@@ -145,7 +145,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendence
                     RegularHour = FormatTime(x.OfficeTimeMinutes),
                     OvertimeHour = FormatTime(x.OvertimeMinutes),
                     WorkingHours = FormatTime(x.WorkingTimeMinutes),
-                    Break = "-",
+                    Break = FormatTime(x.BreakTimeMinutes),
 
                     CreatedBy = x.CreatedBy,
                     UpdatedBy = x.UpdatedBy

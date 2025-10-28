@@ -1,4 +1,11 @@
-﻿@{
+﻿@model GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls.AttendanceEmployeeReportVM
+@{
+    var departments = ViewBag.DepartmentDD as List<GCTL.Core.ViewModels.CommonSelectVM>;
+    var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.CommonSelectVM>;
+
+}
+
+@{
     var mainTab = "AvailabilityReport";
   
 }
@@ -16,31 +23,42 @@
 
 
                 <div class="dropdown me-3">
-                    <select class="form-select" id="organizerSingle1" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                        <option value="">Company Name</option>
-                        <option>CSL Computer</option>
-                        <option>GCTL</option>
+                    <select class="form-select choiceDD" asp-items="@ViewBag.OrganizationDD as SelectList" id="organizationid" name="OrganizationID">
+                        <option value="">Select Company</option>
                     </select>
                 </div>
-                <div class="dropdown me-3">
-                    <select class="form-multi-select" multiple data-coreui-search="true">
-                        <option value="0">Developer</option>
-                        <option value="1">Manager</option>
-                        <option value="2">Designer</option>
-                        <option value="3">Finance</option>
+                <div class="dropdown me-2">
+                    <select class="form-multi-select" asp-for="DepartmentIDs"
+                            multiple data-coreui-selection-type="counter"
+                            data-coreui-placeholder="@Html.SmartLocalize("Select Department")..."
+                            data-coreui-search="true">
+                        @foreach (var group in departments.GroupBy(e => e.GroupName))
+                        {
+                            <optgroup label="@group.Key">
+                                @foreach (var emp in group)
+                                {
+                                    <option value="@emp.Id">@emp.Name</option>
+                                }
+                            </optgroup>
+                        }
                     </select>
                 </div>
 
-                <div class="dropdown me-3">
-                    <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                        <optgroup label="Developer">
-                            <option value="2">Alam</option>
-                            <option value="3">Momin</option>
-                        </optgroup>
-                        <optgroup label="Designer">
-                            <option value="4">Name (id)</option>
-                            <option value="5">Name (id)</option>
-                        </optgroup>
+
+                <div class="dropdown me-2">
+                    <select class="form-multi-select" asp-for="EmployeeIDs"
+                            multiple data-coreui-selection-type="counter"
+                            data-coreui-placeholder="@Html.SmartLocalize("Select Employee")..."
+                            data-coreui-search="true">
+                        @foreach (var group in employees.GroupBy(e => e.GroupName))
+                        {
+                            <optgroup label="@group.Key">
+                                @foreach (var emp in group)
+                                {
+                                    <option value="@emp.Id">@emp.Name</option>
+                                }
+                            </optgroup>
+                        }
                     </select>
                 </div>
                 <div class="dropdown">

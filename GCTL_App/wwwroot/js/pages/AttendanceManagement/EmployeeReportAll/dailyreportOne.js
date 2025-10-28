@@ -1,52 +1,131 @@
-﻿
-function employeeDropdown() {
-    $.ajax({
-        url: '/DailyIndividualReport/GetEmployees',
-        type: 'GET',
-        success: function (data) {
-           
-        },
-        error: function () {
-            console.error('Error fetching employees');
+﻿$(document).ready(function () {
+    // Initialize the functions
+    loadDepartments();
+    loadEmployees();
+});
+
+// Function to load departments based on selected organization
+function loadDepartments() {
+    $('#organizationid').change(function () {
+        var organizationId = $(this).val();
+
+        if (organizationId) {
+            $.ajax({
+                url: '/DailyIndividualReport/GetDepartments',
+                type: 'GET',
+                data: { organizationId: organizationId },
+                success: function (data) {
+                    debugger
+                    const select = $('#multiple-dep-select');
+                    select.empty();
+                    if (data && data.length > 0) {
+                        data.forEach(data => {
+                            select.append(
+                                $('<option>', {
+                                    value: data.id,
+                                    text: data.name
+                                })
+                            );
+                        });
+                    }
+
+                    // CoreUI MultiSelect reinitialization/refresh
+                    const multiSelectInstance = coreui.MultiSelect.getInstance(select[0]);
+
+                    if (multiSelectInstance) {
+                        multiSelectInstance.update(); // Refresh UI to reflect new options
+                    } else {
+                        new coreui.MultiSelect(select[0]); // First time init
+                    }
+
+                   
+                  
+                },
+                error: function () {
+                    alert('Error loading departments');
+                }
+            });
+        } else {
+            $('#multiple-dep-select').empty().append('<option value="">Select Department</option>');
         }
     });
 }
 
-$(document).ready(function () {
-    // AJAX call to fetch employee data
-    $.ajax({
-        url: '/DailyIndividualReport/GetEmployeeData', // Replace with your actual endpoint
-        type: 'GET', // Or 'POST' depending on your requirement
-        success: function (response) {
-            // Assuming response contains data like:
-            // { "developers": [{ "id": 2, "name": "Alam" }, { "id": 3, "name": "Momin" }],
-            //   "designers": [{ "id": 4, "name": "Name" }, { "id": 5, "name": "Name" }] }
+// Function to load employees based on selected department
+function loadEmployees() {
+    $('#multiple-dep-select').change(function () {
+        var departmentId = $(this).val();
 
-            // Empty the select first
-            $('#multiple-emp-select').empty();
-
-            // Create optgroups dynamically
-            if (response.developers && response.developers.length > 0) {
-                var developerGroup = $('<optgroup label="Developer">');
-                response.developers.forEach(function (dev) {
-                    developerGroup.append('<option value="' + dev.id + '">' + dev.name + ' (id)</option>');
-                });
-                $('#multiple-emp-select').append(developerGroup);
-            }
-
-            if (response.designers && response.designers.length > 0) {
-                var designerGroup = $('<optgroup label="Designer">');
-                response.designers.forEach(function (des) {
-                    designerGroup.append('<option value="' + des.id + '">' + des.name + ' (id)</option>');
-                });
-                $('#multiple-emp-select').append(designerGroup);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('Error loading data:', error);
+        if (departmentId) {
+            $.ajax({
+                url: '/DailyIndividualReport/GetEmployees',
+                type: 'GET',
+                data: { departmentId: departmentId },
+                success: function (data) {
+                    $('#multiple-emp-select').empty().append('<option value="">Select Employee</option>');
+                    data.forEach(function (employee) {
+                        $('#multiple-emp-select').append('<option value="' + employee.id + '">' + employee.name + '</option>');
+                    });
+                },
+                error: function () {
+                    alert('Error loading employees');
+                }
+            });
+        } else {
+            $('#multiple-emp-select').empty().append('<option value="">Select Employee</option>');
         }
     });
-});
+}
+
+//function employeeDropdown() {
+//    $.ajax({
+//        url: '/DailyIndividualReport/GetEmployees',
+//        type: 'GET',
+//        success: function (data) {
+           
+//        },
+//        error: function () {
+//            console.error('Error fetching employees');
+//        }
+//    });
+//}
+
+
+//$(document).ready(function () {
+//    // AJAX call to fetch employee data
+//    $.ajax({
+//        url: '/DailyIndividualReport/GetEmployeeData', // Replace with your actual endpoint
+//        type: 'GET', // Or 'POST' depending on your requirement
+//        success: function (response) {
+//            // Assuming response contains data like:
+//            // { "developers": [{ "id": 2, "name": "Alam" }, { "id": 3, "name": "Momin" }],
+//            //   "designers": [{ "id": 4, "name": "Name" }, { "id": 5, "name": "Name" }] }
+
+//            // Empty the select first
+//            $('#multiple-emp-select').empty();
+
+//            // Create optgroups dynamically
+//            if (response.developers && response.developers.length > 0) {
+//                var developerGroup = $('<optgroup label="Developer">');
+//                response.developers.forEach(function (dev) {
+//                    developerGroup.append('<option value="' + dev.id + '">' + dev.name + ' (id)</option>');
+//                });
+//                $('#multiple-emp-select').append(developerGroup);
+//            }
+
+//            if (response.designers && response.designers.length > 0) {
+//                var designerGroup = $('<optgroup label="Designer">');
+//                response.designers.forEach(function (des) {
+//                    designerGroup.append('<option value="' + des.id + '">' + des.name + ' (id)</option>');
+//                });
+//                $('#multiple-emp-select').append(designerGroup);
+//            }
+//        },
+//        error: function (xhr, status, error) {
+//            console.error('Error loading data:', error);
+//        }
+//    });
+//});
 
 
 //////////////////////////////Data Table Initialization//////////////////////////////
