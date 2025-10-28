@@ -10,6 +10,10 @@ namespace GCTL.Core.ViewModels.Finance.OpeningBalancesVM
     {
         public int? OpeningBalanceID { get; set; }
 
+        public int? MainAccountID { get; set; }
+
+        public int? SubAccountID { get; set; }
+
         public int? TrxAccID { get; set; }
 
         public string? OpeningBalanceCode { get; set; }

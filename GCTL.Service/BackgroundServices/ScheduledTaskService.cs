@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,20 +13,23 @@ namespace GCTL.Service.BackgroundServices
     {
         private readonly ILogger<ScheduledTaskService> _logger;
         private readonly IEnumerable<IBackgroundTask> _tasks;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly Dictionary<string, DateTime> _lastRunTimes = new();
 
         public ScheduledTaskService(
             ILogger<ScheduledTaskService> logger,
-            IEnumerable<IBackgroundTask> tasks)
+            IEnumerable<IBackgroundTask> tasks,
+            IServiceScopeFactory scopeFactory)
         {
             _logger = logger;
             _tasks = tasks;
+            _scopeFactory = scopeFactory;
         }
 
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("ScheduledTaskRunnerService started.");
+            _logger.LogInformation("ScheduledTask started.");
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -47,7 +51,12 @@ namespace GCTL.Service.BackgroundServices
                         try
                         {
                             _logger.LogInformation($"Running scheduled task: {task.Name} at {now}");
-                            await task.ExecuteAsync(stoppingToken);
+                            //await task.ExecuteAsync(stoppingToken);
+                            // Create a scope for each run
+                            using (var scope = _scopeFactory.CreateScope())
+                            {
+                                await task.ExecuteAsync(stoppingToken);
+                            }
                             _lastRunTimes[task.Name] = now;
                         }
                         catch (Exception ex)

@@ -16,11 +16,12 @@
         var getByIdUrl = settings.baseUrl + "/GetById";
         var createUrl = settings.baseUrl + "/Create";
         var updateUrl = settings.baseUrl + "/Update";
-        var deleteUrl = settings.baseUrl + "/Delete";
+        var deleteUrl = settings.baseUrl + "/SoftDelete";
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
         var generateNextCodeUrl = settings.baseUrl + "/GenerateThreeDigitCodeAsync";
 
         $(() => {
+            generateThreeDigitCodeAsync();
 
 
             // #region Save
@@ -73,6 +74,113 @@
                 } finally {
                     hideLoadingIndicator();
                     saveBtn.prop('disabled', false).html('Save');
+                }
+            });
+            // #endregion
+
+
+            // #region Edit
+            $(document).on('click', settings.editBtn, async function (e) {
+                e.preventDefault();
+
+                $('.openingBalance-editBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i>');
+
+                var id = $(this).data('id');
+                try {
+                    const response = await $.get(getByIdUrl, { id });
+                    if (response.isSuccess == true) {
+                        const data = response.data;
+
+                        $('#openingBalance-form #OpeningBalanceID').val(data.openingBalanceID);
+                        $('#openingBalance-form #OpeningBalanceCode').val(data.openingBalanceCode);
+                        $('#openingBalance-form #Amount').val(data.amount);
+                        $('#openingBalance-form #Description').val(data.description);
+
+                        mainAccDD.setChoiceByValue(data.mainAccountID.toString());
+
+                        await getSubAccByMainAccId(data.mainAccountID); 
+                        await subAccDD.setChoiceByValue(data.subAccountID.toString()); 
+
+                        await getTrxAccByMainAccIdSubAccId(data.mainAccountID, data.subAccountID);
+                        await trxAccDD.setChoiceByValue(data.trxAccID.toString()); 
+
+                        trxTypeDD.setChoiceByValue(data.trxType.toString());
+
+                        $('#openingBalance-form #openingBalance-saveBtn').text('Update');
+                        $('.openingBalance-editBtn').prop('disabled', false).html('<i class="fas fa-edit text-black"></i>');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        toastr.warning(response.message);
+                        $('.openingBalance-editBtn').prop('disabled', false).html('<i class="fas fa-edit text-black"></i>');
+                    }
+                } catch (error) {
+                    console.error("Edit load failed:", error);
+                    $('.openingBalance-editBtn').prop('disabled', false).html('<i class="fas fa-edit text-black"></i>');
+                }
+            })
+            // #endregion
+
+
+            // #region Delete
+            $("#trxAccount-delSel").on('click', function () {
+                var selectedItems = $(".trxAccount-selectItem:checked");
+                var selectedIds = [];
+
+                selectedItems.each(function () {
+                    selectedIds.push($(this).data('id'));
+                });
+
+                if (selectedIds.length > 0) {
+                    showDeleteModal(function () {
+                        $.ajax({
+                            url: deleteUrl,
+                            method: 'DELETE',
+                            data: { ids: selectedIds },
+                            success: function (response) {
+                                if (response.isSuccess) {
+                                    toastr.success(response.message);
+                                    $("#trxAccount-check-all").prop('checked', false);
+                                    $('.trxAccount-selectItem').prop('checked', false);
+                                    clear();
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                            },
+                            error: function () {
+                                toastr.error("Error occurred while deleting.");
+                            }
+                        });
+                    });
+                } else {
+                    toastr.info("Please select at least one item to delete.");
+                }
+            });
+
+            $(document).on('click', '#trxAccount-single-delete', function () {
+                var id = $(this).data('id');
+
+                if (id) {
+                    showDeleteModal(function () {
+                        $.ajax({
+                            url: deleteUrl,
+                            method: 'DELETE',
+                            data: { ids: [id] },
+                            success: function (response) {
+                                if (response.isSuccess) {
+                                    toastr.success(response.message);
+                                    $("#trxAccount-check-all").prop('checked', false);
+                                    clear();
+                                } else {
+                                    toastr.error(response.message);
+                                }
+                            },
+                            error: function () {
+                                toastr.error("Error occurred while deleting.");
+                            }
+                        });
+                    });
+                } else {
+                    toastr.error("Invalid action.");
                 }
             });
             // #endregion
@@ -155,10 +263,10 @@
                 const subAccId = $(this).val();
                 const mainAccId = $('#MainAccountID').val();
 
-                getTrxAccByMainAccId(mainAccId, subAccId);
+                getTrxAccByMainAccIdSubAccId(mainAccId, subAccId);
             });
 
-            function getTrxAccByMainAccId(mainAccId, subAccId) {
+            function getTrxAccByMainAccIdSubAccId(mainAccId, subAccId) {
                 return new Promise((resolve, reject) => {
                     $.ajax({
                         url: '/OpeningBalance/GetTrxAccByMainAccIdSubAccId',
@@ -355,7 +463,6 @@
 
 
             // #region generateThreeDigitCodeAsync
-            generateThreeDigitCodeAsync();
             function generateThreeDigitCodeAsync() {
 
                 $.ajax({
@@ -471,8 +578,8 @@
                                     </td>
                                     <td class="align-middle text-start white-space-nowrap ps-0">${item.openingBalanceCode}</td>
                                     <td class="align-middle text-start white-space-nowrap ps-0">${item.trxAccName}</td>
-                                    <td class="align-middle text-start white-space-nowrap ps-0">${item.amount}</td>
                                     <td class="align-middle text-start white-space-nowrap ps-0">${item.trxType}</td>
+                                    <td class="align-middle text-start white-space-nowrap ps-0">${item.amount}</td>
                                     <td class="align-middle text-start white-space-nowrap ps-0">${item.description}</td>
                                     <td class="align-middle text-start white-space-nowrap ps-0">
                                         <div class="d-flex gap-2">
@@ -488,7 +595,7 @@
                             `);
                         });
                     } else {
-                        tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
+                        tableBody.append('<tr><td colspan="7" class="text-center">No data available</td></tr>');
                     }
 
                     var paginationInfo = response.paginationInfo;

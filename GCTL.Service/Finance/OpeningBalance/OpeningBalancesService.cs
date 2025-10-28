@@ -135,7 +135,7 @@ namespace GCTL.Service.Finance.OpeningBalance
 
                 return new CommonReturnViewModel
                 {
-                    Success = false,
+                    Success = true,
                     Message = $"Updated Successfully."
                 };
             }
@@ -157,12 +157,18 @@ namespace GCTL.Service.Finance.OpeningBalance
         {
             try
             {
-                var data = await _genericRepository.GetByIdAsync(id);
+                var data = await _genericRepository.AllActive()
+                    .Include(x => x.TrxAcc)
+                    .ThenInclude(x => x.SubAccount)
+                    .ThenInclude(x => x.MainAccount)
+                    .FirstOrDefaultAsync(x => x.OpeningBalanceID == id);
                 if (data == null) return null;
 
                 return new GetByIdOpeningBalancesVM
                 {
                     OpeningBalanceID = data.OpeningBalanceID,
+                    MainAccountID = data.TrxAcc?.SubAccount?.MainAccountID,
+                    SubAccountID = data.TrxAcc?.SubAccountID,
                     TrxAccID = data.TrxAccID,
                     OpeningBalanceCode = data.OpeningBalanceCode,
                     Amount = data.Amount,
@@ -234,45 +240,53 @@ namespace GCTL.Service.Finance.OpeningBalance
         #region GetAllAsync
         public async Task<PaginationService<OpeningBalances, GetAllOpeningBalancesVM>.PaginationResult<GetAllOpeningBalancesVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "OpeningBalanceID", string sortOrder = "desc")
         {
-            var query = _genericRepository.AllActive()
+            try
+            {
+                var query = _genericRepository.AllActive()
                 .Include(x => x.TrxAcc)
-                .Where(x => x.DeletedAt == null);
+                .AsNoTracking()
+                .Where(x => x.DeletedAt == null && x.DeletedBy == null);
 
-            if (!string.IsNullOrEmpty(sortColumn))
-            {
-                query = sortColumn switch
+                if (!string.IsNullOrEmpty(sortColumn))
                 {
-                    "OpeningBalanceID" => sortOrder == "desc" ? query.OrderByDescending(x => x.OpeningBalanceID) : query.OrderBy(x => x.OpeningBalanceID),
-                    "OpeningBalanceCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.OpeningBalanceCode) : query.OrderBy(x => x.OpeningBalanceCode),
-                    "Amount" => sortOrder == "desc" ? query.OrderByDescending(x => x.Amount) : query.OrderBy(x => x.Amount),
-                    "TrxType" => sortOrder == "desc" ? query.OrderByDescending(x => x.TrxType) : query.OrderBy(x => x.TrxType),
-                    "Description" => sortOrder == "desc" ? query.OrderByDescending(x => x.Description) : query.OrderBy(x => x.Description),
-                    "TrxAccName" => sortOrder == "desc" ? query.OrderByDescending(x => x.TrxAcc.TrxAccName) : query.OrderBy(x => x.TrxAcc.TrxAccName),
-                    _ => query.OrderBy(x => x.OpeningBalanceID)
-                };
-            }
+                    query = sortColumn switch
+                    {
+                        "OpeningBalanceID" => sortOrder == "desc" ? query.OrderByDescending(x => x.OpeningBalanceID) : query.OrderBy(x => x.OpeningBalanceID),
+                        "OpeningBalanceCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.OpeningBalanceCode) : query.OrderBy(x => x.OpeningBalanceCode),
+                        "Amount" => sortOrder == "desc" ? query.OrderByDescending(x => x.Amount) : query.OrderBy(x => x.Amount),
+                        "TrxType" => sortOrder == "desc" ? query.OrderByDescending(x => x.TrxType) : query.OrderBy(x => x.TrxType),
+                        "Description" => sortOrder == "desc" ? query.OrderByDescending(x => x.Description) : query.OrderBy(x => x.Description),
+                        "TrxAccName" => sortOrder == "desc" ? query.OrderByDescending(x => x.TrxAcc.TrxAccName) : query.OrderBy(x => x.TrxAcc.TrxAccName),
+                        _ => query.OrderBy(x => x.OpeningBalanceID)
+                    };
+                }
 
-            if (pageSize == 0)
-            {
-                pageSize = await query.CountAsync();
-                pageNumber = 1;
-            }
-
-            return await PaginationService<OpeningBalances, GetAllOpeningBalancesVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
-                term => x => EF.Functions.Like(x.OpeningBalanceCode, $"%{term}%")
-                || EF.Functions.Like(x.TrxAcc.TrxAccName, $"%{term}%")
-                || EF.Functions.Like(x.Amount, $"%{term}%")
-                || EF.Functions.Like(x.TrxType, $"%{term}%")
-                || EF.Functions.Like(x.Description, $"%{term}%"),
-                x => new GetAllOpeningBalancesVM
+                if (pageSize == 0)
                 {
-                    OpeningBalanceID = x.OpeningBalanceID,
-                    TrxAccName = x.TrxAcc?.TrxAccName ?? "-",
-                    OpeningBalanceCode = x.OpeningBalanceCode ?? "-",
-                    Amount = x.Amount ?? 0,
-                    TrxType = x.TrxType ?? "-",
-                    Description = x.Description ?? "-"
-                });
+                    pageSize = await query.CountAsync();
+                    pageNumber = 1;
+                }
+
+                return await PaginationService<OpeningBalances, GetAllOpeningBalancesVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
+                    term => x => EF.Functions.Like(x.OpeningBalanceCode, $"%{term}%")
+                    || EF.Functions.Like(x.TrxAcc.TrxAccName, $"%{term}%")
+                    || EF.Functions.Like(x.Amount.ToString(), $"%{term}%")
+                    || EF.Functions.Like(x.TrxType, $"%{term}%")
+                    || EF.Functions.Like(x.Description, $"%{term}%"),
+                    x => new GetAllOpeningBalancesVM
+                    {
+                        OpeningBalanceID = x.OpeningBalanceID,
+                        TrxAccName = x.TrxAcc?.TrxAccName ?? "-",
+                        OpeningBalanceCode = x.OpeningBalanceCode ?? "-",
+                        Amount = x.Amount ?? 0,
+                        TrxType = x.TrxType ?? "-",
+                        Description = x.Description ?? "-"
+                    });
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
         #endregion
 
@@ -312,7 +326,7 @@ namespace GCTL.Service.Finance.OpeningBalance
                 {
                     return "001";
                 }
-                var lastNumber = int.Parse(lastCode.Substring(1));
+                var lastNumber = int.Parse(lastCode);
 
                 var nextCode = lastNumber + 1;
 
