@@ -67,7 +67,7 @@ namespace GCTL_App.Controllers.Finance
                     return Json(new { isSuccess = true, message = "Saved Successfully." });
                 }
 
-                var orderedKeys = new[] { "MainAccountID", "SubAccountID", "TrxAccID", "OpeningBalanceCode", "Amount", "TrxType" };
+                var orderedKeys = new[] { "MainAccountID", "SubAccountID", "TrxAccID", "OpeningBalanceCode", "TrxType", "Amount" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -114,7 +114,7 @@ namespace GCTL_App.Controllers.Finance
                     });
                 }
 
-                var orderedKeys = new[] { "MainAccountID", "SubAccountID", "TrxAccID", "OpeningBalanceCode", "Amount", "TrxType" };
+                var orderedKeys = new[] { "MainAccountID", "SubAccountID", "TrxAccID", "OpeningBalanceCode", "TrxType", "Amount" };
 
                 foreach (var key in orderedKeys)
                 {

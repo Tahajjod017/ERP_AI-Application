@@ -57,7 +57,7 @@
                         data: formData,
                     });
 
-                    const allFields = ["MainAccountID", "SubAccountID", "TrxAccID", "OpeningBalanceCode", "Amount", "TrxType"];
+                    const allFields = ["MainAccountID", "SubAccountID", "TrxAccID", "OpeningBalanceCode", "TrxType", "Amount"];
                     allFields.forEach(fieldId => validateField(fieldId, response));
 
                     if (response.isSuccess) {
