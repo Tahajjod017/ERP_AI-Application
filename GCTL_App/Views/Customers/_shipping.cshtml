@@ -1,20 +1,17 @@
 ﻿@using GCTL.Core.ViewModels.CRM.Customer
 @model AddressVM
-<div data-init="initBranchForm">
-
+<div data-init="initShippingForm">
     <div class="d-flex flex-column h-100 my-3">
-        <h5 class="mb-3 text-body-highlight ms-4 fs-7 fw-semibold ms-2">Add Branch</h5>
+        <h5 class="mb-3 text-body-highlight ms-4 fs-7 fw-semibold ms-2">Add Shipping Address</h5>
         <div class="row g-3">
-            <form id="branchForm" action="/Customers/SaveBranch" method="post">
-                <input type="number" asp-for="ID" name="name" hidden />
+            <form id="ShippingForm" action="/Customers/SaveShipping" method="post">
+                <input type="number" id="bId" name="name" hidden />
                 <div class="row px-5">
-                    <!-- Left Section -->
                     <div class="col-md-6">
                         <div class="col-12">
                             <div class="mb-3 form-floating form-floating-advance-select select2-floating">
-                                <select asp-for="CustomerID" id="customeId" class="branchCustomer searchableSelect select2">
+                                <select asp-for="CustomerID" class="idBank select2">
                                     <option value="">Select Customer</option>
-
                                 </select>
                                 <label for="customerID">Customer Name</label>
                             </div>
@@ -106,7 +103,7 @@
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6">
                                     <div class="form-floating form-floating-advance-select select2-floating">
-                                        <select asp-for="CountryID" id="countryId" class="countryField searchableSelect select2">
+                                        <select asp-for="CountryID" id="countryId3" class="searchableSelect select2">
                                             <option value="">Select Country</option>
                                         </select>
                                         <label for="priorityID">Country</label>
@@ -141,4 +138,4 @@
         </div>
     </div>
 </div>
-<script src="~/js/pages/crm/Customer/branch.js"></script>
+<script src="~/js/pages/crm/Customer/shipping.js"></script>

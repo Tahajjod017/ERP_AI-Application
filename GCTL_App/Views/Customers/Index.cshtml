@@ -1,5 +1,7 @@
 ﻿<div>
-    <partial name="_indexModal" />
+    @await Html.PartialAsync("_indexModal")
+
+    @await Html.PartialAsync("_table")
 </div>
 @section Scripts{
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgZTw6AA9Lc3EKX47xObpNOdJ2vFQ0B0w&libraries=places"></script>
