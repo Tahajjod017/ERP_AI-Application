@@ -456,7 +456,7 @@
             // #endregion
 
 
-            // #region Edit
+            // #region on change Posting Rule
             $(document).on('change', '#PostingRuleID', async function (e) {
                 e.preventDefault();
 

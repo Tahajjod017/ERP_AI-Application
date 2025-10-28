@@ -282,7 +282,10 @@ namespace GCTL.Core.Repository
             await transaction.RollbackAsync();
             await transaction.DisposeAsync();
         }
+        #endregion
 
+
+        #region Select
         public List<object> GetDropdown(Expression<Func<T, int>> idSelector, Expression<Func<T, string>> nameSelector, Expression<Func<T, bool>>? filter = null)
         {
             var query = _context.Set<T>().AsNoTracking();
@@ -321,15 +324,8 @@ namespace GCTL.Core.Repository
                 .Cast<object>()
                 .ToListAsync(); // Asynchronous version of ToList
         }
-
-
-
-
-
-
-
-
         #endregion
+
 
         #region SelectList Methods
 

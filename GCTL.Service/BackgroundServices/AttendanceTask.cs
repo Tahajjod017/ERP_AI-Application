@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,12 @@ namespace GCTL.Service.BackgroundServices
     public class AttendanceTask : IBackgroundTask
     {
         private readonly ILogger<AttendanceTask> _logger;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public AttendanceTask(ILogger<AttendanceTask> logger)
+        public AttendanceTask(ILogger<AttendanceTask> logger, IServiceScopeFactory scopeFactory)
         {
             _logger = logger;
+            _scopeFactory = scopeFactory;
         }
 
         public string Name => "AttendanceTask";

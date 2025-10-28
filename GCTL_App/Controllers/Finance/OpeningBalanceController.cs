@@ -63,8 +63,8 @@ namespace GCTL_App.Controllers.Finance
                         return Json(new { isSuccess = false, message = $"{model.OpeningBalanceCode} already exists!" });
                     }
 
-                    var result = _openingBalancesService.AddAsync(model);
-                    return Json(new { isSuccess = true, message = "Saved Successfully." });
+                    var result = await _openingBalancesService.AddAsync(model);
+                    return Json(new { isSuccess = result.Success, message = result.Message });
                 }
 
                 var orderedKeys = new[] { "MainAccountID", "SubAccountID", "TrxAccID", "OpeningBalanceCode", "TrxType", "Amount" };
