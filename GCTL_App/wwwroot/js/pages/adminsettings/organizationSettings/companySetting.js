@@ -90,7 +90,7 @@
 $(document).ready(function () {
     $('#companySettingsForm').on('submit', function (e) {
         e.preventDefault();  // Prevent the default form submission
-
+       
         var form = $(this);
         var formData = new FormData(form[0]);  // Create a FormData object from the form
 
