@@ -98,18 +98,34 @@
 
             <!------ tab content ----------->
             <div class="tab-content">
-                <div class="tab-pane fade" id="branch" role="tabpanel" aria-labelledby="branch-tab">
+                <div class="tab-pane fade" id="branch" role="tabpanel" aria-labelledby="branch-tab" data-init="initBranchForm">
                     @await Html.PartialAsync("_branch")
                    @* <partial name="_branch"/> *@
                 </div>
-                <div class="tab-pane fade show active" id="customer" role="tabpanel" aria-labelledby="customer-tab">
+                <div class="tab-pane fade show active" id="customer" role="tabpanel" aria-labelledby="customer-tab" data-init="initCustomerForm">
                     @await Html.PartialAsync("_customer")
+                    @* <partial name="_customer"/> *@
+                </div>
+                <div class="tab-pane fade" id="warehouse" role="tabpanel" aria-labelledby="warehouse-tab" data-init="initWarehouseForm">
+                    @await Html.PartialAsync("_warehouse")
+                    @* <partial name="_customer"/> *@
+                </div>
+                <div class="tab-pane fade" id="shipping" role="tabpanel" aria-labelledby="shipping-tab" data-init="initShippingForm">
+                    @await Html.PartialAsync("_shipping")
                     @* <partial name="_customer"/> *@
                 </div>
             </div>
         </div>
     </div>
+
+
 </div>
+<script>
+    window.addEventListener('DOMContentLoaded', function() {
+        window.initFormsForTabs();
+    });
+</script>
+<script src="~/js/pages/CRM/Customer/common.js"></script>
 @section Scripts {
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgZTw6AA9Lc3EKX47xObpNOdJ2vFQ0B0w&libraries=places"></script>
     <script src="~/js/pages/CRM/intlTelInput.min.js"></script>

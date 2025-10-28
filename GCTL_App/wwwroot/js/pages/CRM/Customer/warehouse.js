@@ -1,49 +1,38 @@
-﻿window.initCustomerForm = function (root) {
+﻿window.initWarehouseForm = function (root) {
     root = root || document;
 
-    //if (window.initCommonFields) initCommonFields(root);
+        //if (window.initCommonFields) initCommonFields(root);
+    // If root is document, skip dataset check
+    if (root !== document && root.dataset.warehouseInitialized) return;
+    if (root !== document) root.dataset.warehouseInitialized = true;
+
+    if (window.initCommonFields) window.initCommonFields(root);
 
 
-
-    //const countrySelect = root.querySelector('#CountryID');
-    ////alert("customer")
-
-    ////const form = root.querySelector("#customerForm");
-    //const saveBtn = root.querySelector("#saveAndExit");
-
-
-    const countrySelect = root.querySelector("#CountryID");
-    if (countrySelect && !countrySelect.dataset.listenerAttached) {
-        countrySelect.dataset.listenerAttached = true;
+    const customerSelect = root.querySelector('#CustomerID');
+    //alert("customer")
+    console.log(root)
+    if (customerSelect && !customerSelect.dataset.select2Initialized) {
+        debugger;
         // 🔥 Smart dropdown parent: modal if inside one, else body
-        let dropdownParent = $(countrySelect).closest('.modal');
+        let dropdownParent = $(customerSelect).closest('.modal');
         if (dropdownParent.length === 0) {
             dropdownParent = $(document.body);
         }
 
-        $(countrySelect).select2({
-            placeholder: 'Select Country',
-            dropdownParent: dropdownParent,
-            ajax: {
-                url: '/CreateLead/GetPriorityList',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { search: params.term || '', page: params.page || 1 };
-                },
-                processResults: function (data, params) {
-                    params.page = params.page || 1;
-                    return {
-                        results: data.items.map(i => ({ id: i.value, text: i.label })),
-                        pagination: { more: data.hasMore }
-                    };
-                },
-                cache: true
-            },
-            width: '100%',
-        });
-    }
+        const initializeSelect = () => {
+            $('.searchableSelect').select2({
+                width: '100%',
+                allowClear: true,
+                placeholder: 'Select an option',
+                language: { noResults: () => 'No results found' },
+                escapeMarkup: markup => markup
+            });
+        };
 
+        initializeSelect();
+    }
+    //#endregion
     const saveBtn = root.querySelector("#saveAndExit");
     if (saveBtn && !saveBtn.dataset.listenerAttached) {
         saveBtn.dataset.listenerAttached = true;
@@ -91,6 +80,5 @@
                 }
             });
         }
-
     }
 };
