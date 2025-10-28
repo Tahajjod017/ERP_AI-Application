@@ -410,7 +410,7 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetBranches
+        #region GetBaseAccounts
         public async Task<List<CommonSelectVM>> GetBaseAccounts()
         {
             try
@@ -431,7 +431,7 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
-        #region GetBranches
+        #region GetAccountClass
         public async Task<List<CommonSelectVM>> GetAccountClass()
         {
             try
