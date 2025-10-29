@@ -51,7 +51,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.DailyRepo
             if (employeeId.HasValue)
                 return Unauthorized();
 
-            var summary = await _dailyReportService.GetSummaryByEmployee(employeeId.HasValue.ToString());
+            var summary = await _dailyReportService.GetSummaryByEmployee(employeeId);
             return Json(summary);
         }
         #region get one employee attendance report
