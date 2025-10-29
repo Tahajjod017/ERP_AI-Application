@@ -1,43 +1,50 @@
 ﻿@model GCTL.Core.ViewModels.Finance.BaseAccountVM.CreateBaseAccountVM
 
-<form asp-action="Create" asp-controller="MasterSetup" method="post" enctype="multipart/form-data" id="baseAccount-form">
-    <div class="row">
-        @Html.AntiForgeryToken()
-
-        <input type="hidden" asp-for="BaseAccountID" />
-
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label" asp-for="BaseAccountName">@Html.SmartLocalize("Base Account Name")<span style="color:red;">&nbsp;*</span></label>
-                <input class="form-control" type="text" asp-for="BaseAccountName" placeholder="@Html.SmartLocalize("Input Base Account Name")" />
-                <span asp-validation-for="BaseAccountName" id="BaseAccountNameError" class="text-danger" style="display:none;"></span>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label" asp-for="BaseAccountCode">@Html.SmartLocalize("Base Account Code")<span style="color:red;">&nbsp;*</span></label>
-                <input class="form-control" type="text" asp-for="BaseAccountCode" placeholder="@Html.SmartLocalize("Input Base Account Code")" />
-                <span asp-validation-for="BaseAccountCode" id="BaseAccountCodeError" class="text-danger" style="display:none;"></span>
-            </div>
-        </div>
-
-        <div class="col-md-12">
-            <div class="mb-3">
-                <label class="form-label" asp-for="Description">@Html.SmartLocalize("Description")</label>
-                <textarea class="form-control" type="text" asp-for="Description" placeholder="@Html.SmartLocalize("Input Description")"></textarea>
-            </div>
-        </div>
-
-        <div class="col-md-12 mb-3">
-            <div class="row g-3 justify-content-end">
-                <div class="col-auto">
-                    <button type="reset" class="btn btn-phoenix-primary px-5" id="baseAccount-resetBtn">@Html.SmartLocalize("Reset")</button>
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary px-5 px-sm-15" id="baseAccount-saveBtn">@Html.SmartLocalize("Save")</button>
-                </div>
-            </div>
-        </div>
+<div class="card mb-2">
+    <div class="card-header">
+        <h3>@Html.SmartLocalize("Add Base Account")</h3>
     </div>
-</form>
+    <div class="card-body">
+        <form asp-action="Create" asp-controller="MasterSetup" method="post" enctype="multipart/form-data" id="baseAccount-form">
+            <div class="row">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="BaseAccountID" />
+
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <label class="form-label" asp-for="BaseAccountName">@Html.SmartLocalize("Base Account Name")<span style="color:red;">&nbsp;*</span></label>
+                        <input class="form-control" type="text" asp-for="BaseAccountName" placeholder="@Html.SmartLocalize("Input Base Account Name")" />
+                        <span asp-validation-for="BaseAccountName" id="BaseAccountNameError" class="text-danger" style="display:none;"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <label class="form-label" asp-for="BaseAccountCode">@Html.SmartLocalize("Base Account Code")<span style="color:red;">&nbsp;*</span></label>
+                        <input class="form-control" type="text" asp-for="BaseAccountCode" placeholder="@Html.SmartLocalize("Input Base Account Code")" />
+                        <span asp-validation-for="BaseAccountCode" id="BaseAccountCodeError" class="text-danger" style="display:none;"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="mb-2">
+                        <label class="form-label" asp-for="Description">@Html.SmartLocalize("Description")</label>
+                        <textarea class="form-control" type="text" asp-for="Description" placeholder="@Html.SmartLocalize("Input Description")"></textarea>
+                    </div>
+                </div>
+
+                <div class="col-md-12 mb-2">
+                    <div class="row g-3 justify-content-end">
+                        <div class="col-auto">
+                            <button type="reset" class="btn btn-phoenix-primary px-5" id="baseAccount-resetBtn">@Html.SmartLocalize("Reset")</button>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary px-5 px-sm-15" id="baseAccount-saveBtn">@Html.SmartLocalize("Save")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

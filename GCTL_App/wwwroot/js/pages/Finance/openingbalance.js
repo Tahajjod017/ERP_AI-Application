@@ -582,7 +582,7 @@
                                     <td class="align-middle text-start white-space-nowrap ps-0">${item.amount}</td>
                                     <td class="align-middle text-start white-space-nowrap ps-0">${item.description}</td>
                                     <td class="align-middle text-start white-space-nowrap ps-0">
-                                        <div class="d-flex gap-2">
+                                        <div class="d-flex justify-content-end align-items-center">
                                             <a href="#!" class="btn btn-outline-light btn-icon openingBalance-editBtn" id="openingBalance-editBtn" data-id="${item.openingBalanceID}">
                                                 <i class="fas fa-edit text-black"></i>
                                             </a>

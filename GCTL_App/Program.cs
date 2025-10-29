@@ -32,9 +32,7 @@ builder.Services.AddSignalR();
 
 #region Authentication & Authorization
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "your-secret-key-123456";
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "https://localhost:7086/";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "https://localhost:7086/";
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "g0tse7xnlowavtuosr4hkjkitrfhttl";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -52,9 +50,27 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        //ValidIssuer = jwtIssuer,
+        //ValidAudience = jwtAudience,
+        IssuerValidator = (issuer, token, parameters) => issuer, // Accept current issuer
+        AudienceValidator = (audiences, token, parameters) => true // Accept current audience
+    };
+
+    // Dynamically determine valid issuer/audience based on incoming request
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var request = context.HttpContext.Request;
+            var currentHost = $"{request.Scheme}://{request.Host}/";
+
+            // Set dynamic issuer/audience
+            context.Options.TokenValidationParameters.ValidIssuer = currentHost;
+            context.Options.TokenValidationParameters.ValidAudience = currentHost;
+
+            return Task.CompletedTask;
+        }
     };
 })
 // Cookies for MVC

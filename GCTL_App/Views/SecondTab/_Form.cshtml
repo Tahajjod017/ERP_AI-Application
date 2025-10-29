@@ -1,57 +1,64 @@
 ﻿@model GCTL.Core.ViewModels.Finance.SecondTabVM.CreateSecondTabVM
 
-<form asp-action="Create" asp-controller="SecondTab" method="post" enctype="multipart/form-data" id="secondTab-form">
-    <div class="row">
-        @Html.AntiForgeryToken()
-
-        <input type="hidden" asp-for="ClassID" />
-
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label" asp-for="BaseAccountID">@Html.SmartLocalize("Choose Base Head")<span style="color:red;">&nbsp;*</span></label>
-                <select class="form-select" asp-for="BaseAccountID" asp-items="@ViewBag.BaseAccountDD as SelectList">
-                    <option value="">@Html.SmartLocalize("Select Base Head")...</option>
-                </select>
-                <span asp-validation-for="BaseAccountID" id="BaseAccountIDError" class="text-danger" style="display:none;"></span>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-
-        </div>
-
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label" asp-for="ClassName">@Html.SmartLocalize("Class Name")<span style="color:red;">&nbsp;*</span></label>
-                <input class="form-control" asp-for="ClassName" type="text" placeholder="@Html.SmartLocalize("Input Class Name")" />
-                <span asp-validation-for="ClassName" id="ClassNameError" class="text-danger" style="display:none;"></span>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="mb-3">
-                <label class="form-label" asp-for="ClassCode">@Html.SmartLocalize("Class Code")<span style="color:red;">&nbsp;*</span></label>
-                <input class="form-control" asp-for="ClassCode" type="text" placeholder="@Html.SmartLocalize("Code can be 0-9")" />
-                <span asp-validation-for="ClassCode" id="ClassCodeError" class="text-danger" style="display:none;"></span>
-            </div>
-        </div>
-
-        <div class="col-md-12">
-            <div class="mb-3">
-                <label class="form-label" asp-for="Description">@Html.SmartLocalize("Description")</label>
-                <textarea class="form-control" asp-for="Description" placeholder="@Html.SmartLocalize("Input Description")"></textarea>
-            </div>
-        </div>
-
-        <div class="col-12 mb-3">
-            <div class="row g-3 justify-content-end">
-                <div class="col-auto">
-                    <button type="reset" class="btn btn-phoenix-primary px-5" id="secondTab-resetBtn">@Html.SmartLocalize("Reset")</button>
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary px-5 px-sm-15" id="secondTab-saveBtn">@Html.SmartLocalize("Save")</button>
-                </div>
-            </div>
-        </div>
+<div class="card mb-2">
+    <div class="card-header">
+        <h3>@Html.SmartLocalize("Add Class")</h3>
     </div>
-</form>
+
+    <div class="card-body">
+        <form asp-action="Create" asp-controller="SecondTab" method="post" enctype="multipart/form-data" id="secondTab-form">
+            <div class="row">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="ClassID" />
+
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <label class="form-label" asp-for="BaseAccountID">@Html.SmartLocalize("Choose Base Head")<span style="color:red;">&nbsp;*</span></label>
+                        <select class="form-select" asp-for="BaseAccountID" asp-items="@ViewBag.BaseAccountDD as SelectList">
+                            <option value="">@Html.SmartLocalize("Select Base Head")...</option>
+                        </select>
+                        <span asp-validation-for="BaseAccountID" id="BaseAccountIDError" class="text-danger" style="display:none;"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <label class="form-label" asp-for="ClassName">@Html.SmartLocalize("Class Name")<span style="color:red;">&nbsp;*</span></label>
+                        <input class="form-control" asp-for="ClassName" type="text" placeholder="@Html.SmartLocalize("Input Class Name")" />
+                        <span asp-validation-for="ClassName" id="ClassNameError" class="text-danger" style="display:none;"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <label class="form-label" asp-for="ClassCode">@Html.SmartLocalize("Class Code")<span style="color:red;">&nbsp;*</span></label>
+                        <input class="form-control" asp-for="ClassCode" type="text" placeholder="@Html.SmartLocalize("Code can be 0-9")" />
+                        <span asp-validation-for="ClassCode" id="ClassCodeError" class="text-danger" style="display:none;"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="mb-2">
+                        <label class="form-label" asp-for="Description">@Html.SmartLocalize("Description")</label>
+                        <textarea class="form-control" asp-for="Description" placeholder="@Html.SmartLocalize("Input Description")"></textarea>
+                    </div>
+                </div>
+
+                <div class="col-12 mb-2">
+                    <div class="row g-3 justify-content-end">
+                        <div class="col-auto">
+                            <button type="reset" class="btn btn-phoenix-primary px-5" id="secondTab-resetBtn">@Html.SmartLocalize("Reset")</button>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary px-5 px-sm-15" id="secondTab-saveBtn">@Html.SmartLocalize("Save")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
