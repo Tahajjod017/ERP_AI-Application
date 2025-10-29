@@ -20,7 +20,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
         Task<AttendanceSummaryDto> GetSummaryAll();
         Task<List<CommonSelectVM>> GetDepartmentByOrgId(int? orgId);
         Task<List<CommonSelectVM>> GetEmployeeByDepId(int? depId);
-        Task<AttendanceSummaryDto> GetSummaryByEmployee(string employeeId);
+        Task<AttendanceSummaryDto> GetSummaryByEmployee(int? employeeId);
 
     }
 }
