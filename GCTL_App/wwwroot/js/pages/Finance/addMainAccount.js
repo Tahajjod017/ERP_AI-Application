@@ -461,8 +461,8 @@
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.mainAccountCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.description}</td>
-                                    <td class="align-middle text-end white-space-nowrap pe-2">
-                                        <div class="row g-3">
+                                    <td class="align-middle text-start white-space-nowrap pe-2">
+                                        <div class="d-flex justify-content-end align-items-center">
                                             <a href="#!" class="btn btn-outline-light btn-icon me-2 addMainAccount-edit" id="addMainAccount-edit" data-id="${item.mainAccountID}"><i class="fas fa-edit text-black"></i></a>
                                             <a href="#!" class="btn btn-outline-light btn-icon addMainAccount-single-delete" id="addMainAccount-single-delete" data-id="${item.mainAccountID}"><i class="far fa-trash-alt text-black"></i></a>
                                         </div>

@@ -73,76 +73,86 @@
 
 <div class="tab-content mt-3">
     <div class="tab-pane fade show active">
-        <div class="row">
-            <div class="col-md-4 bg-body-emphasis p-2">
-                <div class="row">
-                    <div class="col-md-12">
-                        <label class="form-label" asp-for="ClassID">@Html.SmartLocalize("Select Class")<span style="color:red;">*&nbsp;</span></label>
-                        <select class="form-select" asp-for="ClassID">
-                            <option value="">@Html.SmartLocalize("Select Class")...</option>
-                            @foreach (var group in accountClassDD.GroupBy(e => e.GroupName))
-                            {
-                                <optgroup label="@group.Key">
-                                    @foreach (var emp in group)
-                                    {
-                                        <option value="@emp.Id">@emp.Name</option>
-                                    }
-                                </optgroup>
-                            }
-                        </select>
-                        <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
-                    </div>
-                </div>
+        <div class="row gx-2">
 
-                <div class="d-grid">
-                    <ul class="nav addSubAccount-ul flex-column list">
-                    </ul>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="form-label" asp-for="ClassID">@Html.SmartLocalize("Select Class")<span style="color:red;">*&nbsp;</span></label>
+                                <select class="form-select" asp-for="ClassID">
+                                    <option value="">@Html.SmartLocalize("Select Class")...</option>
+                                    @foreach (var group in accountClassDD.GroupBy(e => e.GroupName))
+                                    {
+                                        <optgroup label="@group.Key">
+                                            @foreach (var emp in group)
+                                            {
+                                                <option value="@emp.Id">@emp.Name</option>
+                                            }
+                                        </optgroup>
+                                    }
+                                </select>
+                                <span asp-validation-for="ClassID" id="ClassIDError" class="text-danger" style="display:none;"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <ul class="nav addSubAccount-ul flex-column list">
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
+
             <div class="col-md-8">
-                <form asp-controller="AddSubAccount" asp-action="Create" method="post" enctype="multipart/form-data" id="addSubAccount-form">
-                    <div class="row pt-2">
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <form asp-controller="AddSubAccount" asp-action="Create" method="post" enctype="multipart/form-data" id="addSubAccount-form">
+                            <div class="row pt-2">
 
-                        @Html.AntiForgeryToken()
+                                @Html.AntiForgeryToken()
 
-                        <input type="hidden" asp-for="SubAccountID" />
-                        <input type="hidden" asp-for="MainAccountID" />
+                                <input type="hidden" asp-for="SubAccountID" />
+                                <input type="hidden" asp-for="MainAccountID" />
 
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label" asp-for="SubAccountName">@Html.SmartLocalize("Sub Account Name")<span style="color:red;">*&nbsp;</span></label>
-                                <input class="form-control" asp-for="SubAccountName" type="text" placeholder="@Html.SmartLocalize("Input Sub Account Name")" />
-                                <span asp-validation-for="SubAccountName" id="SubAccountNameError" class="text-danger" style="display:none;"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label" asp-for="SubAccountCode">@Html.SmartLocalize("Sub Account Code")<span style="color:red;">*&nbsp;</span></label>
-                                <input class="form-control bg-light" asp-for="SubAccountCode" type="text" placeholder="@Html.SmartLocalize("Input Sub Account Code")" readonly="readonly" />
-                                <span asp-validation-for="SubAccountCode" id="SubAccountCodeError" class="text-danger" style="display:none;"></span>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label class="form-label" asp-for="Description">@Html.SmartLocalize("Description")</label>
-                                <textarea class="form-control" type="text" asp-for="Description" placeholder="@Html.SmartLocalize("Input Description")"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-12 mb-4">
-                            <div class="row g-3 justify-content-end">
-                                <div class="col-auto">
-                                    <button type="reset" class="btn btn-phoenix-primary px-5" id="addSubAccount-resetBtn">@Html.SmartLocalize("Reset")</button>
+                                <div class="col-md-6">
+                                    <div class="mb-2">
+                                        <label class="form-label" asp-for="SubAccountName">@Html.SmartLocalize("Sub Account Name")<span style="color:red;">*&nbsp;</span></label>
+                                        <input class="form-control" asp-for="SubAccountName" type="text" placeholder="@Html.SmartLocalize("Input Sub Account Name")" />
+                                        <span asp-validation-for="SubAccountName" id="SubAccountNameError" class="text-danger" style="display:none;"></span>
+                                    </div>
                                 </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-primary px-5 px-sm-15" id="addSubAccount-saveBtn">@Html.SmartLocalize("Save")</button>
+                                <div class="col-md-6">
+                                    <div class="mb-2">
+                                        <label class="form-label" asp-for="SubAccountCode">@Html.SmartLocalize("Sub Account Code")<span style="color:red;">*&nbsp;</span></label>
+                                        <input class="form-control bg-light" asp-for="SubAccountCode" type="text" placeholder="@Html.SmartLocalize("Input Sub Account Code")" readonly="readonly" />
+                                        <span asp-validation-for="SubAccountCode" id="SubAccountCodeError" class="text-danger" style="display:none;"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-2">
+                                        <label class="form-label" asp-for="Description">@Html.SmartLocalize("Description")</label>
+                                        <textarea class="form-control" type="text" asp-for="Description" placeholder="@Html.SmartLocalize("Input Description")"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <div class="row g-3 justify-content-end">
+                                        <div class="col-auto">
+                                            <button type="reset" class="btn btn-phoenix-primary px-5" id="addSubAccount-resetBtn">@Html.SmartLocalize("Reset")</button>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="submit" class="btn btn-primary px-5 px-sm-15" id="addSubAccount-saveBtn">@Html.SmartLocalize("Save")</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
-                </form>
+                </div>
 
-                <div class="card-body py-0 scrollbar to-do-list-body">
-                    <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis py-5 border-y">
+                <div class="card">
+                    <div class="card-body">
                         <div class="row g-3 justify-content-between align-items-end mb-4">
                             <div class="col-12 col-sm-auto">
                                 <div class="d-flex align-items-center me-3" style="width: auto;">
@@ -178,7 +188,7 @@
                         </div>
 
                         <div class="table-responsive ms-n1 ps-1 scrollbar">
-                            <table class="table fs-9 mb-0 border-top border-translucent">
+                            <table class="table table-striped table-hover fs-9 mb-0 border-top border-translucent">
                                 <thead>
                                     <tr>
                                         <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 5%;">

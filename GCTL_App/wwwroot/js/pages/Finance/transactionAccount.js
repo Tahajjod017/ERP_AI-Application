@@ -676,8 +676,8 @@
                                     <td class="align-middle white-space-nowrap ps-0">${item.trxAccName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.trxAccCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.description}</td>
-                                    <td class="align-middle white-space-nowrap ps-0">
-                                        <div class="d-flex gap-2">
+                                    <td class="align-middle text-start white-space-nowrap ps-0">
+                                        <div class="d-flex justify-content-end align-items-center">
                                             <a href="#!" class="btn btn-outline-light btn-icon trxAccount-editBtn" id="trxAccount-editBtn" data-id="${item.trxAccID}">
                                                 <i class="fas fa-edit text-black"></i>
                                             </a>

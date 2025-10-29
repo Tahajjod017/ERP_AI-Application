@@ -228,12 +228,14 @@
                         <span id="AmountError" class="text-danger" style="display:none;"></span>
                     </td>
                     <td>
-                        <a href="#!" class="btn btn-outline-light btn-icon detailsRemoveRowBtn">
-                            <i class="far fa-trash-alt text-black"></i>
-                        </a>
-                        <button class="btn btn-outline-light btn-icon detailsAddRowBtn">
-                            <i class="fa-regular fa-square-plus text-black"></i>
-                        </button>
+                        <div class="d-flex justify-content-end align-items-center">
+                            <a href="#!" class="btn btn-outline-light btn-icon me-2 detailsRemoveRowBtn">
+                                <i class="far fa-trash-alt text-black"></i>
+                            </a>
+                            <button class="btn btn-outline-light btn-icon detailsAddRowBtn">
+                                <i class="fa-regular fa-square-plus text-black"></i>
+                            </button>
+                        </div>
                     </td>
                 `);
 
@@ -1002,7 +1004,7 @@
                                     <td class="align-middle text-start white-space-nowrap ps-0">${item.note}</td>
                                     <td class="align-middle text-start white-space-nowrap ps-0">${item.fileLink}</td>
                                     <td class="align-middle text-start white-space-nowrap ps-0">
-                                        <div class="d-flex gap-2">
+                                        <div class="d-flex justify-content-end align-items-center">
                                             <a href="#!" class="btn btn-outline-light btn-icon addJournals-detailsBtn" id="addJournals-detailsBtn" data-id="${item.journalID}">
                                                 <i class="far fa-eye text-black"></i>
                                             </a>
