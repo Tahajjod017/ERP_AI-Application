@@ -13,17 +13,14 @@ namespace GCTL.Service.BackgroundServices
     {
         private readonly ILogger<ScheduledTaskService> _logger;
         private readonly IEnumerable<IBackgroundTask> _tasks;
-        private readonly IServiceScopeFactory _scopeFactory;
         private readonly Dictionary<string, DateTime> _lastRunTimes = new();
 
         public ScheduledTaskService(
             ILogger<ScheduledTaskService> logger,
-            IEnumerable<IBackgroundTask> tasks,
-            IServiceScopeFactory scopeFactory)
+            IEnumerable<IBackgroundTask> tasks)
         {
             _logger = logger;
             _tasks = tasks;
-            _scopeFactory = scopeFactory;
         }
 
 
@@ -51,12 +48,8 @@ namespace GCTL.Service.BackgroundServices
                         try
                         {
                             _logger.LogInformation($"Running scheduled task: {task.Name} at {now}");
-                            //await task.ExecuteAsync(stoppingToken);
-                            // Create a scope for each run
-                            using (var scope = _scopeFactory.CreateScope())
-                            {
-                                await task.ExecuteAsync(stoppingToken);
-                            }
+                            await task.ExecuteAsync(stoppingToken);
+                            
                             _lastRunTimes[task.Name] = now;
                         }
                         catch (Exception ex)
