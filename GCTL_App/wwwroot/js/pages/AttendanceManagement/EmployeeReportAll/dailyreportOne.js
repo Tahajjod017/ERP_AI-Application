@@ -77,6 +77,42 @@ function loadEmployees() {
     });
 }
 
+function loadAttendanceIndividualSummary() {
+    $.ajax({
+        url: '/DailyIndividualReport/attendanceIndividualsummary', // Replace with your actual endpoint
+        method: 'GET',
+       
+        success: function (response) {
+            // Update employee name
+            $('#employee_name').text(`Mr. Hasan (${response.employeeId})`);
+
+            // Optional: update description if dynamic
+            $('#attendance_description').text(response.description ||
+                `The table below presents all the information about when Mr. Hasan came to the office and when he left the office this month.`);
+
+            // Update attendance metrics
+            $('#total_days_count').text(`${response.totalDays} Days`);
+            $('#total_days_percent').html(`<i class="ti ti-arrow-wave-right-down me-1"></i>${response.percentages.totalDays}%`);
+
+            $('#late_days_count').text(`${response.lateDays} Days`);
+            $('#late_days_percent').html(`<i class="ti ti-arrow-wave-right-down me-1"></i>${response.percentages.lateDays}%`);
+
+            $('#absent_days_count').text(`${response.absentDays} Days`);
+            $('#absent_days_percent').html(`<i class="ti ti-arrow-wave-right-down me-1"></i>${response.percentages.absentDays}%`);
+
+            $('#leave_days_count').text(`${response.leaveDays} Days`);
+            $('#leave_days_percent').html(`<i class="ti ti-arrow-wave-right-down me-1"></i>${response.percentages.leaveDays}%`);
+
+            $('#day_off_days_count').text(`${response.dayOffDays} Days`);
+            $('#day_off_days_percent').html(`<i class="ti ti-arrow-wave-right-down me-1"></i>${response.percentages.dayOffDays}%`);
+        },
+        error: function (err) {
+            console.error('Error loading attendance summary:', err);
+            alert('Failed to load attendance data. Please try again later.');
+        }
+    });
+}
+
 //function employeeDropdown() {
 //    $.ajax({
 //        url: '/DailyIndividualReport/GetEmployees',
