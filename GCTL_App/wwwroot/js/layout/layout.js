@@ -35,6 +35,29 @@ if (navbarVertical && navbarVerticalStyle === 'darker') {
 document.addEventListener("DOMContentLoaded", function () {
     feather.replace();
 });
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.getElementById("sidebarToggleBtn");
+    const iconExpanded = toggleBtn.querySelector(".toggle-icon-expanded");
+    const iconCollapsed = toggleBtn.querySelector(".toggle-icon-collapsed");
+
+    toggleBtn.addEventListener("click", function () {
+        const isCollapsedVisible = !iconCollapsed.classList.contains("d-none");
+
+        if (isCollapsedVisible) {
+            iconCollapsed.classList.add("d-none");
+            iconExpanded.classList.remove("d-none");
+        } else {
+            iconCollapsed.classList.remove("d-none");
+            iconExpanded.classList.add("d-none");
+        }
+    });
+});
+
+
 // #endregion
 
 
