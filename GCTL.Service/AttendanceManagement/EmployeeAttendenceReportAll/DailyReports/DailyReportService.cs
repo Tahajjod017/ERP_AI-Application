@@ -222,7 +222,51 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                 AbsentPercent = (int)Math.Round((double)totalAbsent / total * 100)
             };
         }
+        public async Task<AttendanceSummaryDto> GetSummaryByEmployee(int? employeeId) // Change parameter type to int
+        {
+            var today = DateTime.Today;
+            var firstDayOfMonth = new DateOnly(today.Year, today.Month, 1);
+            var lastDayOfMonth = new DateOnly(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month));
 
+            var attendances = _genericRepository.All()
+                .Where(x =>
+                    x.DeletedAt == null &&
+                    x.EmployeeID == employeeId && // Ensure comparison is between int? and int
+                    x.AttendanceDate >= firstDayOfMonth &&
+                    x.AttendanceDate <= lastDayOfMonth);
+
+            var totalLate = await attendances
+                .Where(x => x.LateTimeMinutes > 0)
+                .CountAsync();
+
+            var totalLeave = await attendances
+                .Where(x => x.EarlyTimeMinutes > 0)
+                .CountAsync();
+
+            var totalAbsent = await attendances
+                .Where(x => x.OvertimeMinutes > 0)
+                .CountAsync();
+
+            var totalPresent = await attendances
+                .Where(x => x.LateTimeMinutes == 0 && x.EarlyTimeMinutes == 0 && x.OvertimeMinutes == 0)
+                .CountAsync();
+
+            var total = totalPresent + totalLate + totalLeave + totalAbsent;
+            total = total == 0 ? 1 : total;
+
+            return new AttendanceSummaryDto
+            {
+                Present = totalPresent,
+                LatePresent = totalLate,
+                Leave = totalLeave,
+                Absent = totalAbsent,
+
+                PresentPercent = (int)Math.Round((double)totalPresent / total * 100),
+                LatePresentPercent = (int)Math.Round((double)totalLate / total * 100),
+                LeavePercent = (int)Math.Round((double)totalLeave / total * 100),
+                AbsentPercent = (int)Math.Round((double)totalAbsent / total * 100)
+            };
+        }
         public async Task<List<CommonSelectVM>> GetDepartmentByOrgId(int? orgId)
         {
             var query = _genericDepartment.AllActive().AsNoTracking();

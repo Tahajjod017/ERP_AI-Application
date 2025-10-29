@@ -15,51 +15,12 @@
 <div class="card border-0 mt-4">
     <!-- Data searching -->
     <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3 mb-1">
-        <h4 class="mb-1">Employee Name(ID)</h4>
-        <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-
-            <div class="dropdown me-2">
-                <select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                    <option value="">Select Company...</option>
-                    <option>CSL</option>
-                    <option>GCTL</option>
-                </select>
-            </div>
-
-            <div class="dropdown me-2">
-                <select class="form-multi-select" id="multiple-dep-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                    <option value="">Select Department</option>
-                    <option>Developer</option>
-                    <option>Designer</option>
-                    <option>Finance</option>
-                </select>
-            </div>
-
-            <div class="dropdown me-2">
-                <select class="form-multi-select" id="multiple-emp-select" multiple data-coreui-selection-type="counter" data-coreui-search="true">
-                    <optgroup label="Developer">
-                        <option value="2">Alam (id)</option>
-                        <option value="3">Momin (id)</option>
-                    </optgroup>
-                    <optgroup label="Designer">
-                        <option value="4">Name (id)</option>
-                        <option value="5">Name (id)</option>
-                    </optgroup>
-                </select>
-            </div>
-
-
-            <div class="dropdown me-3">
-                <input class="form-control datetimepicker" id="timepicker2" type="text" placeholder="d/m/y to d/m/y" data-options='{"mode":"range","dateFormat":"d/m/y","disableMobile":true}' />
-            </div>
-
-
-
-        </div>
+        <h4 id="employee_name" class="mb-1">Employee Name</h4>
 
         <div class="card-body">
-            <p>The table below presents all the information about when Mr. Hasan came to the office and when he left the office this month.</p>
-
+            <p id="attendance_description">
+                The table below presents all the information about when Mr. Hasan came to the office and when he left the office this month.
+            </p>
 
             <div class="border rounded">
                 <div class="row gx-0">
@@ -67,58 +28,57 @@
                         <div class="p-3">
                             <span class="fw-medium mb-1 d-block">Total Days</span>
                             <div class="d-flex align-items-center justify-content-between">
-                                <h5>14 Days</h5>
-                                <span class="badge badge-phoenix badge-phoenix-success">
-                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    56%
+                                <h5 id="total_days_count">14 Days</h5>
+                                <span id="total_days_percent" class="badge badge-phoenix badge-phoenix-success">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>56%
                                 </span>
                             </div>
                         </div>
                     </div>
+
                     <div class="col-md col-sm-4 border-end">
                         <div class="p-3">
                             <span class="fw-medium mb-1 d-block">Late Attendance</span>
                             <div class="d-flex align-items-center justify-content-between">
-                                <h5>3 Days</h5>
-                                <span class="badge badge-phoenix badge-phoenix-danger">
-                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    10%
+                                <h5 id="late_days_count">3 Days</h5>
+                                <span id="late_days_percent" class="badge badge-phoenix badge-phoenix-danger">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>10%
                                 </span>
                             </div>
                         </div>
                     </div>
+
                     <div class="col-md col-sm-4 border-end">
                         <div class="p-3">
                             <span class="fw-medium mb-1 d-block">Absent</span>
                             <div class="d-flex align-items-center justify-content-between">
-                                <h5>2 days</h5>
-                                <span class="badge badge-phoenix badge-phoenix-warning">
-                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    6 %
+                                <h5 id="absent_days_count">2 Days</h5>
+                                <span id="absent_days_percent" class="badge badge-phoenix badge-phoenix-warning">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>6%
                                 </span>
                             </div>
                         </div>
                     </div>
+
                     <div class="col-md col-sm-4 border-end">
                         <div class="p-3">
                             <span class="fw-medium mb-1 d-block">Leave</span>
                             <div class="d-flex align-items-center justify-content-between">
-                                <h5>1 Day</h5>
-                                <span class="badge badge-phoenix badge-phoenix-danger">
-                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    3%
+                                <h5 id="leave_days_count">1 Day</h5>
+                                <span id="leave_days_percent" class="badge badge-phoenix badge-phoenix-danger">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>3%
                                 </span>
                             </div>
                         </div>
                     </div>
+
                     <div class="col-md col-sm-4">
                         <div class="p-3">
                             <span class="fw-medium mb-1 d-block">Day Off</span>
                             <div class="d-flex align-items-center justify-content-between">
-                                <h5>4 Day</h5>
-                                <span class="badge badge-phoenix badge-phoenix-danger">
-                                    <i class="ti ti-arrow-wave-right-down me-1"></i>
-                                    12%
+                                <h5 id="day_off_days_count">4 Days</h5>
+                                <span id="day_off_days_percent" class="badge badge-phoenix badge-phoenix-danger">
+                                    <i class="ti ti-arrow-wave-right-down me-1"></i>12%
                                 </span>
                             </div>
                         </div>
@@ -127,8 +87,7 @@
             </div>
 
         </div>
-    </div>
-    <!-- individual Employee daily attendance Table-->
+    </div>    <!-- individual Employee daily attendance Table-->
 
     <partial name="_reportForIndividualAttendenceTable" />
 
