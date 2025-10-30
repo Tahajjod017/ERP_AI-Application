@@ -39,7 +39,7 @@ namespace GCTL_App.Controllers.MasterSetup
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _leadStatusService.IsNameUniqueAsync(model.LeadStatusName);
+                    var uniqueName = await _leadStatusService.IsNameUniqueAsync(await GetCurrentOrganizationIdAsync() ?? 0, model.LeadStatusName);
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = "This name already exists!" });
@@ -88,12 +88,11 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region GetAll
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "LeadStatusName", string sortOrder = "asc")
         {
             SetSmartPageCode(600300);
-            var result = await _leadStatusService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+            var result = await _leadStatusService.GetAllAsync(await GetCurrentOrganizationIdAsync() ?? 0, pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
 
             return Json(result);
         }
@@ -105,7 +104,7 @@ namespace GCTL_App.Controllers.MasterSetup
             SetSmartPageCode(600400);
             try
             {
-                var result = await _leadStatusService.GetByIdAsync(id);
+                var result = await _leadStatusService.GetByIdAsync(await GetCurrentOrganizationIdAsync() ?? 0, id);
                 if (result == null)
                 {
                     return Json(new { isSuccess = false, message = "No data found!" });

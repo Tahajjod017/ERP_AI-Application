@@ -37,7 +37,7 @@ namespace GCTL_App.Controllers.MasterSetup
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _priorityService.IsNameUniqueAsync(model.PriorityName);
+                    var uniqueName = await _priorityService.IsNameUniqueAsync(await GetCurrentOrganizationIdAsync() ?? 0, model.PriorityName);
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = "This name already exists!" });
@@ -91,7 +91,7 @@ namespace GCTL_App.Controllers.MasterSetup
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PriorityName", string sortOrder = "asc")
         {
             SetSmartPageCode(600300);
-            var result = await _priorityService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+            var result = await _priorityService.GetAllAsync(await GetCurrentOrganizationIdAsync() ?? 0, pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
 
             return Json(result);
         }
@@ -103,7 +103,7 @@ namespace GCTL_App.Controllers.MasterSetup
             SetSmartPageCode(600400);
             try
             {
-                var result = await _priorityService.GetByIdAsync(id);
+                var result = await _priorityService.GetByIdAsync(await GetCurrentOrganizationIdAsync() ?? 0, id);
                 if (result == null)
                 {
                     return Json(new { isSuccess = false, message = "No data found!" });

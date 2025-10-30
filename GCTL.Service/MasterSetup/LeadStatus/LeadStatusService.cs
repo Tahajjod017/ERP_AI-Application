@@ -28,7 +28,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var existingEntity = await _genericRepository.FindAsync(b => b.LeadStatusName == model.LeadStatusName && b.DeletedAt != null);
+                var existingEntity = await _genericRepository.FindAsync(b => b.LeadStatusName == model.LeadStatusName && b.DeletedAt != null && b.OrganizationID == model.OrganizationID);
                 if (existingEntity.Any())
                 {
                     var entityToRestore = existingEntity.FirstOrDefault();
@@ -43,6 +43,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                     entityToRestore.DeletedAt = null;
                     entityToRestore.DeletedBy = null;
                     entityToRestore.UpdatedAt = DateTime.Now;
+                    entityToRestore.OrganizationID = model.OrganizationID;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
                     await _userInfoService.ActionLogAsync("LeadStatus", ActionName.DataAdd, null, entityToRestore, entityToRestore.LeadStatusID, model);
@@ -56,6 +57,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                     entity.CreatedBy = model.CreatedBy;
                     entity.LIP = model.LIP;
                     entity.LMAC = model.LMAC;
+                    entity.OrganizationID = model.OrganizationID;
 
                     await _genericRepository.AddAsync(entity);
                     await _userInfoService.ActionLogAsync("LeadStatuses", ActionName.DataAdd, null, entity, entity.LeadStatusID, model);
@@ -75,10 +77,10 @@ namespace GCTL.Service.MasterSetup.LeadStatus
         #endregion
 
         #region GetAllAsync
-        public async Task<PaginationService<GCTL.Data.Models.LeadStatuses, LeadStatusVM>.PaginationResult<LeadStatusVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "LeadStatusName", string sortOrder = "asc")
+        public async Task<PaginationService<GCTL.Data.Models.LeadStatuses, LeadStatusVM>.PaginationResult<LeadStatusVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "LeadStatusName", string sortOrder = "asc")
         {
             var query = _genericRepository.All();
-            query = query.Where(x => x.DeletedAt == null);
+            query = query.Where(x => x.DeletedAt == null && x.OrganizationID == organizationID);
 
             if (!string.IsNullOrEmpty(sortColumn))
             {
@@ -102,9 +104,9 @@ namespace GCTL.Service.MasterSetup.LeadStatus
         #endregion
 
         #region IsNameUniqueAsync
-        public async Task<bool> IsNameUniqueAsync(string name)
+        public async Task<bool> IsNameUniqueAsync(int organizationID, string name)
         {
-            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.LeadStatusName != null);
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.LeadStatusName != null && b.OrganizationID == organizationID);
 
             var nameList = existingNames.Select(b => b.LeadStatusName);
 
@@ -114,11 +116,11 @@ namespace GCTL.Service.MasterSetup.LeadStatus
 
 
         #region Get
-        public async Task<LeadStatusVM> GetByIdAsync(int id)
+        public async Task<LeadStatusVM> GetByIdAsync(int organizationID, int id)
         {
             try
             {
-                var data = await _genericRepository.GetByIdAsync(id);
+                var data = await _genericRepository.FirstOrDefaultAsync(u => u.LeadStatusID == id && u.OrganizationID == organizationID); ;
                 if (data == null) return null;
 
                 return new LeadStatusVM
@@ -157,6 +159,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
                 entity.UpdatedBy = model.UpdatedBy;
                 entity.LIP = model.LIP;
                 entity.LMAC = model.LMAC;
+                entity.OrganizationID = model.OrganizationID;
 
                 await _genericRepository.UpdateAsync(entity);
 
@@ -181,7 +184,7 @@ namespace GCTL.Service.MasterSetup.LeadStatus
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.LeadStatusID));
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.LeadStatusID) && x.OrganizationID == requestVM.OrganizationID);
                 if (data == null || data.Count == 0)
                 {
                     return new LeadStatusVM
