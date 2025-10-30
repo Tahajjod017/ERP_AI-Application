@@ -446,34 +446,34 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-        #region GetEmployeeList
-        [HttpGet]
-        public async Task<IActionResult> GetEmployeeList(string query, int page)
-        {
-            const int pageSize = 10; // Number of items per page
-            int skip = (page - 1) * pageSize; // Calculate how many items to skip
+        //#region GetEmployeeList
+        //[HttpGet]
+        //public async Task<IActionResult> GetEmployeeList(string query, int page)
+        //{
+        //    const int pageSize = 10; // Number of items per page
+        //    int skip = (page - 1) * pageSize; // Calculate how many items to skip
 
-            // Fetch filtered and paginated data using LIKE
-            var list = await _employeeRepository
-            .Find(u => string.IsNullOrEmpty(query)
-                || EF.Functions.Like(u.FirstName.ToString(), $"%{query}%")
-                || EF.Functions.Like(u.LastName, $"%{query}%")
-                )
-            .Skip(skip)
-            .OrderByDescending(e => e.CreatedAt)
-            .Take(pageSize).Select(e => new
-            {
-                e.FirstName,
-                e.LastName,
-                e.EmployeeID,
-            })
-            .ToListAsync();
-            return Ok(list);
+        //    // Fetch filtered and paginated data using LIKE
+        //    var list = await _employeeRepository
+        //    .Find(u => string.IsNullOrEmpty(query)
+        //        || EF.Functions.Like(u.FirstName.ToString(), $"%{query}%")
+        //        || EF.Functions.Like(u.LastName, $"%{query}%")
+        //        )
+        //    .Skip(skip)
+        //    .OrderByDescending(e => e.CreatedAt)
+        //    .Take(pageSize).Select(e => new
+        //    {
+        //        e.FirstName,
+        //        e.LastName,
+        //        e.EmployeeID,
+        //    })
+        //    .ToListAsync();
+        //    return Ok(list);
 
-        }
+        //}
 
 
-        #endregion
+        //#endregion
 
         #region Get LeadOwner List
         [HttpGet]

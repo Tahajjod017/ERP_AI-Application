@@ -25,7 +25,14 @@ namespace GCTL_App.Controllers.CRM
             return PartialView("_indexModal");
         }
 
+        #region GetAll
+        public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "GenderName", string sortOrder = "asc")
+        {
+            var result = await _customerService.GetAllAsync(await GetCurrentOrganizationIdAsync() ?? 0, pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
 
+            return Json(result);
+        }
+        #endregion
 
 
         [HttpPost]
@@ -49,14 +56,14 @@ namespace GCTL_App.Controllers.CRM
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveBranch([FromBody] AddressVM model)
+        public async Task<IActionResult> SaveBranch([FromBody] BranchVM model)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return Json(new { success = false, message = "Invalid data" });
                 var result = new ReturnView();
-                if (model.ID == 0)
+                if (model.BID == 0)
                     result = await _customerService.CreateBranch(model);
                 return  Json(new { success = result.Success, message = result.Message });
             }
@@ -66,15 +73,15 @@ namespace GCTL_App.Controllers.CRM
             }
         }
         [HttpPost]
-        public async Task<IActionResult> SaveShipping([FromBody] AddressVM model)
+        public async Task<IActionResult> SaveShipping([FromBody] ShippingVM model)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return Json(new { success = false, message = "Invalid data" });
                 var result = new ReturnView();
-                if (model.ID == 0)
-                    result = await _customerService.CreateBranch(model);
+                if (model.SID == 0)
+                    result = await _customerService.CreateShipping(model);
                 return  Json(new { success = result.Success, message = result.Message });
             }
             catch (Exception ex) {
@@ -83,15 +90,15 @@ namespace GCTL_App.Controllers.CRM
             }
         }
         [HttpPost]
-        public async Task<IActionResult> SaveWarehouse([FromBody] AddressVM model)
+        public async Task<IActionResult> SaveWarehouse([FromBody] WarehouseVM model)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return Json(new { success = false, message = "Invalid data" });
                 var result = new ReturnView();
-                if (model.ID == 0)
-                    result = await _customerService.CreateBranch(model);
+                if (model.WID == 0)
+                    result = await _customerService.CreateWarehouse(model);
                 return  Json(new { success = result.Success, message = result.Message });
             }
             catch (Exception ex) {
@@ -99,6 +106,7 @@ namespace GCTL_App.Controllers.CRM
                 return Json(new { success = false, message = "Invalid data" });
             }
         }
+
 
     }
 }

@@ -17,14 +17,14 @@ namespace GCTL.Service.MasterSetup.LeadActivityType
         Task<bool> AddAsync(LeadActivityTypeVM model);
         Task<bool> UpdateAsync(LeadActivityTypeVM model);
         Task<LeadActivityTypeVM> SoftDeleteAsync(DeleteRequestVM requestVM);
-        Task<LeadActivityTypeVM> GetByIdAsync(int id);
-        Task<PaginationService<LeadActivityTypes, LeadActivityTypeVM>.PaginationResult<LeadActivityTypeVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+        Task<LeadActivityTypeVM> GetByIdAsync(int organizationID, int id);
+        Task<PaginationService<LeadActivityTypes, LeadActivityTypeVM>.PaginationResult<LeadActivityTypeVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "LeadActivityName", string sortOrder = "asc");
         #endregion
 
 
         #region Others
-        Task<bool> IsNameUniqueAsync(string name);
+        Task<bool> IsNameUniqueAsync(int organizationID, string name);
         #endregion
     }
 }

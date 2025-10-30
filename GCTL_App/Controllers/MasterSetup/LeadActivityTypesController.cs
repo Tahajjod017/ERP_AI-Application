@@ -48,7 +48,7 @@ namespace GCTL_App.Controllers.MasterSetup
         {
             try
             {
-                var result = await _leadActivityTypeService.GetByIdAsync(id);
+                var result = await _leadActivityTypeService.GetByIdAsync(await GetCurrentOrganizationIdAsync() ?? 0, id);
                 if (result == null)
                 {
                     return Json(new { isSuccess = false, message = "No data found!" });
@@ -67,7 +67,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #region GetAll
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "LeadActivityName", string sortOrder = "asc")
         {
-            var result = await _leadActivityTypeService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+            var result = await _leadActivityTypeService.GetAllAsync(await GetCurrentOrganizationIdAsync() ?? 0, pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
 
             return Json(result);
         }
@@ -84,7 +84,7 @@ namespace GCTL_App.Controllers.MasterSetup
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _leadActivityTypeService.IsNameUniqueAsync(model.LeadActivityName);
+                    var uniqueName = await _leadActivityTypeService.IsNameUniqueAsync(await GetCurrentOrganizationIdAsync() ?? 0, model.LeadActivityName);
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = "This name already exists!" });
@@ -134,7 +134,7 @@ namespace GCTL_App.Controllers.MasterSetup
         {
             try
             {
-                bool isUnique = await _leadActivityTypeService.IsNameUniqueAsync(bankName);
+                bool isUnique = await _leadActivityTypeService.IsNameUniqueAsync(await GetCurrentOrganizationIdAsync() ?? 0, bankName);
                 if (!isUnique)
                 {
                     return Json("This name already exists.");
