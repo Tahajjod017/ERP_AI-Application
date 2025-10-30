@@ -456,7 +456,7 @@
                                     <td class="align-middle white-space-nowrap ps-0">${item.classCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.description}</td>
                                     <td class="align-middle text-end white-space-nowrap pe-2">
-                                        <div class="row g-3">
+                                        <div class="d-flex justify-content-end align-items-center">
                                             <a href="#!" class="btn btn-outline-light btn-icon me-2 secondTab-edit" id="secondTab-edit" data-id="${item.classID}"><i class="fas fa-edit text-black"></i></a>
                                             <a href="#!" class="btn btn-outline-light btn-icon secondTab-single-delete" id="secondTab-single-delete" data-id="${item.classID}"><i class="far fa-trash-alt text-black"></i></a>
                                         </div>

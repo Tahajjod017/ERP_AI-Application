@@ -2,6 +2,7 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.APIViewModels;
 using GCTL.Data.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -57,6 +58,78 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
                 punchResult.AttendenceListVMs = attendanceList;
 
                 return punchResult;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error processing attendance: {ex.Message}", ex);
+            }
+        }
+        #endregion
+
+
+        #region GetTodaysAttendance
+        public async Task<List<PunchResultVM>> GetTodaysMovement(int empId)
+        {
+            try
+            {
+                var today = DateOnly.FromDateTime(DateTime.Today);
+
+                var attendances = await _genericRepository.All()
+                    .Include(x => x.Employee)
+                    .Include(x => x.AttendanceLog)
+                    .Where(x => Convert.ToInt32(x.Employee.EmployeeCode) == empId
+                                && x.AttendanceDate == today)
+                    .Select(x => new
+                    {
+                        x.AttendanceID,
+                        x.AttendanceLog
+                    }).ToListAsync();
+
+                var result = attendances.Select(att =>
+                {
+                    var orderedPunches = att.AttendanceLog
+                        .OrderBy(p => p.PunchTime) // earliest first
+                        .ToList();
+
+                    var attendenceList = new List<AttendenceListVM>();
+                    bool isIn = true;
+
+                    for (int i = 0; i < orderedPunches.Count; i++)
+                    {
+                        attendenceList.Add(new AttendenceListVM
+                        {
+                            SlNo = i + 1,
+                            AttendenceType = isIn ? "IN" : "OUT",
+                            PunchTime = orderedPunches[i].PunchTime
+                        });
+
+                        isIn = !isIn;
+                    }
+
+                    // Reverse the list so the last punch comes first
+                    attendenceList.Reverse();
+
+                    // Determine InTime/OutTime flags based on last punch
+                    int inTimeFlag = 0;
+                    int outTimeFlag = 0;
+
+                    if (orderedPunches.Any())
+                    {
+                        if (!isIn) // last punch was IN
+                            inTimeFlag = 1;
+                        else       // last punch was OUT
+                            outTimeFlag = 1;
+                    }
+
+                    return new PunchResultVM
+                    {
+                        InTime = inTimeFlag,
+                        OutTime = outTimeFlag,
+                        AttendenceListVMs = attendenceList
+                    };
+                }).ToList();
+
+                return result;
             }
             catch (Exception ex)
             {

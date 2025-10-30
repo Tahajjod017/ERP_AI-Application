@@ -81,9 +81,16 @@ namespace GCTL_App.Controllers.APIControllers
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var tokenValidity = int.Parse(_configuration["Jwt:TokenValidityMins"] ?? "30");
+
+            // Dynamically detect the current host (local or production)
+            var request = HttpContext?.Request;
+            var currentIssuer = $"{request.Scheme}://{request.Host}/"; // e.g. https://localhost:7086/ or https://yourdomain.com/
+
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                //issuer: _configuration["Jwt:Issuer"], // This is static from config
+                //audience: _configuration["Jwt:Audience"], // This is static from config
+                issuer: currentIssuer,
+                audience: currentIssuer,
                 expires: DateTime.UtcNow.AddMinutes(tokenValidity),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)

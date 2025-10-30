@@ -10,5 +10,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
     public interface IAppsAttendanceService
     {
         Task<PunchResultVM> AttendanceFromApps(PunchDataRequestVM model);
+        Task<List<PunchResultVM>> GetTodaysMovement(int empId);
     }
 }

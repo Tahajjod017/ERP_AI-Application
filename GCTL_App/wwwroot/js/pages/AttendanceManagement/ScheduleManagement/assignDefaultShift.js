@@ -893,8 +893,8 @@
                                     </td>
                                     <td class="white-space-nowrap align-middle ps-0">${item.employeeName ?? '-'}</td>
                                     <td class="white-space-nowrap align-middle ps-0">${item.shiftName ?? '-'}</td>
-                                    <td class="text-end align-middle white-space-nowrap pe-3">
-                                        <div class="row g-3">
+                                    <td class="text-start align-middle white-space-nowrap pe-3">
+                                        <div class="d-flex justify-content-end align-items-center">
                                             <a href="#!" class="btn btn-outline-light btn-icon assignDefaultShift-bulkEdit" id="assignDefaultShift-editBtn" data-id="${item.defaultShiftID}"><i class="fas fa-edit text-black"></i></a>
                                         </div>
                                     </td>
