@@ -13,26 +13,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title> @Html.SmartLocalize("GCTL-HRM") &nbsp; @ViewData["Title"]</title>
-
-    <!-- Favicons -->
-   @*  <link rel="apple-touch-icon" sizes="180x180" href="~/img/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="~media/company/fevicon/favicon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="~media/company/fevicon/favicon.png">
-    <link rel="shortcut icon" href="~media/company/fevicon/favicon.ico">
-    <link rel="manifest" href="~/img/favicons/manifest.json">
-    <meta name="msapplication-TileImage" content="~media/company/fevicon/favicon.png">
-    <meta name="theme-color" content="#ffffff"> *@
-   @*  <link rel="icon" type="image/png" sizes="32x32" href="@Url.Content("~/media/company/fevicon/favicon.png")"> *@
-    @* <link rel="shortcut icon" href="@Url.Content("~/media/company/fevicon/favicon.ico")"> *@
     @await Html.FaviconLinkAsync(User, BrandingAssetService)
-   
-    <!-- Fonts & Icons -->
-    @* <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"> *@
-
     <!-- Vendor CSS -->
     <link href="~/js/vendors/simplebar/simplebar.min.css" rel="stylesheet" />
     <link href="~/js/vendors/choices/choices.min.css" rel="stylesheet" />
@@ -42,10 +25,8 @@
     <link href="~/js/vendors/leaflet/leaflet.css" rel="stylesheet" />
     <link href="~/js/vendors/leaflet.markercluster/markercluster.default.css" rel="stylesheet" />
     <link href="~/js/vendors/leaflet.markercluster/markercluster.css" rel="stylesheet" />
-
     <!-- CoreUI CSS -->
     <link href="~/js/layout/coreui/coreui.min.css" rel="stylesheet" />
-
 	<!-- Theme CSS -->
     <link href="~/css/theme.min.css" rel="stylesheet" id="style-default" />
     <link href="~/css/user.min.css" rel="stylesheet" id="user-style-default" />
@@ -55,15 +36,8 @@
     <link href="~/css/site.css" rel="stylesheet" />
     <!-- ✅ jQuery Date Range Picker CSS  added By 404-->
 	<link href="~/js/layout/jquery-date-range-picker/daterangepicker.min.css" rel="stylesheet" />
-
-
-    @* cdn will have to remove on deploy time *@
-    @* <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.3.1/build/css/intlTelInput.css"> *@
-    @* <link href="~/lib/intl-tel-input/build/css/intltelinput.css" rel="stylesheet" /> *@
     <link href="~/lib/intl-tel-input/build/css/intltelinput.min.css" rel="stylesheet" />
     <link href="~/css/Layout.css" rel="stylesheet" />
-    
-
 
     <style>
         .choices {
@@ -121,6 +95,13 @@
         .date-picker-wrapper .footer {
             display: none !important;
         }
+
+        /* .navbar-vertical.navbar-expand-lg ~ .navbar-top ~ .content {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            margin-left: 15.875rem;
+        } */
+
     </style>
     @RenderSection("Styles", required: false)
 </head>
@@ -131,7 +112,7 @@
             @await Component.InvokeAsync(typeof(MenuViewComponents))
             <partial name="_Header" />
 
-            <div class="content card bg-body">
+            <div class="content card px-2" style="background: whitesmoke">
                 <div id="mainContent">
                     @RenderBody()
                 </div>
