@@ -742,7 +742,15 @@ function renderAttendanceCompareChart(data) {
             trigger: 'axis'
         },
         legend: {
-            data: ['You', 'Emp benchmark']
+            data: ['You', 'Emp benchmark'],
+            left: 'center', // Center the legend horizontally
+            top: '10%',
+            orient: 'horizontal',
+            itemWidth: 20,
+            itemHeight: 10,
+            textStyle: {
+                fontSize: 12,
+            }
         },
         toolbox: {
             show: true,
@@ -883,7 +891,7 @@ function renderAttendanceBarChart(data) {
     };
 
     const option = {
-        title: { text: 'Attendance Status', subtext: 'Latest Month' },
+        title: {  subtext: 'Latest Month' },
         tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
         grid: { left: '3%', right: '3%', bottom: '3%', containLabel: true },
         legend: { data: ['Present', 'Absent', 'Late', 'Early', 'Casual Leave', 'Medical Leave'] },

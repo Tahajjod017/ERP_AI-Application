@@ -36,3 +36,15 @@
     }
 }
 
+@media (max-width: 768px) {
+    #employee-attendance-status-compare-barchart {
+        height: 15rem; /* Adjust the height on mobile */
+    }
+}
+
+@media (max-width: 576px) {
+    #employee-attendance-status-compare-barchart {
+        height: 12rem; /* Further reduce height on smaller screens */
+    }
+}
+
