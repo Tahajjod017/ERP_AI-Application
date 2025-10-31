@@ -23,35 +23,54 @@ namespace GCTL.Service.BackgroundServices
 
         public string Name => "AttendanceTask";
 
-        public TimeSpan ScheduledTime => new TimeSpan(23, 0, 0); // 11:00 PM
+        public TimeSpan ScheduledTime => new TimeSpan(1, 55, 0); // 11:00 PM
 
         #region ExecuteAsync
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Attendance Task started...");
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                var now = DateTime.Now;
-                var scheduledTime = DateTime.Today.Add(ScheduledTime);
+                _logger.LogInformation("Attendance Task started...");
 
-                // If the scheduled time for today is in the past, schedule for tomorrow
-                if (now > scheduledTime)
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    scheduledTime = scheduledTime.AddDays(1);
+                    var now = DateTime.Now;
+                    var scheduledTime = DateTime.Today.Add(ScheduledTime);
+                    var bufferTime = scheduledTime.AddMinutes(2);
+
+                    // If the scheduled time for today is in the past (including buffer time), schedule for tomorrow
+                    if (now > bufferTime)
+                    {
+                        scheduledTime = scheduledTime.AddDays(1);
+                    }
+
+                    var timeUntilExecution = bufferTime - now;
+
+                    // If timeUntilExecution is negative (we missed the scheduled time by more than the buffer), adjust to the next scheduled time
+                    if (timeUntilExecution < TimeSpan.Zero)
+                    {
+                        _logger.LogWarning($"Scheduled time has already passed for today. Adjusting to {scheduledTime.AddDays(1)}.");
+                        scheduledTime = scheduledTime.AddDays(1); // Set to the next day's scheduled time
+                        timeUntilExecution = scheduledTime - now; // Recalculate the time to the next scheduled time
+                    }
+
+                    // Log the delay duration
+                    _logger.LogInformation($"Waiting {timeUntilExecution.TotalMinutes} minutes to execute the task at {scheduledTime}...");
+
+                    // Ensure the delay is non-negative
+                    await Task.Delay(timeUntilExecution, stoppingToken);
+
+                    if (stoppingToken.IsCancellationRequested)
+                        break;
+
+                    // Execute the stored procedure
+                    await RunStoredProcedureAsync(stoppingToken);
                 }
-
-                var timeUntilExecution = scheduledTime - now;
-
-                // Wait until the scheduled time
-                _logger.LogInformation($"Waiting {timeUntilExecution.TotalMinutes} minutes to execute the task at {scheduledTime}...");
-                await Task.Delay(timeUntilExecution, stoppingToken);
-
-                if (stoppingToken.IsCancellationRequested)
-                    break;
-
-                // Execute the stored procedure
-                await RunStoredProcedureAsync(stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred during the execution of the Attendance Task.");
+                throw;
             }
         }
         #endregion
