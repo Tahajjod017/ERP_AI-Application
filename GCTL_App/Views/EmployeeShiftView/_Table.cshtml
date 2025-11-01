@@ -1,6 +1,6 @@
 ﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.EmployeeShiftView.EmployeeShiftViewSetupVM
 
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+<div class="d-flex justify-content-between align-items-center flex-wrap">
     <div class="d-flex gap-2 flex-wrap">
         <div class="">
             <label for="timeFrame" class="form-label">@Html.SmartLocalize("Show as")</label>
@@ -65,8 +65,7 @@
     </div>
 </div>
 
-<div class="mx-n4 px-4 mx-lg-n6 px-lg-6 py-3">
-
+<div class="mt-2">
     <div class="row g-3 justify-content-between align-items-end mb-2">
         <div class="col-12 col-sm-auto">
             <div class="d-flex align-items-center me-3" style="width: auto;">
@@ -78,7 +77,6 @@
                         <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
                         <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
                         <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
-                        <option class="dropdown-item" value="0">@Html.SmartLocalize("All")</option>
                     </select>
                 </div>
             </div>
@@ -102,7 +100,7 @@
         </div>
     </div>
 
-    <div class="table-responsive scrollbar mx-n1 px-1">
+    <div class="table-responsive scrollbar mx-n1">
         <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
             <thead>
                 <tr>

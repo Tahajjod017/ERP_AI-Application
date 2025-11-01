@@ -1,87 +1,88 @@
-﻿<div class="card mt-4">
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+﻿<div class="card mb-2">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center mb-1">
             <h3>@Html.SmartLocalize("List of Bi-Weekly Spiral Pattern")</h3>
         </div>
 
-        <div class="row justify-content-between align-items-end g-3 pt-3">
-            <div class="col-12 col-sm-auto">
-                <div class="d-flex align-items-center me-3" style="width: auto;">
-                    <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
-                    <div style="width: 100%;">
-                        <select id="createFortnightlySpiralPattern-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
-                            <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
-                            <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
-                            <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
-                            <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
-                            <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
-                            <option class="dropdown-item" value="0">@Html.SmartLocalize("All")</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-sm-auto">
-                <div class="d-flex align-items-center">
-                    <div class="d-none me-3" id="createFortnightlySpiralPattern-bulkSelectActions">
-                        <div class="position-relative">
-                            <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="createFortnightlySpiralPattern-delSel">@Html.SmartLocalize("Delete")</button>
+        <div class="card-body">
+            <div class="row justify-content-between align-items-end g-3 pt-3">
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center me-3" style="width: auto;">
+                        <span class="ms-2">@Html.SmartLocalize("Showing"):</span> &nbsp;
+                        <div style="width: 100%;">
+                            <select id="createFortnightlySpiralPattern-pageSizeSelect" class="form-select form-select-sm" tabindex="10">
+                                <option class="dropdown-item" value="5">@Html.SmartLocalize("5")</option>
+                                <option class="dropdown-item" value="10">@Html.SmartLocalize("10")</option>
+                                <option class="dropdown-item" value="25">@Html.SmartLocalize("25")</option>
+                                <option class="dropdown-item" value="50">@Html.SmartLocalize("50")</option>
+                                <option class="dropdown-item" value="100">@Html.SmartLocalize("100")</option>
+                                <option class="dropdown-item" value="0">@Html.SmartLocalize("All")</option>
+                            </select>
                         </div>
                     </div>
+                </div>
 
-                    <div class="search-box me-3" id="createFortnightlySpiralPattern-searchBox">
-                        <form class="position-relative" id="createFortnightlySpiralPattern-searchForm">
-                            <input class="form-control search-input search" id="createFortnightlySpiralPattern-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
-                            <span class="fas fa-search search-box-icon"></span>
-                        </form>
+                <div class="col-12 col-sm-auto">
+                    <div class="d-flex align-items-center">
+                        <div class="d-none me-3" id="createFortnightlySpiralPattern-bulkSelectActions">
+                            <div class="position-relative">
+                                <button type="button" class="btn btn-phoenix-danger btn-sm ms-2" id="createFortnightlySpiralPattern-delSel">@Html.SmartLocalize("Delete")</button>
+                            </div>
+                        </div>
+
+                        <div class="search-box me-3" id="createFortnightlySpiralPattern-searchBox">
+                            <form class="position-relative" id="createFortnightlySpiralPattern-searchForm">
+                                <input class="form-control search-input search" id="createFortnightlySpiralPattern-searchInput" type="search" placeholder="@Html.SmartLocalize("Search here")" aria-label="Search" />
+                                <span class="fas fa-search search-box-icon"></span>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="table-responsive scrollbar mx-n1 px-1">
-            <div id="fortnightly" class=" my-4">
-                <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
-                    <thead>
-                        <tr>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Spiral Pattern Name")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 01")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 02")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 03")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 04")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 05")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 06")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 07")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 08")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 09")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 10")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 11")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 12")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 13")</th>
-                            <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 14")</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fortnightlyTblBody">
-                        
-                    </tbody>
-                </table>
+            <div class="table-responsive scrollbar mx-n1 px-1">
+                <div id="fortnightly" class=" my-4">
+                    <table class="table table-bordered table-sm fs-9 leads-table" style="text-align: center;">
+                        <thead>
+                            <tr>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Spiral Pattern Name")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 01")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 02")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 03")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 04")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 05")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 06")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 07")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 08")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 09")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 10")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 11")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 12")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 13")</th>
+                                <th class="align-middle ps-3 pe-5 text-uppercase text-nowrap">@Html.SmartLocalize("Day 14")</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fortnightlyTblBody">
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
-            <div class="d-flex">
-                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="createFortnightlySpiralPattern-paginationInfo">
-                    @Html.SmartLocalize("Showing") <span id="createFortnightlySpiralPattern-startItem"></span>
-                    @Html.SmartLocalize("to") <span id="createFortnightlySpiralPattern-endItem"></span>
-                    @Html.SmartLocalize("Items of") <span id="createFortnightlySpiralPattern-totalItems"></span>
-                </p>
+            <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                <div class="d-flex">
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="createFortnightlySpiralPattern-paginationInfo">
+                        @Html.SmartLocalize("Showing") <span id="createFortnightlySpiralPattern-startItem"></span>
+                        @Html.SmartLocalize("to") <span id="createFortnightlySpiralPattern-endItem"></span>
+                        @Html.SmartLocalize("Items of") <span id="createFortnightlySpiralPattern-totalItems"></span>
+                    </p>
 
-                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
-            </div>
-            <div class="d-flex">
-                <button class="page-link" data-list-pagination="prev" id="createFortnightlySpiralPattern-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
-                <ul class="mb-0 pagination" id="createFortnightlySpiralPattern-paginationLinks"></ul>
-                <button class="page-link pe-0" data-list-pagination="next" id="createFortnightlySpiralPattern-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                    <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
+                </div>
+                <div class="d-flex">
+                    <button class="page-link" data-list-pagination="prev" id="createFortnightlySpiralPattern-prevPageBtn"><span class="fas fa-chevron-left"></span></button>
+                    <ul class="mb-0 pagination" id="createFortnightlySpiralPattern-paginationLinks"></ul>
+                    <button class="page-link pe-0" data-list-pagination="next" id="createFortnightlySpiralPattern-nextPageBtn"><span class="fas fa-chevron-right"></span></button>
+                </div>
             </div>
         </div>
     </div>
