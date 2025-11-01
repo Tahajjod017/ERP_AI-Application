@@ -724,7 +724,15 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[GetModules]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[GetPaginatedEmployeeAttendance]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[GetUserByEmail]",
          "ObjectType": 1
       },
       {
@@ -733,6 +741,10 @@
       },
       {
          "Name": "[dbo].[sp_GetAllEmployeeShifts]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_GetUserPermissionsByRoleIds]",
          "ObjectType": 1
       },
       {

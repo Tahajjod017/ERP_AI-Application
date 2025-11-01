@@ -70,6 +70,33 @@ namespace GCTL.Data.Models
             return _;
         }
 
+        public virtual async Task<List<GetModulesResult>> GetModulesAsync(string roleId, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "RoleId",
+                    Size = 200,
+                    Value = roleId ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryToListAsync<GetModulesResult>("EXEC @returnValue = [dbo].[GetModules] @RoleId = @RoleId", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
         public virtual async Task<List<GetPaginatedEmployeeAttendanceResult>> GetPaginatedEmployeeAttendanceAsync(int? month, int? year, int? pageNumber, int? pageSize, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
@@ -108,6 +135,33 @@ namespace GCTL.Data.Models
                 parameterreturnValue,
             };
             var _ = await _context.SqlQueryToListAsync<GetPaginatedEmployeeAttendanceResult>("EXEC @returnValue = [dbo].[GetPaginatedEmployeeAttendance] @Month = @Month, @Year = @Year, @PageNumber = @PageNumber, @PageSize = @PageSize", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<List<GetUserByEmailResult>> GetUserByEmailAsync(string email, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "Email",
+                    Size = 510,
+                    Value = email ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryToListAsync<GetUserByEmailResult>("EXEC @returnValue = [dbo].[GetUserByEmail] @Email = @Email", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -198,6 +252,33 @@ namespace GCTL.Data.Models
                 parameterreturnValue,
             };
             var _ = await _context.SqlQueryToListAsync<sp_GetAllEmployeeShiftsResult>("EXEC @returnValue = [dbo].[sp_GetAllEmployeeShifts] @pageNumber = @pageNumber, @pageSize = @pageSize, @searchTerm = @searchTerm, @daysToShow = @daysToShow, @startDate = @startDate", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<List<sp_GetUserPermissionsByRoleIdsResult>> sp_GetUserPermissionsByRoleIdsAsync(string roleIds, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "RoleIds",
+                    Size = -1,
+                    Value = roleIds ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryToListAsync<sp_GetUserPermissionsByRoleIdsResult>("EXEC @returnValue = [dbo].[sp_GetUserPermissionsByRoleIds] @RoleIds = @RoleIds", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
