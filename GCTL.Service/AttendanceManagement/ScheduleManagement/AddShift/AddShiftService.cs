@@ -169,6 +169,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
             var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.StartTime.Value, _localizationContext);
             var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.EndTime.Value, _localizationContext);
 
+            var utcMealBreakStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.MealBreakStartTime.Value, _localizationContext);
+            var utcMealBreakEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.MealBreakEndTime.Value, _localizationContext);
+
             int? inPunchCountFromMin = (model.EarlyInTimeHour * 60 ?? 0) + model.EarlyInTimeMinute ?? 0;
             int? outPunchCountToMin = (model.EarlyOutTimeHour * 60 ?? 0) + model.EarlyOutTimeMinute ?? 0;
             int? graceTime = (model.GraceTimeHour * 60 ?? 0) + model.GraceTimeMinute ?? 0;
@@ -194,8 +197,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         existingEntity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
                         existingEntity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
                         existingEntity.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
-                        existingEntity.MealBreakStartTime = model.MealBreakStartTime;
-                        existingEntity.MealBreakEndTime = model.MealBreakEndTime;
+                        existingEntity.MealBreakStartTime = utcMealBreakStartTime;
+                        existingEntity.MealBreakEndTime = utcMealBreakEndTime;
                         existingEntity.IsAllowOvertime = model.IsAllowOvertime;
                         existingEntity.GraceTime = graceTime;
                         existingEntity.MinimumWorkingTime = minimumWorkingTime;
@@ -230,8 +233,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                         entity.IsAutomaticORManualBreakTime = model.IsAutomaticORManualBreakTime;
                         entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.IsMealBreakCompulsaryOrComplementaryDeductWithShift;
                         entity.IsAllowStartAndEndTime = model.IsAllowStartAndEndTime;
-                        entity.MealBreakStartTime = model.MealBreakStartTime;
-                        entity.MealBreakEndTime = model.MealBreakEndTime;
+                        entity.MealBreakStartTime = utcMealBreakStartTime;
+                        entity.MealBreakEndTime = utcMealBreakEndTime;
                         entity.IsAllowOvertime = model.IsAllowOvertime;
                         entity.GraceTime = graceTime;
                         entity.MinimumWorkingTime = minimumWorkingTime;
@@ -278,6 +281,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
             var utcStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateStartTime.Value, _localizationContext);
             var utcEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateEndTime.Value, _localizationContext);
 
+            var utcMealBreakStartTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateMealBreakStartTime.Value, _localizationContext);
+            var utcMealBreakEndTime = TimeConversionHelper.ConvertTimeOnlyToUtc(model.UpdateMealBreakEndTime.Value, _localizationContext);
+
             int? inPunchCountFromMin = (model.UpdateEarlyInTimeHour * 60 ?? 0) + model.UpdateEarlyInTimeMinute ?? 0;
             int? outPunchCountToMin = (model.UpdateEarlyOutTimeHour * 60 ?? 0) + model.UpdateEarlyOutTimeMinute ?? 0;
             int? graceTime = (model.UpdateGraceTimeHour * 60 ?? 0) + model.UpdateGraceTimeMinute ?? 0;
@@ -303,8 +309,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                 entity.IsAutomaticORManualBreakTime = model.UpdateIsAutomaticORManualBreakTime;
                 entity.IsMealBreakCompulsaryOrComplementaryDeductWithShift = model.UpdateIsMBCompulsaryOrComplementaryDeductWithShift;
                 entity.IsAllowStartAndEndTime = model.UpdateIsAllowStartAndEndTime;
-                entity.MealBreakStartTime = model.UpdateMealBreakStartTime.ToTimeOnly();
-                entity.MealBreakEndTime = model.UpdateMealBreakEndTime.ToTimeOnly();
+                entity.MealBreakStartTime = utcMealBreakStartTime;
+                entity.MealBreakEndTime = utcMealBreakEndTime;
                 entity.IsAllowOvertime = model.UpdateIsAllowOvertime;
                 entity.GraceTime = graceTime;
                 entity.MinimumWorkingTime = minimumWorkingTime;
@@ -356,8 +362,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     UpdateIsAutomaticORManualBreakTime = data.IsAutomaticORManualBreakTime,
                     UpdateIsMBCompulsaryOrComplementaryDeductWithShift = data.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
                     UpdateIsAllowStartAndEndTime = data.IsAllowStartAndEndTime,
-                    UpdateMealBreakStartTime = data.MealBreakStartTime?.ToString("hh:mm tt"),
-                    UpdateMealBreakEndTime = data.MealBreakEndTime?.ToString("hh:mm tt"),
+                    UpdateMealBreakStartTime = data.MealBreakStartTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(data.MealBreakStartTime.Value, _localizationContext) : null,
+                    UpdateMealBreakEndTime = data.MealBreakEndTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(data.MealBreakEndTime.Value, _localizationContext) : null,
                     UpdateIsAllowOvertime = data.IsAllowOvertime,
                     UpdateGraceTimeHour = data.GraceTime / 60,
                     UpdateGraceTimeMinute = data.GraceTime % 60,
@@ -486,8 +492,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
                     IsAutomaticORManualBreakTime = x.IsAutomaticORManualBreakTime,
                     IsMealBreakCompulsaryOrComplementaryDeductWithShift = x.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
                     IsAllowStartAndEndTime = x.IsAllowStartAndEndTime,
-                    MealBreakStartTime = x.MealBreakStartTime,
-                    MealBreakEndTime = x.MealBreakEndTime,
+                    MealBreakStartTime = x.MealBreakStartTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(x.MealBreakStartTime.Value, _localizationContext) : null,
+                    MealBreakEndTime = x.MealBreakEndTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(x.MealBreakEndTime.Value, _localizationContext) : null,
                     IsAllowOvertime = x.IsAllowOvertime,
                     GraceTimeHour = x.GraceTime,
                     MinimumWorkingTimeHour = x.MinimumWorkingTime,
