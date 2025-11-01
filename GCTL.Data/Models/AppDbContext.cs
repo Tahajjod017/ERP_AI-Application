@@ -1527,17 +1527,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__DefaultSh__Delet__4707859D");
 
-            entity.HasOne(d => d.Department).WithMany(p => p.DefaultShifts)
-                .HasForeignKey(d => d.DepartmentID)
-                .HasConstraintName("FK_Departments_DepartmentID_DefaultShifts");
-
             entity.HasOne(d => d.Employee).WithMany(p => p.DefaultShiftsEmployee)
                 .HasForeignKey(d => d.EmployeeID)
                 .HasConstraintName("FK_Employees_EmployeeID_DefaultShifts");
-
-            entity.HasOne(d => d.Organization).WithMany(p => p.DefaultShifts)
-                .HasForeignKey(d => d.OrganizationID)
-                .HasConstraintName("FK_Organization_TeamID");
 
             entity.HasOne(d => d.Shift).WithMany(p => p.DefaultShifts)
                 .HasForeignKey(d => d.ShiftID)
@@ -3210,6 +3202,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Journal).WithMany(p => p.JournalDetails)
                 .HasForeignKey(d => d.JournalID)
                 .HasConstraintName("FK__JournalDe__Journ__2AE0483B");
+
+            entity.HasOne(d => d.TrxAcc).WithMany(p => p.JournalDetails)
+                .HasForeignKey(d => d.TrxAccID)
+                .HasConstraintName("FK_TransactionAccounts_TrxAccID_JournalDetails");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.JournalDetailsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
@@ -5406,6 +5402,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ServicesDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Services__Delete__469D7149");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.Services)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK_Organization_OrganizationID_Services");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ServicesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)

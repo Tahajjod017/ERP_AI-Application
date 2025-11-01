@@ -33,11 +33,15 @@ public partial class JournalDetails
 
     public int? DeletedBy { get; set; }
 
+    public int? TrxAccID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Journals Journal { get; set; }
+
+    public virtual TransactionAccounts TrxAcc { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

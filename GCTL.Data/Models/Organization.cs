@@ -79,8 +79,6 @@ public partial class Organization
 
     public virtual ICollection<Customers> Customers { get; set; } = new List<Customers>();
 
-    public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
-
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<Departments> Departments { get; set; } = new List<Departments>();
@@ -146,6 +144,8 @@ public partial class Organization
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
 
     public virtual ICollection<SMSSettings> SMSSettings { get; set; } = new List<SMSSettings>();
+
+    public virtual ICollection<Services> Services { get; set; } = new List<Services>();
 
     public virtual ICollection<Shifts> Shifts { get; set; } = new List<Shifts>();
 

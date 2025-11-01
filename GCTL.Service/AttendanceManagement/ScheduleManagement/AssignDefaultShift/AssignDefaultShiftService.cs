@@ -59,7 +59,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                             continue;
 
                         var existingEntity = await _genericRepository.AllActive()
-                            .Where(x => x.OrganizationID == employee.OrganizationID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                            .Where(x => x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
                         if (existingEntity != null)
                         {
                             existingEntity.ShiftID = model.ShiftID;
@@ -74,8 +74,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                         {
                             DefaultShifts entity = new DefaultShifts();
                             entity.ShiftID = model.ShiftID;
-                            entity.OrganizationID = employee.OrganizationID;
-                            entity.DepartmentID = employee.DepartmentID;
                             entity.EmployeeID = employee.EmployeeID;
                             entity.LIP = model.LIP;
                             entity.LMAC = model.LMAC;
@@ -94,7 +92,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                             continue;
                         foreach (var employee in employees)
                         {
-                            var existingEntity = await _genericRepository.AllActive().Where(x => x.OrganizationID == employee.OrganizationID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                            var existingEntity = await _genericRepository.AllActive().Where(x => x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
                             if (existingEntity != null)
                             {
                                 existingEntity.ShiftID = model.ShiftID;
@@ -109,8 +107,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                             {
                                 DefaultShifts entity = new DefaultShifts();
                                 entity.ShiftID = model.ShiftID;
-                                entity.OrganizationID = employee.OrganizationID;
-                                entity.DepartmentID = employee.DepartmentID;
                                 entity.EmployeeID = employee.EmployeeID;
                                 entity.LIP = model.LIP;
                                 entity.LMAC = model.LMAC;
@@ -131,7 +127,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
 
                         foreach(var employee in employees)
                         {
-                            var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                            var existingEntity = await _genericRepository.All().Where(x => x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
 
                             if (existingEntity != null)
                             {
@@ -147,8 +143,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                             {
                                 DefaultShifts entity = new DefaultShifts();
                                 entity.ShiftID = model.ShiftID;
-                                entity.OrganizationID = employee.OrganizationID;
-                                entity.DepartmentID = employee.DepartmentID;
                                 entity.EmployeeID = empId;
 
                                 entity.LIP = model.LIP;
@@ -182,12 +176,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
             if (model.OrganizationID != null && model.DepartmentIDs == null && model.EmployeeIDs == null)
             {
                 var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID);
-                //if (employees == null || !employees.Any())
-                //    continue;
 
                 foreach (var employee in employees)
                 {
-                    var existingEntity = await _genericRepository.All().Where(x => x.OrganizationID == employee.OrganizationID && x.DepartmentID == employee.DepartmentID && x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                    var existingEntity = await _genericRepository.All().Where(x => x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
 
                     if (existingEntity != null)
                     {
@@ -196,9 +188,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                             DefaultShiftID = existingEntity.DefaultShiftID,
                             OrganizationID = employee.OrganizationID,
                             EmployeeID = employee.EmployeeID ?? 0,
-                            // Uncomment if available:
-                            // EmployeeName = employee.EmployeeName,
-                            DepartmentID = existingEntity.DepartmentID,
                             ShiftID = existingEntity.ShiftID
                         });
                     }
@@ -237,8 +226,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                     return false;
                 }
 
-                entity.OrganizationID = model.OrganizationID;
-                entity.DepartmentID = model.DepartmentIDs.FirstOrDefault();
                 entity.EmployeeID = model.EmployeeIDs.FirstOrDefault();
                 entity.ShiftID = model.ShiftID;
 
@@ -267,8 +254,6 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                     return false;
                 }
 
-                entity.OrganizationID = model.OrganizationID;
-                entity.DepartmentID = model.DepartmentIDs?.FirstOrDefault();
                 entity.EmployeeID = model.EmployeeIDs?.FirstOrDefault();
                 entity.ShiftID = model.ShiftID;
 
@@ -290,7 +275,14 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
         {
             try
             {
-                var query = _genericRepository.All().AsNoTracking().Include(x => x.Shift).Include(x => x.Organization).Include(x => x.Department).Include(x => x.Employee).Where(x => x.DeletedAt == null);
+                var query = _genericRepository.All()
+                    .AsNoTracking()
+                    .Include(x => x.Shift)
+                    .Include(x => x.Employee)
+                    .ThenInclude(x => x.EmployeeOfficeInfoEmployee)
+                    .ThenInclude(x => x.Organization)
+                    .ThenInclude(x => x.Departments)
+                    .Where(x => x.DeletedAt == null);
 
                 if (!string.IsNullOrEmpty(sortColumn))
                 {
@@ -298,8 +290,12 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                     {
                         "DefaultShiftID" => sortOrder == "desc" ? query.OrderByDescending(x => x.DefaultShiftID) : query.OrderBy(x => x.DefaultShiftID),
                         "ShiftName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Shift.ShiftName) : query.OrderBy(x => x.Shift.ShiftName),
-                        "OrganizationName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Organization.OrganizationName) : query.OrderBy(x => x.Organization.OrganizationName),
-                        "DepartmentName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Department.DepartmentName) : query.OrderBy(x => x.Department.DepartmentName),
+                        "OrganizationName" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Organization.OrganizationName)
+                            : query.OrderBy(x => x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Organization.OrganizationName),
+                        "DepartmentName" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName)
+                            : query.OrderBy(x => x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName),
                         "EmployeeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.Employee.FirstName) : query.OrderBy(x => x.Employee.FirstName),
                         _ => query.OrderBy(x => x.ShiftID)
                     };
@@ -312,13 +308,15 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                 }
 
                 var result = await PaginationService<DefaultShifts, AssignDefaultShiftSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
-                    term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%") || EF.Functions.Like(x.Organization.OrganizationName, $"%{term}%") ||
-                    EF.Functions.Like(x.Department.DepartmentName, $"%{term}%") || EF.Functions.Like(x.Employee.FirstName, $"%{term}%"),
+                    term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%") 
+                    || EF.Functions.Like(x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Organization.OrganizationName, $"%{term}%") 
+                    || EF.Functions.Like(x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName, $"%{term}%") 
+                    || EF.Functions.Like(x.Employee.FirstName, $"%{term}%"),
                     x => new AssignDefaultShiftSetupVM
                     {
                         DefaultShiftID = x.DefaultShiftID,
-                        OrganizationName = x.Organization?.OrganizationName ?? "-",
-                        DepartmentName = x.Department?.DepartmentName ?? "-",
+                        OrganizationName = x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault()?.Organization?.OrganizationName ?? "-",
+                        DepartmentName = x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault()?.Department?.DepartmentName ?? "-",
                         EmployeeName = $"{x.Employee?.FirstName} {x.Employee?.LastName} ({x.Employee?.EmployeeCode})",
                         ShiftName = x.Shift?.ShiftName ?? "-",
                     });
@@ -336,7 +334,12 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
         #region GetByIdAsync
         public async Task<AssignDefaultShiftSetupVM> GetByIdAsync(int id)
         {
-            var entity = await _genericRepository.GetByIdAsync(id);
+            var entity = await _genericRepository.AllActive()
+                .Include(x => x.Employee)
+                .ThenInclude(x => x.EmployeeOfficeInfoEmployee)
+                .ThenInclude(x => x.Organization)
+                .ThenInclude(x => x.Departments)
+                .FirstOrDefaultAsync(x => x.DefaultShiftID == id);
             var defaultShift = entity as DefaultShifts;
 
             if (defaultShift == null)
@@ -346,8 +349,8 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
             {
                 DefaultShiftID = defaultShift.DefaultShiftID,
                 ShiftID = defaultShift.ShiftID,
-                OrganizationID = defaultShift.OrganizationID,
-                DepartmentID = defaultShift.DepartmentID,
+                OrganizationID = defaultShift.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().OrganizationID,
+                DepartmentID = defaultShift.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().DepartmentID,
                 EmployeeID = defaultShift.EmployeeID
             };
         }
