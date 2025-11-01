@@ -1,12 +1,23 @@
 ﻿@using GCTL.Core.ViewModels.CRM.Customer
 @model BranchVM
+<style>
+    .select2-container .select2-selection--single {
+        height: 48px !important;
+        line-height: 50px !important;
+        padding: 10px 10px 10px 10px !important;
+        font-size: 16px !important;
+        display: flex;
+        align-items: center;
+        border-color: rgb(203, 208, 221) !important;
+    }
+</style>
 <div data-init="initBranchForm">
 
     <div class="d-flex flex-column h-100 my-3">
         <h5 class="mb-3 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Branch</h5>
         <div class="row g-3">
             <form id="branchForm" action="/Customers/SaveBranch" method="post">
-                <input type="number" asp-for="BID" name="name" hidden />
+                <input type="number" asp-for="Bid" name="name" hidden />
                 <div class="row px-5">
                     <!-- Left Section -->
                     <div class="col-md-6">
@@ -21,10 +32,18 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6 pe-1 col-sm-6">
                                 <div class="mb-3 form-floating">
                                     <input type="text" asp-for="BName" class="form-control" placeholder="Address">
                                     <label class="form-label">Branch Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 ps-1 col-sm-6">
+                                <div class="form-floating form-floating-advance-select select2-floating">
+                                    <select  id="BranchType" class="select2">
+                                        <option value="">Select Type</option>
+                                    </select>
+                                    <label for="priorityID">Branch Type</label>
                                 </div>
                             </div>
                             <div class="col-md-6 pe-1 col-sm-6">
@@ -40,14 +59,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 mb-3">
-                            <input class="form-control" asp-for="BPhone" type="tel" placeholder="Phone Number" />
-                            <div class="text-danger" id="errorShow"></div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 pe-1 col-sm-6">
+                                <input class="form-control" asp-for="BPhone" type="tel" placeholder="Phone Number" />
+                                <div class="text-danger" id="errorShow"></div>
+                            </div>
+                            <div class="col-md-6 ps-1 col-sm-6">
+                                <input class="form-control" asp-for="BOtherPhone" id="bOtherPhone" type="tel" placeholder="Other Phone" />
+                                <div class="text-danger" id="errorShow"></div>
+                            </div>
                         </div>
-                        <div class="col-12 mb-3">
-                            <input class="form-control" id="bOtherPhone" type="tel" placeholder="Other Phone" />
-                            <div class="text-danger" id="errorShow"></div>
-                        </div>
+                        
                         <div class="col-12">
                             <div class="mb-3 form-floating">
                                 <input type="text" asp-for="BEmail" class="form-control" placeholder="">
@@ -141,4 +163,5 @@
         </div>
     </div>
 </div>
+
 <script src="~/js/pages/crm/Customer/branch.js"></script>

@@ -4,9 +4,9 @@ namespace GCTL.Core.ViewModels.CRM.Customer
 {
     public class BranchVM : BaseViewModel
     {
-        public int BID { get; set; }
+        public int Bid { get; set; }
         public string BName { get; set; }
-        public int BCustomerID { get; set; }
+        public int? BCustomerID { get; set; }
 
         public string? BFirstName { get; set; }
 
