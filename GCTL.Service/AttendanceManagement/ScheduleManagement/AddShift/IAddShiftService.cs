@@ -17,7 +17,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
         Task<bool> AddAsync(ShiftsSetupVM model);
         Task<bool> UpdateAsync(ShiftUpdateSetupVM model);
         Task<ShiftsSetupVM> SoftDeleteAsync(DeleteRequestVM requestVM);
-        Task<ShiftUpdateSetupVM> GetByIdAsync(int id);
+        Task<GetByIdShiftVM> GetByIdAsync(int id);
         Task<PaginationService<Shifts, ShiftsListVM>.PaginationResult<ShiftsListVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "ShiftID", string sortOrder = "desc", int? organizationID = null);
         #endregion

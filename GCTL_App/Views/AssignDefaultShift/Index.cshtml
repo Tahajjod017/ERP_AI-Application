@@ -4,23 +4,17 @@
     var employees = ViewBag.EmployeeList as List<GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.AssignDefaultShift.AssignDefaultShiftSetupVM>;
 }
 
-<div class="mb-5 mt-4">
-    <div class="card">
-        <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
-            <h4>@Html.SmartLocalize("Assign Default Shift")</h4>
-        </div>
-        <div class="tab-content mt-3" id="myTabContent">
-            <div class="tab-pane fade show active">
-                <div class="border-translucent p-3">
-                    <partial name="_Form" model="Model.Setup" />
-                </div>
-            </div>
-
-        </div>
+<div class="card mb-2">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+        <h4>@Html.SmartLocalize("Assign Default Shift")</h4>
+    </div>
+    <div class="card-body">
+        <partial name="_Form" model="Model.Setup" />
     </div>
 </div>
 
 <partial name="_Table" />
+
 <partial name="_ConfirmEditModal" />
 
 @section Scripts {
