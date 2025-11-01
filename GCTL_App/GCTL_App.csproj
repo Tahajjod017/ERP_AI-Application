@@ -7,9 +7,13 @@
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 	</PropertyGroup>
 	<ItemGroup>
+		<Compile Remove="wwwroot\images\**" />
 		<Compile Remove="wwwroot\js\layout\coreui-5.4.0\**" />
+		<Content Remove="wwwroot\images\**" />
 		<Content Remove="wwwroot\js\layout\coreui-5.4.0\**" />
+		<EmbeddedResource Remove="wwwroot\images\**" />
 		<EmbeddedResource Remove="wwwroot\js\layout\coreui-5.4.0\**" />
+		<None Remove="wwwroot\images\**" />
 		<None Remove="wwwroot\js\layout\coreui-5.4.0\**" />
 	</ItemGroup>
 	<ItemGroup>
@@ -41,7 +45,7 @@
 		<Folder Include="Views\LeadSources\" />
 		<Folder Include="Views\LeadActivityTypes\" />
 		<Folder Include="Views\AddTeams\" />
-		<Folder Include="wwwroot\images\" />
+
 		<Folder Include="wwwroot\js\pages\ProjectManagements\" />
 		<Folder Include="wwwroot\js\pages\shared\" />
 		<Folder Include="wwwroot\media\costomTosterImg\" />

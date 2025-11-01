@@ -9,30 +9,84 @@
     if (window.initCommonFields) window.initCommonFields(root);
 
 
-    const customerSelect = root.querySelector('#CustomerID');
+    const customerSelect = root.querySelector('#WCustomerID');
     //alert("customer")
-    console.log(root)
+
     if (customerSelect && !customerSelect.dataset.select2Initialized) {
-        debugger;
         // 🔥 Smart dropdown parent: modal if inside one, else body
         let dropdownParent = $(customerSelect).closest('.modal');
         if (dropdownParent.length === 0) {
             dropdownParent = $(document.body);
         }
 
-        const initializeSelect = () => {
-            $('.searchableSelect').select2({
-                width: '100%',
-                allowClear: true,
-                placeholder: 'Select an option',
-                language: { noResults: () => 'No results found' },
-                escapeMarkup: markup => markup
-            });
-        };
+        //#region customer serach field
+        $(customerSelect).select2({
+            placeholder: 'Select Customer',
+            dropdownParent: dropdownParent,
+            ajax: {
+                url: '/CreateJobs/GetCompnayCustomers',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term || '',
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
 
-        initializeSelect();
+                    return {
+
+                        results: data.results,
+                        pagination: {
+                            more: data.pagination.more
+                        }
+                    };
+                },
+                cache: true
+            },
+
+
+            width: '100%'
+        });
     }
     //#endregion
+
+    const countrySelect = root.querySelector("#WCountryID");
+    if (countrySelect && !countrySelect.dataset.listenerAttached) {
+        countrySelect.dataset.listenerAttached = true;
+        // 🔥 Smart dropdown parent: modal if inside one, else body
+        let dropdownParent = $(countrySelect).closest('.modal');
+        if (dropdownParent.length === 0) {
+            dropdownParent = $(document.body);
+        }
+
+        $(countrySelect).select2({
+            placeholder: 'Select Country',
+            dropdownParent: dropdownParent,
+            ajax: {
+                url: '/CreateJobs/GetCountryList',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { search: params.term || '', page: params.page || 1 };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results,
+                        pagination: { more: data.pagination.more }
+                    };
+                },
+                cache: true
+            },
+            width: '100%',
+        });
+    }
+
+    const fields = ["WCustomerID","WName", "WFirstName", "WPhone"];
+
     const saveBtn = root.querySelector("#saveAndExit");
     if (saveBtn && !saveBtn.dataset.listenerAttached) {
         saveBtn.dataset.listenerAttached = true;
@@ -53,23 +107,24 @@
                 try {
                     this.disabled = true;
                     this.textContent = "Saving...";
+                    if (validateFields(fields)) {
+                        const response = await fetch(form.action, {
+                            method: form.method || "POST",
+                            headers: {
+                                "Accept": "application/json",
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(jsonData)
+                        });
 
-                    const response = await fetch(form.action, {
-                        method: form.method || "POST",
-                        headers: {
-                            "Accept": "application/json",
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(jsonData)
-                    });
+                        const data = await response.json();
+                        console.log("Server response:", data);
 
-                    const data = await response.json();
-                    console.log("Server response:", data);
-
-                    if (response.ok && data.success) {
-                        alert(data.message || "Customer saved successfully!");
-                    } else {
-                        alert(data.message || "Something went wrong!");
+                        if (response.ok && data.success) {
+                            alert(data.message || "Customer saved successfully!");
+                        } else {
+                            alert(data.message || "Something went wrong!");
+                        }
                     }
                 } catch (error) {
                     console.error("Error during fetch:", error);
@@ -80,5 +135,69 @@
                 }
             });
         }
+    }
+
+    function validateFields(fieldIds) {
+        let isValid = true;
+
+        fieldIds.forEach(id => {
+            const field = document.getElementById(id);
+            if (!field) return;
+
+            // Determine if field is a Select2 field
+            const isSelect2 = field.classList.contains("select2-hidden-accessible");
+            let value = field.value?.trim();
+
+            if (!value) {
+                isValid = false;
+
+                if (isSelect2) {
+                    // Apply red border to Select2 box
+                    const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
+                    if (select2Box) {
+                        select2Box.classList.add("is-invalid");
+                        select2Box.style.borderColor = "red";
+                    }
+                } else {
+                    field.classList.add("is-invalid");
+                    field.style.border = "2px solid red";
+                }
+            } else {
+                if (isSelect2) {
+                    const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
+                    if (select2Box) {
+                        select2Box.classList.remove("is-invalid");
+                        select2Box.style.borderColor = "";
+                    }
+                } else {
+                    field.classList.remove("is-invalid");
+                    field.style.border = "";
+                }
+            }
+
+            // Automatically remove red border when user types or selects
+            if (!field.dataset.listenerAttached) {
+                field.dataset.listenerAttached = true;
+
+                if (isSelect2) {
+                    $(field).on("change", function () {
+                        const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
+                        if (field.value?.trim() && select2Box) {
+                            select2Box.classList.remove("is-invalid");
+                            select2Box.style.borderColor = "";
+                        }
+                    });
+                } else {
+                    field.addEventListener("input", () => {
+                        if (field.value?.trim()) {
+                            field.classList.remove("is-invalid");
+                            field.style.border = "";
+                        }
+                    });
+                }
+            }
+        });
+
+        return isValid;
     }
 };

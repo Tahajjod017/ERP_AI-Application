@@ -4,9 +4,9 @@ namespace GCTL.Core.ViewModels.CRM.Customer
     public class CustomerVM : BaseViewModel
     {
         public int ID { get; set; }
-        public string Name{get; set;}   
+        public string? CompnayName{get; set;}   
 
-        public string? FirstName { get; set; }
+        public string FirstName { get; set; }
 
         public string? LastName { get; set; }
 

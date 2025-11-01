@@ -1,19 +1,18 @@
 ﻿@using GCTL.Core.ViewModels.CRM.Customer
-@model AddressVM
+@model WarehouseVM
 <div data-init="initWarehouseForm">
     <div class="d-flex flex-column h-100 my-3">
-        <h5 class="mb-3 text-body-highlight ms-4 fs-7 fw-semibold ms-2">Add Warehouse</h5>
+        <h5 class="mb-3 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Warehouse</h5>
         <div class="row g-3">
             <form id="WarehouseForm" action="/Customers/SaveWarehouse" method="post">
-                <input type="hidden" asp-for="ID" />
+                <input type="hidden" asp-for="WID" value="0" />
                 <div class="row px-5">
                     <!-- Left Section -->
                     <div class="col-md-6">
                         <div class="col-12">
                             <div class="mb-3 form-floating form-floating-advance-select select2-floating">
-                                <select asp-for="CustomerID" id="customerID" class="searchableSelect select2">
+                                <select asp-for="WCustomerID" id="WCustomerID" class="select2">
                                     <option value="">Select Customer</option>
-
                                 </select>
                                 <label for="customerID">Customer Name</label>
                             </div>
@@ -22,25 +21,25 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="Name" class="form-control" placeholder="Address">
+                                    <input type="text" asp-for="WName" class="form-control" placeholder="Address">
                                     <label class="form-label">Warehouse Name</label>
                                 </div>
                             </div>
                             <div class="col-md-6 pe-1 col-sm-6">
                                 <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="FirstName" class="form-control" placeholder="">
+                                    <input type="text" asp-for="WFirstName" class="form-control" placeholder="">
                                     <label class="form-label req">First Name</label>
                                 </div>
                             </div>
                             <div class="col-md-6 ps-1 col-sm-6">
                                 <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="LastName" class="form-control" placeholder="">
+                                    <input type="text" asp-for="WLastName" class="form-control" placeholder="">
                                     <label class="form-label">Last Name</label>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 mb-3">
-                            <input class="form-control" asp-for="Phone" type="tel" placeholder="Phone Number" />
+                            <input class="form-control" asp-for="WPhone" type="tel" placeholder="Phone Number" />
                             <div class="text-danger" id="errorShow"></div>
                         </div>
                         <div class="col-12 mb-3">
@@ -49,7 +48,7 @@
                         </div>
                         <div class="col-12">
                             <div class="mb-3 form-floating">
-                                <input type="text" asp-for="Email" class="form-control" placeholder="">
+                                <input type="text" asp-for="WEmail" class="form-control" placeholder="">
                                 <label class="form-label">Email</label>
                                 <div class="text-danger" id="errorShow"></div>
                             </div>
@@ -59,7 +58,7 @@
                     <div class="col-md-6">
                         <div class="col-md-12">
                             <div class="mb-3 form-floating">
-                                <input type="text" asp-for="FullAddress" class="form-control" placeholder="Address">
+                                <input type="text" asp-for="WFullAddress" class="form-control" placeholder="Address">
                                 <label class="form-label">Full Address</label>
                             </div>
                         </div>
@@ -67,13 +66,13 @@
                             <div class="row">
                                 <div class="col-md-6 pe-1 col-sm-6">
                                     <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="Street" class="form-control" placeholder="Street">
+                                        <input type="text" asp-for="WStreet" class="form-control" placeholder="Street">
                                         <label class="form-label">Street</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6">
                                     <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="City" class="form-control" placeholder="City">
+                                        <input type="text" asp-for="WCity" class="form-control" placeholder="City">
                                         <label class="form-label">City</label>
                                     </div>
                                 </div>
@@ -83,13 +82,13 @@
                             <div class="row">
                                 <div class="col-md-6 pe-1 col-sm-6">
                                     <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="Additionaladdress" class="form-control" placeholder="">
+                                        <input type="text" asp-for="WAdditionaladdress" class="form-control" placeholder="">
                                         <label class="form-label">Additional Address</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6">
                                     <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="State" class="form-control" placeholder="">
+                                        <input type="text" asp-for="WState" class="form-control" placeholder="">
                                         <label class="form-label">State/Province</label>
                                     </div>
                                 </div>
@@ -99,13 +98,13 @@
                             <div class="row">
                                 <div class="col-md-6 pe-1 col-sm-6">
                                     <div class="mb-3 form-floating">
-                                        <input asp-for="PostalCode" type="text" class="form-control" placeholder="">
+                                        <input asp-for="WPostalCode" type="text" class="form-control" placeholder="">
                                         <label class="form-label">Zip/Postal Code</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6">
                                     <div class="form-floating form-floating-advance-select select2-floating">
-                                        <select asp-for="CountryID" id="countryId2" class="searchableSelect select2">
+                                        <select asp-for="WCountryID" id="WCountryID" class=" select2">
                                             <option value="">Select Country</option>
                                         </select>
                                         <label for="priorityID">Country</label>
@@ -117,13 +116,13 @@
                             <div class="row">
                                 <div class="col-md-6 pe-1 col-sm-6">
                                     <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="Latitude" class="form-control" placeholder="">
+                                        <input type="text" asp-for="WLatitude" class="form-control" placeholder="">
                                         <label class="form-label">Latitude</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6">
                                     <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="Longitude" class="form-control" placeholder="">
+                                        <input type="text" asp-for="WLongitude" class="form-control" placeholder="">
                                         <label class="form-label">Longitude</label>
                                     </div>
                                 </div>

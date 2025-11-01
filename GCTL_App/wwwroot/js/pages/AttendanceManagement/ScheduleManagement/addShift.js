@@ -143,11 +143,16 @@
                     MealBreakStartTime: $('#MealBreakStartTime').val(),
                     MealBreakEndTime: $('#MealBreakEndTime').val(),
                     IsAllowOvertime: $('#IsAllowOvertime').prop('checked'),
-                    GraceTime: $('#GraceTime').val(),
-                    MinimumWorkingTime: $('#MinimumWorkingTime').val(),
-                    MinimumRequiredOvertime: $('#MinimumRequiredOvertime').val(),
-                    MaximumAllowedOvertime: $('#MaximumAllowedOvertime').val(),
-                    MealBreakTime: $('#MealBreakTime').val(),
+                    GraceTimeHour: $('#GraceTimeHour').val(),
+                    GraceTimeMinute: $('#GraceTimeMinute').val(),
+                    MinimumWorkingTimeHour: $('#MinimumWorkingTimeHour').val(),
+                    MinimumWorkingTimeMinute: $('#MinimumWorkingTimeMinute').val(),
+                    MinimumRequiredOvertimeHour: $('#MinimumRequiredOvertimeHour').val(),
+                    MinimumRequiredOvertimeMinute: $('#MinimumRequiredOvertimeMinute').val(),
+                    MaximumAllowedOvertimeHour: $('#MaximumAllowedOvertimeHour').val(),
+                    MaximumAllowedOvertimeMinute: $('#MaximumAllowedOvertimeMinute').val(),
+                    MealBreakTimeHour: $('#MealBreakTimeHour').val(),
+                    MealBreakTimeMinute: $('#MealBreakTimeMinute').val(),
                 }
 
                 var id = $(settings.updateform).find('#UpdateShiftID').val();
@@ -283,8 +288,12 @@
                             $(settings.updateform).find('#UpdateShiftID').val(data.updateShiftID);
                             $(settings.updateform).find('#UpdateShiftName').val(data.updateShiftName);
                             $(settings.updateform).find('#UpdateOrganizationID').val(data.updateOrganizationID).trigger('change');
-                            $(settings.updateform).find('#UpdateStartTime')[0]._flatpickr.setDate(data.updateStartTime); 
-                            $(settings.updateform).find('#UpdateEndTime')[0]._flatpickr.setDate(data.updateEndTime); 
+
+                            $(settings.updateform).find('#UpdateStartTime')[0]._flatpickr.setDate(parseTime12hToDate(data.updateStartTime));
+                            $(settings.updateform).find('#UpdateEndTime')[0]._flatpickr.setDate(parseTime12hToDate(data.updateEndTime));
+                            $(settings.updateform).find('#UpdateMealBreakStartTime')[0]._flatpickr.setDate(parseTime12hToDate(data.updateMealBreakStartTime));
+                            $(settings.updateform).find('#UpdateMealBreakEndTime')[0]._flatpickr.setDate(parseTime12hToDate(data.updateMealBreakEndTime)); 
+
                             $(settings.updateform).find('#UpdateIsLateCount').prop('checked', data.updateIsLateCount);
                             if ($('#UpdateIsLateCount').is(':checked')) {
                                 $('#addShift-UpdateGraceTimeDiv').removeClass('d-none');
@@ -324,8 +333,7 @@
                                 $('#addShift-UpdateAllowStartEndTime').removeClass('d-none');
                                 $('#addShift-UpdateDenyStartEndTime').addClass('d-none');
                             }
-                            $(settings.updateform).find('#UpdateMealBreakStartTime')[0]._flatpickr.setDate(data.updateMealBreakStartTime); 
-                            $(settings.updateform).find('#UpdateMealBreakEndTime')[0]._flatpickr.setDate(data.updateMealBreakEndTime); 
+                            
                             $(settings.updateform).find('#UpdateIsAllowOvertime').prop('checked', data.updateIsAllowOvertime);
                             if ($('#UpdateIsAllowOvertime').is(':checked')) {
                                 $('#addShift-UpdateOvertimeDiv').removeClass('d-none');
@@ -733,7 +741,9 @@
             }
             // #endregion
 
-
+            function parseTime12hToDate(time12h) {
+                return flatpickr.parseDate(time12h, "h:i K");
+            }
             // #region flatpicker
             $(".timepicker-12hr").flatpickr({
                 enableTime: true,       // ✅ Enables time selection (hours & minutes)
@@ -1197,8 +1207,10 @@
                                     <td class="endTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.endTime ?? '-'}</td>
                                     <td class="graceTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.graceTimeHour ?? '-'}</td>
                                     <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTimeHour ?? '-'}</td>
-                                    <td class="text-end align-middle white-space-nowrap pe-3">
-                                        <div class="row g-3">
+                                    <td class="align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakStartTime ?? '-'}</td>
+                                    <td class="align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakEndTime ?? '-'}</td>
+                                    <td class="text-start align-middle white-space-nowrap pe-3">
+                                        <div class="d-flex justify-content-end align-items-center">
                                             <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2" id="addShift-editBtn" data-id="${item.shiftID}"><i class="fas fa-edit text-black"></i></a>
                                             <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkDelete" id="addShift-singleDelBtn" data-id="${item.shiftID}"><i class="far fa-trash-alt text-black"></i></a>
                                         </div>
@@ -1207,7 +1219,7 @@
                             `);
                         });
                     } else {
-                        tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
+                        tableBody.append('<tr><td colspan="10" class="text-center">No data available</td></tr>');
                     }
                     //<td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                     //    <div class="btn-reveal-trigger position-static">

@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dapper;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,14 +23,88 @@ namespace GCTL.Service.BackgroundServices
 
         public string Name => "AttendanceTask";
 
-        public TimeSpan ScheduledTime => new TimeSpan(13, 5, 0); // 11:00 PM
+        public TimeSpan ScheduledTime => new TimeSpan(1, 55, 0); // 11:00 PM
 
-        public Task ExecuteAsync(CancellationToken stoppingToken)
+        #region ExecuteAsync
+        public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Executing Task 1...");
-            // Your task logic here
-            return Task.CompletedTask;
-        }
+            try
+            {
+                _logger.LogInformation("Attendance Task started...");
 
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    var now = DateTime.Now;
+                    var scheduledTime = DateTime.Today.Add(ScheduledTime);
+                    var bufferTime = scheduledTime.AddMinutes(2);
+
+                    // If the scheduled time for today is in the past (including buffer time), schedule for tomorrow
+                    if (now > bufferTime)
+                    {
+                        scheduledTime = scheduledTime.AddDays(1);
+                    }
+
+                    var timeUntilExecution = bufferTime - now;
+
+                    // If timeUntilExecution is negative (we missed the scheduled time by more than the buffer), adjust to the next scheduled time
+                    if (timeUntilExecution < TimeSpan.Zero)
+                    {
+                        _logger.LogWarning($"Scheduled time has already passed for today. Adjusting to {scheduledTime.AddDays(1)}.");
+                        scheduledTime = scheduledTime.AddDays(1); // Set to the next day's scheduled time
+                        timeUntilExecution = scheduledTime - now; // Recalculate the time to the next scheduled time
+                    }
+
+                    // Log the delay duration
+                    _logger.LogInformation($"Waiting {timeUntilExecution.TotalMinutes} minutes to execute the task at {scheduledTime}...");
+
+                    // Ensure the delay is non-negative
+                    await Task.Delay(timeUntilExecution, stoppingToken);
+
+                    if (stoppingToken.IsCancellationRequested)
+                        break;
+
+                    // Execute the stored procedure
+                    await RunStoredProcedureAsync(stoppingToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred during the execution of the Attendance Task.");
+                throw;
+            }
+        }
+        #endregion
+
+
+        #region RunStoredProcedureAsync
+        private async Task RunStoredProcedureAsync(CancellationToken stoppingToken)
+        {
+            try
+            {
+                _logger.LogInformation("Executing stored procedure dbo.sp_processFinalAtt...");
+
+                // Create a new scope to get the DbConnection instance
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var dbConnection = scope.ServiceProvider.GetRequiredService<IDbConnection>();
+
+                    // Open the connection if it's not open
+                    if (dbConnection.State != ConnectionState.Open)
+                    {
+                        dbConnection.Open();
+                    }
+
+                    // Execute the stored procedure using Dapper
+                    await dbConnection.ExecuteAsync("dbo.sp_processFinalAtt", commandType: CommandType.StoredProcedure);
+
+                    _logger.LogInformation("Stored procedure dbo.sp_processFinalAtt executed successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error executing stored procedure dbo.sp_processFinalAtt.");
+            }
+        }
+        #endregion
     }
 }

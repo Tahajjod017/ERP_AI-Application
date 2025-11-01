@@ -1,132 +1,6 @@
-﻿@* @model GCTL.Core.ViewModels.MenuTab.MenuTabVM
+﻿@model GCTL.Core.ViewModels.MenuTab.MenuTabVM
 
-<div class="card">
-    <div class="card-header border-bottom-1">
-        <div class="row justify-content-between align-items-center">
-            <div class="col-auto">
-                <h3 class="text-body-emphasis mt-3">Add Menu Tab</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="card-body mt-3">
-        <form asp-action="Create" asp-controller="MenuTabs" method="post" enctype="multipart/form-data" id="menuTab-form">
-            <div class="row">
-                <div class="col-sm-6 mb-3">
-                    <input type="hidden" asp-for="MenuTabId" />
-                    <div class="flatpickr-input-container">
-                        <div class="form-floating">
-                            <input class="form-control form-control-sm" asp-for="Title" type="text" placeholder="Title" tabindex="1" />
-                            <label asp-for="Title">Title<span style="color: red;">*</span></label>
-                        </div>
-                        <span asp-validation-for="Title" class="text-danger"></span>
-                        <span id="nameError" class="text-danger" style="display:none;"></span>
-                    </div>
-                </div>
-
-                <div class="col-sm-6 mb-3">
-                    <div class="flatpickr-input-container">
-                        <div class="form-floating form-floating-advance-select mb-2">
-                            <label asp-for="Type">Type<span style="color: red;">*</span></label>
-                            <select asp-for="Type" class="form-select" tabindex="2">
-                                <option value="">Select Type</option>
-                                <option value="Primary">Primary</option>
-                                <option value="Secondary">Secondary</option>
-                                <option value="Tertiary">Tertiary</option>
-                            </select>
-                        </div>
-                        <span asp-validation-for="Type" class="text-danger"></span>
-                        <span id="nameError" class="text-danger" style="display:none;"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-6 mb-3">
-                    <div class="flatpickr-input-container">
-                        <div class="form-floating">
-                            <input class="form-control" asp-for="ParentId" type="number" placeholder="Parent Id" tabindex="3" />
-                            <label asp-for="ParentId">Parent Id </label>
-                        </div>
-                        <span asp-validation-for="ParentId" class="text-danger"></span>
-                        <span id="nameError" class="text-danger" style="display:none;"></span>
-                    </div>
-                </div>
-
-                <div class="col-sm-6 mb-3">
-                    <div class="flatpickr-input-container">
-                        <div class="form-floating">
-                            <input class="form-control" asp-for="OrderBy" type="number" placeholder="Order By" tabindex="4" />
-                            <label asp-for="OrderBy">Order By </label>
-                        </div>
-                        <span asp-validation-for="OrderBy" class="text-danger"></span>
-                        <span id="nameError" class="text-danger" style="display:none;"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-6 mb-3">
-                    <div class="flatpickr-input-container">
-                        <div class="form-floating">
-                            <input class="form-control" asp-for="ControllerName" type="text" placeholder="Controller Name" tabindex="5" />
-                            <label asp-for="ControllerName">Controller Name </label>
-                        </div>
-                        <span asp-validation-for="ControllerName" class="text-danger"></span>
-                        <span id="nameError" class="text-danger" style="display:none;"></span>
-                    </div>
-                </div>
-
-                <div class="col-sm-6 mb-3">
-                    <div class="flatpickr-input-container">
-                        <div class="form-floating">
-                            <input class="form-control bg-default" asp-for="ViewName" type="text" placeholder="View Name" disabled />
-                            <label asp-for="ViewName">View Name </label>
-                        </div>
-                        <span asp-validation-for="ViewName" class="text-danger"></span>
-                        <span id="nameError" class="text-danger" style="display:none;"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-6 mb-3">
-                    <div class="flatpickr-input-container">
-                        <div class="form-floating">
-                            <input class="form-control" asp-for="Icon" type="text" placeholder="Icon" tabindex="6" />
-                            <label asp-for="Icon">Icon </label>
-                        </div>
-                        <span asp-validation-for="Icon" class="text-danger"></span>
-                        <span id="nameError" class="text-danger" style="display:none;"></span>
-                    </div>
-                </div>
-
-                <div class="col-sm-6 mb-3">
-                    <div class="form-group">
-                        <input class="form-check" asp-for="IsActive" type="checkbox" tabindex="7" />
-                        <label asp-for="IsActive">Is Active</label>
-                    </div>
-                    <span asp-validation-for="IsActive" class="text-danger"></span>
-                    <span id="nameError" class="text-danger" style="display:none;"></span>
-                </div>
-            </div>
-
-            <div class="col-12 mb-3">
-                <div class="row g-3 justify-content-end">
-                    <div class="col-auto">
-                        <button type="reset" class="btn btn-phoenix-primary px-5" id="menuTab-resetBtn" tabindex="8">Reset</button>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="menuTab-saveBtn" tabindex="9">Save</button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>*@
-@model GCTL.Core.ViewModels.MenuTab.MenuTabVM
-
-<div class="card">
+<div class="card h-100">
     <div class="card-header border-bottom-1">
         <div class="row justify-content-between align-items-center">
             <div class="col-auto">
@@ -135,12 +9,12 @@
         </div>
     </div>
 
-    <div class="card-body mt-3">
+    <div class="card-body mt-2">
         <form asp-action="Create" asp-controller="MenuTabs" method="post" enctype="multipart/form-data" id="menuTab-form">
             @Html.AntiForgeryToken()
 
             <div class="row">
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 mb-2">
                     <input type="hidden" asp-for="MenuTabId" />
                     <div class="flatpickr-input-container">
                         <div class="form-floating">
@@ -152,7 +26,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 mb-2">
                     <div class="flatpickr-input-container">
                         <div class="form-floating form-floating-advance-select mb-2">
                             <label asp-for="Type">@Html.SmartLocalize("Type")<span style="color: red;">*</span></label>
@@ -170,7 +44,7 @@
             </div>
 
             <div class="row">
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 mb-2">
                     <div class="flatpickr-input-container">
                         <div class="form-floating">
                             <input class="form-control" asp-for="ParentId" type="number" placeholder="@Html.SmartLocalize("Parent Id")" tabindex="3" />
@@ -181,7 +55,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 mb-2">
                     <div class="flatpickr-input-container">
                         <div class="form-floating">
                             <input class="form-control" asp-for="OrderBy" type="number" placeholder="@Html.SmartLocalize("Order By")" tabindex="4" />
@@ -194,7 +68,7 @@
             </div>
 
             <div class="row">
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 mb-2">
                     <div class="flatpickr-input-container">
                         <div class="form-floating">
                             <input class="form-control" asp-for="ControllerName" type="text" placeholder="@Html.SmartLocalize("Controller Name")" tabindex="5" />
@@ -205,7 +79,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 mb-2">
                     <div class="flatpickr-input-container">
                         <div class="form-floating">
                             <input class="form-control bg-default" asp-for="ViewName" type="text" placeholder="@Html.SmartLocalize("View Name")" disabled />
@@ -218,7 +92,7 @@
             </div>
 
             <div class="row">
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 mb-2">
                     <div class="flatpickr-input-container">
                         <div class="form-floating">
                             <input class="form-control" asp-for="Icon" type="text" placeholder="@Html.SmartLocalize("Icon")" tabindex="6" />
@@ -229,7 +103,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-6 mb-3">
+                <div class="col-sm-6 mb-2">
                     <div class="form-group">
                         <input class="form-check" asp-for="IsActive" type="checkbox" tabindex="7" />
                         <label asp-for="IsActive">@Html.SmartLocalize("Is Active")</label>
@@ -239,7 +113,7 @@
                 </div>
             </div>
 
-            <div class="col-12 mb-3">
+            <div class="col-12 mb-2">
                 <div class="row g-3 justify-content-end">
                     <div class="col-auto">
                         <button type="reset" class="btn btn-phoenix-primary px-5" id="menuTab-resetBtn" tabindex="8">@Html.SmartLocalize("Reset")</button>

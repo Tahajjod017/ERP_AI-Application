@@ -205,9 +205,16 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
         #region GetAll
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ShiftID", string sortOrder = "desc", int? organizationID = null)
         {
-            var result = await _addShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
+            try
+            {
+                var result = await _addShiftService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
 
-            return Json(result);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
         }
         #endregion
 

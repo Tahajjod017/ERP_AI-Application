@@ -16,6 +16,18 @@
         var updateEmpShift = settings.baseUrl + "/UpdateEmpShiftAsync";
         $(() => {
 
+            const orgId = $('#OrganizationID');
+            const dayDate = $('#DayDate');
+
+            // Function to toggle input based on selection
+            function toggleDayDate() {
+                const hasValue = orgId.val() !== "";
+                dayDate.prop('disabled', !hasValue);
+            }
+
+            // Run on page load
+            toggleDayDate();
+
             let dayDatePicker = null;
             let exchangeDatePicker = null;
 

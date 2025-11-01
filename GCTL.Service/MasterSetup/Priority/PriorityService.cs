@@ -35,7 +35,7 @@ namespace GCTL.Service.MasterSetup.Priority
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var existingEntity = await _genericRepository.FindAsync(b => b.PriorityName == model.PriorityName && b.DeletedAt != null);
+                var existingEntity = await _genericRepository.FindAsync(b => b.PriorityName == model.PriorityName && b.DeletedAt != null && b.OrganizationID == model.OrganizationID);
                 if (existingEntity.Any())
                 {
                     var entityToRestore = existingEntity.FirstOrDefault();
@@ -49,6 +49,7 @@ namespace GCTL.Service.MasterSetup.Priority
                     entityToRestore.DeletedAt = null;
                     entityToRestore.DeletedBy = null;
                     entityToRestore.UpdatedAt = DateTime.Now;
+                    entityToRestore.OrganizationID = model.OrganizationID;
 
                     await _genericRepository.UpdateAsync(entityToRestore);
                     await _userInfoService.ActionLogAsync("Priorities", ActionName.DataAdd, null, entityToRestore, entityToRestore.PriorityID, model);
@@ -61,6 +62,7 @@ namespace GCTL.Service.MasterSetup.Priority
                     entity.CreatedBy = model.CreatedBy;
                     //entity.LIP = model.LIP;
                     entity.LMAC = model.LMAC;
+                    entity.OrganizationID = model.OrganizationID;
 
                     await _genericRepository.AddAsync(entity);
                     await _userInfoService.ActionLogAsync("Priorities", ActionName.DataAdd, null, entity, entity.PriorityID, model);
@@ -80,10 +82,10 @@ namespace GCTL.Service.MasterSetup.Priority
         #endregion
 
         #region GetAllAsync
-        public async Task<PaginationService<Priorities, PriorityVM>.PaginationResult<PriorityVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PriorityName", string sortOrder = "asc")
+        public async Task<PaginationService<Priorities, PriorityVM>.PaginationResult<PriorityVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PriorityName", string sortOrder = "asc")
         {
             var query = _genericRepository.All();
-            query = query.Where(x => x.DeletedAt == null);
+            query = query.Where(x => x.DeletedAt == null && x.OrganizationID == organizationID);
 
             if (!string.IsNullOrEmpty(sortColumn))
             {
@@ -106,9 +108,9 @@ namespace GCTL.Service.MasterSetup.Priority
         #endregion
 
         #region IsNameUniqueAsync
-        public async Task<bool> IsNameUniqueAsync(string name)
+        public async Task<bool> IsNameUniqueAsync(int organizationID, string name)
         {
-            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.PriorityName != null);
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.PriorityName != null && b.OrganizationID == organizationID);
 
             var nameList = existingNames.Select(b => b.PriorityName);
 
@@ -118,11 +120,11 @@ namespace GCTL.Service.MasterSetup.Priority
 
 
         #region Get
-        public async Task<PriorityVM> GetByIdAsync(int id)
+        public async Task<PriorityVM> GetByIdAsync(int organizationID, int id)
         {
             try
             {
-                var data = await _genericRepository.GetByIdAsync(id);
+                var data = await _genericRepository.FirstOrDefaultAsync(x => x.PriorityID == id && x.OrganizationID == organizationID);
                 if (data == null) return null;
 
                 return new PriorityVM
@@ -146,7 +148,7 @@ namespace GCTL.Service.MasterSetup.Priority
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var entity = await _genericRepository.GetByIdAsync(model.PriorityID);
+                var entity = await _genericRepository.FirstOrDefaultAsync(b=> b.PriorityID == model.PriorityID && b.OrganizationID == model.OrganizationID);
                 if (entity == null)
                 {
                     return false;
@@ -159,6 +161,7 @@ namespace GCTL.Service.MasterSetup.Priority
                 entity.UpdatedBy = model.UpdatedBy;
                 //entity.LIP = model.LIP;
                 entity.LMAC = model.LMAC;
+                entity.OrganizationID = model.OrganizationID;
 
                 await _genericRepository.UpdateAsync(entity);
 
@@ -183,7 +186,7 @@ namespace GCTL.Service.MasterSetup.Priority
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.PriorityID));
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.PriorityID) && x.OrganizationID == requestVM.OrganizationID);
                 if (data == null || data.Count == 0)
                 {
                     return new PriorityVM

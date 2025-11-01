@@ -11,19 +11,19 @@
     </style>
 }
 
-<div class="p-3 bg-white">
-    <div class="border-bottom">
+<div class="card">
+    <div class="card-header">
         <h4>@Html.SmartLocalize("New Journal")</h4>
     </div>
 
-    <div class="tab-content">
+    <div class="card-body">
         <form asp-controller="AddJournal" asp-action="Create" method="post" enctype="multipart/form-data" id="addJournals-form">
             <div class="row">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="JournalID" />
 
                 <div class="col-md-4">
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label" asp-for="JournalCode">@Html.SmartLocalize("Journal Id")<span style="color:red;">*&nbsp;</span></label>
                         <input class="form-control bg-light" asp-for="JournalCode" type="text" readonly />
                         <span asp-validation-for="JournalCode" id="JournalCodeError" class="text-danger" style="display:none;"></span>
@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label" asp-for="JournalTypeID">@Html.SmartLocalize("Journal Type")<span style="color:red;">*&nbsp;</span></label>
                         <select class="form-select" asp-for="JournalTypeID" asp-items="@ViewBag.JournalTypeDD as SelectList">
                             <option value="">@Html.SmartLocalize("Select Journal Type")</option>
@@ -41,7 +41,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label" asp-for="PostingRuleID">@Html.SmartLocalize("Scenario Type")<span style="color:red;">*&nbsp;</span></label>
                         <select class="form-select" asp-for="PostingRuleID" asp-items="@ViewBag.ScenarioTypeDD as SelectList">
                             <option value="">@Html.SmartLocalize("Select Scenario Type")</option>
@@ -52,7 +52,7 @@
 
                 <div class="row d-none" id="correctionJournalDiv">
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label class="form-label" for="">Reference Party(Customer/Supplier)</label>
                             <div class="d-flex">
                                 <select class="form-select " id="">
@@ -71,7 +71,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label class="form-label" for="">Reference Documents(PO/Invoice)</label>
                             <div class="d-flex">
                                 <select class="form-select " id="">
@@ -90,7 +90,7 @@
                 </div>
                                 
                 <div class="col-md-6">
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label" asp-for="FinancialYearID">@Html.SmartLocalize("Transaction Year")<span style="color:red;">*&nbsp;</span></label>
                         <select class="form-select" asp-for="FinancialYearID" asp-items="@ViewBag.FinancialYearDD as SelectList">
                             <option value="">@Html.SmartLocalize("Select Transaction Year")</option>
@@ -100,7 +100,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label" asp-for="JournalDate">@Html.SmartLocalize("Date")<span style="color:red;">*&nbsp;</span></label>
                         <input class="form-control datetimepicker" asp-for="JournalDate" type="text" placeholder="DD/MM/YYYY" />
                         <span asp-validation-for="JournalDate" id="JournalDateError" class="text-danger" style="display:none;"></span>
@@ -108,7 +108,7 @@
                 </div>
 
                 <div class="col-md-12">
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label class="form-label" asp-for="Note">Note</label>
                         <textarea class="form-control" asp-for="Note" rows="2" placeholder="Note"></textarea>
                     </div>
@@ -176,15 +176,17 @@
                                     <span id="AmountError" class="text-danger" style="display:none;"></span>
                                 </td>
                                 <td>
-                                    <a href="#!" class="btn btn-outline-light btn-icon detailsRemoveRowBtn" id="detailsDelBtn">
-                                        <i class="far fa-trash-alt text-black"></i>
-                                    </a>
-                                    @if (i == Model.CreateJournalDetailsVMs.Count - 1)
-                                    {
-                                        <button class="btn btn-outline-light btn-icon detailsAddRowBtn" id="detailsAddBtn">
-                                            <i class="fa-regular fa-square-plus text-black"></i>
-                                        </button>
-                                    }
+                                    <div class="d-flex justify-content-end align-items-center">
+                                        <a href="#!" class="btn btn-outline-light btn-icon me-2 detailsRemoveRowBtn" id="detailsDelBtn">
+                                            <i class="far fa-trash-alt text-black"></i>
+                                        </a>
+                                        @if (i == Model.CreateJournalDetailsVMs.Count - 1)
+                                        {
+                                            <button class="btn btn-outline-light btn-icon detailsAddRowBtn" id="detailsAddBtn">
+                                                <i class="fa-regular fa-square-plus text-black"></i>
+                                            </button>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }

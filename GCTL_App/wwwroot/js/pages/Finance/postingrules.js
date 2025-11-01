@@ -679,7 +679,7 @@
                                     <td class="align-middle white-space-nowrap ps-0">${item.scenarioName}</td>
                                     <td class="align-middle white-space-nowrap ps-0">${item.scenarioCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">
-                                        <div class="d-flex gap-2">
+                                        <div class="d-flex justify-content-end align-items-center">
                                             <a href="#!" class="btn btn-outline-light btn-icon postingRules-editBtn" id="postingRules-editBtn" data-id="${item.postingRuleID}">
                                                 <i class="fas fa-edit text-black"></i>
                                             </a>

@@ -1,28 +1,27 @@
 ﻿using GCTL.Core.ViewModels.MasterSetup.Organizations;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 {
-    public class ShiftUpdateSetupVM : BaseViewModel
+    public class GetByIdShiftVM
     {
-        public int UpdateShiftID { get; set; }
+        public int? UpdateShiftID { get; set; }
 
-        [Required(ErrorMessage = "{0} is required."), DisplayName("Shift Name")]
-        public string UpdateShiftName { get; set; }
+        public string? UpdateShiftName { get; set; }
 
         public int? UpdateOrganizationID { get; set; }
 
         public string? UpdateOrganizationName { get; set; }
 
-        public TimeOnly? UpdateStartTime { get; set; }
+        public string? UpdateStartTime { get; set; }
 
-        public TimeOnly? UpdateEndTime { get; set; }
+        public string? UpdateEndTime { get; set; }
 
         public bool UpdateIsLateCount { get; set; }
 
@@ -32,9 +31,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 
         public bool UpdateIsAllowStartAndEndTime { get; set; }
 
-        public TimeOnly? UpdateMealBreakStartTime { get; set; }
+        public string? UpdateMealBreakStartTime { get; set; }
 
-        public TimeOnly? UpdateMealBreakEndTime { get; set; }
+        public string? UpdateMealBreakEndTime { get; set; }
 
         public bool UpdateIsAllowOvertime { get; set; }
 

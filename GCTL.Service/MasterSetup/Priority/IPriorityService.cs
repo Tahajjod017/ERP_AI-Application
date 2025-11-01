@@ -15,12 +15,12 @@ namespace GCTL.Service.MasterSetup.Priority
     {
         #region CRUD
         Task<bool> AddAsync(PriorityVM model);
-        Task<PaginationService<Priorities, PriorityVM>.PaginationResult<PriorityVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+        Task<PaginationService<Priorities, PriorityVM>.PaginationResult<PriorityVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "PriorityName", string sortOrder = "asc");
-        Task<PriorityVM> GetByIdAsync(int id);
+        Task<PriorityVM> GetByIdAsync(int organizationID, int id);
         Task<bool> UpdateAsync(PriorityVM model);
         Task<PriorityVM> SoftDeleteAsync(DeleteRequestVM requestVM);
-        Task<bool> IsNameUniqueAsync(string name);
+        Task<bool> IsNameUniqueAsync(int organizationID, string name);
         #endregion
     }
 }

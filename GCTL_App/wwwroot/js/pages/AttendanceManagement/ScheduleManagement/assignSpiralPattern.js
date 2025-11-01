@@ -800,8 +800,8 @@
                                     </td>
                                     <td class="align-middle white-space-nowrap fw-semibold text-body py-1 ps-3">${item.startDate}</td>
                                     <td class="align-middle white-space-nowrap fw-semibold text-body py-1 ps-3">${item.endDate}</td>
-                                    <td class="text-end align-middle white-space-nowrap py-1 ps-3">
-                                        <div class="row g-3">
+                                    <td class="text-start align-middle white-space-nowrap py-1 ps-3">
+                                        <div class="d-flex justify-content-end align-items-center">
                                             <a href="#!" class="btn btn-outline-light btn-icon assignSpiralPattern-bulkEdit me-2"
                                                 id="assignSpiralPattern-editBtn"
                                                 data-id="${item.spiralPatternAssignListID}" >

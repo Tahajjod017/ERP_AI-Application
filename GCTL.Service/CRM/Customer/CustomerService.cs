@@ -1,15 +1,11 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.Customer;
+using GCTL.Core.ViewModels.MasterSetup.Genders;
 using GCTL.Data.Models;
 using GCTL.Service.Finance.TransactionAccount;
+using GCTL.Service.Pagination;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GCTL.Service.CRM.Customer
 {
@@ -51,7 +47,7 @@ namespace GCTL.Service.CRM.Customer
 
         #region CreatePerson
 
-        public async Task<bool> InserAddressTypeIntoDB(CustomerVM model)
+        public async Task<bool> InserAddressTypeIntoDB(string? LIP, string? LMAC, int? CreatedBy)
         {
             var items = await _addressTypesRepository.GetAllAsync();
             if (!items.Any())
@@ -65,9 +61,9 @@ namespace GCTL.Service.CRM.Customer
                     {
                         AddressTypeName = typeName,
                         CreatedAt = DateTime.UtcNow,
-                        CreatedBy = model.CreatedBy,
-                        LIP = model.LIP,
-                        LMAC = model.LMAC,
+                        CreatedBy = CreatedBy,
+                        LIP = LIP,
+                        LMAC = LMAC,
                     });
                 }
 
@@ -75,7 +71,7 @@ namespace GCTL.Service.CRM.Customer
             }
             return true;
         }
-        public async Task<ReturnView> CreateCustomer (CustomerVM customerVM)
+        public async Task<ReturnView> CreateCustomer (CustomerVM model)
         {
             // Begin transaction
             await _customersRepository.BeginTransactionAsync();
@@ -101,10 +97,10 @@ namespace GCTL.Service.CRM.Customer
                     headDetail.SchemaName = schemaName;
                     headDetail.TableName = tableName;
 
-                    headDetail.LIP = customerVM.LIP;
-                    headDetail.LMAC = customerVM.LMAC;
+                    headDetail.LIP = model.LIP;
+                    headDetail.LMAC = model.LMAC;
                     headDetail.CreatedAt = DateTime.UtcNow;
-                    headDetail.CreatedBy = customerVM.CreatedBy;
+                    headDetail.CreatedBy = model.CreatedBy;
 
                     await _headDetails.AddAsync(headDetail);
                 }
@@ -116,10 +112,10 @@ namespace GCTL.Service.CRM.Customer
                     head = new Heads();
                     head.HeadDetailID = headDetail.HeadDetailID;
 
-                    head.LIP = customerVM.LIP;
-                    head.LMAC = customerVM.LMAC;
+                    head.LIP = model.LIP;
+                    head.LMAC = model.LMAC;
                     head.CreatedAt = DateTime.UtcNow;
-                    head.CreatedBy = customerVM.CreatedBy;
+                    head.CreatedBy = model.CreatedBy;
 
                     await _heads.AddAsync(head);
                 }
@@ -149,29 +145,29 @@ namespace GCTL.Service.CRM.Customer
                 trxAccount.Description = "Customer transaction account";
                 trxAccount.Head = head;
 
-                trxAccount.LIP = customerVM.LIP;
-                trxAccount.LMAC = customerVM.LMAC;
+                trxAccount.LIP = model.LIP;
+                trxAccount.LMAC = model.LMAC;
                 trxAccount.CreatedAt = DateTime.UtcNow;
-                trxAccount.CreatedBy = customerVM.CreatedBy;
+                trxAccount.CreatedBy = model.CreatedBy;
 
                 await _transactionAccounts.AddAsync(trxAccount);
                 #endregion
 
 
                 // prepare data
-                await InserAddressTypeIntoDB(customerVM);
-                var addressTypeObj = string.IsNullOrEmpty(customerVM.Name) ? await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "individual") : await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "company");
+                await InserAddressTypeIntoDB(model.LIP, model.LMAC, model.CreatedBy);
+                var addressTypeObj = string.IsNullOrEmpty(model.CompnayName) ? await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "individual") : await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "company");
                 // Create customer (individual)
                 customerObj = new Customers()
                 {
-                    FullName = string.IsNullOrEmpty(customerVM.Name) ? customerVM.FirstName + " " + customerVM.LastName : customerVM.Name,
-                    OrganizationID = customerVM.OrganizationID, // have to be change later
-                    IsPerson = string.IsNullOrEmpty(customerVM.Name) ? true : false,
+                    FullName = string.IsNullOrEmpty(model.CompnayName) ? model.FirstName + " " + model.LastName : model.CompnayName,
+                    OrganizationID = model.OrganizationID, // have to be change later
+                    IsPerson = string.IsNullOrEmpty(model.CompnayName) ? true : false,
                     HeadID = head.HeadID, // Added by Md. Rakib Hasan
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = customerVM.CreatedBy,
-                    LIP = customerVM.LIP,
-                    LMAC = customerVM.LMAC,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
                 };
                 await _customersRepository.AddAsync(customerObj);
                 returnName = customerObj.FullName;
@@ -179,24 +175,24 @@ namespace GCTL.Service.CRM.Customer
                 // Create address
                 var addresses = new Addresses()
                 {
-                    FullAddress = customerVM.FullAddress,
-                    Street = customerVM.Street,
-                    City = customerVM.City,
-                    State = customerVM.State,
-                    Additionaladdress = customerVM.Additionaladdress,
-                    PostalCode = customerVM.PostalCode,
-                    CountryID = customerVM.CountryID,
-                    Phone = customerVM.Phone,
-                    OtherPhone = customerVM.OtherPhone,
-                    Email = customerVM.Email,
-                    Latitude = customerVM.Latitude,
-                    Longitude = customerVM.Longitude,
-                    FirstName = customerVM.FirstName,
-                    LastName = customerVM.LastName,
+                    FullAddress = model.FullAddress,
+                    Street = model.Street,
+                    City = model.City,
+                    State = model.State,
+                    Additionaladdress = model.Additionaladdress,
+                    PostalCode = model.PostalCode,
+                    CountryID = model.CountryID,
+                    Phone = model.Phone,
+                    OtherPhone = model.OtherPhone,
+                    Email = model.Email,
+                    Latitude = model.Latitude,
+                    Longitude = model.Longitude,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = customerVM.CreatedBy,
-                    LIP = customerVM.LIP,
-                    LMAC = customerVM.LMAC,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
                 };
                 await _addressesRepository.AddAsync(addresses);
 
@@ -207,9 +203,9 @@ namespace GCTL.Service.CRM.Customer
                     AddressID = addresses.AddressID,
                     CustomerID = customerObj.CustomerID,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = customerVM.CreatedBy,
-                    LIP = customerVM.LIP,
-                    LMAC = customerVM.LMAC,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
                 };
                 await _customerAddressesRepository.AddAsync(customerAddress);
                 returnID = customerAddress.CustomerAddressID;
@@ -240,14 +236,14 @@ namespace GCTL.Service.CRM.Customer
         #endregion
 
         #region CreateBranch
-        public async Task<ReturnView> CreateBranch(AddressVM branchVM)
+        public async Task<ReturnView> CreateBranch(BranchVM model)
         {
             // Begin transaction
             await _companyBranchesRepository.BeginTransactionAsync();
 
             try
             {
-                await InserAddressTypeIntoDB(branchVM);
+                await InserAddressTypeIntoDB(model.LIP, model.LMAC, model.CreatedBy);
                 // Get address type
                 var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "branch");
 
@@ -256,38 +252,38 @@ namespace GCTL.Service.CRM.Customer
                 // Save branch
                 var companyBranches = new CompanyBranches
                 {
-                    BranchName = branchVM.Name,
-                    CustomerID = branchVM.CustomerID,
+                    BranchName = model.BName,
+                    CustomerID = model.BCustomerID,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = branchVM.CreatedBy,
-                    LIP = branchVM.LIP,
-                    LMAC = branchVM.LMAC,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
                 };
                 await _companyBranchesRepository.AddAsync(companyBranches);
 
                 // Save address
                 var addresses = new Addresses
                 {
-                    FullAddress = branchVM.FullAddress,
-                    Street = branchVM.Street,
-                    City = branchVM.City,
-                    State = branchVM.State,
-                    Additionaladdress = branchVM.Additionaladdress,
-                    PostalCode = branchVM.PostalCode,
-                    CountryID = branchVM.CountryID,
-                    Phone = branchVM.Phone,
-                    OtherPhone = branchVM.OtherPhone,
-                    Email = branchVM.Email,
-                    Latitude = branchVM.Latitude,
-                    Longitude = branchVM.Longitude,
-                    FirstName = branchVM.FirstName,
-                    LastName = branchVM.LastName,
+                    FullAddress = model.BFullAddress,
+                    Street = model.BStreet,
+                    City = model.BCity,
+                    State = model.BState,
+                    Additionaladdress = model.BAdditionaladdress,
+                    PostalCode = model.BPostalCode,
+                    CountryID = model.BCountryID,
+                    Phone = model.BPhone,
+                    OtherPhone = model.BOtherPhone,
+                    Email = model.BEmail,
+                    Latitude = model.BLatitude,
+                    Longitude = model.BLongitude,
+                    FirstName = model.BFirstName,
+                    LastName = model.BLastName,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = branchVM.CreatedBy,
-                    LIP = branchVM.LIP,
-                    LMAC = branchVM.LMAC,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
                     UpdatedAt = DateTime.UtcNow,
-                    UpdatedBy = branchVM.UpdatedBy ?? null,
+                    UpdatedBy = model.UpdatedBy ?? null,
                     DeletedAt = null,
                 };
                 await _addressesRepository.AddAsync(addresses);
@@ -299,11 +295,11 @@ namespace GCTL.Service.CRM.Customer
                     AddressID = addresses.AddressID,
                     BranchID = companyBranches.BranchID,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = branchVM.CreatedBy,
-                    LIP = branchVM.LIP,
-                    LMAC = branchVM.LMAC,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
                     UpdatedAt = DateTime.UtcNow,
-                    UpdatedBy = branchVM.UpdatedBy ?? null,
+                    UpdatedBy = model.UpdatedBy ?? null,
                     DeletedAt = null,
                 };
                 await _companyBranchAddressesRepository.AddAsync(companyBranchAddress);
@@ -327,6 +323,215 @@ namespace GCTL.Service.CRM.Customer
                     Message = ex.Message
                 };
             }
+        }
+        #endregion
+
+        #region Warehouse
+        public async Task<ReturnView> CreateWarehouse(WarehouseVM model)
+        {
+            // Begin transaction
+            await _companyWarehousesRepository.BeginTransactionAsync();
+
+            try
+            {
+                await InserAddressTypeIntoDB(model.LIP, model.LMAC, model.CreatedBy);
+                // Get address type
+                var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "warehouse");
+
+
+
+                // Save branch
+                var companyWarehouse = new CompanyWarehouses
+                {
+                    WarehouseName = model.WName,
+                    CustomerID = model.WCustomerID,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
+                };
+                await _companyWarehousesRepository.AddAsync(companyWarehouse);
+
+                // Save address
+                var addresses = new Addresses
+                {
+                    FullAddress = model.WFullAddress,
+                    Street = model.WStreet,
+                    City = model.WCity,
+                    State = model.WState,
+                    Additionaladdress = model.WAdditionaladdress,
+                    PostalCode = model.WPostalCode,
+                    CountryID = model.WCountryID,
+                    Phone = model.WPhone,
+                    OtherPhone = model.WOtherPhone,
+                    Email = model.WEmail,
+                    Latitude = model.WLatitude,
+                    Longitude = model.WLongitude,
+                    FirstName = model.WFirstName,
+                    LastName = model.WLastName,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = model.UpdatedBy ?? null,
+                    DeletedAt = null,
+                };
+                await _addressesRepository.AddAsync(addresses);
+
+                // Save branch address
+                var companyBranchAddress = new CompanyWarehouseAddresses
+                {
+                    AddressTypeID = addressTypeObj.AddressTypeID,
+                    AddressID = addresses.AddressID,
+                    WarehouseID = companyWarehouse.WarehouseID,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = model.UpdatedBy ?? null,
+                    DeletedAt = null,
+                };
+                await _companyWarehouseAddressesRepository.AddAsync(companyBranchAddress);
+
+                // Commit transaction
+                await _companyBranchesRepository.CommitTransactionAsync();
+
+                return new ReturnView
+                {
+                    Success = true,
+                    Message = "Data saved successfully",
+                };
+            }
+            catch (Exception ex)
+            {
+                await _companyBranchesRepository.RollbackTransactionAsync();
+
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+        #endregion
+        #region Warehouse
+        public async Task<ReturnView> CreateShipping(ShippingVM model)
+        {
+            // Begin transaction
+            await _companyWarehousesRepository.BeginTransactionAsync();
+
+            try
+            {
+                await InserAddressTypeIntoDB(model.LIP, model.LMAC, model.CreatedBy);
+                // Get address type
+                var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "shipping");
+
+
+
+                //// Save branch
+                //var companyShipping = new CompanyWarehouses
+                //{
+                //    CustomerID = model.SCustomerID,
+                //    CreatedAt = DateTime.UtcNow,
+                //    CreatedBy = model.CreatedBy,
+                //    LIP = model.LIP,
+                //    LMAC = model.LMAC,
+                //};
+                //await _companyWarehousesRepository.AddAsync(companyShipping);
+
+                // Save address
+                var addresses = new Addresses()
+                {
+                    FullAddress = model.SFullAddress,
+                    Street = model.SStreet,
+                    City = model.SCity,
+                    State = model.SState,
+                    Additionaladdress = model.SAdditionaladdress,
+                    PostalCode = model.SPostalCode,
+                    CountryID = model.SCountryID,
+                    Phone = model.SPhone,
+                    OtherPhone = model.SOtherPhone,
+                    Email = model.SEmail,
+                    Latitude = model.SLatitude,
+                    Longitude = model.SLongitude,
+                    FirstName = model.SFirstName,
+                    LastName = model.SLastName,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = model.UpdatedBy ?? null,
+                    DeletedAt = null,
+                };
+                await _addressesRepository.AddAsync(addresses);
+
+                // Link customer with address
+                var individualAddresses = new CustomerAddresses()
+                {
+                    AddressTypeID = addressTypeObj.AddressTypeID,
+                    AddressID = addresses.AddressID,
+                    CustomerID = model.SCustomerID,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = model.CreatedBy,
+                    LIP = model.LIP,
+                    LMAC = model.LMAC,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = model.UpdatedBy ?? null,
+                    DeletedAt = null,
+                };
+                await _customerAddressesRepository.AddAsync(individualAddresses);
+
+                
+                
+
+                // Commit transaction
+                await _companyBranchesRepository.CommitTransactionAsync();
+
+                return new ReturnView
+                {
+                    Success = true,
+                    Message = "Data saved successfully",
+                };
+            }
+            catch (Exception ex)
+            {
+                await _companyBranchesRepository.RollbackTransactionAsync();
+
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+        #endregion
+
+        #region get customer List
+        public async Task<PaginationService<Customers, CustomerVM>.PaginationResult<CustomerVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CustomerName", string sortOrder = "asc")
+        {
+            var query = _customersRepository.AllActive().Where(t => t.OrganizationID == organizationID);
+            query = query.Where(x => x.DeletedAt == null);
+
+            if (!string.IsNullOrEmpty(sortColumn))
+            {
+                query = sortColumn switch
+                {
+                    "GenderID" => sortOrder == "desc" ? query.OrderByDescending(x => x.CustomerID) : query.OrderBy(x => x.CustomerID),
+                    "CustomerName" => sortOrder == "desc" ? query.OrderByDescending(x => x.FullName) : query.OrderBy(x => x.FullName),
+                    _ => query.OrderBy(x => x.CustomerID)
+                };
+            }
+
+            return await PaginationService<Customers, CustomerVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
+                term => x => EF.Functions.Like(x.FullName, $"%{term}%"),
+                x => new CustomerVM
+                {
+                    ID = x.CustomerID,
+                    CompnayName = x.FullName,
+                });
         }
         #endregion
     }

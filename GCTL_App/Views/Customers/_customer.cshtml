@@ -1,5 +1,12 @@
 ﻿@using GCTL.Core.ViewModels.CRM.Customer
 @model CustomerVM
+<style>
+    .is-invalid {
+        border: 2px solid red !important;
+        box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+    }
+
+</style>
 <div data-init="initCustomerForm">
     <div class="d-flex flex-column h-100 my-3">
         <h5 class="mb-3 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Customer</h5>
@@ -25,7 +32,7 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="mb-3 form-floating">
-                                    <input type="text" class="form-control" asp-for="Name" placeholder="Company Name">
+                                    <input type="text" class="form-control" asp-for="CompnayName" placeholder="Company Name">
                                     <label class="form-label">Company Name</label>
                                 </div>
                             </div>
@@ -96,7 +103,7 @@
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6">
                                     <div class="form-floating form-floating-advance-select select2-floating">
-                                        <select asp-for="CountryID" class="countryField select2">
+                                        <select asp-for="CountryID" id="CountryID" class="countryField select2">
                                             <option value="">Select Country</option>
                                         </select>
                                         <label for="priorityID">Country</label>

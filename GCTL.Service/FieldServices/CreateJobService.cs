@@ -1,8 +1,10 @@
 ﻿using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
@@ -14,14 +16,16 @@ namespace GCTL.Service.FieldServices
         #region service & repository
         private readonly IGenericRepository<Jobs> _jobsRepository;
         private readonly IGenericRepository<Customers> _customersRepository;
+        private readonly IGenericRepository<Country> _countryRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfoRepository;
         private readonly AppDbContext _context;
-        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, AppDbContext context) : base(genericRepository)
+        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, AppDbContext context, IGenericRepository<Country> countryRepository) : base(genericRepository)
         {
             _jobsRepository = jobsRepository;
             _customersRepository = customersRepository;
             _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
             _context = context;
+            _countryRepository = countryRepository;
         }
         #endregion
 
@@ -71,6 +75,145 @@ namespace GCTL.Service.FieldServices
             var query = _customersRepository
                 .AllActive()
                 .Where(q => q.OrganizationID == organizationID);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.FullName, pattern) ||
+                        c.CustomerAddresses.Any(ca =>
+                            ca.Address != null &&
+                            EF.Functions.Like(ca.Address.Email, pattern) ||
+                            EF.Functions.Like(ca.Address.Phone, pattern)
+                        )
+                    ));
+            }
+
+            query = query
+                .Include(t => t.CustomerAddresses)
+                    .ThenInclude(t => t.Address);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(c => c.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize).Select(t => new CustomerInfoVM
+                {
+                    LeadID = t.CustomerID,
+                    Email = t.CustomerAddresses.Select(ca=> ca.Address.Email).FirstOrDefault(),
+                    LeadName=t.FullName,
+                    Phone = t.CustomerAddresses.Select(ca => ca.Address.Phone).FirstOrDefault(),
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<CustomerInfoVM>
+            {
+                data = items,
+                totalItem = totalCount,
+                message = "Data loaded"
+            };
+        }
+        #endregion
+        #region get Customer List 
+        public async Task<ReturnDataView<SelectListItem>> GetCountryList(string search, int page, int pageSize, int organizationID)
+        {
+            var query = _countryRepository
+                .AllActive();
+              
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.CountryName, pattern) ||
+                        EF.Functions.Like(c.CountryCode, pattern)
+                    ));
+            }
+
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(c => c.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize).Select(t => new SelectListItem
+                {
+                    Value = t.CountryID.ToString(),
+                    Text = t.CountryName
+                }).ToListAsync();
+
+            return new ReturnDataView<SelectListItem>
+            {
+                data = items,
+                totalItem = totalCount,
+                message = "Data loaded"
+            };
+        }
+        #endregion
+
+        #region get Compnay Customer List 
+        public async Task<ReturnDataView<CustomerInfoVM>> GetCompanyEmployeesAsync(string search, int page, int pageSize, int organizationID)
+        {
+            var query = _customersRepository
+                .AllActive()
+                .Where(q => q.OrganizationID == organizationID && q.IsPerson == false);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.FullName, pattern) ||
+                        c.CustomerAddresses.Any(ca =>
+                            ca.Address != null &&
+                            EF.Functions.Like(ca.Address.Email, pattern) ||
+                            EF.Functions.Like(ca.Address.Phone, pattern)
+                        )
+                    ));
+            }
+
+            query = query
+                .Include(t => t.CustomerAddresses)
+                    .ThenInclude(t => t.Address);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(c => c.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize).Select(t => new CustomerInfoVM
+                {
+                    LeadID = t.CustomerID,
+                    Email = t.CustomerAddresses.Select(ca=> ca.Address.Email).FirstOrDefault(),
+                    LeadName=t.FullName,
+                    Phone = t.CustomerAddresses.Select(ca => ca.Address.Phone).FirstOrDefault(),
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<CustomerInfoVM>
+            {
+                data = items,
+                totalItem = totalCount,
+                message = "Data loaded"
+            };
+        }
+
+        #endregion
+        #region get Compnay Customer List 
+        public async Task<ReturnDataView<CustomerInfoVM>> GetIndividualEmployeesAsync(string search, int page, int pageSize, int organizationID)
+        {
+            var query = _customersRepository
+                .AllActive()
+                .Where(q => q.OrganizationID == organizationID && q.IsPerson == true);
 
             if (!string.IsNullOrWhiteSpace(search))
             {

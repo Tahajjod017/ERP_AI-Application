@@ -6,6 +6,7 @@ using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 
 namespace GCTL_App.Controllers.FieldServices
 {
@@ -55,6 +56,77 @@ namespace GCTL_App.Controllers.FieldServices
         public async Task<IActionResult> GetCustomers(string search = "", int page = 1, int pageSize = 10)
         {
             var result = await _createJobService.GetPagedEmployeesAsync(
+                search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+
+            var more = (page * pageSize) < result.totalItem;
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.LeadID,                          
+                    text = $"{c.LeadName} {c.Phone} {c.Email}" 
+                }),
+                pagination = new { more }
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
+
+        #region get Customer
+        [HttpGet]
+        public async Task<IActionResult> GetCountryList(string search = "", int page = 1, int pageSize = 10)
+        {
+            var result = await _createJobService.GetCountryList(
+                search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+
+            var more = (page * pageSize) < result.totalItem;
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.Value,                          
+                    text = c.Text
+                }),
+                pagination = new { more }
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
+        #region get Company Customer
+        [HttpGet]
+        public async Task<IActionResult> GetCompnayCustomers(string search = "", int page = 1, int pageSize = 10)
+        {
+            var result = await _createJobService.GetCompanyEmployeesAsync(
+                search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+
+            var more = (page * pageSize) < result.totalItem;
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.LeadID,                          
+                    text = $"{c.LeadName} {c.Phone} {c.Email}" 
+                }),
+                pagination = new { more }
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
+
+        #region get Indivual Customer
+        [HttpGet]
+        public async Task<IActionResult> GetIndividualCustomers(string search = "", int page = 1, int pageSize = 10)
+        {
+            var result = await _createJobService.GetIndividualEmployeesAsync(
                 search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
             );
 

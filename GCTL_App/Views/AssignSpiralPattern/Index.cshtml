@@ -1,59 +1,61 @@
 ﻿@model GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.AssignSpiralPattern.AssignSpiralPatternPageVM
 
-<style>
+@section Styles {
+    <style>
 
-    #hiddenDiv {
-        display: none; /* Initially hidden */
-    }
+        #hiddenDiv {
+            display: none; /* Initially hidden */
+        }
 
-    #div2 {
-        display: none;
-    }
+        #div2 {
+            display: none;
+        }
 
-    .disabled {
-        pointer-events: none;
-        opacity: 0.5;
-    }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
 
-    .shift-cell {
-        position: relative;
-    }
+        .shift-cell {
+            position: relative;
+        }
 
-    .day-block {
-        background: repeating-linear-gradient( 135deg, #e5e5e5, #e5e5e5 10px, #f7f7f7 10px, #f7f7f7 20px );
-        border-radius: .4rem;
-        padding: 5px 0 5px 0;
-    }
+        .day-block {
+            background: repeating-linear-gradient( 135deg, #e5e5e5, #e5e5e5 10px, #f7f7f7 10px, #f7f7f7 20px );
+            border-radius: .4rem;
+            padding: 5px 0 5px 0;
+        }
 
-    .add-shift-btn {
-        display: none;
-        align-items: center;
-    }
+        .add-shift-btn {
+            display: none;
+            align-items: center;
+        }
 
-    .shift-cell:hover .add-shift-btn {
-        display: block;
-        background-color: white;
-        color: black;
-        margin: 5px auto;
-    }
+        .shift-cell:hover .add-shift-btn {
+            display: block;
+            background-color: white;
+            color: black;
+            margin: 5px auto;
+        }
 
-    .add-shift-btn2 {
-        display: none;
-        align-items: center;
-    }
+        .add-shift-btn2 {
+            display: none;
+            align-items: center;
+        }
 
-    .startTime:hover .add-shift-btn2 {
-        display: block;
-        background-color: white;
-        color: black;
-        margin: 5px;
-    }
+        .startTime:hover .add-shift-btn2 {
+            display: block;
+            background-color: white;
+            color: black;
+            margin: 5px;
+        }
 
-    .table-container {
-        display: none; /* Hide all tables by default */
-    }
+        .table-container {
+            display: none; /* Hide all tables by default */
+        }
 
-</style>
+    </style>
+}
 
 <partial name="_Form" model="Model.Create" />
 <partial name="_Table" />
