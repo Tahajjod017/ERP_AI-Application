@@ -4,14 +4,9 @@
     ViewData["Title"] = @Html.SmartLocalize("Add Shift");
 }
 
-<div class="mb-9 mt-4">
-    <partial name="_Form" model="Model.Setup" />
+<partial name="_Form" model="Model.Setup" />
 
-    <partial name="_Table" />
-</div>
-
-
-
+<partial name="_Table" />
 
 <partial name="_EditShiftModal" model="Model.Update" />
 <partial name="_ConfirmDelete" />

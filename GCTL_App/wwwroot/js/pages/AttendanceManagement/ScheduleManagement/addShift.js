@@ -143,11 +143,16 @@
                     MealBreakStartTime: $('#MealBreakStartTime').val(),
                     MealBreakEndTime: $('#MealBreakEndTime').val(),
                     IsAllowOvertime: $('#IsAllowOvertime').prop('checked'),
-                    GraceTime: $('#GraceTime').val(),
-                    MinimumWorkingTime: $('#MinimumWorkingTime').val(),
-                    MinimumRequiredOvertime: $('#MinimumRequiredOvertime').val(),
-                    MaximumAllowedOvertime: $('#MaximumAllowedOvertime').val(),
-                    MealBreakTime: $('#MealBreakTime').val(),
+                    GraceTimeHour: $('#GraceTimeHour').val(),
+                    GraceTimeMinute: $('#GraceTimeMinute').val(),
+                    MinimumWorkingTimeHour: $('#MinimumWorkingTimeHour').val(),
+                    MinimumWorkingTimeMinute: $('#MinimumWorkingTimeMinute').val(),
+                    MinimumRequiredOvertimeHour: $('#MinimumRequiredOvertimeHour').val(),
+                    MinimumRequiredOvertimeMinute: $('#MinimumRequiredOvertimeMinute').val(),
+                    MaximumAllowedOvertimeHour: $('#MaximumAllowedOvertimeHour').val(),
+                    MaximumAllowedOvertimeMinute: $('#MaximumAllowedOvertimeMinute').val(),
+                    MealBreakTimeHour: $('#MealBreakTimeHour').val(),
+                    MealBreakTimeMinute: $('#MealBreakTimeMinute').val(),
                 }
 
                 var id = $(settings.updateform).find('#UpdateShiftID').val();
@@ -1197,6 +1202,8 @@
                                     <td class="endTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.endTime ?? '-'}</td>
                                     <td class="graceTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.graceTimeHour ?? '-'}</td>
                                     <td class="breakTime align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakTimeHour ?? '-'}</td>
+                                    <td class="align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakStartTime ?? '-'}</td>
+                                    <td class="align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.mealBreakEndTime ?? '-'}</td>
                                     <td class="text-start align-middle white-space-nowrap pe-3">
                                         <div class="d-flex justify-content-end align-items-center">
                                             <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2" id="addShift-editBtn" data-id="${item.shiftID}"><i class="fas fa-edit text-black"></i></a>
@@ -1207,7 +1214,7 @@
                             `);
                         });
                     } else {
-                        tableBody.append('<tr><td colspan="8" class="text-center">No data available</td></tr>');
+                        tableBody.append('<tr><td colspan="10" class="text-center">No data available</td></tr>');
                     }
                     //<td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                     //    <div class="btn-reveal-trigger position-static">

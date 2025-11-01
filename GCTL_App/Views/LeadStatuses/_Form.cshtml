@@ -1,6 +1,6 @@
 ﻿@model GCTL.Core.ViewModels.MasterSetup.LeadStatuses.LeadStatusVM
 
-<div class="card">
+<div class="card h-100">
     <div class="card-header border-bottom-1">
         <div class="row justify-content-between align-items-center">
             <div class="col-auto">
@@ -9,10 +9,10 @@
         </div>
     </div>
 
-    <div class="card-body mt-3">
+    <div class="card-body mt-2">
         <form asp-action="Create" asp-controller="LeadStatuses" method="post" enctype="multipart/form-data" id="leadStatus-form">
             @Html.AntiForgeryToken()
-            <div class="col-sm-12 col-md-12 mb-4">
+            <div class="col-sm-12 col-md-12 mb-2">
                 <input type="hidden" asp-for="LeadStatusID" />
 
                 <div class="flatpickr-input-container">
@@ -29,7 +29,7 @@
                     Is Special
                 </label>
             </div>
-            <div class="col-12 mb-4">
+            <div class="col-12 mb-2">
                 <div class="row g-3 justify-content-end">
                     <div class="col-auto">
                         <button type="reset" class="btn btn-phoenix-primary px-5" id="leadStatus-resetBtn">@Html.SmartLocalize("Reset")</button>

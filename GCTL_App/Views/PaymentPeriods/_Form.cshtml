@@ -1,46 +1,6 @@
-﻿@* @model GCTL.Core.ViewModels.MasterSetup.PaymenPeriodTypes.PaymentPeriodsVM
+﻿@model GCTL.Core.ViewModels.MasterSetup.PaymenPeriodTypes.PaymentPeriodsVM
 
-<div class="card">
-    <div class="card-header border-bottom-1">
-        <div class="row justify-content-between align-items-center">
-            <div class="col-auto">
-                <h3 class="text-body-emphasis mt-3">Add Payment Period</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="card-body mt-3">
-        <form asp-action="Create" asp-controller="PaymentPeriods" method="post" enctype="multipart/form-data" id="paymentPeriod-form">
-            @Html.AntiForgeryToken()
-            <div class="col-sm-12 col-md-12 mb-4">
-                <input type="hidden" asp-for="PaymentPeriodTypeID" />
-
-                <div class="flatpickr-input-container">
-                    <div class="form-floating">
-                        <input class="form-control" asp-for="PaymentPeriodTypeName" type="text" placeholder="Payment Period Name" />
-                        <label asp-for="PaymentPeriodTypeName">Payment Period Name<span style="color: red;">*</span></label>
-                    </div>
-                    <span asp-validation-for="PaymentPeriodTypeName" class="text-danger"></span>
-                    <span id="nameError" class="text-danger" style="display:none;"></span>
-                </div>
-            </div>
-
-            <div class="col-12 mb-4">
-                <div class="row g-3 justify-content-end">
-                    <div class="col-auto">
-                        <button type="reset" class="btn btn-phoenix-primary px-5" id="paymentPeriod-resetBtn">@ViewBag.Reset</button>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="paymentPeriod-saveBtn">@ViewBag.Save</button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</div> *@
-@model GCTL.Core.ViewModels.MasterSetup.PaymenPeriodTypes.PaymentPeriodsVM
-
-<div class="card">
+<div class="card h-100">
     <div class="card-header border-bottom-1">
         <div class="row justify-content-between align-items-center">
             <div class="col-auto">
@@ -49,10 +9,10 @@
         </div>
     </div>
 
-    <div class="card-body mt-3">
+    <div class="card-body mt-2">
         <form asp-action="Create" asp-controller="PaymentPeriods" method="post" enctype="multipart/form-data" id="paymentPeriod-form">
             @Html.AntiForgeryToken()
-            <div class="col-sm-12 col-md-12 mb-4">
+            <div class="col-sm-12 col-md-12 mb-2">
                 <input type="hidden" asp-for="PaymentPeriodTypeID" />
 
                 <div class="flatpickr-input-container">
@@ -65,7 +25,7 @@
                 </div>
             </div>
 
-            <div class="col-12 mb-4">
+            <div class="col-12 mb-2">
                 <div class="row g-3 justify-content-end">
                     <div class="col-auto">
                         <button type="reset" class="btn btn-phoenix-primary px-5" id="paymentPeriod-resetBtn">@Html.SmartLocalize("Reset")</button>

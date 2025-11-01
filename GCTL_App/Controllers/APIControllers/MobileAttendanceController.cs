@@ -1,7 +1,6 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.APIViewModels;
 using GCTL.Data.Models;
-using GCTL.Service.AttendanceManagement.ManualAttendence;
 using GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

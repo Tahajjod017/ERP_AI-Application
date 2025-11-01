@@ -32,9 +32,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.Shift
 
         public bool UpdateIsAllowStartAndEndTime { get; set; }
 
-        public string? UpdateMealBreakStartTime { get; set; }
+        public TimeOnly? UpdateMealBreakStartTime { get; set; }
 
-        public string? UpdateMealBreakEndTime { get; set; }
+        public TimeOnly? UpdateMealBreakEndTime { get; set; }
 
         public bool UpdateIsAllowOvertime { get; set; }
 
