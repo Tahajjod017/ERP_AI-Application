@@ -147,8 +147,9 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 //edit
 $(document).on('click', '#edit_weekend_settingBtn', function () {
     var weekendSettingID = $(this).data('id');
-    $('#edit_weekend_setting').modal('show'); // Show the edit modal
-
+  
+    var myModal = new bootstrap.Modal(document.getElementById('edit_weekend_setting'));
+    myModal.show();
     // Store the ID in the hidden input field
     $('#WeekendSettingID').val(weekendSettingID);
 

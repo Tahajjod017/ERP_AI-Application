@@ -77,7 +77,10 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 
 $(document).on('click', '#departmentIDEditButton', function () {
     var departmentID = $(this).data('id');
-    $('#edit_department_setting').modal('show'); // Show the delete confirmation modal
+   // $('#edit_department_setting').modal('show'); // Show the delete confirmation modal
+    var myModal = new bootstrap.Modal(document.getElementById('edit_department_setting'));
+    myModal.show();
+
 
     // Store the ID in the hidden input field
     $('#DepartmentIDEdit').val(departmentID);
@@ -95,7 +98,9 @@ $(document).on('click', '#departmentIDEditButton', function () {
                 
 
                 choiceManager.setChoiceValue('DepartmentHeadEmpIDEdit', response.data.departmentHeadEmpID);
-               
+              
+
+
             } else {
                 toastr.error(response.message, 'Error');
             }
@@ -133,6 +138,16 @@ $('#departmentSettingsFormEdit').submit(function (event) {
                 toastr.success('Department setting updated successfully!');
                 $('#edit_department_setting').modal('hide'); // Hide the modal
                 loadTableData();
+                const modalEl = document.getElementById('edit_department_setting');
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modalInstance.hide();
+
+                //// Force cleanup
+                //modalEl.classList.remove('show');
+                //modalEl.style.display = 'none';
+                //document.body.classList.remove('modal-open');
+                //document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                //document.body.style.overflow = '';
             } else {
                 // Handle failure
                 toastr.error('Failed to update Department setting: ' + response.message);
@@ -253,8 +268,7 @@ function loadTableData(sortColumn, sortOrder) {
                                id="departmentIDEditButton"
                                data-id="${item.departmentID}"
                                class="btn btn-outline-light btn-icon me-1 " 
-                               data-bs-toggle="modal" 
-                               data-bs-target="#edit_leaves"
+                              
                               >
                                <i class="fas fa-edit text-black"></i>
                         </a>
