@@ -1,4 +1,14 @@
-﻿
+﻿<style>
+    /* Fix Google autocomplete dropdown inside Bootstrap modals */
+    .pac-container {
+        z-index: 2000 !important; /* higher than modal (1055) */
+    }
+
+    .modal-open .pac-container {
+        z-index: 2000 !important;
+    }
+
+</style>
 @*
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
@@ -9,7 +19,7 @@
                 <h4 class="modal-title">Edit Organization Settings</h4>
                 <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="companySettingsFormEdit" asp-controller="CompanySettings" asp-action="Create" method="post" enctype="multipart/form-data">
+            <form id="companySettingsFormEdit" asp-controller="CompanySettings" asp-action="Edit" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
                 <div class="border-bottom mb-3">
                     <input type="hidden" id="OrganizationIDedit" name="OrganizationID" value="" />
@@ -118,7 +128,7 @@
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label" for="FullAddress">Full Address</label>
-                                <input class="form-control" id="FullAddressEdit" type="text" name="FullAddress" placeholder="Search for an address" />
+                                <input class="form-control" id="FullAddressEdit" type="text" name="FullAddress" autocomplete="off" placeholder="Search for an address" />
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -176,7 +186,7 @@
 
                         <!-- Google Map Container -->
                         <div class="col-md-12">
-                            <div id="map" style="height: 400px; width: 100%;"></div> <!-- Set a height for the map -->
+                            <div id="mapEdit" style="height: 400px; width: 100%;"></div> <!-- Set a height for the map -->
                         </div>
 
                         <div class="col-md-12">

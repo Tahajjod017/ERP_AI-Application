@@ -97,8 +97,9 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 //edit
 $(document).on('click', '#edit_holiday_settingBtn', function () {
     var holidaySettingID = $(this).data('id');
-    $('#edit_holiday_setting').modal('show'); // Show the delete confirmation modal
-
+   // $('#edit_holiday_setting').modal('show'); // Show the delete confirmation modal
+    var myModal = new bootstrap.Modal(document.getElementById('edit_holiday_setting'));
+    myModal.show();
     // Store the ID in the hidden input field
     $('#HolidayIDEdit').val(holidaySettingID);
 
