@@ -3,7 +3,7 @@ namespace GCTL.Core.ViewModels.CRM.Customer
 {
     public class CustomerVM : BaseViewModel
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
         public string? CompnayName{get; set;}   
 
         public string FirstName { get; set; }

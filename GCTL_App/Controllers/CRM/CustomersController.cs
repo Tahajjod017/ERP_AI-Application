@@ -43,13 +43,15 @@ namespace GCTL_App.Controllers.CRM
                 if (!ModelState.IsValid)
                     return Json(new { success = false, message = "Invalid data" });
                 var result = new ReturnView();
-                if (model.ID == 0)
+                if (model.Id == 0)
                     result = await _customerService.CreateCustomer(model);
-                return  Json(new { success = result.Success, message = result.Message });
+                else 
+                    result = await _customerService.UpdateCustomer(model);
+                    return Json(new { success = result.Success, message = result.Message });
             }
             catch (Exception ex) {
 
-                return Json(new { success = false, message = "Invalid data" });
+                return Json(new { success = false, message = ex });
             }
             
 
@@ -63,13 +65,13 @@ namespace GCTL_App.Controllers.CRM
                 if (!ModelState.IsValid)
                     return Json(new { success = false, message = "Invalid data" });
                 var result = new ReturnView();
-                if (model.BID == 0)
+                if (model.Bid == 0)
                     result = await _customerService.CreateBranch(model);
                 return  Json(new { success = result.Success, message = result.Message });
             }
             catch (Exception ex) {
 
-                return Json(new { success = false, message = "Invalid data" });
+                return Json(new { success = false, message = ex });
             }
         }
         [HttpPost]
@@ -86,7 +88,7 @@ namespace GCTL_App.Controllers.CRM
             }
             catch (Exception ex) {
 
-                return Json(new { success = false, message = "Invalid data" });
+                return Json(new { success = false, message = ex });
             }
         }
         [HttpPost]
@@ -103,10 +105,61 @@ namespace GCTL_App.Controllers.CRM
             }
             catch (Exception ex) {
 
-                return Json(new { success = false, message = "Invalid data" });
+                return Json(new { success = false, message = ex });
             }
         }
 
 
+        #region getCustomerInfo
+        [HttpPost]
+        public async Task<IActionResult> GetCustoerInfo(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                    return Json(new { success = false, message = "Id is not accessible" });
+                var result = await _customerService.GetCustomerInfo(id, await GetCurrentOrganizationIdAsync() ?? 0);
+                return Ok(result);
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, messsage = ex });
+            }
+        }
+
+        #endregion
+        #region GetBranchInfo
+        [HttpPost]
+        public async Task<IActionResult> GetBranchInfo(int customerID, int branchId)
+        {
+            try
+            {
+                if (branchId <= 0 || customerID <= 0)
+                    return Json(new { success = false, message = "Id is not accessible" });
+                var result = await _customerService.GetBranchInfo(customerID, branchId, await GetCurrentOrganizationIdAsync() ?? 0);
+                return Ok(result);
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, messsage = ex });
+            }
+        }
+
+        #endregion
+        #region getCustomerInfo
+        [HttpPost]
+        public async Task<IActionResult> GetBranchList(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                    return Json(new { success = false, message = "Id is not accessible" });
+                var result = await _customerService.GetBranchList(id, await GetCurrentOrganizationIdAsync() ?? 0);
+                return Ok(result);
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, messsage = ex });
+            }
+        }
+
+        #endregion
     }
 }

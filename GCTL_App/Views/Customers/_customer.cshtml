@@ -6,13 +6,31 @@
         box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
     }
 
+    .iti--show-flags {
+        width: 100% !important;
+        /* height: 41px !important; */
+    }
+
+    .iti__tel-input {
+        height: 50px !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 48px !important;
+        line-height: 50px !important;
+        padding: 10px 10px 10px 10px !important;
+        font-size: 16px !important;
+        display: flex;
+        align-items: center;
+        border-color: rgb(203, 208, 221) !important;
+    }
 </style>
 <div data-init="initCustomerForm">
     <div class="d-flex flex-column h-100 my-3">
         <h5 class="mb-3 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Customer</h5>
         <div class="row g-3" id="branchForm">
             <form id="customerForm" action="/Customers/SaveCustomer" method="post">
-                <input type="hidden" asp-for="ID" value="0" />
+                <input type="hidden" asp-for="Id" value="0" />
 
                 <div class="row px-5">
                     <!-- Left Section -->
@@ -30,20 +48,30 @@
                                     <label class="form-label">Last Name</label>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6 pe-1 col-sm-6">
                                 <div class="mb-3 form-floating">
                                     <input type="text" class="form-control" asp-for="CompnayName" placeholder="Company Name">
                                     <label class="form-label">Company Name</label>
                                 </div>
                             </div>
+                            <div class="col-md-6 ps-1 col-sm-6">
+                                <div class="form-floating form-floating-advance-select select2-floating">
+                                    <select id="CompanyType" class="select2">
+                                        <option value="">Select Type</option>
+                                    </select>
+                                    <label for="priorityID">Company Type</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-12 mb-3">
-                            <input class="form-control" asp-for="Phone" type =" tel" placeholder="Phone Number" />
-                            <div class="text-danger" id="errorShow"></div>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <input class="form-control" asp-for="OtherPhone" type="tel" placeholder="Other Phone" />
-                            <div class="text-danger" id="errorShow"></div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 pe-1 col-sm-6">
+                                <input class="form-control" asp-for="Phone" type=" tel" placeholder="Phone Number" />
+                                <div class="text-danger" id="errorShow"></div>
+                            </div>
+                            <div class="col-md-6 ps-1 col-sm-6">
+                                <input class="form-control" asp-for="OtherPhone" type="tel" placeholder="Other Phone" />
+                                <div class="text-danger" id="errorShow"></div>
+                            </div>
                         </div>
                         <div class="col-12">
                             <div class="mb-3 form-floating">
@@ -138,9 +166,12 @@
         </div>
     </div>
 </div>
+
+<script src="~/js/pages/CRM/intlTelInput.min.js"></script>
+<script src="~/js/pages/CRM/utils.js"></script>
 <script src="~/js/pages/crm/Customer/customer.js"></script>
+
 @section Scripts{
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBgZTw6AA9Lc3EKX47xObpNOdJ2vFQ0B0w&libraries=places"></script>
-    <script src="~/js/pages/CRM/intlTelInput.min.js"></script>
-    <script src="~/js/pages/CRM/utils.js"></script>
+
 }

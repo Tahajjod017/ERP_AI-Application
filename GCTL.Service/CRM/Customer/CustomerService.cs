@@ -78,6 +78,17 @@ namespace GCTL.Service.CRM.Customer
 
             try
             {
+                var nameToMatch = model.CompnayName ?? $"{model.FirstName}{model.LastName}";
+
+                var queryObj = await _customersRepository.AllActive()
+                    .Where(q => q.FullName == nameToMatch && q.OrganizationID == model.OrganizationID)
+                    .FirstOrDefaultAsync();
+                if (queryObj != null)
+                    return new ReturnView
+                    {
+                        Success = false,
+                        Message = "Already exists in the database!",
+                    };
                 Customers customerObj = new Customers();
                 var items = await _addressTypesRepository.GetAllAsync();
                 int returnID = 0;
@@ -233,6 +244,157 @@ namespace GCTL.Service.CRM.Customer
                 };
             }
         }
+        #endregion
+        #region update customer
+        public async Task<ReturnView> UpdateCustomer(CustomerVM model)
+        {
+            await _customersRepository.BeginTransactionAsync();
+
+            try
+            {
+                var nameToMatch = model.CompnayName ?? $"{model.FirstName}{model.LastName}";
+
+                // Check for duplicate name
+                var duplicate = await _customersRepository.AllActive()
+                    .Where(q => q.FullName == nameToMatch &&
+                                q.OrganizationID == model.OrganizationID &&
+                                q.CustomerID != model.Id)
+                    .FirstOrDefaultAsync();
+
+                if (duplicate != null)
+                {
+                    return new ReturnView
+                    {
+                        Success = false,
+                        Message = "Already exists in the database!"
+                    };
+                }
+
+                // Ensure AddressType exists
+                await InserAddressTypeIntoDB(model.LIP, model.LMAC, model.CreatedBy);
+                var addressTypeObj = string.IsNullOrEmpty(model.CompnayName)
+                    ? await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "individual")
+                    : await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "company");
+
+                // Find existing customer
+                var customerObj = await _customersRepository.AllActive()
+                    .Include(x => x.CustomerAddresses)
+                    .ThenInclude(x => x.Address)
+                    .FirstOrDefaultAsync(q => q.CustomerID == model.Id && q.OrganizationID == model.OrganizationID);
+
+                if (customerObj == null)
+                {
+                    return new ReturnView
+                    {
+                        Success = false,
+                        Message = "Customer not found!"
+                    };
+                }
+
+                // Update main customer fields
+                customerObj.FullName = string.IsNullOrEmpty(model.CompnayName)
+                    ? $"{model.FirstName} {model.LastName}"
+                    : model.CompnayName;
+                customerObj.OrganizationID = model.OrganizationID;
+                customerObj.IsPerson = string.IsNullOrEmpty(model.CompnayName);
+                customerObj.UpdatedAt = DateTime.UtcNow;
+                customerObj.UpdatedBy = model.CreatedBy;
+                customerObj.LIP = model.LIP;
+                customerObj.LMAC = model.LMAC;
+
+                // Find existing address link (if any)
+                var existingCustomerAddress = customerObj.CustomerAddresses
+                    .FirstOrDefault(x => x.AddressTypeID == addressTypeObj.AddressTypeID);
+
+                Addresses address;
+
+                if (existingCustomerAddress != null)
+                {
+                    // Update existing address
+                    address = existingCustomerAddress.Address;
+                    address.FullAddress = model.FullAddress;
+                    address.Street = model.Street;
+                    address.City = model.City;
+                    address.State = model.State;
+                    address.Additionaladdress = model.Additionaladdress;
+                    address.PostalCode = model.PostalCode;
+                    address.CountryID = model.CountryID;
+                    address.Phone = model.Phone;
+                    address.OtherPhone = model.OtherPhone;
+                    address.Email = model.Email;
+                    address.Latitude = model.Latitude;
+                    address.Longitude = model.Longitude;
+                    address.FirstName = model.FirstName;
+                    address.LastName = model.LastName;
+                    address.UpdatedAt = DateTime.UtcNow;
+                    address.UpdatedBy = model.CreatedBy;
+                    address.LIP = model.LIP;
+                    address.LMAC = model.LMAC;
+
+                    await _addressesRepository.UpdateAsync(address);
+                }
+                else
+                {
+                    // Create new address if missing
+                    address = new Addresses
+                    {
+                        FullAddress = model.FullAddress,
+                        Street = model.Street,
+                        City = model.City,
+                        State = model.State,
+                        Additionaladdress = model.Additionaladdress,
+                        PostalCode = model.PostalCode,
+                        CountryID = model.CountryID,
+                        Phone = model.Phone,
+                        OtherPhone = model.OtherPhone,
+                        Email = model.Email,
+                        Latitude = model.Latitude,
+                        Longitude = model.Longitude,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = model.CreatedBy,
+                        LIP = model.LIP,
+                        LMAC = model.LMAC,
+                    };
+                    await _addressesRepository.AddAsync(address);
+
+                    var newLink = new CustomerAddresses
+                    {
+                        AddressTypeID = addressTypeObj.AddressTypeID,
+                        AddressID = address.AddressID,
+                        CustomerID = customerObj.CustomerID,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = model.CreatedBy,
+                        LIP = model.LIP,
+                        LMAC = model.LMAC
+                    };
+                    await _customerAddressesRepository.AddAsync(newLink);
+                }
+
+                await _customersRepository.UpdateAsync(customerObj);
+                await _customersRepository.CommitTransactionAsync();
+
+                return new ReturnView
+                {
+                    Success = true,
+                    Message = "Customer updated successfully!",
+                    Id = customerObj.CustomerID,
+                    Name = customerObj.FullName
+                };
+            }
+            catch (Exception ex)
+            {
+                await _customersRepository.RollbackTransactionAsync();
+
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
         #endregion
 
         #region CreateBranch
@@ -428,20 +590,6 @@ namespace GCTL.Service.CRM.Customer
                 // Get address type
                 var addressTypeObj = await _addressTypesRepository.FirstOrDefaultAsync(u => u.AddressTypeName == "shipping");
 
-
-
-                //// Save branch
-                //var companyShipping = new CompanyWarehouses
-                //{
-                //    CustomerID = model.SCustomerID,
-                //    CreatedAt = DateTime.UtcNow,
-                //    CreatedBy = model.CreatedBy,
-                //    LIP = model.LIP,
-                //    LMAC = model.LMAC,
-                //};
-                //await _companyWarehousesRepository.AddAsync(companyShipping);
-
-                // Save address
                 var addresses = new Addresses()
                 {
                     FullAddress = model.SFullAddress,
@@ -510,28 +658,153 @@ namespace GCTL.Service.CRM.Customer
         #endregion
 
         #region get customer List
-        public async Task<PaginationService<Customers, CustomerVM>.PaginationResult<CustomerVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CustomerName", string sortOrder = "asc")
+        public async Task<PaginationService<Customers, CustomerTableDataVM>.PaginationResult<CustomerTableDataVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CustomerName", string sortOrder = "asc")
         {
-            var query = _customersRepository.AllActive().Where(t => t.OrganizationID == organizationID);
+            var query = _customersRepository.AllActive().Include(x=> x.CompanyWarehouses).Include(x=>x.CompanyBranches).Where(t => t.OrganizationID == organizationID) ;
             query = query.Where(x => x.DeletedAt == null);
 
             if (!string.IsNullOrEmpty(sortColumn))
             {
                 query = sortColumn switch
                 {
-                    "GenderID" => sortOrder == "desc" ? query.OrderByDescending(x => x.CustomerID) : query.OrderBy(x => x.CustomerID),
+                    "CustomerID" => sortOrder == "desc" ? query.OrderByDescending(x => x.CustomerID) : query.OrderBy(x => x.CustomerID),
                     "CustomerName" => sortOrder == "desc" ? query.OrderByDescending(x => x.FullName) : query.OrderBy(x => x.FullName),
+                    "CreatedAt" => sortOrder == "desc" ? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt),
                     _ => query.OrderBy(x => x.CustomerID)
                 };
             }
 
-            return await PaginationService<Customers, CustomerVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
+            return await PaginationService<Customers, CustomerTableDataVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
                 term => x => EF.Functions.Like(x.FullName, $"%{term}%"),
-                x => new CustomerVM
+                x => new CustomerTableDataVM
                 {
                     ID = x.CustomerID,
-                    CompnayName = x.FullName,
+                    Name = x.FullName,
+                    Type = x.IsPerson == false ? "Company" : "Individual",
+                    TotalBranch = x.CompanyBranches.Count(),
+                    TotalWarehouse = x.CompanyWarehouses.Count(),
                 });
+        }
+        #endregion
+
+        #region GetCustomerInfo
+        public async Task<CustomerVM> GetCustomerInfo(int id, int organizationID)
+        {
+            var customer = await _customersRepository.AllActive()
+                .Include(c => c.CustomerAddresses)
+                    .ThenInclude(ca => ca.Address)
+                .Include(a => a.CustomerAddresses)
+                    .ThenInclude(c => c.AddressType)
+                .Where(c => c.CustomerID == id && c.OrganizationID == organizationID)
+                .Select(c => new
+                {
+                    c.CustomerID,
+                    c.FullName,
+                    c.IsPerson,
+                    Address = c.CustomerAddresses
+                        .Select(ca => ca.Address)
+                        .Where(a=> a.CustomerAddresses.Select(x => x.AddressType.AddressTypeName.ToLower() == "individual" || x.AddressType.AddressTypeName.ToLower() == "company")
+                        .FirstOrDefault())
+                })
+                .FirstOrDefaultAsync();
+
+            if (customer == null)
+                return new CustomerVM();
+
+            var vm = new CustomerVM
+            {
+                Id = customer.CustomerID,
+                FirstName = customer.Address?.Select(x=>x.FirstName).FirstOrDefault() ?? "",
+                LastName = customer.Address?.Select(x => x.LastName).FirstOrDefault() ?? "",
+                CompnayName = customer.IsPerson == false ? customer.FullName : "",
+                FullAddress = customer.Address?.Select(x => x.FullAddress).FirstOrDefault() ?? "",
+                City = customer.Address?.Select(x => x.City).FirstOrDefault() ?? "",
+                Additionaladdress = customer.Address?.Select(x => x.Additionaladdress).FirstOrDefault() ?? "",
+                State = customer.Address?.Select(x => x.State).FirstOrDefault() ?? "",
+                Street = customer.Address?.Select(x => x.Street).FirstOrDefault() ?? "",
+                Phone = customer.Address?.Select(x => x.Phone).FirstOrDefault() ?? "",
+                OtherPhone = customer.Address?.Select(x => x.OtherPhone).FirstOrDefault() ?? "",
+                Email = customer.Address?.Select(x => x.Email).FirstOrDefault() ?? "",
+                CountryID = customer.Address?.Select(x => x.CountryID).FirstOrDefault(),
+                PostalCode = customer.Address?.Select(x => x.PostalCode).FirstOrDefault() ?? "",
+                Longitude = customer.Address?.Select(x => x.Longitude).FirstOrDefault(),
+                Latitude = customer.Address?.Select(x => x.Latitude).FirstOrDefault()
+            };
+
+            return vm;
+        }
+
+
+
+        #endregion
+
+        #region Get CompanyBranchList
+        public async Task<List<BranchVM>> GetBranchList(int companyID, int organizationID)
+        {
+            var customer = await _customersRepository.AllActive()
+                .Include(q => q.CompanyBranches)
+                .ThenInclude(q => q.CompanyBranchAddresses)
+                .ThenInclude(q => q.Address)
+                .FirstOrDefaultAsync(q => q.CustomerID == companyID && q.OrganizationID == organizationID);
+
+            if (customer == null)
+                return new List<BranchVM>();
+
+            var result = customer.CompanyBranches
+                .Select(x => new BranchVM
+                {
+                    Bid = x.BranchID,
+                    BCustomerID = x.CustomerID,
+                    BName = x.BranchName ?? "",
+                    BFirstName = x.CompanyBranchAddresses.Select(x=> x.Address.FirstName).FirstOrDefault() ?? "",
+                    BLastName = x.CompanyBranchAddresses.Select(x=> x.Address.LastName).FirstOrDefault() ?? "",
+                    BFullAddress = x.CompanyBranchAddresses.Select(x=> x.Address.FullAddress).FirstOrDefault() ?? "",
+                    BAdditionaladdress = x.CompanyBranchAddresses.Select(x=> x.Address.FullAddress).FirstOrDefault() ?? "",
+                    BCity = x.CompanyBranchAddresses.Select(x=> x.Address.City).FirstOrDefault() ?? "",
+                    BState = x.CompanyBranchAddresses.Select(x=> x.Address.State).FirstOrDefault() ?? "",
+                    BStreet = x.CompanyBranchAddresses.Select(x=> x.Address.Street).FirstOrDefault() ?? "",
+                    BPostalCode = x.CompanyBranchAddresses.Select(x=> x.Address.PostalCode).FirstOrDefault() ?? "",
+                    BPhone = x.CompanyBranchAddresses.Select(x=> x.Address.Phone).FirstOrDefault() ?? "",
+                    BOtherPhone = x.CompanyBranchAddresses.Select(x=> x.Address.OtherPhone).FirstOrDefault() ?? "",
+                    BCountryID = x.CompanyBranchAddresses.Select(x=> x.Address.CountryID).FirstOrDefault(),
+                })
+                .ToList();
+
+            return result;
+        }
+        #endregion
+        #region Get CompanyBranchList
+        public async Task<BranchVM> GetBranchInfo(int customerID, int branchId, int organizationID)
+        {
+            var customer = await _customersRepository.AllActive()
+                .Include(q => q.CompanyBranches)
+                .ThenInclude(q => q.CompanyBranchAddresses)
+                .ThenInclude(q => q.Address)
+                .FirstOrDefaultAsync(q => q.CustomerID == customerID && q.OrganizationID == organizationID);
+
+            if (customer == null)
+                return new BranchVM();
+
+            var result = customer.CompanyBranches
+                .Where(b => b.BranchID == branchId)
+                .Select(x => new BranchVM
+                {
+                    Bid = x.BranchID,
+                    BName = x.BranchName ?? "",
+                    BFirstName = x.CompanyBranchAddresses.Select(x=> x.Address.FirstName).FirstOrDefault() ?? "",
+                    BLastName = x.CompanyBranchAddresses.Select(x=> x.Address.LastName).FirstOrDefault() ?? "",
+                    BFullAddress = x.CompanyBranchAddresses.Select(x=> x.Address.FullAddress).FirstOrDefault() ?? "",
+                    BAdditionaladdress = x.CompanyBranchAddresses.Select(x=> x.Address.FullAddress).FirstOrDefault() ?? "",
+                    BCity = x.CompanyBranchAddresses.Select(x=> x.Address.City).FirstOrDefault() ?? "",
+                    BState = x.CompanyBranchAddresses.Select(x=> x.Address.State).FirstOrDefault() ?? "",
+                    BStreet = x.CompanyBranchAddresses.Select(x=> x.Address.Street).FirstOrDefault() ?? "",
+                    BPostalCode = x.CompanyBranchAddresses.Select(x=> x.Address.PostalCode).FirstOrDefault() ?? "",
+                    BPhone = x.CompanyBranchAddresses.Select(x=> x.Address.Phone).FirstOrDefault() ?? "",
+                    BOtherPhone = x.CompanyBranchAddresses.Select(x=> x.Address.OtherPhone).FirstOrDefault() ?? "",
+                    BCountryID = x.CompanyBranchAddresses.Select(x=> x.Address.CountryID).FirstOrDefault(),
+                }).FirstOrDefault();
+
+            return result;
         }
         #endregion
     }
