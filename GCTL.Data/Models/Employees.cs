@@ -265,6 +265,12 @@ public partial class Employees
 
     public virtual ICollection<CustomerAddresses> CustomerAddressesUpdatedByNavigation { get; set; } = new List<CustomerAddresses>();
 
+    public virtual ICollection<CustomerGroup> CustomerGroupCreatedByNavigation { get; set; } = new List<CustomerGroup>();
+
+    public virtual ICollection<CustomerGroup> CustomerGroupDeletedByNavigation { get; set; } = new List<CustomerGroup>();
+
+    public virtual ICollection<CustomerGroup> CustomerGroupUpdatedByNavigation { get; set; } = new List<CustomerGroup>();
+
     public virtual ICollection<Customers1> Customers1CreatedByNavigation { get; set; } = new List<Customers1>();
 
     public virtual ICollection<Customers1> Customers1DeletedByNavigation { get; set; } = new List<Customers1>();
@@ -867,6 +873,18 @@ public partial class Employees
 
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettingsUpdatedByNavigation { get; set; } = new List<ProbetionPeriodSettings>();
 
+    public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricingCreatedByNavigation { get; set; } = new List<ProductAdvancedPricing>();
+
+    public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricingDeletedByNavigation { get; set; } = new List<ProductAdvancedPricing>();
+
+    public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricingUpdatedByNavigation { get; set; } = new List<ProductAdvancedPricing>();
+
+    public virtual ICollection<ProductBarcodes> ProductBarcodesCreatedByNavigation { get; set; } = new List<ProductBarcodes>();
+
+    public virtual ICollection<ProductBarcodes> ProductBarcodesDeletedByNavigation { get; set; } = new List<ProductBarcodes>();
+
+    public virtual ICollection<ProductBarcodes> ProductBarcodesUpdatedByNavigation { get; set; } = new List<ProductBarcodes>();
+
     public virtual ICollection<ProductBrands> ProductBrandsCreatedByNavigation { get; set; } = new List<ProductBrands>();
 
     public virtual ICollection<ProductBrands> ProductBrandsDeletedByNavigation { get; set; } = new List<ProductBrands>();
@@ -878,6 +896,18 @@ public partial class Employees
     public virtual ICollection<ProductCategories> ProductCategoriesDeletedByNavigation { get; set; } = new List<ProductCategories>();
 
     public virtual ICollection<ProductCategories> ProductCategoriesUpdatedByNavigation { get; set; } = new List<ProductCategories>();
+
+    public virtual ICollection<ProductImages> ProductImagesCreatedByNavigation { get; set; } = new List<ProductImages>();
+
+    public virtual ICollection<ProductImages> ProductImagesDeletedByNavigation { get; set; } = new List<ProductImages>();
+
+    public virtual ICollection<ProductImages> ProductImagesUpdatedByNavigation { get; set; } = new List<ProductImages>();
+
+    public virtual ICollection<ProductPricing> ProductPricingCreatedByNavigation { get; set; } = new List<ProductPricing>();
+
+    public virtual ICollection<ProductPricing> ProductPricingDeletedByNavigation { get; set; } = new List<ProductPricing>();
+
+    public virtual ICollection<ProductPricing> ProductPricingUpdatedByNavigation { get; set; } = new List<ProductPricing>();
 
     public virtual ICollection<ProductSubCategories> ProductSubCategoriesCreatedByNavigation { get; set; } = new List<ProductSubCategories>();
 
@@ -1096,6 +1126,12 @@ public partial class Employees
     public virtual ICollection<UnitTypes> UnitTypesUpdatedByNavigation { get; set; } = new List<UnitTypes>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
+
+    public virtual ICollection<WarrantyTypes> WarrantyTypesCreatedByNavigation { get; set; } = new List<WarrantyTypes>();
+
+    public virtual ICollection<WarrantyTypes> WarrantyTypesDeletedByNavigation { get; set; } = new List<WarrantyTypes>();
+
+    public virtual ICollection<WarrantyTypes> WarrantyTypesUpdatedByNavigation { get; set; } = new List<WarrantyTypes>();
 
     public virtual ICollection<WeekendDays> WeekendDaysCreatedByNavigation { get; set; } = new List<WeekendDays>();
 

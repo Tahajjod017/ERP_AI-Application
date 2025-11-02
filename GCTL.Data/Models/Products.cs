@@ -47,10 +47,6 @@ public partial class Products
 
     public bool? HasSerialNumber { get; set; }
 
-    public string ImgeSmall { get; set; }
-
-    public string ImgeLarge { get; set; }
-
     public string Description { get; set; }
 
     public string LIP { get; set; }
@@ -77,9 +73,19 @@ public partial class Products
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();
+
+    public virtual ICollection<ProductBarcodes> ProductBarcodes { get; set; } = new List<ProductBarcodes>();
+
     public virtual ProductBrands ProductBrand { get; set; }
 
     public virtual ProductCategories ProductCategory { get; set; }
+
+    public virtual ICollection<ProductCustomFields> ProductCustomFields { get; set; } = new List<ProductCustomFields>();
+
+    public virtual ICollection<ProductImages> ProductImages { get; set; } = new List<ProductImages>();
+
+    public virtual ICollection<ProductPricing> ProductPricing { get; set; } = new List<ProductPricing>();
 
     public virtual ProductSubCategories ProductSubCategory { get; set; }
 

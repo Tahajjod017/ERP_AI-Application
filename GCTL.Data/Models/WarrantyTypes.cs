@@ -5,11 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class CalculationTypes
+public partial class WarrantyTypes
 {
-    public int CalculationTypeID { get; set; }
+    public int WarrantyTypeID { get; set; }
 
-    public string CalculationTypeName { get; set; }
+    public string WarrantyTypeName { get; set; }
+
+    public string Description { get; set; }
+
+    public bool? IsActive { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,13 +35,7 @@ public partial class CalculationTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetup { get; set; } = new List<EmployeeAllowanceSetup>();
-
-    public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowances { get; set; } = new List<EmployeeBaseAllowances>();
-
-    public virtual ICollection<EmployeeBaseBenefits> EmployeeBaseBenefits { get; set; } = new List<EmployeeBaseBenefits>();
-
-    public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();
+    public virtual ICollection<ProductCustomFields> ProductCustomFields { get; set; } = new List<ProductCustomFields>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -5,6 +5,12 @@
 
 
     <style>
+
+
+     
+
+
+
       
         .header {
             text-align: center;
@@ -1053,15 +1059,9 @@
 
 
 
-                            <div class="row">
+                            @*<div class="row">
                                 <div class="col-lg-12">
                                     <div class="add-choosen">
-
-
-
-
-
-
                                         <div class="upload-area">
                                             <div class="header">
                                                 <h1>Upload Your Images</h1>
@@ -1096,11 +1096,62 @@
                                                 Images uploaded successfully!
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>*@
 
 
 
 
 
+
+                            <div class="row">
+                                <div class="col-lg-12 mt-2">
+                                    <div class="accordion" id="descriptionAccordion1">
+                                        <div class="">
+                                            <h2 class="accordion-header" id="headingDescription">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription1" aria-expanded="false" aria-controls="collapseDescription1">
+                                                    <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Upload Your Images") <small class="text-muted ms-2">(@Html.SmartLocalize("Drag and drop or click to upload, then edit and crop as needed"))</small>
+                                                </button>
+                                            </h2>
+
+                                            <div id="collapseDescription1" class="accordion-collapse collapse" aria-labelledby="headingDescription" data-bs-parent="#descriptionAccordion1">
+                                                <div class="content-wrapper">
+                                                    <div class="preview-container" id="previewContainer"></div>
+
+                                                    <div class="upload-zone-wrapper" id="uploadZoneWrapper">
+                                                        <div class="upload-zone" id="uploadZone">
+
+                                                            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                                            </svg>
+                                                            <div class="upload-icon-wrapper">
+                                                                <i class="lucide lucide-cloud-upload upload-icon"></i>
+                                                            </div>
+                                                            <div class="upload-text">
+                                                                Drag & Drop your images here
+                                                            </div>
+                                                            <div class="upload-subtext">
+                                                                or <span class="browse-btn" id="browseBtn">browse</span> to choose files
+                                                            </div>
+                                                            <input type="file" id="fileInput" accept="image/*" multiple>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="upload-complete" id="uploadComplete">
+                                                    <i class="lucide lucide-check-circle"></i>
+                                                    Images uploaded successfully!
+                                                </div>
+                                            </div>
+
+
+
+                                            
+
+
+
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1113,10 +1164,14 @@
 
 
 
+
+
+
+
                             <div class="row">
                                 <div class="col-lg-12 mt-2">
                                     <div class="accordion" id="descriptionAccordion">
-                                        <div class="accordion-item">
+                                        <div class="">
                                             <h2 class="accordion-header" id="headingDescription">
                                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="false" aria-controls="collapseDescription">
                                                     <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Description") <small class="text-muted ms-2">(@Html.SmartLocalize("Maximum 60 Words"))</small>
