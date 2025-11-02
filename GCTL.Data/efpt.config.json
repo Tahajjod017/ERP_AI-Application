@@ -4,7 +4,6 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "MinimumProductVersion": "2.6.1080",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -97,6 +96,10 @@
       },
       {
          "Name": "[Customer].[CustomerAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[CustomerGroup]",
          "ObjectType": 0
       },
       {
@@ -672,11 +675,31 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[ProductAdvancedPricing]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductBarcodes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[ProductBrands]",
          "ObjectType": 0
       },
       {
          "Name": "[SC].[ProductCategories]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductCustomFields]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductImages]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductPricing]",
          "ObjectType": 0
       },
       {
@@ -693,6 +716,10 @@
       },
       {
          "Name": "[SC].[UnitTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[WarrantyTypes]",
          "ObjectType": 0
       },
       {
@@ -789,7 +816,6 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
-   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,

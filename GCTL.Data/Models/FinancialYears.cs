@@ -33,7 +33,5 @@ public partial class FinancialYears
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Journals> Journals { get; set; } = new List<Journals>();
-
     public virtual Employees UpdatedByNavigation { get; set; }
 }

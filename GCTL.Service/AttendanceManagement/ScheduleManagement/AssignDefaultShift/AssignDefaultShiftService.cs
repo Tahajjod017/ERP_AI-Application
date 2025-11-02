@@ -125,7 +125,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                         if (employees == null || !employees.Any())
                             continue;
 
-                        foreach(var employee in employees)
+                        foreach (var employee in employees)
                         {
                             var existingEntity = await _genericRepository.All().Where(x => x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
 

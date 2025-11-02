@@ -46,7 +46,6 @@
                     JournalCode: $('#JournalCode').val(),
                     JournalTypeID: $('#JournalTypeID').val(),
                     PostingRuleID: $('#PostingRuleID').val(),
-                    FinancialYearID: $('#FinancialYearID').val(),
                     JournalDate: $('#JournalDate').val(),
                     Note: $('#Note').val(),
                     CreateJournalDetailsVMs: []
@@ -82,7 +81,7 @@
                         data: formData,
                     });
 
-                    const allFields = ["JournalTypeID", "JournalCode", "PostingRuleID", "FinancialYearID", "JournalDate", "CreateJournalDetailsVMs", "TrxType", "Amount"];
+                    const allFields = ["JournalTypeID", "JournalCode", "PostingRuleID", "JournalDate", "CreateJournalDetailsVMs", "TrxType", "Amount"];
                     allFields.forEach(fieldId => validateField(fieldId, response));
 
                     if (response.isSuccess) {
@@ -113,7 +112,7 @@
             function clear() {
                 $(settings.addform)[0].reset();
                 $('#JournalID').val('0');
-                resetValidation(["JournalTypeID", "JournalCode", "PostingRuleID", "FinancialYearID", "JournalDate", "CreateJournalDetailsVMs", "TrxType", "Amount"]);
+                resetValidation(["JournalTypeID", "JournalCode", "PostingRuleID", "JournalDate", "CreateJournalDetailsVMs", "TrxType", "Amount"]);
                 $('.text-danger').not('.notResetDanger').hide();
                 $('.form-control').removeClass('is-invalid');
                 $('.form-control').each(function () {
@@ -131,11 +130,6 @@
                     scenarioTypeDD.destroy();
                 }
                 initScenarioTypeDD();
-
-                if (transactionYearDD) {
-                    transactionYearDD.destroy();
-                }
-                initTransactionYearDD();
 
                 $('.mainAccDD').each(function () {
                     if (this.mainAccDD) {
@@ -824,15 +818,6 @@
                 });
             }
             initScenarioTypeDD();
-
-            function initTransactionYearDD() {
-                transactionYearDD = new Choices('#FinancialYearID', {
-                    removeItemButton: true,
-                    shouldSort: false,
-                    placeholderValue: 'Select Transaction Year...'
-                });
-            }
-            initTransactionYearDD();
             // #endregion
 
 

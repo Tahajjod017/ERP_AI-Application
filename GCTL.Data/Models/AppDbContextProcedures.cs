@@ -43,7 +43,7 @@ namespace GCTL.Data.Models
             _context = context;
         }
 
-        public virtual async Task<int> aaAsync(string tableName, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<int> aaAsync(string TableName, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -58,7 +58,7 @@ namespace GCTL.Data.Models
                 {
                     ParameterName = "TableName",
                     Size = 256,
-                    Value = tableName ?? Convert.DBNull,
+                    Value = TableName ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.NVarChar,
                 },
                 parameterreturnValue,
@@ -70,7 +70,7 @@ namespace GCTL.Data.Models
             return _;
         }
 
-        public virtual async Task<List<GetModulesResult>> GetModulesAsync(string roleId, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<List<GetModulesResult>> GetModulesAsync(string RoleId, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -85,7 +85,7 @@ namespace GCTL.Data.Models
                 {
                     ParameterName = "RoleId",
                     Size = 200,
-                    Value = roleId ?? Convert.DBNull,
+                    Value = RoleId ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.NVarChar,
                 },
                 parameterreturnValue,
@@ -97,7 +97,7 @@ namespace GCTL.Data.Models
             return _;
         }
 
-        public virtual async Task<List<GetPaginatedEmployeeAttendanceResult>> GetPaginatedEmployeeAttendanceAsync(int? month, int? year, int? pageNumber, int? pageSize, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<List<GetPaginatedEmployeeAttendanceResult>> GetPaginatedEmployeeAttendanceAsync(int? Month, int? Year, int? PageNumber, int? PageSize, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -111,25 +111,25 @@ namespace GCTL.Data.Models
                 new SqlParameter
                 {
                     ParameterName = "Month",
-                    Value = month ?? Convert.DBNull,
+                    Value = Month ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.Int,
                 },
                 new SqlParameter
                 {
                     ParameterName = "Year",
-                    Value = year ?? Convert.DBNull,
+                    Value = Year ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.Int,
                 },
                 new SqlParameter
                 {
                     ParameterName = "PageNumber",
-                    Value = pageNumber ?? Convert.DBNull,
+                    Value = PageNumber ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.Int,
                 },
                 new SqlParameter
                 {
                     ParameterName = "PageSize",
-                    Value = pageSize ?? Convert.DBNull,
+                    Value = PageSize ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.Int,
                 },
                 parameterreturnValue,
@@ -141,7 +141,7 @@ namespace GCTL.Data.Models
             return _;
         }
 
-        public virtual async Task<List<GetUserByEmailResult>> GetUserByEmailAsync(string email, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<List<GetUserByEmailResult>> GetUserByEmailAsync(string Email, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -156,7 +156,7 @@ namespace GCTL.Data.Models
                 {
                     ParameterName = "Email",
                     Size = 510,
-                    Value = email ?? Convert.DBNull,
+                    Value = Email ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.NVarChar,
                 },
                 parameterreturnValue,
@@ -168,7 +168,7 @@ namespace GCTL.Data.Models
             return _;
         }
 
-        public virtual async Task<int> Prc_GetEmployeesPagedAsync(int? pageNumber, int? pageSize, string searchTerm, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<int> Prc_GetEmployeesPagedAsync(int? PageNumber, int? PageSize, string SearchTerm, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -182,20 +182,20 @@ namespace GCTL.Data.Models
                 new SqlParameter
                 {
                     ParameterName = "PageNumber",
-                    Value = pageNumber ?? Convert.DBNull,
+                    Value = PageNumber ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.Int,
                 },
                 new SqlParameter
                 {
                     ParameterName = "PageSize",
-                    Value = pageSize ?? Convert.DBNull,
+                    Value = PageSize ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.Int,
                 },
                 new SqlParameter
                 {
                     ParameterName = "SearchTerm",
                     Size = 200,
-                    Value = searchTerm ?? Convert.DBNull,
+                    Value = SearchTerm ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.NVarChar,
                 },
                 parameterreturnValue,
@@ -278,7 +278,7 @@ namespace GCTL.Data.Models
             return _;
         }
 
-        public virtual async Task<List<sp_GetUserPermissionsByRoleIdsResult>> sp_GetUserPermissionsByRoleIdsAsync(string roleIds, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<List<sp_GetUserPermissionsByRoleIdsResult>> sp_GetUserPermissionsByRoleIdsAsync(string RoleIds, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -293,7 +293,7 @@ namespace GCTL.Data.Models
                 {
                     ParameterName = "RoleIds",
                     Size = -1,
-                    Value = roleIds ?? Convert.DBNull,
+                    Value = RoleIds ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.NVarChar,
                 },
                 parameterreturnValue,
@@ -305,7 +305,7 @@ namespace GCTL.Data.Models
             return _;
         }
 
-        public virtual async Task<List<sp_InsertOrUpdateShiftsResult>> sp_InsertOrUpdateShiftsAsync(DataTable shiftInputs, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<List<sp_InsertOrUpdateShiftsResult>> sp_InsertOrUpdateShiftsAsync(DataTable ShiftInputs, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -319,7 +319,7 @@ namespace GCTL.Data.Models
                 new SqlParameter
                 {
                     ParameterName = "ShiftInputs",
-                    Value = shiftInputs ?? Convert.DBNull,
+                    Value = ShiftInputs ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.Structured,
                     TypeName = "[dbo].[ShiftInputType]",
                 },
@@ -372,7 +372,7 @@ namespace GCTL.Data.Models
             return _;
         }
 
-        public virtual async Task<List<sp_ProcessPunchResult>> sp_ProcessPunchAsync(int? enroll_id, DateTime? cHECKTIME, string deviceSN, string sourceType, string latitude, string longitude, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        public virtual async Task<List<sp_ProcessPunchResult>> sp_ProcessPunchAsync(int? enroll_id, DateTime? CHECKTIME, string DeviceSN, string SourceType, string Latitude, string Longitude, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
             {
@@ -393,35 +393,35 @@ namespace GCTL.Data.Models
                 {
                     ParameterName = "CHECKTIME",
                     Scale = 7,
-                    Value = cHECKTIME ?? Convert.DBNull,
+                    Value = CHECKTIME ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.DateTime2,
                 },
                 new SqlParameter
                 {
                     ParameterName = "DeviceSN",
                     Size = 50,
-                    Value = deviceSN ?? Convert.DBNull,
+                    Value = DeviceSN ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.VarChar,
                 },
                 new SqlParameter
                 {
                     ParameterName = "SourceType",
                     Size = 20,
-                    Value = sourceType ?? Convert.DBNull,
+                    Value = SourceType ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.VarChar,
                 },
                 new SqlParameter
                 {
                     ParameterName = "Latitude",
                     Size = 100,
-                    Value = latitude ?? Convert.DBNull,
+                    Value = Latitude ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.VarChar,
                 },
                 new SqlParameter
                 {
                     ParameterName = "Longitude",
                     Size = 100,
-                    Value = longitude ?? Convert.DBNull,
+                    Value = Longitude ?? Convert.DBNull,
                     SqlDbType = System.Data.SqlDbType.VarChar,
                 },
                 parameterreturnValue,
