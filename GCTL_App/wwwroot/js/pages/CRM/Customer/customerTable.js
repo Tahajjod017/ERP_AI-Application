@@ -53,7 +53,7 @@
                 $("#gender-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
                 $("#gender-totalCount").text(`(${paginationInfo.totalItems})`);
 
-                //updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
+                updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
             },
             error: function () {
                 console.log("Error! Fetching all data.");
@@ -174,4 +174,41 @@
         });
     }
 
+
+    function updatePagination(pageNumbers, currentPage, totalPages) {
+        const paginationLinks = $("#gender-paginationLinks");
+        paginationLinks.empty();
+        // Window size (number of pages before/after the current page)
+        const windowSize = 1;
+        const createPageButton = (page) => `
+                <li class="page-item ${page === currentPage ? 'active' : ''}">
+                    <button class="page-link page-btn" data-page="${page}">${page}</button>
+                </li>
+            `;
+        // Helper function for ellipsis
+        const addEllipsis = () => '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        // Add "First Page" and ellipsis if needed
+        if (currentPage > windowSize + 1) {
+            paginationLinks.append(createPageButton(1), addEllipsis());
+        }
+        // Add page number buttons within the window range
+        const startPage = Math.max(1, currentPage - windowSize);
+        const endPage = Math.min(totalPages, currentPage + windowSize);
+        for (let i = startPage; i <= endPage; i++) {
+            paginationLinks.append(createPageButton(i));
+        }
+        // Add ellipsis and "Last Page" button if needed
+        if (currentPage < totalPages - windowSize) {
+            paginationLinks.append(addEllipsis(), createPageButton(totalPages));
+        }
+        // Disable or enable previous/next buttons
+        $("#gender-prevPageBtn").prop('disabled', currentPage === 1);
+        $("#gender-nextPageBtn").prop('disabled', currentPage === totalPages);
+    }
+
+    $(document).on('click', '.page-btn', function () {
+        const page = $(this).data('page');
+        currentPage = page;
+        loadTableData();
+    });
 };

@@ -45,6 +45,7 @@
 		<Folder Include="Views\LeadSources\" />
 		<Folder Include="Views\LeadActivityTypes\" />
 		<Folder Include="Views\AddTeams\" />
+		<Folder Include="Views\OrganizationTypes\" />
 
 		<Folder Include="wwwroot\js\pages\ProjectManagements\" />
 		<Folder Include="wwwroot\js\pages\shared\" />

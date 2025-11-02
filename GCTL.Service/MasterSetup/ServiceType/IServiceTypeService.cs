@@ -10,12 +10,12 @@ namespace GCTL.Service.MasterSetup.ServiceType
     {
         #region CRUD
         Task<bool> AddAsync(ServiceVM model);
-        Task<PaginationService<Services, ServiceVM>.PaginationResult<ServiceVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+        Task<PaginationService<Services, ServiceVM>.PaginationResult<ServiceVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "ServiceName", string sortOrder = "asc");
-        Task<ServiceVM> GetByIdAsync(int id);
+        Task<ServiceVM> GetByIdAsync(int organizationID, int id);
         Task<bool> UpdateAsync(ServiceVM model);
         Task<ServiceVM> SoftDeleteAsync(DeleteRequestVM requestVM);
-        Task<bool> IsNameUniqueAsync(string name);
+        Task<bool> IsNameUniqueAsync(int organizationID, string name);
         #endregion
     }
 }

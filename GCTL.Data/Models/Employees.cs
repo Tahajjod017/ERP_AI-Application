@@ -779,7 +779,19 @@ public partial class Employees
 
     public virtual ICollection<Organization> OrganizationDeletedByNavigation { get; set; } = new List<Organization>();
 
+    public virtual ICollection<OrganizationTypes> OrganizationTypesCreatedByNavigation { get; set; } = new List<OrganizationTypes>();
+
+    public virtual ICollection<OrganizationTypes> OrganizationTypesDeletedByNavigation { get; set; } = new List<OrganizationTypes>();
+
+    public virtual ICollection<OrganizationTypes> OrganizationTypesUpdatedByNavigation { get; set; } = new List<OrganizationTypes>();
+
     public virtual ICollection<Organization> OrganizationUpdatedByNavigation { get; set; } = new List<Organization>();
+
+    public virtual ICollection<OtherContacts> OtherContactsCreatedByNavigation { get; set; } = new List<OtherContacts>();
+
+    public virtual ICollection<OtherContacts> OtherContactsDeletedByNavigation { get; set; } = new List<OtherContacts>();
+
+    public virtual ICollection<OtherContacts> OtherContactsUpdatedByNavigation { get; set; } = new List<OtherContacts>();
 
     public virtual ICollection<PSettings> PSettingsCreatedByNavigation { get; set; } = new List<PSettings>();
 

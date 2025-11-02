@@ -1,300 +1,67 @@
 ﻿@model GCTL.Core.ViewModels.CRM.CreateLeadVM
-@using Microsoft.AspNetCore.Mvc.Rendering
-
-<style>
-
-    /*create lead customer command person modal */
-
-    .nav-tabs .nav-link.active {
-        color: #0d6efd;
-        border-color: #0d6efd;
-        border-bottom: 1px solid #0d6efd;
-    }
-
-    .nav-tabs .nav-link {
-        color: black;
-    }
-
-        .nav-tabs .nav-link:hover {
-            border-color: #0d6efd;
-            color: #0d6efd;
-        }
-
-    .nav-tabs .nav-link {
-    }
-
-    .form-label.req::after {
-        content: ' *';
-        color: red;
-    }
-
-    .input-icon-end {
-        position: relative;
-    }
-
-        .input-icon-end .fa {
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            transform: translateY(-50%);
-            color: #6c757d;
-            pointer-events: none;
-        }
-
-    .card {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    }
-
-    .readonly {
-        background-color: #f8f9fa;
-    }
-
-    /*//create lead mobiel field css*/
-    #iti-0__dropdown-content,
-    #iti-2__dropdown-content,
-    #iti-1__dropdown-content,
-    #iti-3__dropdown-content,
-    #iti-4__dropdown-content {
-        z-index: 111;
-    }
-
-    .iti--allow-dropdown {
-        width: 100%;
-    }
-
-    .iti__tel-input {
-        height: 46px;
-    }
-
-
-    /*#companySubTab ul li a .fa-solid {
-            padding-right: 54px !important;
-        }*/
-    /*for fixing modal google map loading problem*/
-
-    div.pac-container {
-        z-index: 99999999999 !important;
-    }
-
-
-    /*createLead table subtab*/
-    /* Sidebar container */
-    #customeInnerDiv {
-        border-top: 1px;
-        border-bottom: 1px;
-        border-right: 0;
-        border-left: 0;
-        border-style: solid;
-        border-color: rgb(203, 208, 221);
-        margin-bottom: -1px;
-    }
-
-    #customeSubTab {
-        padding-top: 1rem;
-    }
-
-    .custom-sidebar li a {
-        font-size: 12px;
-        font-weight: 500;
-        color: #6c757d;
-        padding: 10px 15px;
-        display: flex;
-        align-items: center;
-        transition: all 0.15s ease-in-out;
-        border: 1px solid rgb(203, 208, 221);
-        text-decoration: none;
-        cursor: pointer;
-        margin-top: -1px;
-        margin-right: -1px;
-        margin-bottom: -1px;
-    }
-
-        .custom-sidebar li a .svg-inline--fa {
-            margin-right: 6px;
-            width: 20px;
-            text-align: center;
-        }
-
-    .custom-sidebar a:hover {
-        background-color: #e9ecef;
-        color: #000;
-    }
-
-
-    .custom-sidebar a:not(.active) .svg-inline--fa {
-        color: rgb(203, 208, 221);
-    }
-
-    .custom-sidebar a.active, .custom-sidebar li a .svg-inline--fa {
-        color: #000;
-        font-weight: 700;
-    }
-
-    .iti__selected-country {
-        padding-left: 8% !important;
-    }
-
-    .iti__country-container {
-        padding-left: 3% !important;
-    }
-
-    .iti__tel-input {
-        padding-left: 11%;
-    }
-
-    #personCustomerSearchMainDiv {
-        position: relative;
-    }
-    
-
-    #personCustomerList {
-        position: absolute;
-        bottom: 0;
-
-    }
-    /* for selecting search item using arrow keygen */
-    .selected {
-        background-color: #e0e0e0 !important;
-        color: #000 !important;
-    }
-
-    .companyName-item.active {
-        background-color: #007bff;
-        color: white;
-    }
-
-    .form-multi-select-search {
-        font-size: 16px;
-        margin-top: 5px;
-    }
-    /* Hide scrollbar but keep scrolling */
-    .choices__list--dropdown .choices__list {
-        max-height: 200px; /* control height */
-        overflow-y: auto;
-        scrollbar-width: none; /* Firefox */
-    }
-
-        .choices__list--dropdown .choices__list::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Edge */
-        }
-
-
-    .select2-container .select2-selection--single {
-        height: 48px !important;
-        line-height: 50px !important;
-        padding: 10px 10px 10px 10px !important;
-        font-size: 16px !important;
-        display: flex;
-        align-items: center;
-        border-color: rgb(203, 208, 221) !important;
-    }
-
-    .select2-selection--single .select2-selection__arrow {
-        margin-bottom: 24px !important;
-        margin-right: 11px !important;
-    }
-
-    .select2-selection__arrow {
-        top: 8px !important;
-        height: 38px !important;
-    }
-
-    .select2-floating {
-        position: relative;
-    }
-
-        .select2-floating label {
-        padding-top: 4px;
-    }
-
-</style>
 
 <div class="container p-0 d-flex flex-column align-items-center">
     <div class="row col-md-12 mb-2">
-        <h3 class="fs-4 mb-3">@Html.SmartLocalize("Create Lead New")</h3>
+        <h3 class="fs-4 mb-3">@Html.SmartLocalize("Create Lead")</h3>
         <form class="bg-white py-4 form-control shadow-sm" action="shift-roster-ui.html" id="leadForm">
             <div class="modal-body pb-2">
                 <div class="row gy-3 ">
 
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select select2-floating">
-                            <select id="customerID" class="idBank select2">
-                                <option value="">Select Customer</option>
-                                
-                            </select>
-                            <label for="customerID">Customer Name</label>
-                        </div>
+                        <label class="form-label">Customer Name</label>
+                        <select id="customerID" class="select2">
+                        </select>
+                        
                     </div>
 
                     <div class="col-md-6">
-                        <div class="form-floating select2">
-                            <input class="form-control" id="leadName" type="text" placeholder="" required />
-                            <label class="form-label" >@Html.SmartLocalize("Lead Name")</label>
-                        </div>
+                        <label class="form-label">@Html.SmartLocalize("Lead Name")</label>
+                        <input class="form-control" id="leadName" type="text" placeholder="" required />
                     </div>
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select select2-floating">
-                            <select id="leadSourceId" class="idBank select2">
-                                <option value="">Select Lead Source</option>
-                            </select>
-                            <label for="leadSourceId">Lead Source</label>
-                        </div>
+                        <label class="form-label">Lead Source</label>
+                        <select id="leadSourceId" class="select2">
+                        </select>
+                       
                     </div>
 
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select select2-floating">
-                            <select id="leadStatusId" class="idBank select2">
-                                <option value="">Select Lead Status</option>
-
-                            </select>
-                            <label for="customerID">Lead Status</label>
-                        </div>
+                        <label class="form-label">Lead Status</label>
+                        <select id="leadStatusId" class="select2">
+                        </select>
+                        
                     </div>
                     
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select select2-floating">
-                            <select id="priorityID" class="idBank select2">
-                                <option value="">Select Priority</option>
-                            </select>
-                            <label for="priorityID">Priority Name</label>
-                        </div>
+                        <label class="form-label">Priority Name</label>
+                        <select id="priorityID" class="select2">
+                        </select>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="form-floating select2-floating">
-                            <label class="form-label">Lead Owner Name</label>
-                            <select id="leadOwnerId" class="form-select-lg">
-                                <option value="">Select...</option>
-                            </select>
-                        </div>
+                        <label class="form-label">Lead Owner Name</label>
+                        <select id="leadOwnerId" class="form-select-lg">
+                        </select>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="form-floating">
-                            <input class="form-control" id="approximateDealValue" type="text" placeholder="" />
-                            <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Approximate Deal Value")</label>
-                        </div>
+                        <label class="form-label" class="form-label">@Html.SmartLocalize("Approximate Deal Value")</label>>
+                        <input class="form-control" id="approximateDealValue" type="text" placeholder="" />
                     </div>
                     <div class="col-md-6">
-                        <div class="form-floating form-floating-advance-select">
-                            <label class="form-label">@Html.SmartLocalize("Service Type")</label>
-                            <select class="form-multi-select form-multi-select-lg" multiple id="serviceTypes" asp-items="@ViewBag.ServiceDD as SelectList">
-                                <option value="" disabled selected>@Html.SmartLocalize("Select Service")...</option>
-                            </select>
-                        </div>
+                        <label class="form-label">@Html.SmartLocalize("Service Type")</label>
+                        <select class="form-multi-select form-multi-select-lg" multiple id="serviceTypes"></select>
                     </div>
                     <div class="col-md-6">
-                        <label for="completion" class="form-label p-0">@Html.SmartLocalize("Probability (%)")</label>
+                        <label class="form-label" class="form-label p-0">@Html.SmartLocalize("Probability (%)")</label>
                         <div class="d-flex align-items-center">
                             <input type="range" class="form-range" min="0" max="100" step="1" id="probabilityPercentage" value="0" oninput="completionValue.innerText = this.value + '%'">
                             <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">0%</span>
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div class="form-floating">
-                            <textarea class="form-control h-100" id="descriptionText" rows="3" placeholder=""></textarea>
-                            <label class="form-label" for="exampleFormControlInput">@Html.SmartLocalize("Description")</label>
-                        </div>
+                        <label class="form-label" class="form-label">@Html.SmartLocalize("Description")</label>
+                        <textarea class="form-control h-100" id="descriptionText" rows="3" placeholder=""></textarea>
                     </div>
 
                 </div>
@@ -429,7 +196,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer mt-4">
                 <button type="button" class="btn btn-light me-2">Cancel</button>
                 <button type="submit" id="indexSaveBtn" class="btn btn-primary">Save</button>
             </div>

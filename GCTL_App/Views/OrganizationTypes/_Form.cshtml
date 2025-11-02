@@ -1,0 +1,47 @@
+﻿@model GCTL.Core.ViewModels.MasterSetup.OrganizationTypes.OrganizationTypeVM
+
+<div class="card h-100">
+    <div class="card-header border-bottom-1">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-auto">
+                <h3 class="text-body-emphasis mt-3">@Html.SmartLocalize("Add Organization Type")</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body mt-2">
+        <form asp-action="Create" asp-controller="OrganizationTypes" method="post" enctype="multipart/form-data" id="organizationType-form">
+            @Html.AntiForgeryToken()
+            <div class="col-sm-12 col-md-12 mb-2">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="flatpickr-input-container">
+                    <div class="form-floating">
+                        <input class="form-control" asp-for="TypeName" type="text" placeholder="@Html.SmartLocalize("Organization Type Name")" />
+                        <label asp-for="TypeName">@Html.SmartLocalize("Organization Type Name") <span style="color: red;">*</span></label>
+                    </div>
+                    <span id="nameError" class="text-danger" style="display:none;"></span>
+                </div>
+            </div>
+            <div class="col-12 mb-2">
+                <div class="flatpickr-input-container">
+                    <label class="form-label">Organization Type</label>
+                    <select asp-for="UseFor" id="UseFor" asp-items="ViewBag.OrganizationTypes">
+                        <option value="">Select Type</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-12 mb-2">
+                <div class="row g-3 justify-content-end">
+                    <div class="col-auto">
+                        <button type="reset" class="btn btn-phoenix-primary px-5" id="organizationType-resetBtn">@Html.SmartLocalize("Reset")</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary px-5 px-sm-15" id="organizationType-saveBtn">@Html.SmartLocalize("Save")</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -90,7 +90,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<GetModulesResult>("EXEC @returnValue = [dbo].[GetModules] @RoleId = @RoleId", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<GetModulesResult>("EXEC @returnValue = [dbo].[GetModules] @RoleId = @RoleId", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -134,7 +134,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<GetPaginatedEmployeeAttendanceResult>("EXEC @returnValue = [dbo].[GetPaginatedEmployeeAttendance] @Month = @Month, @Year = @Year, @PageNumber = @PageNumber, @PageSize = @PageSize", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<GetPaginatedEmployeeAttendanceResult>("EXEC @returnValue = [dbo].[GetPaginatedEmployeeAttendance] @Month = @Month, @Year = @Year, @PageNumber = @PageNumber, @PageSize = @PageSize", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -161,7 +161,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<GetUserByEmailResult>("EXEC @returnValue = [dbo].[GetUserByEmail] @Email = @Email", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<GetUserByEmailResult>("EXEC @returnValue = [dbo].[GetUserByEmail] @Email = @Email", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -201,6 +201,26 @@ namespace GCTL.Data.Models
                 parameterreturnValue,
             };
             var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[Prc_GetEmployeesPaged] @PageNumber = @PageNumber, @PageSize = @PageSize, @SearchTerm = @SearchTerm", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
+        public virtual async Task<int> SeedDateForSCAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                parameterreturnValue,
+            };
+            var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[SeedDateForSC]", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -251,7 +271,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<sp_GetAllEmployeeShiftsResult>("EXEC @returnValue = [dbo].[sp_GetAllEmployeeShifts] @pageNumber = @pageNumber, @pageSize = @pageSize, @searchTerm = @searchTerm, @daysToShow = @daysToShow, @startDate = @startDate", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_GetAllEmployeeShiftsResult>("EXEC @returnValue = [dbo].[sp_GetAllEmployeeShifts] @pageNumber = @pageNumber, @pageSize = @pageSize, @searchTerm = @searchTerm, @daysToShow = @daysToShow, @startDate = @startDate", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -278,7 +298,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<sp_GetUserPermissionsByRoleIdsResult>("EXEC @returnValue = [dbo].[sp_GetUserPermissionsByRoleIds] @RoleIds = @RoleIds", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_GetUserPermissionsByRoleIdsResult>("EXEC @returnValue = [dbo].[sp_GetUserPermissionsByRoleIds] @RoleIds = @RoleIds", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -305,7 +325,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<sp_InsertOrUpdateShiftsResult>("EXEC @returnValue = [dbo].[sp_InsertOrUpdateShifts] @ShiftInputs = @ShiftInputs", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_InsertOrUpdateShiftsResult>("EXEC @returnValue = [dbo].[sp_InsertOrUpdateShifts] @ShiftInputs = @ShiftInputs", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -345,7 +365,7 @@ namespace GCTL.Data.Models
             {
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<sp_ProcessFinalDailyAttendanceResult>("EXEC @returnValue = [dbo].[sp_ProcessFinalDailyAttendance]", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_ProcessFinalDailyAttendanceResult>("EXEC @returnValue = [dbo].[sp_ProcessFinalDailyAttendance]", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 
@@ -406,7 +426,7 @@ namespace GCTL.Data.Models
                 },
                 parameterreturnValue,
             };
-            var _ = await _context.SqlQueryToListAsync<sp_ProcessPunchResult>("EXEC @returnValue = [dbo].[sp_ProcessPunch] @enroll_id = @enroll_id, @CHECKTIME = @CHECKTIME, @DeviceSN = @DeviceSN, @SourceType = @SourceType, @Latitude = @Latitude, @Longitude = @Longitude", sqlParameters, cancellationToken);
+            var _ = await _context.SqlQueryAsync<sp_ProcessPunchResult>("EXEC @returnValue = [dbo].[sp_ProcessPunch] @enroll_id = @enroll_id, @CHECKTIME = @CHECKTIME, @DeviceSN = @DeviceSN, @SourceType = @SourceType, @Latitude = @Latitude, @Longitude = @Longitude", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 

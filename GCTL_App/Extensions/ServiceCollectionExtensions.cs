@@ -82,6 +82,7 @@ using GCTL.Service.HRMsettings.ProbationService;
 using GCTL.Service.ImageFileHandler;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.BloodGroups;
+using GCTL.Service.MasterSetup.CompanyTypes;
 using GCTL.Service.MasterSetup.Countries;
 using GCTL.Service.MasterSetup.Currency;
 using GCTL.Service.MasterSetup.Degrees;
@@ -328,6 +329,7 @@ namespace GCTL_App.Extensions
             services.AddScoped<ICreateJobService, CreateJobService>();
             services.AddScoped<IJobTypeService, JobTypeService>();
             services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IOrganizationTypeService, OrganizationTypeService>();
             #endregion
 
             services.AddHostedService<ScheduledTaskService>();

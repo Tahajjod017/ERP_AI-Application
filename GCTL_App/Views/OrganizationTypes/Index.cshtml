@@ -1,0 +1,36 @@
+﻿@model GCTL_App.ViewModels.MasterSetup.OrganizationTypes.OrganizationTypePageVM
+
+@{
+    ViewData["Title"] = @Html.SmartLocalize("Add Organization Type");
+}
+
+<div class="row g-2">
+    <div class="col-12 col-md-7 col-xl-5 col-xxl-5">
+        <partial name="_Form" model="Model.Setup" />
+    </div>
+
+    <div class="col-12 col-md-7 col-xl-7 col-xxl-7">
+        <partial name="_Table" />
+    </div>
+</div>
+
+<partial name="_ConfirmDelete" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/mastersetup/organizationType.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var options = {
+                baseUrl: '@Url.Action("", "OrganizationTypes")'
+            };
+            options.load = () => {
+
+            };
+
+            $.organizationType(options);
+        });
+    </script>
+}

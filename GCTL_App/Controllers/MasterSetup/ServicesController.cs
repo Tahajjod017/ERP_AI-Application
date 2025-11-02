@@ -1,10 +1,7 @@
 ﻿using GCTL.Core.Helpers;
-using GCTL.Core.ViewModels.MasterSetup.Genders;
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Service.Language;
-using GCTL.Service.MasterSetup.Gender;
 using GCTL.Service.MasterSetup.ServiceType;
-using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,7 +34,7 @@ namespace GCTL_App.Controllers.MasterSetup
             {
                 if (ModelState.IsValid)
                 {
-                    var uniqueName = await _serviceTypeService.IsNameUniqueAsync(model.ServiceName);
+                    var uniqueName = await _serviceTypeService.IsNameUniqueAsync(await GetCurrentOrganizationIdAsync() ?? 0, model.ServiceName);
                     if (!uniqueName)
                     {
                         return Json(new { isSuccess = false, message = "This name already exists!" });
@@ -91,7 +88,7 @@ namespace GCTL_App.Controllers.MasterSetup
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ServiceName", string sortOrder = "asc")
         {
             SetSmartPageCode(600300);
-            var result = await _serviceTypeService.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
+            var result = await _serviceTypeService.GetAllAsync(await GetCurrentOrganizationIdAsync() ?? 0, pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
 
             return Json(result);
         }
@@ -103,7 +100,7 @@ namespace GCTL_App.Controllers.MasterSetup
             SetSmartPageCode(600400);
             try
             {
-                var result = await _serviceTypeService.GetByIdAsync(id);
+                var result = await _serviceTypeService.GetByIdAsync(await GetCurrentOrganizationIdAsync() ?? 0, id);
                 if (result == null)
                 {
                     return Json(new { isSuccess = false, message = "No data found!" });
