@@ -129,11 +129,12 @@
    
 
     const fields = ["BCustomerID", "BName","BFirstName", "BPhone"];
-    const saveBtn = root.querySelector("#saveAndExit");
+    const saveBtn = root.querySelector("#bsave");
     if (saveBtn && !saveBtn.dataset.listenerAttached) {
         saveBtn.dataset.listenerAttached = true;
         if (saveBtn) {
-            saveBtn.addEventListener("click", async function () {
+            saveBtn.addEventListener("click", async function (e) {
+                e.preventDefault();
                 const form = this.closest("form");
                 if (!form) return;
 
