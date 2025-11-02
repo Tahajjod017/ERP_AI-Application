@@ -4,10 +4,12 @@ namespace GCTL.Core.ViewModels.CRM.Customer
 {
     public class BranchVM : BaseViewModel
     {
-        public int BID { get; set; }
+        public int Bid { get; set; }
+        [Required(ErrorMessage = "Branch name is required")]
         public string BName { get; set; }
-        public int BCustomerID { get; set; }
-
+        [Required(ErrorMessage = "Customer name is required")]
+        public int? BCustomerID { get; set; }
+        [Required(ErrorMessage = "First Name is required")]
         public string? BFirstName { get; set; }
 
         public string? BLastName { get; set; }
@@ -29,7 +31,7 @@ namespace GCTL.Core.ViewModels.CRM.Customer
         public decimal? BLatitude { get; set; }
 
         public decimal? BLongitude { get; set; }
-
+        [Required(ErrorMessage = "Phone number is required")]
         public string BPhone { get; set; }
 
         public string? BOtherPhone { get; set; }

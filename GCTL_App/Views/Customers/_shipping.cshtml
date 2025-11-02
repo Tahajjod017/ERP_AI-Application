@@ -9,124 +9,100 @@
 </style>
 <div data-init="initShippingForm">
     <div class="d-flex flex-column h-100 my-3">
-        <h5 class="mb-3 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Shipping</h5>
+        <h5 class="mb-2 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Shipping</h5>
         <div class="row g-3">
             <form id="WarehouseForm" action="/Customers/SaveShipping" method="post">
                 <input type="hidden" asp-for="SID" value="0"/>
                 <div class="row px-5">
                     <!-- Left Section -->
                     <div class="col-md-6">
-                        <div class="col-12">
-                            <div class="mb-3 form-floating form-floating-advance-select select2-floating">
-                                <select asp-for="SCustomerID" id="SCustomerID" class="select2">
-                                    <option value="">Select Customer</option>
+                        <div class="col-12 mb-2">
+                            <label class="form-label">Customer Name</label>
+                            <select asp-for="SCustomerID" id="SCustomerID" class="select2">
+                                <option value="">Select Customer</option>
 
-                                </select>
-                                <label for="customerID">Customer Name</label>
-                            </div>
+                            </select>
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="SFirstName" class="form-control" placeholder="">
-                                    <label class="form-label req">First Name</label>
-                                </div>
+                            <div class="col-md-6 pe-1 col-sm-6 mb-2">
+                                <label class="form-label req">First Name</label>
+                                <input type="text" asp-for="SFirstName" class="form-control" placeholder="">
                             </div>
-                            <div class="col-md-6 ps-1 col-sm-6">
-                                <div class="mb-3 form-floating">
-                                    <input type="text" asp-for="SLastName" class="form-control" placeholder="">
-                                    <label class="form-label">Last Name</label>
-                                </div>
+                            <div class="col-md-6 ps-1 col-sm-6 mb-2">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" asp-for="SLastName" class="form-control" placeholder="">
                             </div>
                         </div>
-                        <div class="col-12 mb-3">
+                        <div class="col-12 mb-2">
+                            <label class="form-label">Phone</label>
                             <input class="form-control" asp-for="SPhone" type="tel" placeholder="Phone Number" />
                             <div class="text-danger" id="errorShow"></div>
                         </div>
-                        <div class="col-12 mb-3">
+                        <div class="col-12 mb-2">
+                            <label class="form-label">Other Phone</label>
                             <input class="form-control" id="bOtherPhone" type="tel" placeholder="Other Phone" />
                             <div class="text-danger" id="errorShow"></div>
                         </div>
                         <div class="col-12">
-                            <div class="mb-3 form-floating">
-                                <input type="text" asp-for="SEmail" class="form-control" placeholder="">
-                                <label class="form-label">Email</label>
-                                <div class="text-danger" id="errorShow"></div>
-                            </div>
+                            <label class="form-label">Email</label>
+                            <input type="text" asp-for="SEmail" class="form-control" placeholder="">
+                            <div class="text-danger" id="errorShow"></div>
                         </div>
                     </div>
                     <!-- Right Section -->
                     <div class="col-md-6">
-                        <div class="col-md-12">
-                            <div class="mb-3 form-floating">
-                                <input type="text" asp-for="SFullAddress" class="form-control" placeholder="Address">
-                                <label class="form-label">Full Address</label>
-                            </div>
+                        <div class="col-md-12 mb-2">
+                            <label class="form-label">Full Address</label>
+                            <input type="text" asp-for="SFullAddress" class="form-control" placeholder="Address">
                         </div>
                         <div class="col-md-12">
                             <div class="row">
-                                <div class="col-md-6 pe-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="SStreet" class="form-control" placeholder="Street">
-                                        <label class="form-label">Street</label>
-                                    </div>
+                                <div class="col-md-6 pe-1 col-sm-6 mb-2">
+                                    <label class="form-label">Street</label>
+                                    <input type="text" asp-for="SStreet" class="form-control" placeholder="Street">
                                 </div>
-                                <div class="col-md-6 ps-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="SCity" class="form-control" placeholder="City">
-                                        <label class="form-label">City</label>
-                                    </div>
+                                <div class="col-md-6 ps-1 col-sm-6 mb-2">
+                                    <label class="form-label">City</label>
+                                    <input type="text" asp-for="SCity" class="form-control" placeholder="City">
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="row">
-                                <div class="col-md-6 pe-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="SAdditionaladdress" class="form-control" placeholder="">
-                                        <label class="form-label">Additional Address</label>
-                                    </div>
+                                <div class="col-md-6 pe-1 col-sm-6 mb-2">
+                                    <label class="form-label">Additional Address</label>
+                                    <input type="text" asp-for="SAdditionaladdress" class="form-control" placeholder="">
                                 </div>
-                                <div class="col-md-6 ps-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="SState" class="form-control" placeholder="">
-                                        <label class="form-label">State/Province</label>
-                                    </div>
+                                <div class="col-md-6 ps-1 col-sm-6 mb-2">
+                                    <label class="form-label">State/Province</label>
+                                    <input type="text" asp-for="SState" class="form-control" placeholder="">
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="row">
-                                <div class="col-md-6 pe-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input asp-for="SPostalCode" type="text" class="form-control" placeholder="">
-                                        <label class="form-label">Zip/Postal Code</label>
-                                    </div>
+                                <div class="col-md-6 pe-1 col-sm-6 mb-2">
+                                    <label class="form-label">Zip/Postal Code</label>
+                                    <input asp-for="SPostalCode" type="text" class="form-control" placeholder="">
                                 </div>
-                                <div class="col-md-6 ps-1 col-sm-6">
-                                    <div class="form-floating form-floating-advance-select select2-floating">
-                                        <select asp-for="SCountryID" id="SCountryID" class="searchableSelect select2">
-                                            <option value="">Select Country</option>
-                                        </select>
-                                        <label for="priorityID">Country</label>
-                                    </div>
+                                <div class="col-md-6 ps-1 col-sm-6 mb-2">
+                                    <label class="form-label">Country</label>
+                                    <select asp-for="SCountryID" id="SCountryID" class="searchableSelect select2">
+                                        <option value="">Select Country</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-12">
                             <div class="row">
-                                <div class="col-md-6 pe-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="SLatitude" class="form-control" placeholder="">
-                                        <label class="form-label">Latitude</label>
-                                    </div>
+                                <div class="col-md-6 pe-1 col-sm-6 mb-2">
+                                    <label class="form-label">Latitude</label>
+                                    <input type="text" asp-for="SLatitude" class="form-control" placeholder="">
                                 </div>
-                                <div class="col-md-6 ps-1 col-sm-6">
-                                    <div class="mb-3 form-floating">
-                                        <input type="text" asp-for="SLongitude" class="form-control" placeholder="">
-                                        <label class="form-label">Longitude</label>
-                                    </div>
+                                <div class="col-md-6 ps-1 col-sm-6 mb-2">
+                                    <label class="form-label">Longitude</label>
+                                    <input type="text" asp-for="SLongitude" class="form-control" placeholder="">
                                 </div>
                             </div>
                         </div>
@@ -134,8 +110,7 @@
 
                 </div>
                 <div class="modal-footer border-0 pt-0 pb-2 mx-5 gap-2">
-                    <button type="button" class="btn btn-light" id="saveAndgoWarehouseTab">Save & Add Shipping Address</button>
-                    <button type="button" class="btn btn-primary" id="saveAndExit">Save & Exit</button>
+                    <button type="button" class="btn btn-primary" id="saveAndExit">Save</button>
                 </div>
             </form>
         </div>

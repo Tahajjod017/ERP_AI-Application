@@ -67,8 +67,9 @@ $(document).on('click', '#confirmDeleteBtn', function () {
 
 $(document).on('click', '#designationIDEditButton', function () {
     var designationID = $(this).data('id');
-    $('#edit_designation_setting').modal('show'); // Show the delete confirmation modal
-
+   // $('#edit_designation_setting').modal('show'); // Show the delete confirmation modal
+    var myModal = new bootstrap.Modal(document.getElementById('edit_designation_setting'));
+    myModal.show();
     // Store the ID in the hidden input field
     $('#DesignationIDEdit').val(designationID);
 
@@ -239,8 +240,7 @@ function loadTableData(sortColumn, sortOrder) {
                                id="designationIDEditButton"
                                data-id="${item.designationID}"
                                class="btn btn-outline-light btn-icon me-1 " 
-                               data-bs-toggle="modal" 
-                               data-bs-target="#edit_leaves"
+                              
                               >
                                <i class="fas fa-edit text-black"></i>
                         </a>

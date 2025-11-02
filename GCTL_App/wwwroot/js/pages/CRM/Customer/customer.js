@@ -1,16 +1,29 @@
-﻿window.initCustomerForm = function (root) {
+﻿window.itiMap = window.itiMap || {};
+
+window.initCustomerForm = function (root) {
     root = root || document;
 
-    //if (window.initCommonFields) initCommonFields(root);
+    function initPhoneFields() {
+        const phoneIds = [
+            `#Phone`, `#OtherPhone`
+        ];
 
+        phoneIds.forEach(selector => {
+            const input = document.querySelector(selector);
+            if (!input || window.itiMap[selector]) return; // use window.itiMap safely
 
+            const iti = window.intlTelInput(input, {
+                separateDialCode: true,
+                initialCountry: 'bd',
+                preferredCountries: ['bd', 'in', 'us'],
+                utilsScript: "js/utils.js"
+            });
 
-    //const countrySelect = root.querySelector('#CountryID');
-    ////alert("customer")
+            window.itiMap[selector] = iti; // store instance
+        });
+    }
 
-    ////const form = root.querySelector("#customerForm");
-    //const saveBtn = root.querySelector("#saveAndExit");
-
+    initPhoneFields();
 
     const countrySelect = root.querySelector("#CountryID");
     if (countrySelect && !countrySelect.dataset.listenerAttached) {
@@ -43,6 +56,38 @@
             width: '100%',
         });
     }
+
+    const compnayTypeSelect = root.querySelector("#CompanyType");
+    if (compnayTypeSelect && !compnayTypeSelect.dataset.listenerAttached) {
+        compnayTypeSelect.dataset.listenerAttached = true;
+        let dropdownParent = $(compnayTypeSelect).closest('.modal');
+        if (dropdownParent.length === 0) {
+            dropdownParent = $(document.body);
+        }
+
+        $(compnayTypeSelect).select2({
+            placeholder: 'Select Type',
+            dropdownParent: dropdownParent,
+            ajax: {
+                url: '/CreateJobs/GetCountryList',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { search: params.term || '', page: params.page || 1 };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results,
+                        pagination: { more: data.pagination.more }
+                    };
+                },
+                cache: true
+            },
+            width: '100%',
+        });
+    }
+
     const fields = ["FirstName", "Phone"];
 
     const saveBtn = root.querySelector("#saveAndExit");
@@ -128,63 +173,62 @@
 
         return isValid;
     }
-    var currentPage = 1;
-    var pageSize = 5;
-    let currentSortColumn = 'CustomerName';
-    let currentSortOrder = 'asc';
-    function loadTableData(currentSortColumn, currentSortOrder) {
-        var searchTerm = $("#gender-searchInput").val();
+    function setFormValues(form, jsonData) {
+        Object.keys(jsonData).forEach(key => {
+            const input = form.querySelector(`[name="${key}"]`);
+            if (!input) return; // skip if input not found
 
-        $.ajax({
-            url: '/Customers/GetAll',
-            method: 'GET',
-            data: {
-                pageNumber: currentPage,
-                pageSize: pageSize,
-                searchTerm: searchTerm,
-                sortColumn: sortColumn,
-                sortOrder: sortOrder
-            },
-            success: function (response) {
-                showDev(response);
-                var tableBody = $("#gender-tBody");
-                tableBody.empty();
-                if (response.data.length > 0) {
-                    response.data.forEach(function (item, index) {
-                        var rowIndex = (currentPage - 1) * pageSize + index + 1;
-                        tableBody.append(`
-                        <tr class="position-static">
-                            <td class="text-center text-middle align-middle" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input gender-selectItem" data-id="${item.genderID}" />
-                            </td>
-                            <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.genderName}</td>
-                            <td class="align-middle text-end white-space-nowrap pe-2">
-                                <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 gender-bulkDelete" href="#!" id="gender-edit" data-id="${item.genderID}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 gender-bulkEdit" href="#!" id="gender-single-delete" data-id="${item.genderID}"><span class="fas fa-trash"></span></a>
-                                </div>
-                            </td>
-                        </tr>
-                    `);
-                    });
-                } else {
-                    tableBody.append('<tr><td colspan="7" class="text-center">No data available</td></tr>');
-                }
+            const value = jsonData[key] ?? ""; // fallback to empty string if null
 
-                var paginationInfo = response.paginationInfo;
-
-                $("#gender-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-                $("#gender-totalCount").text(`(${paginationInfo.totalItems})`);
-
-                updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
-            },
-            error: function () {
-                console.log("Error! Fetching all data.");
+            // Handle different input types
+            if (input.type === "checkbox") {
+                input.checked = !!value;
+            } else if (input.type === "radio") {
+                const radio = form.querySelector(`input[name="${key}"][value="${value}"]`);
+                if (radio) radio.checked = true;
+            } else {
+                input.value = value;
             }
         });
-
-        
     }
-    loadTableData(currentSortColumn, currentSortOrder);
+
+    const contactInit = root.querySelector("#contact-btn");
+    if (contactInit && !contactInit.dataset.listenerAttached) {
+        contactInit.dataset.listenerAttached = true;
+        let dropdownParent = $(contactInit).closest('.modal');
+        if (dropdownParent.length === 0) {
+            dropdownParent = $(document.body);
+        }
+        $("#contact-btn").on("click", function (e) {
+            e.preventDefault();
+
+            let rootHtmlDiv = $("#root-cotact-field");
+            const html = `
+        <div class="row gap-2 mx-2">
+            <div class="col p-0 mb-2">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" placeholder="">
+            </div>
+            <div class="col p-0 mb-2">
+                <label class="form-label">Designation</label>
+                <input type="text" class="form-control" placeholder="">
+            </div>
+            <div class="col p-0 mb-2">
+                <label class="form-label">Phone 1</label>
+                <input type="text" class="form-control" placeholder="">
+            </div>
+            <div class="col p-0 mb-2">
+                <label class="form-label">Phone 2</label>
+                <input type="text" class="form-control" placeholder="">
+            </div>
+            <div class="col p-0 mb-2">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" placeholder="">
+            </div>
+        </div>
+    `;
+
+            rootHtmlDiv.append(html);
+        });
+    }
 };

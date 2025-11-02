@@ -1,16 +1,37 @@
 ﻿window.initBranchForm = function (root) {
     root = root || document;
+
+    function initPhoneFields() {
+        const phoneIds = [
+            `#BPhone`, `#bOtherPhone`
+        ];
+
+        phoneIds.forEach(selector => {
+            const input = document.querySelector(selector);
+            if (!input || window.itiMap[selector]) return; // use window.itiMap safely
+
+            const iti = window.intlTelInput(input, {
+                separateDialCode: true,
+                initialCountry: 'bd',
+                preferredCountries: ['bd', 'in', 'us'],
+                utilsScript: "js/utils.js"
+            });
+
+            window.itiMap[selector] = iti;
+        });
+    }
+
+    initPhoneFields();
+
+
     const customerSelect = root.querySelector('#BCustomerID');
-    //alert("customer")
 
     if (customerSelect && !customerSelect.dataset.select2Initialized) {
-        // 🔥 Smart dropdown parent: modal if inside one, else body
         let dropdownParent = $(customerSelect).closest('.modal');
         if (dropdownParent.length === 0) {
             dropdownParent = $(document.body);
         }
 
-        //#region customer serach field
         $(customerSelect).select2({
             placeholder: 'Select Customer',
             dropdownParent: dropdownParent,
@@ -75,21 +96,51 @@
             width: '100%',
         });
     }
+    const branchTypeSelect = root.querySelector("#BranchType");
+    if (branchTypeSelect && !branchTypeSelect.dataset.listenerAttached) {
+        branchTypeSelect.dataset.listenerAttached = true;
+        let dropdownParent = $(branchTypeSelect).closest('.modal');
+        if (dropdownParent.length === 0) {
+            dropdownParent = $(document.body);
+        }
+
+        $(branchTypeSelect).select2({
+            placeholder: 'Select Type',
+            dropdownParent: dropdownParent,
+            ajax: {
+                url: '/CreateJobs/GetCountryList',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { search: params.term || '', page: params.page || 1 };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results,
+                        pagination: { more: data.pagination.more }
+                    };
+                },
+                cache: true
+            },
+            width: '100%',
+        });
+    }
+   
 
     const fields = ["BCustomerID", "BName","BFirstName", "BPhone"];
-    const saveBtn = root.querySelector("#saveAndExit");
+    const saveBtn = root.querySelector("#bsave");
     if (saveBtn && !saveBtn.dataset.listenerAttached) {
         saveBtn.dataset.listenerAttached = true;
         if (saveBtn) {
-            saveBtn.addEventListener("click", async function () {
+            saveBtn.addEventListener("click", async function (e) {
+                e.preventDefault();
                 const form = this.closest("form");
                 if (!form) return;
 
-                // Convert FormData → JSON
                 const formData = new FormData(form);
                 const jsonData = {};
                 formData.forEach((value, key) => {
-                    // Optional: Convert empty string to null for numbers
                     jsonData[key] = value === "" ? null : value;
                 });
                 console.log("Customer data (sending):", jsonData);

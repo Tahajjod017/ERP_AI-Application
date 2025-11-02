@@ -344,26 +344,26 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AddShift
 
 
         #region GetByIdAsync
-        public async Task<ShiftUpdateSetupVM> GetByIdAsync(int id)
+        public async Task<GetByIdShiftVM> GetByIdAsync(int id)
         {
             try
             {
                 var data = await _genericRepository.GetByIdAsync(id);
                 if (data == null) return null;
 
-                return new ShiftUpdateSetupVM
+                return new GetByIdShiftVM
                 {
                     UpdateShiftID = data.ShiftID,
                     UpdateShiftName = data.ShiftName,
                     UpdateOrganizationID = data.OrganizationID,
-                    UpdateStartTime = data.StartTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(data.StartTime.Value, _localizationContext) : null,
-                    UpdateEndTime = data.EndTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(data.EndTime.Value, _localizationContext) : null,
+                    UpdateStartTime = data.StartTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(data.StartTime.Value, _localizationContext) : null,
+                    UpdateEndTime = data.EndTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(data.EndTime.Value, _localizationContext) : null,
                     UpdateIsLateCount = data.IsLateCount,
                     UpdateIsAutomaticORManualBreakTime = data.IsAutomaticORManualBreakTime,
                     UpdateIsMBCompulsaryOrComplementaryDeductWithShift = data.IsMealBreakCompulsaryOrComplementaryDeductWithShift,
                     UpdateIsAllowStartAndEndTime = data.IsAllowStartAndEndTime,
-                    UpdateMealBreakStartTime = data.MealBreakStartTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(data.MealBreakStartTime.Value, _localizationContext) : null,
-                    UpdateMealBreakEndTime = data.MealBreakEndTime.HasValue ? TimeConversionHelper.ConvertTimeOnlyToUtc(data.MealBreakEndTime.Value, _localizationContext) : null,
+                    UpdateMealBreakStartTime = data.MealBreakStartTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(data.MealBreakStartTime.Value, _localizationContext) : null,
+                    UpdateMealBreakEndTime = data.MealBreakEndTime.HasValue ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(data.MealBreakEndTime.Value, _localizationContext) : null,
                     UpdateIsAllowOvertime = data.IsAllowOvertime,
                     UpdateGraceTimeHour = data.GraceTime / 60,
                     UpdateGraceTimeMinute = data.GraceTime % 60,

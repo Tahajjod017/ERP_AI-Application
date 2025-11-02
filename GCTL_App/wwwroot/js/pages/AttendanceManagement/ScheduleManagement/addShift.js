@@ -288,8 +288,12 @@
                             $(settings.updateform).find('#UpdateShiftID').val(data.updateShiftID);
                             $(settings.updateform).find('#UpdateShiftName').val(data.updateShiftName);
                             $(settings.updateform).find('#UpdateOrganizationID').val(data.updateOrganizationID).trigger('change');
-                            $(settings.updateform).find('#UpdateStartTime')[0]._flatpickr.setDate(data.updateStartTime); 
-                            $(settings.updateform).find('#UpdateEndTime')[0]._flatpickr.setDate(data.updateEndTime); 
+
+                            $(settings.updateform).find('#UpdateStartTime')[0]._flatpickr.setDate(parseTime12hToDate(data.updateStartTime));
+                            $(settings.updateform).find('#UpdateEndTime')[0]._flatpickr.setDate(parseTime12hToDate(data.updateEndTime));
+                            $(settings.updateform).find('#UpdateMealBreakStartTime')[0]._flatpickr.setDate(parseTime12hToDate(data.updateMealBreakStartTime));
+                            $(settings.updateform).find('#UpdateMealBreakEndTime')[0]._flatpickr.setDate(parseTime12hToDate(data.updateMealBreakEndTime)); 
+
                             $(settings.updateform).find('#UpdateIsLateCount').prop('checked', data.updateIsLateCount);
                             if ($('#UpdateIsLateCount').is(':checked')) {
                                 $('#addShift-UpdateGraceTimeDiv').removeClass('d-none');
@@ -329,8 +333,7 @@
                                 $('#addShift-UpdateAllowStartEndTime').removeClass('d-none');
                                 $('#addShift-UpdateDenyStartEndTime').addClass('d-none');
                             }
-                            $(settings.updateform).find('#UpdateMealBreakStartTime')[0]._flatpickr.setDate(data.updateMealBreakStartTime); 
-                            $(settings.updateform).find('#UpdateMealBreakEndTime')[0]._flatpickr.setDate(data.updateMealBreakEndTime); 
+                            
                             $(settings.updateform).find('#UpdateIsAllowOvertime').prop('checked', data.updateIsAllowOvertime);
                             if ($('#UpdateIsAllowOvertime').is(':checked')) {
                                 $('#addShift-UpdateOvertimeDiv').removeClass('d-none');
@@ -738,7 +741,9 @@
             }
             // #endregion
 
-
+            function parseTime12hToDate(time12h) {
+                return flatpickr.parseDate(time12h, "h:i K");
+            }
             // #region flatpicker
             $(".timepicker-12hr").flatpickr({
                 enableTime: true,       // ✅ Enables time selection (hours & minutes)

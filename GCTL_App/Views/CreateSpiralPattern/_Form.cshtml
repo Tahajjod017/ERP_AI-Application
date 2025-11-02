@@ -1,11 +1,13 @@
 ﻿@model GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern.CreateSpiralPatternVM
 
-<div class="card">
-    <div class="container mt-4">
+<div class="card mb-2">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <h3>@Html.SmartLocalize("Create Spiral Pattern")</h3>
+        </div>
+    </div>
+    <div class="card-body">
         <form asp-controller="CreateSpiralPattern" asp-action="Create" id="createSpiralPattern-form" enctype="multipart/form-data">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <h3>@Html.SmartLocalize("Create Spiral Pattern")</h3>
-            </div>
             <div class="d-flex justify-content-between align-items-center mb-1">
                 <div class="col-md-3">
                     <label asp-for="OrganizationID" class="form-label">@Html.SmartLocalize("Select Organization")</label>
@@ -196,7 +198,7 @@
             </div>
             <span id="SpiralPatternNameError" class="text-danger" style="display:none;"></span>
 
-            <div class="col-12 pb-2 pt-3">
+            <div class="col-12 pb-2 pt-2">
                 <div class="row g-3 justify-content-end">
                     <div class="col-auto">
                         <button type="reset" class="btn btn-phoenix-primary px-5" id="createSpiralPattern-resetBtn">@Html.SmartLocalize("Reset")</button>

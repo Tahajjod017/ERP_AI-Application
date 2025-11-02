@@ -308,9 +308,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                 }
 
                 var result = await PaginationService<DefaultShifts, AssignDefaultShiftSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
-                    term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%")
-                    || EF.Functions.Like(x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Organization.OrganizationName, $"%{term}%")
-                    || EF.Functions.Like(x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName, $"%{term}%")
+                    term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%") 
+                    || EF.Functions.Like(x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Organization.OrganizationName, $"%{term}%") 
+                    || EF.Functions.Like(x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName, $"%{term}%") 
                     || EF.Functions.Like(x.Employee.FirstName, $"%{term}%"),
                     x => new AssignDefaultShiftSetupVM
                     {
