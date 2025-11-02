@@ -71,10 +71,9 @@ namespace GCTL.Service.Finance.AddJournal
                 await _genericRepository.BeginTransactionAsync();
 
                 Journals entity = new Journals();
-                entity.JournalCode = model.JournalCode;
+                entity.JournalCode = await GenerateSixDigitCodeAsync();
                 entity.JournalTypeID = model.JournalTypeID;
                 entity.PostingRuleID = model.PostingRuleID;
-                entity.FinancialYearID = model.FinancialYearID;
                 entity.JournalDate = model.JournalDate;
                 entity.Note = model.Note;
                 //entity.FileLink = model.FileLink;
@@ -154,7 +153,6 @@ namespace GCTL.Service.Finance.AddJournal
                     .Include(x => x.JournalDetails)
                     .Include(x => x.JournalType)
                     .Include(x => x.PostingRule)
-                    .Include(x => x.FinancialYear)
                     .AsNoTracking()
                     .Where(x => x.DeletedAt == null && x.DeletedBy == null);
 
@@ -165,7 +163,6 @@ namespace GCTL.Service.Finance.AddJournal
                         "JournalID" => sortOrder == "desc" ? query.OrderByDescending(x => x.JournalID) : query.OrderBy(x => x.JournalID),
                         "JournalCode" => sortOrder == "desc" ? query.OrderByDescending(x => x.JournalCode) : query.OrderBy(x => x.JournalCode),
                         "JournalTypeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.JournalType.JournalTypeName) : query.OrderBy(x => x.JournalType.JournalTypeName),
-                        "YearName" => sortOrder == "desc" ? query.OrderByDescending(x => x.FinancialYear.YearName) : query.OrderBy(x => x.FinancialYear.YearName),
                         "ScenarioName" => sortOrder == "desc" ? query.OrderByDescending(x => x.PostingRule.ScenarioName) : query.OrderBy(x => x.PostingRule.ScenarioName),
                         "Note" => sortOrder == "desc" ? query.OrderByDescending(x => x.Note) : query.OrderBy(x => x.Note),
                         "JournalDate" => sortOrder == "desc" ? query.OrderByDescending(x => x.JournalDate) : query.OrderBy(x => x.JournalDate),
@@ -178,15 +175,13 @@ namespace GCTL.Service.Finance.AddJournal
                     || EF.Functions.Like(x.JournalType.JournalTypeName, $"%{term}%")
                     || EF.Functions.Like(x.PostingRule.ScenarioName, $"%{term}%")
                     || EF.Functions.Like(x.Note, $"%{term}%")
-                    || EF.Functions.Like(x.JournalDate, $"%{term}%")
-                    || EF.Functions.Like(x.FinancialYear.YearName, $"%{term}%"),
+                    || EF.Functions.Like(x.JournalDate, $"%{term}%"),
                     x => new GetAllAddJournalVM
                     {
                         JournalID = x.JournalID,
                         JournalCode = x.JournalCode,
                         JournalType = x.JournalType?.JournalTypeName ?? "-",
                         PostingRule = x.PostingRule?.ScenarioName ?? "-",
-                        FinancialYear = x.FinancialYear.YearName ?? "-",
                         JournalDate = x.JournalDate.HasValue ? x.JournalDate.Value.ToString("dd/MM/yyyy") : "-",
                         Note = x.Note ?? "-",
                         FileLink = x.FileLink ?? "-",
@@ -274,7 +269,7 @@ namespace GCTL.Service.Finance.AddJournal
                 var lastCode = await _genericRepository.AllActive().OrderByDescending(x => x.JournalCode).Select(x => x.JournalCode).FirstOrDefaultAsync();
                 if (string.IsNullOrEmpty(lastCode))
                 {
-                    return "00001";
+                    return "000001";
                 }
                 var lastNumber = int.Parse(lastCode.Substring(1));
 

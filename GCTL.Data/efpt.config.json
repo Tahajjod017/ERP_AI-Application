@@ -104,6 +104,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Customer].[OrganizationTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[OtherContacts]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[ActionLogs]",
          "ObjectType": 0
       },
@@ -737,6 +745,10 @@
       },
       {
          "Name": "[dbo].[Prc_GetEmployeesPaged]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[SeedDateForSC]",
          "ObjectType": 1
       },
       {

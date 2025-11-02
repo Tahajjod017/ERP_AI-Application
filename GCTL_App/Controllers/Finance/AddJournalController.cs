@@ -84,7 +84,7 @@ namespace GCTL_App.Controllers.Finance
                     });
                 }
 
-                var orderedKeys = new[] { "JournalTypeID", "JournalCode", "PostingRuleID", "FinancialYearID", "JournalDate", "CreateJournalDetailsVMs", "TrxType", "Amount" };
+                var orderedKeys = new[] { "JournalTypeID", "JournalCode", "PostingRuleID", "JournalDate", "CreateJournalDetailsVMs", "TrxType", "Amount" };
 
                 foreach (var key in orderedKeys)
                 {
