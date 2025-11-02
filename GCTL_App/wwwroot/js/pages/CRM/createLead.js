@@ -174,6 +174,40 @@ $(function () {
     });
     //#endregion
 
+    //#region GetServiceList
+    $('#serviceTypes').select2({
+        placeholder: 'Select Service Item',
+        width: '100%',
+        ajax: {
+            url: '/CreateLead/GetServiceList',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || '',
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+
+                return {
+                    results: data.items.map(item => ({
+                        id: item.value,
+                        text: item.label
+                    })),
+                    pagination: {
+                        more: data.hasMore
+                    }
+                };
+            },
+            cache: true
+        },
+        
+        width: '100%'
+    });
+    //#endregion
+
     //#region get Lead Owner
     $('#leadOwnerId').select2({
         placeholder: 'Select Lead Owner',

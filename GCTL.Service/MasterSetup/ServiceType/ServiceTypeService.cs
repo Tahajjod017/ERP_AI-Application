@@ -35,6 +35,7 @@ namespace GCTL.Service.MasterSetup.ServiceType
                     var entityToRestore = existingEntity.FirstOrDefault();
 
                     entityToRestore.ServiceName = model.ServiceName;
+                    entityToRestore.OrganizationID = model.OrganizationID;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
                     entityToRestore.LIP = model.LIP;
@@ -55,6 +56,7 @@ namespace GCTL.Service.MasterSetup.ServiceType
                     entity.CreatedBy = model.CreatedBy;
                     entity.LIP = model.LIP;
                     entity.LMAC = model.LMAC;
+                    entity.OrganizationID = model.OrganizationID;
 
                     await _genericRepository.AddAsync(entity);
                     await _userInfoService.ActionLogAsync("Services", ActionName.DataAdd, null, entity, entity.ServiceID, model);
@@ -74,10 +76,10 @@ namespace GCTL.Service.MasterSetup.ServiceType
         #endregion
 
         #region GetAllAsync
-        public async Task<PaginationService<Services, ServiceVM>.PaginationResult<ServiceVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ServiceName", string sortOrder = "asc")
+        public async Task<PaginationService<Services, ServiceVM>.PaginationResult<ServiceVM>> GetAllAsync(int organizationID , int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ServiceName", string sortOrder = "asc")
         {
             var query = _genericRepository.All();
-            query = query.Where(x => x.DeletedAt == null);
+            query = query.Where(x => x.DeletedAt == null && x.OrganizationID == organizationID);
 
             if (!string.IsNullOrEmpty(sortColumn))
             {
@@ -100,9 +102,9 @@ namespace GCTL.Service.MasterSetup.ServiceType
         #endregion
 
         #region IsNameUniqueAsync
-        public async Task<bool> IsNameUniqueAsync(string name)
+        public async Task<bool> IsNameUniqueAsync(int organizationID, string name)
         {
-            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.ServiceName != null);
+            var existingNames = await _genericRepository.FindAsync(b => b.DeletedAt == null && b.ServiceName != null && b.OrganizationID == organizationID);
 
             var nameList = existingNames.Select(b => b.ServiceName);
 
@@ -111,11 +113,11 @@ namespace GCTL.Service.MasterSetup.ServiceType
         #endregion;
 
         #region Get
-        public async Task<ServiceVM> GetByIdAsync(int id)
+        public async Task<ServiceVM> GetByIdAsync(int organizationID, int id)
         {
             try
             {
-                var data = await _genericRepository.GetByIdAsync(id);
+                var data = await _genericRepository.FirstOrDefaultAsync(u=> u.ServiceID == id && u.OrganizationID == organizationID);
                 if (data == null) return null;
 
                 return new ServiceVM
@@ -151,6 +153,7 @@ namespace GCTL.Service.MasterSetup.ServiceType
                 entity.UpdatedBy = model.UpdatedBy;
                 entity.LIP = model.LIP;
                 entity.LMAC = model.LMAC;
+                entity.OrganizationID = model.OrganizationID;
 
                 await _genericRepository.UpdateAsync(entity);
 
@@ -175,7 +178,7 @@ namespace GCTL.Service.MasterSetup.ServiceType
             await _genericRepository.BeginTransactionAsync();
             try
             {
-                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.ServiceID));
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.ServiceID) && x.OrganizationID == requestVM.OrganizationID);
                 if (data == null || data.Count == 0)
                 {
                     return new ServiceVM

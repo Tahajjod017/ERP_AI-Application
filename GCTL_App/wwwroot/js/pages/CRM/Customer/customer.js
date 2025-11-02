@@ -206,7 +206,11 @@ window.initCustomerForm = function (root) {
             const html = `
         <div class="row gap-2 mx-2">
             <div class="col p-0 mb-2">
-                <label class="form-label">Name</label>
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-control" placeholder="">
+            </div>
+            <div class="col p-0 mb-2">
+                <label class="form-label">Last Name</label>
                 <input type="text" class="form-control" placeholder="">
             </div>
             <div class="col p-0 mb-2">
@@ -230,5 +234,57 @@ window.initCustomerForm = function (root) {
 
             rootHtmlDiv.append(html);
         });
+    }
+
+    // #region Google Maps Autocomplete
+    const mapApiInit = root.querySelector("#FullAddress");
+    if (mapApiInit && !mapApiInit.dataset.listenerAttached) {
+        mapApiInit.dataset.listenerAttached = true;
+        let dropdownParent = $(mapApiInit).closest('.modal');
+        if (dropdownParent.length === 0) {
+            dropdownParent = $(document.body);
+            function initAutocomplete() {
+                const input = document.getElementById("FullAddress");
+                if (!input) return;
+
+                const autocomplete = new google.maps.places.Autocomplete(input, {
+                    types: ["establishment"],
+                    fields: ["place_id", "name", "formatted_address", "address_components", "geometry"]
+                });
+
+                autocomplete.addListener("place_changed", () => {
+                    const place = autocomplete.getPlace();
+                    let street_number = "", city = "", state = "", countryName = "", postal_code = "", route = "", countryCode = "";
+
+                    for (const component of place.address_components) {
+                        if (component.types.includes("street_number")) street_number = component.long_name;
+                        if (component.types.includes("route")) route = component.long_name;
+                        if (component.types.includes("postal_code")) postal_code = component.long_name;
+                        if (component.types.includes("locality")) city = component.long_name;
+                        if (component.types.includes("administrative_area_level_1")) state = component.short_name;
+                        if (component.types.includes("country")) {
+                            countryName = component.long_name;
+                            countryCode = component.short_name;
+                        }
+                    }
+
+                    const lat = place.geometry.location.lat();
+                    const lng = place.geometry.location.lng();
+                    const fullStreet = `${street_number} ${route}`.trim();
+
+                    $("#CompnayName").val(place.name || "");
+
+                    $("#City").val(city);
+                    $("#State").val(state);
+                    //$("#").val(countryCode);
+                    $("#PostalCode").val(postal_code);
+                    $("#Latitude").val(lat);
+                    $("#Longitude").val(lng);
+                    $("#Street").val(fullStreet);
+                });
+            }
+            //#endregion
+        }
+        initAutocomplete()
     }
 };
