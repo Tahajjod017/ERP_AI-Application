@@ -192,4 +192,43 @@ window.initCustomerForm = function (root) {
         });
     }
 
+    const contactInit = root.querySelector("#contact-btn");
+    if (contactInit && !contactInit.dataset.listenerAttached) {
+        contactInit.dataset.listenerAttached = true;
+        let dropdownParent = $(contactInit).closest('.modal');
+        if (dropdownParent.length === 0) {
+            dropdownParent = $(document.body);
+        }
+        $("#contact-btn").on("click", function (e) {
+            e.preventDefault();
+
+            let rootHtmlDiv = $("#root-cotact-field");
+            const html = `
+        <div class="row gap-2 mx-2">
+            <div class="col p-0 mb-2">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" placeholder="">
+            </div>
+            <div class="col p-0 mb-2">
+                <label class="form-label">Designation</label>
+                <input type="text" class="form-control" placeholder="">
+            </div>
+            <div class="col p-0 mb-2">
+                <label class="form-label">Phone 1</label>
+                <input type="text" class="form-control" placeholder="">
+            </div>
+            <div class="col p-0 mb-2">
+                <label class="form-label">Phone 2</label>
+                <input type="text" class="form-control" placeholder="">
+            </div>
+            <div class="col p-0 mb-2">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" placeholder="">
+            </div>
+        </div>
+    `;
+
+            rootHtmlDiv.append(html);
+        });
+    }
 };
