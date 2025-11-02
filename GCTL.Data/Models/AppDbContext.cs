@@ -34,9 +34,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
-    public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
-
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+
+    public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
     public virtual DbSet<Attendance> Attendance { get; set; }
 
@@ -241,6 +241,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<Organization> Organization { get; set; }
 
     public virtual DbSet<OrganizationBranches> OrganizationBranches { get; set; }
+
+    public virtual DbSet<OrganizationTypes> OrganizationTypes { get; set; }
+
+    public virtual DbSet<OtherContacts> OtherContacts { get; set; }
 
     public virtual DbSet<PSettings> PSettings { get; set; }
 
@@ -675,19 +679,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany(t => t.AspNetUsers)
                 .HasForeignKey(u => u.TenantInfoId)
                 .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-        
+
         modelBuilder.Entity<ApplicationRole>()
                 .HasOne(r => r.Organization)
                 .WithMany(o => o.AspNetRoles)
                 .HasForeignKey(r => r.OrganizationID)
                 .IsRequired(false)
                 .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
-        modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.TenantInfo)
-                .WithMany(t => t.AspNetRoles)
-                .HasForeignKey(r => r.TenantInfoId)
-                .IsRequired(false)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -3268,10 +3266,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Journals__Delete__2156DE01");
 
-            entity.HasOne(d => d.FinancialYear).WithMany(p => p.Journals)
-                .HasForeignKey(d => d.FinancialYearID)
-                .HasConstraintName("FK__Journals__Financ__224B023A");
-
             entity.HasOne(d => d.JournalType).WithMany(p => p.Journals)
                 .HasForeignKey(d => d.JournalTypeID)
                 .HasConstraintName("FK__Journals__Journa__233F2673");
@@ -4391,6 +4385,76 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OrganizationBranchesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_Employees_EmployeeID_OrganizationBranches_UpdatedBy");
+        });
+
+        modelBuilder.Entity<OrganizationTypes>(entity =>
+        {
+            entity.HasKey(e => e.OrganizationTypeID).HasName("PK__Organiza__080FDBCF6C7EBF0E");
+
+            entity.ToTable("OrganizationTypes", "Customer");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.OrganizationTypeName).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UseFor).HasMaxLength(50);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OrganizationTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Organizat__Creat__54A177DD");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.OrganizationTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Organizat__Delet__577DE488");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.OrganizationTypes)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__Organizat__Organ__53AD53A4");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OrganizationTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Organizat__Updat__55959C16");
+        });
+
+        modelBuilder.Entity<OtherContacts>(entity =>
+        {
+            entity.HasKey(e => e.OtherContactID).HasName("PK__OtherCon__F09989E2BEDF2588");
+
+            entity.ToTable("OtherContacts", "Customer");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Designation).HasMaxLength(150);
+            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.FirstName).HasMaxLength(100);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LastName).HasMaxLength(100);
+            entity.Property(e => e.Phone1).HasMaxLength(100);
+            entity.Property(e => e.Phone2).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Address).WithMany(p => p.OtherContacts)
+                .HasForeignKey(d => d.AddressID)
+                .HasConstraintName("FK__OtherCont__Addre__5A5A5133");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OtherContactsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__OtherCont__Creat__5B4E756C");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.OtherContactsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__OtherCont__Delet__5E2AE217");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OtherContactsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__OtherCont__Updat__5C4299A5");
         });
 
         modelBuilder.Entity<PSettings>(entity =>

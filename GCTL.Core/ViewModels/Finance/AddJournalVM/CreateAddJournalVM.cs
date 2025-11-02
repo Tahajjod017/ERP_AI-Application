@@ -23,9 +23,6 @@ namespace GCTL.Core.ViewModels.Finance.AddJournalVM
         [Required(ErrorMessage = "{0} is Required!"), Display(Name = "Scenario Type")]
         public int? PostingRuleID { get; set; }
 
-        [Required(ErrorMessage = "{0} is Requird!"), Display(Name = "Transaction Year")]
-        public int? FinancialYearID { get; set; }
-
         [Required(ErrorMessage = "{0} is Required!"), Display(Name = "Date")]
         public DateTime? JournalDate { get; set; }
         

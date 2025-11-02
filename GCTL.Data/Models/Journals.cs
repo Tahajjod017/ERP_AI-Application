@@ -15,8 +15,6 @@ public partial class Journals
 
     public int? PostingRuleID { get; set; }
 
-    public int? FinancialYearID { get; set; }
-
     public string Note { get; set; }
 
     public DateTime? JournalDate { get; set; }
@@ -42,8 +40,6 @@ public partial class Journals
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
-
-    public virtual FinancialYears FinancialYear { get; set; }
 
     public virtual ICollection<JournalDetails> JournalDetails { get; set; } = new List<JournalDetails>();
 

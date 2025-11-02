@@ -5,13 +5,23 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class FinancialYears
+public partial class OtherContacts
 {
-    public int FinancialYearID { get; set; }
+    public int OtherContactID { get; set; }
 
-    public string JournalTypeName { get; set; }
+    public int? AddressID { get; set; }
 
-    public string YearName { get; set; }
+    public string FirstName { get; set; }
+
+    public string LastName { get; set; }
+
+    public string Designation { get; set; }
+
+    public string Phone1 { get; set; }
+
+    public string Phone2 { get; set; }
+
+    public string Email { get; set; }
 
     public string LIP { get; set; }
 
@@ -28,6 +38,8 @@ public partial class FinancialYears
     public DateTime? DeletedAt { get; set; }
 
     public int? DeletedBy { get; set; }
+
+    public virtual Addresses Address { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
