@@ -5,11 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class CalculationTypes
+public partial class ProductBarcodes
 {
-    public int CalculationTypeID { get; set; }
+    public int BarcodeID { get; set; }
 
-    public string CalculationTypeName { get; set; }
+    public int ProductID { get; set; }
+
+    public string BarcodeTemplate { get; set; }
+
+    public string BarcodeValue { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,13 +35,7 @@ public partial class CalculationTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetup { get; set; } = new List<EmployeeAllowanceSetup>();
-
-    public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowances { get; set; } = new List<EmployeeBaseAllowances>();
-
-    public virtual ICollection<EmployeeBaseBenefits> EmployeeBaseBenefits { get; set; } = new List<EmployeeBaseBenefits>();
-
-    public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();
+    public virtual Products Product { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

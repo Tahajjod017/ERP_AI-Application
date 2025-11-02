@@ -4,7 +4,6 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "MinimumProductVersion": "2.6.1080",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -100,7 +99,19 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Customer].[CustomerGroup]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Customer].[Customers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[OrganizationTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Customer].[OtherContacts]",
          "ObjectType": 0
       },
       {
@@ -664,11 +675,31 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[ProductAdvancedPricing]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductBarcodes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[ProductBrands]",
          "ObjectType": 0
       },
       {
          "Name": "[SC].[ProductCategories]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductCustomFields]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductImages]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductPricing]",
          "ObjectType": 0
       },
       {
@@ -685,6 +716,10 @@
       },
       {
          "Name": "[SC].[UnitTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[WarrantyTypes]",
          "ObjectType": 0
       },
       {
@@ -724,7 +759,15 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[GetModules]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[GetPaginatedEmployeeAttendance]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[GetUserByEmail]",
          "ObjectType": 1
       },
       {
@@ -732,7 +775,15 @@
          "ObjectType": 1
       },
       {
+         "Name": "[dbo].[SeedDateForSC]",
+         "ObjectType": 1
+      },
+      {
          "Name": "[dbo].[sp_GetAllEmployeeShifts]",
+         "ObjectType": 1
+      },
+      {
+         "Name": "[dbo].[sp_GetUserPermissionsByRoleIds]",
          "ObjectType": 1
       },
       {
@@ -765,7 +816,6 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
-   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,

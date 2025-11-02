@@ -34,8 +34,20 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
-    public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    //public virtual DbSet<AspNetRoleClaims> AspNetRoleClaims { get; set; }
 
+    //public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
+
+    //public virtual DbSet<AspNetUserClaims> AspNetUserClaims { get; set; }
+
+    //public virtual DbSet<AspNetUserLogins> AspNetUserLogins { get; set; }
+
+    //public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
+
+    //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
+
+
+    public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
     public virtual DbSet<Attendance> Attendance { get; set; }
@@ -77,6 +89,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<Currencies> Currencies { get; set; }
 
     public virtual DbSet<CustomerAddresses> CustomerAddresses { get; set; }
+
+    public virtual DbSet<CustomerGroup> CustomerGroup { get; set; }
 
     public virtual DbSet<Customers> Customers { get; set; }
 
@@ -242,6 +256,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<OrganizationBranches> OrganizationBranches { get; set; }
 
+    public virtual DbSet<OrganizationTypes> OrganizationTypes { get; set; }
+
+    public virtual DbSet<OtherContacts> OtherContacts { get; set; }
+
     public virtual DbSet<PSettings> PSettings { get; set; }
 
     public virtual DbSet<Pages> Pages { get; set; }
@@ -270,9 +288,19 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ProbetionPeriodSettings> ProbetionPeriodSettings { get; set; }
 
+    public virtual DbSet<ProductAdvancedPricing> ProductAdvancedPricing { get; set; }
+
+    public virtual DbSet<ProductBarcodes> ProductBarcodes { get; set; }
+
     public virtual DbSet<ProductBrands> ProductBrands { get; set; }
 
     public virtual DbSet<ProductCategories> ProductCategories { get; set; }
+
+    public virtual DbSet<ProductCustomFields> ProductCustomFields { get; set; }
+
+    public virtual DbSet<ProductImages> ProductImages { get; set; }
+
+    public virtual DbSet<ProductPricing> ProductPricing { get; set; }
 
     public virtual DbSet<ProductSubCategories> ProductSubCategories { get; set; }
 
@@ -350,6 +378,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<UserVisitLogs> UserVisitLogs { get; set; }
 
+    public virtual DbSet<WarrantyTypes> WarrantyTypes { get; set; }
+
     public virtual DbSet<WeekendDays> WeekendDays { get; set; }
 
     public virtual DbSet<WeekendSettings> WeekendSettings { get; set; }
@@ -359,6 +389,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
 
         modelBuilder.Entity<ActionLogs>(entity =>
         {
@@ -656,6 +687,96 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__ApprovalT__Updat__1E05700A");
         });
 
+        //modelBuilder.Entity<AspNetRoleClaims>(entity =>
+        //{
+        //    entity.Property(e => e.RoleId)
+        //        .IsRequired()
+        //        .HasMaxLength(450);
+
+        //    entity.HasOne(d => d.Role).WithMany(p => p.AspNetRoleClaims).HasForeignKey(d => d.RoleId);
+        //});
+
+        //modelBuilder.Entity<AspNetRoles>(entity =>
+        //{
+        //    entity.Property(e => e.Discriminator)
+        //        .IsRequired()
+        //        .HasMaxLength(21);
+        //    entity.Property(e => e.Name).HasMaxLength(256);
+        //    entity.Property(e => e.NormalizedName).HasMaxLength(256);
+
+        //    entity.HasOne(d => d.Organization).WithMany(p => p.AspNetRoles)
+        //        .HasForeignKey(d => d.OrganizationID)
+        //        .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
+
+        //    entity.HasOne(d => d.TenantInfo).WithMany(p => p.AspNetRoles)
+        //        .HasForeignKey(d => d.TenantInfoId)
+        //        .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+        //});
+
+        //modelBuilder.Entity<AspNetUserClaims>(entity =>
+        //{
+        //    entity.Property(e => e.UserId)
+        //        .IsRequired()
+        //        .HasMaxLength(450);
+
+        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserClaims).HasForeignKey(d => d.UserId);
+        //});
+
+        //modelBuilder.Entity<AspNetUserLogins>(entity =>
+        //{
+        //    entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
+
+        //    entity.Property(e => e.UserId)
+        //        .IsRequired()
+        //        .HasMaxLength(450);
+
+        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserLogins).HasForeignKey(d => d.UserId);
+        //});
+
+        //modelBuilder.Entity<AspNetUserTokens>(entity =>
+        //{
+        //    entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
+
+        //    entity.HasOne(d => d.User).WithMany(p => p.AspNetUserTokens).HasForeignKey(d => d.UserId);
+        //});
+
+        //modelBuilder.Entity<AspNetUsers>(entity =>
+        //{
+        //    entity.HasIndex(e => e.Email, "idx_email");
+
+        //    entity.Property(e => e.DefaultPass).HasMaxLength(256);
+        //    entity.Property(e => e.Discriminator)
+        //        .IsRequired()
+        //        .HasMaxLength(21);
+        //    entity.Property(e => e.Email).HasMaxLength(256);
+        //    entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
+        //    entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
+        //    entity.Property(e => e.UserName).HasMaxLength(256);
+
+        //    entity.HasOne(d => d.Employee).WithMany(p => p.AspNetUsers)
+        //        .HasForeignKey(d => d.EmployeeId)
+        //        .HasConstraintName("FK_AspNetUsers_Employees_EmployeeID");
+
+        //    entity.HasOne(d => d.Organization).WithMany(p => p.AspNetUsers)
+        //        .HasForeignKey(d => d.OrganizationID)
+        //        .HasConstraintName("FK_Organization_OrganizationID_AspNetUsers");
+
+        //    entity.HasOne(d => d.TenantInfo).WithMany(p => p.AspNetUsers)
+        //        .HasForeignKey(d => d.TenantInfoId)
+        //        .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
+
+        //    entity.HasMany(d => d.Role).WithMany(p => p.User)
+        //        .UsingEntity<Dictionary<string, object>>(
+        //            "AspNetUserRoles",
+        //            r => r.HasOne<AspNetRoles>().WithMany().HasForeignKey("RoleId"),
+        //            l => l.HasOne<AspNetUsers>().WithMany().HasForeignKey("UserId"),
+        //            j =>
+        //            {
+        //                j.HasKey("UserId", "RoleId");
+        //            });
+        //});
+
+
         modelBuilder.Entity<ApplicationUser>()
            .HasDiscriminator<string>("Discriminator")
            .HasValue<ApplicationUser>("ApplicationUser");
@@ -675,7 +796,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany(t => t.AspNetUsers)
                 .HasForeignKey(u => u.TenantInfoId)
                 .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-        
+
         modelBuilder.Entity<ApplicationRole>()
                 .HasOne(r => r.Organization)
                 .WithMany(o => o.AspNetRoles)
@@ -1379,6 +1500,34 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__CustomerA__Updat__035179CE");
         });
 
+        modelBuilder.Entity<CustomerGroup>(entity =>
+        {
+            entity.HasKey(e => e.CustomerGroupID).HasName("PK__Customer__9AA3001A3A2DFF32");
+
+            entity.ToTable("CustomerGroup", "Customer");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CustomerGroupName).HasMaxLength(100);
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.CustomerGroupCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__CustomerG__Creat__61074EC2");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.CustomerGroupDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__CustomerG__Delet__63E3BB6D");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.CustomerGroupUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__CustomerG__Updat__61FB72FB");
+        });
+
         modelBuilder.Entity<Customers>(entity =>
         {
             entity.HasKey(e => e.CustomerID).HasName("PK__Customer__A4AE64B8DF813334");
@@ -1527,17 +1676,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__DefaultSh__Delet__4707859D");
 
-            entity.HasOne(d => d.Department).WithMany(p => p.DefaultShifts)
-                .HasForeignKey(d => d.DepartmentID)
-                .HasConstraintName("FK_Departments_DepartmentID_DefaultShifts");
-
             entity.HasOne(d => d.Employee).WithMany(p => p.DefaultShiftsEmployee)
                 .HasForeignKey(d => d.EmployeeID)
                 .HasConstraintName("FK_Employees_EmployeeID_DefaultShifts");
-
-            entity.HasOne(d => d.Organization).WithMany(p => p.DefaultShifts)
-                .HasForeignKey(d => d.OrganizationID)
-                .HasConstraintName("FK_Organization_TeamID");
 
             entity.HasOne(d => d.Shift).WithMany(p => p.DefaultShifts)
                 .HasForeignKey(d => d.ShiftID)
@@ -3211,6 +3352,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.JournalID)
                 .HasConstraintName("FK__JournalDe__Journ__2AE0483B");
 
+            entity.HasOne(d => d.TrxAcc).WithMany(p => p.JournalDetails)
+                .HasForeignKey(d => d.TrxAccID)
+                .HasConstraintName("FK_TransactionAccounts_TrxAccID_JournalDetails");
+
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.JournalDetailsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__JournalDe__Updat__2BD46C74");
@@ -3271,10 +3416,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.JournalsDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Journals__Delete__2156DE01");
-
-            entity.HasOne(d => d.FinancialYear).WithMany(p => p.Journals)
-                .HasForeignKey(d => d.FinancialYearID)
-                .HasConstraintName("FK__Journals__Financ__224B023A");
 
             entity.HasOne(d => d.JournalType).WithMany(p => p.Journals)
                 .HasForeignKey(d => d.JournalTypeID)
@@ -4397,6 +4538,76 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK_Employees_EmployeeID_OrganizationBranches_UpdatedBy");
         });
 
+        modelBuilder.Entity<OrganizationTypes>(entity =>
+        {
+            entity.HasKey(e => e.OrganizationTypeID).HasName("PK__Organiza__080FDBCF6C7EBF0E");
+
+            entity.ToTable("OrganizationTypes", "Customer");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.OrganizationTypeName).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.UseFor).HasMaxLength(50);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OrganizationTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Organizat__Creat__54A177DD");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.OrganizationTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Organizat__Delet__577DE488");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.OrganizationTypes)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__Organizat__Organ__53AD53A4");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OrganizationTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Organizat__Updat__55959C16");
+        });
+
+        modelBuilder.Entity<OtherContacts>(entity =>
+        {
+            entity.HasKey(e => e.OtherContactID).HasName("PK__OtherCon__F09989E2BEDF2588");
+
+            entity.ToTable("OtherContacts", "Customer");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Designation).HasMaxLength(150);
+            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.FirstName).HasMaxLength(100);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LastName).HasMaxLength(100);
+            entity.Property(e => e.Phone1).HasMaxLength(100);
+            entity.Property(e => e.Phone2).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Address).WithMany(p => p.OtherContacts)
+                .HasForeignKey(d => d.AddressID)
+                .HasConstraintName("FK__OtherCont__Addre__5A5A5133");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OtherContactsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__OtherCont__Creat__5B4E756C");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.OtherContactsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__OtherCont__Delet__5E2AE217");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.OtherContactsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__OtherCont__Updat__5C4299A5");
+        });
+
         modelBuilder.Entity<PSettings>(entity =>
         {
             entity.HasKey(e => e.PSettingID).HasName("PK__PSetting__072FF3ADF51F2DA7");
@@ -4785,6 +4996,91 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__Probetion__Updat__24485945");
         });
 
+        modelBuilder.Entity<ProductAdvancedPricing>(entity =>
+        {
+            entity.HasKey(e => e.ProductAdvancedPriceID).HasName("PK__ProductA__DA1EE713EEBE3E71");
+
+            entity.ToTable("ProductAdvancedPricing", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Currency)
+                .HasMaxLength(10)
+                .HasDefaultValue("USD");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(false);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.MinQuantity).HasDefaultValue(1);
+            entity.Property(e => e.PriceValue).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.SpecialPriceName).HasMaxLength(200);
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CalculationType).WithMany(p => p.ProductAdvancedPricing)
+                .HasForeignKey(d => d.CalculationTypeID)
+                .HasConstraintName("FK__ProductAd__Calcu__77EAB41A");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ProductAdvancedPricingCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__ProductAd__Creat__7AC720C5");
+
+            entity.HasOne(d => d.CustomerGroup).WithMany(p => p.ProductAdvancedPricing)
+                .HasForeignKey(d => d.CustomerGroupID)
+                .HasConstraintName("FK__ProductAd__Custo__76026BA8");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ProductAdvancedPricingDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__ProductAd__Delet__7DA38D70");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductAdvancedPricing)
+                .HasForeignKey(d => d.ProductID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductAd__Produ__750E476F");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ProductAdvancedPricingUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__ProductAd__Updat__7BBB44FE");
+        });
+
+        modelBuilder.Entity<ProductBarcodes>(entity =>
+        {
+            entity.HasKey(e => e.BarcodeID).HasName("PK__ProductB__21916C88EA691F10");
+
+            entity.ToTable("ProductBarcodes", "SC");
+
+            entity.Property(e => e.BarcodeTemplate)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.BarcodeValue).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ProductBarcodesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__ProductBa__Creat__01741E54");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ProductBarcodesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__ProductBa__Delet__04508AFF");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductBarcodes)
+                .HasForeignKey(d => d.ProductID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductBa__Produ__007FFA1B");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ProductBarcodesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__ProductBa__Updat__0268428D");
+        });
+
         modelBuilder.Entity<ProductBrands>(entity =>
         {
             entity.HasKey(e => e.ProductBrandID).HasName("PK__ProductB__B1959429E5006915");
@@ -4839,6 +5135,99 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ProductCategoriesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__ProductCa__Updat__6265874F");
+        });
+
+        modelBuilder.Entity<ProductCustomFields>(entity =>
+        {
+            entity.HasKey(e => e.CustomFieldID).HasName("PK__ProductC__403326D4ABD770A2");
+
+            entity.ToTable("ProductCustomFields", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ManufacturerName).HasMaxLength(255);
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductCustomFields)
+                .HasForeignKey(d => d.ProductID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductCu__Produ__0DD9F539");
+
+            entity.HasOne(d => d.WarrantyType).WithMany(p => p.ProductCustomFields)
+                .HasForeignKey(d => d.WarrantyTypeID)
+                .HasConstraintName("FK__ProductCu__Warra__0ECE1972");
+        });
+
+        modelBuilder.Entity<ProductImages>(entity =>
+        {
+            entity.HasKey(e => e.ProductImageID).HasName("PK__ProductI__07B2B1D829F8C88A");
+
+            entity.ToTable("ProductImages", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsDefault).HasDefaultValue(false);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LargeImagePath).HasMaxLength(50);
+            entity.Property(e => e.SmallImagePath).HasMaxLength(50);
+            entity.Property(e => e.ThumbnailImagePath).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ProductImagesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__ProductIm__Creat__68A8708A");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ProductImagesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__ProductIm__Delet__6B84DD35");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductImages)
+                .HasForeignKey(d => d.ProductID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductIm__Produ__66C02818");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ProductImagesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__ProductIm__Updat__699C94C3");
+        });
+
+        modelBuilder.Entity<ProductPricing>(entity =>
+        {
+            entity.HasKey(e => e.PriceID).HasName("PK__ProductP__4957584F90F82451");
+
+            entity.ToTable("ProductPricing", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.SellingPriceExclVAT).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.VATPercent).HasColumnType("decimal(5, 2)");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ProductPricingCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__ProductPr__Creat__6F556E19");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ProductPricingDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__ProductPr__Delet__7231DAC4");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductPricing)
+                .HasForeignKey(d => d.ProductID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductPr__Produ__6E6149E0");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ProductPricingUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__ProductPr__Updat__70499252");
         });
 
         modelBuilder.Entity<ProductSubCategories>(entity =>
@@ -4908,8 +5297,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.ImgeLarge).HasMaxLength(20);
-            entity.Property(e => e.ImgeSmall).HasMaxLength(30);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.ProductMode).HasMaxLength(150);
@@ -5406,6 +5793,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ServicesDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Services__Delete__469D7149");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.Services)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK_Organization_OrganizationID_Services");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ServicesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
@@ -6079,6 +6470,38 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .IsRequired()
                 .HasMaxLength(1024);
             entity.Property(e => e.UserId).HasMaxLength(256);
+        });
+
+        modelBuilder.Entity<WarrantyTypes>(entity =>
+        {
+            entity.HasKey(e => e.WarrantyTypeID).HasName("PK__Warranty__EDA140F3BBC27091");
+
+            entity.ToTable("WarrantyTypes", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.WarrantyTypeName)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.WarrantyTypesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__WarrantyT__Creat__08211BE3");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.WarrantyTypesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__WarrantyT__Delet__0AFD888E");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.WarrantyTypesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__WarrantyT__Updat__0915401C");
         });
 
         modelBuilder.Entity<WeekendDays>(entity =>

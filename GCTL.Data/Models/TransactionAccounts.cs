@@ -43,6 +43,8 @@ public partial class TransactionAccounts
 
     public virtual Heads Head { get; set; }
 
+    public virtual ICollection<JournalDetails> JournalDetails { get; set; } = new List<JournalDetails>();
+
     public virtual ICollection<OpeningBalances> OpeningBalances { get; set; } = new List<OpeningBalances>();
 
     public virtual ICollection<PostingRuleDetails> PostingRuleDetails { get; set; } = new List<PostingRuleDetails>();

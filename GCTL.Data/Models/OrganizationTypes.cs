@@ -5,11 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class CalculationTypes
+public partial class OrganizationTypes
 {
-    public int CalculationTypeID { get; set; }
+    public int OrganizationTypeID { get; set; }
 
-    public string CalculationTypeName { get; set; }
+    public int? OrganizationID { get; set; }
+
+    public string OrganizationTypeName { get; set; }
+
+    public string UseFor { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,13 +35,7 @@ public partial class CalculationTypes
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetup { get; set; } = new List<EmployeeAllowanceSetup>();
-
-    public virtual ICollection<EmployeeBaseAllowances> EmployeeBaseAllowances { get; set; } = new List<EmployeeBaseAllowances>();
-
-    public virtual ICollection<EmployeeBaseBenefits> EmployeeBaseBenefits { get; set; } = new List<EmployeeBaseBenefits>();
-
-    public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();
+    public virtual Organization Organization { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

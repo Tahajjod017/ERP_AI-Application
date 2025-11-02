@@ -33,8 +33,6 @@ public partial class Departments
 
     public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual ICollection<DefaultShifts> DefaultShifts { get; set; } = new List<DefaultShifts>();
-
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Employees DepartmentHeadEmp { get; set; }
