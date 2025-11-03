@@ -18,40 +18,6 @@ namespace GCTL.Service.UserProfile
             _empRepository = empRepository;
         }
 
-        //public (string FullName, string ProfilePicturePath) GetUserProfileAsync(string userId)
-        //{
-        //    string fullName = "Guest User";
-        //    string profilePicturePath = "/media/employee/No_image_available.svg.png";
-
-        //    if (!string.IsNullOrEmpty(userId))
-        //    {
-        //        var user =  _context.Users
-        //            .FirstOrDefault(u => u.Id == userId);
-
-        //        if (user != null)
-        //        {
-        //            var empId = user.EmployeeId;
-
-
-
-        //            var employee =  _context.Employees
-        //                .FirstOrDefault(e => e.EmployeeID == empId);
-
-        //            if (employee != null)
-        //            {
-        //                fullName = employee.FirstName +" "+employee.LastName ?? fullName;
-        //                profilePicturePath = !string.IsNullOrEmpty(employee.EmployeeImageFileName)
-        //                    ? employee.EmployeeImageFileName
-        //                    : profilePicturePath;
-        //            }
-        //        }
-        //    }
-
-        //    return (fullName, profilePicturePath);
-        //}
-
-
-
         public (string FullName, string ProfilePicturePath) GetUserProfileAsync(string userId)
         {
             string fullName = "Guest User";
@@ -66,27 +32,16 @@ namespace GCTL.Service.UserProfile
                 {
                     var empId = user.EmployeeId;
 
-                    // Project to anonymous type with NULL handling
+
+
                     var employee = _context.Employees
-                        .Where(e => e.EmployeeID == empId)
-                        .Select(e => new
-                        {
-                            FirstName = e.FirstName ?? "",
-                            LastName = e.LastName ?? "",
-                            ImageFileName = e.EmployeeImageFileName ?? ""
-                        })
-                        .FirstOrDefault();
+                        .FirstOrDefault(e => e.EmployeeID == empId);
 
                     if (employee != null)
                     {
-                        fullName = $"{employee.FirstName} {employee.LastName}".Trim();
-                        if (string.IsNullOrWhiteSpace(fullName))
-                        {
-                            fullName = "Guest User";
-                        }
-
-                        profilePicturePath = !string.IsNullOrEmpty(employee.ImageFileName)
-                            ? employee.ImageFileName
+                        fullName = employee.FirstName + " " + employee.LastName ?? fullName;
+                        profilePicturePath = !string.IsNullOrEmpty(employee.EmployeeImageFileName)
+                            ? employee.EmployeeImageFileName
                             : profilePicturePath;
                     }
                 }
@@ -94,6 +49,51 @@ namespace GCTL.Service.UserProfile
 
             return (fullName, profilePicturePath);
         }
+
+
+
+        //public (string FullName, string ProfilePicturePath) GetUserProfileAsync(string userId)
+        //{
+        //    string fullName = "Guest User";
+        //    string profilePicturePath = "/media/employee/No_image_available.svg.png";
+
+        //    if (!string.IsNullOrEmpty(userId))
+        //    {
+        //        var user = _context.Users
+        //            .FirstOrDefault(u => u.Id == userId);
+
+        //        if (user != null)
+        //        {
+        //            var empId = user.EmployeeId;
+
+        //            // Project to anonymous type with NULL handling
+        //            var employee = _context.Employees
+        //                .Where(e => e.EmployeeID == empId)
+        //                .Select(e => new
+        //                {
+        //                    FirstName = e.FirstName ?? "",
+        //                    LastName = e.LastName ?? "",
+        //                    ImageFileName = e.EmployeeImageFileName ?? ""
+        //                })
+        //                .FirstOrDefault();
+
+        //            if (employee != null)
+        //            {
+        //                fullName = $"{employee.FirstName} {employee.LastName}".Trim();
+        //                if (string.IsNullOrWhiteSpace(fullName))
+        //                {
+        //                    fullName = "Guest User";
+        //                }
+
+        //                profilePicturePath = !string.IsNullOrEmpty(employee.ImageFileName)
+        //                    ? employee.ImageFileName
+        //                    : profilePicturePath;
+        //            }
+        //        }
+        //    }
+
+        //    return (fullName, profilePicturePath);
+        //}
 
 
 

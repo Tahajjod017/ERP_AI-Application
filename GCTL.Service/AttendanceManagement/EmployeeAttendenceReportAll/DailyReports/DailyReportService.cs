@@ -46,7 +46,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                         .Include(x => x.Employee.EmployeeOfficeInfoCreatedByNavigation)
                         .Include(x => x.Status)
                         .Include(x => x.Shift)
-                        .Where(x => x.DeletedAt == null);
+                        .Where(x => x.DeletedAt == null && x.AttendanceDate == today);
 
             var employeeDepartments = await _genericEmployeeOfficeInfo.All()
                                          .Include(e => e.Department) // Make sure the Department is being properly loaded
