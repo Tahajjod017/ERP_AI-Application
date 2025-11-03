@@ -199,10 +199,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[Customers]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[DefaultShifts]",
          "ObjectType": 0
       },
@@ -816,13 +812,14 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
    "UseNoNavigations": false,
    "UseNoObjectFilter": false,
    "UseNodaTime": false,
-   "UseNullableReferences": false,
+   "UseNullableReferences": true,
    "UsePrefixNavigationNaming": false,
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
