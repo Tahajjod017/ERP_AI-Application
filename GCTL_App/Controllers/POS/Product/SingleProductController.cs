@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels.POS.Product.SingleProduct;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
+using GCTL.Service.POS.Product;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,10 +17,11 @@ namespace GCTL_App.Controllers.POS.Product
         private readonly IGenericRepository<ProductBrands> _productBrandRepository;
         private readonly IGenericRepository<UnitTypes> _unitRepository;
         private readonly IGenericRepository<Classes> _assetTypeRepository;
+        private readonly ISingleProduct _singleProductService;
 
 
 
-        public SingleProductController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Products> productRepository, IGenericRepository<ProductCategories> productCategoryRepository, IGenericRepository<ProductSubCategories> productSubCategoryRepository, IGenericRepository<ProductBrands> productBrandRepository, IGenericRepository<UnitTypes> unitRepository, IGenericRepository<Classes> assetTypeRepository) : base(translateService, userProfileService)
+        public SingleProductController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Products> productRepository, IGenericRepository<ProductCategories> productCategoryRepository, IGenericRepository<ProductSubCategories> productSubCategoryRepository, IGenericRepository<ProductBrands> productBrandRepository, IGenericRepository<UnitTypes> unitRepository, IGenericRepository<Classes> assetTypeRepository, ISingleProduct singleProductService) : base(translateService, userProfileService)
         {
             _productRepository = productRepository;
             _productCategoryRepository = productCategoryRepository;
@@ -27,6 +29,7 @@ namespace GCTL_App.Controllers.POS.Product
             _productBrandRepository = productBrandRepository;
             _unitRepository = unitRepository;
             _assetTypeRepository = assetTypeRepository;
+            _singleProductService = singleProductService;
         }
 
         public IActionResult Index()
@@ -58,5 +61,57 @@ namespace GCTL_App.Controllers.POS.Product
 
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAutoSKU()
+        {
+            string autoSKU = await _singleProductService.GetNextSKU();
+            return Json(new { sku = autoSKU });
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddSingleProduct(SingleProductViewModel model)
+        {
+            try
+            {
+               
+
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState
+                            .Where(x => x.Value.Errors.Count > 0)
+                            .ToDictionary(
+                                kvp => kvp.Key,
+                                kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                            );
+
+                    var messages = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .SelectMany(x => x.Value.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+
+                    return Json(new { success = false, errors = errors, message = messages });
+                }
+
+
+                var dtat = await _singleProductService.AddProductAsync(model);
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Product added successfully",
+                    redirectUrl = Url.Action("Index", "SingleProduct"),
+                    model = model
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
     }
 }
