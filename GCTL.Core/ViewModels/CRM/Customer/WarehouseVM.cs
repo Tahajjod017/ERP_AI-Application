@@ -4,9 +4,10 @@ namespace GCTL.Core.ViewModels.CRM.Customer
 {
     public class WarehouseVM : BaseViewModel
     {
-        public int WID { get; set; }
+        public int Wid { get; set; }
         public string WName { get; set; }
-        public int WCustomerID { get; set; }
+        public int? WCustomerID { get; set; }
+        public string? WCustomerName { get; set; }
 
         public string? WFirstName { get; set; }
 
@@ -25,6 +26,7 @@ namespace GCTL.Core.ViewModels.CRM.Customer
         public string? WPostalCode { get; set; }
 
         public int? WCountryID { get; set; }
+        public string? WCountryName { get; set; }
 
         public decimal? WLatitude { get; set; }
 
