@@ -4,45 +4,47 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable enable
+
 namespace GCTL.Data.Models
 {
     public partial class GetUserByEmailResult
     {
         [StringLength(450)]
-        public string Id { get; set; }
+        public string Id { get; set; } = default!;
         [StringLength(21)]
-        public string Discriminator { get; set; }
+        public string Discriminator { get; set; } = default!;
         [StringLength(2147483647)]
-        public string FullName { get; set; }
+        public string? FullName { get; set; }
         public byte? Gender { get; set; }
         public int? EmployeeId { get; set; }
         [StringLength(2147483647)]
-        public string NIDNumber { get; set; }
+        public string? NIDNumber { get; set; }
         [StringLength(2147483647)]
-        public string PresentAddress { get; set; }
+        public string? PresentAddress { get; set; }
         [StringLength(2147483647)]
-        public string PermanentAddress { get; set; }
+        public string? PermanentAddress { get; set; }
         public DateTime? CreatedDateTime { get; set; }
         public DateTime? UpdatedDateTime { get; set; }
         public DateTime? JoiningDate { get; set; }
         public DateTime? DateofBirth { get; set; }
         [StringLength(256)]
-        public string UserName { get; set; }
+        public string? UserName { get; set; }
         [StringLength(256)]
-        public string NormalizedUserName { get; set; }
+        public string? NormalizedUserName { get; set; }
         [StringLength(256)]
-        public string Email { get; set; }
+        public string? Email { get; set; }
         [StringLength(256)]
-        public string NormalizedEmail { get; set; }
+        public string? NormalizedEmail { get; set; }
         public bool EmailConfirmed { get; set; }
         [StringLength(2147483647)]
-        public string PasswordHash { get; set; }
+        public string? PasswordHash { get; set; }
         [StringLength(2147483647)]
-        public string SecurityStamp { get; set; }
+        public string? SecurityStamp { get; set; }
         [StringLength(2147483647)]
-        public string ConcurrencyStamp { get; set; }
+        public string? ConcurrencyStamp { get; set; }
         [StringLength(2147483647)]
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
         public bool PhoneNumberConfirmed { get; set; }
         public bool TwoFactorEnabled { get; set; }
         public DateTimeOffset? LockoutEnd { get; set; }
@@ -52,6 +54,6 @@ namespace GCTL.Data.Models
         public int? TenantInfoId { get; set; }
         public bool IsPasswordResetRequired { get; set; }
         [StringLength(256)]
-        public string DefaultPass { get; set; }
+        public string? DefaultPass { get; set; }
     }
 }

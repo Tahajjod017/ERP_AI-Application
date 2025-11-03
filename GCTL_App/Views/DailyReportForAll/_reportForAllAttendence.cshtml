@@ -36,10 +36,11 @@
 
         <div class="dropdown me-2">
             <select class="form-multi-select" asp-for="EmployeeIDs"
+
                     multiple data-coreui-selection-type="counter"
                     data-coreui-placeholder="@Html.SmartLocalize("Select Employee")..."
                     data-coreui-search="true">
-                @foreach (var group in employees.GroupBy(e => e.GroupName))
+                @foreach (var group in employees?.GroupBy(e => e.GroupName))
                 {
                     <optgroup label="@group.Key">
                         @foreach (var emp in group)
