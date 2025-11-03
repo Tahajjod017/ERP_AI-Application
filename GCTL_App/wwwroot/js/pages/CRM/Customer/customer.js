@@ -69,7 +69,7 @@ window.initCustomerForm = function (root) {
             placeholder: 'Select Type',
             dropdownParent: dropdownParent,
             ajax: {
-                url: '/CreateJobs/GetCountryList',
+                url: '/Customers/GetOrganizationTypesList',
                 dataType: 'json',
                 delay: 250,
                 data: function (params) {
@@ -284,7 +284,8 @@ window.initCustomerForm = function (root) {
                 });
             }
             //#endregion
+            initAutocomplete()
         }
-        initAutocomplete()
+        
     }
 };

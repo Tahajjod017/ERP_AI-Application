@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels.CRM.Customer;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL.Service.CRM.Customer
 {
@@ -16,5 +17,6 @@ namespace GCTL.Service.CRM.Customer
         Task<CustomerVM> GetCustomerInfo(int id, int organizationID);
         Task<BranchVM> GetBranchInfo(int customerID, int branchId, int organizationID);
         Task<List<BranchVM>> GetBranchList(int companyID, int organizationID);
+        Task<ReturnDataView<SelectListItem>> GetOrganizationTypesList(string search, int page, int pageSize, int organizationID, string userFor = "Branch");
     }
 }

@@ -161,5 +161,52 @@ namespace GCTL_App.Controllers.CRM
         }
 
         #endregion
+
+        #region get OrganizationTypesList
+        [HttpGet]
+        public async Task<IActionResult> GetOrganizationTypesList(string search = "", int page = 1, int pageSize = 10)
+        {
+            var result = await _customerService.GetOrganizationTypesList(
+                search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0, "Organization"
+            );
+
+            var more = (page * pageSize) < result.totalItem;
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.Value,
+                    text = c.Text
+                }),
+                pagination = new { more }
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
+        #region get OrganizationTypesList
+        [HttpGet]
+        public async Task<IActionResult> GetBranchTypesList(string search = "", int page = 1, int pageSize = 10)
+        {
+            var result = await _customerService.GetOrganizationTypesList(
+                search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0, "Branch"
+            );
+
+            var more = (page * pageSize) < result.totalItem;
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.Value,
+                    text = c.Text
+                }),
+                pagination = new { more }
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
     }
 }

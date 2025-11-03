@@ -361,6 +361,7 @@
                 success: function (response) {
                     var tableBody = $("#organizationType-tBody");
                     tableBody.empty();
+                    showDev(response)
                     if (response.data.length > 0) {
                         response.data.forEach(function (item, index) {
                             var rowIndex = (currentPage - 1) * pageSize + index + 1;
@@ -371,6 +372,7 @@
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0">${rowIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0">${item.typeName}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.useFor}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 organizationType-bulkDelete" href="#!" id="organizationType-edit" data-id="${item.id}"><i class="fas fa-edit"></i></a>

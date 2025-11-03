@@ -108,7 +108,7 @@
             placeholder: 'Select Type',
             dropdownParent: dropdownParent,
             ajax: {
-                url: '/CreateJobs/GetCountryList',
+                url: '/Customers/GetBranchTypesList',
                 dataType: 'json',
                 delay: 250,
                 data: function (params) {

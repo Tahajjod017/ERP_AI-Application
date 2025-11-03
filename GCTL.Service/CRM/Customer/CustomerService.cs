@@ -5,13 +5,15 @@ using GCTL.Core.ViewModels.MasterSetup.Genders;
 using GCTL.Data.Models;
 using GCTL.Service.Finance.TransactionAccount;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Index.HPRtree;
 
 namespace GCTL.Service.CRM.Customer
 {
     public class CustomerService : ICustomerService
     {
-        private readonly IGenericRepository<Country> _countryRepository;
+        #region resvices
         private readonly IGenericRepository<Customers> _customersRepository;
         private readonly IGenericRepository<Addresses> _addressesRepository;
         private readonly IGenericRepository<AddressTypes> _addressTypesRepository;
@@ -20,6 +22,7 @@ namespace GCTL.Service.CRM.Customer
         private readonly IGenericRepository<CompanyWarehouseAddresses> _companyWarehouseAddressesRepository;
         private readonly IGenericRepository<CompanyBranches> _companyBranchesRepository;
         private readonly IGenericRepository<CompanyBranchAddresses> _companyBranchAddressesRepository;
+        private readonly IGenericRepository<OrganizationTypes> _organizationTypesRepository;
         #region Added by Md. Rakib Hasan
         private readonly IGenericRepository<Heads> _heads;
         private readonly IGenericRepository<HeadDetails> _headDetails;
@@ -27,9 +30,8 @@ namespace GCTL.Service.CRM.Customer
         private readonly IGenericRepository<SubAccounts> _subAccounts;
         private readonly ITransactionAccountService _transactionAccountService;
         #endregion
-        public CustomerService(IGenericRepository<Country> countryRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, ITransactionAccountService transactionAccountService, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository)
+        public CustomerService(IGenericRepository<Country> countryRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, ITransactionAccountService transactionAccountService, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<OrganizationTypes> organizationTypesRepository)
         {
-            _countryRepository = countryRepository;
             _customersRepository = customersRepository;
             _addressesRepository = addressesRepository;
             _addressTypesRepository = addressTypesRepository;
@@ -43,33 +45,40 @@ namespace GCTL.Service.CRM.Customer
             _companyWarehouseAddressesRepository = companyWarehouseAddressesRepository;
             _companyBranchesRepository = companyBranchesRepository;
             _companyBranchAddressesRepository = companyBranchAddressesRepository;
+            _organizationTypesRepository = organizationTypesRepository;
         }
+        #endregion
 
         #region CreatePerson
 
         public async Task<bool> InserAddressTypeIntoDB(string? LIP, string? LMAC, int? CreatedBy)
         {
-            var items = await _addressTypesRepository.GetAllAsync();
-            if (!items.Any())
+            try
             {
-                var addressTypes = new List<AddressTypes>();
-                var listItem = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
-
-                foreach (var typeName in listItem)
+                var items = await _addressTypesRepository.GetAllAsync();
+                if (!items.Any())
                 {
-                    addressTypes.Add(new AddressTypes()
-                    {
-                        AddressTypeName = typeName,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = CreatedBy,
-                        LIP = LIP,
-                        LMAC = LMAC,
-                    });
-                }
+                    var addressTypes = new List<AddressTypes>();
+                    var listItem = new string[] { "individual", "shipping", "company", "branch", "warehouse" };
 
-                await _addressTypesRepository.AddRangeAsync(addressTypes);
+                    foreach (var typeName in listItem)
+                    {
+                        addressTypes.Add(new AddressTypes()
+                        {
+                            AddressTypeName = typeName,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = CreatedBy,
+                            LIP = LIP,
+                            LMAC = LMAC,
+                        });
+                    }
+
+                    await _addressTypesRepository.AddRangeAsync(addressTypes);
+                }
+                return true;
             }
-            return true;
+            catch (Exception) { return false; }
+            
         }
         public async Task<ReturnView> CreateCustomer (CustomerVM model)
         {
@@ -245,6 +254,7 @@ namespace GCTL.Service.CRM.Customer
             }
         }
         #endregion
+
         #region update customer
         public async Task<ReturnView> UpdateCustomer(CustomerVM model)
         {
@@ -578,7 +588,8 @@ namespace GCTL.Service.CRM.Customer
             }
         }
         #endregion
-        #region Warehouse
+
+        #region CreateShipping
         public async Task<ReturnView> CreateShipping(ShippingVM model)
         {
             // Begin transaction
@@ -660,37 +671,43 @@ namespace GCTL.Service.CRM.Customer
         #region get customer List
         public async Task<PaginationService<Customers, CustomerTableDataVM>.PaginationResult<CustomerTableDataVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CustomerName", string sortOrder = "asc")
         {
-            var query = _customersRepository.AllActive().Include(x=> x.CompanyWarehouses).Include(x=>x.CompanyBranches).Where(t => t.OrganizationID == organizationID) ;
-            query = query.Where(x => x.DeletedAt == null);
-
-            if (!string.IsNullOrEmpty(sortColumn))
+            try
             {
-                query = sortColumn switch
-                {
-                    "CustomerID" => sortOrder == "desc" ? query.OrderByDescending(x => x.CustomerID) : query.OrderBy(x => x.CustomerID),
-                    "CustomerName" => sortOrder == "desc" ? query.OrderByDescending(x => x.FullName) : query.OrderBy(x => x.FullName),
-                    "CreatedAt" => sortOrder == "desc" ? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt),
-                    _ => query.OrderBy(x => x.CustomerID)
-                };
-            }
+                var query = _customersRepository.AllActive().Include(x => x.CompanyWarehouses).Include(x => x.CompanyBranches).Where(t => t.OrganizationID == organizationID);
+                query = query.Where(x => x.DeletedAt == null);
 
-            return await PaginationService<Customers, CustomerTableDataVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
-                term => x => EF.Functions.Like(x.FullName, $"%{term}%"),
-                x => new CustomerTableDataVM
+                if (!string.IsNullOrEmpty(sortColumn))
                 {
-                    ID = x.CustomerID,
-                    Name = x.FullName,
-                    Type = x.IsPerson == false ? "Company" : "Individual",
-                    TotalBranch = x.CompanyBranches.Count(),
-                    TotalWarehouse = x.CompanyWarehouses.Count(),
-                });
+                    query = sortColumn switch
+                    {
+                        "CustomerID" => sortOrder == "desc" ? query.OrderByDescending(x => x.CustomerID) : query.OrderBy(x => x.CustomerID),
+                        "CustomerName" => sortOrder == "desc" ? query.OrderByDescending(x => x.FullName) : query.OrderBy(x => x.FullName),
+                        "CreatedAt" => sortOrder == "desc" ? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt),
+                        _ => query.OrderBy(x => x.CustomerID)
+                    };
+                }
+
+                return await PaginationService<Customers, CustomerTableDataVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
+                    term => x => EF.Functions.Like(x.FullName, $"%{term}%"),
+                    x => new CustomerTableDataVM
+                    {
+                        ID = x.CustomerID,
+                        Name = x.FullName,
+                        Type = x.IsPerson == false ? "Company" : "Individual",
+                        TotalBranch = x.CompanyBranches.Count(),
+                        TotalWarehouse = x.CompanyWarehouses.Count(),
+                    });
+            }
+            catch (Exception) { return new PaginationService<Customers, CustomerTableDataVM>.PaginationResult<CustomerTableDataVM>(); }
         }
         #endregion
 
         #region GetCustomerInfo
         public async Task<CustomerVM> GetCustomerInfo(int id, int organizationID)
         {
-            var customer = await _customersRepository.AllActive()
+            try
+            {
+                var customer = await _customersRepository.AllActive()
                 .Include(c => c.CustomerAddresses)
                     .ThenInclude(ca => ca.Address)
                 .Include(a => a.CustomerAddresses)
@@ -703,35 +720,37 @@ namespace GCTL.Service.CRM.Customer
                     c.IsPerson,
                     Address = c.CustomerAddresses
                         .Select(ca => ca.Address)
-                        .Where(a=> a.CustomerAddresses.Select(x => x.AddressType.AddressTypeName.ToLower() == "individual" || x.AddressType.AddressTypeName.ToLower() == "company")
+                        .Where(a => a.CustomerAddresses.Select(x => x.AddressType.AddressTypeName.ToLower() == "individual" || x.AddressType.AddressTypeName.ToLower() == "company")
                         .FirstOrDefault())
                 })
                 .FirstOrDefaultAsync();
 
-            if (customer == null)
-                return new CustomerVM();
+                if (customer == null)
+                    return new CustomerVM();
 
-            var vm = new CustomerVM
-            {
-                Id = customer.CustomerID,
-                FirstName = customer.Address?.Select(x=>x.FirstName).FirstOrDefault() ?? "",
-                LastName = customer.Address?.Select(x => x.LastName).FirstOrDefault() ?? "",
-                CompnayName = customer.IsPerson == false ? customer.FullName : "",
-                FullAddress = customer.Address?.Select(x => x.FullAddress).FirstOrDefault() ?? "",
-                City = customer.Address?.Select(x => x.City).FirstOrDefault() ?? "",
-                Additionaladdress = customer.Address?.Select(x => x.Additionaladdress).FirstOrDefault() ?? "",
-                State = customer.Address?.Select(x => x.State).FirstOrDefault() ?? "",
-                Street = customer.Address?.Select(x => x.Street).FirstOrDefault() ?? "",
-                Phone = customer.Address?.Select(x => x.Phone).FirstOrDefault() ?? "",
-                OtherPhone = customer.Address?.Select(x => x.OtherPhone).FirstOrDefault() ?? "",
-                Email = customer.Address?.Select(x => x.Email).FirstOrDefault() ?? "",
-                CountryID = customer.Address?.Select(x => x.CountryID).FirstOrDefault(),
-                PostalCode = customer.Address?.Select(x => x.PostalCode).FirstOrDefault() ?? "",
-                Longitude = customer.Address?.Select(x => x.Longitude).FirstOrDefault(),
-                Latitude = customer.Address?.Select(x => x.Latitude).FirstOrDefault()
-            };
+                var vm = new CustomerVM
+                {
+                    Id = customer.CustomerID,
+                    FirstName = customer.Address?.Select(x => x.FirstName).FirstOrDefault() ?? "",
+                    LastName = customer.Address?.Select(x => x.LastName).FirstOrDefault() ?? "",
+                    CompnayName = customer.IsPerson == false ? customer.FullName : "",
+                    FullAddress = customer.Address?.Select(x => x.FullAddress).FirstOrDefault() ?? "",
+                    City = customer.Address?.Select(x => x.City).FirstOrDefault() ?? "",
+                    Additionaladdress = customer.Address?.Select(x => x.Additionaladdress).FirstOrDefault() ?? "",
+                    State = customer.Address?.Select(x => x.State).FirstOrDefault() ?? "",
+                    Street = customer.Address?.Select(x => x.Street).FirstOrDefault() ?? "",
+                    Phone = customer.Address?.Select(x => x.Phone).FirstOrDefault() ?? "",
+                    OtherPhone = customer.Address?.Select(x => x.OtherPhone).FirstOrDefault() ?? "",
+                    Email = customer.Address?.Select(x => x.Email).FirstOrDefault() ?? "",
+                    CountryID = customer.Address?.Select(x => x.CountryID).FirstOrDefault(),
+                    PostalCode = customer.Address?.Select(x => x.PostalCode).FirstOrDefault() ?? "",
+                    Longitude = customer.Address?.Select(x => x.Longitude).FirstOrDefault(),
+                    Latitude = customer.Address?.Select(x => x.Latitude).FirstOrDefault()
+                };
 
-            return vm;
+                return vm;
+            }
+            catch (Exception) { return new CustomerVM(); }
         }
 
 
@@ -741,70 +760,128 @@ namespace GCTL.Service.CRM.Customer
         #region Get CompanyBranchList
         public async Task<List<BranchVM>> GetBranchList(int companyID, int organizationID)
         {
-            var customer = await _customersRepository.AllActive()
+            try
+            {
+                var customer = await _customersRepository.AllActive()
                 .Include(q => q.CompanyBranches)
                 .ThenInclude(q => q.CompanyBranchAddresses)
                 .ThenInclude(q => q.Address)
                 .FirstOrDefaultAsync(q => q.CustomerID == companyID && q.OrganizationID == organizationID);
 
-            if (customer == null)
-                return new List<BranchVM>();
+                if (customer == null)
+                    return new List<BranchVM>();
 
-            var result = customer.CompanyBranches
-                .Select(x => new BranchVM
-                {
-                    Bid = x.BranchID,
-                    BCustomerID = x.CustomerID,
-                    BName = x.BranchName ?? "",
-                    BFirstName = x.CompanyBranchAddresses.Select(x=> x.Address.FirstName).FirstOrDefault() ?? "",
-                    BLastName = x.CompanyBranchAddresses.Select(x=> x.Address.LastName).FirstOrDefault() ?? "",
-                    BFullAddress = x.CompanyBranchAddresses.Select(x=> x.Address.FullAddress).FirstOrDefault() ?? "",
-                    BAdditionaladdress = x.CompanyBranchAddresses.Select(x=> x.Address.FullAddress).FirstOrDefault() ?? "",
-                    BCity = x.CompanyBranchAddresses.Select(x=> x.Address.City).FirstOrDefault() ?? "",
-                    BState = x.CompanyBranchAddresses.Select(x=> x.Address.State).FirstOrDefault() ?? "",
-                    BStreet = x.CompanyBranchAddresses.Select(x=> x.Address.Street).FirstOrDefault() ?? "",
-                    BPostalCode = x.CompanyBranchAddresses.Select(x=> x.Address.PostalCode).FirstOrDefault() ?? "",
-                    BPhone = x.CompanyBranchAddresses.Select(x=> x.Address.Phone).FirstOrDefault() ?? "",
-                    BOtherPhone = x.CompanyBranchAddresses.Select(x=> x.Address.OtherPhone).FirstOrDefault() ?? "",
-                    BCountryID = x.CompanyBranchAddresses.Select(x=> x.Address.CountryID).FirstOrDefault(),
-                })
-                .ToList();
+                var result = customer.CompanyBranches
+                    .Select(x => new BranchVM
+                    {
+                        Bid = x.BranchID,
+                        BCustomerID = x.CustomerID,
+                        BName = x.BranchName ?? "",
+                        BFirstName = x.CompanyBranchAddresses.Select(x => x.Address.FirstName).FirstOrDefault() ?? "",
+                        BLastName = x.CompanyBranchAddresses.Select(x => x.Address.LastName).FirstOrDefault() ?? "",
+                        BFullAddress = x.CompanyBranchAddresses.Select(x => x.Address.FullAddress).FirstOrDefault() ?? "",
+                        BAdditionaladdress = x.CompanyBranchAddresses.Select(x => x.Address.FullAddress).FirstOrDefault() ?? "",
+                        BCity = x.CompanyBranchAddresses.Select(x => x.Address.City).FirstOrDefault() ?? "",
+                        BState = x.CompanyBranchAddresses.Select(x => x.Address.State).FirstOrDefault() ?? "",
+                        BStreet = x.CompanyBranchAddresses.Select(x => x.Address.Street).FirstOrDefault() ?? "",
+                        BPostalCode = x.CompanyBranchAddresses.Select(x => x.Address.PostalCode).FirstOrDefault() ?? "",
+                        BPhone = x.CompanyBranchAddresses.Select(x => x.Address.Phone).FirstOrDefault() ?? "",
+                        BOtherPhone = x.CompanyBranchAddresses.Select(x => x.Address.OtherPhone).FirstOrDefault() ?? "",
+                        BCountryID = x.CompanyBranchAddresses.Select(x => x.Address.CountryID).FirstOrDefault(),
+                    })
+                    .ToList();
 
-            return result;
+                return result;
+            } catch (Exception) { return new List<BranchVM>(); }
+            
         }
         #endregion
-        #region Get CompanyBranchList
+
+        #region Get GetBranchInfo
         public async Task<BranchVM> GetBranchInfo(int customerID, int branchId, int organizationID)
         {
-            var customer = await _customersRepository.AllActive()
+            try
+            {
+                var customer = await _customersRepository.AllActive()
                 .Include(q => q.CompanyBranches)
                 .ThenInclude(q => q.CompanyBranchAddresses)
                 .ThenInclude(q => q.Address)
                 .FirstOrDefaultAsync(q => q.CustomerID == customerID && q.OrganizationID == organizationID);
 
-            if (customer == null)
+                if (customer == null)
+                    return new BranchVM();
+
+                var result = customer.CompanyBranches
+                    .Where(b => b.BranchID == branchId)
+                    .Select(x => new BranchVM
+                    {
+                        Bid = x.BranchID,
+                        BName = x.BranchName ?? "",
+                        BFirstName = x.CompanyBranchAddresses.Select(x => x.Address.FirstName).FirstOrDefault() ?? "",
+                        BLastName = x.CompanyBranchAddresses.Select(x => x.Address.LastName).FirstOrDefault() ?? "",
+                        BFullAddress = x.CompanyBranchAddresses.Select(x => x.Address.FullAddress).FirstOrDefault() ?? "",
+                        BAdditionaladdress = x.CompanyBranchAddresses.Select(x => x.Address.FullAddress).FirstOrDefault() ?? "",
+                        BCity = x.CompanyBranchAddresses.Select(x => x.Address.City).FirstOrDefault() ?? "",
+                        BState = x.CompanyBranchAddresses.Select(x => x.Address.State).FirstOrDefault() ?? "",
+                        BStreet = x.CompanyBranchAddresses.Select(x => x.Address.Street).FirstOrDefault() ?? "",
+                        BPostalCode = x.CompanyBranchAddresses.Select(x => x.Address.PostalCode).FirstOrDefault() ?? "",
+                        BPhone = x.CompanyBranchAddresses.Select(x => x.Address.Phone).FirstOrDefault() ?? "",
+                        BOtherPhone = x.CompanyBranchAddresses.Select(x => x.Address.OtherPhone).FirstOrDefault() ?? "",
+                        BCountryID = x.CompanyBranchAddresses.Select(x => x.Address.CountryID).FirstOrDefault(),
+                    }).FirstOrDefault();
+
+                return result;
+            } catch(Exception)
+            {
                 return new BranchVM();
+            }
+            
+        }
+        #endregion
 
-            var result = customer.CompanyBranches
-                .Where(b => b.BranchID == branchId)
-                .Select(x => new BranchVM
+        #region get GetOrganizationTypesList 
+        public async Task<ReturnDataView<SelectListItem>> GetOrganizationTypesList(string search, int page, int pageSize, int organizationID, string userFor="Branch")
+        {
+            try
+            {
+                var query = _organizationTypesRepository
+                                .AllActive().Where(x=> x.UseFor == userFor);
+
+
+                if (!string.IsNullOrWhiteSpace(search))
                 {
-                    Bid = x.BranchID,
-                    BName = x.BranchName ?? "",
-                    BFirstName = x.CompanyBranchAddresses.Select(x=> x.Address.FirstName).FirstOrDefault() ?? "",
-                    BLastName = x.CompanyBranchAddresses.Select(x=> x.Address.LastName).FirstOrDefault() ?? "",
-                    BFullAddress = x.CompanyBranchAddresses.Select(x=> x.Address.FullAddress).FirstOrDefault() ?? "",
-                    BAdditionaladdress = x.CompanyBranchAddresses.Select(x=> x.Address.FullAddress).FirstOrDefault() ?? "",
-                    BCity = x.CompanyBranchAddresses.Select(x=> x.Address.City).FirstOrDefault() ?? "",
-                    BState = x.CompanyBranchAddresses.Select(x=> x.Address.State).FirstOrDefault() ?? "",
-                    BStreet = x.CompanyBranchAddresses.Select(x=> x.Address.Street).FirstOrDefault() ?? "",
-                    BPostalCode = x.CompanyBranchAddresses.Select(x=> x.Address.PostalCode).FirstOrDefault() ?? "",
-                    BPhone = x.CompanyBranchAddresses.Select(x=> x.Address.Phone).FirstOrDefault() ?? "",
-                    BOtherPhone = x.CompanyBranchAddresses.Select(x=> x.Address.OtherPhone).FirstOrDefault() ?? "",
-                    BCountryID = x.CompanyBranchAddresses.Select(x=> x.Address.CountryID).FirstOrDefault(),
-                }).FirstOrDefault();
+                    string pattern = $"%{search}%";
 
-            return result;
+                    query = query.Where(c =>
+                        c != null &&
+                        (
+                            EF.Functions.Like(c.OrganizationTypeName, pattern) ||
+                            EF.Functions.Like(c.CreatedAt, pattern)
+                        ));
+                }
+
+
+                var totalCount = await query.CountAsync();
+
+                var items = await query
+                    .OrderBy(c => c.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize).Select(t => new SelectListItem
+                    {
+                        Value = t.OrganizationTypeID.ToString(),
+                        Text = t.OrganizationTypeName
+                    }).ToListAsync();
+
+                return new ReturnDataView<SelectListItem>
+                {
+                    data = items,
+                    totalItem = totalCount,
+                    message = "Data loaded"
+                };
+            } catch(Exception e) {
+                return new ReturnDataView<SelectListItem>();
+            }
+            
         }
         #endregion
     }

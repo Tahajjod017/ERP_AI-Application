@@ -39,6 +39,7 @@ namespace GCTL.Service.MasterSetup.CompanyTypes
 
                     entityToRestore.OrganizationTypeName = model.TypeName;
                     entityToRestore.OrganizationID = model.OrganizationID;
+                    entityToRestore.UseFor = model.UseFor;
                     entityToRestore.CreatedAt = DateTime.Now;
                     entityToRestore.CreatedBy = model.CreatedBy;
                     entityToRestore.LIP = model.LIP;
@@ -54,6 +55,7 @@ namespace GCTL.Service.MasterSetup.CompanyTypes
                 {
                     OrganizationTypes entity = new OrganizationTypes();
                     entity.OrganizationTypeName = model.TypeName;
+                    entity.UseFor = model.UseFor;
                     entity.OrganizationID = model.OrganizationID;
                     entity.CreatedAt = DateTime.Now;
                     entity.CreatedBy = model.CreatedBy;
@@ -94,6 +96,7 @@ namespace GCTL.Service.MasterSetup.CompanyTypes
                 var beforeEntity = JsonConvert.DeserializeObject<OrganizationTypeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 entity.OrganizationTypeName = model.TypeName;
+                entity.UseFor = model.UseFor;
                 entity.OrganizationID = model.OrganizationID;
                 entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = model.UpdatedBy;
@@ -103,7 +106,7 @@ namespace GCTL.Service.MasterSetup.CompanyTypes
                 await _genericRepository.UpdateAsync(entity);
 
                 var afterEntity = JsonConvert.DeserializeObject<OrganizationTypeVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
-                await _userInfoService.ActionLogAsync("Gender", ActionName.DataUpdated, beforeEntity, afterEntity, entity.OrganizationTypeID, model);
+                await _userInfoService.ActionLogAsync("OrganizationTypes", ActionName.DataUpdated, beforeEntity, afterEntity, entity.OrganizationTypeID, model);
 
                 await _genericRepository.CommitTransactionAsync();
 
@@ -123,13 +126,14 @@ namespace GCTL.Service.MasterSetup.CompanyTypes
         {
             try
             {
-                var data = await _genericRepository.FirstOrDefaultAsync(q=> q.OrganizationTypeID == id && q.OrganizationTypeID == organizationID);
+                var data = await _genericRepository.FirstOrDefaultAsync(q=> q.OrganizationTypeID == id && q.OrganizationID == organizationID);
                 if (data == null) return null;
 
                 return new OrganizationTypeVM
                 {
                     Id = data.OrganizationTypeID,
                     TypeName = data.OrganizationTypeName,
+                    UseFor = data.UseFor,
                 };
             }
             catch (Exception ex)
@@ -181,7 +185,7 @@ namespace GCTL.Service.MasterSetup.CompanyTypes
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Gender", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+                await _userInfoService.ActionLogDeleteAsync("OrganizationTypes", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 
@@ -211,6 +215,7 @@ namespace GCTL.Service.MasterSetup.CompanyTypes
                 {
                     "Id" => sortOrder == "desc" ? query.OrderByDescending(x => x.OrganizationTypeID) : query.OrderBy(x => x.OrganizationTypeID),
                     "TypeName" => sortOrder == "desc" ? query.OrderByDescending(x => x.OrganizationTypeName) : query.OrderBy(x => x.OrganizationTypeName),
+                    "UserFor" => sortOrder == "desc" ? query.OrderByDescending(x => x.UseFor) : query.OrderBy(x => x.UseFor),
                     _ => query.OrderBy(x => x.OrganizationTypeID)
                 };
             }
@@ -221,6 +226,7 @@ namespace GCTL.Service.MasterSetup.CompanyTypes
                 {
                     Id = x.OrganizationTypeID,
                     TypeName = x.OrganizationTypeName ?? "-",
+                    UseFor = x.UseFor ?? "-",
                 });
         }
         #endregion
