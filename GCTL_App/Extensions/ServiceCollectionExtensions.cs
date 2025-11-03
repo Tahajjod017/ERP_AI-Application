@@ -121,6 +121,7 @@ using GCTL.Service.PayRollManagements.PayRollLoanManagement;
 using GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.PayRollManagements.PayRollSettings;
+using GCTL.Service.POS.Product;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL.Service.VisitingPath;
@@ -257,9 +258,15 @@ namespace GCTL_App.Extensions
             services.AddScoped<IYearlyReportService, YearlyReportService>();
             services.AddScoped<ILocalizationSettingService, LocalizationSettingService>();
             services.AddScoped<IBrandingAssetService, BrandingAssetService>();
-          
+
             #endregion
 
+            #region POS
+
+            services.AddScoped<ISingleProduct, SingleProductService>();
+
+
+            #endregion
 
             #region Language Services
 
