@@ -20,6 +20,8 @@ using GCTL.Service.UserProfile;
 using GCTL.Core;
 using System.Web;
 using GCTL.Core.Helpers.LipLmacAddress;
+using GCTL_App.Controllers.AttendanceManagement.AttentendceReports.DailyReport;
+using System.Data.SqlTypes;
 
 namespace GCTL_App.Controllers
 {
@@ -29,6 +31,7 @@ namespace GCTL_App.Controllers
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+       
         private readonly AppDbContext _Db;
         private readonly IEmailService _emailService;
         private readonly IGenericRepository<ActionLogs> actionLogs;
@@ -215,92 +218,7 @@ namespace GCTL_App.Controllers
         }
 
 
-        // for fast login
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Login(LoginViewModel model)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return View(model);
-
-        //    var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
-
-        //    if (!result.Succeeded)
-        //    {
-        //        ViewData["ErrorMessage"] = "Invalid login attempt.";
-        //        return View(model);
-        //    }
-
-        //    var user = await _userManager.FindByEmailAsync(model.Email);
-        //    if (user == null)
-        //    {
-        //        ModelState.AddModelError("", "User not found.");
-        //        return View(model);
-        //    }
-
-        //    var userRoles = await _userManager.GetRolesAsync(user);
-
-        //    var claims = new List<Claim>
-        //                {
-        //                    new Claim(ClaimTypes.NameIdentifier, user.Id),
-        //                    new Claim(ClaimTypes.Email, user.Email),
-        //                    new Claim(ClaimTypes.Name, user.UserName)
-        //                };
-
-        //    foreach (var role in userRoles)
-        //    {
-        //        claims.Add(new Claim(ClaimTypes.Role, role));
-        //    }
-
-        //    // 🔥 REMOVE the permission claims if you are using DB-based permission check
-
-        //    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        //    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-        //    var authProps = new AuthenticationProperties
-        //    {
-        //        IsPersistent = model.RememberMe,
-        //        ExpiresUtc = DateTime.UtcNow.AddMinutes(30)
-        //    };
-
-        //    try
-        //    {
-        //        await HttpContext.SignInAsync(
-        //            CookieAuthenticationDefaults.AuthenticationScheme,
-        //            claimsPrincipal,
-        //            authProps);
-
-        //        // Log success
-        //        _logger.LogInformation("User signed in successfully.");
-
-        //        // Action log (optional)
-        //        //try
-        //        //{
-        //        //    var actiondata = new ActionLogs
-        //        //    {
-        //        //        CreatedBy = user.EmployeeId,
-        //        //        UserEmail = model.Email,
-        //        //        ActionName = ActionName.LogIn,
-        //        //        LIP = GetLocalIP(),
-        //        //        LMAC = GetMacAddress(),
-        //        //        CreatedAt = DateTime.Now
-        //        //    };
-        //        //    await actionLogs.AddAsync(actiondata);
-        //        //}
-        //        //catch (Exception ex)
-        //        //{
-        //        //    _logger.LogError(ex, "Login succeeded but logging failed.");
-        //        //}
-
-        //        return RedirectToAction("Index", "Home");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error occurred while signing in the user.");
-        //        TempData["ErrorMessage"] = "An error occurred during sign-in. Please try again.";
-        //        return View(model);
-        //    }
-        //}
+      
         [HttpGet]
         public IActionResult Register() => View();
 
@@ -582,49 +500,155 @@ namespace GCTL_App.Controllers
         }
         public async Task<IActionResult> SendOtpToEmail(string email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
+            try
+            {
+                var employee = await _Db.Employees
+                    .Where(e => e.EmployeeOfficeInfoEmployee
+                        .Any(x => x.OfficeEmail != null && x.OfficeEmail == email))
+                    .Select(e => new
+                    {
+                        e.FirstName,
+                        e.LastName
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (employee == null)
+                {
+                    TempData["AlertType"] = "danger";
+                    TempData["AlertMessage"] = "This email address is not registered. Please check for typos or contact support if needed.";
+                    return RedirectToAction("EmailOtpPage", new { email });
+                }
+
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    var firstName = employee?.FirstName ?? "";
+                    var lastName = employee?.LastName ?? "";
+                    var employeeName = $"{firstName} {lastName}".Trim();
+
+                    if (string.IsNullOrWhiteSpace(employeeName))
+                    {
+                        employeeName = "Human";
+                    }
+
+                    TempData["AlertType"] = "danger";
+                    TempData["AlertMessage"] = $"Dear {employeeName}, your email is recognized as an employee account but not registered as a user. Please contact the system administrator for access.";
+                    return RedirectToAction("EmailOtpPage", new { email });
+                }
+
+                var otp = await _userManager.GenerateUserTokenAsync(
+                    user, TokenOptions.DefaultEmailProvider, "ResetPasswordOTP");
+
+                var model = new
+                {
+                    Name = user.UserName,
+                    OTP = otp
+                };
+
+                var result = await _emailService.SendEmailAsync(
+                    toEmail: email,
+                    subject: "Password Reset OTP",
+                    razorTemplateFile: "OtpTemplateV2.html",
+                    model: model,
+                    null,
+                    null
+                );
+
+                if (!result.Contains("success", StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["AlertType"] = "danger";
+                    TempData["AlertMessage"] = result;
+                    return RedirectToAction("Login");
+                }
+
+                TempData["AlertType"] = "success";
+                TempData["AlertMessage"] = "OTP has been sent successfully!";
+                TempData["Email"] = email;
+                return RedirectToAction("TwoStepPage");
+            }
+            catch (SqlNullValueException)
             {
                 TempData["AlertType"] = "danger";
-                TempData["AlertMessage"] = "Sorry, this email is not registered in our system.";
-                //TempData["Email"] = email;
-                // Avoid revealing user existence  
-                return RedirectToAction("EmailOtpPage", new { email = email });
+                TempData["AlertMessage"] = "There was a problem retrieving employee data. Please contact support.";
+                return RedirectToAction("EmailOtpPage", new { email });
             }
-
-            // Generate OTP token for password reset  
-            var otp = await _userManager.GenerateUserTokenAsync(
-                user, TokenOptions.DefaultEmailProvider, "ResetPasswordOTP");
-
-            // Prepare data model for Razor template  
-            var model = new
-            {
-                Name = user.UserName, // or use user.FullName if available  
-                OTP = otp
-            };
-
-            // Use IEmailService to send the email with Razor HTML  
-            var result = await _emailService.SendEmailAsync(
-                toEmail: email,
-                subject: "Password Reset OTP",
-                razorTemplateFile: "OtpTemplateV2.html",
-                model: model,
-                null, // Fix: Move optional parameters to the end  
-                null
-            );
-
-            // Optionally check if email failed  
-            if (!result.Contains("success", StringComparison.OrdinalIgnoreCase))
+            catch (Exception ex)
             {
                 TempData["AlertType"] = "danger";
-                TempData["AlertMessage"] = result;
-                return RedirectToAction("Login"); // or show error message  
+                TempData["AlertMessage"] = "An unexpected error occurred. Please try again later.";
+                // Optionally log: _logger.LogError(ex, "Error in SendOtpToEmail");
+                return RedirectToAction("EmailOtpPage", new { email });
             }
-            TempData["AlertType"] = "success";
-            TempData["AlertMessage"] = "OTP has been sent successfully!";
-            TempData["Email"] = email;
-            return RedirectToAction("TwoStepPage");
         }
+        //public async Task<IActionResult> SendOtpToEmail(string email)
+        //{
+
+        //    // Corrected the LINQ query to fix the CS0119 error
+        //    var employee = await _Db.Employees
+        //                   .Include(e => e.EmployeeOfficeInfoEmployee)
+        //                   .FirstOrDefaultAsync(e => e.EmployeeOfficeInfoEmployee
+        // .Any(x => x.OfficeEmail == email));
+
+        //    if (employee == null)
+        //    {
+        //        TempData["AlertType"] = "danger";
+        //        TempData["AlertMessage"] = "This email address is not registered. Please check for typos or contact support if needed.";
+
+        //        return RedirectToAction("EmailOtpPage", new { email = email });
+        //    }
+
+        //    var user = await _userManager.FindByEmailAsync(email);
+        //    if (user == null)
+        //    {
+        //        var firstName = employee.FirstName ?? "";
+        //        var lastName = employee.LastName ?? "";
+        //        var employeeName = $"{firstName} {lastName}".Trim();
+
+        //        if (string.IsNullOrWhiteSpace(employeeName))
+        //        {
+        //            employeeName = "Human";
+        //        }
+
+
+        //        TempData["AlertType"] = "danger";
+        //        TempData["AlertMessage"] = $"{employeeName}, your email is recognized as an employee account but not registered as a user. Please contact the system administrator for access.";
+
+        //        return RedirectToAction("EmailOtpPage", new { email = email });
+        //    }
+
+        //    // Generate OTP token for password reset  
+        //    var otp = await _userManager.GenerateUserTokenAsync(
+        //        user, TokenOptions.DefaultEmailProvider, "ResetPasswordOTP");
+
+        //    // Prepare data model for Razor template  
+        //    var model = new
+        //    {
+        //        Name = user.UserName, // or use user.FullName if available  
+        //        OTP = otp
+        //    };
+
+        //    // Use IEmailService to send the email with Razor HTML  
+        //    var result = await _emailService.SendEmailAsync(
+        //        toEmail: email,
+        //        subject: "Password Reset OTP",
+        //        razorTemplateFile: "OtpTemplateV2.html",
+        //        model: model,
+        //        null, // Fix: Move optional parameters to the end  
+        //        null
+        //    );
+
+        //    // Optionally check if email failed  
+        //    if (!result.Contains("success", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        TempData["AlertType"] = "danger";
+        //        TempData["AlertMessage"] = result;
+        //        return RedirectToAction("Login"); // or show error message  
+        //    }
+        //    TempData["AlertType"] = "success";
+        //    TempData["AlertMessage"] = "OTP has been sent successfully!";
+        //    TempData["Email"] = email;
+        //    return RedirectToAction("TwoStepPage");
+        //}
 
         //public async Task<IActionResult> GetEmployeeCodes()
         //{
