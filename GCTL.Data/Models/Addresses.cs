@@ -57,6 +57,8 @@ public partial class Addresses
 
     public virtual ICollection<CompanyWarehouseAddresses> CompanyWarehouseAddresses { get; set; } = new List<CompanyWarehouseAddresses>();
 
+    public virtual Country Country { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual ICollection<CustomerAddresses> CustomerAddresses { get; set; } = new List<CustomerAddresses>();

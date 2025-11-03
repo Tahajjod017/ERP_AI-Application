@@ -29,6 +29,8 @@ public partial class Country
 
     public int? DeletedBy { get; set; }
 
+    public virtual ICollection<Addresses> Addresses { get; set; } = new List<Addresses>();
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual ICollection<Customers1> Customers1 { get; set; } = new List<Customers1>();

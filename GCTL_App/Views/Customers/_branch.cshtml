@@ -9,7 +9,7 @@
         <h5 class="mb-2 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Branch</h5>
         <div class="row g-3">
             <form id="branchForm" action="/Customers/SaveBranch" method="post">
-                <input type="number" asp-for="Bid" name="name" hidden />
+                <input type="hidden" asp-for="Bid" value="0" />
                 <div class="row px-5">
                     <!-- Left Section -->
                     <div class="col-md-6">

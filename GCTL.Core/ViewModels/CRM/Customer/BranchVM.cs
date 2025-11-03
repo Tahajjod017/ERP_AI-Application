@@ -9,6 +9,7 @@ namespace GCTL.Core.ViewModels.CRM.Customer
         public string BName { get; set; }
         [Required(ErrorMessage = "Customer name is required")]
         public int? BCustomerID { get; set; }
+        public string? BCustomerName { get; set; }
         [Required(ErrorMessage = "First Name is required")]
         public string? BFirstName { get; set; }
 
@@ -27,6 +28,7 @@ namespace GCTL.Core.ViewModels.CRM.Customer
         public string? BPostalCode { get; set; }
 
         public int? BCountryID { get; set; }
+        public string? BCountryName { get; set; }
 
         public decimal? BLatitude { get; set; }
 

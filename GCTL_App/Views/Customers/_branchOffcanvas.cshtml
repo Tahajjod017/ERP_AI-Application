@@ -1,6 +1,9 @@
-﻿<div class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
-    <div class="offcanvas-body small p-1" style="position: relative;">
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close" style="position: absolute; right: 15px; top:15px;"></button>
+﻿<div class="branchOffcanvas offcanvas offcanvas-bottom" tabindex="-1" id="branchOffcanvasBottom" aria-labelledby="branchOffcanvasBottomLabel">
+    <div class="offcanvas-header p-2">
+        <h5 class="offcanvas-title ms-3 fs-7" id="offcanvasBottomLabel">Branch Information</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="branchOffcanvas-body small p-1" style="position: relative;">
         <div class="card-body py-0 scrollbar to-do-list-body">
             <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis">
                 <div class="row g-3 justify-content-between align-items-end mb-2 mt-0">
@@ -52,7 +55,7 @@
                                 <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Action")</th>
                             </tr>
                         </thead>
-                        <tbody id="offcanvas-body"></tbody>
+                        <tbody id="branchOffcanvas-body"></tbody>
                     </table>
                 </div>
 

@@ -11,12 +11,18 @@ namespace GCTL.Service.CRM.Customer
         Task<ReturnView> CreateCustomer(CustomerVM customerVM);
         Task<ReturnView> UpdateCustomer(CustomerVM model);
         Task<ReturnView> CreateBranch(BranchVM branchVM);
+        Task<ReturnView> UpdateBranch(BranchVM branchVM);
         Task<ReturnView> CreateWarehouse(WarehouseVM model);
+        Task<ReturnView> UpdateWarehouse(WarehouseVM model);
         Task<ReturnView> CreateShipping(ShippingVM model);
+        Task<ReturnView> UpdateShipping(ShippingVM model);
         Task<PaginationService<Customers, CustomerTableDataVM>.PaginationResult<CustomerTableDataVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CustomerName", string sortOrder = "asc");
         Task<CustomerVM> GetCustomerInfo(int id, int organizationID);
         Task<BranchVM> GetBranchInfo(int customerID, int branchId, int organizationID);
+        Task<WarehouseVM> GetWarehouseInfo(int customerID, int branchId, int organizationID);
         Task<List<BranchVM>> GetBranchList(int companyID, int organizationID);
         Task<ReturnDataView<SelectListItem>> GetOrganizationTypesList(string search, int page, int pageSize, int organizationID, string userFor = "Branch");
+        Task<PaginationService<CompanyWarehouses, WarehouseVM>.PaginationResult<WarehouseVM>> GetAllWarehouseAsync(int customerID, int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CreateAt", string sortOrder = "desc");
+        Task<PaginationService<CustomerAddresses, ShippingVM>.PaginationResult<ShippingVM>> GetAllShippingAsync(int customerID, int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CreatedAt", string sortOrder = "desc");
     }
 }
