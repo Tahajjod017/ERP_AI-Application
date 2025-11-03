@@ -142,3 +142,45 @@ label.req::after {
     padding: 2px 1rem !important;
 }
 
+
+
+
+[data-bs-theme="dark"] .select2-results__option--selected {
+    background-color: #333 !important;
+    color: #fff !important;
+}
+
+[data-bs-theme="dark"] .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: #0057d9 !important;
+    color: #fff !important;
+}
+
+
+
+
+
+[data-bs-theme="dark"] .select2-container--default .select2-selection--single {
+    background-color: #141824 !important;
+    color: #373e53 !important;
+    border-color: inherit !important;
+}
+
+
+    [data-bs-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: rgb(133, 140, 160) !important;
+    }
+
+
+
+
+
+[data-bs-theme="dark"] .select2-dropdown {
+    background-color: #2a2a2a !important;
+    color: #f0f0f0 !important;
+    border-color: #373e53 !important;
+}
+
+[data-bs-theme="dark"] .select2-results__option {
+    color: #9fa6bc !important;
+    background: #141824;
+}

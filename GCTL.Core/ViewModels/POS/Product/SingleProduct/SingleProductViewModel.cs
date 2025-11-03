@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
 {
-    public class SingleProductViewModel
+    public class SingleProductViewModel : BaseViewModel
     {
         [Required]
         [Display(Name = "Product Type")]
@@ -91,26 +91,14 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         [Display(Name = "VAT %")]
         public string VATPercentage { get; set; }
 
-        // Attributes
-        //[Display(Name = "Size Attribute")]
-        //public bool HasSizeAttribute { get; set; }
-
-        //[Display(Name = "Color Attribute")]
-        //public bool HasColorAttribute { get; set; }
-
-        //[Display(Name = "Materials Attribute")]
-        //public bool HasMaterialsAttribute { get; set; }
-
-        //public List<string> SelectedSizes { get; set; } = new List<string>();
-        //public List<string> SelectedColors { get; set; } = new List<string>();
-        //public List<string> SelectedMaterials { get; set; } = new List<string>();
+       
 
         // Barcode
-        [Display(Name = "Barcode SKU")]
-        public string BarcodeSKU { get; set; }
+        //[Display(Name = "Barcode SKU")]
+        //public string? BarcodeSKU { get; set; }
 
-        [Display(Name = "Barcode Template")]
-        public string BarcodeTemplate { get; set; } = "Standard";
+        //[Display(Name = "Barcode Template")]
+        //public string BarcodeTemplate { get; set; } = "Standard";
 
         // Custom Fields
         [Display(Name = "Has Warranties")]
@@ -136,5 +124,23 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
 
         // Images
         public List<IFormFile> ProductImages { get; set; } = new List<IFormFile>();
+
+
+        [Display(Name = "Special Price")]
+        public decimal? SpecialPrice { get; set; }
+
+        [Display(Name = "Customer Group")]
+        public string? CustomerGroup { get; set; }
+
+        [Display(Name = "Special Price Start Date")]
+        public DateTime? SpecialPriceStartDate { get; set; }
+
+        [Display(Name = "Special Price End Date")]
+        public DateTime? SpecialPriceEndDate { get; set; }
+
+        // Tier Pricing
+        public List<TierPriceViewModel> TierPrices { get; set; } = new List<TierPriceViewModel>();
+
+
     }
 }
