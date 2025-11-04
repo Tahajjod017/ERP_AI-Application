@@ -3,7 +3,7 @@
         <h5 class="offcanvas-title ms-3 fs-7" id="offcanvasBottomLabel">Warehouse Information</h5>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    <div class="warehouseOffcanvas-body small p-1" style="position: relative;">
+    <div class="offcanvas-body small p-1" style="position: relative;">
         <div class="card-body py-0 scrollbar to-do-list-body">
             <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis">
                 <div class="row g-3 justify-content-between align-items-end mb-2 mt-0">
@@ -48,10 +48,12 @@
                                     <input type="checkbox" class="form-check-input" id="branch-check-all" />
                                 </th>
                                 <th class="text-center text-middle align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Sl. No")</th>
-                                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="branchName">@Html.SmartLocalize("Customer")</th>
-                                <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Type")</th>
-                                <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Branch")</th>
-                                <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Warehouse")</th>
+                                <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="branchName">@Html.SmartLocalize("Warehouse Name")</th>
+                                <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Customer Name")</th>
+                                <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Name")</th>
+                                <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Phone")</th>
+                                <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Email")</th>
+                                <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Full Address")</th>
                                 <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Action")</th>
                             </tr>
                         </thead>

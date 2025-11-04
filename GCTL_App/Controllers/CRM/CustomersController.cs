@@ -198,6 +198,24 @@ namespace GCTL_App.Controllers.CRM
 
         #endregion
 
+        #region GetWarehouseInfo
+        [HttpPost]
+        public async Task<IActionResult> GetShippingInfo(int customerID, int shippingId)
+        {
+            try
+            {
+                if (shippingId <= 0 || customerID <= 0)
+                    return Json(new { success = false, message = "Id is not accessible" });
+                var result = await _customerService.GetShippingInfo(customerID, shippingId, await GetCurrentOrganizationIdAsync() ?? 0);
+                return Ok(result);
+            }
+            catch (Exception ex) {
+                return Json(new { success = false, messsage = ex });
+            }
+        }
+
+        #endregion
+
         #region getCustomerInfo
         [HttpPost]
         public async Task<IActionResult> GetBranchList(int id)

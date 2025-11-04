@@ -11,7 +11,7 @@
     <div class="d-flex flex-column h-100 my-3">
         <h5 class="mb-2 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Shipping</h5>
         <div class="row g-3">
-            <form id="WarehouseForm" action="/Customers/SaveShipping" method="post">
+            <form id="ShippingForm" action="/Customers/SaveShipping" method="post">
                 <input type="hidden" asp-for="Sid" value="0"/>
                 <div class="row px-5">
                     <!-- Left Section -->
@@ -27,26 +27,26 @@
                         <div class="row">
                             <div class="col-md-6 pe-1 col-sm-6 mb-2">
                                 <label class="form-label req">First Name</label>
-                                <input type="text" asp-for="SFirstName" class="form-control" placeholder="">
+                                <input type="text" asp-for="SFirstName" class="form-control" placeholder="e.g. John">
                             </div>
                             <div class="col-md-6 ps-1 col-sm-6 mb-2">
                                 <label class="form-label">Last Name</label>
-                                <input type="text" asp-for="SLastName" class="form-control" placeholder="">
+                                <input type="text" asp-for="SLastName" class="form-control" placeholder="e.g. Smith">
                             </div>
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label">Phone</label>
-                            <input class="form-control" asp-for="SPhone" type="tel" placeholder="Phone Number" />
+                            <input class="form-control" asp-for="SPhone" type="tel" placeholder="+8801XXXXXXXXX" />
                             <div class="text-danger" id="errorShow"></div>
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label">Other Phone</label>
-                            <input class="form-control" id="bOtherPhone" type="tel" placeholder="Other Phone" />
+                            <input class="form-control" asp-for="SOtherPhone" placeholder="+8801XXXXXXXXX" />
                             <div class="text-danger" id="errorShow"></div>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Email</label>
-                            <input type="text" asp-for="SEmail" class="form-control" placeholder="">
+                            <input type="text" asp-for="SEmail" class="form-control" placeholder="example@domain.com">
                             <div class="text-danger" id="errorShow"></div>
                         </div>
                     </div>
@@ -54,17 +54,17 @@
                     <div class="col-md-6">
                         <div class="col-md-12 mb-2">
                             <label class="form-label">Full Address</label>
-                            <input type="text" asp-for="SFullAddress" class="form-control" placeholder="Address">
+                            <input type="text" asp-for="SFullAddress" class="form-control" placeholder="e.g. 123 Main Street, Dhaka">
                         </div>
                         <div class="col-md-12">
                             <div class="row">
                                 <div class="col-md-6 pe-1 col-sm-6 mb-2">
                                     <label class="form-label">Street</label>
-                                    <input type="text" asp-for="SStreet" class="form-control" placeholder="Street">
+                                    <input type="text" asp-for="SStreet" class="form-control" placeholder="e.g. Banani Road 11">
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6 mb-2">
                                     <label class="form-label">City</label>
-                                    <input type="text" asp-for="SCity" class="form-control" placeholder="City">
+                                    <input type="text" asp-for="SCity" class="form-control" placeholder="e.g. Dhaka">
                                 </div>
                             </div>
                         </div>
@@ -72,11 +72,11 @@
                             <div class="row">
                                 <div class="col-md-6 pe-1 col-sm-6 mb-2">
                                     <label class="form-label">Additional Address</label>
-                                    <input type="text" asp-for="SAdditionaladdress" class="form-control" placeholder="">
+                                    <input type="text" asp-for="SAdditionaladdress" class="form-control" placeholder="e.g. Apartment 4B, 2nd Floor">
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6 mb-2">
                                     <label class="form-label">State/Province</label>
-                                    <input type="text" asp-for="SState" class="form-control" placeholder="">
+                                    <input type="text" asp-for="SState" class="form-control" placeholder="e.g. Dhaka Division">
                                 </div>
                             </div>
                         </div>
@@ -84,7 +84,7 @@
                             <div class="row">
                                 <div class="col-md-6 pe-1 col-sm-6 mb-2">
                                     <label class="form-label">Zip/Postal Code</label>
-                                    <input asp-for="SPostalCode" type="text" class="form-control" placeholder="">
+                                    <input asp-for="SPostalCode" type="text" class="form-control" placeholder="e.g. 1207">
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6 mb-2">
                                     <label class="form-label">Country</label>
@@ -98,11 +98,11 @@
                             <div class="row">
                                 <div class="col-md-6 pe-1 col-sm-6 mb-2">
                                     <label class="form-label">Latitude</label>
-                                    <input type="text" asp-for="SLatitude" class="form-control" placeholder="">
+                                    <input type="text" asp-for="SLatitude" class="form-control" placeholder="e.g. 23.8103">
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6 mb-2">
                                     <label class="form-label">Longitude</label>
-                                    <input type="text" asp-for="SLongitude" class="form-control" placeholder="">
+                                    <input type="text" asp-for="SLongitude" class="form-control" placeholder="e.g. 90.4125">
                                 </div>
                             </div>
                         </div>

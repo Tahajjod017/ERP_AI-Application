@@ -1,7 +1,7 @@
 ﻿window.dataTable = function (root) {
     root = root || document;
 
-    //#region GetAll Data
+    //#region GetAll customer Data
     var currentPage = 1;
     var pageSize = 5;
     let currentSortColumn = 'CreatedAt';
@@ -34,9 +34,10 @@
                             <td class="text-center text-middle align-middle white-space-nowrap p-0 py-1">${rowIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.name}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.type}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.organizationTypeName}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="branchListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#branchOffcanvasBottom" aria-controls="branchOffcanvasBottom">${item.totalBranch}</a></td>
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="warehouseListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#warehouseOffcanvasBottom" aria-controls="warehouseOffcanvasBottom">${item.totalWarehouse}</a></td>
-                            <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="branchListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#shippingOffcanvasBottom" aria-controls="shippingOffcanvasBottom">${item.totalShipping}</a></td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="shippingListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#shippingOffcanvasBottom" aria-controls="shippingOffcanvasBottom">${item.totalShipping}</a></td>
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3  py-1">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 customer-edit" href="#!" id="customer-edit" data-id="${item.id}"><i class="fas fa-edit"></i></a>
@@ -55,7 +56,7 @@
                 $("#gender-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
                 $("#gender-totalCount").text(`(${paginationInfo.totalItems})`);
 
-                updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
+                updatePagination("#customer-paginationLinks", "#customer-prevPageBtn", "#customer-nextPageBtn", paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
             },
             error: function () {
                 console.log("Error! Fetching all data.");
@@ -88,9 +89,10 @@
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0 py-1">${index + 1}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bName}</td>
-                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.bFirstName}</td>
-                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.bLastName}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.bOrganizationTypeName}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.bFirstName} ${item.bLastName}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bPhone}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.bEmail}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bFullAddress}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3">
@@ -104,6 +106,12 @@
                 } else {
                     tableBody.append('<tr><td colspan="6" class="text-center">No data available</td></tr>');
                 }
+                var paginationInfo = response.paginationInfo;
+
+                $("#branch-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                $("#branch-totalCount").text(`(${paginationInfo.totalItems})`);
+
+                updatePagination("#branch-paginationLinks", "#branch-prevPageBtn", "#branch-nextPageBtn", paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
             },
             error: function (res) {
                 console.error("Error fetching branches:", res);
@@ -123,9 +131,12 @@
             },
             success: function (response) {
                 showDev(response)
-                const form = document.querySelector("#customerForm");
 
+                changeTab("#customer-tab", "#customer");
+                GoToTop();
+                const form = document.querySelector("#customerForm");
                 select2ScrollingDataSet('#CountryID', response.countryID, response.countryName)
+                select2ScrollingDataSet('#OrganizationTypeID', response.organizationTypeID, response.organizationTypeName)
                 setFormValues(form, response);
             },
             error: function (res) {
@@ -161,13 +172,70 @@
                 branchId: bid,
             },
             success: function (response) {
-                showDev(response)
                 changeTab("#branch-tab", "#branch");
                 hideOffcanvas('branchOffcanvasBottom');
 
                 const form = document.querySelector("#branchForm");
                 select2ScrollingDataSet('#BCountryID', response.bCountryID, response.bCountryName)
                 select2ScrollingDataSet("#BCustomerID", response.bCustomerID, response.bCustomerName)
+                select2ScrollingDataSet("#BOrganizationTypeID", response.bOrganizationTypeID, response.bOrganizationTypeName)
+                setFormValues(form, response);
+            },
+            error: function (res) {
+                showDev(res);
+            }
+        });
+    });
+    //#endregion
+
+    //#region warehouse edit
+    $(document).on("click", ".warehouse-edit", function () {
+        let wid = $(this).data("wid");
+        let cid = $(this).data("cid");
+
+        $.ajax({
+            url: '/Customers/GetWarehouseInfo',
+            method: 'POST',
+            data: {
+                customerID: cid,
+                warehouseId: wid,
+            },
+            success: function (response) {
+                changeTab("#warehouse-tab", "#warehouse");
+                hideOffcanvas('warehouseOffcanvasBottom');
+
+                const form = document.querySelector("#WarehouseForm");
+                select2ScrollingDataSet('#WCountryID', response.wCountryID, response.wCountryName)
+                select2ScrollingDataSet("#WCustomerID", response.wCustomerID, response.wCustomerName)
+                setFormValues(form, response);
+            },
+            error: function (res) {
+                showDev(res);
+            }
+        });
+    });
+    //#endregion
+
+    //#region warehouse edit
+    $(document).on("click", ".shipping-edit", function () {
+        let sid = $(this).data("sid");
+        let cid = $(this).data("cid");
+
+        $.ajax({
+            url: '/Customers/GetShippingInfo',
+            method: 'POST',
+            data: {
+                customerID: cid,
+                shippingId: sid,
+            },
+            success: function (response) {
+                showDev(response);
+                changeTab("#shipping-tab", "#shipping");
+                hideOffcanvas('shippingOffcanvasBottom');
+
+                const form = document.querySelector("#ShippingForm");
+                select2ScrollingDataSet('#SCountryID', response.sCountryID, response.sCountryName)
+                select2ScrollingDataSet("#SCustomerID", response.sCustomerID, response.sCustomerName)
                 setFormValues(form, response);
             },
             error: function (res) {
@@ -223,9 +291,19 @@
     }
     //#endregion
 
+    //#region go to Top 
+    function GoToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+    }
+    //#endregion
+
     //#region Update Pagination
-    function updatePagination(pageNumbers, currentPage, totalPages) {
-        const paginationLinks = $("#gender-paginationLinks");
+    function updatePagination(paginationLink, prevPageBtn, nextPageBtn, pageNumbers, currentPage, totalPages) {
+        const paginationLinks = $(paginationLink);
         paginationLinks.empty();
         const windowSize = 1;
         const createPageButton = (page) => `
@@ -245,8 +323,8 @@
         if (currentPage < totalPages - windowSize) {
             paginationLinks.append(addEllipsis(), createPageButton(totalPages));
         }
-        $("#gender-prevPageBtn").prop('disabled', currentPage === 1);
-        $("#gender-nextPageBtn").prop('disabled', currentPage === totalPages);
+        $(prevPageBtn).prop('disabled', currentPage === 1);
+        $(nextPageBtn).prop('disabled', currentPage === totalPages);
     }
     //#endregion
 
@@ -263,13 +341,14 @@
     var wpageSize = 5;
     let wcurrentSortColumn = 'CreatedAt';
     let wcurrentSortOrder = 'desc';
-    function loadWarehouseTableData(sortColumn, sortOrder) {
+    function loadWarehouseTableData(customerID, sortColumn, sortOrder) {
         var searchTerm = $("#warehouse-searchInput").val();
-
+        
         $.ajax({
             url: '/Customers/GetWarehouseList',
             method: 'GET',
             data: {
+                customerID: customerID,
                 pageNumber: wcurrentPage,
                 pageSize: wpageSize,
                 searchTerm: searchTerm,
@@ -278,7 +357,7 @@
             },
             success: function (response) {
                 showDev(response);
-                var tableBody = $("#warehouse-tBody");
+                var tableBody = $("#warehouseOffcanvas-body");
                 tableBody.empty();
                 if (response.data.length > 0) {
                     response.data.forEach(function (item, index) {
@@ -286,18 +365,19 @@
                         tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle py-1" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input gender-selectItem" data-id="${item.wid}" />
+                                <input type="checkbox" class="form-check-input warehouse-selectItem" data-id="${item.wid}" />
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0 py-1">${index + 1}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.wName}</td>
-                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.wFirstName}</td>
-                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.wLastName}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.wCustomerName}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.wFirstName} ${item.wLastName}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.wPhone}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.wEmail}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.wFullAddress}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 branch-edit" href="#!" id="customer-edit" data-cid="${item.wCustomerID}" data-bid="${item.wid}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 gender-bulkEdit" href="#!" id="customer-single-delete" data-id="${item.wid}"><span class="fas fa-trash"></span></a>
+                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 warehouse-edit" href="#!" data-cid="${item.wCustomerID}" data-wid="${item.wid}"><i class="fas fa-edit"></i></a>
+                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 warehouse-bulkEdit" href="#!" id="customer-single-delete" data-id="${item.wid}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -312,21 +392,92 @@
                 $("#warehouse-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
                 $("#warehouse-totalCount").text(`(${paginationInfo.totalItems})`);
 
-                updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
+                updatePagination("#warehouse-paginationLinks", "#warehouse-prevPageBtn", "#warehosue-nextPageBtn", paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
             },
             error: function () {
                 console.log("Error! Fetching all data.");
             }
         });
-
-
     }
     //#endregion
 
-    //#region warehouse TableDataGet
-    $(".warehouseListBtn").on("click", function () {
-        debugger
-        loadWarehouseTableData(wcurrentSortColumn, wcurrentSortOrder);
+    //#region shipping Table DataGet
+    $(document).on("click", ".warehouseListBtn", function () {
+        var customerID = $(this).data("id");
+        loadWarehouseTableData(customerID, wcurrentSortColumn, wcurrentSortOrder);
+    })
+    //#endregion
+
+    //#region GetAll shipping Data
+    var scurrentPage = 1;
+    var spageSize = 5;
+    let scurrentSortColumn = 'CreatedAt';
+    let scurrentSortOrder = 'desc';
+    function loadWShippingTableData(customerID, sortColumn, sortOrder) {
+        var searchTerm = $("#warehouse-searchInput").val();
+        
+        $.ajax({
+            url: '/Customers/GetShippingList',
+            method: 'GET',
+            data: {
+                customerID: customerID,
+                pageNumber: scurrentPage,
+                pageSize: spageSize,
+                searchTerm: searchTerm,
+                sortColumn: sortColumn,
+                sortOrder: sortOrder
+            },
+            success: function (response) {
+                showDev(response);
+                var tableBody = $("#shippingOffcanvas-body");
+                tableBody.empty();
+                if (response.data.length > 0) {
+                    response.data.forEach(function (item, index) {
+                        var rowIndex = (currentPage - 1) * pageSize + index + 1;
+                        tableBody.append(`
+                        <tr class="position-static">
+                            <td class="text-center text-middle align-middle py-1" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input shipping-selectItem" data-id="${item.sid}" />
+                            </td>
+                            <td class="text-center text-middle align-middle white-space-nowrap ps-0 py-1">${index + 1}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.sFullAddress}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.sFirstName} ${item.sLastName}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.sPhone}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.sEmail}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.sStreet}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.sCity}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.sAdditionaladdress}</td>
+                            <td class="align-middle text-end white-space-nowrap pe-2 py-1">
+                                <div class="row g-3">
+                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 shipping-edit" href="#!" data-cid="${item.sCustomerID}" data-sid="${item.sid}"><i class="fas fa-edit"></i></a>
+                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 shipping-bulkEdit" href="#!" id="shipping-single-delete" data-id="${item.sid}"><span class="fas fa-trash"></span></a>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                    });
+                } else {
+                    tableBody.append('<tr><td colspan="7" class="text-center">No data available</td></tr>');
+                }
+
+                let paginationInfo = response.paginationInfo;
+
+                $("#shipping-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                $("#shipping-totalCount").text(`(${paginationInfo.totalItems})`);
+
+                updatePagination("#shipping-paginationLinks", "#shipping-prevPageBtn", "#shipping-nextPageBtn", paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
+            },
+            error: function () {
+                console.log("Error! Fetching all data.");
+            }
+        });
+    }
+    //#endregion
+
+    //#region shipping TableDataGet
+    $(document).on("click", ".shippingListBtn", function () {
+        var customerID = $(this).data("id");
+        loadWShippingTableData(customerID, scurrentSortColumn, scurrentSortOrder);
     })
     //#endregion
 };

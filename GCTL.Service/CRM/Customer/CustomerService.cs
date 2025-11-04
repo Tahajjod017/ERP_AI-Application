@@ -1,13 +1,11 @@
 ﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.Customer;
-using GCTL.Core.ViewModels.MasterSetup.Genders;
 using GCTL.Data.Models;
 using GCTL.Service.Finance.TransactionAccount;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Index.HPRtree;
 
 namespace GCTL.Service.CRM.Customer
 {
@@ -49,7 +47,7 @@ namespace GCTL.Service.CRM.Customer
         }
         #endregion
 
-        #region CreatePerson
+        #region InserAddressTypeIntoDB
 
         public async Task<bool> InserAddressTypeIntoDB(string? LIP, string? LMAC, int? CreatedBy)
         {
@@ -183,6 +181,7 @@ namespace GCTL.Service.CRM.Customer
                     FullName = string.IsNullOrEmpty(model.CompnayName) ? model.FirstName + " " + model.LastName : model.CompnayName,
                     OrganizationID = model.OrganizationID, // have to be change later
                     IsPerson = string.IsNullOrEmpty(model.CompnayName) ? true : false,
+                    OrganizationTypeID = string.IsNullOrEmpty(model.CompnayName) ? model.OrganizationTypeID : null,
                     HeadID = head.HeadID, // Added by Md. Rakib Hasan
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = model.CreatedBy,
@@ -305,6 +304,7 @@ namespace GCTL.Service.CRM.Customer
                 customerObj.FullName = string.IsNullOrEmpty(model.CompnayName)
                     ? $"{model.FirstName} {model.LastName}"
                     : model.CompnayName;
+                customerObj.OrganizationTypeID = string.IsNullOrEmpty(model.CompnayName) ? null : model.OrganizationTypeID;
                 customerObj.OrganizationID = model.OrganizationID;
                 customerObj.IsPerson = string.IsNullOrEmpty(model.CompnayName);
                 customerObj.UpdatedAt = DateTime.UtcNow;
@@ -418,12 +418,14 @@ namespace GCTL.Service.CRM.Customer
                             .ThenInclude(a => a.Country)
                     .Include(c => c.CustomerAddresses)
                         .ThenInclude(ca => ca.AddressType)
+                    .Include(c => c.OrganizationType)
                     .Where(c => c.CustomerID == id && c.OrganizationID == organizationID)
                     .Select(c => new
                     {
                         c.CustomerID,
                         c.FullName,
                         c.IsPerson,
+                        c.OrganizationType,
                         Address = c.CustomerAddresses
                             .Where(ca => ca.AddressType.AddressTypeName.ToLower() == "individual"
                                       || ca.AddressType.AddressTypeName.ToLower() == "company")
@@ -444,6 +446,8 @@ namespace GCTL.Service.CRM.Customer
                     FirstName = address?.FirstName ?? "",
                     LastName = address?.LastName ?? "",
                     CompnayName = customer.IsPerson == true ? "" : customer.FullName,
+                    OrganizationTypeID = customer.OrganizationType  != null ? customer.OrganizationType.OrganizationTypeID : 0,
+                    OrganizationTypeName = customer.OrganizationType != null ? customer.OrganizationType.OrganizationTypeName : "",
                     FullAddress = address?.FullAddress ?? "",
                     City = address?.City ?? "",
                     Additionaladdress = address?.Additionaladdress ?? "",
@@ -471,7 +475,7 @@ namespace GCTL.Service.CRM.Customer
         {
             try
             {
-                var query = _customersRepository.AllActive().Include(x => x.CompanyWarehouses).Include(x => x.CompanyBranches).Where(t => t.OrganizationID == organizationID);
+                var query = _customersRepository.AllActive().Include(x => x.OrganizationType).Include(x=>x.CustomerAddresses).ThenInclude(x=> x.AddressType).Include(x => x.CompanyWarehouses).Include(x => x.CompanyBranches).Where(t => t.OrganizationID == organizationID);
                 query = query.Where(x => x.DeletedAt == null);
 
                 if (!string.IsNullOrEmpty(sortColumn))
@@ -492,9 +496,10 @@ namespace GCTL.Service.CRM.Customer
                         ID = x.CustomerID,
                         Name = x.FullName,
                         Type = x.IsPerson == false ? "Company" : "Individual",
+                        OrganizationTypeName = x.IsPerson == false && x.OrganizationType != null ? x.OrganizationType.OrganizationTypeName : "",
                         TotalBranch = x.CompanyBranches.Count(),
                         TotalWarehouse = x.CompanyWarehouses.Count(),
-                        TotalShipping = x.CustomerAddresses.Count(),
+                        TotalShipping = x.CustomerAddresses.Where(u => u.AddressType != null && u.AddressType.AddressTypeName == "shipping" ).Count(),
                     });
             }
             catch (Exception) { return new PaginationService<Customers, CustomerTableDataVM>.PaginationResult<CustomerTableDataVM>(); }
@@ -519,6 +524,7 @@ namespace GCTL.Service.CRM.Customer
                 var companyBranches = new CompanyBranches
                 {
                     BranchName = model.BName,
+                    OrganizationTypeID = model.BOrganizationTypeID,
                     CustomerID = model.BCustomerID,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = model.CreatedBy,
@@ -622,6 +628,7 @@ namespace GCTL.Service.CRM.Customer
 
                 // Update branch main info
                 branch.BranchName = model.BName;
+                branch.OrganizationTypeID = model.BOrganizationTypeID;
                 branch.CustomerID = model.BCustomerID;
                 branch.UpdatedAt = DateTime.UtcNow;
                 branch.UpdatedBy = model.UpdatedBy;
@@ -730,34 +737,37 @@ namespace GCTL.Service.CRM.Customer
             try
             {
                 var branch = await _companyBranchesRepository.AllActive()
+                    .Include(b => b.OrganizationType)
                     .Include(b => b.Customer)
                     .Include(b => b.CompanyBranchAddresses)
                         .ThenInclude(cba => cba.Address)
                             .ThenInclude(a => a.Country)
                     .Where(b => b.CustomerID == customerID &&
                                 b.BranchID == branchId &&
-                                b.Customer.OrganizationID == organizationID)
+                                b.Customer != null && b.Customer.OrganizationID == organizationID)
                     .Select(b => new BranchVM
                     {
                         Bid = b.BranchID,
                         BCustomerID = b.CustomerID,
                         BName = b.BranchName ?? "",
-                        BCustomerName = b.Customer.FullName,
-                        BFirstName = b.CompanyBranchAddresses.Select(a => a.Address.FirstName).FirstOrDefault() ?? "",
-                        BLastName = b.CompanyBranchAddresses.Select(a => a.Address.LastName).FirstOrDefault() ?? "",
-                        BEmail = b.CompanyBranchAddresses.Select(a => a.Address.Email).FirstOrDefault() ?? "",
-                        BFullAddress = b.CompanyBranchAddresses.Select(a => a.Address.FullAddress).FirstOrDefault() ?? "",
-                        BAdditionaladdress = b.CompanyBranchAddresses.Select(a => a.Address.Additionaladdress).FirstOrDefault() ?? "",
-                        BCity = b.CompanyBranchAddresses.Select(a => a.Address.City).FirstOrDefault() ?? "",
-                        BState = b.CompanyBranchAddresses.Select(a => a.Address.State).FirstOrDefault() ?? "",
-                        BStreet = b.CompanyBranchAddresses.Select(a => a.Address.Street).FirstOrDefault() ?? "",
-                        BPostalCode = b.CompanyBranchAddresses.Select(a => a.Address.PostalCode).FirstOrDefault() ?? "",
-                        BPhone = b.CompanyBranchAddresses.Select(a => a.Address.Phone).FirstOrDefault() ?? "",
-                        BOtherPhone = b.CompanyBranchAddresses.Select(a => a.Address.OtherPhone).FirstOrDefault() ?? "",
-                        BCountryID = b.CompanyBranchAddresses.Select(a => a.Address.CountryID).FirstOrDefault(),
-                        BCountryName = b.CompanyBranchAddresses.Select(a => a.Address.Country.CountryName).FirstOrDefault(),
-                        BLongitude = b.CompanyBranchAddresses.Select(a => a.Address.Longitude).FirstOrDefault(),
-                        BLatitude = b.CompanyBranchAddresses.Select(a => a.Address.Latitude).FirstOrDefault(),
+                        BOrganizationTypeID = b.OrganizationType != null ? b.OrganizationType.OrganizationTypeID : 0,
+                        BOrganizationTypeName = b.OrganizationType != null ? b.OrganizationType.OrganizationTypeName : "",
+                        BCustomerName = b.Customer != null ? b.Customer.FullName : "",
+                        BFirstName = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.FirstName : null).FirstOrDefault() ?? "",
+                        BLastName = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.LastName : null).FirstOrDefault() ?? "",
+                        BEmail = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Email : null).FirstOrDefault() ?? "",
+                        BFullAddress = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.FullAddress : null).FirstOrDefault() ?? "",
+                        BAdditionaladdress = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Additionaladdress : null).FirstOrDefault() ?? "",
+                        BCity = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.City : null).FirstOrDefault() ?? "",
+                        BState = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.State : null).FirstOrDefault() ?? "",
+                        BStreet = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Street : null).FirstOrDefault() ?? "",
+                        BPostalCode = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.PostalCode : null).FirstOrDefault() ?? "",
+                        BPhone = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Phone : null).FirstOrDefault() ?? "",
+                        BOtherPhone = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.OtherPhone : null).FirstOrDefault() ?? "",
+                        BCountryID = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.CountryID : null).FirstOrDefault(),
+                        BCountryName = b.CompanyBranchAddresses.Select(a => a.Address != null && a.Address.Country != null ? a.Address.Country.CountryName : null).FirstOrDefault(),
+                        BLongitude = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Longitude : null).FirstOrDefault(),
+                        BLatitude = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Latitude : null).FirstOrDefault(),
                     })
                     .FirstOrDefaultAsync();
 
@@ -778,6 +788,8 @@ namespace GCTL.Service.CRM.Customer
             {
                 var customer = await _customersRepository.AllActive()
                 .Include(q => q.CompanyBranches)
+                .ThenInclude(q => q.OrganizationType)
+                .Include(q => q.CompanyBranches)
                 .ThenInclude(q => q.CompanyBranchAddresses)
                 .ThenInclude(q => q.Address)
                 .FirstOrDefaultAsync(q => q.CustomerID == companyID && q.OrganizationID == organizationID);
@@ -790,18 +802,20 @@ namespace GCTL.Service.CRM.Customer
                     {
                         Bid = x.BranchID,
                         BCustomerID = x.CustomerID,
+                        BOrganizationTypeName = x.OrganizationType != null ?x.OrganizationType.OrganizationTypeName : "",
                         BName = x.BranchName ?? "",
-                        BFirstName = x.CompanyBranchAddresses.Select(x => x.Address.FirstName).FirstOrDefault() ?? "",
-                        BLastName = x.CompanyBranchAddresses.Select(x => x.Address.LastName).FirstOrDefault() ?? "",
-                        BFullAddress = x.CompanyBranchAddresses.Select(x => x.Address.FullAddress).FirstOrDefault() ?? "",
-                        BAdditionaladdress = x.CompanyBranchAddresses.Select(x => x.Address.FullAddress).FirstOrDefault() ?? "",
-                        BCity = x.CompanyBranchAddresses.Select(x => x.Address.City).FirstOrDefault() ?? "",
-                        BState = x.CompanyBranchAddresses.Select(x => x.Address.State).FirstOrDefault() ?? "",
-                        BStreet = x.CompanyBranchAddresses.Select(x => x.Address.Street).FirstOrDefault() ?? "",
-                        BPostalCode = x.CompanyBranchAddresses.Select(x => x.Address.PostalCode).FirstOrDefault() ?? "",
-                        BPhone = x.CompanyBranchAddresses.Select(x => x.Address.Phone).FirstOrDefault() ?? "",
-                        BOtherPhone = x.CompanyBranchAddresses.Select(x => x.Address.OtherPhone).FirstOrDefault() ?? "",
-                        BCountryID = x.CompanyBranchAddresses.Select(x => x.Address.CountryID).FirstOrDefault(),
+                        BFirstName = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.FirstName : "").FirstOrDefault() ?? "",
+                        BLastName = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.LastName : "").FirstOrDefault() ?? "",
+                        BEmail = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.Email : "").FirstOrDefault() ?? "",
+                        BFullAddress = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.FullAddress : "").FirstOrDefault() ?? "",
+                        BAdditionaladdress = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.FullAddress : "").FirstOrDefault() ?? "",
+                        BCity = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.City : "").FirstOrDefault() ?? "",
+                        BState = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.State : "").FirstOrDefault() ?? "",
+                        BStreet = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.Street : "").FirstOrDefault() ?? "",
+                        BPostalCode = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.PostalCode : "").FirstOrDefault() ?? "",
+                        BPhone = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.Phone : "").FirstOrDefault() ?? "",
+                        BOtherPhone = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.OtherPhone : "").FirstOrDefault() ?? "",
+                        BCountryID = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.CountryID : 0).FirstOrDefault()?? 0,
                     })
                     .ToList();
 
@@ -812,7 +826,7 @@ namespace GCTL.Service.CRM.Customer
         }
         #endregion
 
-        #region Warehouse
+        #region CreateWarehouse
         public async Task<ReturnView> CreateWarehouse(WarehouseVM model)
         {
             // Begin transaction
@@ -1035,10 +1049,16 @@ namespace GCTL.Service.CRM.Customer
         }
         #endregion
 
-        #region get customer List
+        #region GetAllWarehouseAsync
         public async Task<PaginationService<CompanyWarehouses, WarehouseVM>.PaginationResult<WarehouseVM>>
-    GetAllWarehouseAsync(int customerID, int organizationID, int pageNumber = 1, int pageSize = 5,
-                         string searchTerm = "", string sortColumn = "WarehouseName", string sortOrder = "asc")
+    GetAllWarehouseAsync(
+        int customerID,
+        int organizationID,
+        int pageNumber = 1,
+        int pageSize = 5,
+        string searchTerm = "",
+        string sortColumn = "WarehouseName",
+        string sortOrder = "asc")
         {
             try
             {
@@ -1052,13 +1072,19 @@ namespace GCTL.Service.CRM.Customer
                 // Sorting
                 query = sortColumn switch
                 {
-                    "WarehouseID" => sortOrder == "desc" ? query.OrderByDescending(x => x.WarehouseID) : query.OrderBy(x => x.WarehouseID),
-                    "WarehouseName" => sortOrder == "desc" ? query.OrderByDescending(x => x.WarehouseName) : query.OrderBy(x => x.WarehouseName),
+                    "WarehouseID" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.WarehouseID)
+                        : query.OrderBy(x => x.WarehouseID),
+
+                    "WarehouseName" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.WarehouseName)
+                        : query.OrderBy(x => x.WarehouseName),
+
                     _ => query.OrderBy(x => x.WarehouseName)
                 };
 
-                // Pagination
-                return await PaginationService<CompanyWarehouses, WarehouseVM>.GetPaginatedData(
+                // Pagination and projection
+                var result = await PaginationService<CompanyWarehouses, WarehouseVM>.GetPaginatedData(
                     query,
                     pageNumber,
                     pageSize,
@@ -1071,92 +1097,175 @@ namespace GCTL.Service.CRM.Customer
                         Wid = x.WarehouseID,
                         WCustomerID = x.CustomerID,
                         WName = x.WarehouseName ?? "",
-                        WCustomerName = x.Customer.FullName,
-                        WFirstName = x.CompanyWarehouseAddresses.Select(a => a.Address.FirstName).FirstOrDefault() ?? "",
-                        WLastName = x.CompanyWarehouseAddresses.Select(a => a.Address.LastName).FirstOrDefault() ?? "",
-                        WEmail = x.CompanyWarehouseAddresses.Select(a => a.Address.Email).FirstOrDefault() ?? "",
-                        WFullAddress = x.CompanyWarehouseAddresses.Select(a => a.Address.FullAddress).FirstOrDefault() ?? "",
-                        WAdditionaladdress = x.CompanyWarehouseAddresses.Select(a => a.Address.Additionaladdress).FirstOrDefault() ?? "",
-                        WCity = x.CompanyWarehouseAddresses.Select(a => a.Address.City).FirstOrDefault() ?? "",
-                        WState = x.CompanyWarehouseAddresses.Select(a => a.Address.State).FirstOrDefault() ?? "",
-                        WStreet = x.CompanyWarehouseAddresses.Select(a => a.Address.Street).FirstOrDefault() ?? "",
-                        WPostalCode = x.CompanyWarehouseAddresses.Select(a => a.Address.PostalCode).FirstOrDefault() ?? "",
-                        WPhone = x.CompanyWarehouseAddresses.Select(a => a.Address.Phone).FirstOrDefault() ?? "",
-                        WOtherPhone = x.CompanyWarehouseAddresses.Select(a => a.Address.OtherPhone).FirstOrDefault() ?? "",
-                        WCountryID = x.CompanyWarehouseAddresses.Select(a => a.Address.CountryID).FirstOrDefault(),
-                        WCountryName = x.CompanyWarehouseAddresses.Select(a => a.Address.Country.CountryName).FirstOrDefault(),
-                        WLongitude = x.CompanyWarehouseAddresses.Select(a => a.Address.Longitude).FirstOrDefault(),
-                        WLatitude = x.CompanyWarehouseAddresses.Select(a => a.Address.Latitude).FirstOrDefault(),
+                        WCustomerName = x.Customer.FullName ?? "",
+
+                        WFirstName = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.FirstName : null)
+                            .FirstOrDefault() ?? "",
+
+                        WLastName = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.LastName : null)
+                            .FirstOrDefault() ?? "",
+
+                        WEmail = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.Email : null)
+                            .FirstOrDefault() ?? "",
+
+                        WFullAddress = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.FullAddress : null)
+                            .FirstOrDefault() ?? "",
+
+                        WAdditionaladdress = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.Additionaladdress : null)
+                            .FirstOrDefault() ?? "",
+
+                        WCity = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.City : null)
+                            .FirstOrDefault() ?? "",
+
+                        WState = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.State : null)
+                            .FirstOrDefault() ?? "",
+
+                        WStreet = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.Street : null)
+                            .FirstOrDefault() ?? "",
+
+                        WPostalCode = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.PostalCode : null)
+                            .FirstOrDefault() ?? "",
+
+                        WPhone = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.Phone : null)
+                            .FirstOrDefault() ?? "",
+
+                        WOtherPhone = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.OtherPhone : null)
+                            .FirstOrDefault() ?? "",
+
+                        WCountryID = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.CountryID : null)
+                            .FirstOrDefault(),
+
+                        WCountryName = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null && a.Address.Country != null
+                                ? a.Address.Country.CountryName
+                                : null)
+                            .FirstOrDefault() ?? "",
+
+                        WLongitude = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.Longitude : null)
+                            .FirstOrDefault(),
+
+                        WLatitude = x.CompanyWarehouseAddresses
+                            .Select(a => a.Address != null ? a.Address.Latitude : null)
+                            .FirstOrDefault(),
                     });
+
+                return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // (optional) log exception here if you have a logger
+                // _logger.LogError(ex, "Error in GetAllWarehouseAsync");
+
                 return new PaginationService<CompanyWarehouses, WarehouseVM>.PaginationResult<WarehouseVM>();
             }
         }
 
+
         #endregion
-        #region get customer List
+
+        #region GetAllShippingAsync
         public async Task<PaginationService<CustomerAddresses, ShippingVM>.PaginationResult<ShippingVM>>
-    GetAllShippingAsync(int customerID, int organizationID, int pageNumber = 1, int pageSize = 5,
-                         string searchTerm = "", string sortColumn = "WarehouseName", string sortOrder = "asc")
+GetAllShippingAsync(
+    int customerID,
+    int organizationID,
+    int pageNumber = 1,
+    int pageSize = 5,
+    string searchTerm = "",
+    string sortColumn = "ShippingAddress",
+    string sortOrder = "asc")
         {
             try
             {
-                var query = _customerAddressesRepository.AllActive()
-                    .Include(b => b.Customer)
-                    .Include(b => b.Address)
-                    .ThenInclude(b => b.Country)
-                    .Where(b => b.CustomerID == customerID && b.Customer.OrganizationID == organizationID);
+                var query = _customerAddressesRepository.All()
+                    .Include(x => x.AddressType)
+                    .Include(u => u.Address)
+                        .ThenInclude(u => u.Country)
+                    .Include(u => u.Customer)
+                    .Where(c =>
+                        c.Customer != null &&
+                        c.Customer.IsPerson == true &&
+                        c.AddressType != null &&
+                        c.AddressType.AddressTypeName == "shipping" &&
+                        c.Customer.DeletedAt == null &&
+                        c.CustomerID == customerID &&
+                        c.Customer.OrganizationID == organizationID
+                    );
 
-                // Sorting
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    query = query.Where(c =>
+                        c.Address != null &&
+                        EF.Functions.Like(c.Address.FullAddress ?? "", $"%{searchTerm}%")
+                    );
+                }
+
                 query = sortColumn switch
                 {
-                    "ShippingID" => sortOrder == "desc" ? query.OrderByDescending(x => x.AddressID) : query.OrderBy(x => x.AddressID),
-                    "ShippingAddress" => sortOrder == "desc" ? query.OrderByDescending(x => x.Address.FullAddress) : query.OrderBy(x => x.Address.FullAddress),
-                    _ => query.OrderBy(x => x.CreatedBy)
+                    "shippingID" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.CustomerAddressID)
+                        : query.OrderBy(x => x.CustomerAddressID),
+                    "FullAddress" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.Address.FullAddress)
+                        : query.OrderBy(x => x.Address.FullAddress),
+                    _ => query.OrderBy(x => x.Address.FullAddress)
                 };
 
-                // Pagination
-                return await PaginationService<CustomerAddresses, ShippingVM>.GetPaginatedData(
+                var result = await PaginationService<CustomerAddresses, ShippingVM>.GetPaginatedData(
                     query,
                     pageNumber,
                     pageSize,
                     searchTerm,
                     sortColumn,
                     sortOrder,
-                    term => x => EF.Functions.Like(x.Address.FullAddress, $"%{term}%"),
+                    term => c => c.Address != null && EF.Functions.Like(c.Address.FullAddress ?? "", $"%{term}%"),
                     x => new ShippingVM
                     {
-                        Sid = x.AddressID,
+                        Sid = x.CustomerAddressID,
                         SCustomerID = x.CustomerID,
-                        SCustomerName = x.Customer.FullName,
-                        SFirstName = x.Address.FirstName ?? "",
-                        SLastName = x.Address.LastName ?? "",
-                        SEmail = x.Address.Email ?? "",
-                        SFullAddress = x.Address.FullAddress ?? "",
-                        SAdditionaladdress = x.Address.Additionaladdress ?? "",
-                        SCity = x.Address.City ?? "",
-                        SState = x.Address.State ?? "",
-                        SStreet = x.Address.Street ?? "",
-                        SPostalCode = x.Address.PostalCode ?? "",
-                        SPhone = x.Address.Phone ?? "",
-                        SOtherPhone = x.Address.OtherPhone ?? "",
-                        SCountryID = x.Address.CountryID,
-                        SCountryName = x.Address.Country.CountryName,
-                        SLongitude = x.Address.Longitude,
-                        SLatitude = x.Address.Latitude,
+                        SCustomerName = x.Customer != null ? x.Customer.FullName : "",
+                        SFirstName = x.Address != null ? x.Address?.FirstName : "",
+                        SLastName = x.Address != null ? x.Address?.LastName : "",
+                        SEmail = x.Address != null ? x.Address?.Email : "",
+                        SFullAddress = x.Address != null ? x.Address.FullAddress : "",
+                        SAdditionaladdress = x.Address != null ? x.Address.Additionaladdress : "",
+                        SCity = x.Address != null ? x.Address?.City : "",
+                        SState = x.Address != null ? x.Address?.State : "",
+                        SStreet = x.Address != null ? x.Address?.Street : "",
+                        SPostalCode = x.Address != null ? x.Address?.PostalCode : "",
+                        SPhone = x.Address != null ? x.Address?.Phone : "",
+                        SOtherPhone = x.Address != null ? x.Address?.OtherPhone : "",
+                        SCountryID = x.Address?.Country?.CountryID,
+                        SCountryName = x.Address != null ? x.Address?.Country?.CountryName : "",
+                        SLongitude = x.Address?.Longitude,
+                        SLatitude = x.Address?.Latitude
                     });
+
+                return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // Log ex if needed
                 return new PaginationService<CustomerAddresses, ShippingVM>.PaginationResult<ShippingVM>();
             }
         }
 
+
         #endregion
 
-        #region Get GetBranchInfo
+        #region Get GetWarehouseInfo
         public async Task<WarehouseVM> GetWarehouseInfo(int customerID, int branchId, int organizationID)
         {
             try
@@ -1198,6 +1307,59 @@ namespace GCTL.Service.CRM.Customer
             catch
             {
                 return new WarehouseVM();
+            }
+        }
+
+        #endregion
+
+        #region Get GetShippingInfo
+        public async Task<ShippingVM> GetShippingInfo(int customerID, int shippingId, int organizationID)
+        {
+            try
+            {
+                var query = await _customerAddressesRepository.All()
+                    .Include(x => x.AddressType)
+                    .Include(u => u.Address)
+                        .ThenInclude(u => u.Country)
+                    .Include(u => u.Customer)
+                    .Where(c =>
+                        c.Customer != null &&
+                        c.Customer.IsPerson == true &&
+                        c.AddressType != null &&
+                        c.AddressType.AddressTypeName == "shipping" &&
+                        c.Customer.DeletedAt == null &&
+                        c.CustomerID == customerID &&
+                        c.CustomerAddressID == shippingId &&
+                        c.Customer.OrganizationID == organizationID
+                    )
+                    .Select(b => new ShippingVM
+                    {
+                        Sid = b.CustomerAddressID,
+                        SCustomerID = b.CustomerID,
+                        SCustomerName = b.Customer != null ? b.Customer.FullName : "",
+                        SFirstName = b.Address != null ? b.Address.FirstName : "",
+                        SLastName = b.Address != null ? b.Address.LastName : "",
+                        SEmail = b.Address != null ? b.Address.Email : "",
+                        SFullAddress = b.Address != null ? b.Address.FullAddress : "",
+                        SAdditionaladdress = b.Address != null ? b.Address.Additionaladdress : "",
+                        SCity = b.Address != null ? b.Address.City : "",
+                        SState = b.Address != null ? b.Address.State : "",
+                        SStreet = b.Address != null ? b.Address.Street : "",
+                        SPostalCode = b.Address != null ? b.Address.PostalCode : "",
+                        SPhone = b.Address != null ? b.Address.Phone : "",
+                        SOtherPhone = b.Address != null ? b.Address.OtherPhone : "",
+                        SCountryID = b.Address != null && b.Address.Country != null ? b.Address.Country.CountryID : 0,
+                        SCountryName = b.Address != null && b.Address.Country != null ? b.Address.Country.CountryName : "",
+                        SLongitude = b.Address != null ? b.Address.Longitude : 0,
+                        SLatitude = b.Address != null ? b.Address.Latitude : 0,
+                    })
+                    .FirstOrDefaultAsync();
+
+                return query ?? new ShippingVM();
+            }
+            catch
+            {
+                return new ShippingVM();
             }
         }
 

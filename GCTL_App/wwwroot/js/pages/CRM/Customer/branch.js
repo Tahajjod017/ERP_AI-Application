@@ -96,7 +96,7 @@
             width: '100%',
         });
     }
-    const branchTypeSelect = root.querySelector("#BranchType");
+    const branchTypeSelect = root.querySelector("#BOrganizationTypeID");
     if (branchTypeSelect && !branchTypeSelect.dataset.listenerAttached) {
         branchTypeSelect.dataset.listenerAttached = true;
         let dropdownParent = $(branchTypeSelect).closest('.modal');
