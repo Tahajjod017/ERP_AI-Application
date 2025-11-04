@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.POS.Product.SingleProduct;
 using GCTL.Data.Models;
+using GCTL.Service.ActionLogAudit;
 using Microsoft.AspNetCore.Http;
+using static Dapper.SqlMapper;
 
 namespace GCTL.Service.POS.Product
 {
@@ -15,15 +18,30 @@ namespace GCTL.Service.POS.Product
     {
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<ProductImages> _productImageRepository;
+        private readonly IGenericRepository<ProductPricing> _productPricingRepository;
+        private readonly IGenericRepository<ProductCustomFields> _productCustomFieldsRepository;
+        private readonly IGenericRepository<ProductAdvancedPricing> _productAdvPriceRepository;
+        private readonly IUserInfoService _userInfoService;
 
-        public SingleProductService(IGenericRepository<Products> productRepository, IGenericRepository<ProductImages> productImageRepository)
+        public SingleProductService(IGenericRepository<Products> productRepository, IGenericRepository<ProductImages> productImageRepository, IGenericRepository<ProductPricing> productPricingRepository, IGenericRepository<ProductCustomFields> productCustomFieldsRepository, IGenericRepository<ProductAdvancedPricing> productAdvPriceRepository, IUserInfoService userInfoService)
         {
             _productRepository = productRepository;
             _productImageRepository = productImageRepository;
+            _productPricingRepository = productPricingRepository;
+            _productCustomFieldsRepository = productCustomFieldsRepository;
+            _productAdvPriceRepository = productAdvPriceRepository;
+            _userInfoService = userInfoService;
         }
 
         public async Task<CommonReturnViewModel> AddProductAsync(SingleProductViewModel model)
         {
+
+            if (model.ProductImages?.Any() == false)
+            {
+                return new CommonReturnViewModel { Success = false, Message = "Image is Require, Please add least one Image", };
+            }
+
+            await _productImageRepository.BeginTransactionAsync();
             try
             {
                 var product = new Products
@@ -51,8 +69,7 @@ namespace GCTL.Service.POS.Product
                     CreatedAt = DateTime.UtcNow
                 };
 
-
-
+                
 
                 if (model.ProductImages?.Any() == true)
                 {
@@ -77,11 +94,76 @@ namespace GCTL.Service.POS.Product
                         };
 
                         product.ProductImages.Add(imageEntity);
+
+                        await _userInfoService.ActionLogAsync("SingleProduct/ProductImage", ActionName.DataAdd, null, imageEntity, imageEntity.ProductImageID, model);
+
                     }
                 }
 
 
                 await _productRepository.AddAsync(product, model);
+
+                await _userInfoService.ActionLogAsync("SingleProduct/Product", ActionName.DataAdd, null, product, product.ProductID, model);
+
+
+                var price = new ProductPricing()
+                {
+                    ProductID = product.ProductID,
+                    SellingPriceExclVAT = model.SellingPrice,
+                    VATPercent = Convert.ToDecimal(model.VATPercentage),
+                };
+
+                await _productPricingRepository.AddAsync(price, model);
+                await _userInfoService.ActionLogAsync("SingleProduct/ProductPrice", ActionName.DataAdd, null, price, price.PriceID, model);
+
+
+                var customField = new ProductCustomFields()
+                {
+                    ProductID = product.ProductID,
+                    WarrantyTypeID = model.HasWarranties == true ? model.Warranty : null,
+                    ManufacturedDate = model.HasManufacturer == true ? model.ManufacturedDate : null,
+                    ManufacturerName = model.HasManufacturer == true ? model.Manufacturer : null,
+                    ExpiryDate = model.HasExpiry == true ? model.ExpiryDate : null,
+                };
+                
+                await _productCustomFieldsRepository.AddAsync(customField, model);
+                await _userInfoService.ActionLogAsync("SingleProduct/PriceCustomField", ActionName.DataAdd, null, customField, customField.CustomFieldID, model);
+
+
+                var advPrice = new ProductAdvancedPricing()
+                {
+                    ProductID = product.ProductID,
+                    CustomerGroupID = model.CustomerGroup,
+                    StartDate = model.SpecialPriceStartDate,
+                    EndDate = model.SpecialPriceEndDate,
+
+                };
+
+                await _productAdvPriceRepository.AddAsync(advPrice, model);
+                await _userInfoService.ActionLogAsync("SingleProduct/advPrice", ActionName.DataAdd, null, advPrice, advPrice.ProductAdvancedPriceID, model);
+
+
+                if (model.TierPrices.Any())
+                {
+                    var advPrice2 = model.TierPrices.Select(e=> new ProductAdvancedPricing()
+                    {
+                        ProductID = product.ProductID,
+                        CustomerGroupID = e.CustomerGroup,
+                        MinQuantity = e.MinQuantity,
+                        MaxQuantity = e.MaxQuantity,
+                        PriceValue = e.Value,
+                        CalculationTypeID = e.PriceType,
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = model.CreatedBy,
+                        LIP = model.LIP,
+                        LMAC = model.LMAC
+
+                    }).ToList();
+
+                    await _productAdvPriceRepository.AddRangeAsync(advPrice2);
+                }
+
+                await _productRepository.CommitTransactionAsync();
 
                 return new CommonReturnViewModel
                 {
@@ -90,10 +172,16 @@ namespace GCTL.Service.POS.Product
                     Data = product.ProductID.ToString()
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                await _productRepository.RollbackTransactionAsync();
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = ex.Message,
+                   
+                };
+               
             }
            
         }
@@ -111,7 +199,8 @@ namespace GCTL.Service.POS.Product
                 await file.CopyToAsync(stream);
             }
 
-            return $"/media/products/{folderName}/{fileName}";
+            //return $"/media/products/{folderName}/{fileName}";
+            return $"{fileName}";
         }
 
 
