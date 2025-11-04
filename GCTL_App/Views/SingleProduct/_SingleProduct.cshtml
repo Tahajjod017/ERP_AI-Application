@@ -1,1073 +1,247 @@
 ﻿@model GCTL.Core.ViewModels.POS.Product.SingleProduct.SingleProductViewModel
 
 
-    <link href="https://cdn.jsdelivr.net/npm/lucide-static@0.16.29/font/lucide.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lucide-static@0.16.29/font/lucide.min.css" rel="stylesheet">
 
 
-    <style>
+<link href="~/css/pages/product/_SingleProduct.css" rel="stylesheet" />
 
 
-     
+<form asp-action="AddSingleProduct" asp-controller="SingleProduct" id="singleProductForm" method="post" enctype="multipart/form-data" class="">
+    <div class="add-product">
 
+        <div class="accordions-items-seperate border-0" id="accordionSpacingExample">
 
-
-      
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-            .header h1 {
-                font-size: 28px;
-                color: #1f2937;
-                margin-bottom: 8px;
-            }
-
-            .header p {
-                color: #6b7280;
-                font-size: 14px;
-            }
-
-        .upload-zone {
-            border: 3px dashed #d1d5db;
-            border-radius: 12px;
-            padding: 60px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-            .upload-zone::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-                transition: left 0.5s;
-            }
-
-            .upload-zone:hover::before {
-                left: 100%;
-            }
-
-            .upload-zone:hover {
-                border-color: #667eea;
-                background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%);
-                transform: translateY(-2px);
-            }
-
-            .upload-zone.drag-over {
-                border-color: #667eea;
-                background: linear-gradient(135deg, #ddd6fe 0%, #c7d2fe 100%);
-                transform: scale(1.02);
-                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-            }
-
-        .upload-icon-wrapper {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-
-        .upload-icon {
-            font-size: 64px;
-            color: #667eea;
-            opacity: 0.8;
-            height: 80px;
-        }
-
-        .upload-text {
-            color: #1f2937;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .upload-subtext {
-            color: #6b7280;
-            font-size: 14px;
-        }
-
-        .browse-btn {
-            color: #667eea;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-            .browse-btn:hover {
-                color: #5568d3;
-            }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .content-wrapper {
-            display: flex;
-            gap: 20px;
-            align-items: stretch;
-            margin-top: 30px;
-        }
-
-        .preview-container {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-            transition: all 0.3s ease;
-            align-content: start;
-        }
-
-            .preview-container:empty {
-                display: none;
-            }
-
-        .upload-zone-wrapper {
-            width: 300px;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-            .upload-zone-wrapper.has-images {
-                width: 250px;
-            }
-
-                .upload-zone-wrapper.has-images .upload-zone {
-                    padding: 30px 15px;
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                }
-
-                .upload-zone-wrapper.has-images .upload-icon {
-                    font-size: 48px;
-                }
-
-                .upload-zone-wrapper.has-images .upload-text {
-                    font-size: 14px;
-                }
-
-                .upload-zone-wrapper.has-images .upload-subtext {
-                    font-size: 12px;
-                }
-
-        .upload-zone {
-            min-height: 300px;
-        }
-
-        .upload-zone-wrapper.has-images .upload-zone {
-            min-height: 100%;
-        }
-
-        .preview-item {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #f9fafb;
-            aspect-ratio: 1;
-            animation: fadeIn 0.4s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: fit-content;
-        }
-
-            .preview-item:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: white;
-        }
-
-        .preview-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            padding: 15px;
-        }
-
-        .preview-item:hover .preview-overlay {
-            opacity: 1;
-        }
-
-        .file-name {
-            color: white;
-            font-size: 11px;
-            text-align: center;
-            word-break: break-word;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            margin-bottom: 5px;
-        }
-
-        .overlay-btn {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            min-width: 120px;
-            justify-content: center;
-        }
-
-            .overlay-btn:hover {
-                background: rgba(255, 255, 255, 0.3);
-                transform: scale(1.05);
-            }
-
-            .overlay-btn.remove {
-                background: rgba(239, 68, 68, 0.8);
-                border-color: rgba(239, 68, 68, 0.9);
-            }
-
-                .overlay-btn.remove:hover {
-                    background: rgba(220, 38, 38, 0.9);
-                }
-
-            .overlay-btn i {
-                font-size: 14px;
-            }
-
-        .progress-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: rgba(0, 0, 0, 0.1);
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-            .modal.active {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 35px;
-            max-width: 700px;
-            width: 100%;
-            position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.3s ease;
-        }
-
-        @@keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px) scale(0.9);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f3f4f6;
-        }
-
-        .modal-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1f2937;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-            .modal-title i {
-                color: #667eea;
-                font-size: 28px;
-            }
-
-        .close-btn {
-            background: #f3f4f6;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-            .close-btn:hover {
-                background: #e5e7eb;
-                transform: rotate(90deg);
-            }
-
-            .close-btn i {
-                font-size: 20px;
-                color: #6b7280;
-            }
-
-        .crop-container {
-            position: relative;
-            max-height: 400px;
-            margin: 0 auto 25px;
-            background: #f9fafb;
-            overflow: hidden;
-            border-radius: 12px;
-            border: 2px solid #e5e7eb;
-        }
-
-        .crop-image {
-            max-width: 100%;
-            max-height: 400px;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .crop-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .control-group {
-            position: relative;
-        }
-
-        .control-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-
-            .control-label i {
-                font-size: 16px;
-                color: #667eea;
-            }
-
-        .control-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: all 0.2s ease;
-        }
-
-            .control-input:focus {
-                outline: none;
-                border-color: #667eea;
-                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            }
-
-        .fit-options {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .fit-btn {
-            padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-            .fit-btn i {
-                font-size: 16px;
-            }
-
-            .fit-btn.active {
-                border-color: #667eea;
-                background: #667eea;
-                color: white;
-                transform: scale(1.05);
-            }
-
-            .fit-btn:hover:not(.active) {
-                border-color: #667eea;
-                background: #f5f3ff;
-            }
-
-        .canvas-preview {
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            max-width: 100%;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        .action-btn {
-            padding: 12px 28px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-            .action-btn i {
-                font-size: 18px;
-            }
-
-            .action-btn.primary {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-            }
-
-                .action-btn.primary:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-                }
-
-            .action-btn.secondary {
-                background: #f3f4f6;
-                color: #374151;
-            }
-
-                .action-btn.secondary:hover {
-                    background: #e5e7eb;
-                }
-
-        .upload-complete {
-            margin-top: 25px;
-            padding: 16px 20px;
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border-radius: 12px;
-            color: #065f46;
-            text-align: center;
-            font-weight: 600;
-            display: none;
-            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);
-        }
-
-            .upload-complete.show {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-                animation: slideIn 0.3s ease;
-            }
-
-            .upload-complete i {
-                font-size: 20px;
-            }
-
-        @@keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @@media (max-width: 640px) {
-            .content-wrapper {
-                flex-direction: column-reverse;
-            }
-
-            .upload-zone-wrapper {
-                width: 100% !important;
-            }
-
-                .upload-zone-wrapper.has-images .upload-zone {
-                    min-height: 200px;
-                }
-
-            .crop-controls {
-                grid-template-columns: 1fr;
-            }
-
-            .fit-options {
-                grid-template-columns: 1fr;
-            }
-
-            .preview-container {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 15px;
-            }
-        }
-    </style>
-
-
-
-
-    <div class="modal" id="cropModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">
-                    <i class="lucide lucide-crop"></i>
-                    Edit & Crop Image
+            <!-- Product Information Section -->
+            <div class="accordion-item mb-4">
+                <h2 class="accordion-header" id="headingSpacingOne">
+                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#SpacingOne"
+                         aria-expanded="true" aria-controls="SpacingOne">
+                        <div class="d-flex align-items-center justify-content-between flex-fill">
+                            <h5 class="d-flex align-items-center my-3">
+                                <i data-feather="info" class="text-primary me-2"></i>
+                                <span>@Html.SmartLocalize("Product Information (Single Product)")</span>
+                            </h5>
+                        </div>
+                    </div>
                 </h2>
-                <button class="close-btn" id="closeModal">
-                    <i class="lucide lucide-x"></i>
-                </button>
-            </div>
+                <div id="SpacingOne" class="accordion-collapse collapse show" aria-labelledby="headingSpacingOne">
+                    <div class="accordion-body">
 
-            <div class="crop-controls">
-                <div class="control-group">
-                    <label class="control-label">
-                        <i class="lucide lucide-ruler"></i>
-                        Width (px)
-                    </label>
-                    <input type="number" class="control-input" id="cropWidth" min="1" value="400">
-                </div>
-                <div class="control-group">
-                    <label class="control-label">
-                        <i class="lucide lucide-ruler"></i>
-                        Height (px)
-                    </label>
-                    <input type="number" class="control-input" id="cropHeight" min="1" value="400">
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label class="control-label">
-                    <i class="lucide lucide-maximize-2"></i>
-                    Image Fit
-                </label>
-                <div class="fit-options">
-                    <button class="fit-btn active" data-fit="contain">
-                        <i class="lucide lucide-square-dashed-bottom"></i>
-                        Contain
-                    </button>
-                    <button class="fit-btn" data-fit="cover">
-                        <i class="lucide lucide-expand"></i>
-                        Cover
-                    </button>
-                    <button class="fit-btn" data-fit="fill">
-                        <i class="lucide lucide-maximize"></i>
-                        Fill
-                    </button>
-                </div>
-            </div>
-
-            <div class="crop-container">
-                <img id="cropImage" class="crop-image" src="" alt="Crop preview">
-            </div>
-
-            <canvas id="previewCanvas" class="canvas-preview"></canvas>
-
-            <div class="modal-actions">
-                <button class="action-btn secondary" id="cancelCrop">
-                    <i class="lucide lucide-x"></i>
-                    Cancel
-                </button>
-                <button class="action-btn primary" id="applyCrop">
-                    <i class="lucide lucide-check"></i>
-                    Apply & Save
-                </button>
-            </div>
-        </div>
-    </div>
-
-
-
-
-
-    <div class="modal fade" id="advancedPricing" tabindex="-1" aria-labelledby="advancedPricingModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="advancedPriceingModalLabel">Advanced Price</h5>
-                    <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="">
-                        <div class="col-12 col-xl-12 col-xxl-12 ">
-
-                            <div class="col-12 row flex gy-3 pb-3">
-
-                                <div class="col-sm-6 col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">Special Price</label>
-                                        <input class="form-control" id="exampleFormControlInput" type="number"
-                                               placeholder="name@example.com" />
-                                    </div>
+                        <div class="row mt-4">
+                            <div class="col-sm-12 col-12">
+                                <div class="mb-3">
+                                    <label asp-for="ProductType" class="form-label">@Html.SmartLocalize("Product Type")</label>
+                                    <select asp-for="ProductType" id="singleProductType" class="form-select searchableSelect">
+                                        <option value="sp">@Html.SmartLocalize("Single Product")</option>
+                                        <option value="ap">@Html.SmartLocalize("Attribute Product")</option>
+                                    </select>
+                                    <span asp-validation-for="ProductType" class="text-danger"></span>
                                 </div>
+                            </div>
 
-                                <div class="col-sm-6 col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label" for="exampleFormControlInput">Customer Group</label>
-                                        <select class="form-select" id="organizerSingle" data-choices="data-choices">
-                                            <option value="">All Groups</option>
-                                            <option>Not Login</option>
-                                            <option>General</option>
-                                            <option selected>Wholesale</option>
-                                            <option>Retailer</option>
-                                        </select>
-                                    </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="mb-3">
+                                    <label asp-for="ProductName" class="form-label">@Html.SmartLocalize("Product Name")</label>
+                                    <input asp-for="ProductName" id="singleProductName" type="text" class="form-control border-1">
+                                    <span asp-validation-for="ProductName" class="text-danger"></span>
                                 </div>
+                            </div>
 
-                                <div class="col-sm-6 col-md-6">
-                                    <label class="form-label" for="timepicker2">Start Date</label>
-                                    <input class="form-control datetimepicker" id="datetimepicker" type="text"
-                                           placeholder="dd/mm/yyyy hour : minute"
-                                           data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
+                            <div class="col-sm-6 col-12">
+                                <div class="mb-3">
+                                    <label asp-for="SKU" class="form-label">@Html.SmartLocalize("SKU")</label>
+                                    <input asp-for="SKU" id="singleSKU" type="text" class="form-control border-1">
+                                    <span asp-validation-for="SKU" class="text-danger"></span>
                                 </div>
-
-                                <div class="col-sm-6 col-md-6">
-                                    <label class="form-label" for="timepicker2">End Date</label>
-                                    <input class="form-control datetimepicker" id="datetimepicker" type="text"
-                                           placeholder="dd/mm/yyyy hour : minute"
-                                           data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
-                                </div>
-
-                                <div class="col-sm-12 col-md-12">
-
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 20%;">Customer Group</th>
-                                                <th style="width: 45%;" colspan="2">Quantity</th>
-                                                <th style="width: 15%;">Price</th>
-                                                <th style="width: 15%;"></th>
-                                                <th style="width: 5%;"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <select class="form-select" id="" data-choices="data-choices">
-                                                        <option value="">All Groups</option>
-                                                        <option>Not Login</option>
-                                                        <option>General</option>
-                                                        <option selected>Wholesale</option>
-                                                        <option>Retailer</option>
-                                                    </select>
-                                                </td>
-
-                                                <td>
-                                                    <input class="form-control" id="min" type="number" placeholder="50" />
-                                                </td>
-                                                <td>
-                                                    <input class="form-control" id="max" type="number" placeholder="100" />
-                                                </td>
-
-                                                <td>
-                                                    <select class="form-select" id="" data-choices="data-choices">
-                                                        <option value="">Fixed</option>
-                                                        <option selected>Discount</option>
-                                                    </select>
-                                                </td>
-
-                                                <td>
-                                                    <input class="form-control " style="max-width: 5rem;" id="exampleFormControlInput"
-                                                           type="email" placeholder="%" />
-                                                </td>
-
-                                                <td>
-                                                    <a href=""><i class="fa fa-trash text-danger" aria-hidden="true"></i> </a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <select class="form-select" id="" data-choices="data-choices">
-                                                        <option value="">All Groups</option>
-                                                        <option>Not Login</option>
-                                                        <option>General</option>
-                                                        <option selected>Wholesale</option>
-                                                        <option>Retailer</option>
-                                                    </select>
-                                                </td>
-
-                                                <td>
-                                                    <input class="form-control" id="min" type="number" placeholder="50" />
-                                                </td>
-                                                <td>
-                                                    <input class="form-control" id="max" type="number" placeholder="100" />
-                                                </td>
-
-                                                <td>
-                                                    <select class="form-select" id="" data-choices="data-choices">
-                                                        <option selected>Fixed</option>
-                                                        <option>Discount</option>
-                                                    </select>
-                                                </td>
-
-                                                <td>
-                                                    <input class="form-control " style="max-width: 5rem;" id=""
-                                                           type="email" placeholder="$" />
-                                                </td>
-
-                                                <td>
-                                                    <a href=""><i class="fa fa-trash text-danger" aria-hidden="true"></i> </a>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <td colspan="5">
-                                                    <button class="btn btn-primary" type="button">Add</button>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
-
-                                    </table>
-
-                                </div>
-
-                                <div class="col-sm-12 col-md-12">
-                                </div>
-
                             </div>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" type="button">Okay</button>
-                    <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-
-
-
-    <form asp-action="AddSingleProduct" asp-controller="SingleProduct" method="post" enctype="multipart/form-data" class="">
-        <div class="add-product">
-
-            <div class="accordions-items-seperate border-0" id="accordionSpacingExample">
-
-                <!-- Product Information Section -->
-                <div class="accordion-item mb-4">
-                    <h2 class="accordion-header" id="headingSpacingOne">
-                        <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#SpacingOne"
-                             aria-expanded="true" aria-controls="SpacingOne">
-                            <div class="d-flex align-items-center justify-content-between flex-fill">
-                                <h5 class="d-flex align-items-center my-3">
-                                    <i data-feather="info" class="text-primary me-2"></i>
-                                    <span>@Html.SmartLocalize("Product Information (Single Product)")</span>
-                                </h5>
-                            </div>
-                        </div>
-                    </h2>
-                    <div id="SpacingOne" class="accordion-collapse collapse show" aria-labelledby="headingSpacingOne">
-                        <div class="accordion-body">
-
-                            <div class="row mt-4">
-                                <div class="col-sm-12 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="ProductType" class="form-label">@Html.SmartLocalize("Product Type")</label>
-                                        <select asp-for="ProductType" id="singleProductType" class="form-select searchableSelect">
-                                            <option value="sp">@Html.SmartLocalize("Single Product")</option>
-                                            <option value="ap">@Html.SmartLocalize("Attribute Product")</option>
-                                        </select>
-                                        <span asp-validation-for="ProductType" class="text-danger"></span>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="ProductName" class="form-label">@Html.SmartLocalize("Product Name")</label>
-                                        <input asp-for="ProductName" id="singleProductName" type="text" class="form-control border-1">
-                                        <span asp-validation-for="ProductName" class="text-danger"></span>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="SKU" class="form-label">@Html.SmartLocalize("SKU")</label>
-                                        <input asp-for="SKU" id="singleSKU" type="text" class="form-control border-secondary-light">
-                                        <span asp-validation-for="SKU" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="addservice-info">
-                                <div class="row">
-                                    <div class="col-sm-6 col-12">
-                                        <div class="mb-3">
-                                            <div class="add-newplus">
-                                                <label asp-for="Category" class="form-label">@Html.SmartLocalize("Category")</label>
-                                                <a href="#" data-bs-toggle="modal" data-bs-target="#add-product-category" class="text-decoration-none">
-                                                    <i data-feather="plus-circle" class="plus-down-add me-1"></i><span>@Html.SmartLocalize("Add New")</span>
-                                                </a>
-                                            </div>
-                                            <select asp-for="Category" id="singleCategory" class="form-select searchableSelect" asp-items="@ViewBag.CategoryDD as SelectList">
-                                                <option value="">@Html.SmartLocalize("Select")</option>
-
-                                            </select>
-                                            <span asp-validation-for="Category" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6 col-12">
-                                        <div class="mb-3">
-                                            <label asp-for="SubCategory" class="form-label">@Html.SmartLocalize("Sub Category")</label>
-                                            <select asp-for="SubCategory" id="singleSubCategory" class="form-select searchableSelect" asp-items="@ViewBag.SubCategoryDD as SelectList">
-                                                <option value="">@Html.SmartLocalize("Select")</option>
-
-                                            </select>
-                                            <span asp-validation-for="SubCategory" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="add-product-new">
-                                <div class="row">
-                                    <div class="col-sm-6 col-12">
-                                        <div class="mb-3">
-                                            <div class="add-newplus">
-                                                <label asp-for="Brand" class="form-label">@Html.SmartLocalize("Brand")</label>
-                                            </div>
-                                            <select asp-for="Brand" id="singleBrand" class="form-select searchableSelect" asp-items="@ViewBag.BrandDD as SelectList">
-                                                <option value="">@Html.SmartLocalize("Select")</option>
-
-                                            </select>
-                                            <span asp-validation-for="Brand" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6 col-12">
-                                        <div class="mb-3 list position-relative">
-                                            <label asp-for="ModelNo" class="form-label">@Html.SmartLocalize("Model No")</label>
-                                            <input asp-for="ModelNo" id="singleModelNo" type="text" class="form-control list">
-                                            <span asp-validation-for="ModelNo" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
+                        <div class="addservice-info">
                             <div class="row">
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3 list position-relative">
-                                        <label asp-for="PartNo" class="form-label mt-3">@Html.SmartLocalize("Part No")</label>
-                                        <input asp-for="PartNo" id="singlePartNo" type="text" class="form-control list mt-1">
-                                        <span asp-validation-for="PartNo" class="text-danger"></span>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6 col-12">
-                                    <div class="list position-relative">
-                                        <label class="form-label">
-                                            <span class="me-3">@Html.SmartLocalize("Barcode")</span>
-                                            <span class="text-danger ms-1">*</span>
-
-                                            <div class="form-check form-check-inline">
-                                                <input asp-for="BarcodeType" id="singleBarcodeTypeSKU" type="radio" value="SKU" class="form-check-input" />
-                                                <label class="form-label" for="singleBarcodeTypeSKU">@Html.SmartLocalize("SKU")</label>
-                                            </div>
-
-                                            <div class="form-check form-check-inline">
-                                                <input asp-for="BarcodeType" id="singleBarcodeTypeEAN" type="radio" value="EAN" class="form-check-input" />
-                                                <label class="form-label" for="singleBarcodeTypeEAN">@Html.SmartLocalize("EAN")</label>
-                                            </div>
-
-                                            <div class="form-check form-check-inline">
-                                                <input asp-for="BarcodeType" id="singleBarcodeTypeUPC" type="radio" value="UPC" class="form-check-input" />
-                                                <label class="form-label" for="singleBarcodeTypeUPC">@Html.SmartLocalize("UPC")</label>
-                                            </div>
-
-                                            <div class="form-check form-check-inline">
-                                                <input asp-for="BarcodeType" id="singleBarcodeTypeISBN" type="radio" value="ISBN" class="form-check-input" />
-                                                <label class="form-label" for="singleBarcodeTypeISBN">@Html.SmartLocalize("ISBN")</label>
-                                            </div>
-                                        </label>
-                                        <input asp-for="Barcode" id="singleBarcode" type="text" class="form-control list">
-                                        <span asp-validation-for="Barcode" class="text-danger"></span>
-                                    </div>
-                                </div>
-
-                                <div id="singleWeightDiv" class="col-sm-6 col-12">
-                                    <div class="mb-3 list position-relative">
-                                        <label asp-for="Weight" class="form-label">@Html.SmartLocalize("Weight")</label>
-                                        <input asp-for="Weight" id="singleWeight" type="text" class="form-control list">
-                                        <span asp-validation-for="Weight" class="text-danger"></span>
-                                    </div>
-                                </div>
-
                                 <div class="col-sm-6 col-12">
                                     <div class="mb-3">
                                         <div class="add-newplus">
-                                            <label asp-for="Unit" class="form-label">@Html.SmartLocalize("Unit")</label>
+                                            <label asp-for="Category" class="form-label">@Html.SmartLocalize("Category")</label>
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#add-product-category" class="text-decoration-none">
+                                                <i data-feather="plus-circle" class="plus-down-add me-1"></i><span>@Html.SmartLocalize("Add New")</span>
+                                            </a>
                                         </div>
-                                        <select asp-for="Unit" id="singleUnit" class="form-select searchableSelect" asp-items="@ViewBag.UnitDD as SelectList">
+                                        <select asp-for="Category" id="singleCategory" class="form-select searchableSelect" asp-items="@ViewBag.CategoryDD as SelectList">
                                             <option value="">@Html.SmartLocalize("Select")</option>
 
                                         </select>
-                                        <span asp-validation-for="Unit" class="text-danger"></span>
+                                        <span asp-validation-for="Category" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="SubCategory" class="form-label">@Html.SmartLocalize("Sub Category")</label>
+                                        <select asp-for="SubCategory" id="singleSubCategory" class="form-select searchableSelect" asp-items="@ViewBag.SubCategoryDD as SelectList">
+                                            <option value="">@Html.SmartLocalize("Select")</option>
+
+                                        </select>
+                                        <span asp-validation-for="SubCategory" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
+                        <div class="add-product-new">
                             <div class="row">
-                                <div class="col-sm-6">
+                                <div class="col-sm-6 col-12">
                                     <div class="mb-3">
                                         <div class="add-newplus">
-                                            <label asp-for="AssetsType" class="form-label">@Html.SmartLocalize("Assets Type")</label>
+                                            <label asp-for="Brand" class="form-label">@Html.SmartLocalize("Brand")</label>
                                         </div>
-                                        <select asp-for="AssetsType" id="singleAssetsType" class="form-select searchableSelect" asp-items="@ViewBag.AssetTypeDD as SelectList">
+                                        <select asp-for="Brand" id="singleBrand" class="form-select searchableSelect" asp-items="@ViewBag.BrandDD as SelectList">
                                             <option value="">@Html.SmartLocalize("Select")</option>
 
                                         </select>
-                                        <span asp-validation-for="AssetsType" class="text-danger"></span>
+                                        <span asp-validation-for="Brand" class="text-danger"></span>
                                     </div>
                                 </div>
-
-                                <div class="col-lg-6 col-sm-6 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="QuantityAlert" class="form-label">@Html.SmartLocalize("Quantity Alert")</label>
-                                        <input asp-for="QuantityAlert" id="singleQuantityAlert" type="number" class="form-control">
-                                        <span asp-validation-for="QuantityAlert" class="text-danger"></span>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-sm-6 col-12">
-                                    <div class="form-check form-switch my-3">
-                                        <input asp-for="TrackBatch" id="singleTrackBatch" type="checkbox" class="form-check-input" />
-                                        <label class="form-check-label" for="singleTrackBatch">@Html.SmartLocalize("Track Batch")</label>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-sm-6 col-12">
-                                    <div class="form-check form-switch my-3">
-                                        <input asp-for="IsActive" id="singleIsActive" type="checkbox" class="form-check-input" />
-                                        <label class="form-check-label" for="singleIsActive">@Html.SmartLocalize("Is Active")</label>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-sm-6 col-12">
-                                    <div class="form-check form-switch my-3">
-                                        <input asp-for="TraceManufacturingDate" id="singleTraceManufacturingDate" type="checkbox" class="form-check-input" />
-                                        <label class="form-check-label" for="singleTraceManufacturingDate">@Html.SmartLocalize("Trace Manufacturing Date")</label>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-sm-6 col-12">
-                                    <div class="form-check form-switch my-3">
-                                        <input asp-for="TraceExpiryDate" id="singleTraceExpiryDate" type="checkbox" class="form-check-input" />
-                                        <label class="form-check-label" for="singleTraceExpiryDate">@Html.SmartLocalize("Trace Expiry Date")</label>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-2 col-sm-6 col-12">
-                                    <div class="form-check form-switch my-3">
-                                        <input asp-for="SerialNumber" id="singleSerialNumber" type="checkbox" class="form-check-input" />
-                                        <label class="form-check-label" for="singleSerialNumber">@Html.SmartLocalize("Serial Number")</label>
+                                <div class="col-sm-6 col-12">
+                                    <div class="mb-3 list position-relative">
+                                        <label asp-for="ModelNo" class="form-label">@Html.SmartLocalize("Model No")</label>
+                                        <input asp-for="ModelNo" id="singleModelNo" type="text" class="form-control list">
+                                        <span asp-validation-for="ModelNo" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
+                        <div class="row">
+                            <div class="col-sm-6 col-12">
+                                <div class="mb-3 list position-relative">
+                                    <label asp-for="PartNo" class="form-label mt-3">@Html.SmartLocalize("Part No")</label>
+                                    <input asp-for="PartNo" id="singlePartNo" type="text" class="form-control list mt-1">
+                                    <span asp-validation-for="PartNo" class="text-danger"></span>
+                                </div>
+                            </div>
 
+                            <div class="col-sm-6 col-12">
+                                <div class="list position-relative">
+                                    <label class="form-label">
+                                        <span class="me-3">@Html.SmartLocalize("Barcode")</span>
+                                        <span class="text-danger ms-1">*</span>
 
+                                        <div class="form-check form-check-inline">
+                                            <input asp-for="BarcodeType" id="singleBarcodeTypeSKU" type="radio" value="SKU" class="form-check-input" />
+                                            <label class="form-label" for="singleBarcodeTypeSKU">@Html.SmartLocalize("SKU")</label>
+                                        </div>
 
+                                        <div class="form-check form-check-inline">
+                                            <input asp-for="BarcodeType" id="singleBarcodeTypeEAN" type="radio" value="EAN" class="form-check-input" />
+                                            <label class="form-label" for="singleBarcodeTypeEAN">@Html.SmartLocalize("EAN")</label>
+                                        </div>
 
-                            @*<div class="row">
-                                <div class="col-lg-12">
-                                    <div class="add-choosen">
-                                        <div class="upload-area">
-                                            <div class="header">
-                                                <h1>Upload Your Images</h1>
-                                                <p>Drag and drop or click to upload, then edit and crop as needed</p>
-                                            </div>
+                                        <div class="form-check form-check-inline">
+                                            <input asp-for="BarcodeType" id="singleBarcodeTypeUPC" type="radio" value="UPC" class="form-check-input" />
+                                            <label class="form-label" for="singleBarcodeTypeUPC">@Html.SmartLocalize("UPC")</label>
+                                        </div>
 
+                                        <div class="form-check form-check-inline">
+                                            <input asp-for="BarcodeType" id="singleBarcodeTypeISBN" type="radio" value="ISBN" class="form-check-input" />
+                                            <label class="form-label" for="singleBarcodeTypeISBN">@Html.SmartLocalize("ISBN")</label>
+                                        </div>
+                                    </label>
+                                    <input asp-for="Barcode" id="singleBarcode" type="text" class="form-control list">
+                                    <span asp-validation-for="Barcode" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div id="singleWeightDiv" class="col-sm-6 col-12">
+                                <div class="mb-3 list position-relative">
+                                    <label asp-for="Weight" class="form-label">@Html.SmartLocalize("Weight")</label>
+                                    <input asp-for="Weight" id="singleWeight" type="text" class="form-control list">
+                                    <span asp-validation-for="Weight" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 col-12">
+                                <div class="mb-3">
+                                    <div class="add-newplus">
+                                        <label asp-for="Unit" class="form-label">@Html.SmartLocalize("Unit")</label>
+                                    </div>
+                                    <select asp-for="Unit" id="singleUnit" class="form-select searchableSelect" asp-items="@ViewBag.UnitDD as SelectList">
+                                        <option value="">@Html.SmartLocalize("Select")</option>
+
+                                    </select>
+                                    <span asp-validation-for="Unit" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="mb-3">
+                                    <div class="add-newplus">
+                                        <label asp-for="AssetsType" class="form-label">@Html.SmartLocalize("Assets Type")</label>
+                                    </div>
+                                    <select asp-for="AssetsType" id="singleAssetsType" class="form-select searchableSelect" asp-items="@ViewBag.AssetTypeDD as SelectList">
+                                        <option value="">@Html.SmartLocalize("Select")</option>
+
+                                    </select>
+                                    <span asp-validation-for="AssetsType" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-sm-6 col-12">
+                                <div class="mb-3">
+                                    <label asp-for="QuantityAlert" class="form-label">@Html.SmartLocalize("Quantity Alert")</label>
+                                    <input asp-for="QuantityAlert" id="singleQuantityAlert" type="number" class="form-control">
+                                    <span asp-validation-for="QuantityAlert" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-6 col-12">
+                                <div class="form-check form-switch my-3">
+                                    <input asp-for="TrackBatch" id="singleTrackBatch" type="checkbox" class="form-check-input" />
+                                    <label class="form-check-label" for="singleTrackBatch">@Html.SmartLocalize("Track Batch")</label>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-6 col-12">
+                                <div class="form-check form-switch my-3">
+                                    <input asp-for="IsActive" id="singleIsActive" type="checkbox" class="form-check-input" />
+                                    <label class="form-check-label" for="singleIsActive">@Html.SmartLocalize("Is Active")</label>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-6 col-12">
+                                <div class="form-check form-switch my-3">
+                                    <input asp-for="TraceManufacturingDate" id="singleTraceManufacturingDate" type="checkbox" class="form-check-input" />
+                                    <label class="form-check-label" for="singleTraceManufacturingDate">@Html.SmartLocalize("Trace Manufacturing Date")</label>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-6 col-12">
+                                <div class="form-check form-switch my-3">
+                                    <input asp-for="TraceExpiryDate" id="singleTraceExpiryDate" type="checkbox" class="form-check-input" />
+                                    <label class="form-check-label" for="singleTraceExpiryDate">@Html.SmartLocalize("Trace Expiry Date")</label>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-6 col-12">
+                                <div class="form-check form-switch my-3">
+                                    <input asp-for="SerialNumber" id="singleSerialNumber" type="checkbox" class="form-check-input" />
+                                    <label class="form-check-label" for="singleSerialNumber">@Html.SmartLocalize("Serial Number")</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12 mt-2">
+                                <div class="accordion" id="descriptionAccordion1">
+                                    <div class="">
+                                        <h2 class="accordion-header" id="headingDescription">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription1" aria-expanded="false" aria-controls="collapseDescription1">
+                                                <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Upload Your Images") <small class="text-muted ms-2">(@Html.SmartLocalize("Drag and drop or click to upload, then edit and crop as needed"))</small>
+                                            </button>
+                                        </h2>
+
+                                        <div id="collapseDescription1" class="accordion-collapse collapse" aria-labelledby="headingDescription" data-bs-parent="#descriptionAccordion1">
                                             <div class="content-wrapper">
                                                 <div class="preview-container" id="previewContainer"></div>
 
@@ -1091,529 +265,470 @@
                                                 </div>
                                             </div>
 
-                                            <div class="upload-complete" id="uploadComplete">
+                                            <div class="upload-complete bg-body-highlight" id="uploadComplete">
                                                 <i class="lucide lucide-check-circle"></i>
                                                 Images uploaded successfully!
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>*@
-
-
-
-
-
-
-                            <div class="row">
-                                <div class="col-lg-12 mt-2">
-                                    <div class="accordion" id="descriptionAccordion1">
-                                        <div class="">
-                                            <h2 class="accordion-header" id="headingDescription">
-                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription1" aria-expanded="false" aria-controls="collapseDescription1">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Upload Your Images") <small class="text-muted ms-2">(@Html.SmartLocalize("Drag and drop or click to upload, then edit and crop as needed"))</small>
-                                                </button>
-                                            </h2>
-
-                                            <div id="collapseDescription1" class="accordion-collapse collapse" aria-labelledby="headingDescription" data-bs-parent="#descriptionAccordion1">
-                                                <div class="content-wrapper">
-                                                    <div class="preview-container" id="previewContainer"></div>
-
-                                                    <div class="upload-zone-wrapper" id="uploadZoneWrapper">
-                                                        <div class="upload-zone" id="uploadZone">
-
-                                                            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                                            </svg>
-                                                            <div class="upload-icon-wrapper">
-                                                                <i class="lucide lucide-cloud-upload upload-icon"></i>
-                                                            </div>
-                                                            <div class="upload-text">
-                                                                Drag & Drop your images here
-                                                            </div>
-                                                            <div class="upload-subtext">
-                                                                or <span class="browse-btn" id="browseBtn">browse</span> to choose files
-                                                            </div>
-                                                            <input type="file" id="fileInput" accept="image/*" multiple>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="upload-complete" id="uploadComplete">
-                                                    <i class="lucide lucide-check-circle"></i>
-                                                    Images uploaded successfully!
-                                                </div>
-                                            </div>
-
-
-
-                                            
-
-
-
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            <div class="row">
-                                <div class="col-lg-12 mt-2">
-                                    <div class="accordion" id="descriptionAccordion">
-                                        <div class="">
-                                            <h2 class="accordion-header" id="headingDescription">
-                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="false" aria-controls="collapseDescription">
-                                                    <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Description") <small class="text-muted ms-2">(@Html.SmartLocalize("Maximum 60 Words"))</small>
-                                                </button>
-                                            </h2>
-                                            <div id="collapseDescription" class="accordion-collapse collapse" aria-labelledby="headingDescription" data-bs-parent="#descriptionAccordion">
-                                                <div class="accordion-body">
-                                                    <div class="summer-description-box">
-                                                        <textarea asp-for="Description" id="singleDescription" class="tinymce form-control" data-tinymce="{}" rows="5" placeholder="@Html.SmartLocalize("Provide a concise and informative description of the asset...")"></textarea>
-                                                        <div class="d-flex justify-content-end mt-2">
-                                                            <small class="text-muted me-2" id="wordCounter">0 / 60 @Html.SmartLocalize("words")</small>
-                                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="clearDescription()">
-                                                                <i class="bi bi-x-circle me-1"></i>@Html.SmartLocalize("Clear")
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <script>
-    // Simple word counter (assuming TinyMCE or plain textarea)
-    document.getElementById('singleDescription').addEventListener('input', function() {
-        const words = this.value.trim().split(/\s+/).filter(word => word.length > 0).length;
-        document.getElementById('wordCounter').textContent = words + ' / 60 @Html.SmartLocalize("words")';
-        if (words > 60) {
-            this.classList.add('is-invalid');
-        } else {
-            this.classList.remove('is-invalid');
-        }
-    });
-
-    function clearDescription() {
-        document.getElementById('singleDescription').value = '';
-        document.getElementById('wordCounter').textContent = '0 / 60 @Html.SmartLocalize("words")';
-        document.getElementById('singleDescription').classList.remove('is-invalid');
-    }
-                            </script>
-
-
-
-
-
-
                         </div>
+
+                        <div class="row">
+                            <div class="col-lg-12 mt-2">
+                                <div class="accordion" id="descriptionAccordion">
+                                    <div class="">
+                                        <h2 class="accordion-header" id="headingDescription">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="false" aria-controls="collapseDescription">
+                                                <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Description") <small class="text-muted ms-2">(@Html.SmartLocalize("Maximum 60 Words"))</small>
+                                            </button>
+                                        </h2>
+                                        <div id="collapseDescription" class="accordion-collapse collapse" aria-labelledby="headingDescription" data-bs-parent="#descriptionAccordion">
+                                            <div class="accordion-body">
+                                                <div class="summer-description-box">
+                                                    <textarea asp-for="Description" id="singleDescription" class="tinymce form-control" data-tinymce="{}" rows="5" placeholder="@Html.SmartLocalize("Provide a concise and informative description of the asset...")"></textarea>
+                                                    <div class="d-flex justify-content-end mt-2">
+                                                        <small class="text-muted me-2" id="wordCounter">0 / 60 @Html.SmartLocalize("words")</small>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="clearDescription()">
+                                                            <i class="bi bi-x-circle me-1"></i>@Html.SmartLocalize("Clear")
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+
+                                document.getElementById('singleDescription').addEventListener('input', function() {
+                                    const words = this.value.trim().split(/\s+/).filter(word => word.length > 0).length;
+                                    document.getElementById('wordCounter').textContent = words + ' / 60 @Html.SmartLocalize("words")';
+                                    if (words > 60) {
+                                        this.classList.add('is-invalid');
+                                    } else {
+                                        this.classList.remove('is-invalid');
+                                    }
+                                });
+
+                                function clearDescription() {
+                                    document.getElementById('singleDescription').value = '';
+                                    document.getElementById('wordCounter').textContent = '0 / 60 @Html.SmartLocalize("words")';
+                                    document.getElementById('singleDescription').classList.remove('is-invalid');
+                                }
+                        </script>
+
+
+
+
+
+
                     </div>
                 </div>
-
-                <!-- Pricing Section -->
-                <div class="accordion-item mb-4">
-                    <h2 class="accordion-header" id="headingSpacingTwo">
-                        <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#SpacingTwo"
-                             aria-expanded="true" aria-controls="SpacingTwo">
-                            <div class="d-flex align-items-center justify-content-between flex-fill">
-                                <h5 class="d-flex align-items-center my-3">
-                                    <div id="singlePriceAt">
-                                        <i data-feather="life-buoy" class="text-primary me-2"></i><span>@Html.SmartLocalize("Pricing")</span>
-                                    </div>
-                                </h5>
-                            </div>
-                        </div>
-                    </h2>
-
-                    <div id="SpacingTwo" class="accordion-collapse collapse show" aria-labelledby="headingSpacingTwo">
-                        <div class="accordion-body">
-                            <div class="text-editor add-list add mt-4">
-                                <div class="col-md-12">
-                                    <div id="singleDiv1" class="p-3">
-                                        <div class="row">
-                                            <div class="col-lg-6 col-sm-6 col-12">
-                                                <div class="mb-3">
-                                                    <label asp-for="SellingPrice" class="form-label">@Html.SmartLocalize("Selling Price (Excluding VAT)")</label>
-                                                    <input asp-for="SellingPrice" id="singleSellingPrice" type="number" step="0.01" class="form-control">
-                                                    <span asp-validation-for="SellingPrice" class="text-danger"></span>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-lg-6 col-sm-6 col-12">
-                                                <div class="mb-3">
-                                                    <label asp-for="VATPercentage" class="form-label">@Html.SmartLocalize("VAT %")</label>
-                                                    <select asp-for="VATPercentage" id="singleVATPercentage" class="form-select searchableSelect"  asp-items="@ViewBag.VatDD as SelectList">
-                                                        <option value="">@Html.SmartLocalize("Select")</option>
-                                                       
-                                                    </select>
-                                                    <span asp-validation-for="VATPercentage" class="text-danger"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <a class="btn" type="button" data-bs-toggle="modal" data-bs-target="#advancedPricing">@Html.SmartLocalize("Set Advanced Price")</a>
-                </div>
-
-
-
-
-                <!-- Barcode Section -->
-                @*<div class="accordion-item mb-4">
-                    <h2 class="accordion-header" id="headingSpacingThree">
-                        <div class="accordion-button collapsed bg-white" data-bs-toggle="collapse" data-bs-target="#SpacingThree"
-                             aria-expanded="true" aria-controls="SpacingThree">
-                            <div class="d-flex align-items-center justify-content-between flex-fill">
-                                <h5 class="d-flex align-items-center my-3">
-                                    <i data-feather="image" class="text-primary me-2"></i><span>@Html.SmartLocalize("Barcode")</span>
-                                </h5>
-                            </div>
-                        </div>
-                    </h2>
-
-                    <div id="SpacingThree" class="accordion-collapse collapse show" aria-labelledby="headingSpacingThree">
-                        <div class="accordion-body">
-                            <div class="text-editor add-list add mt-4">
-                                <div class="row">
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                                        <div class="mb-3">
-                                            <label asp-for="BarcodeSKU" class="form-label">@Html.SmartLocalize("SKU")</label>
-                                            <select asp-for="BarcodeSKU" id="singleBarcodeSKU" class="form-select searchableSelect"  asp-items="@ViewBag.LocationDD as SelectList">
-                                                <option value="213647534">213647534</option>
-                                                <option value="231345345">231345345</option>
-                                                <option value="434367">434367</option>
-                                            </select>
-                                            <span asp-validation-for="BarcodeSKU" class="text-danger"></span>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                                        <div class="mb-3">
-                                            <label asp-for="BarcodeTemplate" class="form-label">@Html.SmartLocalize("Barcode Template")</label>
-                                            <select asp-for="BarcodeTemplate" id="singleBarcodeTemplate" class="form-select searchableSelect"  asp-items="@ViewBag.LocationDD as SelectList">
-                                                <option value="Standard">@Html.SmartLocalize("Standard")</option>
-                                                <option value="A4">A4</option>
-                                                <option value="Jewelry">@Html.SmartLocalize("Jewelry")</option>
-                                            </select>
-                                            <span asp-validation-for="BarcodeTemplate" class="text-danger"></span>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                                        <div class="mb-3">
-                                            <div class="justify-content-center" id="singleDivStandard">
-                                                <div class="row col-lg-9 col-md-9 border py-3">
-                                                    <div class="col-lg-3 col-md-3">
-                                                        <img src="../../assets/img/barcode/standard.png" alt="Standard Barcode">
-                                                    </div>
-                                                    <div class="col-lg-3 col-md-3">
-                                                        <img src="../../assets/img/barcode/standard.png" alt="Standard Barcode">
-                                                    </div>
-                                                    <div class="col-lg-3 col-md-3">
-                                                        <img src="../../assets/img/barcode/standard.png" alt="Standard Barcode">
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="justify-content-center" id="singleDivA4" style="display: none;">
-                                                <div class="row col-lg-9 col-md-9 border py-3">
-                                                    <div class="col-lg-3 col-md-3">
-                                                        <img src="../../assets/img/barcode/standard.png" alt="A4 Barcode">
-                                                    </div>
-                                                    <div class="col-lg-3 col-md-3">
-                                                        <img src="../../assets/img/barcode/standard.png" alt="A4 Barcode">
-                                                    </div>
-                                                    <div class="col-lg-3 col-md-3">
-                                                        <img src="../../assets/img/barcode/standard.png" alt="A4 Barcode">
-                                                    </div>
-                                                    <div class="col-lg-3 col-md-3">
-                                                        <img src="../../assets/img/barcode/standard.png" alt="A4 Barcode">
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="justify-content-center" id="singleDivJewelry" style="display: none;">
-                                                <div class="row col-lg-9 col-md-9 border py-3">
-                                                    <div class="col-lg-3 col-md-3">
-                                                        <img src="../../assets/img/barcode/jewelary.png" alt="Jewelry Barcode">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                                        <div class="mb-3">
-                                            <a class="btn btn-info mt-4" href="#">
-                                                <i class="fa fa-print me-2" aria-hidden="true"></i>@Html.SmartLocalize("Print")
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>*@
-
-                <!-- Custom Fields Section -->
-                <div class="accordion-item mb-4">
-                    <h2 class="accordion-header" id="headingSpacingFour">
-                        <div class="accordion-button collapsed bg-white" data-bs-toggle="collapse" data-bs-target="#SpacingFour"
-                             aria-expanded="true" aria-controls="SpacingFour">
-                            <div class="d-flex align-items-center justify-content-between flex-fill">
-                                <h5 class="d-flex align-items-center my-3">
-                                    <i data-feather="list" class="text-primary me-2"></i><span>@Html.SmartLocalize("Custom Fields")</span>
-                                </h5>
-                            </div>
-                        </div>
-                    </h2>
-                    <div id="SpacingFour" class="accordion-collapse collapse show" aria-labelledby="headingSpacingFour">
-                        <div class="accordion-body">
-                            <div class="mt-4">
-                                <div class="p-3 bg-light rounded d-flex align-items-center border mb-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="form-check form-check-inline">
-                                            <input asp-for="HasWarranties" id="singleWarranties" type="checkbox" class="form-check-input">
-                                            <label class="form-check-label" for="singleWarranties">@Html.SmartLocalize("Warranties")</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input asp-for="HasManufacturer" id="singleManufacturer" type="checkbox" class="form-check-input">
-                                            <label class="form-check-label" for="singleManufacturer">@Html.SmartLocalize("Manufacturer")</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input asp-for="HasExpiry" id="singleExpiry" type="checkbox" class="form-check-input">
-                                            <label class="form-check-label" for="singleExpiry">@Html.SmartLocalize("Expiry")</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-6 col-12">
-                                        <div class="mb-3">
-                                            <label asp-for="Warranty" class="form-label">@Html.SmartLocalize("Warranty")</label>
-                                            <select asp-for="Warranty" id="singleWarranty" class="form-select searchableSelect"  asp-items="@ViewBag.WarrantyDD as SelectList">
-                                                <option value="">@Html.SmartLocalize("Select")</option>
-                                               
-                                            </select>
-                                            <span asp-validation-for="Warranty" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6 col-12">
-                                        <div class="mb-3 add-product">
-                                            <label asp-for="Manufacturer" class="form-label">@Html.SmartLocalize("Manufacturer")</label>
-                                            <input asp-for="Manufacturer" id="singleManufacturerName" type="text" class="form-control">
-                                            <span asp-validation-for="Manufacturer" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-sm-6 col-12">
-                                        <div class="mb-3">
-                                            <label asp-for="ManufacturedDate" class="form-label">@Html.SmartLocalize("Manufactured Date")</label>
-                                            <div class="input-groupicon calender-input">
-                                                <input asp-for="ManufacturedDate" id="singleManufacturedDate" type="text" class="datetimepicker caiCon form-control" placeholder="dd/mm/yyyy">
-                                            </div>
-                                            <span asp-validation-for="ManufacturedDate" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6 col-12">
-                                        <div class="mb-3">
-                                            <label asp-for="ExpiryDate" class="form-label">@Html.SmartLocalize("Expiry On")</label>
-                                            <div class="input-groupicon calender-input">
-                                                <input asp-for="ExpiryDate" id="singleExpiryDate" type="text" class="datetimepicker caiCon form-control" placeholder="dd/mm/yyyy">
-                                            </div>
-                                            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-            <div class="row">
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary me-2">@Html.SmartLocalize("Save Product")</button>
-                    <button type="reset" class="btn btn-secondary">@Html.SmartLocalize("Reset")</button>
+            <!-- Pricing Section -->
+            <div class="accordion-item mb-4">
+                <h2 class="accordion-header" id="headingSpacingTwo">
+                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#SpacingTwo"
+                         aria-expanded="true" aria-controls="SpacingTwo">
+                        <div class="d-flex align-items-center justify-content-between flex-fill">
+                            <h5 class="d-flex align-items-center my-3">
+                                <div id="singlePriceAt">
+                                    <i data-feather="life-buoy" class="text-primary me-2"></i><span>@Html.SmartLocalize("Pricing")</span>
+                                </div>
+                            </h5>
+                        </div>
+                    </div>
+                </h2>
+
+                <div id="SpacingTwo" class="accordion-collapse collapse show" aria-labelledby="headingSpacingTwo">
+                    <div class="accordion-body">
+                        <div class="text-editor add-list add mt-4">
+                            <div class="col-md-12">
+                                <div id="singleDiv1" class="p-3">
+                                    <div class="row">
+                                        <div class="col-lg-6 col-sm-6 col-12">
+                                            <div class="mb-3">
+                                                <label asp-for="SellingPrice" class="form-label">@Html.SmartLocalize("Selling Price (Excluding VAT)")</label>
+                                                <input asp-for="SellingPrice" id="singleSellingPrice" type="number" step="0.01" class="form-control">
+                                                <span asp-validation-for="SellingPrice" class="text-danger"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-sm-6 col-12">
+                                            <div class="mb-3">
+                                                <label asp-for="VATPercentage" class="form-label">@Html.SmartLocalize("VAT %")</label>
+                                                <select asp-for="VATPercentage" id="singleVATPercentage" class="form-select searchableSelect" asp-items="@ViewBag.VatDD as SelectList">
+                                                    <option value="">@Html.SmartLocalize("Select")</option>
+
+                                                </select>
+                                                <span asp-validation-for="VATPercentage" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <button class="btn " type="button" data-bs-toggle="modal" data-bs-target="#advancedPricing">Set Advances Price</button>
+
+
+
+                @*<button class="btn " type="button" data-bs-toggle="modal" data-bs-target="#advancedPricing">Set Advances Pricffe</button>*@
+            </div>
+
+
+
+
+
+            <div class="accordion-item mb-4">
+                <h2 class="accordion-header" id="headingSpacingFour">
+                    <div class="accordion-button collapsed bg-body-highlight" data-bs-toggle="collapse" data-bs-target="#SpacingFour"
+                         aria-expanded="true" aria-controls="SpacingFour">
+                        <div class="d-flex align-items-center justify-content-between flex-fill">
+                            <h5 class="d-flex align-items-center my-3">
+                                <i data-feather="list" class="text-primary me-2"></i><span>@Html.SmartLocalize("Custom Fields")</span>
+                            </h5>
+                        </div>
+                    </div>
+                </h2>
+                <div id="SpacingFour" class="accordion-collapse collapse show" aria-labelledby="headingSpacingFour">
+                    <div class="accordion-body">
+                        <div class="mt-4">
+                            <div class="p-3  rounded d-flex align-items-center border mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="form-check form-check-inline">
+                                        <input asp-for="HasWarranties" id="singleWarranties" type="checkbox" class="form-check-input">
+                                        <label class="form-check-label" for="singleWarranties">@Html.SmartLocalize("Warranties")</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input asp-for="HasManufacturer" id="singleManufacturer" type="checkbox" class="form-check-input">
+                                        <label class="form-check-label" for="singleManufacturer">@Html.SmartLocalize("Manufacturer")</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input asp-for="HasExpiry" id="singleExpiry" type="checkbox" class="form-check-input">
+                                        <label class="form-check-label" for="singleExpiry">@Html.SmartLocalize("Expiry")</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6 col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="Warranty" class="form-label">@Html.SmartLocalize("Warranty")</label>
+                                        <select asp-for="Warranty" id="singleWarranty" class="form-select searchableSelect" asp-items="@ViewBag.WarrantyDD as SelectList">
+                                            <option value="">@Html.SmartLocalize("Select")</option>
+
+                                        </select>
+                                        <span asp-validation-for="Warranty" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-12">
+                                    <div class="mb-3 add-product">
+                                        <label asp-for="Manufacturer" class="form-label">@Html.SmartLocalize("Manufacturer")</label>
+                                        <input asp-for="Manufacturer" id="singleManufacturerName" type="text" class="form-control">
+                                        <span asp-validation-for="Manufacturer" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6 col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="ManufacturedDate" class="form-label">@Html.SmartLocalize("Manufactured Date")</label>
+                                        <div class="input-groupicon calender-input">
+                                            <input asp-for="ManufacturedDate" id="singleManufacturedDate" type="text" class="datetimepicker caiCon form-control" placeholder="dd/mm/yyyy">
+                                        </div>
+                                        <span asp-validation-for="ManufacturedDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-12">
+                                    <div class="mb-3">
+                                        <label asp-for="ExpiryDate" class="form-label">@Html.SmartLocalize("Expiry On")</label>
+                                        <div class="input-groupicon calender-input">
+                                            <input asp-for="ExpiryDate" id="singleExpiryDate" type="text" class="datetimepicker caiCon form-control" placeholder="dd/mm/yyyy">
+                                        </div>
+                                        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
         </div>
-    </form>
 
-    <script>
-        // Attribute toggles
-        document.addEventListener('DOMContentLoaded', function () {
-            const sizeCheckbox = document.getElementById('singleSizeCheckbox');
-            const colorCheckbox = document.getElementById('singleColorCheckbox');
-            const materialsCheckbox = document.getElementById('singleMaterialsCheckbox');
-            const sizeDiv = document.getElementById('singleSizeDiv');
-            const colorDiv = document.getElementById('singleColorDiv');
-            const materialsDiv = document.getElementById('singleMaterialsDiv');
+        <div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary me-2">@Html.SmartLocalize("Save Product")</button>
+                <button type="reset" class="btn btn-secondary">@Html.SmartLocalize("Reset")</button>
+            </div>
+        </div>
 
-            if (sizeCheckbox) {
-                sizeCheckbox.addEventListener('change', function () {
-                    sizeDiv.style.display = this.checked ? 'block' : 'none';
-                });
-            }
-
-            if (colorCheckbox) {
-                colorCheckbox.addEventListener('change', function () {
-                    colorDiv.style.display = this.checked ? 'block' : 'none';
-                });
-            }
-
-            if (materialsCheckbox) {
-                materialsCheckbox.addEventListener('change', function () {
-                    materialsDiv.style.display = this.checked ? 'block' : 'none';
-                });
-            }
-
-            // Barcode template toggle
-            const barcodeTemplate = document.getElementById('singleBarcodeTemplate');
-            const divStandard = document.getElementById('singleDivStandard');
-            const divA4 = document.getElementById('singleDivA4');
-            const divJewelry = document.getElementById('singleDivJewelry');
-
-            function updateBarcodeDisplay(selectedTemplate) {
-                divStandard.style.display = 'none';
-                divA4.style.display = 'none';
-                divJewelry.style.display = 'none';
-
-                switch (selectedTemplate) {
-                    case 'Standard':
-                        divStandard.style.display = 'flex';
-                        break;
-                    case 'A4':
-                        divA4.style.display = 'flex';
-                        break;
-                    case 'Jewelry':
-                        divJewelry.style.display = 'flex';
-                        break;
-                }
-            }
-
-            if (barcodeTemplate) {
-                updateBarcodeDisplay(barcodeTemplate.value);
-                barcodeTemplate.addEventListener('change', function () {
-                    updateBarcodeDisplay(this.value);
-                });
-            }
-        });
+    </div>
+</form>
 
 
+<div class="modal fade" id="advancedPricing" tabindex="-1" aria-labelledby="advancedPricingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="advancedPricingModalLabel">@Html.SmartLocalize("Advanced Price")</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Special Price Section -->
+                    <div class="col-12 mb-4">
+                        <h6 class="mb-3 text-primary">
+                            <i class="bi bi-tag-fill me-2"></i>@Html.SmartLocalize("Special Pricing")
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6 col-sm-12">
+                                <div class="mb-3">
+                                    <label class="form-label">@Html.SmartLocalize("Special Price")</label>
+                                    <input asp-for="SpecialPrice" class="form-control" id="specialPrice" type="number" step="0.01" placeholder="0.00" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="mb-3">
+                                    <label class="form-label">@Html.SmartLocalize("Customer Group")</label>
+                                    <select asp-for="CustomerGroup" class="form-select" id="customerGroup">
+                                        <option value="">@Html.SmartLocalize("All Groups")</option>
+                                        <option value="NotLogin">@Html.SmartLocalize("Not Login")</option>
+                                        <option value="General">@Html.SmartLocalize("General")</option>
+                                        <option value="Wholesale">@Html.SmartLocalize("Wholesale")</option>
+                                        <option value="Retailer">@Html.SmartLocalize("Retailer")</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="mb-3">
+                                    <label class="form-label">@Html.SmartLocalize("Start Date")</label>
+                                    <input asp-for="SpecialPriceStartDate" class="form-control datetimepicker" id="specialPriceStartDate" type="text" placeholder="dd/mm/yyyy hour : minute" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12">
+                                <div class="mb-3">
+                                    <label class="form-label">@Html.SmartLocalize("End Date")</label>
+                                    <input asp-for="SpecialPriceEndDate" class="form-control datetimepicker" id="specialPriceEndDate" type="text" placeholder="dd/mm/yyyy hour : minute" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tier Pricing Section -->
+                    <div class="col-12">
+                        <h6 class="mb-3 text-primary">
+                            <i class="bi bi-layers-fill me-2"></i>@Html.SmartLocalize("Tier Pricing")
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="tierPricingTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="22%">@Html.SmartLocalize("Customer Group")</th>
+                                        <th width="15%">@Html.SmartLocalize("Min Qty")</th>
+                                        <th width="15%">@Html.SmartLocalize("Max Qty")</th>
+                                        <th width="18%">@Html.SmartLocalize("Type")</th>
+                                        <th width="18%">@Html.SmartLocalize("Value")</th>
+                                        <th width="12%" class="text-center">@Html.SmartLocalize("Action")</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tierPricingBody">
+                                    <!-- Rows will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <button class="btn btn-primary btn-sm mt-2" type="button" id="addTierPriceBtn">
+                            <i class="bi bi-plus-circle me-1"></i>@Html.SmartLocalize("Add Tier Price")
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>@Html.SmartLocalize("Cancel")
+                </button>
+                <button class="btn btn-primary" type="button" id="saveAdvancedPricing" data-bs-dismiss="modal">
+                    <i class="bi bi-check-circle me-1"></i>@Html.SmartLocalize("Save")
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal" id="cropModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <i class="lucide lucide-crop"></i>
+                Edit & Crop Image
+            </h2>
+            <button class="close-btn" id="closeModal">
+                <i class="lucide lucide-x"></i>
+            </button>
+        </div>
+
+        <div class="crop-controls">
+            <div class="control-group">
+                <label class="control-label">
+                    <i class="lucide lucide-ruler"></i>
+                    Width (px)
+                </label>
+                <input type="number" class="control-input" id="cropWidth" min="1" value="400">
+            </div>
+            <div class="control-group">
+                <label class="control-label">
+                    <i class="lucide lucide-ruler"></i>
+                    Height (px)
+                </label>
+                <input type="number" class="control-input" id="cropHeight" min="1" value="400">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <i class="lucide lucide-maximize-2"></i>
+                Image Fit
+            </label>
+            <div class="fit-options">
+                <button class="fit-btn active" data-fit="contain">
+                    <i class="lucide lucide-square-dashed-bottom"></i>
+                    Contain
+                </button>
+                <button class="fit-btn" data-fit="cover">
+                    <i class="lucide lucide-expand"></i>
+                    Cover
+                </button>
+                <button class="fit-btn" data-fit="fill">
+                    <i class="lucide lucide-maximize"></i>
+                    Fill
+                </button>
+            </div>
+        </div>
+
+        <div class="crop-container">
+            <img id="cropImage" class="crop-image" src="" alt="Crop preview">
+        </div>
+
+        <canvas id="previewCanvas" class="canvas-preview"></canvas>
+
+        <div class="modal-actions">
+            <button class="action-btn secondary" id="cancelCrop">
+                <i class="lucide lucide-x"></i>
+                Cancel
+            </button>
+            <button class="action-btn primary" id="applyCrop">
+                <i class="lucide lucide-check"></i>
+                Apply & Save
+            </button>
+        </div>
+    </div>
+</div>
 
 
 
 
 
-        const uploadZone = document.getElementById('uploadZone');
-        const uploadZoneWrapper = document.getElementById('uploadZoneWrapper');
-        const fileInput = document.getElementById('fileInput');
-        const browseBtn = document.getElementById('browseBtn');
-        const previewContainer = document.getElementById('previewContainer');
-        const uploadComplete = document.getElementById('uploadComplete');
-        const cropModal = document.getElementById('cropModal');
-        const cropImage = document.getElementById('cropImage');
-        const previewCanvas = document.getElementById('previewCanvas');
-        const cropWidth = document.getElementById('cropWidth');
-        const cropHeight = document.getElementById('cropHeight');
-        const fitButtons = document.querySelectorAll('.fit-btn');
+<script>
 
-        let files = [];
-        let currentEditIndex = -1;
-        let currentFit = 'contain';
 
-        // Update upload zone size based on files
-        function updateUploadZoneSize() {
-            if (files.length > 0) {
-                uploadZoneWrapper.classList.add('has-images');
-            } else {
-                uploadZoneWrapper.classList.remove('has-images');
-            }
+
+
+
+
+
+
+    const uploadZone = document.getElementById('uploadZone');
+    const uploadZoneWrapper = document.getElementById('uploadZoneWrapper');
+    const fileInput = document.getElementById('fileInput');
+    const browseBtn = document.getElementById('browseBtn');
+    const previewContainer = document.getElementById('previewContainer');
+    const uploadComplete = document.getElementById('uploadComplete');
+    const cropModal = document.getElementById('cropModal');
+    const cropImage = document.getElementById('cropImage');
+    const previewCanvas = document.getElementById('previewCanvas');
+    const cropWidth = document.getElementById('cropWidth');
+    const cropHeight = document.getElementById('cropHeight');
+    const fitButtons = document.querySelectorAll('.fit-btn');
+
+    let files = [];
+    let currentEditIndex = -1;
+    let currentFit = 'contain';
+
+    // Update upload zone size based on files
+    function updateUploadZoneSize() {
+        if (files.length > 0) {
+            uploadZoneWrapper.classList.add('has-images');
+        } else {
+            uploadZoneWrapper.classList.remove('has-images');
         }
+    }
 
-        // Click to browse
-        uploadZone.addEventListener('click', () => fileInput.click());
-        browseBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            fileInput.click();
-        });
+    // Click to browse
+    uploadZone.addEventListener('click', () => fileInput.click());
+    browseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.click();
+    });
 
-        // Drag and drop events
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('drag-over');
-        });
+    // Drag and drop events
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('drag-over');
+    });
 
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('drag-over');
-        });
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('drag-over');
+    });
 
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.classList.remove('drag-over');
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
 
-            const droppedFiles = Array.from(e.dataTransfer.files).filter(
-                file => file.type.startsWith('image/')
-            );
+        const droppedFiles = Array.from(e.dataTransfer.files).filter(
+            file => file.type.startsWith('image/')
+        );
 
-            handleFiles(droppedFiles);
-        });
+        handleFiles(droppedFiles);
+    });
 
-        // File input change
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(Array.from(e.target.files));
-        });
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(Array.from(e.target.files));
+    });
 
-        function handleFiles(newFiles) {
-            files = [...files, ...newFiles];
-            renderPreviews();
-            updateUploadZoneSize();
-            simulateUpload();
-        }
+    function handleFiles(newFiles) {
+        files = [...files, ...newFiles];
+        renderPreviews();
+        updateUploadZoneSize();
+        simulateUpload();
+    }
 
-        function renderPreviews() {
-            previewContainer.innerHTML = '';
+    function renderPreviews() {
+        previewContainer.innerHTML = '';
 
-            files.forEach((file, index) => {
-                const reader = new FileReader();
+        files.forEach((file, index) => {
+            const reader = new FileReader();
 
-                reader.onload = (e) => {
-                    const previewItem = document.createElement('div');
-                    previewItem.className = 'preview-item';
-                    previewItem.innerHTML = `
+            reader.onload = (e) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.innerHTML = `
             <img src="${e.target.result}" alt="${file.name}">
                 <div class="preview-overlay">
                     <div class="file-name">${file.name}</div>
-                    <button class="overlay-btn" onclick="editImage(${index})">
-                        <i class="lucide lucide-edit"></i>
-                        Edit
-                    </button>
-                    <button class="overlay-btn" onclick="viewImage(${index})">
-                        <i class="lucide lucide-eye"></i>
-                        Preview
-                    </button>
+
                     <button class="overlay-btn remove" onclick="removeFile(${index})">
                         <i class="lucide lucide-trash-2"></i>
                         Remove
@@ -1623,46 +738,55 @@
                     <div class="progress-fill" id="progress-${index}"></div>
                 </div>
                 `;
-                    previewContainer.appendChild(previewItem);
-                };
-
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function removeFile(index) {
-            files.splice(index, 1);
-            renderPreviews();
-            updateUploadZoneSize();
-
-            if (files.length === 0) {
-                uploadComplete.classList.remove('show');
-            }
-        }
-
-        function editImage(index) {
-            currentEditIndex = index;
-            const file = files[index];
-            const reader = new FileReader();
-
-            reader.onload = (e) => {
-                cropImage.src = e.target.result;
-                cropModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                updatePreview();
+                previewContainer.appendChild(previewItem);
             };
 
             reader.readAsDataURL(file);
+        });
+    }
+
+    //        <button class="overlay-btn" onclick="editImage(${index})">
+    //    <i class="lucide lucide-edit"></i>
+    //    Edit
+    //</button>
+    //<button class="overlay-btn" onclick="viewImage(${index})">
+    //    <i class="lucide lucide-eye"></i>
+    //    Preview
+    //</button>
+
+    function removeFile(index) {
+        files.splice(index, 1);
+        renderPreviews();
+        updateUploadZoneSize();
+
+        if (files.length === 0) {
+            uploadComplete.classList.remove('show');
         }
+    }
 
-        function viewImage(index) {
-            const file = files[index];
-            const reader = new FileReader();
+    function editImage(index) {
+        currentEditIndex = index;
+        const file = files[index];
+        const reader = new FileReader();
 
-            reader.onload = (e) => {
-                const imageUrl = e.target.result;
-                const previewWindow = document.createElement('div');
-                previewWindow.style.cssText = `
+        reader.onload = (e) => {
+            cropImage.src = e.target.result;
+            cropModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            updatePreview();
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    function viewImage(index) {
+        const file = files[index];
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const imageUrl = e.target.result;
+            const previewWindow = document.createElement('div');
+            previewWindow.style.cssText = `
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -1676,7 +800,7 @@
                 padding: 20px;
                 `;
 
-                previewWindow.innerHTML = `
+            previewWindow.innerHTML = `
                 <img src="${imageUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="${file.name}">
                     <button style="
                             position: absolute;
@@ -1696,164 +820,233 @@
                         " onclick="this.parentElement.remove()">×</button>
                     `;
 
-                document.body.appendChild(previewWindow);
-                previewWindow.addEventListener('click', (e) => {
-                    if (e.target === previewWindow) {
-                        previewWindow.remove();
-                    }
-                });
-            };
-
-            reader.readAsDataURL(file);
-        }
-
-        // Fit button handlers
-        fitButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                fitButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFit = btn.dataset.fit;
-                updatePreview();
+            document.body.appendChild(previewWindow);
+            previewWindow.addEventListener('click', (e) => {
+                if (e.target === previewWindow) {
+                    previewWindow.remove();
+                }
             });
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    // Fit button handlers
+    fitButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            fitButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFit = btn.dataset.fit;
+            updatePreview();
         });
+    });
 
-        // Input handlers
-        cropWidth.addEventListener('input', updatePreview);
-        cropHeight.addEventListener('input', updatePreview);
+    // Input handlers
+    cropWidth.addEventListener('input', updatePreview);
+    cropHeight.addEventListener('input', updatePreview);
 
-        function updatePreview() {
-            const img = cropImage;
-            if (!img.src) return;
+    function updatePreview() {
+        const img = cropImage;
+        if (!img.src) return;
 
-            const width = parseInt(cropWidth.value) || 400;
-            const height = parseInt(cropHeight.value) || 400;
+        const width = parseInt(cropWidth.value) || 400;
+        const height = parseInt(cropHeight.value) || 400;
 
-            previewCanvas.width = width;
-            previewCanvas.height = height;
-            const ctx = previewCanvas.getContext('2d');
+        previewCanvas.width = width;
+        previewCanvas.height = height;
+        const ctx = previewCanvas.getContext('2d');
 
-            // Clear canvas
-            ctx.fillStyle = '#f3f4f6';
-            ctx.fillRect(0, 0, width, height);
+        // Clear canvas
+        ctx.fillStyle = '#f3f4f6';
+        ctx.fillRect(0, 0, width, height);
 
-            // Wait for image to load
-            if (img.complete && img.naturalWidth > 0) {
-                drawImageWithFit(ctx, img, width, height);
-            } else {
-                img.onload = () => drawImageWithFit(ctx, img, width, height);
-            }
+        // Wait for image to load
+        if (img.complete && img.naturalWidth > 0) {
+            drawImageWithFit(ctx, img, width, height);
+        } else {
+            img.onload = () => drawImageWithFit(ctx, img, width, height);
         }
+    }
 
-        function drawImageWithFit(ctx, img, canvasWidth, canvasHeight) {
-            const imgRatio = img.naturalWidth / img.naturalHeight;
-            const canvasRatio = canvasWidth / canvasHeight;
+    function drawImageWithFit(ctx, img, canvasWidth, canvasHeight) {
+        const imgRatio = img.naturalWidth / img.naturalHeight;
+        const canvasRatio = canvasWidth / canvasHeight;
 
-            let drawWidth, drawHeight, offsetX, offsetY;
+        let drawWidth, drawHeight, offsetX, offsetY;
 
-            if (currentFit === 'contain') {
-                if (imgRatio > canvasRatio) {
-                    drawWidth = canvasWidth;
-                    drawHeight = canvasWidth / imgRatio;
-                    offsetX = 0;
-                    offsetY = (canvasHeight - drawHeight) / 2;
-                } else {
-                    drawHeight = canvasHeight;
-                    drawWidth = canvasHeight * imgRatio;
-                    offsetX = (canvasWidth - drawWidth) / 2;
-                    offsetY = 0;
-                }
-            } else if (currentFit === 'cover') {
-                if (imgRatio > canvasRatio) {
-                    drawHeight = canvasHeight;
-                    drawWidth = canvasHeight * imgRatio;
-                    offsetX = (canvasWidth - drawWidth) / 2;
-                    offsetY = 0;
-                } else {
-                    drawWidth = canvasWidth;
-                    drawHeight = canvasWidth / imgRatio;
-                    offsetX = 0;
-                    offsetY = (canvasHeight - drawHeight) / 2;
-                }
-            } else { // fill
+        if (currentFit === 'contain') {
+            if (imgRatio > canvasRatio) {
                 drawWidth = canvasWidth;
-                drawHeight = canvasHeight;
+                drawHeight = canvasWidth / imgRatio;
                 offsetX = 0;
+                offsetY = (canvasHeight - drawHeight) / 2;
+            } else {
+                drawHeight = canvasHeight;
+                drawWidth = canvasHeight * imgRatio;
+                offsetX = (canvasWidth - drawWidth) / 2;
                 offsetY = 0;
             }
-
-            ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
-        }
-
-        // Modal handlers
-        document.getElementById('closeModal').addEventListener('click', () => {
-            cropModal.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-
-        document.getElementById('cancelCrop').addEventListener('click', () => {
-            cropModal.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-
-        document.getElementById('applyCrop').addEventListener('click', () => {
-            previewCanvas.toBlob((blob) => {
-                const file = new File([blob], files[currentEditIndex].name, { type: 'image/png' });
-                files[currentEditIndex] = file;
-                renderPreviews();
-                cropModal.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-        });
-
-        // Close modal on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && cropModal.classList.contains('active')) {
-                cropModal.classList.remove('active');
-                document.body.style.overflow = '';
+        } else if (currentFit === 'cover') {
+            if (imgRatio > canvasRatio) {
+                drawHeight = canvasHeight;
+                drawWidth = canvasHeight * imgRatio;
+                offsetX = (canvasWidth - drawWidth) / 2;
+                offsetY = 0;
+            } else {
+                drawWidth = canvasWidth;
+                drawHeight = canvasWidth / imgRatio;
+                offsetX = 0;
+                offsetY = (canvasHeight - drawHeight) / 2;
             }
-        });
-
-        function simulateUpload() {
-            uploadComplete.classList.remove('show');
-
-            files.forEach((file, index) => {
-                let progress = 0;
-                const progressFill = document.getElementById(`progress-${index}`);
-
-                const interval = setInterval(() => {
-                    progress += Math.random() * 30;
-
-                    if (progress >= 100) {
-                        progress = 100;
-                        clearInterval(interval);
-
-                        if (index === files.length - 1) {
-                            setTimeout(() => {
-                                uploadComplete.classList.add('show');
-                            }, 300);
-                        }
-                    }
-
-                    if (progressFill) {
-                        progressFill.style.width = progress + '%';
-                    }
-                }, 200);
-            });
+        } else { // fill
+            drawWidth = canvasWidth;
+            drawHeight = canvasHeight;
+            offsetX = 0;
+            offsetY = 0;
         }
 
-        // Make functions available globally
-        window.removeFile = removeFile;
-        window.editImage = editImage;
-        window.viewImage = viewImage;
-
-
-
-
-
-
-
-    </script>
-
-    @section Scripts {
-        <partial name="_ValidationScriptsPartial" />
+        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     }
+
+    // Modal handlers
+    document.getElementById('closeModal').addEventListener('click', () => {
+        cropModal.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    document.getElementById('cancelCrop').addEventListener('click', () => {
+        cropModal.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+
+    document.getElementById('applyCrop').addEventListener('click', () => {
+        previewCanvas.toBlob((blob) => {
+            const file = new File([blob], files[currentEditIndex].name, { type: 'image/png' });
+            files[currentEditIndex] = file;
+            renderPreviews();
+            cropModal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && cropModal.classList.contains('active')) {
+            cropModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+
+    function simulateUpload() {
+        uploadComplete.classList.remove('show');
+
+        files.forEach((file, index) => {
+            let progress = 0;
+            const progressFill = document.getElementById(`progress-${index}`);
+
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+
+                    if (index === files.length - 1) {
+                        setTimeout(() => {
+                            uploadComplete.classList.add('show');
+                        }, 300);
+                    }
+                }
+
+                if (progressFill) {
+                    progressFill.style.width = progress + '%';
+                }
+            }, 200);
+        });
+    }
+
+    // Make functions available globally
+    window.removeFile = removeFile;
+    window.editImage = editImage;
+    window.viewImage = viewImage;
+
+
+
+
+
+
+
+</script>
+
+
+<script>
+    // Tier Pricing Management
+    let tierPriceIndex = 0;
+
+    // Add event listener after DOM is loaded
+    document.addEventListener('DOMContentLoaded', function () {
+        const addBtn = document.getElementById('addTierPriceBtn');
+        if (addBtn) {
+            addBtn.addEventListener('click', function () {
+                addTierPriceRow();
+            });
+        }
+    });
+
+    function addTierPriceRow(data = {}) {
+        const tbody = document.getElementById('tierPricingBody');
+        if (!tbody) return;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <select class="form-select form-select-sm" name="TierPrices[${tierPriceIndex}].CustomerGroup" required>
+                    <option value="">All Groups</option>
+                    <option value="NotLogin" ${data.CustomerGroup === 'NotLogin' ? 'selected' : ''}>Not Login</option>
+                    <option value="General" ${data.CustomerGroup === 'General' ? 'selected' : ''}>General</option>
+                    <option value="Wholesale" ${data.CustomerGroup === 'Wholesale' ? 'selected' : ''}>Wholesale</option>
+                    <option value="Retailer" ${data.CustomerGroup === 'Retailer' ? 'selected' : ''}>Retailer</option>
+                </select>
+            </td>
+            <td>
+                <input class="form-control form-control-sm" name="TierPrices[${tierPriceIndex}].MinQuantity" type="number" min="1" placeholder="1" value="${data.MinQuantity || ''}" required />
+            </td>
+            <td>
+                <input class="form-control form-control-sm" name="TierPrices[${tierPriceIndex}].MaxQuantity" type="number" min="1" placeholder="100" value="${data.MaxQuantity || ''}" />
+            </td>
+            <td>
+                <select class="form-select form-select-sm" name="TierPrices[${tierPriceIndex}].PriceType" required>
+                    <option value="Fixed" ${data.PriceType === 'Fixed' ? 'selected' : ''}>Fixed</option>
+                    <option value="Discount" ${data.PriceType === 'Discount' ? 'selected' : ''}>Discount</option>
+                </select>
+            </td>
+            <td>
+                <input class="form-control form-control-sm" name="TierPrices[${tierPriceIndex}].Value" type="number" step="0.01" min="0" placeholder="0.00" value="${data.Value || ''}" required />
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-danger" onclick="removeTierPriceRow(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+        tierPriceIndex++;
+    }
+
+    function removeTierPriceRow(btn) {
+        btn.closest('tr').remove();
+    }
+
+    // Optional: Add one row by default when modal opens
+    document.getElementById('advancedPricing')?.addEventListener('shown.bs.modal', function () {
+        const tbody = document.getElementById('tierPricingBody');
+        if (tbody && tbody.children.length === 0) {
+            addTierPriceRow();
+        }
+    });
+</script>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

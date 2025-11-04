@@ -70,8 +70,8 @@
                                 <div class="col-md-9">
                                     @for (int i = 0; i < Model.PostingRuleDetailsVMs.Count; i++)
                                     {
-                                        <input type="hidden" asp-for="PostingRuleDetailsVMs[@i].PostingRuleDetailID" class="PostingRuleDetailID" />
                                         <div class="row mb-2 PostingRuleDetailsVM">
+                                            <input type="hidden" asp-for="PostingRuleDetailsVMs[@i].PostingRuleDetailID" class="detailID" />
                                             <div class="col-md-3">
                                                 <label class="form-label" asp-for="PostingRuleDetailsVMs[@i].MainAccountID">@Html.SmartLocalize("Select Main Account")<span style="color:red;">*</span></label>
                                                 <select class="form-select initChoices mainAccDD" asp-for="PostingRuleDetailsVMs[@i].MainAccountID">
@@ -208,6 +208,7 @@
     </div>
 </div>
 
+<partial name="_PostingRuleDetailsModal" />
 <partial name="_ConfirmDelete" />
 
 @section Scripts {

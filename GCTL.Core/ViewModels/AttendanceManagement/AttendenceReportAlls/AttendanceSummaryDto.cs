@@ -18,6 +18,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls
         public int LatePresentPercent { get; set; }
         public int LeavePercent { get; set; }
         public int AbsentPercent { get; set; }
-
+        public string EmployeeName { get; set; }
+        public string EmployeeCode { get; set; }
     }
 }

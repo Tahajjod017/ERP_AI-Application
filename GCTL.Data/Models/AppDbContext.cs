@@ -34,8 +34,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApprovalTypes> ApprovalTypes { get; set; }
 
-    public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+
+    public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
 
     public virtual DbSet<Attendance> Attendance { get; set; }
@@ -694,22 +695,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany(t => t.AspNetUsers)
                 .HasForeignKey(u => u.TenantInfoId)
                 .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetUsers");
-        //modelBuilder.Entity<ApplicationRole>()
-        //        .HasDiscriminator<string>("Discriminator")
-        //        .HasValue<ApplicationRole>("ApplicationRole");
+
         modelBuilder.Entity<ApplicationRole>()
                 .HasOne(r => r.Organization)
                 .WithMany(o => o.AspNetRoles)
                 .HasForeignKey(r => r.OrganizationID)
                 .IsRequired(false)
                 .HasConstraintName("FK_Organization_TenantInfoId_AspNetRoles");
-        modelBuilder.Entity<ApplicationRole>()
-                .HasOne(r => r.TenantInfo)
-                .WithMany(t => t.AspNetRoles)
-                .HasForeignKey(r => r.TenantInfoId)
-                .IsRequired(false)
-                .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
-
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -4642,7 +4634,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<PostingRuleDetails>(entity =>
         {
-            entity.HasKey(e => e.PostingRuleDetailID).HasName("PK__PostingR__DA77FE268EFA3BEE");
+            entity.HasKey(e => e.PostingRuleDetailID).HasName("PK__PostingR__DA77FE26AAD99D97");
 
             entity.ToTable("PostingRuleDetails", "COA");
 
@@ -4660,27 +4652,31 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PostingRuleDetailsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__PostingRu__Creat__42ECDBF6");
+                .HasConstraintName("FK__PostingRu__Creat__3E7D2C94");
 
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PostingRuleDetailsDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__PostingRu__Delet__43E1002F");
+                .HasConstraintName("FK__PostingRu__Delet__3F7150CD");
+
+            entity.HasOne(d => d.MainAccount).WithMany(p => p.PostingRuleDetails)
+                .HasForeignKey(d => d.MainAccountID)
+                .HasConstraintName("FK_MainAccounts_MainAccountID_PostingRuleDetails");
 
             entity.HasOne(d => d.PostingRule).WithMany(p => p.PostingRuleDetails)
                 .HasForeignKey(d => d.PostingRuleID)
-                .HasConstraintName("FK__PostingRu__Posti__44D52468");
+                .HasConstraintName("FK__PostingRu__Posti__40657506");
 
             entity.HasOne(d => d.SubAccount).WithMany(p => p.PostingRuleDetails)
                 .HasForeignKey(d => d.SubAccountID)
-                .HasConstraintName("FK__PostingRu__SubAc__45C948A1");
+                .HasConstraintName("FK__PostingRu__SubAc__4159993F");
 
             entity.HasOne(d => d.TrxAcc).WithMany(p => p.PostingRuleDetails)
                 .HasForeignKey(d => d.TrxAccID)
-                .HasConstraintName("FK__PostingRu__TrxAc__46BD6CDA");
+                .HasConstraintName("FK__PostingRu__TrxAc__424DBD78");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PostingRuleDetailsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__PostingRu__Updat__47B19113");
+                .HasConstraintName("FK__PostingRu__Updat__4341E1B1");
         });
 
         modelBuilder.Entity<PostingRules>(entity =>
@@ -4949,9 +4945,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.IsDefault).HasDefaultValue(false);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.LargeImagePath).HasMaxLength(50);
-            entity.Property(e => e.SmallImagePath).HasMaxLength(50);
-            entity.Property(e => e.ThumbnailImagePath).HasMaxLength(50);
+            entity.Property(e => e.LargeImagePath).HasMaxLength(255);
+            entity.Property(e => e.SmallImagePath).HasMaxLength(255);
+            entity.Property(e => e.ThumbnailImagePath).HasMaxLength(255);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ProductImagesCreatedByNavigation)

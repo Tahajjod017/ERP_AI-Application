@@ -4,8 +4,9 @@ namespace GCTL.Core.ViewModels.CRM.Customer
 {
     public class ShippingVM : BaseViewModel
     {
-        public int SID { get; set; }
-        public int SCustomerID { get; set; }
+        public int? Sid { get; set; }
+        public int? SCustomerID { get; set; }
+        public string? SCustomerName { get; set; }
         public string? SFirstName { get; set; }
 
         public string? SLastName { get; set; }
@@ -23,6 +24,7 @@ namespace GCTL.Core.ViewModels.CRM.Customer
         public string? SPostalCode { get; set; }
 
         public int? SCountryID { get; set; }
+        public string? SCountryName { get; set; }
 
         public decimal? SLatitude { get; set; }
 
