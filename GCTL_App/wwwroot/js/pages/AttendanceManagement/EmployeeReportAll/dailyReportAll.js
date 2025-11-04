@@ -57,6 +57,33 @@ $(document).ready(function () {
         }
     });
 
+    $('#organizationid').on('change', function () {
+        var saelectedOrgId = $(this).val();
+        console.log("Selected Organization ID:", saelectedOrgId);
+        currentPage = 1;
+        loadTableData();
+    });
+    // Department: উভয় আইডি কভার
+    $(document).on('change changed.coreui.multiselect changed.coreui.multi-select',
+        '#departmentid, #DepartmentIDs', function () {
+            const v = $(this).val();
+            console.log('Selected Department IDs:', v,
+                'as text:', $(this).find('option:selected').map(function () { return $(this).text(); }).get());
+            currentPage = 1;
+            loadTableData();
+        });
+
+    // Employee: উভয় আইডি + সব ইভেন্ট কভার
+    $(document).on('change changed.coreui.multiselect changed.coreui.multi-select',
+        '#employeeid, #EmployeeIDs', function () {
+            const v = $(this).val();
+            console.log('Selected Employee IDs:', v,
+                'as text:', $(this).find('option:selected').map(function () { return $(this).text(); }).get());
+            currentPage = 1;
+            loadTableData();
+        });
+
+
 
 
 
@@ -117,12 +144,16 @@ $(document).ready(function () {
         $.ajax({
             url: '/DailyReportForAll/GetAllEmployeeAttendanceReport',
             method: 'GET',
+            traditional: true,
             data: {
                 pageNumber: currentPage,
                 pageSize: pageSize,
                 searchTerm: searchTerm,
                 sortColumn: sortColumn,
-                sortOrder: sortOrder
+                sortOrder: sortOrder,
+                organizationId: $('#organizationid').val(),
+                departmentIds: ($('#departmentid').val() || $('#DepartmentIDs').val() || []),
+                employeeIds: ($('#employeeid').val() || $('#EmployeeIDs').val() || [])
             },
             success: function (response) {
                 var tableBody = $("#empAttendencAll-tBody");

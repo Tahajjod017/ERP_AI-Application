@@ -5,7 +5,8 @@ using GCTL.Service.CommonService;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
 
 namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyReport
 {
@@ -21,7 +22,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyRe
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
+            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName", 1);
 
             ViewBag.DepartmentDD = await _commonService.GetDepartments();
             ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
