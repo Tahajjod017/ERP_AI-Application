@@ -6,6 +6,7 @@ using GCTL.Core.ViewModels.Finance.PostingRulesVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SkiaSharp;
@@ -305,7 +306,10 @@ namespace GCTL.Service.Finance.PostingRule
                 var data = await _genericRepository.AllActive()
                     .Include(x => x.PostingRuleDetails)
                     .ThenInclude(x => x.SubAccount)
+                    .Include(x => x.PostingRuleDetails)
                     .ThenInclude(x => x.MainAccount)
+                    .Include(x => x.PostingRuleDetails)
+                    .ThenInclude(x => x.TrxAcc)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.PostingRuleID == id);
 
@@ -319,15 +323,15 @@ namespace GCTL.Service.Finance.PostingRule
                     ScenarioCode = data.ScenarioCode,
                     PostingRuleDetailsVMs = data.PostingRuleDetails?
                     .Where(detail => detail.DeletedAt == null && detail.DeletedBy == null)
-                    .Select(detail => new GetByIdPostingRulesDetailsVM
+                    .Select(detail => detail == null ? null : new GetByIdPostingRulesDetailsVM
                     {
                         PostingRuleDetailID = detail.PostingRuleDetailID,
                         PostingRuleID = detail.PostingRuleID,
                         SubAccID = detail.SubAccountID,
-                        MainAccountID = detail.SubAccount?.MainAccount?.MainAccountID,
+                        MainAccountID = detail.MainAccount?.MainAccountID,
                         TrxAccID = detail.TrxAccID,
                         TrxType = detail.TrxType
-                    }).ToList() ?? new List<GetByIdPostingRulesDetailsVM>()
+                    }).ToList() ?? []
                 };
 
                 return result;
@@ -374,6 +378,45 @@ namespace GCTL.Service.Finance.PostingRule
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while retrieving Transaction Accounts.", ex);
+            }
+        }
+        #endregion
+
+
+        #region GetPostingDetailsByIdAsync
+        public async Task<GetByIdPostingRulesVM> GetPostingDetailsByIdAsync(int id)
+        {
+            try
+            {
+                var result = await _genericRepository.AllActive()
+                    .Include(x => x.PostingRuleDetails)
+                    .ThenInclude(x => x.SubAccount)
+                    .Include(x => x.PostingRuleDetails)
+                    .ThenInclude(x => x.MainAccount)
+                    .Include(x => x.PostingRuleDetails)
+                    .ThenInclude(x => x.TrxAcc)
+                    .AsNoTracking()
+                    .Where(x => x.PostingRuleID == id)
+                    .Select(x => new GetByIdPostingRulesVM
+                    {
+                        PostingRuleID = x.PostingRuleID,
+                        PostingRuleDetailsVMs = x.PostingRuleDetails
+                        .Select(d => d == null ? null : new GetByIdPostingRulesDetailsVM
+                        {
+                            PostingRuleDetailID = d.PostingRuleDetailID,
+                            MainAccountName = d.MainAccount.MainAccountName ?? "-",
+                            SubAccName = d.SubAccount.SubAccountName ?? "-",
+                            TrxAccName = d.TrxAcc.TrxAccName ?? "-",
+                            TrxType = d.TrxType ?? "-"
+                        }).ToList()
+                    })
+                    .FirstOrDefaultAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
         #endregion

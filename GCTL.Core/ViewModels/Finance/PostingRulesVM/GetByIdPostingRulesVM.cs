@@ -18,7 +18,7 @@ namespace GCTL.Core.ViewModels.Finance.PostingRulesVM
 
         public bool? IsActive { get; set; }
 
-        public IList<GetByIdPostingRulesDetailsVM>? PostingRuleDetailsVMs { get; set; } = new List<GetByIdPostingRulesDetailsVM>();
+        public IList<GetByIdPostingRulesDetailsVM?> PostingRuleDetailsVMs { get; set; } = new List<GetByIdPostingRulesDetailsVM?>();
     }
 
     public class GetByIdPostingRulesDetailsVM
@@ -32,6 +32,12 @@ namespace GCTL.Core.ViewModels.Finance.PostingRulesVM
         public int? SubAccID { get; set; }
 
         public int? TrxAccID { get; set; }
+
+        public string? MainAccountName { get; set; }
+
+        public string? SubAccName { get; set; }
+
+        public string? TrxAccName { get; set; }
 
         public string? TrxType { get; set; }
 

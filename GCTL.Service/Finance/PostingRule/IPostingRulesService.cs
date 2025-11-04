@@ -22,5 +22,6 @@ namespace GCTL.Service.Finance.PostingRule
         Task<bool> IsCodeUniqueAsync(string code, int? excludeId = null);
         Task<string> GenerateThreeDigitCodeAsync();
         Task<List<MenuTab>> GetBodyTabsAsync();
+        Task<GetByIdPostingRulesVM> GetPostingDetailsByIdAsync(int id);
     }
 }

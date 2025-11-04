@@ -197,6 +197,23 @@ namespace GCTL_App.Controllers.Finance
         #endregion
 
 
+        #region GetPostingDetailsByIdAsync
+        [HttpGet("PostingRules/GetPostingDetailsByIdAsync")]
+        public async Task<IActionResult> GetPostingDetailsByIdAsync(int id)
+        {
+            try
+            {
+                var result = await _postingRulesService.GetPostingDetailsByIdAsync(id);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
+        }
+        #endregion
+
+
         #region SoftDelete
         [Permission("Delete", "PostingRules")]
         [HttpDelete]
