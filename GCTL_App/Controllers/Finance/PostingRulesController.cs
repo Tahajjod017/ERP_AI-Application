@@ -57,7 +57,7 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region Create
-        //[Permission("Create", "TransactionAccount")]
+        [Permission("Create", "PostingRules")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(CreatePostingRulesVM model)
@@ -87,7 +87,7 @@ namespace GCTL_App.Controllers.Finance
                     return Json(new { isSuccess = true, message = "Saved Successfully." });
                 }
 
-                var orderedKeys = new[] { "ScenarioName", "ScenarioCode", "PostingRuleDetailsVMs", "MainAccountID", "SubAccID", "DebitCredit" };
+                var orderedKeys = new[] { "ScenarioName", "ScenarioCode", "PostingRuleDetailsVMs", "MainAccountID", "DebitCredit" };
 
                 foreach (var key in orderedKeys)
                 {
@@ -109,7 +109,7 @@ namespace GCTL_App.Controllers.Finance
 
 
         #region Update
-        //[Permission("Edit", "TransactionAccount")]
+        [Permission("Edit", "PostingRules")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(UpdatePostingRulesVM model)
@@ -140,7 +140,7 @@ namespace GCTL_App.Controllers.Finance
                     });
                 }
 
-                var orderedKeys = new[] { "ScenarioName", "ScenarioCode", "PostingRuleDetailsVMs", "MainAccountID", "SubAccID", "DebitCredit" };
+                var orderedKeys = new[] { "ScenarioName", "ScenarioCode", "PostingRuleDetailsVMs", "MainAccountID", "DebitCredit" };
                 foreach (var key in orderedKeys)
                 {
                     if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())

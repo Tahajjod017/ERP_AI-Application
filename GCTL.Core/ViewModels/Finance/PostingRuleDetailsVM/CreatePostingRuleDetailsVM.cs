@@ -15,7 +15,6 @@ namespace GCTL.Core.ViewModels.Finance.PostingRuleDetailsVM
         [Required(ErrorMessage = "{0} is Required!"), Display(Name = "Main Account")]
         public int? MainAccountID { get; set; }
 
-        [Required(ErrorMessage = "{0} is Required!"), Display(Name = "Sub Account")]
         public int? SubAccID { get; set; }
 
         public int? TrxAccID { get; set; }
