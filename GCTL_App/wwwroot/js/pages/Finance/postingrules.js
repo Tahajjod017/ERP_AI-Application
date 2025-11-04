@@ -20,6 +20,7 @@
         var checkNameUniqueUrl = settings.baseUrl + "/CheckNameUnique";
         var checkCodeUniqueUrl = settings.baseUrl + "/CheckCodeUnique";
         var generateNextCodeUrl = settings.baseUrl + "/GenerateThreeDigitCodeAsync";
+        var getPostingDetailsByIdUrl = settings.baseUrl + "/GetPostingDetailsByIdAsync";
 
         $(() => {
 
@@ -680,6 +681,9 @@
                                     <td class="align-middle white-space-nowrap ps-0">${item.scenarioCode}</td>
                                     <td class="align-middle white-space-nowrap ps-0">
                                         <div class="d-flex justify-content-end align-items-center">
+                                            <a href="#!" class="btn btn-outline-light btn-icon addPostingRules-detailsBtn" id="addPostingRules-detailsBtn" data-id="${item.postingRuleID}">
+                                                <i class="far fa-eye text-black"></i>
+                                            </a>
                                             <a href="#!" class="btn btn-outline-light btn-icon postingRules-editBtn" id="postingRules-editBtn" data-id="${item.postingRuleID}">
                                                 <i class="fas fa-edit text-black"></i>
                                             </a>
@@ -743,6 +747,55 @@
             const page = $(this).data('page');
             currentPage = page;
             loadTableData();
+        });
+        // #endregion
+
+
+        // #region Show Posting Details Modal
+        $(document).on('click', '.addPostingRules-detailsBtn', function () {
+            const postingRuleID = $(this).data('id');
+            const modal = new bootstrap.Modal(document.getElementById('postingRulesDetailsModal'));
+            const detailsBody = $("#postingRulessDetails-tBody");
+
+            detailsBody.html(`
+                <tr>
+                    <td colspan="4" class="text-center text-muted py-3">Loading...</td>
+                </tr>
+            `);
+
+            modal.show();
+
+            $.ajax({
+                url: getPostingDetailsByIdUrl,
+                type: 'GET',
+                data: { id: postingRuleID },
+                success: function (data) {
+                    if (data.postingRuleDetailsVMs && data.postingRuleDetailsVMs.length > 0) {
+                        let rows = data.postingRuleDetailsVMs.map(d => `
+                    <tr>
+                        <td class="align-middle text-start">${d.mainAccountName || '-'}</td>
+                        <td class="align-middle text-start">${d.subAccName || '-'}</td>
+                        <td class="align-middle text-start">${d.trxAccName || '-'}</td>
+                        <td class="align-middle text-start">${d.trxType || '-'}</td>
+                    </tr>
+                `).join('');
+                        detailsBody.html(rows);
+                    } else {
+                        detailsBody.html(`
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-3">No details available</td>
+                    </tr>
+                `);
+                    }
+                },
+                error: function () {
+                    detailsBody.html(`
+                <tr>
+                    <td colspan="4" class="text-center text-danger py-3">Error loading posting rule details.</td>
+                </tr>
+            `);
+                }
+            });
         });
         // #endregion
     };

@@ -1,0 +1,26 @@
+﻿<div class="modal fade" id="postingRulesDetailsModal" tabindex="-1" aria-labelledby="postingRulesDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                @* <h4 class="mb-1">Confirm Delete</h4> *@
+                <div class="table-responsive scrollbar mx-n1 px-1">
+                    <table class="table table-sm fs-9 leads-table">
+                        <thead>
+                            <tr>
+                                <th class="align-middle text-start text-uppercase text-nowrap" scope="col">@Html.SmartLocalize("Main Account")</th>
+                                <th class="align-middle text-start text-uppercase text-nowrap" scope="col">@Html.SmartLocalize("Sub Account")</th>
+                                <th class="align-middle text-start text-uppercase text-nowrap" scope="col">@Html.SmartLocalize("Transaction Account")</th>
+                                <th class="align-middle text-start text-uppercase text-nowrap" scope="col">@Html.SmartLocalize("Transaction Type")</th>
+                            </tr>
+                        </thead>
+                        <tbody id="postingRulessDetails-tBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+            </div>
+        </div>
+    </div>
+</div>
