@@ -39,6 +39,8 @@ public partial class MainAccounts
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
+    public virtual ICollection<PostingRuleDetails> PostingRuleDetails { get; set; } = new List<PostingRuleDetails>();
+
     public virtual ICollection<SubAccounts> SubAccounts { get; set; } = new List<SubAccounts>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }

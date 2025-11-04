@@ -34,6 +34,7 @@
                             <td class="text-center text-middle align-middle white-space-nowrap p-0 py-1">${rowIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.name}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.type}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.organizationTypeName}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="branchListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#branchOffcanvasBottom" aria-controls="branchOffcanvasBottom">${item.totalBranch}</a></td>
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="warehouseListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#warehouseOffcanvasBottom" aria-controls="warehouseOffcanvasBottom">${item.totalWarehouse}</a></td>
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="shippingListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#shippingOffcanvasBottom" aria-controls="shippingOffcanvasBottom">${item.totalShipping}</a></td>
@@ -55,7 +56,7 @@
                 $("#gender-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
                 $("#gender-totalCount").text(`(${paginationInfo.totalItems})`);
 
-                updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
+                updatePagination("#customer-paginationLinks", "#customer-prevPageBtn", "#customer-nextPageBtn", paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
             },
             error: function () {
                 console.log("Error! Fetching all data.");
@@ -88,6 +89,7 @@
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0 py-1">${index + 1}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bName}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.bOrganizationTypeName}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bFirstName} ${item.bLastName}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bPhone}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bEmail}</td>
@@ -104,6 +106,12 @@
                 } else {
                     tableBody.append('<tr><td colspan="6" class="text-center">No data available</td></tr>');
                 }
+                var paginationInfo = response.paginationInfo;
+
+                $("#branch-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                $("#branch-totalCount").text(`(${paginationInfo.totalItems})`);
+
+                updatePagination("#branch-paginationLinks", "#branch-prevPageBtn", "#branch-nextPageBtn", paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
             },
             error: function (res) {
                 console.error("Error fetching branches:", res);
@@ -128,6 +136,7 @@
                 GoToTop();
                 const form = document.querySelector("#customerForm");
                 select2ScrollingDataSet('#CountryID', response.countryID, response.countryName)
+                select2ScrollingDataSet('#OrganizationTypeID', response.organizationTypeID, response.organizationTypeName)
                 setFormValues(form, response);
             },
             error: function (res) {
@@ -169,6 +178,7 @@
                 const form = document.querySelector("#branchForm");
                 select2ScrollingDataSet('#BCountryID', response.bCountryID, response.bCountryName)
                 select2ScrollingDataSet("#BCustomerID", response.bCustomerID, response.bCustomerName)
+                select2ScrollingDataSet("#BOrganizationTypeID", response.bOrganizationTypeID, response.bOrganizationTypeName)
                 setFormValues(form, response);
             },
             error: function (res) {
@@ -292,8 +302,8 @@
     //#endregion
 
     //#region Update Pagination
-    function updatePagination(pageNumbers, currentPage, totalPages) {
-        const paginationLinks = $("#gender-paginationLinks");
+    function updatePagination(paginationLink, prevPageBtn, nextPageBtn, pageNumbers, currentPage, totalPages) {
+        const paginationLinks = $(paginationLink);
         paginationLinks.empty();
         const windowSize = 1;
         const createPageButton = (page) => `
@@ -313,8 +323,8 @@
         if (currentPage < totalPages - windowSize) {
             paginationLinks.append(addEllipsis(), createPageButton(totalPages));
         }
-        $("#gender-prevPageBtn").prop('disabled', currentPage === 1);
-        $("#gender-nextPageBtn").prop('disabled', currentPage === totalPages);
+        $(prevPageBtn).prop('disabled', currentPage === 1);
+        $(nextPageBtn).prop('disabled', currentPage === totalPages);
     }
     //#endregion
 
@@ -382,7 +392,7 @@
                 $("#warehouse-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
                 $("#warehouse-totalCount").text(`(${paginationInfo.totalItems})`);
 
-                updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
+                updatePagination("#warehouse-paginationLinks", "#warehouse-prevPageBtn", "#warehosue-nextPageBtn", paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
             },
             error: function () {
                 console.log("Error! Fetching all data.");
@@ -450,12 +460,12 @@
                     tableBody.append('<tr><td colspan="7" class="text-center">No data available</td></tr>');
                 }
 
-                var paginationInfo = response.paginationInfo;
+                let paginationInfo = response.paginationInfo;
 
-                $("#warehouse-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-                $("#warehouse-totalCount").text(`(${paginationInfo.totalItems})`);
+                $("#shipping-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                $("#shipping-totalCount").text(`(${paginationInfo.totalItems})`);
 
-                updatePagination(paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
+                updatePagination("#shipping-paginationLinks", "#shipping-prevPageBtn", "#shipping-nextPageBtn", paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
             },
             error: function () {
                 console.log("Error! Fetching all data.");

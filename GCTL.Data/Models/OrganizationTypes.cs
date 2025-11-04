@@ -31,7 +31,11 @@ public partial class OrganizationTypes
 
     public int? DeletedBy { get; set; }
 
+    public virtual ICollection<CompanyBranches> CompanyBranches { get; set; } = new List<CompanyBranches>();
+
     public virtual Employees? CreatedByNavigation { get; set; }
+
+    public virtual ICollection<Customers> Customers { get; set; } = new List<Customers>();
 
     public virtual Employees? DeletedByNavigation { get; set; }
 

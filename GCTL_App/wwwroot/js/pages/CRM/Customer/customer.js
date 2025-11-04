@@ -57,7 +57,7 @@ window.initCustomerForm = function (root) {
         });
     }
 
-    const compnayTypeSelect = root.querySelector("#CompanyType");
+    const compnayTypeSelect = root.querySelector("#OrganizationTypeID");
     if (compnayTypeSelect && !compnayTypeSelect.dataset.listenerAttached) {
         compnayTypeSelect.dataset.listenerAttached = true;
         let dropdownParent = $(compnayTypeSelect).closest('.modal');
@@ -172,24 +172,6 @@ window.initCustomerForm = function (root) {
         });
 
         return isValid;
-    }
-    function setFormValues(form, jsonData) {
-        Object.keys(jsonData).forEach(key => {
-            const input = form.querySelector(`[name="${key}"]`);
-            if (!input) return; // skip if input not found
-
-            const value = jsonData[key] ?? ""; // fallback to empty string if null
-
-            // Handle different input types
-            if (input.type === "checkbox") {
-                input.checked = !!value;
-            } else if (input.type === "radio") {
-                const radio = form.querySelector(`input[name="${key}"][value="${value}"]`);
-                if (radio) radio.checked = true;
-            } else {
-                input.value = value;
-            }
-        });
     }
 
     const contactInit = root.querySelector("#contact-btn");

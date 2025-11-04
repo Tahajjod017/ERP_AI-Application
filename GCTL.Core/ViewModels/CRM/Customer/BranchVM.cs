@@ -7,6 +7,8 @@ namespace GCTL.Core.ViewModels.CRM.Customer
         public int Bid { get; set; }
         [Required(ErrorMessage = "Branch name is required")]
         public string BName { get; set; }
+        public int? BOrganizationTypeID { get; set; }
+        public string? BOrganizationTypeName { get; set; }
         [Required(ErrorMessage = "Customer name is required")]
         public int? BCustomerID { get; set; }
         public string? BCustomerName { get; set; }

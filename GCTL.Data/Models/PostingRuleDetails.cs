@@ -11,9 +11,13 @@ public partial class PostingRuleDetails
 
     public int? PostingRuleID { get; set; }
 
+    public int? MainAccountID { get; set; }
+
     public int? SubAccountID { get; set; }
 
     public int? TrxAccID { get; set; }
+
+    public string? TrxType { get; set; }
 
     public string? LIP { get; set; }
 
@@ -31,11 +35,11 @@ public partial class PostingRuleDetails
 
     public int? DeletedBy { get; set; }
 
-    public string? TrxType { get; set; }
-
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
+
+    public virtual MainAccounts? MainAccount { get; set; }
 
     public virtual PostingRules? PostingRule { get; set; }
 

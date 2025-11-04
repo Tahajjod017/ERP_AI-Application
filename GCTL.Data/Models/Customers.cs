@@ -33,6 +33,8 @@ public partial class Customers
 
     public int? OrganizationID { get; set; }
 
+    public int? OrganizationTypeID { get; set; }
+
     public virtual ICollection<CompanyBranches> CompanyBranches { get; set; } = new List<CompanyBranches>();
 
     public virtual ICollection<CompanyWarehouses> CompanyWarehouses { get; set; } = new List<CompanyWarehouses>();
@@ -50,6 +52,8 @@ public partial class Customers
     public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
 
     public virtual Organization? Organization { get; set; }
+
+    public virtual OrganizationTypes? OrganizationType { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

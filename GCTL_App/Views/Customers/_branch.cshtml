@@ -31,40 +31,40 @@
                             </div>
                             <div class="col-md-6 ps-1 col-sm-6">
                                 <label class="form-label">Branch Type</label>
-                                <select id="BranchType" class="select2">
+                                <select asp-for="BOrganizationTypeID" class="select2">
                                     <option value="">Select Type</option>
                                 </select>
                             </div>
                             <div class="col-md-6 pe-1 col-sm-6">
                                 <div class="mb-2">
                                     <label class="form-label req">First Name</label>
-                                    <input type="text" asp-for="BFirstName" class="form-control" placeholder="">
+                                    <input type="text" asp-for="BFirstName" class="form-control" placeholder="e.g. John">
                                     <span asp-validation-for="BFirstName" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6 ps-1 col-sm-6">
                                 <div class="mb-2">
                                     <label class="form-label">Last Name</label>
-                                    <input type="text" asp-for="BLastName" class="form-control" placeholder="">
+                                    <input type="text" asp-for="BLastName" class="form-control" placeholder="e.g. Smith">
                                 </div>
                             </div>
                         </div>
                         <div class="row mb-2">
                             <div class="col-md-6 pe-1 col-sm-6">
                                 <label class="form-label">Phone</label>
-                                <input class="form-control" asp-for="BPhone" type="tel" placeholder="Phone Number" />
+                                <input class="form-control" asp-for="BPhone" type="tel" placeholder="+8801XXXXXXXXX" />
                                 <span asp-validation-for="BPhone" class="text-danger"></span>
                             </div>
                             <div class="col-md-6 ps-1 col-sm-6">
                                 <label class="form-label">Other Phone</label>
-                                <input class="form-control" asp-for="BOtherPhone" id="bOtherPhone" type="tel" placeholder="Other Phone" />
+                                <input class="form-control" asp-for="BOtherPhone" placeholder="+8801XXXXXXXXX" />
                             </div>
                         </div>
                         
                         <div class="col-12">
                             <div class="mb-2">
                                 <label class="form-label">Email</label>
-                                <input type="text" asp-for="BEmail" class="form-control" placeholder="">
+                                <input type="text" asp-for="BEmail" class="form-control" placeholder="example@domain.com">
                             </div>
                         </div>
                     </div>
@@ -73,7 +73,7 @@
                         <div class="col-md-12">
                             <div class="mb-2">
                                 <label class="form-label">Full Address</label>
-                                <input type="text" asp-for="BFullAddress" class="form-control" placeholder="Address">
+                                <input type="text" asp-for="BFullAddress" class="form-control" placeholder="e.g. 123 Main Street, Dhaka">
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -81,13 +81,13 @@
                                 <div class="col-md-6 pe-1 col-sm-6">
                                     <div class="mb-2">
                                         <label class="form-label">Street</label>
-                                        <input type="text" asp-for="BStreet" class="form-control" placeholder="Street">
+                                        <input type="text" asp-for="BStreet" class="form-control" placeholder="e.g. Banani Road 11">
                                     </div>
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6">
                                     <div class="mb-2">
                                         <label class="form-label">City</label>
-                                        <input type="text" asp-for="BCity" class="form-control" placeholder="City">
+                                        <input type="text" asp-for="BCity" class="form-control" placeholder="e.g. Dhaka">
                                     </div>
                                 </div>
                             </div>
@@ -97,13 +97,13 @@
                                 <div class="col-md-6 pe-1 col-sm-6">
                                     <div class="mb-2">
                                         <label class="form-label">Additional Address</label>
-                                        <input type="text" asp-for="BAdditionaladdress" class="form-control" placeholder="">
+                                        <input type="text" asp-for="BAdditionaladdress" class="form-control" placeholder="e.g. Apartment 4B, 2nd Floor">
                                     </div>
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6">
                                     <div class="mb-2">
                                         <label class="form-label">State/Province</label>
-                                        <input type="text" asp-for="BState" class="form-control" placeholder="">
+                                        <input type="text" asp-for="BState" class="form-control" placeholder="e.g. Dhaka Division">
                                     </div>
                                 </div>
                             </div>
@@ -113,7 +113,7 @@
                                 <div class="col-md-6 pe-1 col-sm-6">
                                     <div class="mb-2">
                                         <label class="form-label">Zip/Postal Code</label>
-                                        <input asp-for="BPostalCode" type="text" class="form-control" placeholder="">
+                                        <input asp-for="BPostalCode" type="text" class="form-control" placeholder="e.g. 1207">
                                     </div>
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6">
@@ -129,13 +129,13 @@
                                 <div class="col-md-6 pe-1 col-sm-6">
                                     <div class="mb-2">
                                         <label class="form-label">Latitude</label>
-                                        <input type="text" asp-for="BLatitude" class="form-control" placeholder="">
+                                        <input type="text" asp-for="BLatitude" class="form-control" placeholder="e.g. 23.8103">
                                     </div>
                                 </div>
                                 <div class="col-md-6 ps-1 col-sm-6">
                                     <div class="mb-2">
                                         <label class="form-label">Longitude</label>
-                                        <input type="text" asp-for="BLongitude" class="form-control" placeholder="">
+                                        <input type="text" asp-for="BLongitude" class="form-control" placeholder="e.g. 90.4125">
                                     </div>
                                 </div>
                             </div>

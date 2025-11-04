@@ -29,6 +29,8 @@ public partial class CompanyBranches
 
     public int? CustomerID { get; set; }
 
+    public int? OrganizationTypeID { get; set; }
+
     public virtual ICollection<CompanyBranchAddresses> CompanyBranchAddresses { get; set; } = new List<CompanyBranchAddresses>();
 
     public virtual Employees? CreatedByNavigation { get; set; }
@@ -36,6 +38,8 @@ public partial class CompanyBranches
     public virtual Customers? Customer { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
+
+    public virtual OrganizationTypes? OrganizationType { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }
