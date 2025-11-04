@@ -6,7 +6,7 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
     {
 
         [Display(Name = "Customer Group")]
-        public string CustomerGroup { get; set; }
+        public int CustomerGroup { get; set; }
 
         [Display(Name = "Min Quantity")]
         public int MinQuantity { get; set; }
@@ -15,7 +15,7 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         public int? MaxQuantity { get; set; }
 
         [Display(Name = "Price Type")]
-        public string PriceType { get; set; } // "Fixed" or "Discount"
+        public int PriceType { get; set; } // "Fixed" or "Discount"
 
         [Display(Name = "Value")]
         public decimal Value { get; set; }

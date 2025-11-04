@@ -42,7 +42,7 @@
                                 <div class="mb-3">
                                     <label asp-for="AttrBaseSku">@Html.SmartLocalize("Base SKU")</label>
                                     <span asp-validation-for="AttrBaseSku" class="text-danger"></span>
-                                    <input asp-for="AttrBaseSku" type="text" class="form-control border-secondary-light" id="attrBaseSku">
+                                    <input asp-for="AttrBaseSku" type="text" class="form-control border-1" id="attrBaseSku">
                                 </div>
                             </div>
                         </div>
@@ -217,29 +217,129 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+
+
+
+                        @*<div class="row">
+                                <div class="col-lg-12">
+                                    <div class=" add-choosen">
+                                        <div class="mb-3">
+                                            <div class="image-upload image-upload-two">
+                                                <input asp-for="AttrProductImages" type="file" multiple id="attrProductImages">
+                                                <div class="image-uploads">
+                                                    <i data-feather="plus-circle" class="plus-down-add me-0"></i>
+                                                    <h4>@Html.SmartLocalize("Add Images")</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-lg-12">
-                                <div class=" add-choosen">
-                                    <div class="mb-3">
-                                        <div class="image-upload image-upload-two">
-                                            <input asp-for="AttrProductImages" type="file" multiple id="attrProductImages">
-                                            <div class="image-uploads">
-                                                <i data-feather="plus-circle" class="plus-down-add me-0"></i>
-                                                <h4>@Html.SmartLocalize("Add Images")</h4>
+                                <div class="summer-description-box">
+                                    <label asp-for="AttrDescription">@Html.SmartLocalize("Description")</label>
+                                    <textarea asp-for="AttrDescription" class="tinymce" name="content" data-tinymce="{}"></textarea>
+                                    <p class="fs-9 mt-1 ms-2">@Html.SmartLocalize("Maximum 60 Words")</p>
+                                </div>
+                            </div>*@
+
+
+
+                        <!-- ✅ Attribute Images Upload Section -->
+                        <div class="row">
+                            <div class="col-lg-12 mt-2">
+                                <div class="accordion" id="attrImageAccordion">
+                                    <div class="">
+                                        <h2 class="accordion-header" id="headingAttrImage">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseAttrImage" aria-expanded="false"
+                                                    aria-controls="collapseAttrImage">
+                                                <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Upload Attribute Images")
+                                                <small class="text-muted ms-2">(@Html.SmartLocalize("Drag and drop or click to upload, then edit and crop as needed"))</small>
+                                            </button>
+                                        </h2>
+
+                                        <div id="collapseAttrImage" class="accordion-collapse collapse" aria-labelledby="headingAttrImage"
+                                             data-bs-parent="#attrImageAccordion">
+                                            <div class="content-wrapper">
+                                                <div class="preview-container" id="attrPreviewContainer"></div>
+
+                                                <div class="upload-zone-wrapper" id="attrUploadZoneWrapper">
+                                                    <div class="upload-zone" id="attrUploadZone">
+
+                                                        <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                                        </svg>
+                                                        <div class="upload-icon-wrapper">
+                                                            <i class="lucide lucide-cloud-upload upload-icon"></i>
+                                                        </div>
+                                                        <div class="upload-text">
+                                                            Drag & Drop your images here
+                                                        </div>
+                                                        <div class="upload-subtext">
+                                                            or <span class="browse-btn" id="attrBrowseBtn">browse</span> to choose files
+                                                        </div>
+                                                        <input type="file" id="attrFileInput" accept="image/*" multiple>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="upload-complete bg-body-highlight" id="attrUploadComplete">
+                                                <i class="lucide lucide-check-circle"></i>
+                                                Images uploaded successfully!
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- Existing images would be rendered here dynamically -->
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-12">
-                            <div class="summer-description-box">
-                                <label asp-for="AttrDescription">@Html.SmartLocalize("Description")</label>
-                                <textarea asp-for="AttrDescription" class="tinymce" name="content" data-tinymce="{}"></textarea>
-                                <p class="fs-9 mt-1 ms-2">@Html.SmartLocalize("Maximum 60 Words")</p>
+
+                        <!-- ✅ Attribute Description Section -->
+                        <div class="row">
+                            <div class="col-lg-12 mt-2">
+                                <div class="accordion" id="attrDescriptionAccordion">
+                                    <div class="">
+                                        <h2 class="accordion-header" id="headingAttrDescription">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseAttrDescription" aria-expanded="false"
+                                                    aria-controls="collapseAttrDescription">
+                                                <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Attribute Description")
+                                                <small class="text-muted ms-2">(@Html.SmartLocalize("Maximum 60 Words"))</small>
+                                            </button>
+                                        </h2>
+                                        <div id="collapseAttrDescription" class="accordion-collapse collapse"
+                                             aria-labelledby="headingAttrDescription" data-bs-parent="#attrDescriptionAccordion">
+                                            <div class="accordion-body">
+                                                <div class="summer-description-box">
+                                                    <textarea asp-for="AttrDescription" id="attrDescription" class="tinymce form-control"
+                                                              data-tinymce="{}" rows="5"
+                                                              placeholder="@Html.SmartLocalize("Provide a concise and informative description...")"></textarea>
+                                                    <div class="d-flex justify-content-end mt-2">
+                                                        <small class="text-muted me-2" id="attrWordCounter">
+                                                            0 / 60
+                                                            @Html.SmartLocalize("words")
+                                                        </small>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                                                onclick="clearAttrDescription()">
+                                                            <i class="bi bi-x-circle me-1"></i>@Html.SmartLocalize("Clear")
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+
+
+
+
+
+
                     </div>
                 </div>
             </div>
@@ -260,7 +360,7 @@
                     <div class="accordion-body">
                         <div id="div3" class="p-3">
                             <div class="">
-                                <div class="p-3 bg-light rounded d-flex align-items-center border mb-3">
+                                <div class="p-3  rounded d-flex align-items-center border mb-3">
                                     <div class=" d-flex align-items-center">
                                         <div class="form-check form-check-inline">
                                             <input asp-for="AttrSizeEnabled" class="form-check-input" type="checkbox" id="attrSizeCheckbox" value="option1">
@@ -626,7 +726,7 @@
             </div>
             <div class="accordion-item mb-4">
                 <h2 class="accordion-header" id="headingSpacingThree">
-                    <div class="accordion-button collapsed bg-white" data-bs-toggle="collapse" data-bs-target="#SpacingThree"
+                    <div class="accordion-button collapsed bg-body-highlight" data-bs-toggle="collapse" data-bs-target="#SpacingThree"
                          aria-expanded="true" aria-controls="SpacingThree">
                         <div class="d-flex align-items-center justify-content-between flex-fill">
                             <h5 class="d-flex align-items-center my-3">
@@ -666,36 +766,37 @@
                                         <div class="justify-content-center" id="divStandard">
                                             <div class="row col-lg-9 col-md-9 border py-3">
                                                 <div class="col-lg-3 col-md-3">
-                                                    <img src="../../assets/img/barcode/standard.png" alt="Standard Barcode">
+                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
                                                 </div>
                                                 <div class="col-lg-3 col-md-3">
-                                                    <img src="../../assets/img/barcode/standard.png" alt="Standard Barcode">
+                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
                                                 </div>
                                                 <div class="col-lg-3 col-md-3">
-                                                    <img src="../../assets/img/barcode/standard.png" alt="Standard Barcode">
+                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
                                                 </div>
+
                                             </div>
                                         </div>
                                         <div class="justify-content-center" id="divA4" style="display: none;">
                                             <div class="row col-lg-9 col-md-9 border py-3">
                                                 <div class="col-lg-3 col-md-3">
-                                                    <img src="../../assets/img/barcode/standard.png" alt="Standard Barcode">
+                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
                                                 </div>
                                                 <div class="col-lg-3 col-md-3">
-                                                    <img src="../../assets/img/barcode/standard.png" alt="Standard Barcode">
+                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
                                                 </div>
                                                 <div class="col-lg-3 col-md-3">
-                                                    <img src="../../assets/img/barcode/standard.png" alt="Standard Barcode">
+                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
                                                 </div>
                                                 <div class="col-lg-3 col-md-3">
-                                                    <img src="../../assets/img/barcode/standard.png" alt="Standard Barcode">
+                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="justify-content-center" id="divJewelry" style="display: none;">
                                             <div class="row col-lg-9 col-md-9 border py-3">
                                                 <div class="col-lg-3 col-md-3">
-                                                    <img src="../../assets/img/barcode/jewelary.png" alt="Standard Barcode">
+                                                    <img src="" alt="Standard Barcode">
                                                 </div>
                                             </div>
                                         </div>
@@ -752,7 +853,7 @@
             </div>
             <div class="accordion-item mb-4">
                 <h2 class="accordion-header" id="headingSpacingFour">
-                    <div class="accordion-button collapsed bg-white" data-bs-toggle="collapse" data-bs-target="#SpacingFour"
+                    <div class="accordion-button collapsed bg-body-highlight" data-bs-toggle="collapse" data-bs-target="#SpacingFour"
                          aria-expanded="true" aria-controls="SpacingFour">
                         <div class="d-flex align-items-center justify-content-between flex-fill">
                             <h5 class="d-flex align-items-center my-3">
@@ -764,7 +865,7 @@
                 <div id="SpacingFour" class="accordion-collapse collapse show" aria-labelledby="headingSpacingFour">
                     <div class="accordion-body">
                         <div class="mt-4">
-                            <div class="p-3 bg-light rounded d-flex align-items-center border mb-3">
+                            <div class="p-3  rounded d-flex align-items-center border mb-3">
                                 <div class=" d-flex align-items-center">
                                     <div class="form-check form-check-inline">
                                         <input asp-for="AttrWarrantiesEnabled" class="form-check-input" type="checkbox" id="attrWarranties" value="option1">
@@ -829,3 +930,138 @@
     </div>
     <button type="submit" class="btn btn-primary">@Html.SmartLocalize("Save")</button>
 </form>
+
+
+
+
+<!-- ✅ Attribute Description Script -->
+<script>
+document.getElementById('attrDescription').addEventListener('input', function () {
+    const words = this.value.trim().split(/\s+/).filter(word => word.length > 0).length;
+    document.getElementById('attrWordCounter').textContent = words + ' / 60 @Html.SmartLocalize("words")';
+    if (words > 60) {
+        this.classList.add('is-invalid');
+    } else {
+        this.classList.remove('is-invalid');
+    }
+});
+
+function clearAttrDescription() {
+    document.getElementById('attrDescription').value = '';
+    document.getElementById('attrWordCounter').textContent = '0 / 60 @Html.SmartLocalize("words")';
+    document.getElementById('attrDescription').classList.remove('is-invalid');
+}
+</script>
+
+<!-- ✅ Attribute Image Upload Script -->
+<script>
+    const attrUploadZone = document.getElementById('attrUploadZone');
+    const attrUploadZoneWrapper = document.getElementById('attrUploadZoneWrapper');
+    const attrFileInput = document.getElementById('attrFileInput');
+    const attrBrowseBtn = document.getElementById('attrBrowseBtn');
+    const attrPreviewContainer = document.getElementById('attrPreviewContainer');
+    const attrUploadComplete = document.getElementById('attrUploadComplete');
+
+    let attrFiles = [];
+
+    function updateAttrUploadZoneSize() {
+        if (attrFiles.length > 0) {
+            attrUploadZoneWrapper.classList.add('has-images');
+        } else {
+            attrUploadZoneWrapper.classList.remove('has-images');
+        }
+    }
+
+    attrUploadZone.addEventListener('click', () => attrFileInput.click());
+    attrBrowseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        attrFileInput.click();
+    });
+
+    attrUploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        attrUploadZone.classList.add('drag-over');
+    });
+
+    attrUploadZone.addEventListener('dragleave', () => {
+        attrUploadZone.classList.remove('drag-over');
+    });
+
+    attrUploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        attrUploadZone.classList.remove('drag-over');
+        const droppedFiles = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+        handleAttrFiles(droppedFiles);
+    });
+
+    attrFileInput.addEventListener('change', (e) => {
+        handleAttrFiles(Array.from(e.target.files));
+    });
+
+    function handleAttrFiles(newFiles) {
+        attrFiles = [...attrFiles, ...newFiles];
+        renderAttrPreviews();
+        updateAttrUploadZoneSize();
+        simulateAttrUpload();
+    }
+
+    function renderAttrPreviews() {
+        attrPreviewContainer.innerHTML = '';
+        attrFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.innerHTML = `
+                                        <img src="${e.target.result}" alt="${file.name}">
+                                        <div class="preview-overlay">
+                                            <div class="file-name">${file.name}</div>
+                                            <button class="overlay-btn remove" onclick="removeAttrFile(${index})">
+                                                <i class="lucide lucide-trash-2"></i>
+                                                Remove
+                                            </button>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" id="attr-progress-${index}"></div>
+                                        </div>
+                                    `;
+                attrPreviewContainer.appendChild(previewItem);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function removeAttrFile(index) {
+        attrFiles.splice(index, 1);
+        renderAttrPreviews();
+        updateAttrUploadZoneSize();
+        if (attrFiles.length === 0) {
+            attrUploadComplete.classList.remove('show');
+        }
+    }
+
+    function simulateAttrUpload() {
+        attrUploadComplete.classList.remove('show');
+        attrFiles.forEach((file, index) => {
+            let progress = 0;
+            const progressFill = document.getElementById(`attr-progress-${index}`);
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    if (index === attrFiles.length - 1) {
+                        setTimeout(() => {
+                            attrUploadComplete.classList.add('show');
+                        }, 300);
+                    }
+                }
+                if (progressFill) {
+                    progressFill.style.width = progress + '%';
+                }
+            }, 200);
+        });
+    }
+
+    window.removeAttrFile = removeAttrFile;
+</script>

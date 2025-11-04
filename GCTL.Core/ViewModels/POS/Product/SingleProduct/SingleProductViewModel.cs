@@ -111,16 +111,16 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         public bool HasExpiry { get; set; }
 
         [Display(Name = "Warranty")]
-        public string Warranty { get; set; }
+        public int Warranty { get; set; }
 
         [Display(Name = "Manufacturer")]
         public string Manufacturer { get; set; }
 
         [Display(Name = "Manufactured Date")]
-        public DateTime? ManufacturedDate { get; set; }
+        public DateOnly? ManufacturedDate { get; set; }
 
         [Display(Name = "Expiry Date")]
-        public DateTime? ExpiryDate { get; set; }
+        public DateOnly? ExpiryDate { get; set; }
 
         // Images
         public List<IFormFile> ProductImages { get; set; } = new List<IFormFile>();
@@ -130,7 +130,7 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         public decimal? SpecialPrice { get; set; }
 
         [Display(Name = "Customer Group")]
-        public string? CustomerGroup { get; set; }
+        public int? CustomerGroup { get; set; }
 
         [Display(Name = "Special Price Start Date")]
         public DateTime? SpecialPriceStartDate { get; set; }

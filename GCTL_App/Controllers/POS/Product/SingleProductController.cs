@@ -6,22 +6,27 @@ using GCTL.Service.POS.Product;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.POS.Product
 {
     public class SingleProductController : BaseController
     {
         private readonly IGenericRepository<Products> _productRepository;
+        private readonly IGenericRepository<WarrantyTypes> _warrantyRepository;
+        private readonly IGenericRepository<ProductTypes> _productTypeRepository;
         private readonly IGenericRepository<ProductCategories> _productCategoryRepository;
         private readonly IGenericRepository<ProductSubCategories> _productSubCategoryRepository;
         private readonly IGenericRepository<ProductBrands> _productBrandRepository;
         private readonly IGenericRepository<UnitTypes> _unitRepository;
+        private readonly IGenericRepository<CustomerGroup> _customerGroupRepository;
+        private readonly IGenericRepository<CalculationTypes> _calculationTypesRepository;
         private readonly IGenericRepository<Classes> _assetTypeRepository;
         private readonly ISingleProduct _singleProductService;
 
 
 
-        public SingleProductController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Products> productRepository, IGenericRepository<ProductCategories> productCategoryRepository, IGenericRepository<ProductSubCategories> productSubCategoryRepository, IGenericRepository<ProductBrands> productBrandRepository, IGenericRepository<UnitTypes> unitRepository, IGenericRepository<Classes> assetTypeRepository, ISingleProduct singleProductService) : base(translateService, userProfileService)
+        public SingleProductController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Products> productRepository, IGenericRepository<ProductCategories> productCategoryRepository, IGenericRepository<ProductSubCategories> productSubCategoryRepository, IGenericRepository<ProductBrands> productBrandRepository, IGenericRepository<UnitTypes> unitRepository, IGenericRepository<Classes> assetTypeRepository, ISingleProduct singleProductService, IGenericRepository<WarrantyTypes> warrantyRepository, IGenericRepository<ProductTypes> productTypeRepository, IGenericRepository<CustomerGroup> customerGroupRepository, IGenericRepository<CalculationTypes> calculationTypesRepository) : base(translateService, userProfileService)
         {
             _productRepository = productRepository;
             _productCategoryRepository = productCategoryRepository;
@@ -30,6 +35,10 @@ namespace GCTL_App.Controllers.POS.Product
             _unitRepository = unitRepository;
             _assetTypeRepository = assetTypeRepository;
             _singleProductService = singleProductService;
+            _warrantyRepository = warrantyRepository;
+            _productTypeRepository = productTypeRepository;
+            _customerGroupRepository = customerGroupRepository;
+            _calculationTypesRepository = calculationTypesRepository;
         }
 
         public IActionResult Index()
@@ -50,13 +59,18 @@ namespace GCTL_App.Controllers.POS.Product
                 new SelectListItem { Text = "15%", Value = "15" }
             }, "Value", "Text");
 
+            var ProductTypeDD = new[] { "single", "attribute" };
 
-            ViewBag.WarrantyDD = new SelectList(new List<SelectListItem>
-            {
-                new SelectListItem { Text = "Replacement Warranty", Value = "Replacement Warranty" },
-                new SelectListItem { Text = "On-Site Warranty", Value = "On-Site Warranty" },
-                new SelectListItem { Text = "Accidental Protection Plan", Value = "Accidental Protection Plan" }
-            }, "Value", "Text");
+            var matchedTypes = _productTypeRepository.AllActive().AsEnumerable()
+                .Where(t => !string.IsNullOrEmpty(t.ProductTypeName) &&
+                            ProductTypeDD.Any(x => t.ProductTypeName.Contains(x, StringComparison.OrdinalIgnoreCase)))
+                .Select(t => new { id = t.ProductTypeID, name = t.ProductTypeName })
+                .ToList();
+
+            ViewBag.ProductTypeDD = new SelectList(matchedTypes, "id", "name");
+            ViewBag.WarrantyDD = new SelectList(_warrantyRepository.AllActive().Select(e => new { id = e.WarrantyTypeID, name = e.WarrantyTypeName }).ToList(), "id", "name");
+            ViewBag.CustomerGroupDD = new SelectList(_customerGroupRepository.AllActive().Select(e => new { id = e.CustomerGroupID, name = e.CustomerGroupName }).ToList(), "id", "name");
+            ViewBag.CalculationTypesDD = new SelectList(_calculationTypesRepository.AllActive().Select(e => new { id = e.CalculationTypeID, name = e.CalculationTypeName }).ToList(), "id", "name");
 
 
             return View(model);
@@ -67,6 +81,14 @@ namespace GCTL_App.Controllers.POS.Product
         {
             string autoSKU = await _singleProductService.GetNextSKU();
             return Json(new { sku = autoSKU });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDD()
+        {
+            var customer = await _customerGroupRepository.AllActive().Select(e => new { id = e.CustomerGroupID, name = e.CustomerGroupName }).ToListAsync();
+            var calculationTypes = await _calculationTypesRepository.AllActive().Select(e => new { id = e.CalculationTypeID, name = e.CalculationTypeName }).ToListAsync();
+            return Json(new { customer = customer , calculationTypes = calculationTypes });
         }
 
 
@@ -99,13 +121,7 @@ namespace GCTL_App.Controllers.POS.Product
 
                 var dtat = await _singleProductService.AddProductAsync(model);
 
-                return Json(new
-                {
-                    success = true,
-                    message = "Product added successfully",
-                    redirectUrl = Url.Action("Index", "SingleProduct"),
-                    model = model
-                });
+                return Ok(dtat);
             }
             catch (Exception ex)
             {
