@@ -46,7 +46,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                         .Include(x => x.Employee.EmployeeOfficeInfoCreatedByNavigation)
                         .Include(x => x.Status)
                         .Include(x => x.Shift)
-                        .Where(x => x.DeletedAt == null);
+                        .Where(x => x.DeletedAt == null && x.AttendanceDate == today);
 
             var employeeDepartments = await _genericEmployeeOfficeInfo.All()
                                          .Include(e => e.Department) // Make sure the Department is being properly loaded
@@ -227,14 +227,16 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
             var today = DateTime.Today;
             var firstDayOfMonth = new DateOnly(today.Year, today.Month, 1);
             var lastDayOfMonth = new DateOnly(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month));
+            
 
-            var attendances = _genericRepository.All()
+            var attendances = _genericRepository.All().Include(x => x.Employee)
                 .Where(x =>
                     x.DeletedAt == null &&
                     x.EmployeeID == employeeId && // Ensure comparison is between int? and int
                     x.AttendanceDate >= firstDayOfMonth &&
                     x.AttendanceDate <= lastDayOfMonth);
-
+            var employeeName = attendances.Select(x => x.Employee.FirstName + " " + x.Employee.LastName).FirstOrDefault() ?? "-";  
+            var employeeCode = attendances.Select(x => x.Employee.EmployeeCode).FirstOrDefault() ?? "-";
             var totalLate = await attendances
                 .Where(x => x.LateTimeMinutes > 0)
                 .CountAsync();
@@ -256,6 +258,8 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
 
             return new AttendanceSummaryDto
             {
+                EmployeeName = employeeName,
+                EmployeeCode = employeeCode,
                 Present = totalPresent,
                 LatePresent = totalLate,
                 Leave = totalLeave,

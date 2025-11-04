@@ -13,5 +13,6 @@ namespace GCTL.Core.ViewModels.CRM.Customer
         public string? Type { get; set; }
         public int? TotalBranch { get; set; }
         public int? TotalWarehouse { get; set; }
+        public int? TotalShipping { get; set; }
     }
 }

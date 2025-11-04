@@ -23,6 +23,7 @@ namespace GCTL.Core.ViewModels.CRM.Customer
         public string? PostalCode { get; set; }
 
         public int? CountryID { get; set; }
+        public string? CountryName { get; set; }
 
         public decimal? Latitude { get; set; }
 

@@ -32,8 +32,8 @@ namespace GCTL_App.Controllers.MasterSetup
             SetSmartPageCode(201200);
             var organizationTypes = new List<SelectListItem>
             {
-                new SelectListItem { Value = "1", Text = "Corporate" },
-                new SelectListItem { Value = "2", Text = "Head Office" }
+                new SelectListItem { Value = "Organization", Text = "Organization" },
+                new SelectListItem { Value = "Branch", Text = "Branch" }
             };
 
             // Step 2: Send it to the View using ViewBag (or ViewData)

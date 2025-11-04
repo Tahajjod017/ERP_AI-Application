@@ -38,6 +38,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
+
     public virtual DbSet<Attendance> Attendance { get; set; }
 
     public virtual DbSet<AttendanceLog> AttendanceLog { get; set; }
@@ -375,7 +376,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A216155AEE");
