@@ -37,7 +37,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
             _genericEmployee = genericEmployee;
         }
         public async Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetAllEmployee(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-                              string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null)
+                              string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null, List<int>? departmentIds = null, List<int>? employeeIds = null)
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
             var query = _genericRepository.All()
@@ -67,8 +67,30 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
             //    query = query.Where(x => x.WeekendSetting.Organization.OrganizationID == organizationID.Value);
             //}
 
+            if (employeeIds != null && employeeIds.Any())
+            {
+                query = query.Where(a => employeeIds.Contains(a.EmployeeID.Value));
+            }
+            if (organizationID.HasValue && organizationID.Value > 0)
+            {
+                query = query.Where(a =>
+                    _genericEmployeeOfficeInfo.All().Any(e =>
+                        e.DeletedAt == null &&
+                        e.EmployeeID == a.EmployeeID &&
+                        e.OrganizationID == organizationID.Value
+                    ));
+            }
 
-
+            // Departments – EmployeeOfficeInfo সাবকুয়েরি দিয়ে (AND)
+            if (departmentIds != null && departmentIds.Any())
+            {
+                query = query.Where(a =>
+                    _genericEmployeeOfficeInfo.All().Any(e =>
+                        e.DeletedAt == null &&
+                        e.EmployeeID == a.EmployeeID &&
+                        departmentIds.Contains(e.DepartmentID.Value)
+                    ));
+            }
             var result = await PaginationService<Attendance, AttendanceEmployeeReportVM>.GetPaginatedData(
                 query,
                 pageNumber,
@@ -197,18 +219,19 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                 .Where(x => x.EarlyTimeMinutes > 0)
                 .CountAsync();
 
-            var totalAbsent = await attendancesToday
-                .Where(x => x.OvertimeMinutes > 0)
-                .CountAsync();
+            //var totalAbsent = await attendancesToday
+            //    .Where(x => x.StatusID ==6)
+            //    .CountAsync();
 
             // Present = total who punched in, excluding those who were late, left early, or had overtime
             var totalPresent = await attendancesToday
-                .Where(x => x.LateTimeMinutes == 0 && x.EarlyTimeMinutes == 0 && x.OvertimeMinutes == 0)
+                .Where(x => x.AttendanceDate != null)
                 .CountAsync();
 
-            var total = totalPresent + totalLate + totalLeave + totalAbsent;
-            total = total == 0 ? 1 : total;
-
+            var totalEmployees = await _genericEmployee.All()
+                .Where(x => x.DeletedAt == null)
+                .CountAsync();
+            var totalAbsent = totalEmployees - totalPresent;
             return new AttendanceSummaryDto
             {
                 Present = totalPresent,
@@ -216,10 +239,10 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
                 Leave = totalLeave,
                 Absent = totalAbsent,
 
-                PresentPercent = (int)Math.Round((double)totalPresent / total * 100),
-                LatePresentPercent = (int)Math.Round((double)totalLate / total * 100),
-                LeavePercent = (int)Math.Round((double)totalLeave / total * 100),
-                AbsentPercent = (int)Math.Round((double)totalAbsent / total * 100)
+                PresentPercent = (int)Math.Round((double)totalPresent / totalEmployees * 100),
+                LatePresentPercent = (int)Math.Round((double)totalLate / totalEmployees * 100),
+                LeavePercent = (int)Math.Round((double)totalLeave / totalEmployees * 100),
+                AbsentPercent = (int)Math.Round((double)totalAbsent / totalEmployees * 100)
             };
         }
         public async Task<AttendanceSummaryDto> GetSummaryByEmployee(int? employeeId) // Change parameter type to int

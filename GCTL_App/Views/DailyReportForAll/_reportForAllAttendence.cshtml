@@ -18,6 +18,7 @@
         </div>
         <div class="dropdown me-2">
             <select class="form-multi-select" asp-for="DepartmentIDs"
+                    id="departmentid"
                     multiple data-coreui-selection-type="counter"
                     data-coreui-placeholder="@Html.SmartLocalize("Select Department")..."
                     data-coreui-search="true">
@@ -36,7 +37,7 @@
 
         <div class="dropdown me-2">
             <select class="form-multi-select" asp-for="EmployeeIDs"
-
+                    id="employeeid"
                     multiple data-coreui-selection-type="counter"
                     data-coreui-placeholder="@Html.SmartLocalize("Select Employee")..."
                     data-coreui-search="true">
