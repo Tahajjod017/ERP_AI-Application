@@ -79,16 +79,17 @@ function loadEmployees() {
 
 function loadAttendanceIndividualSummary() {
     $.ajax({
-        url: '/DailyIndividualReport/attendanceIndividualsummary', // Replace with your actual endpoint
+        url: '/DailyIndividualReport/GetEmployeeSummary', // Replace with your actual endpoint
         method: 'GET',
        
         success: function (response) {
             // Update employee name
-            $('#employee_name').text(`Mr. Hasan (${response.employeeId})`);
+            
+            $('#employee_name').text(`${response.employeeName} (${response.employeeCode})`);
 
             // Optional: update description if dynamic
             $('#attendance_description').text(response.description ||
-                `The table below presents all the information about when Mr. Hasan came to the office and when he left the office this month.`);
+                `The table below presents all the information about when ${response.employeeName} came to the office and when he left the office this month.`);
 
             // Update attendance metrics
             $('#total_days_count').text(`${response.totalDays} Days`);
