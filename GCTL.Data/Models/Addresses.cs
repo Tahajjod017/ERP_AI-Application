@@ -61,7 +61,6 @@ public partial class Addresses
 
     public virtual Employees? CreatedByNavigation { get; set; }
 
-    public virtual Employees? CreatedByNavigation { get; set; }
     public virtual ICollection<CustomerAddresses> CustomerAddresses { get; set; } = new List<CustomerAddresses>();
 
     public virtual Employees? DeletedByNavigation { get; set; }
