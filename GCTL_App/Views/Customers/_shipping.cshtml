@@ -11,7 +11,7 @@
     <div class="d-flex flex-column h-100 my-3">
         <h5 class="mb-2 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Shipping</h5>
         <div class="row g-3">
-            <form id="WarehouseForm" action="/Customers/SaveShipping" method="post">
+            <form id="ShippingForm" action="/Customers/SaveShipping" method="post">
                 <input type="hidden" asp-for="Sid" value="0"/>
                 <div class="row px-5">
                     <!-- Left Section -->
@@ -41,7 +41,7 @@
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label">Other Phone</label>
-                            <input class="form-control" id="bOtherPhone" type="tel" placeholder="Other Phone" />
+                            <input class="form-control" asp-for="SOtherPhone" placeholder="Other Phone" />
                             <div class="text-danger" id="errorShow"></div>
                         </div>
                         <div class="col-12">

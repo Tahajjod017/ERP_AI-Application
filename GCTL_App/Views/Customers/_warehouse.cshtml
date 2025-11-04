@@ -30,15 +30,16 @@
                                 <input type="text" asp-for="WLastName" class="form-control" placeholder="">
                             </div>
                         </div>
-                        <div class="col-12 mb-2">
-                            <label class="form-label">Phone</label>
-                            <input class="form-control" asp-for="WPhone" type="tel" placeholder="Phone Number" />
-                            <div class="text-danger" id="errorShow"></div>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label class="form-label">Other Phone</label>
-                            <input class="form-control" id="bOtherPhone" type="tel" placeholder="Other Phone" />
-                            <div class="text-danger" id="errorShow"></div>
+                        <div class="row mb-2">
+                            <div class="col-md-6 pe-1 col-sm-6">
+                                <label class="form-label">Phone</label>
+                                <input class="form-control" asp-for="WPhone" type="tel" placeholder="Phone Number" />
+                                <span asp-validation-for="WPhone" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 ps-1 col-sm-6">
+                                <label class="form-label">Other Phone</label>
+                                <input class="form-control" asp-for="WOtherPhone" placeholder="Other Phone" />
+                            </div>
                         </div>
                         <div class="col-12 mb-2">
                             <label class="form-label">Email</label>

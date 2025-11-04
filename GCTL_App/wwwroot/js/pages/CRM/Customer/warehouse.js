@@ -1,6 +1,28 @@
 ﻿window.initWarehouseForm = function (root) {
     root = root || document;
 
+    function initPhoneFields() {
+        const phoneIds = [
+            `#WPhone`, `#WOtherPhone`
+        ];
+
+        phoneIds.forEach(selector => {
+            const input = document.querySelector(selector);
+            if (!input || window.itiMap[selector]) return; // use window.itiMap safely
+
+            const iti = window.intlTelInput(input, {
+                separateDialCode: true,
+                initialCountry: 'bd',
+                preferredCountries: ['bd', 'in', 'us'],
+                utilsScript: "js/utils.js"
+            });
+
+            window.itiMap[selector] = iti;
+        });
+    }
+
+    initPhoneFields();
+
         //if (window.initCommonFields) initCommonFields(root);
     // If root is document, skip dataset check
     if (root !== document && root.dataset.warehouseInitialized) return;

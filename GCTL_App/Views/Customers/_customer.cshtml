@@ -62,17 +62,15 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-md-6 pe-1 col-sm-6">
-                                <label class="form-label">Phone</label>
-                                <input class="form-control" asp-for="Phone" type=" tel" placeholder="+8801XXXXXXXXX" />
-                                <span asp-validation-for="Phone" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 ps-1 col-sm-6">
-                                <label class="form-label">Other Phone</label>
-                                <input class="form-control" asp-for="OtherPhone" type="tel" placeholder="+8801XXXXXXXXX" />
-                                <div class="text-danger" id="errorShow"></div>
-                            </div>
+                        <div class="col-12 mb-2">
+                            <label class="form-label">Phone</label>
+                            <input class="form-control" asp-for="Phone" type="tel" placeholder="+8801XXXXXXXXX" />
+                            <div class="text-danger" id="errorShow"></div>
+                        </div>
+                        <div class="col-12 mb-2">
+                            <label class="form-label">Other Phone</label>
+                            <input class="form-control" asp-for="OtherPhone" placeholder="+8801XXXXXXXXX" />
+                            <div class="text-danger" id="errorShow"></div>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Email</label>

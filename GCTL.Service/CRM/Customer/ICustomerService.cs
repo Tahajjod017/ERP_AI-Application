@@ -16,6 +16,7 @@ namespace GCTL.Service.CRM.Customer
         Task<ReturnView> UpdateWarehouse(WarehouseVM model);
         Task<ReturnView> CreateShipping(ShippingVM model);
         Task<ReturnView> UpdateShipping(ShippingVM model);
+        Task<ShippingVM> GetShippingInfo(int customerID, int shippingId, int organizationID);
         Task<PaginationService<Customers, CustomerTableDataVM>.PaginationResult<CustomerTableDataVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CustomerName", string sortOrder = "asc");
         Task<CustomerVM> GetCustomerInfo(int id, int organizationID);
         Task<BranchVM> GetBranchInfo(int customerID, int branchId, int organizationID);

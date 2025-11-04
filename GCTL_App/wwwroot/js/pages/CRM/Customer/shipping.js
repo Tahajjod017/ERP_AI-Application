@@ -5,7 +5,27 @@
     if (root !== document && root.dataset.shippingInitialized) return;
     if (root !== document) root.dataset.shippingInitialized = true;
 
+    function initPhoneFields() {
+        const phoneIds = [
+            `#SPhone`, `#SOtherPhone`
+        ];
 
+        phoneIds.forEach(selector => {
+            const input = document.querySelector(selector);
+            if (!input || window.itiMap[selector]) return; // use window.itiMap safely
+
+            const iti = window.intlTelInput(input, {
+                separateDialCode: true,
+                initialCountry: 'bd',
+                preferredCountries: ['bd', 'in', 'us'],
+                utilsScript: "js/utils.js"
+            });
+
+            window.itiMap[selector] = iti;
+        });
+    }
+
+    initPhoneFields();
 
     const customerSelect = root.querySelector('#SCustomerID');
     //alert("customer")
