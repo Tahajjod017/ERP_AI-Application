@@ -12,6 +12,8 @@
 
         <div class="accordions-items-seperate border-0" id="accordionSpacingExample">
 
+            <input type="hidden" id="advancedPricingData" name="AdvancedPricingJson" />
+
             <!-- Product Information Section -->
             <div class="accordion-item mb-4">
                 <h2 class="accordion-header" id="headingSpacingOne">
@@ -32,9 +34,8 @@
                             <div class="col-sm-12 col-12">
                                 <div class="mb-3">
                                     <label asp-for="ProductType" class="form-label">@Html.SmartLocalize("Product Type")</label>
-                                    <select asp-for="ProductType" id="singleProductType" class="form-select searchableSelect">
-                                        <option value="sp">@Html.SmartLocalize("Single Product")</option>
-                                        <option value="ap">@Html.SmartLocalize("Attribute Product")</option>
+                                    <select asp-for="ProductType" id="singleProductType" class="form-select searchableSelect" asp-items="@ViewBag.ProductTypeDD as SelectList">
+                                       
                                     </select>
                                     <span asp-validation-for="ProductType" class="text-danger"></span>
                                 </div>
@@ -237,7 +238,13 @@
                                     <div class="">
                                         <h2 class="accordion-header" id="headingDescription">
                                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription1" aria-expanded="false" aria-controls="collapseDescription1">
-                                                <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Upload Your Images") <small class="text-muted ms-2">(@Html.SmartLocalize("Drag and drop or click to upload, then edit and crop as needed"))</small>
+
+
+                                                <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Upload Your Images") 
+                                                
+                                                <small class="text-muted text-end ms-2">(@Html.SmartLocalize("Drag and drop or click to upload, then edit and crop as needed"))</small>
+
+
                                             </button>
                                         </h2>
 
@@ -477,6 +484,8 @@
 </form>
 
 
+
+
 <div class="modal fade" id="advancedPricing" tabindex="-1" aria-labelledby="advancedPricingModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -495,31 +504,28 @@
                             <div class="col-md-6 col-sm-12">
                                 <div class="mb-3">
                                     <label class="form-label">@Html.SmartLocalize("Special Price")</label>
-                                    <input asp-for="SpecialPrice" class="form-control" id="specialPrice" type="number" step="0.01" placeholder="0.00" />
+                                    <input class="form-control" id="specialPrice" type="number" step="0.01" placeholder="0.00" />
                                 </div>
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <div class="mb-3">
                                     <label class="form-label">@Html.SmartLocalize("Customer Group")</label>
-                                    <select asp-for="CustomerGroup" class="form-select" id="customerGroup">
-                                        <option value="">@Html.SmartLocalize("All Groups")</option>
-                                        <option value="NotLogin">@Html.SmartLocalize("Not Login")</option>
-                                        <option value="General">@Html.SmartLocalize("General")</option>
-                                        <option value="Wholesale">@Html.SmartLocalize("Wholesale")</option>
-                                        <option value="Retailer">@Html.SmartLocalize("Retailer")</option>
+                                    <select class="form-select searchableSelect1" id="customerGroup" asp-items="@ViewBag.WarrantyDD as SelectList">
+                                        <option value="0">@Html.SmartLocalize("All Groups")</option>
+                                     
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <div class="mb-3">
                                     <label class="form-label">@Html.SmartLocalize("Start Date")</label>
-                                    <input asp-for="SpecialPriceStartDate" class="form-control datetimepicker" id="specialPriceStartDate" type="text" placeholder="dd/mm/yyyy hour : minute" />
+                                    <input class="form-control datetimepicker" id="specialPriceStartDate" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
                                 </div>
                             </div>
                             <div class="col-md-6 col-sm-12">
                                 <div class="mb-3">
                                     <label class="form-label">@Html.SmartLocalize("End Date")</label>
-                                    <input asp-for="SpecialPriceEndDate" class="form-control datetimepicker" id="specialPriceEndDate" type="text" placeholder="dd/mm/yyyy hour : minute" />
+                                    <input class="form-control datetimepicker" id="specialPriceEndDate" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
                                 </div>
                             </div>
                         </div>
@@ -543,7 +549,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tierPricingBody">
-                                    <!-- Rows will be added here -->
+                                    <!-- Rows will be added dynamically -->
                                 </tbody>
                             </table>
                         </div>
@@ -564,6 +570,11 @@
         </div>
     </div>
 </div>
+
+
+
+
+
 
 
 
@@ -979,6 +990,8 @@
 </script>
 
 
+
+
 <script>
     // Tier Pricing Management
     let tierPriceIndex = 0;
@@ -1000,28 +1013,24 @@
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>
-                <select class="form-select form-select-sm" name="TierPrices[${tierPriceIndex}].CustomerGroup" required>
-                    <option value="">All Groups</option>
-                    <option value="NotLogin" ${data.CustomerGroup === 'NotLogin' ? 'selected' : ''}>Not Login</option>
-                    <option value="General" ${data.CustomerGroup === 'General' ? 'selected' : ''}>General</option>
-                    <option value="Wholesale" ${data.CustomerGroup === 'Wholesale' ? 'selected' : ''}>Wholesale</option>
-                    <option value="Retailer" ${data.CustomerGroup === 'Retailer' ? 'selected' : ''}>Retailer</option>
+                <select class="form-select form-select-sm tier-customer-group searchableSelect1" required >
+                    <option value="0">All Groups</option>
+                   
                 </select>
             </td>
             <td>
-                <input class="form-control form-control-sm" name="TierPrices[${tierPriceIndex}].MinQuantity" type="number" min="1" placeholder="1" value="${data.MinQuantity || ''}" required />
+                <input class="form-control form-control-sm tier-min-qty" type="number" min="1" placeholder="1" value="${data.MinQuantity || ''}" required />
             </td>
             <td>
-                <input class="form-control form-control-sm" name="TierPrices[${tierPriceIndex}].MaxQuantity" type="number" min="1" placeholder="100" value="${data.MaxQuantity || ''}" />
+                <input class="form-control form-control-sm tier-max-qty" type="number" min="1" placeholder="100" value="${data.MaxQuantity || ''}" />
             </td>
             <td>
-                <select class="form-select form-select-sm" name="TierPrices[${tierPriceIndex}].PriceType" required>
-                    <option value="Fixed" ${data.PriceType === 'Fixed' ? 'selected' : ''}>Fixed</option>
-                    <option value="Discount" ${data.PriceType === 'Discount' ? 'selected' : ''}>Discount</option>
+                <select class="form-select form-select-sm tier-price-type searchableSelect1" required>
+                  
                 </select>
             </td>
             <td>
-                <input class="form-control form-control-sm" name="TierPrices[${tierPriceIndex}].Value" type="number" step="0.01" min="0" placeholder="0.00" value="${data.Value || ''}" required />
+                <input class="form-control form-control-sm tier-value" type="number" step="0.01" min="0" placeholder="0.00" value="${data.Value || ''}" required />
             </td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-danger" onclick="removeTierPriceRow(this)">
@@ -1030,6 +1039,13 @@
             </td>
         `;
         tbody.appendChild(row);
+        $(row).find('.searchableSelect1').select2({
+            dropdownParent: $('#advancedPricing'),
+            width: '100%'
+        });
+
+        GetDD();
+
         tierPriceIndex++;
     }
 
@@ -1037,14 +1053,41 @@
         btn.closest('tr').remove();
     }
 
-    // Optional: Add one row by default when modal opens
-    document.getElementById('advancedPricing')?.addEventListener('shown.bs.modal', function () {
-        const tbody = document.getElementById('tierPricingBody');
-        if (tbody && tbody.children.length === 0) {
-            addTierPriceRow();
-        }
-    });
+
+    //#region Get DD
+    function GetDD() {
+        $.ajax({
+            url: '/SingleProduct/GetDD',
+            type: 'GET',
+            success: function (data) {
+                // Populate all .calculationTypeDD dropdowns
+                document.querySelectorAll('.tier-price-type').forEach(select => {
+                    select.innerHTML = '<option value="">Select Type</option>';
+                    data.calculationTypes.forEach(item => {
+                        select.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+                    });
+                });
+
+                // Populate all .customerDD dropdowns
+                document.querySelectorAll('.tier-customer-group').forEach(select => {
+                    select.innerHTML = '<option value="">Select Customer</option>';
+                    data.customer.forEach(item => {
+                        select.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+                    });
+                });
+
+              
+            }
+        });
+    }
+    //#endregion
+
 </script>
+
+
+
+
+
 
 
 @section Scripts {

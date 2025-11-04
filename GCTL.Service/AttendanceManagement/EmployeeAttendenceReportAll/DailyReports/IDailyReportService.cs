@@ -14,7 +14,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.DailyRep
     public interface IDailyReportService
     {
         Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetAllEmployee(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
-                             string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null);
+                             string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null, List<int>? departmentIds=null, List<int>? employeeIds=null);
         Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetIndividualEmployee(int employeeId, int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "HolidayID", string sortOrder = "desc" , int? organizationID = null);
         Task<AttendanceSummaryDto> GetSummaryAll();

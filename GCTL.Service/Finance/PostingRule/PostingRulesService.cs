@@ -6,6 +6,7 @@ using GCTL.Core.ViewModels.Finance.PostingRulesVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SkiaSharp;
@@ -91,6 +92,8 @@ namespace GCTL.Service.Finance.PostingRule
                         {
                             if (existingDetail.DeletedAt != null && existingDetail.DeletedBy != null)
                             {
+                                existingDetail.MainAccountID = detailsToRestore.MainAccountID;
+                                existingDetail.SubAccountID = detailsToRestore.SubAccID;
                                 existingDetail.TrxAccID = detailsToRestore.TrxAccID;
                                 existingDetail.TrxType = detailsToRestore.DebitCredit;
 
@@ -113,6 +116,7 @@ namespace GCTL.Service.Finance.PostingRule
                         {
                             PostingRuleDetails detailEntity = new PostingRuleDetails();
                             detailEntity.PostingRuleID = exixtingEntity.PostingRuleID;
+                            detailEntity.MainAccountID = detailVM.MainAccountID;
                             detailEntity.SubAccountID = detailVM.SubAccID;
                             detailEntity.TrxAccID = detailVM.TrxAccID;
                             detailEntity.TrxType = detailVM.DebitCredit;
@@ -147,6 +151,7 @@ namespace GCTL.Service.Finance.PostingRule
                         foreach (var detailVM in model.PostingRuleDetailsVMs)
                         {
                             PostingRuleDetails detailEntity = new PostingRuleDetails();
+                            detailEntity.MainAccountID = detailVM.MainAccountID;
                             detailEntity.SubAccountID = detailVM.SubAccID;
                             detailEntity.TrxAccID = detailVM.TrxAccID;
                             detailEntity.TrxType = detailVM.DebitCredit;
@@ -206,65 +211,69 @@ namespace GCTL.Service.Finance.PostingRule
                 entity.LIP = model.LIP;
                 entity.LMAC = model.LMAC;
 
-                // Get IDs from the model (for matching)
-                var modelDetailIds = model.PostingRuleDetailsVMs?
-                    .Where(d => d.PostingRuleDetailID > 0)
-                    .Select(d => d.PostingRuleDetailID)
-                    .ToList() ?? new List<int>();
+                //// Get IDs from the model (for matching)
+                //var modelDetailIds = model.PostingRuleDetailsVMs?
+                //    .Where(d => d.PostingRuleDetailID > 0)
+                //    .Select(d => d.PostingRuleDetailID)
+                //    .ToList() ?? new List<int>();
 
-                // 1️⃣ Remove deleted child records
-                var detailsToRemove = entity.PostingRuleDetails
-                    .Where(d => !modelDetailIds.Contains(d.PostingRuleDetailID))
-                    .ToList();
+                //// 1️⃣ Remove deleted child records
+                //var detailsToRemove = entity.PostingRuleDetails
+                //    .Where(d => !modelDetailIds.Contains(d.PostingRuleDetailID))
+                //    .ToList();
 
-                if (detailsToRemove.Any())
-                {
-                    await _postingRuleDetailsRepository.DeleteRangeAsync(detailsToRemove);
-                }
+                //if (detailsToRemove.Any())
+                //{
+                //    await _postingRuleDetailsRepository.DeleteRangeAsync(detailsToRemove);
+                //}
 
                 // 2️⃣ Update existing / Add new details
-                foreach (var detailVM in model.PostingRuleDetailsVMs)
+                if (model.PostingRuleDetailsVMs != null && model.PostingRuleDetailsVMs.Any())
                 {
-                    if (detailVM.PostingRuleDetailID > 0)
+                    foreach (var detailVM in model.PostingRuleDetailsVMs)
                     {
-                        // Update existing record
-                        var existingDetail = entity.PostingRuleDetails
-                            .FirstOrDefault(d => d.PostingRuleDetailID == detailVM.PostingRuleDetailID);
-
-                        if (existingDetail != null)
+                        if (detailVM.PostingRuleDetailID > 0)
                         {
-                            existingDetail.SubAccountID = detailVM.SubAccID;
-                            existingDetail.TrxAccID = detailVM.TrxAccID;
-                            existingDetail.TrxType = detailVM.DebitCredit;
+                            // Update existing record
+                            var existingDetail = entity.PostingRuleDetails
+                                .FirstOrDefault(d => d.PostingRuleDetailID == detailVM.PostingRuleDetailID);
 
-                            existingDetail.UpdatedAt = DateTime.UtcNow;
-                            existingDetail.UpdatedBy = model.UpdatedBy;
-                            existingDetail.LIP = model.LIP;
-                            existingDetail.LMAC = model.LMAC;
+                            if (existingDetail != null)
+                            {
+                                existingDetail.MainAccountID = detailVM.MainAccountID;
+                                existingDetail.SubAccountID = detailVM.SubAccID;
+                                existingDetail.TrxAccID = detailVM.TrxAccID;
+                                existingDetail.TrxType = detailVM.DebitCredit;
 
-                            await _postingRuleDetailsRepository.UpdateAsync(existingDetail);
+                                existingDetail.UpdatedAt = DateTime.UtcNow;
+                                existingDetail.UpdatedBy = model.UpdatedBy;
+                                existingDetail.LIP = model.LIP;
+                                existingDetail.LMAC = model.LMAC;
+
+                                await _postingRuleDetailsRepository.UpdateAsync(existingDetail);
+                            }
+                        }
+                        else
+                        {
+                            // Add new record
+                            var newDetail = new PostingRuleDetails
+                            {
+                                PostingRuleID = entity.PostingRuleID,
+                                MainAccountID = detailVM.MainAccountID,
+                                SubAccountID = detailVM.SubAccID,
+                                TrxAccID = detailVM.TrxAccID,
+                                TrxType = detailVM.DebitCredit,
+
+                                UpdatedAt = DateTime.UtcNow,
+                                UpdatedBy = model.UpdatedBy,
+                                LIP = model.LIP,
+                                LMAC = model.LMAC
+                            };
+
+                            await _postingRuleDetailsRepository.AddAsync(newDetail);
                         }
                     }
-                    else
-                    {
-                        // Add new record
-                        var newDetail = new PostingRuleDetails
-                        {
-                            PostingRuleID = entity.PostingRuleID,
-                            SubAccountID = detailVM.SubAccID,
-                            TrxAccID = detailVM.TrxAccID,
-                            TrxType = detailVM.DebitCredit,
-
-                            UpdatedAt = DateTime.UtcNow,
-                            UpdatedBy = model.UpdatedBy,
-                            LIP = model.LIP,
-                            LMAC = model.LMAC
-                        };
-
-                        await _postingRuleDetailsRepository.AddAsync(newDetail);
-                    }
                 }
-
 
                 await _genericRepository.UpdateAsync(entity);
 
@@ -297,7 +306,10 @@ namespace GCTL.Service.Finance.PostingRule
                 var data = await _genericRepository.AllActive()
                     .Include(x => x.PostingRuleDetails)
                     .ThenInclude(x => x.SubAccount)
+                    .Include(x => x.PostingRuleDetails)
                     .ThenInclude(x => x.MainAccount)
+                    .Include(x => x.PostingRuleDetails)
+                    .ThenInclude(x => x.TrxAcc)
                     .AsNoTracking()
                     .FirstOrDefaultAsync(x => x.PostingRuleID == id);
 
@@ -311,15 +323,15 @@ namespace GCTL.Service.Finance.PostingRule
                     ScenarioCode = data.ScenarioCode,
                     PostingRuleDetailsVMs = data.PostingRuleDetails?
                     .Where(detail => detail.DeletedAt == null && detail.DeletedBy == null)
-                    .Select(detail => new GetByIdPostingRulesDetailsVM
+                    .Select(detail => detail == null ? null : new GetByIdPostingRulesDetailsVM
                     {
                         PostingRuleDetailID = detail.PostingRuleDetailID,
                         PostingRuleID = detail.PostingRuleID,
                         SubAccID = detail.SubAccountID,
-                        MainAccountID = detail.SubAccount?.MainAccount?.MainAccountID,
+                        MainAccountID = detail.MainAccount?.MainAccountID,
                         TrxAccID = detail.TrxAccID,
                         TrxType = detail.TrxType
-                    }).ToList() ?? new List<GetByIdPostingRulesDetailsVM>()
+                    }).ToList() ?? []
                 };
 
                 return result;
@@ -366,6 +378,45 @@ namespace GCTL.Service.Finance.PostingRule
             catch (Exception ex)
             {
                 throw new Exception("An error occurred while retrieving Transaction Accounts.", ex);
+            }
+        }
+        #endregion
+
+
+        #region GetPostingDetailsByIdAsync
+        public async Task<GetByIdPostingRulesVM> GetPostingDetailsByIdAsync(int id)
+        {
+            try
+            {
+                var result = await _genericRepository.AllActive()
+                    .Include(x => x.PostingRuleDetails)
+                    .ThenInclude(x => x.SubAccount)
+                    .Include(x => x.PostingRuleDetails)
+                    .ThenInclude(x => x.MainAccount)
+                    .Include(x => x.PostingRuleDetails)
+                    .ThenInclude(x => x.TrxAcc)
+                    .AsNoTracking()
+                    .Where(x => x.PostingRuleID == id)
+                    .Select(x => new GetByIdPostingRulesVM
+                    {
+                        PostingRuleID = x.PostingRuleID,
+                        PostingRuleDetailsVMs = x.PostingRuleDetails
+                        .Select(d => d == null ? null : new GetByIdPostingRulesDetailsVM
+                        {
+                            PostingRuleDetailID = d.PostingRuleDetailID,
+                            MainAccountName = d.MainAccount.MainAccountName ?? "-",
+                            SubAccName = d.SubAccount.SubAccountName ?? "-",
+                            TrxAccName = d.TrxAcc.TrxAccName ?? "-",
+                            TrxType = d.TrxType ?? "-"
+                        }).ToList()
+                    })
+                    .FirstOrDefaultAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
         #endregion

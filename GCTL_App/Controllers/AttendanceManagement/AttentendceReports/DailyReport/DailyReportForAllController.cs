@@ -23,7 +23,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.DailyRepo
 
         public async Task<IActionResult> Index()
         {
-            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName");
+            ViewBag.OrganizationDD = new SelectList(_organizationRepository.AllActive(), "OrganizationID", "OrganizationName",1);
 
             ViewBag.DepartmentDD = await _commonService.GetDepartments();
             ViewBag.EmployeeList = await _commonService.GetEmpGroupedByDep();
@@ -31,9 +31,9 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.DailyRepo
         }
 
         #region get all employee attendance report
-        public async Task<IActionResult> GetAllEmployeeAttendanceReport(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "AttendanceID", string sortOrder = "desc", int? organizationID = null)
+        public async Task<IActionResult> GetAllEmployeeAttendanceReport(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "AttendanceID", string sortOrder = "desc", int? organizationID = null, List<int>? departmentIds = null, List<int>? employeeIds = null)
         {
-            var result = await _dailyReportService.GetAllEmployee(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID);
+            var result = await _dailyReportService.GetAllEmployee(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, organizationID,departmentIds,employeeIds);
             return Json(result);
         }
         [HttpGet]

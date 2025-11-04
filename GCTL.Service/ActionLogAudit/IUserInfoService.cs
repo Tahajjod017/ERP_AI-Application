@@ -15,6 +15,9 @@ namespace GCTL.Service.ActionLogAudit
         Task<int?> GetOrganizationIdAsync(ClaimsPrincipal user, HttpContext httpContext);
 
         Task ActionLogAsync<T>(string tergetType, string actionName, T before, T after, int? targetID, BaseViewModel entityVM);
+
+      
+
         Task ActionLogDeleteAsync<T>(string targetType, string actionName, List<T> beforeList, List<T> afterList, List<int?> targetIds, BaseViewModel entityVM);
 
         // without BaseViwwmodel

@@ -2,13 +2,17 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.APIViewModels;
 using GCTL.Data.Models;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
 
 namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
 {
@@ -17,11 +21,13 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
         #region Repositories
         private readonly IGenericRepository<Attendance> _genericRepository;
         private readonly IDbConnection _dbConnection;
+        private readonly ILocalizationContext _localizationContext;
 
-        public AppsAttendanceService(IGenericRepository<Attendance> genericRepository, IDbConnection dbConnection) : base(genericRepository)
+        public AppsAttendanceService(IGenericRepository<Attendance> genericRepository, IDbConnection dbConnection, ILocalizationContext localizationContext) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _dbConnection = dbConnection;
+            _localizationContext = localizationContext;
         }
         #endregion
 
@@ -34,9 +40,17 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
                 if (model == null)
                     return null;
 
+                var userTimeZone = _localizationContext.Zone;  // Assuming _localizationContext is your ILocalizationContext
+
+                if (!model.CheckInTime.HasValue)
+                    return null;
+
+                var checkInTimeOnly = TimeOnly.FromDateTime(model.CheckInTime.Value);
+                var utcInTime = TimeConversionHelper.ConvertTimeOnlyToUtc(checkInTimeOnly, _localizationContext);
+
                 var parameters = new DynamicParameters();
                 parameters.Add("@enroll_id", model.EmployeeId);
-                parameters.Add("@CHECKTIME", DateTime.UtcNow);
+                parameters.Add("@CHECKTIME", utcInTime);
                 parameters.Add("@DeviceSN", model.DeviceInfo);
                 parameters.Add("@SourceType", "Apps");
                 parameters.Add("@Latitude", model.Latitude);
@@ -100,7 +114,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
                         {
                             SlNo = i + 1,
                             AttendenceType = isIn ? "IN" : "OUT",
-                            PunchTime = orderedPunches[i].PunchTime
+                            //PunchTime = orderedPunches[i].PunchTime.ToString("dd MMM hh:mm tt", CultureInfo.InvariantCulture)
+                            //PunchTime = orderedPunches[i].PunchTime
+                            PunchTimeFormatted = orderedPunches[i].PunchTime.ToString("dd MMM hh:mm tt")
+                            //PunchTime = new DateTimeOffset(orderedPunches[i].PunchTime)
                         });
 
                         isIn = !isIn;

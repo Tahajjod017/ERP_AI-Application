@@ -11,5 +11,6 @@ namespace GCTL.Core.ViewModels.APIViewModels
         public int SlNo { get; set; }
         public string? AttendenceType { get; set; }
         public DateTimeOffset? PunchTime { get; set; }
+        public string? PunchTimeFormatted { get; set; }
     }
 }

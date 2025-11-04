@@ -186,6 +186,8 @@ namespace GCTL.Service.ActionLogAudit
 
 
 
+      
+
         public async Task ActionLogDeleteAsync<T>(string targetType, string actionName, List<T> beforeList, List<T> afterList, List<int?> targetIds, BaseViewModel entityVM)
         {
             var logs = new List<ActionLogs>();
