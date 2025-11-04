@@ -43,7 +43,7 @@
                 // Collect all PostingRuleDetailsVMs data
                 $('#postingRules-form .PostingRuleDetailsVM').each(function () {
                     const details = {
-                        PostingRuleDetailID: $(this).find('.PostingRuleDetailID').val(),
+                        PostingRuleDetailID: $(this).find('.detailID').val(),
                         MainAccountID: $(this).find('.mainAccDD').val(),
                         SubAccID: $(this).find('.subAccDD').val(),
                         TrxAccID: $(this).find('.trxAccDD').val(),
@@ -109,7 +109,7 @@
                             const $row = $('.PostingRuleDetailsVM').eq(index);
 
                             // 🔹 Hidden field for PostingRuleDetailID
-                            $row.find('.PostingRuleDetailID').val(detail.postingRuleDetailID);
+                            $row.find('.detailID').val(detail.postingRuleDetailID);
 
                             // MAIN ACCOUNT
                             const $main = $row.find('.mainAccDD');

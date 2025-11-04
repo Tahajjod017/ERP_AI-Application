@@ -4,19 +4,21 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable enable
+
 namespace GCTL.Data.Models
 {
     public partial class sp_GetUserPermissionsByRoleIdsResult
     {
         public int Id { get; set; }
         [StringLength(450)]
-        public string RoleId { get; set; }
+        public string? RoleId { get; set; }
         public int MenuTabId { get; set; }
         public int PermissionId { get; set; }
         public bool IsGranted { get; set; }
         [StringLength(100)]
-        public string MenuTabTitle { get; set; }
+        public string MenuTabTitle { get; set; } = default!;
         [StringLength(2147483647)]
-        public string PermissionName { get; set; }
+        public string? PermissionName { get; set; }
     }
 }

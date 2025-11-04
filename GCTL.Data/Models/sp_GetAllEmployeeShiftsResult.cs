@@ -4,31 +4,33 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable enable
+
 namespace GCTL.Data.Models
 {
     public partial class sp_GetAllEmployeeShiftsResult
     {
         public int EmployeeID { get; set; }
         [StringLength(154)]
-        public string EmployeeName { get; set; }
+        public string EmployeeName { get; set; } = default!;
         public int OrganizationID { get; set; }
         public int OrganizationBranchID { get; set; }
         [StringLength(50)]
-        public string OrganizationBranchName { get; set; }
+        public string OrganizationBranchName { get; set; } = default!;
         [StringLength(50)]
-        public string OrganizationName { get; set; }
+        public string OrganizationName { get; set; } = default!;
         public int DepartmentID { get; set; }
         [StringLength(50)]
-        public string DepartmentName { get; set; }
+        public string DepartmentName { get; set; } = default!;
         public int ShiftID { get; set; }
         [StringLength(20)]
-        public string ShiftName { get; set; }
+        public string ShiftName { get; set; } = default!;
         [StringLength(5)]
-        public string StartTime { get; set; }
+        public string StartTime { get; set; } = default!;
         [StringLength(5)]
-        public string EndTime { get; set; }
+        public string EndTime { get; set; } = default!;
         [StringLength(8000)]
-        public string WeekdayNumbers { get; set; }
+        public string WeekdayNumbers { get; set; } = default!;
         public DateOnly? FromDate { get; set; }
         public DateOnly? ToDate { get; set; }
     }

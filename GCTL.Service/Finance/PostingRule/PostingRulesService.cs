@@ -91,6 +91,8 @@ namespace GCTL.Service.Finance.PostingRule
                         {
                             if (existingDetail.DeletedAt != null && existingDetail.DeletedBy != null)
                             {
+                                existingDetail.MainAccountID = detailsToRestore.MainAccountID;
+                                existingDetail.SubAccountID = detailsToRestore.SubAccID;
                                 existingDetail.TrxAccID = detailsToRestore.TrxAccID;
                                 existingDetail.TrxType = detailsToRestore.DebitCredit;
 
@@ -113,6 +115,7 @@ namespace GCTL.Service.Finance.PostingRule
                         {
                             PostingRuleDetails detailEntity = new PostingRuleDetails();
                             detailEntity.PostingRuleID = exixtingEntity.PostingRuleID;
+                            detailEntity.MainAccountID = detailVM.MainAccountID;
                             detailEntity.SubAccountID = detailVM.SubAccID;
                             detailEntity.TrxAccID = detailVM.TrxAccID;
                             detailEntity.TrxType = detailVM.DebitCredit;
@@ -147,6 +150,7 @@ namespace GCTL.Service.Finance.PostingRule
                         foreach (var detailVM in model.PostingRuleDetailsVMs)
                         {
                             PostingRuleDetails detailEntity = new PostingRuleDetails();
+                            detailEntity.MainAccountID = detailVM.MainAccountID;
                             detailEntity.SubAccountID = detailVM.SubAccID;
                             detailEntity.TrxAccID = detailVM.TrxAccID;
                             detailEntity.TrxType = detailVM.DebitCredit;
@@ -206,65 +210,69 @@ namespace GCTL.Service.Finance.PostingRule
                 entity.LIP = model.LIP;
                 entity.LMAC = model.LMAC;
 
-                // Get IDs from the model (for matching)
-                var modelDetailIds = model.PostingRuleDetailsVMs?
-                    .Where(d => d.PostingRuleDetailID > 0)
-                    .Select(d => d.PostingRuleDetailID)
-                    .ToList() ?? new List<int>();
+                //// Get IDs from the model (for matching)
+                //var modelDetailIds = model.PostingRuleDetailsVMs?
+                //    .Where(d => d.PostingRuleDetailID > 0)
+                //    .Select(d => d.PostingRuleDetailID)
+                //    .ToList() ?? new List<int>();
 
-                // 1️⃣ Remove deleted child records
-                var detailsToRemove = entity.PostingRuleDetails
-                    .Where(d => !modelDetailIds.Contains(d.PostingRuleDetailID))
-                    .ToList();
+                //// 1️⃣ Remove deleted child records
+                //var detailsToRemove = entity.PostingRuleDetails
+                //    .Where(d => !modelDetailIds.Contains(d.PostingRuleDetailID))
+                //    .ToList();
 
-                if (detailsToRemove.Any())
-                {
-                    await _postingRuleDetailsRepository.DeleteRangeAsync(detailsToRemove);
-                }
+                //if (detailsToRemove.Any())
+                //{
+                //    await _postingRuleDetailsRepository.DeleteRangeAsync(detailsToRemove);
+                //}
 
                 // 2️⃣ Update existing / Add new details
-                foreach (var detailVM in model.PostingRuleDetailsVMs)
+                if (model.PostingRuleDetailsVMs != null && model.PostingRuleDetailsVMs.Any())
                 {
-                    if (detailVM.PostingRuleDetailID > 0)
+                    foreach (var detailVM in model.PostingRuleDetailsVMs)
                     {
-                        // Update existing record
-                        var existingDetail = entity.PostingRuleDetails
-                            .FirstOrDefault(d => d.PostingRuleDetailID == detailVM.PostingRuleDetailID);
-
-                        if (existingDetail != null)
+                        if (detailVM.PostingRuleDetailID > 0)
                         {
-                            existingDetail.SubAccountID = detailVM.SubAccID;
-                            existingDetail.TrxAccID = detailVM.TrxAccID;
-                            existingDetail.TrxType = detailVM.DebitCredit;
+                            // Update existing record
+                            var existingDetail = entity.PostingRuleDetails
+                                .FirstOrDefault(d => d.PostingRuleDetailID == detailVM.PostingRuleDetailID);
 
-                            existingDetail.UpdatedAt = DateTime.UtcNow;
-                            existingDetail.UpdatedBy = model.UpdatedBy;
-                            existingDetail.LIP = model.LIP;
-                            existingDetail.LMAC = model.LMAC;
+                            if (existingDetail != null)
+                            {
+                                existingDetail.MainAccountID = detailVM.MainAccountID;
+                                existingDetail.SubAccountID = detailVM.SubAccID;
+                                existingDetail.TrxAccID = detailVM.TrxAccID;
+                                existingDetail.TrxType = detailVM.DebitCredit;
 
-                            await _postingRuleDetailsRepository.UpdateAsync(existingDetail);
+                                existingDetail.UpdatedAt = DateTime.UtcNow;
+                                existingDetail.UpdatedBy = model.UpdatedBy;
+                                existingDetail.LIP = model.LIP;
+                                existingDetail.LMAC = model.LMAC;
+
+                                await _postingRuleDetailsRepository.UpdateAsync(existingDetail);
+                            }
+                        }
+                        else
+                        {
+                            // Add new record
+                            var newDetail = new PostingRuleDetails
+                            {
+                                PostingRuleID = entity.PostingRuleID,
+                                MainAccountID = detailVM.MainAccountID,
+                                SubAccountID = detailVM.SubAccID,
+                                TrxAccID = detailVM.TrxAccID,
+                                TrxType = detailVM.DebitCredit,
+
+                                UpdatedAt = DateTime.UtcNow,
+                                UpdatedBy = model.UpdatedBy,
+                                LIP = model.LIP,
+                                LMAC = model.LMAC
+                            };
+
+                            await _postingRuleDetailsRepository.AddAsync(newDetail);
                         }
                     }
-                    else
-                    {
-                        // Add new record
-                        var newDetail = new PostingRuleDetails
-                        {
-                            PostingRuleID = entity.PostingRuleID,
-                            SubAccountID = detailVM.SubAccID,
-                            TrxAccID = detailVM.TrxAccID,
-                            TrxType = detailVM.DebitCredit,
-
-                            UpdatedAt = DateTime.UtcNow,
-                            UpdatedBy = model.UpdatedBy,
-                            LIP = model.LIP,
-                            LMAC = model.LMAC
-                        };
-
-                        await _postingRuleDetailsRepository.AddAsync(newDetail);
-                    }
                 }
-
 
                 await _genericRepository.UpdateAsync(entity);
 

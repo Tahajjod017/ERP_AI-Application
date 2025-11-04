@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable enable
+
 namespace GCTL.Data.Models
 {
     public partial class GetPaginatedEmployeeAttendanceResult
@@ -11,6 +13,6 @@ namespace GCTL.Data.Models
         public int? EmployeeID { get; set; }
         public DateOnly AttendanceDate { get; set; }
         [StringLength(1)]
-        public string AttendanceStatus { get; set; }
+        public string AttendanceStatus { get; set; } = default!;
     }
 }
