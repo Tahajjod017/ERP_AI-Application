@@ -97,7 +97,10 @@
                                 <input type="hidden" id="SelectedTenantId" value="1" />
                                 <label for="SelectedCompanyId" class="form-label fw-semibold text-muted mb-2">Select Company</label>
                                 <select asp-for="SelectedCompanyId" id="SelectedCompanyId" class="form-select form-select-lg">
-                                    <option value="" selected>-- Select Company --</option>
+                                    @if (User.IsInRole("SuperAdmin"))
+                                    {
+                                        <option value="" selected>-- All Company --</option>
+                                    }
                                     @foreach (var company in ViewBag.CompanyList as List<SelectListItem>)
                                     {
                                         <option value="@company.Value">@company.Text</option>
