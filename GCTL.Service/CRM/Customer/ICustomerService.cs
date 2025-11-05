@@ -21,7 +21,15 @@ namespace GCTL.Service.CRM.Customer
         Task<CustomerVM> GetCustomerInfo(int id, int organizationID);
         Task<BranchVM> GetBranchInfo(int customerID, int branchId, int organizationID);
         Task<WarehouseVM> GetWarehouseInfo(int customerID, int branchId, int organizationID);
-        Task<List<BranchVM>> GetBranchList(int companyID, int organizationID);
+        Task<PaginationService<CompanyBranches, BranchVM>.PaginationResult<BranchVM>>
+         GetAllBranchAsync(
+             int companyID,
+             int organizationID,
+             int pageNumber = 1,
+             int pageSize = 5,
+             string searchTerm = "",
+             string sortColumn = "BranchName",
+             string sortOrder = "asc");
         Task<ReturnDataView<SelectListItem>> GetOrganizationTypesList(string search, int page, int pageSize, int organizationID, string userFor = "Branch");
         Task<PaginationService<CompanyWarehouses, WarehouseVM>.PaginationResult<WarehouseVM>> GetAllWarehouseAsync(int customerID, int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CreateAt", string sortOrder = "desc");
         Task<PaginationService<CustomerAddresses, ShippingVM>.PaginationResult<ShippingVM>> GetAllShippingAsync(int customerID, int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CreatedAt", string sortOrder = "desc");

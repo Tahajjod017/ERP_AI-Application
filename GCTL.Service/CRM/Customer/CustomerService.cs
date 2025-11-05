@@ -782,48 +782,119 @@ namespace GCTL.Service.CRM.Customer
         #endregion
 
         #region Get CompanyBranchList
-        public async Task<List<BranchVM>> GetBranchList(int companyID, int organizationID)
+        public async Task<PaginationService<CompanyBranches, BranchVM>.PaginationResult<BranchVM>>
+ GetAllBranchAsync(
+     int companyID,
+     int organizationID,
+     int pageNumber = 1,
+     int pageSize = 5,
+     string searchTerm = "",
+     string sortColumn = "BranchName",
+     string sortOrder = "asc")
         {
             try
             {
-                var customer = await _customersRepository.AllActive()
-                .Include(q => q.CompanyBranches)
-                .ThenInclude(q => q.OrganizationType)
-                .Include(q => q.CompanyBranches)
-                .ThenInclude(q => q.CompanyBranchAddresses)
-                .ThenInclude(q => q.Address)
-                .FirstOrDefaultAsync(q => q.CustomerID == companyID && q.OrganizationID == organizationID);
+                // Base query
+                var query = _companyBranchesRepository.AllActive()
+                    .Include(x => x.OrganizationType)
+                    .Include(x => x.CompanyBranchAddresses)
+                        .ThenInclude(a => a.Address)
+                            .ThenInclude(a => a.Country)
+                    .Where(x => x.CustomerID == companyID && x.Customer != null && x.Customer.OrganizationID == organizationID);
 
-                if (customer == null)
-                    return new List<BranchVM>();
+                // Sorting
+                query = sortColumn switch
+                {
+                    "BranchID" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.BranchID)
+                        : query.OrderBy(x => x.BranchID),
 
-                var result = customer.CompanyBranches
-                    .Select(x => new BranchVM
+                    "BranchName" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.BranchName)
+                        : query.OrderBy(x => x.BranchName),
+
+                    _ => query.OrderBy(x => x.BranchName)
+                };
+
+                // Pagination + Projection
+                var result = await PaginationService<CompanyBranches, BranchVM>.GetPaginatedData(
+                    query,
+                    pageNumber,
+                    pageSize,
+                    searchTerm,
+                    sortColumn,
+                    sortOrder,
+                    term => x => EF.Functions.Like(x.BranchName, $"%{term}%"),
+                    x => new BranchVM
                     {
                         Bid = x.BranchID,
                         BCustomerID = x.CustomerID,
-                        BOrganizationTypeName = x.OrganizationType != null ?x.OrganizationType.OrganizationTypeName : "",
+                        BOrganizationTypeName = x.OrganizationType != null ? x.OrganizationType.OrganizationTypeName : "",
                         BName = x.BranchName ?? "",
-                        BFirstName = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.FirstName : "").FirstOrDefault() ?? "",
-                        BLastName = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.LastName : "").FirstOrDefault() ?? "",
-                        BEmail = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.Email : "").FirstOrDefault() ?? "",
-                        BFullAddress = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.FullAddress : "").FirstOrDefault() ?? "",
-                        BAdditionaladdress = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.FullAddress : "").FirstOrDefault() ?? "",
-                        BCity = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.City : "").FirstOrDefault() ?? "",
-                        BState = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.State : "").FirstOrDefault() ?? "",
-                        BStreet = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.Street : "").FirstOrDefault() ?? "",
-                        BPostalCode = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.PostalCode : "").FirstOrDefault() ?? "",
-                        BPhone = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.Phone : "").FirstOrDefault() ?? "",
-                        BOtherPhone = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.OtherPhone : "").FirstOrDefault() ?? "",
-                        BCountryID = x.CompanyBranchAddresses.Select(x => x.Address != null ? x.Address.CountryID : 0).FirstOrDefault()?? 0,
-                    })
-                    .ToList();
+
+                        BFirstName = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.FirstName : null)
+                            .FirstOrDefault() ?? "",
+
+                        BLastName = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.LastName : null)
+                            .FirstOrDefault() ?? "",
+
+                        BEmail = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.Email : null)
+                            .FirstOrDefault() ?? "",
+
+                        BFullAddress = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.FullAddress : null)
+                            .FirstOrDefault() ?? "",
+
+                        BAdditionaladdress = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.Additionaladdress : null)
+                            .FirstOrDefault() ?? "",
+
+                        BCity = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.City : null)
+                            .FirstOrDefault() ?? "",
+
+                        BState = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.State : null)
+                            .FirstOrDefault() ?? "",
+
+                        BStreet = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.Street : null)
+                            .FirstOrDefault() ?? "",
+
+                        BPostalCode = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.PostalCode : null)
+                            .FirstOrDefault() ?? "",
+
+                        BPhone = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.Phone : null)
+                            .FirstOrDefault() ?? "",
+
+                        BOtherPhone = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.OtherPhone : null)
+                            .FirstOrDefault() ?? "",
+
+                        BCountryID = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null ? a.Address.CountryID : null)
+                            .FirstOrDefault() ?? 0,
+
+                        BCountryName = x.CompanyBranchAddresses
+                            .Select(a => a.Address != null && a.Address.Country != null
+                                ? a.Address.Country.CountryName
+                                : null)
+                            .FirstOrDefault() ?? ""
+                    });
 
                 return result;
             }
-            catch (Exception) { return new List<BranchVM>(); }
-
+            catch (Exception)
+            {
+                return new PaginationService<CompanyBranches, BranchVM>.PaginationResult<BranchVM>();
+            }
         }
+
         #endregion
 
         #region CreateWarehouse
@@ -1067,7 +1138,7 @@ namespace GCTL.Service.CRM.Customer
                     .Include(b => b.CompanyWarehouseAddresses)
                         .ThenInclude(cba => cba.Address)
                             .ThenInclude(a => a.Country)
-                    .Where(b => b.CustomerID == customerID && b.Customer.OrganizationID == organizationID);
+                    .Where(b => b.CustomerID == customerID && b.Customer != null && b.Customer.OrganizationID == organizationID);
 
                 // Sorting
                 query = sortColumn switch
