@@ -8,14 +8,8 @@ namespace GCTL.Core.ViewModels.APIViewModels
 {
     public class EmpTodaysAttListVM
     {
-        public int? EmployeeID { get; set; }
-        public string? EmployeeName { get; set; }
-        public DateOnly? AttendanceDate { get; set; }
-        public string? StatusName { get; set; }
-        public string? ShiftName { get; set; }
-        public DateTime? CheckInTime { get; set; }
-        public DateTime? CheckOutTime { get; set; }
-
-        public IList<AttendenceListVM> AttendenceListVMs { get; set; } = new List<AttendenceListVM>();
+        public int SlNo { get; set; }
+        public string? AttendenceType { get; set; }
+        public string? PunchTime { get; set; }
     }
 }
