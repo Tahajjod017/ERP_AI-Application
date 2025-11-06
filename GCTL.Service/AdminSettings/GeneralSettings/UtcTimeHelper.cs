@@ -148,6 +148,41 @@ namespace GCTL.Service.AdminSettings.GeneralSettings
             }
 
 
+            // German (Europe/Berlin) server-local DateTime -> User-localized string
+            public static string ConvertGermanServerLocalToUserString(
+                DateTime germanServerLocal,
+                ILocalizationContext ctx,
+                string? format = null) // 
+            {
+                var deZone = DateTimeZoneProviders.Tzdb["Europe/Berlin"];
+
+                //  local wall-clock  (Kind)
+                var unspecified = DateTime.SpecifyKind(germanServerLocal, DateTimeKind.Unspecified);
+                var ldt = LocalDateTime.FromDateTime(unspecified);
+
+                // DST 
+                var deZoned = deZone.AtLeniently(ldt);
+
+                // 
+                var userZoned = deZoned.WithZone(ctx.Zone);
+
+                // : ctx.DateTimePattern > 
+                var pattern = format ?? ctx.DateTimePattern ?? "yyyy-MM-dd HH:mm:ss";
+                return userZoned.ToString(pattern, CultureInfo.InvariantCulture);
+            }
+
+            // German server-local DateTime -> User-local DateTime (Unspecified)
+            public static DateTime ConvertGermanServerLocalToUserDateTime(DateTime germanServerLocal, ILocalizationContext ctx)
+            {
+                var deZone = DateTimeZoneProviders.Tzdb["Europe/Berlin"];
+                var unspecified = DateTime.SpecifyKind(germanServerLocal, DateTimeKind.Unspecified);
+                var ldt = LocalDateTime.FromDateTime(unspecified);
+                var deZoned = deZone.AtLeniently(ldt);
+                var userZoned = deZoned.WithZone(ctx.Zone);
+
+                // Unspecified DateTime,  ctx.TimePattern 
+                return userZoned.ToDateTimeUnspecified();
+            }
         }
 
     }
