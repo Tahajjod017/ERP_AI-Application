@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace GCTL_App.Controllers 
 {
@@ -321,66 +323,129 @@ namespace GCTL_App.Controllers
 
         [HttpPost]
         public async Task<IActionResult> CreateUserForEmployee(string employeeId, int? companyId, int? tenantId)
-
         {
-            if (string.IsNullOrEmpty(employeeId))
-                return Json(new { success = false, message = "Employee ID is required." });
-
-            var employee = await _Db.Employees.FirstOrDefaultAsync(e => e.EmployeeID.ToString() == employeeId);
-            if (employee == null)
-                return Json(new { success = false, message = "Employee not found." });
-
-            if (string.IsNullOrEmpty(employee.Email))
-                return Json(new { success = false, message = "Email is required to create a user." });
-
-            // Check if user already exists
-            var existingUser = await _userManager.FindByEmailAsync(employee.Email);
-            if (existingUser != null)
-                return Json(new { success = false, message = "User already exists for this email." });
-
-            var user = new ApplicationUser
+            try
             {
-                UserName = employee.Email,
-                Email = employee.Email,
-                EmailConfirmed = true,
-                EmployeeId = employee.EmployeeID,
-                TenantInfoId = tenantId,
-                OrganizationID = companyId,
+                if (string.IsNullOrWhiteSpace(employeeId))
+                    return Json(new { success = false, message = "Employee ID is required." });
+
+                if (!int.TryParse(employeeId, out var empId))
+                    return Json(new { success = false, message = "Invalid Employee ID." });
+
+                // Employee + OfficeInfo 
+                var employee = await _Db.Employees
+                    .Include(e => e.EmployeeOfficeInfoEmployee)
+                    .FirstOrDefaultAsync(e => e.EmployeeID == empId && e.DeletedAt == null);
+
+                if (employee == null)
+                    return Json(new { success = false, message = "Employee not found." });
+
+
+                var officeEmails = (employee.EmployeeOfficeInfoEmployee ?? new List<EmployeeOfficeInfo>())
+                    .Where(x => x.OrganizationID != null && !string.IsNullOrWhiteSpace(x.OfficeEmail))
+                    .Select(x => new
+                    {
+                        Email = x.OfficeEmail,
+                        organizationId = x.OrganizationID
+                    })
+                    .ToList();
+
+                if (officeEmails.Count == 0)
+                    return Json(new { success = false, message = "Employee does not have a valid email in office info." });
+
+
+                var primaryEmail = officeEmails.First();
+                if (string.IsNullOrWhiteSpace(primaryEmail.Email))
+                    return Json(new { success = false, message = "No valid email found for the employee." });
+
+
+                var existingUser = await _userManager.FindByEmailAsync(primaryEmail.Email);
+                if (existingUser != null)
+                    return Json(new { success = false, message = "User already exists for this email." });
+
+
+                var randomPassword = GeneratePassword8();
+
+                var user = new ApplicationUser
+                {
+                    UserName = primaryEmail.Email,
+                    Email = primaryEmail.Email,
+                    EmailConfirmed = true,
+                    IsPasswordResetRequired = true,
+                    DefaultPass = randomPassword,
+                    EmployeeId = employee.EmployeeID,
+                    TenantInfoId = tenantId,
+                    OrganizationID = primaryEmail.organizationId
+                };
+
+                var createResult = await _userManager.CreateAsync(user, randomPassword);
+                if (!createResult.Succeeded)
+                {
+                    var errors = string.Join("; ", createResult.Errors.Select(e => e.Description));
+                    return Json(new { success = false, message = $"Failed to create user: {errors}" });
+                }
+
+
+                employee.HasUser = true;
+                employee.UpdatedAt = DateTime.UtcNow;
+                await _Db.SaveChangesAsync();
+
+
+                //var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                //var resetLink = Url.Action("ResetPasswordPage", "Account",
+                //    new { token, email = user.Email }, Request.Scheme);
+
+
+                //var toEmail = string.IsNullOrWhiteSpace(employee.Email) ? user.Email : employee.Email;
+
+                //var model = new
+                //{
+                //    Name = user.UserName,
+                //    ResetLink = resetLink
+                //};
+
+                //var emailResult = await _emailService.SendEmailAsync(
+                //    toEmail: toEmail,
+                //    subject: "Set Your Password",
+                //    razorTemplateFile: "WelcomeAccountSetupTemplate.html",
+                //    model: model,
+                //   null,
+                //     null
+                //);
 
 
 
-            };
-
-            var createResult = await _userManager.CreateAsync(user);
-            if (!createResult.Succeeded)
-                return Json(new { success = false, message = "User creation failed." });
-
-            // Optionally assign default role
-            //await _userManager.AddToRoleAsync(user, "Employee");
-
-            // Optionally send a password setup link (reset token)
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var resetLink = Url.Action("ResetPasswordPage", "Account", new { token, email = user.Email }, Request.Scheme);
-
-            // Send email here using IEmailSender or your own email service
-            // Send email using your service
-            // Prepare data model for Razor template  
-            var model = new
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
             {
-                Name = user.UserName, // or use user.FullName if available  
-                ResetLink = resetLink,
-            };
+                // _logger?.LogError(ex, "Error creating user for employeeId {EmployeeId}", employeeId);
+                return Json(new { success = false, message = "An unexpected error occurred while creating the user." });
+            }
+        }
+        private static string GeneratePassword8()
+        {
+            const int letterCount = 4;
+            const int digitCount = 2;
+            const int totalLength = 8;
+            var sb = new StringBuilder(totalLength);
 
-            var emailResult = await _emailService.SendEmailAsync(
-                toEmail: employee.Email,
-                subject: "Set Your Password",
-                razorTemplateFile: "WelcomeAccountSetupTemplate.html", // Rename if needed, e.g., ResetPasswordTemplate.html
-                model: model,
-                 null,
-                 null
-            );
+            // 4 letters, capitalize first
+            for (int i = 0; i < letterCount; i++)
+            {
+                char c = (char)('a' + RandomNumberGenerator.GetInt32(26));
+                if (i == 0) c = char.ToUpperInvariant(c);
+                sb.Append(c);
+            }
 
-            return Json(new { success = true });
+            // 2 digits
+            for (int i = 0; i < digitCount; i++)
+                sb.Append(RandomNumberGenerator.GetInt32(10)); // 0..9
+
+            // 2 special characters
+            sb.Append('%').Append('$');
+
+            return sb.ToString(); // always length 8
         }
 
         [Permission("CREATE", "AccessPermission")]

@@ -70,22 +70,7 @@ namespace GCTL_App.Controllers
             {
                 var isSuperAdmin = string.Equals(model.Email, "superadmin@gmail.com", StringComparison.OrdinalIgnoreCase);
 
-                //IQueryable<ApplicationUser> baseQuery = _Db.Users
-                //    .Include(u => u.Employees)
-                //        .ThenInclude(e => e.EmployeeOfficeInfoEmployee);
 
-               
-
-                //var user2 = isSuperAdmin
-                //   ? await _Db.Users
-                //       .Where(u => u.Email == model.Email)
-                //       .FirstOrDefaultAsync()
-                //   : await _Db.Users
-                //       .Where(u => u.Employees != null && u.Employees.EmployeeOfficeInfoEmployee != null &&
-                //           u.Employees.EmployeeOfficeInfoEmployee.Any(x => x.OfficeEmail == model.Email))
-                //       .FirstOrDefaultAsync();
-                // Call the stored procedure to get user by email
-                // Call the stored procedure to get user by email
                 var user2 =  _Db.Users
                     .FromSqlRaw("EXEC GetUserByEmail @Email = {0}", model.Email)
                     .AsEnumerable() // Move the query execution to client-side to enable LINQ operations
