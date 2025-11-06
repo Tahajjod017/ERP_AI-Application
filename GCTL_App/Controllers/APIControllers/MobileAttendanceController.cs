@@ -56,7 +56,7 @@ namespace GCTL_App.Controllers.APIControllers
                     {
                         slno = a.SlNo,
                         attendenceType = a.AttendenceType,
-                        attDateANDTime = a.PunchTime
+                        attDateANDTime = a.PunchTime.HasValue ? a.PunchTime.Value.ToString("dd MMM hh:mm tt") : ""
                     })
                 });
             }

@@ -40,13 +40,16 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
                 if (model == null)
                     return null;
 
-                var userTimeZone = _localizationContext.Zone;  // Assuming _localizationContext is your ILocalizationContext
-
                 if (!model.CheckInTime.HasValue)
                     return null;
 
+                // Convert the incoming time (assumed to be in Bangladesh time) to UTC
                 var checkInTimeOnly = TimeOnly.FromDateTime(model.CheckInTime.Value);
-                var utcInTime = TimeConversionHelper.ConvertTimeOnlyToUtc(checkInTimeOnly, _localizationContext);
+
+                // Convert Bangladesh Time (UTC+6) to UTC
+                var bangladeshTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Bangladesh Standard Time");
+                var bangladeshTime = TimeZoneInfo.ConvertTime(model.CheckInTime.Value, bangladeshTimeZone); // This is in UTC+6
+                var utcInTime = bangladeshTime.ToUniversalTime();  // This will convert to UTC
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@enroll_id", model.EmployeeId);
@@ -82,7 +85,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
 
 
         #region GetTodaysAttendance
-        public async Task<List<PunchResultVM>> GetTodaysMovement(int empId)
+        public async Task<List<ListPunchResultVM>> GetTodaysMovement(int empId)
         {
             try
             {
@@ -105,19 +108,16 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
                         .OrderBy(p => p.PunchTime) // earliest first
                         .ToList();
 
-                    var attendenceList = new List<AttendenceListVM>();
+                    var attendenceList = new List<EmpTodaysAttListVM>();
                     bool isIn = true;
 
                     for (int i = 0; i < orderedPunches.Count; i++)
                     {
-                        attendenceList.Add(new AttendenceListVM
+                        attendenceList.Add(new EmpTodaysAttListVM
                         {
                             SlNo = i + 1,
                             AttendenceType = isIn ? "IN" : "OUT",
-                            //PunchTime = orderedPunches[i].PunchTime.ToString("dd MMM hh:mm tt", CultureInfo.InvariantCulture)
-                            //PunchTime = orderedPunches[i].PunchTime
-                            PunchTimeFormatted = orderedPunches[i].PunchTime.ToString("dd MMM hh:mm tt")
-                            //PunchTime = new DateTimeOffset(orderedPunches[i].PunchTime)
+                            PunchTime = orderedPunches[i].PunchTime.ToString("dd MMM hh:mm tt")
                         });
 
                         isIn = !isIn;
@@ -138,7 +138,7 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
                             outTimeFlag = 1;
                     }
 
-                    return new PunchResultVM
+                    return new ListPunchResultVM
                     {
                         InTime = inTimeFlag,
                         OutTime = outTimeFlag,
