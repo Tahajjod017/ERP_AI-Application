@@ -43,17 +43,15 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.Attendances
                 if (!model.CheckInTime.HasValue)
                     return null;
 
-                // Convert the incoming time (assumed to be in Bangladesh time) to UTC
-                var checkInTimeOnly = TimeOnly.FromDateTime(model.CheckInTime.Value);
-
-                // Convert Bangladesh Time (UTC+6) to UTC
+                // Get the current time in Bangladesh (UTC+6)
                 var bangladeshTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Bangladesh Standard Time");
-                var bangladeshTime = TimeZoneInfo.ConvertTime(model.CheckInTime.Value, bangladeshTimeZone); // This is in UTC+6
-                var utcInTime = bangladeshTime.ToUniversalTime();  // This will convert to UTC
+
+                // Get the current UTC time, then convert it to Bangladesh time (UTC+6)
+                var bangladeshTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.Utc, bangladeshTimeZone);
 
                 var parameters = new DynamicParameters();
                 parameters.Add("@enroll_id", model.EmployeeId);
-                parameters.Add("@CHECKTIME", utcInTime);
+                parameters.Add("@CHECKTIME", bangladeshTime);
                 parameters.Add("@DeviceSN", model.DeviceInfo);
                 parameters.Add("@SourceType", "Apps");
                 parameters.Add("@Latitude", model.Latitude);

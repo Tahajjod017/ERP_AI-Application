@@ -249,7 +249,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
-//app.UseMiddleware<LocalizationMiddleware>();
+app.UseMiddleware<LocalizationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers(); // Maps attribute-routed API controllers
