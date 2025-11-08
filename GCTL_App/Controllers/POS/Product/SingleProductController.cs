@@ -7,12 +7,16 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using SkiaSharp;
 
 namespace GCTL_App.Controllers.POS.Product
 {
     public class SingleProductController : BaseController
     {
         private readonly IGenericRepository<Products> _productRepository;
+        private readonly IGenericRepository<AttributeNames> _attributeNamesRepository;
+        private readonly IGenericRepository<AttributeValues> _attributeValuesRepository;
         private readonly IGenericRepository<WarrantyTypes> _warrantyRepository;
         private readonly IGenericRepository<ProductTypes> _productTypeRepository;
         private readonly IGenericRepository<ProductCategories> _productCategoryRepository;
@@ -26,7 +30,7 @@ namespace GCTL_App.Controllers.POS.Product
 
 
 
-        public SingleProductController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Products> productRepository, IGenericRepository<ProductCategories> productCategoryRepository, IGenericRepository<ProductSubCategories> productSubCategoryRepository, IGenericRepository<ProductBrands> productBrandRepository, IGenericRepository<UnitTypes> unitRepository, IGenericRepository<Classes> assetTypeRepository, ISingleProduct singleProductService, IGenericRepository<WarrantyTypes> warrantyRepository, IGenericRepository<ProductTypes> productTypeRepository, IGenericRepository<CustomerGroup> customerGroupRepository, IGenericRepository<CalculationTypes> calculationTypesRepository) : base(translateService, userProfileService)
+        public SingleProductController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Products> productRepository, IGenericRepository<ProductCategories> productCategoryRepository, IGenericRepository<ProductSubCategories> productSubCategoryRepository, IGenericRepository<ProductBrands> productBrandRepository, IGenericRepository<UnitTypes> unitRepository, IGenericRepository<Classes> assetTypeRepository, ISingleProduct singleProductService, IGenericRepository<WarrantyTypes> warrantyRepository, IGenericRepository<ProductTypes> productTypeRepository, IGenericRepository<CustomerGroup> customerGroupRepository, IGenericRepository<CalculationTypes> calculationTypesRepository, IGenericRepository<AttributeNames> attributeNamesRepository, IGenericRepository<AttributeValues> attributeValuesRepository) : base(translateService, userProfileService)
         {
             _productRepository = productRepository;
             _productCategoryRepository = productCategoryRepository;
@@ -39,6 +43,8 @@ namespace GCTL_App.Controllers.POS.Product
             _productTypeRepository = productTypeRepository;
             _customerGroupRepository = customerGroupRepository;
             _calculationTypesRepository = calculationTypesRepository;
+            _attributeNamesRepository = attributeNamesRepository;
+            _attributeValuesRepository = attributeValuesRepository;
         }
 
         public IActionResult Index()
@@ -73,8 +79,24 @@ namespace GCTL_App.Controllers.POS.Product
             ViewBag.CalculationTypesDD = new SelectList(_calculationTypesRepository.AllActive().Select(e => new { id = e.CalculationTypeID, name = e.CalculationTypeName }).ToList(), "id", "name");
 
 
+            var attributeNames = _attributeNamesRepository.AllActive()
+                                .Where(a => a.IsActive == true && a.DeletedAt == null)
+                                .ToList();
+
+            // Load attribute values (linked to each name)
+            var attributeValues = _attributeValuesRepository.AllActive()
+                                          .Where(v => v.DeletedAt == null)
+                                          .ToList();
+
+            ViewBag.AttributeNames = attributeNames;
+            ViewBag.AttributeValues = attributeValues;
+
+
             return View(model);
         }
+
+
+        #region Single Prosuct
 
         [HttpGet]
         public async Task<IActionResult> GetAutoSKU()
@@ -128,6 +150,82 @@ namespace GCTL_App.Controllers.POS.Product
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        #endregion
+
+
+        #region ATD prduct
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddAttributeProduct(    AttrProductAddViewModel model,    List<IFormFile> AttrProductImages,    [FromForm] string AttrSelectedValuesJson)   // <-- always present
+        {
+
+            if (!string.IsNullOrWhiteSpace(AttrSelectedValuesJson))
+            {
+                model.AttrSelectedValues = JsonConvert.DeserializeObject<
+                    Dictionary<string, List<AttributeValueDto>>>(AttrSelectedValuesJson)
+                    ?? new();
+            }
+            else
+            {
+                model.AttrSelectedValues = new Dictionary<string, List<AttributeValueDto>>();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                        );
+
+                var messages = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .SelectMany(x => x.Value.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+
+                return Json(new { success = false, errors = errors, message = messages });
+            }
+
+            // ---- Deserialize attribute selections (guaranteed non-null) ----
+            if (!string.IsNullOrWhiteSpace(AttrSelectedValuesJson))
+            {
+                model.AttrSelectedValues = JsonConvert.DeserializeObject<
+                    Dictionary<string, List<AttributeValueDto>>>(AttrSelectedValuesJson)
+                    ?? new();
+            }
+            else
+            {
+                model.AttrSelectedValues = new Dictionary<string, List<AttributeValueDto>>();
+            }
+
+            // ---- Save uploaded images ----
+            if (AttrProductImages?.Any() == true)
+            {
+                var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/products");
+                Directory.CreateDirectory(uploadFolder);
+
+                foreach (var file in AttrProductImages)
+                {
+                    var safeName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                    var fullPath = Path.Combine(uploadFolder, safeName);
+                    using var stream = System.IO.File.Create(fullPath);
+                    await file.CopyToAsync(stream);
+
+                    model.AttrUploadedImageNames.Add(safeName);
+                }
+            }
+
+            // TODO: persist model to DB, generate variants, etc.
+
+            return Json(new { success = true });
+        }
+
+        #endregion
 
     }
 }
