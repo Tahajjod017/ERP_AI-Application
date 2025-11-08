@@ -157,6 +157,18 @@ public partial class Employees
 
     public virtual ICollection<Attendance> AttendanceUpdatedByNavigation { get; set; } = new List<Attendance>();
 
+    public virtual ICollection<AttributeNames> AttributeNamesCreatedByNavigation { get; set; } = new List<AttributeNames>();
+
+    public virtual ICollection<AttributeNames> AttributeNamesDeletedByNavigation { get; set; } = new List<AttributeNames>();
+
+    public virtual ICollection<AttributeNames> AttributeNamesUpdatedByNavigation { get; set; } = new List<AttributeNames>();
+
+    public virtual ICollection<AttributeValues> AttributeValuesCreatedByNavigation { get; set; } = new List<AttributeValues>();
+
+    public virtual ICollection<AttributeValues> AttributeValuesDeletedByNavigation { get; set; } = new List<AttributeValues>();
+
+    public virtual ICollection<AttributeValues> AttributeValuesUpdatedByNavigation { get; set; } = new List<AttributeValues>();
+
     public virtual ICollection<BarcodeGenerateFrom> BarcodeGenerateFromCreatedByNavigation { get; set; } = new List<BarcodeGenerateFrom>();
 
     public virtual ICollection<BarcodeGenerateFrom> BarcodeGenerateFromDeletedByNavigation { get; set; } = new List<BarcodeGenerateFrom>();
@@ -872,6 +884,12 @@ public partial class Employees
     public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricingDeletedByNavigation { get; set; } = new List<ProductAdvancedPricing>();
 
     public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricingUpdatedByNavigation { get; set; } = new List<ProductAdvancedPricing>();
+
+    public virtual ICollection<ProductAttributes> ProductAttributesCreatedByNavigation { get; set; } = new List<ProductAttributes>();
+
+    public virtual ICollection<ProductAttributes> ProductAttributesDeletedByNavigation { get; set; } = new List<ProductAttributes>();
+
+    public virtual ICollection<ProductAttributes> ProductAttributesUpdatedByNavigation { get; set; } = new List<ProductAttributes>();
 
     public virtual ICollection<ProductBarcodes> ProductBarcodesCreatedByNavigation { get; set; } = new List<ProductBarcodes>();
 

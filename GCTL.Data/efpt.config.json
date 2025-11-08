@@ -4,7 +4,6 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "MinimumProductVersion": "2.6.1080",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
@@ -668,11 +667,23 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[AttributeNames]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[AttributeValues]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[BarcodeGenerateFrom]",
          "ObjectType": 0
       },
       {
          "Name": "[SC].[ProductAdvancedPricing]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ProductAttributes]",
          "ObjectType": 0
       },
       {
