@@ -99,6 +99,40 @@
     }
 
 
+    /* ===== Responsive Full Width Fix ===== */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    table.table-bordered {
+        width: 100%;
+        min-width: 1500px; /* আপনার কলাম যত বেশি, তত বড় রাখুন */
+        border-collapse: collapse;
+    }
+
+        table.table-bordered th,
+        table.table-bordered td {
+            padding: 6px 10px;
+            font-size: 13px;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        table.table-bordered th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+
+        table.table-bordered tr th:first-child {
+            position: sticky;
+            left: 0;
+            background-color: #fff;
+            z-index: 2;
+        }
+
+
 </style>
 
     <div class="col-sm-12">
@@ -246,8 +280,8 @@
                     </table>
                 </div>
             </div> *@
-
-              <div id="individualEmployeemonthlyAttendanceTable">
+            <div id="individualEmployeemonthlyAttendanceTable" class="my-3"></div>
+             @*  <div id="individualEmployeemonthlyAttendanceTable">
                     <div class="table-responsive">
                         <table class=" table-bordered text-center p-2">
                             <thead>
@@ -778,7 +812,8 @@
                             </tbody>
                         </table>
                     </div>
-                </div> 
+                </div>  *@
+
                 <!-- Leave Explaination-->
                 <div class="d-flex my-3 flex-wrap border-bottom ">
                     <div class="full-present me-2">
@@ -839,4 +874,7 @@
             });
         });
     </script>
+
+    <script src="~/js/pages/attendancemanagement/employeereportall/monthlyreportindividual.js"></script>
+
 }
