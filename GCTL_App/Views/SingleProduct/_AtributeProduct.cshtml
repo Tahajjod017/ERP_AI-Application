@@ -125,6 +125,9 @@
                                     <input asp-for="AttrPartNo" type="text" class="form-control list mt-1" id="attrPartNo">
                                 </div>
                             </div>
+
+
+
                             <div class="col-sm-6 col-12">
                                 <div class=" list position-relative">
                                     <label asp-for="AttrBarcodeType">@Html.SmartLocalize("Barcode")</label>
@@ -148,6 +151,12 @@
                                     <input asp-for="AttrBarcodeValue" type="text" class="form-control list" id="attrBarcodeValue">
                                 </div>
                             </div>
+
+
+
+
+
+
                             <div class="col-sm-6 col-12">
                                 <div class="mb-3">
                                     <div class="add-newplus">
@@ -220,33 +229,10 @@
 
 
 
-                        @*<div class="row">
-                                <div class="col-lg-12">
-                                    <div class=" add-choosen">
-                                        <div class="mb-3">
-                                            <div class="image-upload image-upload-two">
-                                                <input asp-for="AttrProductImages" type="file" multiple id="attrProductImages">
-                                                <div class="image-uploads">
-                                                    <i data-feather="plus-circle" class="plus-down-add me-0"></i>
-                                                    <h4>@Html.SmartLocalize("Add Images")</h4>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="summer-description-box">
-                                    <label asp-for="AttrDescription">@Html.SmartLocalize("Description")</label>
-                                    <textarea asp-for="AttrDescription" class="tinymce" name="content" data-tinymce="{}"></textarea>
-                                    <p class="fs-9 mt-1 ms-2">@Html.SmartLocalize("Maximum 60 Words")</p>
-                                </div>
-                            </div>*@
 
 
 
-                        <!-- ✅ Attribute Images Upload Section -->
+                      
                         <div class="row">
                             <div class="col-lg-12 mt-2">
                                 <div class="accordion" id="attrImageAccordion">
@@ -296,7 +282,7 @@
                             </div>
                         </div>
 
-                        <!-- ✅ Attribute Description Section -->
+                       
                         <div class="row">
                             <div class="col-lg-12 mt-2">
                                 <div class="accordion" id="attrDescriptionAccordion">
@@ -380,6 +366,9 @@
                                     <div class="row bor">
                                         <h4 class="mt-3 ">@Html.SmartLocalize("Size (20 Options)")</h4>
                                         <h6 class="border-bottom"></h6>
+
+
+
                                         <div class="col-md-2">
                                             <div class="form-check">
                                                 <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize55cm" value="55 cm">
@@ -500,12 +489,17 @@
                                                 <label class="form-check-label" for="attrSize34">@Html.SmartLocalize("34")</label>
                                             </div>
                                         </div>
+
+
+
                                     </div>
                                 </div>
                                 <div class="col-md-12" id="colorDivp" style="display: none;">
                                     <div class="row">
                                         <h4 class="mt-3">@Html.SmartLocalize("Color (10 Options)")</h4>
                                         <h6 class="border-bottom"></h6>
+
+
                                         <div class="col-md-2">
                                             <div class="form-check">
                                                 <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorRed" value="Red">
@@ -566,12 +560,17 @@
                                                 <label class="form-check-label" for="attrColorAforde">@Html.SmartLocalize("Aforde")</label>
                                             </div>
                                         </div>
+
+
                                     </div>
                                 </div>
                                 <div class="col-md-12" id="materialsDivp" style="display: none;">
                                     <div class="row">
                                         <h4 class="mt-3">@Html.SmartLocalize("Materials (5 Options)")</h4>
                                         <h6 class="border-bottom"></h6>
+
+
+
                                         <div class="col-md-2">
                                             <div class="form-check">
                                                 <input name="AttrSelectedMaterials" class="form-check-input" type="checkbox" id="attrMaterialCotton" value="Cotton">
@@ -602,6 +601,9 @@
                                                 <label class="form-check-label" for="attrMaterialLeather">@Html.SmartLocalize("Leather")</label>
                                             </div>
                                         </div>
+
+
+
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -724,7 +726,11 @@
                     </div>
                 </div>
             </div>
-            <div class="accordion-item mb-4">
+
+
+
+
+            @*<div class="accordion-item mb-4">
                 <h2 class="accordion-header" id="headingSpacingThree">
                     <div class="accordion-button collapsed bg-body-highlight" data-bs-toggle="collapse" data-bs-target="#SpacingThree"
                          aria-expanded="true" aria-controls="SpacingThree">
@@ -850,10 +856,15 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>*@
+
+
+
+
+
             <div class="accordion-item mb-4">
                 <h2 class="accordion-header" id="headingSpacingFour">
-                    <div class="accordion-button collapsed bg-body-highlight" data-bs-toggle="collapse" data-bs-target="#SpacingFour"
+                    <div class="accordion-button collapsed " data-bs-toggle="collapse" data-bs-target="#SpacingFour"
                          aria-expanded="true" aria-controls="SpacingFour">
                         <div class="d-flex align-items-center justify-content-between flex-fill">
                             <h5 class="d-flex align-items-center my-3">
@@ -934,7 +945,6 @@
 
 
 
-<!-- ✅ Attribute Description Script -->
 <script>
 document.getElementById('attrDescription').addEventListener('input', function () {
     const words = this.value.trim().split(/\s+/).filter(word => word.length > 0).length;
@@ -953,7 +963,6 @@ function clearAttrDescription() {
 }
 </script>
 
-<!-- ✅ Attribute Image Upload Script -->
 <script>
     const attrUploadZone = document.getElementById('attrUploadZone');
     const attrUploadZoneWrapper = document.getElementById('attrUploadZoneWrapper');
