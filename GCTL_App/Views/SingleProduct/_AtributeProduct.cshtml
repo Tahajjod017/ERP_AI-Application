@@ -4,7 +4,7 @@
 
 
 
-<form asp-controller="Product" asp-action="Add" method="post" enctype="multipart/form-data">
+<form asp-controller="SingleProduct" asp-action="AddAttributeProduct" method="post" enctype="multipart/form-data">
     <div class="add-product">
         <div class="accordions-items-seperate border-0" id="accordionSpacingExampleAP">
             <div class="accordion-item mb-4">
@@ -25,9 +25,7 @@
                                 <div class="mb-3">
                                     <label asp-for="AttrProductType">@Html.SmartLocalize("Product Type")</label>
                                     <span asp-validation-for="AttrProductType" class="text-danger"></span>
-                                    <select asp-for="AttrProductType" class="form-select searchableSelect" id="attrProductType">
-                                        <option value="sp">@Html.SmartLocalize("Single Product")</option>
-                                        <option value="ap">@Html.SmartLocalize("Attribute Product")</option>
+                                    <select asp-for="AttrProductType" class="form-select searchableSelect" id="attrProductType" asp-items="@ViewBag.ProductTypeDD as SelectList">
                                     </select>
                                 </div>
                             </div>
@@ -57,16 +55,9 @@
                                                 <i data-feather="plus-circle" class="plus-down-add me-1"></i><span>@Html.SmartLocalize("Add New")</span>
                                             </a>
                                         </div>
-                                        <select asp-for="AttrCategory" class="form-select searchableSelect" id="attrCategory">
+                                        <select asp-for="AttrCategory" class="form-select searchableSelect" id="attrCategory" asp-items="@ViewBag.CategoryDD as SelectList">
                                             <option>@Html.SmartLocalize("Select")</option>
-                                            <option value="Computers">@Html.SmartLocalize("Computers")</option>
-                                            <option value="Electronics">@Html.SmartLocalize("Electronics")</option>
-                                            <option value="Shoe">@Html.SmartLocalize("Shoe")</option>
-                                            <option value="Cosmetics">@Html.SmartLocalize("Cosmetics")</option>
-                                            <option value="Groceries">@Html.SmartLocalize("Groceries")</option>
-                                            <option value="Furniture">@Html.SmartLocalize("Furniture")</option>
-                                            <option value="Bags">@Html.SmartLocalize("Bags")</option>
-                                            <option value="Phone">@Html.SmartLocalize("Phone")</option>
+
                                         </select>
                                     </div>
                                 </div>
@@ -74,17 +65,9 @@
                                     <div class="mb-3">
                                         <label asp-for="AttrSubCategory">@Html.SmartLocalize("Sub Category")</label>
                                         <span asp-validation-for="AttrSubCategory" class="text-danger"></span>
-                                        <select asp-for="AttrSubCategory" class="form-select searchableSelect" id="attrSubCategory">
+                                        <select asp-for="AttrSubCategory" class="form-select searchableSelect" id="attrSubCategory" asp-items="@ViewBag.SubCategoryDD as SelectList">
                                             <option>@Html.SmartLocalize("Select")</option>
-                                            <option value="Laptop">@Html.SmartLocalize("Laptop")</option>
-                                            <option value="Desktop">@Html.SmartLocalize("Desktop")</option>
-                                            <option value="Sneakers">@Html.SmartLocalize("Sneakers")</option>
-                                            <option value="Formals">@Html.SmartLocalize("Formals")</option>
-                                            <option value="Wearables">@Html.SmartLocalize("Wearables")</option>
-                                            <option value="Speakers">@Html.SmartLocalize("Speakers")</option>
-                                            <option value="Handbags">@Html.SmartLocalize("Handbags")</option>
-                                            <option value="Travel">@Html.SmartLocalize("Travel")</option>
-                                            <option value="Sofa">@Html.SmartLocalize("Sofa")</option>
+
                                         </select>
                                     </div>
                                 </div>
@@ -98,13 +81,9 @@
                                             <label asp-for="AttrBrand">@Html.SmartLocalize("Brand")</label>
                                             <span asp-validation-for="AttrBrand" class="text-danger"></span>
                                         </div>
-                                        <select asp-for="AttrBrand" class="form-select searchableSelect" id="attrBrand">
+                                        <select asp-for="AttrBrand" class="form-select searchableSelect" id="attrBrand" asp-items="@ViewBag.BrandDD as SelectList">
                                             <option>@Html.SmartLocalize("Select")</option>
-                                            <option value="Lenovo">@Html.SmartLocalize("Lenovo")</option>
-                                            <option value="Beats">@Html.SmartLocalize("Beats")</option>
-                                            <option value="Nike">@Html.SmartLocalize("Nike")</option>
-                                            <option value="Apple">@Html.SmartLocalize("Apple")</option>
-                                            <option value="Amazon">@Html.SmartLocalize("Amazon")</option>
+
                                         </select>
                                     </div>
                                 </div>
@@ -163,13 +142,9 @@
                                         <label asp-for="AttrUnit">@Html.SmartLocalize("Unit")</label>
                                         <span asp-validation-for="AttrUnit" class="text-danger"></span>
                                     </div>
-                                    <select asp-for="AttrUnit" class="form-select searchableSelect" id="attrUnit">
+                                    <select asp-for="AttrUnit" class="form-select searchableSelect" id="attrUnit" asp-items="@ViewBag.UnitDD as SelectList">
                                         <option>@Html.SmartLocalize("Select")</option>
-                                        <option value="Kg">@Html.SmartLocalize("Kg")</option>
-                                        <option value="Pcs">@Html.SmartLocalize("Pcs")</option>
-                                        <option value="L">@Html.SmartLocalize("L")</option>
-                                        <option value="dz">@Html.SmartLocalize("dz")</option>
-                                        <option value="bx">@Html.SmartLocalize("bx")</option>
+
                                     </select>
                                 </div>
                             </div>
@@ -181,10 +156,9 @@
                                         <label asp-for="AttrAssetsType">@Html.SmartLocalize("Assets Type")</label>
                                         <span asp-validation-for="AttrAssetsType" class="text-danger"></span>
                                     </div>
-                                    <select asp-for="AttrAssetsType" class="form-select searchableSelect" id="attrAssetsType">
+                                    <select asp-for="AttrAssetsType" class="form-select searchableSelect" id="attrAssetsType" asp-items="@ViewBag.AssetTypeDD as SelectList">
                                         <option>@Html.SmartLocalize("Select")</option>
-                                        <option value="Current Assets">@Html.SmartLocalize("Current Assets")</option>
-                                        <option value="Fixed Assets">@Html.SmartLocalize("Fixed Assets")</option>
+
                                     </select>
                                 </div>
                             </div>
@@ -232,7 +206,7 @@
 
 
 
-                      
+
                         <div class="row">
                             <div class="col-lg-12 mt-2">
                                 <div class="accordion" id="attrImageAccordion">
@@ -282,7 +256,7 @@
                             </div>
                         </div>
 
-                       
+
                         <div class="row">
                             <div class="col-lg-12 mt-2">
                                 <div class="accordion" id="attrDescriptionAccordion">
@@ -329,6 +303,8 @@
                     </div>
                 </div>
             </div>
+
+
             <div class="accordion-item mb-4">
                 <h2 class="accordion-header" id="headingSpacingTwoAV">
                     <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#SpacingTwoAV"
@@ -336,529 +312,99 @@
                         <div class="d-flex align-items-center justify-content-between flex-fill">
                             <h5 class="d-flex align-items-center my-3">
                                 <div id="AttributePr">
-                                    <i data-feather="life-buoy" class="text-primary me-2"></i><span>@Html.SmartLocalize("Attribute Values")</span>
+                                    <i data-feather="life-buoy" class="text-primary me-2"></i>
+                                    <span>@Html.SmartLocalize("Attribute Values")</span>
                                 </div>
                             </h5>
                         </div>
                     </div>
                 </h2>
+
                 <div id="SpacingTwoAV" class="accordion-collapse collapse show" aria-labelledby="headingSpacingTwoAV">
                     <div class="accordion-body">
                         <div id="div3" class="p-3">
                             <div class="">
-                                <div class="p-3  rounded d-flex align-items-center border mb-3">
-                                    <div class=" d-flex align-items-center">
-                                        <div class="form-check form-check-inline">
-                                            <input asp-for="AttrSizeEnabled" class="form-check-input" type="checkbox" id="attrSizeCheckbox" value="option1">
-                                            <label class="form-check-label" for="attrSizeCheckbox">@Html.SmartLocalize("Size")</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input asp-for="AttrColorEnabled" class="form-check-input" type="checkbox" id="attrColorCheckbox" value="option2">
-                                            <label class="form-check-label" for="attrColorCheckbox">@Html.SmartLocalize("Color")</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input asp-for="AttrMaterialsEnabled" class="form-check-input" type="checkbox" id="attrMaterialsCheckbox" value="option2">
-                                            <label class="form-check-label" for="attrMaterialsCheckbox">@Html.SmartLocalize("Materials")</label>
-                                        </div>
+                                <!-- Checkbox list for available attributes -->
+                                <div class="p-3 rounded d-flex align-items-center border mb-3">
+                                    <div class="d-flex align-items-center">
+                                        @foreach (var attr in ViewBag.AttributeNames)
+                                        {
+                                            string checkboxId = $"attr_{attr.AttributeNameID}";
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input attr-checkbox"
+                                                       type="checkbox"
+                                                       id="@checkboxId"
+                                                       data-target="div_@attr.AttributeNameID">
+                                                <label class="form-check-label" for="@checkboxId">
+                                                    @attr.AttributeName
+                                                </label>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
-                                <div class="col-md-12" id="sizeDivp" style="display: none;">
-                                    <div class="row bor">
-                                        <h4 class="mt-3 ">@Html.SmartLocalize("Size (20 Options)")</h4>
-                                        <h6 class="border-bottom"></h6>
 
+                                <!-- Dynamic Divs for Attribute Values -->
+                                @foreach (var attr in ViewBag.AttributeNames)
+                                {
+                                    var relatedValues = ((IEnumerable<dynamic>)ViewBag.AttributeValues)
+                                        .Where(v => v.AttributeNameID == attr.AttributeNameID)
+                                        .ToList();
 
+                                    <div class="col-md-12 attr-section" id="div_@attr.AttributeNameID" style="display:none;">
+                                        <div class="row">
+                                            <h4 class="mt-3">@attr.AttributeName (@relatedValues.Count Options)</h4>
+                                            <h6 class="border-bottom"></h6>
 
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize55cm" value="55 cm">
-                                                <label class="form-check-label" for="attrSize55cm">@Html.SmartLocalize("55 cm")</label>
-                                            </div>
+                                            @foreach (var val in relatedValues)
+                                            {
+                                                string valId = $"{val.AttributeID}";
+                                                <div class="col-md-2">
+                                                    <div class="form-check">
+                                                        <input name="AttrSelected_@attr.AttributeName"
+                                                               class="form-check-input"
+                                                               type="checkbox"
+                                                               id="@valId"
+                                                               value="@val.AttributeValue"
+                                                               data-id="@val.AttributeID">
+                                                        <label class="form-check-label" for="@valId">@val.AttributeValue</label>
+                                                    </div>
+                                                </div>
+                                            }
                                         </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSizeS" value="S">
-                                                <label class="form-check-label" for="attrSizeS">@Html.SmartLocalize("S")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize6foot" value="6 foot">
-                                                <label class="form-check-label" for="attrSize6foot">@Html.SmartLocalize("6 foot")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSizeXL" value="XL">
-                                                <label class="form-check-label" for="attrSizeXL">@Html.SmartLocalize("XL")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize29" value="29">
-                                                <label class="form-check-label" for="attrSize29">@Html.SmartLocalize("29")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize32" value="32">
-                                                <label class="form-check-label" for="attrSize32">@Html.SmartLocalize("32")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize36" value="36">
-                                                <label class="form-check-label" for="attrSize36">@Html.SmartLocalize("36")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSizeXS" value="XS">
-                                                <label class="form-check-label" for="attrSizeXS">@Html.SmartLocalize("XS")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize75cm" value="75 cm">
-                                                <label class="form-check-label" for="attrSize75cm">@Html.SmartLocalize("75 cm")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSizeL" value="L">
-                                                <label class="form-check-label" for="attrSizeL">@Html.SmartLocalize("L")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize10foot" value="10 foot">
-                                                <label class="form-check-label" for="attrSize10foot">@Html.SmartLocalize("10 foot")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize30" value="30">
-                                                <label class="form-check-label" for="attrSize30">@Html.SmartLocalize("30")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize33" value="33">
-                                                <label class="form-check-label" for="attrSize33">@Html.SmartLocalize("33")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize38" value="38">
-                                                <label class="form-check-label" for="attrSize38">@Html.SmartLocalize("38")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize65cm" value="65 cm">
-                                                <label class="form-check-label" for="attrSize65cm">@Html.SmartLocalize("65 cm")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSizeM" value="M">
-                                                <label class="form-check-label" for="attrSizeM">@Html.SmartLocalize("M")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize8foot" value="8 foot">
-                                                <label class="form-check-label" for="attrSize8foot">@Html.SmartLocalize("8 foot")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize28" value="28">
-                                                <label class="form-check-label" for="attrSize28">@Html.SmartLocalize("28")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize31" value="31">
-                                                <label class="form-check-label" for="attrSize31">@Html.SmartLocalize("31")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedSizes" class="form-check-input" type="checkbox" id="attrSize34" value="34">
-                                                <label class="form-check-label" for="attrSize34">@Html.SmartLocalize("34")</label>
-                                            </div>
-                                        </div>
-
-
-
                                     </div>
-                                </div>
-                                <div class="col-md-12" id="colorDivp" style="display: none;">
-                                    <div class="row">
-                                        <h4 class="mt-3">@Html.SmartLocalize("Color (10 Options)")</h4>
-                                        <h6 class="border-bottom"></h6>
+                                }
 
-
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorRed" value="Red">
-                                                <label class="form-check-label" for="attrColorRed">@Html.SmartLocalize("Red")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorGreen" value="Green">
-                                                <label class="form-check-label" for="attrColorGreen">@Html.SmartLocalize("Green")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorBlue" value="Blue">
-                                                <label class="form-check-label" for="attrColorBlue">@Html.SmartLocalize("Blue")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorViolet" value="Violet">
-                                                <label class="form-check-label" for="attrColorViolet">@Html.SmartLocalize("Violet")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorYellow" value="Yellow">
-                                                <label class="form-check-label" for="attrColorYellow">@Html.SmartLocalize("Yellow")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorBlack" value="Black">
-                                                <label class="form-check-label" for="attrColorBlack">@Html.SmartLocalize("Black")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorWhite" value="White">
-                                                <label class="form-check-label" for="attrColorWhite">@Html.SmartLocalize("White")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorOrange" value="Orange">
-                                                <label class="form-check-label" for="attrColorOrange">@Html.SmartLocalize("Orange")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorLemon" value="Lemon">
-                                                <label class="form-check-label" for="attrColorLemon">@Html.SmartLocalize("Lemon")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedColors" class="form-check-input" type="checkbox" id="attrColorAforde" value="Aforde">
-                                                <label class="form-check-label" for="attrColorAforde">@Html.SmartLocalize("Aforde")</label>
-                                            </div>
-                                        </div>
-
-
-                                    </div>
-                                </div>
-                                <div class="col-md-12" id="materialsDivp" style="display: none;">
-                                    <div class="row">
-                                        <h4 class="mt-3">@Html.SmartLocalize("Materials (5 Options)")</h4>
-                                        <h6 class="border-bottom"></h6>
-
-
-
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedMaterials" class="form-check-input" type="checkbox" id="attrMaterialCotton" value="Cotton">
-                                                <label class="form-check-label" for="attrMaterialCotton">@Html.SmartLocalize("Cotton")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedMaterials" class="form-check-input" type="checkbox" id="attrMaterialPolyester" value="Polyester">
-                                                <label class="form-check-label" for="attrMaterialPolyester">@Html.SmartLocalize("Polyester")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedMaterials" class="form-check-input" type="checkbox" id="attrMaterialSilk" value="Silk">
-                                                <label class="form-check-label" for="attrMaterialSilk">@Html.SmartLocalize("Silk")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedMaterials" class="form-check-input" type="checkbox" id="attrMaterialWool" value="Wool">
-                                                <label class="form-check-label" for="attrMaterialWool">@Html.SmartLocalize("Wool")</label>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-check">
-                                                <input name="AttrSelectedMaterials" class="form-check-input" type="checkbox" id="attrMaterialLeather" value="Leather">
-                                                <label class="form-check-label" for="attrMaterialLeather">@Html.SmartLocalize("Leather")</label>
-                                            </div>
-                                        </div>
-
-
-
-                                    </div>
-                                </div>
                                 <div class="modal-footer">
                                     <button class="btn btn-primary" id="showPriceTable" type="button">@Html.SmartLocalize("Create")</button>
                                 </div>
-                                <script>
-                                    const checkboxSp = document.getElementById('attrSizeCheckbox');
-                                    const checkboxCp = document.getElementById('attrColorCheckbox');
-                                    const checkboxMp = document.getElementById('attrMaterialsCheckbox');
-                                    const sizeDivp = document.getElementById('sizeDivp');
-                                    const colorDivp = document.getElementById('colorDivp');
-                                    const materialsDivp = document.getElementById('materialsDivp');
-                                    checkboxSp.addEventListener('change', function () {
-                                        sizeDivp.style.display = this.checked ? 'block' : 'none';
-                                    });
-                                    checkboxCp.addEventListener('change', function () {
-                                        colorDivp.style.display = this.checked ? 'block' : 'none';
-                                    });
-                                    checkboxMp.addEventListener('change', function () {
-                                        materialsDivp.style.display = this.checked ? 'block' : 'none';
-                                    });
-                                </script>
                             </div>
-                            <div class="border-top border-translucent p-3 mt-4" id="priceTable" style="display: none;">
-                                <div id="employeeListTable1" data-list='{"valueNames":["itemName","itemCost","itemPrice"],"page":5,"pagination":true}'>
-                                    <div class="table-responsive scrollbar mx-n1 px-1">
-                                        <table class="table table-sm fs-9 leads-table">
-                                            <thead>
-                                                <tr>
-                                                    <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
-                                                        <div class="form-check mb-0 fs-8">
-                                                            <input class="form-check-input" type="checkbox" data-bulk-select='{"body":"purchasers-sellers-body"}' />
-                                                        </div>
-                                                    </th>
-                                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemName">@Html.SmartLocalize("Item Name")</th>
-                                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemCost">@Html.SmartLocalize("SKU")</th>
-                                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemPrice">@Html.SmartLocalize("Selling Price (Excluding VAT)")</th>
-                                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemPrice">@Html.SmartLocalize("VAT(%)")</th>
-                                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemPrice">@Html.SmartLocalize("Weight")</th>
-                                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="itemPrice">@Html.SmartLocalize("Attribute")</th>
-                                                    <th class="sort text-end align-middle pe-0 ps-4" scope="col">@Html.SmartLocalize("STATUS")</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="list" id="purchasers-sellers-body">
-                                                @for (int i = 0; i < Model.AttrProductVariants.Count; i++)
-                                                {
-                                                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                                                        <td class="fs-9 align-middle py-0">
-                                                            <div class="form-check mb-0 fs-8">
-                                                                <input class="form-check-input" type="checkbox" data-bulk-select-row='{"itemName":"@Model.AttrProductVariants[i].AttrItemName","itemCost":"@Model.AttrProductVariants[i].AttrSku","itemPrice":"@Model.AttrProductVariants[i].AttrSellingPrice"}' />
-                                                            </div>
-                                                        </td>
-                                                        <td class="itemName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-2">
-                                                            <div class="d-flex">
-                                                                <div class="avatar avatar-xl me-2">
-                                                                    <img class="rounded-3" src="@Model.AttrProductVariants[i].AttrImageUrl" alt="" />
-                                                                </div>
-                                                                <div class="flex-1 mt-1">
-                                                                    <input asp-for="AttrProductVariants[i].AttrItemName" type="text" class="form-control" id="attrItemName@(i)">
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td class="itemCost align-middle white-space-nowrap text-start pe-0 ps-1">
-                                                            <input asp-for="AttrProductVariants[i].AttrSku" type="text" class="form-control" id="attrSku@(i)">
-                                                        </td>
-                                                        <td class="itemPrice align-middle white-space-nowrap text-start pt-3 ps-1">
-                                                            <div class="input-group mb-3">
-                                                                <input asp-for="AttrProductVariants[i].AttrSellingPrice" class="form-control" type="text" placeholder="1500" id="attrSellingPrice@(i)" />
-                                                                <a class="btn input-group-text" id="basic-addon2" data-bs-toggle="modal" data-bs-target="#advancedPriceing">@Html.SmartLocalize("Advance Price")</a>
-                                                            </div>
-                                                        </td>
-                                                        <td class="itemPrice align-middle white-space-nowrap text-start pe-0 ps-1">
-                                                            <input asp-for="AttrProductVariants[i].AttrVatPercentage" type="text" class="form-control" id="attrVatPercentage@(i)">
-                                                        </td>
-                                                        <td class="itemPrice align-middle white-space-nowrap text-start pe-0 ps-1">
-                                                            <input asp-for="AttrProductVariants[i].AttrWeight" type="text" class="form-control" id="attrWeight@(i)">
-                                                        </td>
-                                                        <td class="itemPrice align-middle white-space-nowrap text-start pe-0 ps-1">
-                                                            <input asp-for="AttrProductVariants[i].AttrAttribute" type="text" class="form-control" id="attrAttribute@(i)">
-                                                        </td>
-                                                        <td class="align-middle white-space-nowrap text-start pe-0 ps-1">
-                                                            <div class="btn-reveal-trigger position-static">
-                                                                <a href="#" class="nav-item mx-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#edit_modifiers">
-                                                                    <i class="fas fa-edit text-success"></i>
-                                                                </a>
-                                                                <a href="#" class="nav-item mx-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#delete_modal">
-                                                                    <i class="fas fa-trash text-danger"></i>
-                                                                </a>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="row align-items-center justify-content-between pe-0 fs-9">
-                                        <div class="col-auto d-flex">
-                                            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p>
-                                            <a class="fw-semibold" href="#!" data-list-view="*">@Html.SmartLocalize("View all")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                                            <a class="fw-semibold d-none" href="#!" data-list-view="less">@Html.SmartLocalize("View Less")<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-                                        </div>
-                                        <div class="col-auto d-flex">
-                                            <button class="page-link" data-list-pagination="prev">
-                                                <span class="fas fa-chevron-left"></span>
-                                            </button>
-                                            <ul class="mb-0 pagination"></ul>
-                                            <button class="page-link pe-0" data-list-pagination="next">
-                                                <span class="fas fa-chevron-right"></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <script>
-                                document.getElementById("showPriceTable").addEventListener("click", function () {
-                                    document.getElementById("priceTable").style.display = "block";
-                                });
-                            </script>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <script>
+                // Dynamic Show/Hide logic
+                document.querySelectorAll(".attr-checkbox").forEach(cb => {
+                    cb.addEventListener("change", function () {
+                        const targetId = this.getAttribute("data-target");
+                        const targetDiv = document.getElementById(targetId);
+                        targetDiv.style.display = this.checked ? "block" : "none";
+                    });
+                });
+
+                document.getElementById("showPriceTable").addEventListener("click", function () {
+                    document.getElementById("priceTable").style.display = "block";
+                });
+            </script>
 
 
 
-            @*<div class="accordion-item mb-4">
-                <h2 class="accordion-header" id="headingSpacingThree">
-                    <div class="accordion-button collapsed bg-body-highlight" data-bs-toggle="collapse" data-bs-target="#SpacingThree"
-                         aria-expanded="true" aria-controls="SpacingThree">
-                        <div class="d-flex align-items-center justify-content-between flex-fill">
-                            <h5 class="d-flex align-items-center my-3">
-                                <i data-feather="image" class="text-primary me-2"></i><span>@Html.SmartLocalize("Barcode")</span>
-                            </h5>
-                        </div>
-                    </div>
-                </h2>
-                <div id="SpacingThree" class="accordion-collapse collapse show" aria-labelledby="headingSpacingThree">
-                    <div class="accordion-body">
-                        <div class="text-editor add-list add mt-4">
-                            <div class="row">
-                                <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="AttrSkuTemplate">@Html.SmartLocalize("SKU")</label>
-                                        <span asp-validation-for="AttrSkuTemplate" class="text-danger"></span>
-                                        <select asp-for="AttrSkuTemplate" class="form-select searchableSelect" id="attrSkuTemplate" aria-label="Barcode Template">
-                                            <option value="Standard">@Html.SmartLocalize("213647534")</option>
-                                            <option value="A4">@Html.SmartLocalize("231345345")</option>
-                                            <option value="Jewelry">@Html.SmartLocalize("434367")</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="AttrBarcodeTemplate">@Html.SmartLocalize("Barcode Template")</label>
-                                        <span asp-validation-for="AttrBarcodeTemplate" class="text-danger"></span>
-                                        <select asp-for="AttrBarcodeTemplate" class="form-select searchableSelect" id="attrBarcodeTemplate" aria-label="Barcode Template">
-                                            <option value="Standard">@Html.SmartLocalize("Standard")</option>
-                                            <option value="A4">@Html.SmartLocalize("A4")</option>
-                                            <option value="Jewelry">@Html.SmartLocalize("Jewelry")</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                                    <div class="mb-3">
-                                        <div class="justify-content-center" id="divStandard">
-                                            <div class="row col-lg-9 col-md-9 border py-3">
-                                                <div class="col-lg-3 col-md-3">
-                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
-                                                </div>
-                                                <div class="col-lg-3 col-md-3">
-                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
-                                                </div>
-                                                <div class="col-lg-3 col-md-3">
-                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
-                                                </div>
+            @*<input type="hidden" id="hiddenImageNames" name="AttrUploadedImageNames" />
+        <input type="hidden" id="hiddenSelectedValues" name="AttrSelectedValuesJson" />*@
 
-                                            </div>
-                                        </div>
-                                        <div class="justify-content-center" id="divA4" style="display: none;">
-                                            <div class="row col-lg-9 col-md-9 border py-3">
-                                                <div class="col-lg-3 col-md-3">
-                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
-                                                </div>
-                                                <div class="col-lg-3 col-md-3">
-                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
-                                                </div>
-                                                <div class="col-lg-3 col-md-3">
-                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
-                                                </div>
-                                                <div class="col-lg-3 col-md-3">
-                                                    <img src="~/media/products/phone-add-1.png" alt="Standard Barcode">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="justify-content-center" id="divJewelry" style="display: none;">
-                                            <div class="row col-lg-9 col-md-9 border py-3">
-                                                <div class="col-lg-3 col-md-3">
-                                                    <img src="" alt="Standard Barcode">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function () {
-                                        const barcodeTemplateSelect = document.getElementById('attrBarcodeTemplate');
-                                        const divStandard = document.getElementById('divStandard');
-                                        const divA4 = document.getElementById('divA4');
-                                        const divJewelry = document.getElementById('divJewelry');
-                                        function updateDivVisibility(selectedTemplate) {
-                                            divStandard.style.display = 'none';
-                                            divA4.style.display = 'none';
-                                            divJewelry.style.display = 'none';
-                                            switch (selectedTemplate) {
-                                                case 'Standard':
-                                                    divStandard.style.display = 'flex';
-                                                    divA4.style.display = 'none';
-                                                    divJewelry.style.display = 'none';
-                                                    break;
-                                                case 'A4':
-                                                    divStandard.style.display = 'none';
-                                                    divA4.style.display = 'flex';
-                                                    divJewelry.style.display = 'none';
-                                                    break;
-                                                case 'Jewelry':
-                                                    divJewelry.style.display = 'flex';
-                                                    divStandard.style.display = 'none';
-                                                    divA4.style.display = 'none';
-                                                    break;
-                                                default:
-                                                    console.warn('Unexpected template value:', selectedTemplate);
-                                                    break;
-                                            }
-                                        }
-                                        updateDivVisibility(barcodeTemplateSelect.value);
-                                        barcodeTemplateSelect.addEventListener('change', function () {
-                                            updateDivVisibility(barcodeTemplateSelect.value);
-                                        });
-                                    });
-                                </script>
-                                <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                                    <div class="mb-3">
-                                        <a class="btn btn-info mt-4" href="#" id="attrPrintButton">
-                                            <i class="fa fa-print me-2" aria-hidden="true"></i>@Html.SmartLocalize("Print")
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>*@
-
-
+            <input type="hidden" id="attrHiddenImageNames" name="AttrUploadedImageNames" />
+            <input type="hidden" id="attrHiddenSelectedValues" name="AttrSelectedValuesJson" />
 
 
 
@@ -879,15 +425,15 @@
                             <div class="p-3  rounded d-flex align-items-center border mb-3">
                                 <div class=" d-flex align-items-center">
                                     <div class="form-check form-check-inline">
-                                        <input asp-for="AttrWarrantiesEnabled" class="form-check-input" type="checkbox" id="attrWarranties" value="option1">
+                                        <input asp-for="AttrWarrantiesEnabled" class="form-check-input" type="checkbox" id="attrWarranties" value="">
                                         <label class="form-check-label" for="attrWarranties">@Html.SmartLocalize("Warranties")</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input asp-for="AttrManufacturerEnabled" class="form-check-input" type="checkbox" id="attrManufacturer" value="option2">
+                                        <input asp-for="AttrManufacturerEnabled" class="form-check-input" type="checkbox" id="attrManufacturer" value="">
                                         <label class="form-check-label" for="attrManufacturer">@Html.SmartLocalize("Manufacturer")</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input asp-for="AttrExpiryEnabled" class="form-check-input" type="checkbox" id="attrExpiry" value="option2">
+                                        <input asp-for="AttrExpiryEnabled" class="form-check-input" type="checkbox" id="attrExpiry" value="">
                                         <label class="form-check-label" for="attrExpiry">@Html.SmartLocalize("Expiry")</label>
                                     </div>
                                 </div>
