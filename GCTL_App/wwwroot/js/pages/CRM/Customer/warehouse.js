@@ -143,14 +143,15 @@
                         console.log("Server response:", data);
 
                         if (response.ok && data.success) {
-                            alert(data.message || "Customer saved successfully!");
+                            resetForm(form)
+                            toastr.success(data.message || "Customer saved successfully!");
                         } else {
-                            alert(data.message || "Something went wrong!");
+                            toastr.error(data.message || "Something went wrong!");
                         }
                     }
                 } catch (error) {
                     console.error("Error during fetch:", error);
-                    alert("Network or server error");
+                    toastr.error("Network or server error");
                 } finally {
                     this.disabled = false;
                     this.textContent = "Save & Exit";
@@ -222,4 +223,14 @@
 
         return isValid;
     }
+
+    //#region reset Form
+    function resetForm(form) {
+        if (!form) return;
+
+        form.reset();
+        $(form).find("select").val(null).trigger("change");
+        $(form).find("input[type=checkbox], input[type=radio]").prop("checked", false);
+    }
+    //#endregion
 };

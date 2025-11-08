@@ -10,7 +10,7 @@ window.initCustomerForm = function (root) {
 
         phoneIds.forEach(selector => {
             const input = document.querySelector(selector);
-            if (!input || window.itiMap[selector]) return; // use window.itiMap safely
+            if (!input || window.itiMap[selector]) return; 
 
             const iti = window.intlTelInput(input, {
                 separateDialCode: true,
@@ -19,7 +19,7 @@ window.initCustomerForm = function (root) {
                 utilsScript: "js/utils.js"
             });
 
-            window.itiMap[selector] = iti; // store instance
+            window.itiMap[selector] = iti; 
         });
     }
 
@@ -28,7 +28,7 @@ window.initCustomerForm = function (root) {
     const countrySelect = root.querySelector("#CountryID");
     if (countrySelect && !countrySelect.dataset.listenerAttached) {
         countrySelect.dataset.listenerAttached = true;
-        // 🔥 Smart dropdown parent: modal if inside one, else body
+
         let dropdownParent = $(countrySelect).closest('.modal');
         if (dropdownParent.length === 0) {
             dropdownParent = $(document.body);
@@ -95,6 +95,7 @@ window.initCustomerForm = function (root) {
         saveBtn.dataset.listenerAttached = true;
         if (saveBtn) {
             saveBtn.addEventListener("click", async function () {
+                getAllContactData();
                 const form = this.closest("form");
                 if (!form) return;
 
@@ -105,6 +106,22 @@ window.initCustomerForm = function (root) {
                     // Optional: Convert empty string to null for numbers
                     jsonData[key] = value === "" ? null : value;
                 });
+                // Collect contacts dynamically
+                const contacts = [];
+                document.querySelectorAll("#root-cotact-field .contact-item").forEach(row => {
+                    const contact = {
+                        FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
+                        LastName: row.querySelector('[name*=".LastName"]')?.value || '',
+                        Designation: row.querySelector('[name*=".Designation"]')?.value || '',
+                        Phone: row.querySelector('[name*=".Phone"')?.value || '',
+                        OtherPhone: row.querySelector('[name*=".OtherPhone"')?.value || '',
+                        Email: row.querySelector('[name*=".Email"')?.value || ''
+                    };
+                    contacts.push(contact);
+                });
+
+                jsonData.ContactInformations = contacts;
+
                 console.log("Customer data (sending):", jsonData);
 
                 try {
@@ -123,15 +140,17 @@ window.initCustomerForm = function (root) {
                         const data = await response.json();
                         console.log("Server response:", data);
                         if (response.ok && data.success) {
-                            alert(data.message || "Customer saved successfully!");
+                            toastr.success(data.message || "Customer saved successfully!");
+                            resetForm(form)
+                            
                         } else {
-                            alert(data.message || "Something went wrong!");
+                            toastr.error(data.message || "Something went wrong!");
                         }
                     }
                     
                 } catch (error) {
                     console.error("Error during fetch:", error);
-                    alert("Network or server error");
+                    toastr.error("Network or server error");
                 } finally {
                     this.disabled = false;
                     this.textContent = "Save & Exit";
@@ -183,39 +202,39 @@ window.initCustomerForm = function (root) {
         }
         $("#contact-btn").on("click", function (e) {
             e.preventDefault();
-
             let rootHtmlDiv = $("#root-cotact-field");
+            const index = rootHtmlDiv.children(".contact-item").length;
+
             const html = `
-        <div class="row gap-2 mx-2">
+        <div class="row gap-2 mx-2 contact-item">
             <div class="col p-0 mb-2">
                 <label class="form-label">First Name</label>
-                <input type="text" class="form-control" placeholder="">
+                <input type="text" name="ContactInformations[${index}].FirstName" class="form-control" placeholder="">
             </div>
             <div class="col p-0 mb-2">
                 <label class="form-label">Last Name</label>
-                <input type="text" class="form-control" placeholder="">
+                <input type="text" name="ContactInformations[${index}].LastName" class="form-control" placeholder="">
             </div>
             <div class="col p-0 mb-2">
                 <label class="form-label">Designation</label>
-                <input type="text" class="form-control" placeholder="">
+                <input type="text" name="ContactInformations[${index}].Designation" class="form-control" placeholder="">
             </div>
             <div class="col p-0 mb-2">
                 <label class="form-label">Phone 1</label>
-                <input type="text" class="form-control" placeholder="">
+                <input type="text" name="ContactInformations[${index}].Phone" class="form-control" placeholder="">
             </div>
             <div class="col p-0 mb-2">
                 <label class="form-label">Phone 2</label>
-                <input type="text" class="form-control" placeholder="">
+                <input type="text" name="ContactInformations[${index}].OtherPhone" class="form-control" placeholder="">
             </div>
-            <div class="col p-0 mb-2">
+            <div class="col p-0 mb-2"> 
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" placeholder="">
+                <input type="email" name="ContactInformations[${index}].Email" class="form-control" placeholder="">
             </div>
-        </div>
-    `;
-
+        </div>`;
             rootHtmlDiv.append(html);
         });
+
     }
 
     // #region Google Maps Autocomplete
@@ -270,4 +289,44 @@ window.initCustomerForm = function (root) {
         }
         
     }
+
 };
+
+//#region reset Form
+function resetForm(form) {
+    if (!form) return;
+
+    form.reset();
+    $(form).find("select").val(null).trigger("change");
+    $(form).find("input[type=checkbox], input[type=radio]").prop("checked", false);
+}
+//#endregion
+
+
+function getAllContactData() {
+    const rootDiv = document.querySelector("#root-cotact-field");
+    const contactRows = rootDiv.querySelectorAll(".row"); // each dynamically added contact row
+
+    const contacts = [];
+
+    document.querySelectorAll("#root-cotact-field .contact-item").forEach(row => {
+        const contact = {
+            FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
+            LastName: row.querySelector('[name*=".LastName"]')?.value || '',
+            Designation: row.querySelector('[name*=".Designation"]')?.value || '',
+            Phone: row.querySelector('[name*=".Phone"]')?.value || '',
+            OtherPhone: row.querySelector('[name*=".OtherPhone"]')?.value || '',
+            Email: row.querySelector('[name*=".Email"]')?.value || ''
+        };
+        contacts.push(contact);
+    });
+    console.log("All contacts:", contacts);
+
+    // Optionally show in page
+    const outputDiv = document.getElementById("outputContacts");
+    if (outputDiv) {
+        outputDiv.textContent = JSON.stringify(contacts, null, 2);
+    }
+
+    return contacts;
+}

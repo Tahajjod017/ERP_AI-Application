@@ -37,7 +37,7 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region GetWarehouseList
-        public async Task<IActionResult> GetWarehouseList(int customerID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "GenderName", string sortOrder = "asc")
+        public async Task<IActionResult> GetWarehouseList(int customerID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "WarehouseName", string sortOrder = "asc")
         {
             var result = await _customerService.GetAllWarehouseAsync(customerID, await GetCurrentOrganizationIdAsync() ?? 0, pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
 
@@ -46,7 +46,7 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region GetShippingList
-        public async Task<IActionResult> GetShippingList(int customerID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "GenderName", string sortOrder = "asc")
+        public async Task<IActionResult> GetShippingList(int customerID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "WarehouseName", string sortOrder = "asc")
         {
             var result = await _customerService.GetAllShippingAsync(customerID, await GetCurrentOrganizationIdAsync() ?? 0, pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
 
@@ -198,7 +198,7 @@ namespace GCTL_App.Controllers.CRM
 
         #endregion
 
-        #region GetWarehouseInfo
+        #region GetShippingInfo
         [HttpPost]
         public async Task<IActionResult> GetShippingInfo(int customerID, int shippingId)
         {
@@ -216,15 +216,15 @@ namespace GCTL_App.Controllers.CRM
 
         #endregion
 
-        #region getCustomerInfo
-        [HttpPost]
-        public async Task<IActionResult> GetBranchList(int id)
+        #region GetBranchList
+        [HttpGet]
+        public async Task<IActionResult> GetBranchList(int customerID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "WarehouseName", string sortOrder = "asc")
         {
             try
             {
-                if (id <= 0)
+                if (customerID <= 0)
                     return Json(new { success = false, message = "Id is not accessible" });
-                var result = await _customerService.GetBranchList(id, await GetCurrentOrganizationIdAsync() ?? 0);
+                var result = await _customerService.GetAllBranchAsync(customerID, await GetCurrentOrganizationIdAsync() ?? 0, pageNumber, pageSize, searchTerm, sortColumn, sortOrder);
                 return Ok(result);
             }
             catch (Exception ex) {

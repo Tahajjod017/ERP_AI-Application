@@ -7,7 +7,7 @@
     let currentSortColumn = 'CreatedAt';
     let currentSortOrder = 'desc';
     function loadTableData(sortColumn, sortOrder) {
-        var searchTerm = $("#gender-searchInput").val();
+        var searchTerm = $("#customer-searchInput").val();
 
         $.ajax({
             url: '/Customers/GetAll',
@@ -21,7 +21,7 @@
             },
             success: function (response) {
                 showDev(response);
-                var tableBody = $("#gender-tBody");
+                var tableBody = $("#customer-tBody");
                 tableBody.empty();
                 if (response.data.length > 0) {
                     response.data.forEach(function (item, index) {
@@ -29,7 +29,7 @@
                         tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle  py-1" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input gender-selectItem" data-id="${item.id}" />
+                                <input type="checkbox" class="form-check-input customer-selectItem" data-id="${item.id}" />
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap p-0 py-1">${rowIndex}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.name}</td>
@@ -41,7 +41,6 @@
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3  py-1">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 customer-edit" href="#!" id="customer-edit" data-id="${item.id}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 gender-bulkEdit" href="#!" id="customer-single-delete" data-id="${item.id}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -53,8 +52,8 @@
 
                 var paginationInfo = response.paginationInfo;
 
-                $("#gender-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
-                $("#gender-totalCount").text(`(${paginationInfo.totalItems})`);
+                $("#customer-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
+                $("#customer-totalCount").text(`(${paginationInfo.totalItems})`);
 
                 updatePagination("#customer-paginationLinks", "#customer-prevPageBtn", "#customer-nextPageBtn", paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
             },
@@ -65,27 +64,41 @@
 
 
     }
-    loadTableData(currentSortColumn, currentSortOrder);
+
+    loadTableData();
 
     //#endregion
 
-    //#region get All Branch
-    $(document).on("click", ".branchListBtn", function () {
-        let id = $(this).data("id");
-        var tableBody = $("#branchOffcanvas-body");
-        tableBody.empty();
+    //#region GetAll branch Data
+    var bcurrentPage = 1;
+    var bpageSize = 5;
+    let bcurrentSortColumn = 'CreatedAt';
+    let bcurrentSortOrder = 'desc';
+    function loadWBranchTableData(customerID, sortColumn, sortOrder) {
+        var searchTerm = $("#branch-searchInput").val();
 
         $.ajax({
             url: '/Customers/GetBranchList',
-            method: 'POST',
-            data: { id: id },
+            method: 'GET',
+            data: {
+                customerID: customerID,
+                pageNumber: bcurrentPage,
+                pageSize: bpageSize,
+                searchTerm: searchTerm,
+                sortColumn: sortColumn,
+                sortOrder: sortOrder
+            },
             success: function (response) {
-                if (response && response.length > 0) {
-                    response.forEach(function (item, index) {
+                showDev(response);
+                var tableBody = $("#branchOffcanvas-body");
+                tableBody.empty();
+                if (response.data.length > 0) {
+                    response.data.forEach(function (item, index) {
+                        var rowIndex = (currentPage - 1) * pageSize + index + 1;
                         tableBody.append(`
                         <tr class="position-static">
                             <td class="text-center text-middle align-middle py-1" style="width: 5%;">
-                                <input type="checkbox" class="form-check-input gender-selectItem" data-id="${item.bid}" />
+                                <input type="checkbox" class="form-check-input branch-selectItem" data-id="${item.bid}" />
                             </td>
                             <td class="text-center text-middle align-middle white-space-nowrap ps-0 py-1">${index + 1}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bName}</td>
@@ -96,16 +109,16 @@
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bFullAddress}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3">
-                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 branch-edit" href="#!" id="customer-edit" data-cid="${item.bCustomerID}" data-bid="${item.bid}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 gender-bulkEdit" href="#!" id="customer-single-delete" data-id="${item.bid}"><span class="fas fa-trash"></span></a>
+                                    <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 branch-edit" href="#!" data-cid="${item.bCustomerID}" data-bid="${item.bid}"><i class="fas fa-edit"></i></a>
                                 </div>
                             </td>
                         </tr>
                     `);
                     });
                 } else {
-                    tableBody.append('<tr><td colspan="6" class="text-center">No data available</td></tr>');
+                    tableBody.append('<tr><td colspan="7" class="text-center">No data available</td></tr>');
                 }
+
                 var paginationInfo = response.paginationInfo;
 
                 $("#branch-paginationInfo").text(`Showing ${paginationInfo.startItem} to ${paginationInfo.endItem} Items of ${paginationInfo.totalItems}`);
@@ -113,11 +126,18 @@
 
                 updatePagination("#branch-paginationLinks", "#branch-prevPageBtn", "#branch-nextPageBtn", paginationInfo.pageNumbers, paginationInfo.currentPage, paginationInfo.totalPages);
             },
-            error: function (res) {
-                console.error("Error fetching branches:", res);
+            error: function () {
+                console.log("Error! Fetching all data.");
             }
         });
-    });
+    }
+    //#endregion
+
+    //#region shipping TableDataGet
+    $(document).on("click", ".branchListBtn", function () {
+        var customerID = $(this).data("id");
+        loadWBranchTableData(customerID, scurrentSortColumn, scurrentSortOrder);
+    })
     //#endregion
 
     //#region customer edit
@@ -172,6 +192,7 @@
                 branchId: bid,
             },
             success: function (response) {
+                showDev(response)
                 changeTab("#branch-tab", "#branch");
                 hideOffcanvas('branchOffcanvasBottom');
 
@@ -377,7 +398,6 @@
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 warehouse-edit" href="#!" data-cid="${item.wCustomerID}" data-wid="${item.wid}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 warehouse-bulkEdit" href="#!" id="customer-single-delete" data-id="${item.wid}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -450,7 +470,6 @@
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 shipping-edit" href="#!" data-cid="${item.sCustomerID}" data-sid="${item.sid}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 shipping-bulkEdit" href="#!" id="shipping-single-delete" data-id="${item.sid}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -480,4 +499,7 @@
         loadWShippingTableData(customerID, scurrentSortColumn, scurrentSortOrder);
     })
     //#endregion
+    return { loadTableData };
 };
+
+
