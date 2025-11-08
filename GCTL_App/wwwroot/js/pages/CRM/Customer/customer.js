@@ -106,6 +106,22 @@ window.initCustomerForm = function (root) {
                     // Optional: Convert empty string to null for numbers
                     jsonData[key] = value === "" ? null : value;
                 });
+                // Collect contacts dynamically
+                const contacts = [];
+                document.querySelectorAll("#root-cotact-field .contact-item").forEach(row => {
+                    const contact = {
+                        FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
+                        LastName: row.querySelector('[name*=".LastName"]')?.value || '',
+                        Designation: row.querySelector('[name*=".Designation"]')?.value || '',
+                        Phone: row.querySelector('[name*=".Phone"')?.value || '',
+                        OtherPhone: row.querySelector('[name*=".OtherPhone"')?.value || '',
+                        Email: row.querySelector('[name*=".Email"')?.value || ''
+                    };
+                    contacts.push(contact);
+                });
+
+                jsonData.ContactInformations = contacts;
+
                 console.log("Customer data (sending):", jsonData);
 
                 try {
@@ -186,39 +202,39 @@ window.initCustomerForm = function (root) {
         }
         $("#contact-btn").on("click", function (e) {
             e.preventDefault();
-
             let rootHtmlDiv = $("#root-cotact-field");
+            const index = rootHtmlDiv.children(".contact-item").length;
+
             const html = `
-        <div class="row gap-2 mx-2">
+        <div class="row gap-2 mx-2 contact-item">
             <div class="col p-0 mb-2">
                 <label class="form-label">First Name</label>
-                <input type="text" class="form-control" placeholder="">
+                <input type="text" name="ContactInformations[${index}].FirstName" class="form-control" placeholder="">
             </div>
             <div class="col p-0 mb-2">
                 <label class="form-label">Last Name</label>
-                <input type="text" class="form-control" placeholder="">
+                <input type="text" name="ContactInformations[${index}].LastName" class="form-control" placeholder="">
             </div>
             <div class="col p-0 mb-2">
                 <label class="form-label">Designation</label>
-                <input type="text" class="form-control" placeholder="">
+                <input type="text" name="ContactInformations[${index}].Designation" class="form-control" placeholder="">
             </div>
             <div class="col p-0 mb-2">
                 <label class="form-label">Phone 1</label>
-                <input type="text" class="form-control" placeholder="">
+                <input type="text" name="ContactInformations[${index}].Phone" class="form-control" placeholder="">
             </div>
             <div class="col p-0 mb-2">
                 <label class="form-label">Phone 2</label>
-                <input type="text" class="form-control" placeholder="">
+                <input type="text" name="ContactInformations[${index}].OtherPhone" class="form-control" placeholder="">
             </div>
-            <div class="col p-0 mb-2">
+            <div class="col p-0 mb-2"> 
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" placeholder="">
+                <input type="email" name="ContactInformations[${index}].Email" class="form-control" placeholder="">
             </div>
-        </div>
-    `;
-
+        </div>`;
             rootHtmlDiv.append(html);
         });
+
     }
 
     // #region Google Maps Autocomplete
@@ -293,17 +309,17 @@ function getAllContactData() {
 
     const contacts = [];
 
-    contactRows.forEach(row => {
-        const firstName = row.querySelector('input[placeholder="First Name"]')?.value || '';
-        const lastName = row.querySelector('input[placeholder="Last Name"]')?.value || '';
-        const designation = row.querySelector('input[placeholder="Designation"]')?.value || '';
-        const phone1 = row.querySelector('input[placeholder="Phone 1"]')?.value || '';
-        const phone2 = row.querySelector('input[placeholder="Phone 2"]')?.value || '';
-        const email = row.querySelector('input[placeholder="Email"]')?.value || '';
-
-        contacts.push({ firstName, lastName, designation, phone1, phone2, email });
+    document.querySelectorAll("#root-cotact-field .contact-item").forEach(row => {
+        const contact = {
+            FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
+            LastName: row.querySelector('[name*=".LastName"]')?.value || '',
+            Designation: row.querySelector('[name*=".Designation"]')?.value || '',
+            Phone: row.querySelector('[name*=".Phone"]')?.value || '',
+            OtherPhone: row.querySelector('[name*=".OtherPhone"]')?.value || '',
+            Email: row.querySelector('[name*=".Email"]')?.value || ''
+        };
+        contacts.push(contact);
     });
-
     console.log("All contacts:", contacts);
 
     // Optionally show in page

@@ -41,7 +41,6 @@
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3  py-1">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 customer-edit" href="#!" id="customer-edit" data-id="${item.id}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 customer-bulkEdit" href="#!" id="customer-single-delete" data-id="${item.id}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -111,7 +110,6 @@
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 branch-edit" href="#!" data-cid="${item.bCustomerID}" data-bid="${item.bid}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 branch-bulkEdit" href="#!" id="branch-single-delete" data-id="${item.bid}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -400,7 +398,6 @@
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 warehouse-edit" href="#!" data-cid="${item.wCustomerID}" data-wid="${item.wid}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 warehouse-bulkEdit" href="#!" id="customer-single-delete" data-id="${item.wid}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
@@ -473,7 +470,6 @@
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 shipping-edit" href="#!" data-cid="${item.sCustomerID}" data-sid="${item.sid}"><i class="fas fa-edit"></i></a>
-                                    <a class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0 shipping-bulkEdit" href="#!" id="shipping-single-delete" data-id="${item.sid}"><span class="fas fa-trash"></span></a>
                                 </div>
                             </td>
                         </tr>
