@@ -75,6 +75,8 @@ public partial class Products
 
     public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();
 
+    public virtual ICollection<ProductAttributes> ProductAttributes { get; set; } = new List<ProductAttributes>();
+
     public virtual ICollection<ProductBarcodes> ProductBarcodes { get; set; } = new List<ProductBarcodes>();
 
     public virtual ProductBrands? ProductBrand { get; set; }
