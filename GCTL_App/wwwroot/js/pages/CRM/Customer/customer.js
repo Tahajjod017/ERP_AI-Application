@@ -95,7 +95,6 @@ window.initCustomerForm = function (root) {
         saveBtn.dataset.listenerAttached = true;
         if (saveBtn) {
             saveBtn.addEventListener("click", async function () {
-                getAllContactData();
                 const form = this.closest("form");
                 if (!form) return;
 
@@ -110,6 +109,7 @@ window.initCustomerForm = function (root) {
                 const contacts = [];
                 document.querySelectorAll("#root-cotact-field .contact-item").forEach(row => {
                     const contact = {
+                        Id: row.querySelector('[name*=".Id"]')?.value || 0,
                         FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
                         LastName: row.querySelector('[name*=".LastName"]')?.value || '',
                         Designation: row.querySelector('[name*=".Designation"]')?.value || '',
@@ -193,49 +193,102 @@ window.initCustomerForm = function (root) {
         return isValid;
     }
 
-    const contactInit = root.querySelector("#contact-btn");
+    // === Load existing contacts or initialize empty contact section ===
+    function loadExistingContacts(contactList = []) {
+        const rootHtmlDiv = $("#root-cotact-field");
+        rootHtmlDiv.empty();
+
+        // If no contactList given, just keep it empty (used for new customers)
+        if (!Array.isArray(contactList)) contactList = [];
+
+        contactList.forEach((c, index) => {
+            rootHtmlDiv.append(getContactRowHtml(index, c));
+        });
+    }
+    window.loadExistingContacts = loadExistingContacts;
+
+    // === Reusable function to build each contact HTML ===
+    function getContactRowHtml(index, c = {}) {
+        return `
+    <div class="row align-items-center gap-2 mx-2 mb-2 contact-item border rounded p-2">
+        <!-- Index number -->
+        <div class="col-auto text-center align-self-center fw-bold fs-6">
+            ${index + 1}
+        </div>
+
+        <!-- Input fields -->
+        <div class="col">
+            <div class="row g-2">
+                <input type="number" name="ContactInformations[${index}].Id" value="${c.id ?? 0}" hidden>
+
+                <div class="col">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="ContactInformations[${index}].FirstName" class="form-control" value="${c.firstName ?? ''}">
+                </div>
+                <div class="col">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="ContactInformations[${index}].LastName" class="form-control" value="${c.lastName ?? ''}">
+                </div>
+                <div class="col">
+                    <label class="form-label">Designation</label>
+                    <input type="text" name="ContactInformations[${index}].Designation" class="form-control" value="${c.designation ?? ''}">
+                </div>
+                <div class="col">
+                    <label class="form-label">Phone 1</label>
+                    <input type="text" name="ContactInformations[${index}].Phone" class="form-control" value="${c.phone ?? ''}">
+                </div>
+                <div class="col">
+                    <label class="form-label">Phone 2</label>
+                    <input type="text" name="ContactInformations[${index}].OtherPhone" class="form-control" value="${c.otherPhone ?? ''}">
+                </div>
+                <div class="col">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="ContactInformations[${index}].Email" class="form-control" value="${c.email ?? ''}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete button -->
+        <div class="col-auto text-center">
+            <button type="button" class="btn btn-sm btn-danger remove-contact" title="Remove Contact">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </div>`;
+    }
+
+
+    // === Event Binding ===
+    const contactInit = document.querySelector("#contact-btn");
     if (contactInit && !contactInit.dataset.listenerAttached) {
         contactInit.dataset.listenerAttached = true;
-        let dropdownParent = $(contactInit).closest('.modal');
-        if (dropdownParent.length === 0) {
-            dropdownParent = $(document.body);
-        }
+
+        // Add Contact
         $("#contact-btn").on("click", function (e) {
             e.preventDefault();
-            let rootHtmlDiv = $("#root-cotact-field");
+            const rootHtmlDiv = $("#root-cotact-field");
             const index = rootHtmlDiv.children(".contact-item").length;
-
-            const html = `
-        <div class="row gap-2 mx-2 contact-item">
-            <div class="col p-0 mb-2">
-                <label class="form-label">First Name</label>
-                <input type="text" name="ContactInformations[${index}].FirstName" class="form-control" placeholder="">
-            </div>
-            <div class="col p-0 mb-2">
-                <label class="form-label">Last Name</label>
-                <input type="text" name="ContactInformations[${index}].LastName" class="form-control" placeholder="">
-            </div>
-            <div class="col p-0 mb-2">
-                <label class="form-label">Designation</label>
-                <input type="text" name="ContactInformations[${index}].Designation" class="form-control" placeholder="">
-            </div>
-            <div class="col p-0 mb-2">
-                <label class="form-label">Phone 1</label>
-                <input type="text" name="ContactInformations[${index}].Phone" class="form-control" placeholder="">
-            </div>
-            <div class="col p-0 mb-2">
-                <label class="form-label">Phone 2</label>
-                <input type="text" name="ContactInformations[${index}].OtherPhone" class="form-control" placeholder="">
-            </div>
-            <div class="col p-0 mb-2"> 
-                <label class="form-label">Email</label>
-                <input type="email" name="ContactInformations[${index}].Email" class="form-control" placeholder="">
-            </div>
-        </div>`;
-            rootHtmlDiv.append(html);
+            rootHtmlDiv.append(getContactRowHtml(index));
         });
 
+        // Delete Contact (delegated)
+        $(document).on("click", ".remove-contact", function () {
+            $(this).closest(".contact-item").remove();
+
+            // Re-index remaining contacts
+            $("#root-cotact-field .contact-item").each(function (i) {
+                $(this).find(".fw-bold").text(i + 1);
+                $(this).find("input").each(function () {
+                    const nameAttr = $(this).attr("name");
+                    const newName = nameAttr.replace(/\[\d+\]/, `[${i}]`);
+                    $(this).attr("name", newName);
+                });
+            });
+        });
     }
+//#endregion
+
+
 
     // #region Google Maps Autocomplete
     const mapApiInit = root.querySelector("#FullAddress");
@@ -303,30 +356,31 @@ function resetForm(form) {
 //#endregion
 
 
-function getAllContactData() {
-    const rootDiv = document.querySelector("#root-cotact-field");
-    const contactRows = rootDiv.querySelectorAll(".row"); // each dynamically added contact row
+//function getAllContactData() {
+//    const rootDiv = document.querySelector("#root-cotact-field");
+//    const contactRows = rootDiv.querySelectorAll(".row"); // each dynamically added contact row
 
-    const contacts = [];
+//    const contacts = [];
 
-    document.querySelectorAll("#root-cotact-field .contact-item").forEach(row => {
-        const contact = {
-            FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
-            LastName: row.querySelector('[name*=".LastName"]')?.value || '',
-            Designation: row.querySelector('[name*=".Designation"]')?.value || '',
-            Phone: row.querySelector('[name*=".Phone"]')?.value || '',
-            OtherPhone: row.querySelector('[name*=".OtherPhone"]')?.value || '',
-            Email: row.querySelector('[name*=".Email"]')?.value || ''
-        };
-        contacts.push(contact);
-    });
-    console.log("All contacts:", contacts);
+//    document.querySelectorAll("#root-cotact-field .contact-item").forEach(row => {
+//        const contact = {
+//            Id: row.querySelector('[name*=".Id"]')?.value || 0,
+//            FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
+//            LastName: row.querySelector('[name*=".LastName"]')?.value || '',
+//            Designation: row.querySelector('[name*=".Designation"]')?.value || '',
+//            Phone: row.querySelector('[name*=".Phone"]')?.value || '',
+//            OtherPhone: row.querySelector('[name*=".OtherPhone"]')?.value || '',
+//            Email: row.querySelector('[name*=".Email"]')?.value || ''
+//        };
+//        contacts.push(contact);
+//    });
+//    console.log("All contacts:", contacts);
 
-    // Optionally show in page
-    const outputDiv = document.getElementById("outputContacts");
-    if (outputDiv) {
-        outputDiv.textContent = JSON.stringify(contacts, null, 2);
-    }
+//    // Optionally show in page
+//    const outputDiv = document.getElementById("outputContacts");
+//    if (outputDiv) {
+//        outputDiv.textContent = JSON.stringify(contacts, null, 2);
+//    }
 
-    return contacts;
-}
+//    return contacts;
+//}

@@ -10,7 +10,6 @@ namespace GCTL_App.Controllers.CRM
 {
     public class CustomersController : BaseController
     {
-        //added comment
         #region service & repository
         private readonly ICustomerService _customerService;
         public CustomersController(ITranslateService translateService, IUserProfileService userProfileService, ICustomerService customerService) : base(translateService, userProfileService)
@@ -65,10 +64,23 @@ namespace GCTL_App.Controllers.CRM
                     return Json(new { success = false, message = "Invalid data" });
                 var result = new ReturnView();
                 if (model.Id == 0)
+                {
                     result = await _customerService.CreateCustomer(model);
-                else 
+                    if (model.ContactInformations != null && model.ContactInformations.Any())
+                    {
+                        await _customerService.CreateOrUpdateContactInfo(model.ContactInformations, result.Id ?? 0);
+                    }
+                }
+                else
+                {
                     result = await _customerService.UpdateCustomer(model);
-                    return Json(new { success = result.Success, message = result.Message });
+                    if (model.ContactInformations != null && model.ContactInformations.Any())
+                    {
+                        await _customerService.CreateOrUpdateContactInfo(model.ContactInformations, result.Id ?? 0);
+                    }
+                }
+                   
+                return Json(new { success = result.Success, message = result.Message });
             }
             catch (Exception ex) {
 

@@ -1,6 +1,7 @@
 ﻿window.initBranchForm = function (root) {
     root = root || document;
 
+
     function initPhoneFields() {
         const phoneIds = [
             `#BPhone`, `#bOtherPhone`

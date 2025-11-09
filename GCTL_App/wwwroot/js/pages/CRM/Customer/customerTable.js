@@ -1,5 +1,8 @@
 ﻿window.dataTable = function (root) {
     root = root || document;
+    // Import the function from file1.js
+    //import { loadExistingContacts } from './customer.js';
+
 
     //#region GetAll customer Data
     var currentPage = 1;
@@ -38,6 +41,7 @@
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="branchListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#branchOffcanvasBottom" aria-controls="branchOffcanvasBottom">${item.totalBranch}</a></td>
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="warehouseListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#warehouseOffcanvasBottom" aria-controls="warehouseOffcanvasBottom">${item.totalWarehouse}</a></td>
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="shippingListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#shippingOffcanvasBottom" aria-controls="shippingOffcanvasBottom">${item.totalShipping}</a></td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="shippingListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#shippingOffcanvasBottom" aria-controls="shippingOffcanvasBottom">${item.totalContactPerson}</a></td>
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3  py-1">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 customer-edit" href="#!" id="customer-edit" data-id="${item.id}"><i class="fas fa-edit"></i></a>
@@ -158,6 +162,9 @@
                 select2ScrollingDataSet('#CountryID', response.countryID, response.countryName)
                 select2ScrollingDataSet('#OrganizationTypeID', response.organizationTypeID, response.organizationTypeName)
                 setFormValues(form, response);
+                if (response.contactInformations?.length > 0) {
+                    loadExistingContacts(response.contactInformations);
+                }
             },
             error: function (res) {
                 showDev(res)
