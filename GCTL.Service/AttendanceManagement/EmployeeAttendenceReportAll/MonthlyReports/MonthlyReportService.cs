@@ -3,12 +3,17 @@ using GCTL.Core.Enums;
 using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls;
+using GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence;
+using GCTL.Core.ViewModels.MasterSetup.Statuses;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using QuestPDF.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -18,6 +23,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Helpers;
 using System.Web.Mvc;
+using static GCTL.Service.AdminSettings.GeneralSettings.UtcTimeHelper;
 
 namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyReports
 {
@@ -29,14 +35,18 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyR
         private readonly HolidayHelper _holidayHelper;
         private readonly WeekendHelper _weekendHelper;
         private readonly LeaveHelper _leaveHelper;
+        private readonly IGenericRepository<EmployeeOfficeInfo> _genericEmployeeOfficeInfo;
+        private readonly ILocalizationContext _localizationContext;
 
-        public MonthlyReportService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, HolidayHelper holidayHelper, WeekendHelper weekendHelper, LeaveHelper leaveHelper) : base(genericRepository)
+        public MonthlyReportService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, HolidayHelper holidayHelper, WeekendHelper weekendHelper, LeaveHelper leaveHelper, IGenericRepository<EmployeeOfficeInfo> genericEmployeeOfficeInfo, ILocalizationContext localizationContext) : base(genericRepository)
         {
             _userInfoService = userInfoService;
             _genericRepository = genericRepository;
             _holidayHelper = holidayHelper;
             _weekendHelper = weekendHelper;
             _leaveHelper = leaveHelper;
+            _genericEmployeeOfficeInfo = genericEmployeeOfficeInfo;
+            _localizationContext = localizationContext;
         }
 
         //public async Task<SelectListItem> GetMonthAsync()
@@ -108,136 +118,80 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyR
             }
         }
 
-        public async Task<IActionResult> GetMonthlyAttendanceReport(int? departmentId, int? organizationId, int? employeeId, string monthyear)
+        public async Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetMonthlyAttendanceReport(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+                              string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null, List<int>? departmentIds = null, List<int>? employeeIds = null, string? monthyear = null, int? employeeId = null)
          {
-            // Parse the month and year to filter attendance for that period
-            var startDate = DateOnly.ParseExact(monthyear + "-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var endDate = startDate.AddMonths(1).AddDays(-1);  // To get the last day of the month
 
-            // Get the weekend days for the organization and branch (Assuming the weekend days are defined as Sunday = 0 and Saturday = 6)
-            var weekendWeekdays = _weekendHelper.GetWeekendWeekdayNumbers(organizationId.Value, null); // Pass the branch ID if needed
-
-            // Get active holidays within the given date range
-            var holidays = _holidayHelper.GetActiveHolidays(organizationId.Value, startDate.ToDateTime(new TimeOnly(0, 0)), endDate.ToDateTime(new TimeOnly(0, 0)));
-
-            // Get leave information for the employee within the given date range
-            var leaveTypes = _leaveHelper.GetLeaveDatesAndTypes(employeeId.Value, startDate.ToDateTime(new TimeOnly(0, 0)), endDate.ToDateTime(new TimeOnly(0, 0)));
-
-            // Query the Attendance and Shifts tables with the filters
             var query = _genericRepository.All()
-                .AsNoTracking()  // Disable change tracking for better performance since we are only reading data
-                .Include(x => x.Employee)  // Include the related Employee data
-                .Include(x => x.Status)    // Include the related Status data
-                .Include(x => x.Shift)     // Include the related Shift data
-                .Where(x => x.DeletedAt == null &&  // Filter for deleted records
-                           (employeeId == null || x.EmployeeID == employeeId) &&
-                           (organizationId == null || x.Shift.OrganizationID == organizationId) &&
-                           x.AttendanceDate >= startDate && x.AttendanceDate <= endDate)
-                .Select(x => new
+                         .AsNoTracking()
+                         .Include(x => x.Employee)
+                         .Include(x => x.Employee.EmployeeOfficeInfoCreatedByNavigation)
+                         .Include(x => x.Status)
+                         .Include(x => x.Shift)
+                         .Where(x => x.DeletedAt == null && x.EmployeeID == employeeId); // Filter by EmployeeID
+
+            var employeeDepartments = await _genericEmployeeOfficeInfo.All()
+                                         .Include(e => e.Department) // Ensure the Department is loaded
+                                         .Where(e => e.DeletedAt == null)
+                                         .Select(e => new
+                                         {
+                                             EmployeeID = e.EmployeeID,
+                                             DepartmentName = e.Department != null && e.Department.DepartmentName != null
+                                                              ? e.Department.DepartmentName
+                                                              : "-"
+                                         })
+                                         .ToListAsync();
+
+
+            var result = await PaginationService<Attendance, AttendanceEmployeeReportVM>.GetPaginatedData(
+                query,
+                pageNumber,
+                pageSize,
+                searchTerm,
+                sortColumn,
+                sortOrder,
+                term => x => EF.Functions.Like(x.Status.StatusName, $"%{term}%"),
+
+                x => new AttendanceEmployeeReportVM
                 {
-                    x.AttendanceID,
-                    x.EmployeeID,
-                    x.AttendanceDate,
-                    x.StatusID,
-                    x.ShiftID,
-                    x.CheckInTime,
-                    x.CheckOutTime,
-                    x.Remarks,
-                    x.LIP,
-                    x.LMAC,
-                    x.OfficeTimeMinutes,
-                    x.OvertimeMinutes,
-                    x.LateTimeMinutes,
-                    x.EarlyTimeMinutes,
-                    x.WorkingTimeMinutes,
-                    ShiftName = x.Shift.ShiftName,  // Access ShiftName from the Shift navigation property
-                    OrganizationID = x.Shift.OrganizationID // Access OrganizationID from Shift
+                    AttendanceID = x.AttendanceID,
+
+                    EmployeeID = x.EmployeeID,
+                    EmployeeName = x.Employee?.FirstName + " " + x.Employee?.LastName ?? "-",
+                    JobTitle = employeeDepartments.FirstOrDefault(e => e.EmployeeID == x.EmployeeID)?.DepartmentName ?? "-",
+                    ShiftID = x.ShiftID,
+                    ShiftName = x.Shift?.ShiftName ?? "-",
+                    StatusID = x.StatusID,
+                    StatusName = x.Status?.StatusName ?? "-",
+                    AttendanceDate = x.AttendanceDate.ToString("yyyy-MM-dd") ?? "-",
+                    CheckInTime = x.CheckInTime.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(x.CheckInTime.Value, DateTimeKind.Utc), _localizationContext) : "-",
+                    CheckOutTime = x.CheckOutTime.HasValue ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(DateTime.SpecifyKind(x.CheckOutTime.Value, DateTimeKind.Utc), _localizationContext)  // Convert UTC to local
+                                    : "-",
+                    //LateHour = x.LateTimeMinutes.HasValue ? x.LateTimeMinutes.Value.ToString("F2") : "-",
+                    LateHour = FormatTime(x.LateTimeMinutes),
+                    //EarlyHour = x.EarlyTimeMinutes.HasValue ? x.EarlyTimeMinutes.Value.ToString("F2") : "-",
+                    EarlyHour = FormatTime(x.EarlyTimeMinutes),
+                    RegularHour = FormatTime(x.OfficeTimeMinutes),
+                    OvertimeHour = FormatTime(x.OvertimeMinutes),
+                    WorkingHours = FormatTime(x.WorkingTimeMinutes),
+                    Break = FormatTime(x.BreakTimeMinutes),
+
+                    CreatedBy = x.CreatedBy,
+                    UpdatedBy = x.UpdatedBy
                 });
 
-            var attendanceData = await query.ToListAsync();
-
-            // Total days in the month
-            var totalDaysInMonth = DateTime.DaysInMonth(startDate.Year, startDate.Month);
-
-            // Organize the result in a way that matches the format needed by the front-end
-            var formattedData = new List<AttendanceMonthlyReport>();
-
-            for (int day = 0; day <= totalDaysInMonth; day++)
-            {
-                var attendanceItem = attendanceData.FirstOrDefault(item => item.AttendanceDate.Day == day);
-
-                bool isLeaveDay = leaveTypes.Any(leave => leave.leaveDate.Day == day);
-
-                // Here we check if the current day is a weekend (Sunday = 0, Saturday = 6)
-                bool isWeekend = (startDate.AddDays(day - 1).DayOfWeek == DayOfWeek.Sunday || startDate.AddDays(day - 1).DayOfWeek == DayOfWeek.Saturday);
-
-                bool isHoliday = holidays.Any(h =>
-                    new DateTime(startDate.Year, startDate.Month, day) >= h.StartDate &&
-                    new DateTime(startDate.Year, startDate.Month, day) <= h.EndDate);
-
-                if (attendanceItem != null)
-                {
-                    // If attendance data is available for the day, populate it
-                    formattedData.Add(new AttendanceMonthlyReport
-                    {
-                        Date = day.ToString("00"),
-                        Shift = attendanceItem.ShiftName,
-                        CheckInTime = attendanceItem.CheckInTime?.ToString("hh:mm tt"),
-                        CheckOutTime = attendanceItem.CheckOutTime?.ToString("hh:mm tt"),
-                        RegularHour = attendanceItem.OfficeTimeMinutes,
-                        OvertimeHour = attendanceItem.OvertimeMinutes,
-                        LateHour = attendanceItem.LateTimeMinutes,
-                        EarlyHour = attendanceItem.EarlyTimeMinutes,
-                        WorkingHour = attendanceItem.WorkingTimeMinutes,
-                        Remarks = attendanceItem.Remarks,
-                        Status = attendanceItem.StatusID ?? 0,  // Default status if null
-                        SpecialDay = "Workday"
-                    });
-                }
-                else if (isLeaveDay || isWeekend || isHoliday)
-                {
-                    // If the day is a leave day, weekend, or holiday
-                    formattedData.Add(new AttendanceMonthlyReport
-                    {
-                        Date = day.ToString("00"),
-                        Shift = "-",
-                        CheckInTime = null,
-                        CheckOutTime = null,
-                        RegularHour = null,
-                        OvertimeHour = null,
-                        LateHour = null,
-                        EarlyHour = null,
-                        WorkingHour = null,
-                        Remarks = "-",
-                        Status = 0, // Status as 0 for leave, weekend, or holiday
-                        SpecialDay = GetSpecialDayLabel(day, isLeaveDay, isWeekend, isHoliday)
-                    });
-                }
-                else
-                {
-                    // If no data exists for the day (absent)
-                    formattedData.Add(new AttendanceMonthlyReport
-                    {
-                        Date = day.ToString("00"),
-                        Shift = "-",
-                        CheckInTime = null,
-                        CheckOutTime = null,
-                        RegularHour = null,
-                        OvertimeHour = null,
-                        LateHour = null,
-                        EarlyHour = null,
-                        WorkingHour = null,
-                        Remarks = "Absent",
-                        Status = 0, // Mark as absent
-                        SpecialDay = "Absent"
-                    });
-                }
-            }
-
-            // Returning the formatted data as a JSON response
-            return new Microsoft.AspNetCore.Mvc.JsonResult(formattedData);
+            return result;
         }
+        private string FormatTime(int? minutes)
+        {
+            if (!minutes.HasValue)
+                return "-";
 
+            int hours = minutes.Value / 60;
+            int remainingMinutes = minutes.Value % 60;
+
+            return $"{hours:D2}:{remainingMinutes:D2}"; // Formats as "HH:mm"
+        }
         // Helper method to get the special day label
         private string GetSpecialDayLabel(int day, bool isLeaveDay, bool isWeekend, bool isHoliday)
         {
