@@ -10,6 +10,7 @@ namespace GCTL_App.Controllers.CRM
 {
     public class CustomersController : BaseController
     {
+        //added comment
         #region service & repository
         private readonly ICustomerService _customerService;
         public CustomersController(ITranslateService translateService, IUserProfileService userProfileService, ICustomerService customerService) : base(translateService, userProfileService)
