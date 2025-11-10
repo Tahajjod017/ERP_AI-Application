@@ -48,17 +48,49 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyRe
             // Process and return the holidays (you can display them in a view or return as JSON)
             return View(activeHolidays); // or return Json(activeHolidays);
         }
-        [HttpGet]
-        public IActionResult SomeAction2()
+        public async Task<IActionResult> GetMonthlyIndividual(
+                                int pageNumber = 1,
+                                int pageSize = 5,
+                                string searchTerm = "",
+                                string sortColumn = "AttendanceID",
+                                string sortOrder = "desc",
+                                int? organizationID = null,
+                                List<int>? departmentIds = null,
+                                List<int>? employeeIds = null,
+                                string? monthYear = null,
+                                int? employeeId = null)
         {
-            var departmentId = (int?)null;
-            var organizationId = 1;
-            var employeeId = 14;
-            var monthyear = "2025-07"; // Example month-year string
-            var dataOfMonth = _monthlyReportService.GetMonthlyAttendanceReport(departmentId, organizationId, employeeId, monthyear);
+            // Use current employee ID if not provided
+            var resolvedEmployeeId = employeeId ?? await GetCurrentEmployeeIdAsync();
+
+            // Use current month if not provided
+            var resolvedMonthYear = monthYear ?? DateTime.Now.ToString("yyyy-MM");
+
+            var dataOfMonth = await _monthlyReportService.GetMonthlyAttendanceReport(
+                pageNumber,
+                pageSize,
+                searchTerm,
+                sortColumn,
+                sortOrder,
+                organizationID,
+                departmentIds,
+                employeeIds,
+                resolvedMonthYear,
+                resolvedEmployeeId);
 
             return Json(dataOfMonth);
         }
+        //[HttpGet]
+        //public IActionResult SomeAction2()
+        //{
+        //    var departmentId = (int?)null;
+        //    var organizationId = 1;
+        //    var employeeId = 14;
+        //    var monthyear = "2025-07"; // Example month-year string
+        //    var dataOfMonth = _monthlyReportService.GetMonthlyAttendanceReport(departmentId, organizationId, employeeId, monthyear);
+
+        //    return Json(dataOfMonth);
+        //}
 
 
     }

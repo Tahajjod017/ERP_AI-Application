@@ -19,7 +19,9 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyR
         //Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetAllEmployee(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         //                       string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null, int? month = null, int? departmentId = null);
 
-        Task<IActionResult> GetMonthlyAttendanceReport(int? departmentId, int? organizationId, int? employeeId, string monthyear);
+        //Task<IActionResult> GetMonthlyAttendanceReport(int? departmentId, int? organizationId, int? employeeId, string monthyear);
+        Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetMonthlyAttendanceReport(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
+                            string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null, List<int>? departmentIds = null, List<int>? employeeIds = null, string? monthyear=null , int? employeeId = null);
         //Task<List<SelectListItem>> GetOrganizationsAsync();
         //Task<List<SelectListItem>> GetMonthAsync();
         //Task<List<SelectListItem>> GetDepartmentAsync();
