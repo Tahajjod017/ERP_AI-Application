@@ -210,7 +210,7 @@ window.initCustomerForm = function (root) {
     // === Reusable function to build each contact HTML ===
     function getContactRowHtml(index, c = {}) {
         return `
-    <div class="row align-items-center gap-2 mx-2 mb-2 contact-item border rounded p-2">
+    <div class="row align-items-center gap-2 mx-2 mb-2 contact-item p-2">
         <!-- Index number -->
         <div class="col-auto text-center align-self-center fw-bold fs-6">
             ${index + 1}
@@ -250,7 +250,7 @@ window.initCustomerForm = function (root) {
 
         <!-- Delete button -->
         <div class="col-auto text-center">
-            <button type="button" class="btn btn-sm btn-danger remove-contact" title="Remove Contact">
+            <button type="button" class="btn btn-sm btn-danger remove-contact" title="Remove Contact" class="removeBtn">
                 <i class="fas fa-trash"></i>
             </button>
         </div>
@@ -273,8 +273,9 @@ window.initCustomerForm = function (root) {
 
         // Delete Contact (delegated)
         $(document).on("click", ".remove-contact", function () {
+            debugger;
             $(this).closest(".contact-item").remove();
-
+            customToaster.success("Hello");
             // Re-index remaining contacts
             $("#root-cotact-field .contact-item").each(function (i) {
                 $(this).find(".fw-bold").text(i + 1);
@@ -286,8 +287,7 @@ window.initCustomerForm = function (root) {
             });
         });
     }
-//#endregion
-
+    //#endregion
 
 
     // #region Google Maps Autocomplete

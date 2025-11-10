@@ -1,26 +1,36 @@
 ﻿window.initBranchForm = function (root) {
     root = root || document;
 
+    try {
+        // Ensure global itiMap exists
+        window.itiMap = window.itiMap || {};
 
-    function initPhoneFields() {
-        const phoneIds = [
-            `#BPhone`, `#bOtherPhone`
-        ];
+        function initPhoneFields() {
+            const phoneIds = ['#BPhone', '#bOtherPhone'];
 
-        phoneIds.forEach(selector => {
-            const input = document.querySelector(selector);
-            if (!input || window.itiMap[selector]) return; // use window.itiMap safely
+            phoneIds.forEach(selector => {
+                const input = document.querySelector(selector);
+                if (!input || window.itiMap[selector]) return; // skip if already initialized
 
-            const iti = window.intlTelInput(input, {
-                separateDialCode: true,
-                initialCountry: 'bd',
-                preferredCountries: ['bd', 'in', 'us'],
-                utilsScript: "js/utils.js"
+                const iti = window.intlTelInput(input, {
+                    separateDialCode: true,
+                    initialCountry: 'bd',
+                    preferredCountries: ['bd', 'in', 'us'],
+                    utilsScript: "js/utils.js" // load utils for formatting/validation
+                });
+
+                window.itiMap[selector] = iti;
             });
+        }
 
-            window.itiMap[selector] = iti;
-        });
+        // ✅ Call the function once DOM is ready
+        document.addEventListener("DOMContentLoaded", initPhoneFields);
+
+    } catch (error) {
+        console.error("Error initializing phone fields:", error);
     }
+
+
 
     initPhoneFields();
 
