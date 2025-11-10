@@ -156,12 +156,16 @@
 
                 </div>
                 <div class="contact-div mx-4 mx-2">
-                    <div class="fw-bold fs-7 mx-3 mb-2 mt-4">Add Contact Information</div>
+                    <div class="row justify-content-center mx-2 mt-4 mb-2 rounded p-1" style="background-color: rgb(243, 244, 247);">
+                       <div class="col-12 d-flex justify-content-between align-items-center">
+                            <div> <div class="fw-bold fs-7 mb-2 mt-2">Contact Information</div></div>
+                            <div class="btn border-2 border-dark" id="contact-btn">Add Contact</div>
+                       </div>
+                   </div>
                     <div id="root-cotact-field"></div>
                 </div>
                 
-                <div class="modal-footer border-0 pt-0 pb-2 mx-5 gap-2 d-flex justify-content-between">
-                    <a class="btn btn-primary" id="contact-btn"><i class="fa-solid fa-plus"></i></a>
+                <div class="modal-footer border-0 pt-0 pb-2 mx-5 mt-2 gap-2 d-flex justify-content-end">
                     <div>
                         <button type="button" class="btn btn-light" id="saveAndgoWarehouseTab">Save & Add Branch</button>
                         <button type="button" class="btn btn-primary" id="saveAndExit">Save & Exit</button>
@@ -172,12 +176,14 @@
     </div>
 </div>
 
-<script src="~/js/pages/CRM/intlTelInput.min.js"></script>
-<script src="~/js/pages/CRM/utils.js"></script>
-<script src="~/js/pages/crm/Customer/customer.js"></script>
+<script src="~/js/pages/CRM/intlTelInput.min.js" defer></script>
+<script src="~/js/pages/CRM/utils.js" defer></script>
+
+<script src="~/js/pages/crm/Customer/customer.js" defer></script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyChjt63jehy9gPiaf9Nwan4PT72TmaHdio&libraries=places"></script>
 
 @section Scripts{
+    <script src="~/js/pages/CRM/customeToaster.js"></script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

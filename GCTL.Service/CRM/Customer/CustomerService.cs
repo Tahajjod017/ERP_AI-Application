@@ -1,11 +1,18 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.Customer;
+using GCTL.Core.ViewModels.MasterSetup.Religions;
 using GCTL.Data.Models;
+using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Finance.TransactionAccount;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Index.HPRtree;
+using Newtonsoft.Json;
+using static Dapper.SqlMapper;
 
 namespace GCTL.Service.CRM.Customer
 {
@@ -21,6 +28,8 @@ namespace GCTL.Service.CRM.Customer
         private readonly IGenericRepository<CompanyBranches> _companyBranchesRepository;
         private readonly IGenericRepository<CompanyBranchAddresses> _companyBranchAddressesRepository;
         private readonly IGenericRepository<OrganizationTypes> _organizationTypesRepository;
+        private readonly IGenericRepository<OtherContacts> _otherContactsRepository;
+        private readonly IUserInfoService _userInfoService;
         #region Added by Md. Rakib Hasan
         private readonly IGenericRepository<Heads> _heads;
         private readonly IGenericRepository<HeadDetails> _headDetails;
@@ -28,7 +37,7 @@ namespace GCTL.Service.CRM.Customer
         private readonly IGenericRepository<SubAccounts> _subAccounts;
         private readonly ITransactionAccountService _transactionAccountService;
         #endregion
-        public CustomerService(IGenericRepository<Country> countryRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, ITransactionAccountService transactionAccountService, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<OrganizationTypes> organizationTypesRepository)
+        public CustomerService(IGenericRepository<Country> countryRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, ITransactionAccountService transactionAccountService, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<OrganizationTypes> organizationTypesRepository, IGenericRepository<OtherContacts> otherContactsRepository,IUserInfoService userInfoService)
         {
             _customersRepository = customersRepository;
             _addressesRepository = addressesRepository;
@@ -44,6 +53,8 @@ namespace GCTL.Service.CRM.Customer
             _companyBranchesRepository = companyBranchesRepository;
             _companyBranchAddressesRepository = companyBranchAddressesRepository;
             _organizationTypesRepository = organizationTypesRepository;
+            _otherContactsRepository = otherContactsRepository;
+            _userInfoService = userInfoService;
         }
         #endregion
 
@@ -78,6 +89,9 @@ namespace GCTL.Service.CRM.Customer
             catch (Exception) { return false; }
             
         }
+        #endregion
+
+        #region Create Customer
         public async Task<ReturnView> CreateCustomer (CustomerVM model)
         {
             // Begin transaction
@@ -227,7 +241,7 @@ namespace GCTL.Service.CRM.Customer
                     LMAC = model.LMAC,
                 };
                 await _customerAddressesRepository.AddAsync(customerAddress);
-                returnID = customerAddress.CustomerAddressID;
+                returnID = addresses.AddressID;
 
                 // Commit transaction
                 await _customersRepository.CommitTransactionAsync();
@@ -252,6 +266,92 @@ namespace GCTL.Service.CRM.Customer
                 };
             }
         }
+        #endregion
+
+        #region contact create and Update
+        // create and update in one contact function
+        public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model, int addressId)
+        {
+            var result = new ReturnView();
+
+            if (addressId <= 0 || model == null || !model.Any())
+            {
+                return new ReturnView { Success = false, Message = "Invalid address ID or no contacts provided" };
+            }
+
+            try
+            {
+                await _customersRepository.BeginTransactionAsync();
+
+                foreach (var c in model)
+                {
+                    if (string.IsNullOrEmpty(c.FirstName) && string.IsNullOrEmpty(c.Phone))
+                        continue;
+
+                    OtherContacts contact = null;
+
+                    if (c.Id > 0)
+                    {
+                        // Try to get existing contact
+                        contact = await _otherContactsRepository.GetByIdAsync(c.Id);
+                    }
+
+                    if (contact != null)
+                    {
+                        // Update existing contact
+                        contact.AddressID = addressId;
+                        contact.FirstName = c.FirstName;
+                        contact.LastName = c.LastName;
+                        contact.Designation = c.Designation;
+                        contact.Phone1 = c.Phone;
+                        contact.Phone2 = c.OtherPhone;
+                        contact.Email = c.Email;
+                        contact.LIP = c.LIP;
+                        contact.LMAC = c.LMAC;
+                        contact.UpdatedAt = DateTime.UtcNow;
+                        contact.UpdatedBy = c.UpdatedBy;
+
+                        await _otherContactsRepository.UpdateAsync(contact);
+                        await _userInfoService.ActionLogAsync("OtherContacts", ActionName.DataUpdated, null, contact, contact.OtherContactID);
+                    }
+                    else
+                    {
+                        // Create new contact
+                        contact = new OtherContacts
+                        {
+                            AddressID = addressId,
+                            FirstName = c.FirstName,
+                            LastName = c.LastName,
+                            Designation = c.Designation,
+                            Phone1 = c.Phone,
+                            Phone2 = c.OtherPhone,
+                            Email = c.Email,
+                            LIP = c.LIP,
+                            LMAC = c.LMAC,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = c.CreatedBy,
+                        };
+
+                        await _otherContactsRepository.AddAsync(contact);
+                        await _userInfoService.ActionLogAsync("OtherContacts", ActionName.DataAdd, null, contact, contact.OtherContactID);
+                    }
+                }
+
+                await _customersRepository.CommitTransactionAsync();
+
+                result.Success = true;
+                result.Message = "Contacts saved successfully";
+            }
+            catch (Exception ex)
+            {
+                await _customersRepository.RollbackTransactionAsync();
+                result.Success = false;
+                result.Message = $"Error saving contacts: {ex.Message}";
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region update customer
@@ -389,7 +489,7 @@ namespace GCTL.Service.CRM.Customer
                 {
                     Success = true,
                     Message = "Customer updated successfully!",
-                    Id = customerObj.CustomerID,
+                    Id = address.AddressID,
                     Name = customerObj.FullName
                 };
             }
@@ -413,6 +513,9 @@ namespace GCTL.Service.CRM.Customer
             try
             {
                 var customer = await _customersRepository.AllActive()
+                    .Include(c => c.CustomerAddresses)
+                        .ThenInclude(ca => ca.Address)
+                            .ThenInclude(c => c.OtherContacts)
                     .Include(c => c.CustomerAddresses)
                         .ThenInclude(ca => ca.Address)
                             .ThenInclude(a => a.Country)
@@ -446,7 +549,7 @@ namespace GCTL.Service.CRM.Customer
                     FirstName = address?.FirstName ?? "",
                     LastName = address?.LastName ?? "",
                     CompnayName = customer.IsPerson == true ? "" : customer.FullName,
-                    OrganizationTypeID = customer.OrganizationType  != null ? customer.OrganizationType.OrganizationTypeID : 0,
+                    OrganizationTypeID = customer.OrganizationType != null ? customer.OrganizationType.OrganizationTypeID : 0,
                     OrganizationTypeName = customer.OrganizationType != null ? customer.OrganizationType.OrganizationTypeName : "",
                     FullAddress = address?.FullAddress ?? "",
                     City = address?.City ?? "",
@@ -460,7 +563,17 @@ namespace GCTL.Service.CRM.Customer
                     CountryID = address?.CountryID,
                     PostalCode = address?.PostalCode ?? "",
                     Longitude = address?.Longitude,
-                    Latitude = address?.Latitude
+                    Latitude = address?.Latitude,
+                    ContactInformations = address != null ? address.OtherContacts.Select(x => new ClintContact
+                    {
+                        Id = x.OtherContactID,
+                        FirstName = x.FirstName ?? string.Empty,
+                        LastName = x.LastName,
+                        Designation = x.Designation,
+                        Phone = x.Phone1 ?? string.Empty,
+                        OtherPhone = x.Phone2,
+                        Email = x.Email
+                    }).ToList() : new List<ClintContact>()
                 };
 
 
@@ -475,7 +588,7 @@ namespace GCTL.Service.CRM.Customer
         {
             try
             {
-                var query = _customersRepository.AllActive().Include(x => x.OrganizationType).Include(x=>x.CustomerAddresses).ThenInclude(x=> x.AddressType).Include(x => x.CompanyWarehouses).Include(x => x.CompanyBranches).Where(t => t.OrganizationID == organizationID);
+                var query = _customersRepository.AllActive().Include(x => x.OrganizationType).Include(x => x.CustomerAddresses).ThenInclude(x=> x.Address).ThenInclude(x=>x.OtherContacts).Include(x=>x.CustomerAddresses).ThenInclude(x=> x.AddressType).Include(x => x.CompanyWarehouses).Include(x => x.CompanyBranches).Where(t => t.OrganizationID == organizationID);
                 query = query.Where(x => x.DeletedAt == null);
 
                 if (!string.IsNullOrEmpty(sortColumn))
@@ -500,6 +613,7 @@ namespace GCTL.Service.CRM.Customer
                         TotalBranch = x.CompanyBranches.Count(),
                         TotalWarehouse = x.CompanyWarehouses.Count(),
                         TotalShipping = x.CustomerAddresses.Where(u => u.AddressType != null && u.AddressType.AddressTypeName == "shipping" ).Count(),
+                        TotalContactPerson = x.CustomerAddresses?.Where(u => u.AddressType != null && (u.AddressType.AddressTypeName == "individual" | u.AddressType.AddressTypeName == "company")).FirstOrDefault()?.Address?.OtherContacts?.Count() ?? 0
                     });
             }
             catch (Exception) { return new PaginationService<Customers, CustomerTableDataVM>.PaginationResult<CustomerTableDataVM>(); }

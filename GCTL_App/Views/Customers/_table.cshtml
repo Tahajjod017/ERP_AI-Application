@@ -64,6 +64,7 @@
                                 <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Branch")</th>
                                 <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Warehouse")</th>
                                 <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Shipping")</th>
+                                <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Contact Info")</th>
                                 <th class="white-space-nowrap align-middle ps-0" scope="col" style="width: 10%;">@Html.SmartLocalize("Action")</th>
                             </tr>
                         </thead>
@@ -93,10 +94,14 @@
 @await Html.PartialAsync("_warehouseOffcanvas")
 
 @await Html.PartialAsync("_shippingOffcanvas")
-
-<script src="~/js/pages/crm/Customer/customerTable.js"></script>
-<script>
-    $(document).ready(function() {
-        window.dataTable(); 
+<script src="~/js/pages/crm/Customer/customer.js" defer></script>
+<script src="~/js/pages/crm/Customer/customerTable.js" defer></script>
+<script defer>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('[data-init]').forEach(el => {
+            const key = el.dataset.init;
+            if (window[key]) window[key](el);
+        });
     });
 </script>
+

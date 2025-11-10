@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.CRM.Customer
 {
-    public class ClintContact
+    public class ClintContact : BaseViewModel
     {
         public int Id { get; set; }
         public string FirstName { get; set; }

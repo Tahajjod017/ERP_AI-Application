@@ -20,6 +20,7 @@ namespace GCTL.Service.CRM.Customer
         Task<PaginationService<Customers, CustomerTableDataVM>.PaginationResult<CustomerTableDataVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CustomerName", string sortOrder = "asc");
         Task<CustomerVM> GetCustomerInfo(int id, int organizationID);
         Task<BranchVM> GetBranchInfo(int customerID, int branchId, int organizationID);
+        Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model, int addressId);
         Task<WarehouseVM> GetWarehouseInfo(int customerID, int branchId, int organizationID);
         Task<PaginationService<CompanyBranches, BranchVM>.PaginationResult<BranchVM>>
          GetAllBranchAsync(
