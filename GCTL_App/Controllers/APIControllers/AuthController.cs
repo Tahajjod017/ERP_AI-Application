@@ -36,13 +36,36 @@ namespace GCTL_App.Controllers.APIControllers
             try
             {
                 var user = await _context.Users
-                    .Include(u => u.Employees)
-                    .ThenInclude(e => e.EmployeeOfficeInfoEmployee)
-                    .Include(eoi => eoi.Organization)
-                    .ThenInclude(o => o.MobileApps)
-                    .FirstOrDefaultAsync(u => u.UserName == model.Username);
-                if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-                    return Unauthorized(new { statusCode = 404, message = "Invalid credentials" });
+                    .AsNoTracking()
+                    .Where(u => u.UserName == model.Username)
+                    .Select(u => new
+                    {
+                        Id = u.EmployeeId,
+                        UserName = u.UserName,
+                        FirstName = u.Employees.FirstName,
+                        LastName = u.Employees.LastName,
+                        EmployeeId = u.Employees.EmployeeCode,
+                        OrgAppVersion = u.Organization.MobileApps.Select(m => m.AppVersion).FirstOrDefault()
+                    }).FirstOrDefaultAsync();
+
+                if (user == null)
+                    return Unauthorized(new { statusCode = 404, message = "User not found." });
+
+                var dbUser = await _userManager.FindByNameAsync(model.Username);
+                if (dbUser == null || !await _userManager.CheckPasswordAsync(dbUser, model.Password))
+                    return Unauthorized(new { statusCode = 404, message = "Password is incorrect." });
+
+                // Compare app versions
+                var currentVersion = user.OrgAppVersion ?? "1.0.0";
+                //if (!string.Equals(currentVersion, model.AppVersion, StringComparison.OrdinalIgnoreCase))
+                //{
+                //    return Ok(new
+                //    {
+                //        statusCode = 426,
+                //        message = $"Please update your app to version {currentVersion}.",
+                //        currentVersion
+                //    });
+                //}
 
                 var authClaims = new List<Claim>
                 {
@@ -54,17 +77,17 @@ namespace GCTL_App.Controllers.APIControllers
 
                 return Ok(new
                 {
-                    id = user.EmployeeId,
+                    id = user.Id,
                     username = user.UserName,
                     password = "",
                     type = "User",
-                    firstName = user.Employees?.FirstName,
-                    lastName = user.Employees?.LastName,
-                    employeeId = user.Employees?.EmployeeCode,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    employeeId = user.EmployeeId,
                     role = "User",
                     token = new JwtSecurityTokenHandler().WriteToken(token),
                     expiration = token.ValidTo,
-                    appVersion = user.Organization?.MobileApps?.FirstOrDefault()?.AppVersion ?? "1.0.0",
+                    appVersion = currentVersion,
                 });
             }
             catch (Exception ex)
