@@ -1,24 +1,19 @@
 ﻿using GCTL.Core.Helpers;
-using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.Customer;
-using GCTL.Core.ViewModels.MasterSetup.Religions;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Finance.TransactionAccount;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Index.HPRtree;
-using Newtonsoft.Json;
-using static Dapper.SqlMapper;
 
 namespace GCTL.Service.CRM.Customer
 {
     public class CustomerService : ICustomerService
     {
-        #region resvices
+        #region resvices & repository
         private readonly IGenericRepository<Customers> _customersRepository;
         private readonly IGenericRepository<Addresses> _addressesRepository;
         private readonly IGenericRepository<AddressTypes> _addressTypesRepository;
@@ -243,13 +238,19 @@ namespace GCTL.Service.CRM.Customer
                 await _customerAddressesRepository.AddAsync(customerAddress);
                 returnID = addresses.AddressID;
 
+                var contactSaveresult = await CreateOrUpdateContactInfo(model.ContactInformations ?? [], returnID);
+                string message = "Customer created successfully with contact information!";
+                if (contactSaveresult.Success == false)
+                {
+                    message = "Customer Saved but contact info not saved";
+                }
                 // Commit transaction
                 await _customersRepository.CommitTransactionAsync();
 
                 return new ReturnView
                 {
                     Success = true,
-                    Message = "Data saved successfully",
+                    Message = message,
                     Id = returnID,
                     Name = returnName
                 };
@@ -275,27 +276,30 @@ namespace GCTL.Service.CRM.Customer
             var result = new ReturnView();
 
             if (addressId <= 0 || model == null || !model.Any())
-            {
                 return new ReturnView { Success = false, Message = "Invalid address ID or no contacts provided" };
-            }
 
             try
             {
                 await _customersRepository.BeginTransactionAsync();
 
-                foreach (var c in model)
+                // Filter valid contacts
+                var validContacts = model.Where(c => !string.IsNullOrEmpty(c.FirstName) || !string.IsNullOrEmpty(c.Phone)).ToList();
+
+                // 1️⃣ Fetch existing contacts in one query
+                var existingContactIds = validContacts.Where(c => c.Id > 0).Select(c => c.Id).ToList();
+                var existingContacts = existingContactIds.Any()
+                    ? await _otherContactsRepository.All()
+                        .Where(c => existingContactIds.Contains(c.OtherContactID))
+                        .ToListAsync()
+                    : new List<OtherContacts>();
+
+                // Lists for batch operations
+                var contactsToAdd = new List<OtherContacts>();
+                var contactsToUpdate = new List<OtherContacts>();
+
+                foreach (var c in validContacts)
                 {
-                    if (string.IsNullOrEmpty(c.FirstName) && string.IsNullOrEmpty(c.Phone))
-                        continue;
-
-                    OtherContacts contact = null;
-
-                    if (c.Id > 0)
-                    {
-                        // Try to get existing contact
-                        contact = await _otherContactsRepository.GetByIdAsync(c.Id);
-                    }
-
+                    var contact = existingContacts.FirstOrDefault(x => x.OtherContactID == c.Id);
                     if (contact != null)
                     {
                         // Update existing contact
@@ -311,13 +315,12 @@ namespace GCTL.Service.CRM.Customer
                         contact.UpdatedAt = DateTime.UtcNow;
                         contact.UpdatedBy = c.UpdatedBy;
 
-                        await _otherContactsRepository.UpdateAsync(contact);
-                        await _userInfoService.ActionLogAsync("OtherContacts", ActionName.DataUpdated, null, contact, contact.OtherContactID);
+                        contactsToUpdate.Add(contact);
                     }
                     else
                     {
                         // Create new contact
-                        contact = new OtherContacts
+                        var newContact = new OtherContacts
                         {
                             AddressID = addressId,
                             FirstName = c.FirstName,
@@ -329,15 +332,42 @@ namespace GCTL.Service.CRM.Customer
                             LIP = c.LIP,
                             LMAC = c.LMAC,
                             CreatedAt = DateTime.UtcNow,
-                            CreatedBy = c.CreatedBy,
+                            CreatedBy = c.CreatedBy
                         };
 
-                        await _otherContactsRepository.AddAsync(contact);
-                        await _userInfoService.ActionLogAsync("OtherContacts", ActionName.DataAdd, null, contact, contact.OtherContactID);
+                        contactsToAdd.Add(newContact);
                     }
                 }
 
+                // 2️⃣ Batch update and add
+                if (contactsToUpdate.Any())
+                {
+                    await _otherContactsRepository.UpdateRangeAsync(contactsToUpdate);
+                }
+
+                if (contactsToAdd.Any())
+                {
+                    await _otherContactsRepository.AddRangeAsync(contactsToAdd);
+                }
+
+                // 3️⃣ Save changes once
                 await _customersRepository.CommitTransactionAsync();
+
+                // 4️⃣ Action logs per contact after batch operations
+                // Prepare tasks
+                var logTasks = new List<Task>();
+
+                logTasks.AddRange(contactsToUpdate.Select(contact =>
+                    _userInfoService.ActionLogAsync("OtherContacts", ActionName.DataUpdated, null, contact, contact.OtherContactID)
+                ));
+
+                logTasks.AddRange(contactsToAdd.Select(contact =>
+                    _userInfoService.ActionLogAsync("OtherContacts", ActionName.DataAdd, null, contact, contact.OtherContactID)
+                ));
+
+                // Run all logs in parallel
+                await Task.WhenAll(logTasks);
+
 
                 result.Success = true;
                 result.Message = "Contacts saved successfully";
@@ -352,6 +382,41 @@ namespace GCTL.Service.CRM.Customer
             return result;
         }
 
+
+        #endregion
+
+        #region delete Contact Info
+        public async Task<ReturnView> DeleteContactPersonAsync(int contactId)
+        {
+            try
+            {
+                var itemObj = await _otherContactsRepository.GetByIdAsync(contactId);
+
+                if (itemObj != null)
+                {
+                    await _otherContactsRepository.DeleteAsync(contactId);
+                    return new ReturnView
+                    {
+                        Success = true,
+                        Message = "Contact Item deleted successfully",
+                    };
+                } else
+                {
+                    return new ReturnView
+                    {
+                        Success = false,
+                        Message = "We did not found this contact information."
+                    };
+                }
+            } catch (Exception)
+            {
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = "Something goes to wrong"
+                };
+            }
+        }
         #endregion
 
         #region update customer
@@ -483,12 +548,19 @@ namespace GCTL.Service.CRM.Customer
                 }
 
                 await _customersRepository.UpdateAsync(customerObj);
+
+                var contactSaveresult = await CreateOrUpdateContactInfo(model.ContactInformations ?? [], address.AddressID);
+                string message = "Customer updated successfully with contact information!";
+                if (contactSaveresult.Success == false)
+                {
+                    message = "Customer Saved but contact info not saved";
+                }
                 await _customersRepository.CommitTransactionAsync();
 
                 return new ReturnView
                 {
                     Success = true,
-                    Message = "Customer updated successfully!",
+                    Message = message,
                     Id = address.AddressID,
                     Name = customerObj.FullName
                 };
@@ -689,14 +761,20 @@ namespace GCTL.Service.CRM.Customer
                     DeletedAt = null,
                 };
                 await _companyBranchAddressesRepository.AddAsync(companyBranchAddress);
-
+                
+                var contactSaveresult = await CreateOrUpdateContactInfo(model.BContactInformations ?? [], addresses.AddressID);
+                string message = "Branch created successfully with contact information!";
+                if (contactSaveresult.Success == false)
+                {
+                    message = "Customer created but contact info not saved";
+                }
                 // Commit transaction
                 await _companyBranchesRepository.CommitTransactionAsync();
 
                 return new ReturnView
                 {
                     Success = true,
-                    Message = "Data saved successfully",
+                    Message = message,
                 };
             }
             catch (Exception ex)
@@ -811,7 +889,7 @@ namespace GCTL.Service.CRM.Customer
                     };
                     await _addressesRepository.AddAsync(newAddress);
 
-                    var newMapping = new CompanyBranchAddresses
+                    var companyBranchAddresse = new CompanyBranchAddresses
                     {
                         AddressTypeID = addressTypeObj.AddressTypeID,
                         AddressID = newAddress.AddressID,
@@ -821,16 +899,26 @@ namespace GCTL.Service.CRM.Customer
                         LIP = model.LIP,
                         LMAC = model.LMAC
                     };
-                    await _companyBranchAddressesRepository.AddAsync(newMapping);
+                    await _companyBranchAddressesRepository.AddAsync(companyBranchAddresse);
                 }
-
+                var result = new ReturnView();
+                if (branchAddress != null && branchAddress.Address != null)
+                {
+                    result = await CreateOrUpdateContactInfo(model.BContactInformations ?? [], branchAddress.Address.AddressID);
+                }
+                
+                string message = "Branch updated successfully with contact information!";
+                if (result.Success == false)
+                {
+                    message = "Customer updated but contact info not saved";
+                }
                 // Commit transaction
                 await _companyBranchesRepository.CommitTransactionAsync();
 
                 return new ReturnView
                 {
                     Success = true,
-                    Message = "Branch updated successfully"
+                    Message = message
                 };
             }
             catch (Exception ex)
@@ -896,15 +984,14 @@ namespace GCTL.Service.CRM.Customer
         #endregion
 
         #region Get CompanyBranchList
-        public async Task<PaginationService<CompanyBranches, BranchVM>.PaginationResult<BranchVM>>
- GetAllBranchAsync(
-     int companyID,
-     int organizationID,
-     int pageNumber = 1,
-     int pageSize = 5,
-     string searchTerm = "",
-     string sortColumn = "BranchName",
-     string sortOrder = "asc")
+        public async Task<PaginationService<CompanyBranches, BranchVM>.PaginationResult<BranchVM>> GetAllBranchAsync(
+            int companyID,
+            int organizationID,
+            int pageNumber = 1,
+            int pageSize = 5,
+            string searchTerm = "",
+            string sortColumn = "BranchName",
+            string sortOrder = "asc")
         {
             try
             {
@@ -998,7 +1085,8 @@ namespace GCTL.Service.CRM.Customer
                             .Select(a => a.Address != null && a.Address.Country != null
                                 ? a.Address.Country.CountryName
                                 : null)
-                            .FirstOrDefault() ?? ""
+                            .FirstOrDefault() ?? "",
+                        BTotalContactPerson = x.CompanyBranchAddresses?.Where(u => u.AddressType != null && (u.AddressType.AddressTypeName == "branch")).FirstOrDefault()?.Address?.OtherContacts?.Count() ?? 0
                     });
 
                 return result;
@@ -1361,6 +1449,53 @@ namespace GCTL.Service.CRM.Customer
 
         #endregion
 
+        #region Get GetWarehouseInfo
+        public async Task<WarehouseVM> GetWarehouseInfo(int customerID, int branchId, int organizationID)
+        {
+            try
+            {
+                var branch = await _companyWarehousesRepository.AllActive()
+                    .Include(b => b.Customer)
+                    .Include(b => b.CompanyWarehouseAddresses)
+                        .ThenInclude(cba => cba.Address)
+                            .ThenInclude(a => a.Country)
+                    .Where(b => b.CustomerID == customerID &&
+                                b.WarehouseID == branchId &&
+                                b.Customer.OrganizationID == organizationID)
+                    .Select(b => new WarehouseVM
+                    {
+                        Wid = b.WarehouseID,
+                        WCustomerID = b.CustomerID,
+                        WName = b.WarehouseName ?? "",
+                        WCustomerName = b.Customer.FullName,
+                        WFirstName = b.CompanyWarehouseAddresses.Select(a => a.Address.FirstName).FirstOrDefault() ?? "",
+                        WLastName = b.CompanyWarehouseAddresses.Select(a => a.Address.LastName).FirstOrDefault() ?? "",
+                        WEmail = b.CompanyWarehouseAddresses.Select(a => a.Address.Email).FirstOrDefault() ?? "",
+                        WFullAddress = b.CompanyWarehouseAddresses.Select(a => a.Address.FullAddress).FirstOrDefault() ?? "",
+                        WAdditionaladdress = b.CompanyWarehouseAddresses.Select(a => a.Address.Additionaladdress).FirstOrDefault() ?? "",
+                        WCity = b.CompanyWarehouseAddresses.Select(a => a.Address.City).FirstOrDefault() ?? "",
+                        WState = b.CompanyWarehouseAddresses.Select(a => a.Address.State).FirstOrDefault() ?? "",
+                        WStreet = b.CompanyWarehouseAddresses.Select(a => a.Address.Street).FirstOrDefault() ?? "",
+                        WPostalCode = b.CompanyWarehouseAddresses.Select(a => a.Address.PostalCode).FirstOrDefault() ?? "",
+                        WPhone = b.CompanyWarehouseAddresses.Select(a => a.Address.Phone).FirstOrDefault() ?? "",
+                        WOtherPhone = b.CompanyWarehouseAddresses.Select(a => a.Address.OtherPhone).FirstOrDefault() ?? "",
+                        WCountryID = b.CompanyWarehouseAddresses.Select(a => a.Address.CountryID).FirstOrDefault(),
+                        WCountryName = b.CompanyWarehouseAddresses.Select(a => a.Address.Country.CountryName).FirstOrDefault(),
+                        WLongitude = b.CompanyWarehouseAddresses.Select(a => a.Address.Longitude).FirstOrDefault(),
+                        WLatitude = b.CompanyWarehouseAddresses.Select(a => a.Address.Latitude).FirstOrDefault(),
+                    })
+                    .FirstOrDefaultAsync();
+
+                return branch ?? new WarehouseVM();
+            }
+            catch
+            {
+                return new WarehouseVM();
+            }
+        }
+
+        #endregion
+
         #region GetAllShippingAsync
         public async Task<PaginationService<CustomerAddresses, ShippingVM>.PaginationResult<ShippingVM>>
 GetAllShippingAsync(
@@ -1447,53 +1582,6 @@ GetAllShippingAsync(
             }
         }
 
-
-        #endregion
-
-        #region Get GetWarehouseInfo
-        public async Task<WarehouseVM> GetWarehouseInfo(int customerID, int branchId, int organizationID)
-        {
-            try
-            {
-                var branch = await _companyWarehousesRepository.AllActive()
-                    .Include(b => b.Customer)
-                    .Include(b => b.CompanyWarehouseAddresses)
-                        .ThenInclude(cba => cba.Address)
-                            .ThenInclude(a => a.Country)
-                    .Where(b => b.CustomerID == customerID &&
-                                b.WarehouseID == branchId &&
-                                b.Customer.OrganizationID == organizationID)
-                    .Select(b => new WarehouseVM
-                    {
-                        Wid = b.WarehouseID,
-                        WCustomerID = b.CustomerID,
-                        WName = b.WarehouseName ?? "",
-                        WCustomerName = b.Customer.FullName,
-                        WFirstName = b.CompanyWarehouseAddresses.Select(a => a.Address.FirstName).FirstOrDefault() ?? "",
-                        WLastName = b.CompanyWarehouseAddresses.Select(a => a.Address.LastName).FirstOrDefault() ?? "",
-                        WEmail = b.CompanyWarehouseAddresses.Select(a => a.Address.Email).FirstOrDefault() ?? "",
-                        WFullAddress = b.CompanyWarehouseAddresses.Select(a => a.Address.FullAddress).FirstOrDefault() ?? "",
-                        WAdditionaladdress = b.CompanyWarehouseAddresses.Select(a => a.Address.Additionaladdress).FirstOrDefault() ?? "",
-                        WCity = b.CompanyWarehouseAddresses.Select(a => a.Address.City).FirstOrDefault() ?? "",
-                        WState = b.CompanyWarehouseAddresses.Select(a => a.Address.State).FirstOrDefault() ?? "",
-                        WStreet = b.CompanyWarehouseAddresses.Select(a => a.Address.Street).FirstOrDefault() ?? "",
-                        WPostalCode = b.CompanyWarehouseAddresses.Select(a => a.Address.PostalCode).FirstOrDefault() ?? "",
-                        WPhone = b.CompanyWarehouseAddresses.Select(a => a.Address.Phone).FirstOrDefault() ?? "",
-                        WOtherPhone = b.CompanyWarehouseAddresses.Select(a => a.Address.OtherPhone).FirstOrDefault() ?? "",
-                        WCountryID = b.CompanyWarehouseAddresses.Select(a => a.Address.CountryID).FirstOrDefault(),
-                        WCountryName = b.CompanyWarehouseAddresses.Select(a => a.Address.Country.CountryName).FirstOrDefault(),
-                        WLongitude = b.CompanyWarehouseAddresses.Select(a => a.Address.Longitude).FirstOrDefault(),
-                        WLatitude = b.CompanyWarehouseAddresses.Select(a => a.Address.Latitude).FirstOrDefault(),
-                    })
-                    .FirstOrDefaultAsync();
-
-                return branch ?? new WarehouseVM();
-            }
-            catch
-            {
-                return new WarehouseVM();
-            }
-        }
 
         #endregion
 

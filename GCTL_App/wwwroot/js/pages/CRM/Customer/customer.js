@@ -140,9 +140,10 @@ window.initCustomerForm = function (root) {
                         const data = await response.json();
                         console.log("Server response:", data);
                         if (response.ok && data.success) {
-                            toastr.success(data.message || "Customer saved successfully!");
+                            const rootHtmlDiv = $("#root-cotact-field");
+                            rootHtmlDiv.empty();
                             resetForm(form)
-                            
+                            toastr.success(data.message || "Customer saved successfully!");
                         } else {
                             toastr.error(data.message || "Something went wrong!");
                         }
@@ -250,7 +251,7 @@ window.initCustomerForm = function (root) {
 
         <!-- Delete button -->
         <div class="col-auto text-center">
-            <button type="button" class="btn btn-sm btn-danger remove-contact" title="Remove Contact" class="removeBtn">
+            <button type="button" class="btn btn-sm btn-danger remove-contact" title="Remove Contact" class="removeBtn"  data-contact-id="${c.id ?? 0}">
                 <i class="fas fa-trash"></i>
             </button>
         </div>
@@ -264,7 +265,7 @@ window.initCustomerForm = function (root) {
         contactInit.dataset.listenerAttached = true;
 
         // Add Contact
-        $("#contact-btn").on("click", function (e) {
+        $("#contact-btn").on("click",function (e) {
             e.preventDefault();
             const rootHtmlDiv = $("#root-cotact-field");
             const index = rootHtmlDiv.children(".contact-item").length;
@@ -272,20 +273,43 @@ window.initCustomerForm = function (root) {
         });
 
         // Delete Contact (delegated)
-        $(document).on("click", ".remove-contact", function () {
-            debugger;
-            $(this).closest(".contact-item").remove();
-            customToaster.success("Hello");
-            // Re-index remaining contacts
-            $("#root-cotact-field .contact-item").each(function (i) {
-                $(this).find(".fw-bold").text(i + 1);
-                $(this).find("input").each(function () {
-                    const nameAttr = $(this).attr("name");
-                    const newName = nameAttr.replace(/\[\d+\]/, `[${i}]`);
-                    $(this).attr("name", newName);
-                });
+        $(document).on("click", ".remove-contact", async function () {
+            const contactIdAttr = $(this).attr("data-contact-id");
+            const contactId = contactIdAttr ? parseInt(contactIdAttr, 10) : 0;
+
+            const $item = $(this).closest(".contact-item");
+
+            // If new contact (id = 0), just remove
+            if (contactId === 0) {
+                $item.remove();
+                reIndexContacts();
+                return;
+            }
+
+            const confirmed = await customToaster.confirm("Do you want to restart this Lead?");
+            if (!confirmed) {
+                customToaster.error("Canceled");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("contactId", contactId);
+            const response = await fetch("/Customers/DeleteContactPerson", {
+                method: "POST",
+                headers: { "Accept": "application/json" },
+                body: formData
             });
+            const data = await response.json();
+
+            if (data.success) {
+                $item.remove();
+                reIndexContacts();
+                customToaster.success("Succed");
+            } else {
+                customToaster.error("Not succed");
+            }
         });
+
     }
     //#endregion
 
@@ -355,32 +379,19 @@ function resetForm(form) {
 }
 //#endregion
 
+//#region reindexing problem
+function reIndexContacts() {
+    $("#root-cotact-field .contact-item").each(function (i) {
+        // Update serial number
+        $(this).find(".fw-bold").text(i + 1);
 
-//function getAllContactData() {
-//    const rootDiv = document.querySelector("#root-cotact-field");
-//    const contactRows = rootDiv.querySelectorAll(".row"); // each dynamically added contact row
+        // Update input names
+        $(this).find("input").each(function () {
+            const nameAttr = $(this).attr("name");
+            const newName = nameAttr.replace(/\[\d+\]/, `[${i}]`);
+            $(this).attr("name", newName);
+        });
+    });
+}
+//#endregion
 
-//    const contacts = [];
-
-//    document.querySelectorAll("#root-cotact-field .contact-item").forEach(row => {
-//        const contact = {
-//            Id: row.querySelector('[name*=".Id"]')?.value || 0,
-//            FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
-//            LastName: row.querySelector('[name*=".LastName"]')?.value || '',
-//            Designation: row.querySelector('[name*=".Designation"]')?.value || '',
-//            Phone: row.querySelector('[name*=".Phone"]')?.value || '',
-//            OtherPhone: row.querySelector('[name*=".OtherPhone"]')?.value || '',
-//            Email: row.querySelector('[name*=".Email"]')?.value || ''
-//        };
-//        contacts.push(contact);
-//    });
-//    console.log("All contacts:", contacts);
-
-//    // Optionally show in page
-//    const outputDiv = document.getElementById("outputContacts");
-//    if (outputDiv) {
-//        outputDiv.textContent = JSON.stringify(contacts, null, 2);
-//    }
-
-//    return contacts;
-//}

@@ -140,6 +140,7 @@
    
 
     const fields = ["BCustomerID", "BName","BFirstName", "BPhone"];
+
     const saveBtn = root.querySelector("#bsave");
     if (saveBtn && !saveBtn.dataset.listenerAttached) {
         saveBtn.dataset.listenerAttached = true;
@@ -149,11 +150,30 @@
                 const form = this.closest("form");
                 if (!form) return;
 
+                debugger;
+
                 const formData = new FormData(form);
                 const jsonData = {};
                 formData.forEach((value, key) => {
                     jsonData[key] = value === "" ? null : value;
                 });
+                // get contacts
+                const contacts = [];
+                document.querySelectorAll("#branch-cotact-field .bcontact-item").forEach(row => {
+                    const contact = {
+                        Id: row.querySelector('[name*=".Id"]')?.value || 0,
+                        FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
+                        LastName: row.querySelector('[name*=".LastName"]')?.value || '',
+                        Designation: row.querySelector('[name*=".Designation"]')?.value || '',
+                        Phone: row.querySelector('[name*=".Phone"')?.value || '',
+                        OtherPhone: row.querySelector('[name*=".OtherPhone"')?.value || '',
+                        Email: row.querySelector('[name*=".Email"')?.value || ''
+                    };
+                    contacts.push(contact);
+                });
+
+                jsonData.BContactInformations = contacts;
+                console.log(jsonData);
 
                 try {
                     this.disabled = true;
@@ -252,14 +272,149 @@
 
         return isValid;
     }
+    // === Load existing contacts or initialize empty contact section ===
+    function loadExistingContacts(contactList = []) {
+        const rootHtmlDiv = $("#branch-cotact-field");
+        rootHtmlDiv.empty();
 
-    //#region reset Form
-    function resetForm(form) {
-        if (!form) return;
+        // If no contactList given, just keep it empty (used for new customers)
+        if (!Array.isArray(contactList)) contactList = [];
 
-        form.reset();
-        $(form).find("select").val(null).trigger("change");
-        $(form).find("input[type=checkbox], input[type=radio]").prop("checked", false);
+        contactList.forEach((c, index) => {
+            rootHtmlDiv.append(getContactRowHtml(index, c));
+        });
+    }
+    window.loadExistingContacts = loadExistingContacts;
+
+    // === Reusable function to build each contact HTML ===
+    function getContactRowHtml(index, c = {}) {
+        return `
+    <div class="row align-items-center gap-2 mx-2 mb-2 bcontact-item p-2">
+        <!-- Index number -->
+        <div class="col-auto text-center align-self-center fw-bold fs-6">
+            ${index + 1}
+        </div>
+
+        <!-- Input fields -->
+        <div class="col">
+            <div class="row g-2">
+                <input type="number" name="BContactInformations[${index}].Id" value="${c.id ?? 0}" hidden>
+
+                <div class="col">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="BContactInformations[${index}].FirstName" class="form-control" value="${c.firstName ?? ''}">
+                </div>
+                <div class="col">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="BContactInformations[${index}].LastName" class="form-control" value="${c.lastName ?? ''}">
+                </div>
+                <div class="col">
+                    <label class="form-label">Designation</label>
+                    <input type="text" name="BContactInformations[${index}].Designation" class="form-control" value="${c.designation ?? ''}">
+                </div>
+                <div class="col">
+                    <label class="form-label">Phone 1</label>
+                    <input type="text" name="BContactInformations[${index}].Phone" class="form-control" value="${c.phone ?? ''}">
+                </div>
+                <div class="col">
+                    <label class="form-label">Phone 2</label>
+                    <input type="text" name="BContactInformations[${index}].OtherPhone" class="form-control" value="${c.otherPhone ?? ''}">
+                </div>
+                <div class="col">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="BContactInformations[${index}].Email" class="form-control" value="${c.email ?? ''}">
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete button -->
+        <div class="col-auto text-center">
+            <button type="button" class="btn btn-sm btn-danger bremove-contact" title="Remove Contact"  data-contact-id="${c.id ?? 0}">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </div>`;
+    }
+
+
+    // === Event Binding ===
+    const contactInit = document.querySelector("#branchContact-btn");
+    if (contactInit && !contactInit.dataset.listenerAttached) {
+        contactInit.dataset.listenerAttached = true;
+
+        // Add Contact
+        $("#branchContact-btn").on("click", function (e) {
+            e.preventDefault();
+            const rootHtmlDiv = $("#branch-cotact-field");
+            const index = rootHtmlDiv.children(".bcontact-item").length;
+            rootHtmlDiv.append(getContactRowHtml(index));
+        });
+
+        // Delete Contact (delegated)
+        $(document).on("click", ".bremove-contact", async function () {
+            const item = $(this).closest(".bcontact-item").remove();
+            const contactIdAttr = $(this).data("contact-id");
+            const contactId = contactIdAttr ? parseInt(contactIdAttr, 10) : 0;
+
+            if (contactId === 0) {
+                item.remove();
+                reIndexContacts();
+                return;
+            }
+
+            const confirmed = await customToaster.confirm("Do you want to restart this Lead?");
+            if (!confirmed) {
+                customToaster.error("Canceled");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("contactId", contactId);
+
+            const response = await fetch("/Customers/DeleteContactPerson", {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                },
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                $item.remove();
+                reIndexContacts();
+                customToaster.success("Succed");
+            } else {
+                customToaster.error("Not succed")
+            }
+        });
     }
     //#endregion
+
+
 };
+
+//#region reset Form
+function resetForm(form) {
+    if (!form) return;
+
+    form.reset();
+    $(form).find("select").val(null).trigger("change");
+    $(form).find("input[type=checkbox], input[type=radio]").prop("checked", false);
+}
+//#endregion
+
+//#region reindexing problem
+function reIndexContacts() {
+    $("#root-cotact-field .contact-item").each(function (i) {
+        // Update serial number
+        $(this).find(".fw-bold").text(i + 1);
+
+        // Update input names
+        $(this).find("input").each(function () {
+            const nameAttr = $(this).attr("name");
+            const newName = nameAttr.replace(/\[\d+\]/, `[${i}]`);
+            $(this).attr("name", newName);
+        });
+    });
+}
+//#endregion

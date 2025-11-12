@@ -109,7 +109,6 @@
 
     // ===== JS Logic =====
     const customToaster = (() => {
-        debugger;
         const durationDefault = 3000;
         const toaster = document.getElementById("customToaster");
         const modal = document.getElementById("customConfirmModal");

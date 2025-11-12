@@ -254,35 +254,43 @@ namespace GCTL.Core.Repository
 
 
         #region Transaction
-        public void Dispose()
-        {
-            _context.Dispose();
-        }
+        private bool _ownsTransaction = false;
 
         public async Task BeginTransactionAsync()
         {
-            await _context.Database.BeginTransactionAsync();
+            if (_context.Database.CurrentTransaction == null)
+            {
+                await _context.Database.BeginTransactionAsync();
+                _ownsTransaction = true;
+            }
         }
 
         public async Task CommitTransactionAsync()
         {
             var transaction = _context.Database.CurrentTransaction;
-            if (transaction == null) return;
-            
-            
+            if (transaction == null || !_ownsTransaction) return;
+
             await transaction.CommitAsync();
+            _ownsTransaction = false;
             await transaction.DisposeAsync();
         }
 
         public async Task RollbackTransactionAsync()
         {
             var transaction = _context.Database.CurrentTransaction;
-            if (transaction == null) return;
+            if (transaction == null || !_ownsTransaction) return;
 
             await transaction.RollbackAsync();
+            _ownsTransaction = false;
             await transaction.DisposeAsync();
         }
+
+        public void Dispose()
+        {
+            _context.Dispose();
+        }
         #endregion
+
 
 
         #region Select

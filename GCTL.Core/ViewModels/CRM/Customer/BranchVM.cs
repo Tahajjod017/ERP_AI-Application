@@ -42,5 +42,7 @@ namespace GCTL.Core.ViewModels.CRM.Customer
 
         [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format")]
         public string? BEmail { get; set; }
+        public List<ClintContact>? BContactInformations { get; set; }
+        public int? BTotalContactPerson { get; set; }
     }
 }
