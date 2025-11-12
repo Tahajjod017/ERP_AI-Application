@@ -3,7 +3,6 @@
     // Import the function from file1.js
     //import { loadExistingContacts } from './customer.js';
 
-
     //#region GetAll customer Data
     var currentPage = 1;
     var pageSize = 5;
@@ -41,7 +40,7 @@
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="branchListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#branchOffcanvasBottom" aria-controls="branchOffcanvasBottom">${item.totalBranch}</a></td>
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="warehouseListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#warehouseOffcanvasBottom" aria-controls="warehouseOffcanvasBottom">${item.totalWarehouse}</a></td>
                             <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="shippingListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#shippingOffcanvasBottom" aria-controls="shippingOffcanvasBottom">${item.totalShipping}</a></td>
-                            <td class="align-middle white-space-nowrap ps-0 py-1"><a href="#" type="button" class="shippingListBtn" data-id="${item.id}" data-bs-toggle="offcanvas" data-bs-target="#shippingOffcanvasBottom" aria-controls="shippingOffcanvasBottom">${item.totalContactPerson}</a></td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.totalContactPerson}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3  py-1">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 customer-edit" href="#!" id="customer-edit" data-id="${item.id}"><i class="fas fa-edit"></i></a>
@@ -71,6 +70,36 @@
 
     loadTableData();
 
+    //#endregion
+
+    //#region customer edit
+    $(document).on("click", ".customer-edit", function () {
+        let id = $(this).data("id");
+        $.ajax({
+            url: '/Customers/GetCustoerInfo',
+            method: 'POST',
+            data: {
+                id: id,
+            },
+            success: function (response) {
+                const rootHtmlDiv = $("#root-cotact-field");
+                rootHtmlDiv.empty();
+
+                changeTab("#customer-tab", "#customer");
+                GoToTop();
+                const form = document.querySelector("#customerForm");
+                select2ScrollingDataSet('#CountryID', response.countryID, response.countryName)
+                select2ScrollingDataSet('#OrganizationTypeID', response.organizationTypeID, response.organizationTypeName)
+                setFormValues(form, response);
+                if (response.contactInformations?.length > 0) {
+                    loadExistingContacts(response.contactInformations);
+                }
+            },
+            error: function (res) {
+                showDev(res)
+            }
+        });
+    })
     //#endregion
 
     //#region GetAll branch Data
@@ -111,6 +140,7 @@
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bPhone}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bEmail}</td>
                             <td class="align-middle white-space-nowrap ps-0 py-1">${item.bFullAddress}</td>
+                            <td class="align-middle white-space-nowrap ps-0 py-1">${item.bTotalContactPerson}</td>
                             <td class="align-middle text-end white-space-nowrap pe-2 py-1">
                                 <div class="row g-3">
                                     <a class="btn btn-phoenix-primary btn-icon me-1 fs-10 text-body px-0 branch-edit" href="#!" data-cid="${item.bCustomerID}" data-bid="${item.bid}"><i class="fas fa-edit"></i></a>
@@ -134,55 +164,6 @@
                 console.log("Error! Fetching all data.");
             }
         });
-    }
-    //#endregion
-
-    //#region shipping TableDataGet
-    $(document).on("click", ".branchListBtn", function () {
-        var customerID = $(this).data("id");
-        loadWBranchTableData(customerID, scurrentSortColumn, scurrentSortOrder);
-    })
-    //#endregion
-
-    //#region customer edit
-    $(document).on("click",".customer-edit", function () {
-        let id = $(this).data("id");
-        $.ajax({
-            url: '/Customers/GetCustoerInfo',
-            method: 'POST',
-            data: {
-                id: id,
-            },
-            success: function (response) {
-                showDev(response)
-
-                changeTab("#customer-tab", "#customer");
-                GoToTop();
-                const form = document.querySelector("#customerForm");
-                select2ScrollingDataSet('#CountryID', response.countryID, response.countryName)
-                select2ScrollingDataSet('#OrganizationTypeID', response.organizationTypeID, response.organizationTypeName)
-                setFormValues(form, response);
-                if (response.contactInformations?.length > 0) {
-                    loadExistingContacts(response.contactInformations);
-                }
-            },
-            error: function (res) {
-                showDev(res)
-            }
-        });
-    })
-    //#endregion
-
-    //#region select2ScrollingDataSet
-    function select2ScrollingDataSet(fieldId, id, text) {
-        const countrySelect = $(fieldId);
-        if (id && text) {
-            let newOption = new Option(text, id, true, true);
-            countrySelect.append(newOption).trigger('change');
-        } else {
-            countrySelect.val('').trigger('change'); // clear if no country
-        }
-
     }
     //#endregion
 
@@ -214,6 +195,26 @@
             }
         });
     });
+    //#endregion
+
+    //#region shipping TableDataGet
+    $(document).on("click", ".branchListBtn", function () {
+        var customerID = $(this).data("id");
+        loadWBranchTableData(customerID, scurrentSortColumn, scurrentSortOrder);
+    })
+    //#endregion
+
+    //#region select2ScrollingDataSet
+    function select2ScrollingDataSet(fieldId, id, text) {
+        const countrySelect = $(fieldId);
+        if (id && text) {
+            let newOption = new Option(text, id, true, true);
+            countrySelect.append(newOption).trigger('change');
+        } else {
+            countrySelect.val('').trigger('change'); // clear if no country
+        }
+
+    }
     //#endregion
 
     //#region warehouse edit
@@ -293,7 +294,7 @@
             }
         });
     }
-    //#endregion
+    //#endregion    
 
     //#region change Tag
     function changeTab(activeTab, activetTabItem) {
@@ -506,6 +507,7 @@
         loadWShippingTableData(customerID, scurrentSortColumn, scurrentSortOrder);
     })
     //#endregion
+
     return { loadTableData };
 };
 

@@ -66,21 +66,13 @@ namespace GCTL_App.Controllers.CRM
                 if (model.Id == 0)
                 {
                     result = await _customerService.CreateCustomer(model);
-                    if (model.ContactInformations != null && model.ContactInformations.Any())
-                    {
-                        await _customerService.CreateOrUpdateContactInfo(model.ContactInformations, result.Id ?? 0);
-                    }
                 }
                 else
                 {
                     result = await _customerService.UpdateCustomer(model);
-                    if (model.ContactInformations != null && model.ContactInformations.Any())
-                    {
-                        await _customerService.CreateOrUpdateContactInfo(model.ContactInformations, result.Id ?? 0);
-                    }
                 }
                    
-                return Json(new { success = result.Success, message = result.Message });
+                return Ok(result);
             }
             catch (Exception ex) {
 
@@ -292,6 +284,21 @@ namespace GCTL_App.Controllers.CRM
             };
 
             return Ok(formatted);
+        }
+        #endregion
+
+        #region delete Contact person
+        [HttpPost]
+        public async Task<IActionResult> DeleteContactPerson(int contactId)
+        {
+            try
+            {
+                var result = await _customerService.DeleteContactPersonAsync(contactId);
+                return Ok(result);
+            } catch (Exception)
+            {
+                return Ok(new { success = false });
+            }
         }
         #endregion
     }
