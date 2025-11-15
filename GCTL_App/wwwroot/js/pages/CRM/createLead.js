@@ -59,6 +59,76 @@ $(function () {
         width: '100%'
     });
     //#endregion
+    //#region customer serach field
+    $('#BranchId').select2({
+        placeholder: 'Select Customer',
+        width: '100%',
+        ajax: {
+            url: '/Customers/GetBranches',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    customerID: $("#CustomerId").val() ?? 0,
+                    search: params.term || '',
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+
+                return {
+
+                    results: data.results,
+                    pagination: {
+                        more: data.pagination.more
+                    }
+                };
+            },
+            cache: true
+        },
+        language: {
+            noResults: function () {
+                return $(
+                    `<span>Data not found. Create a <a id="createCustomer" href="#">Customer</a></span>`
+                );
+            }
+        },
+        
+        width: '100%'
+    });
+    //#endregion
+
+    $('#CustomerId').on('change', function () {
+        // Get the selected value (customer ID)
+        var customerId = $(this).val();
+        
+
+        showDev("Selected Customer ID:", customerId);
+        $.ajax({
+            url: '/Customers/GetCustoerInfo', // replace with your endpoint
+            type: 'POST',
+            data: { id: customerId },
+            dataType: 'json', 
+            success: function (response) {
+                if (!response.isIndividual)
+                    { 
+                        $("#BranchId").val(null).trigger('change');
+                        $('#branchContainer').show();
+                    }
+                else
+                    $('#branchContainer').hide();
+
+
+                // do something with response
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+        // You can use this ID for further AJAX calls or processing
+    });
+
 
     //#region PriorityID
     $('#PriorityID').select2({

@@ -13,6 +13,7 @@ namespace GCTL.Service.CRM.LeadCreate
         Task<ReturnDataView<CommonSelectVM>> GetPriorityListAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CustomerInfoVM>> GetLeadOwnerListAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CommonSelectVM>> GetServiceListAsync(string search, int page, int pageSize, int organizationID);
+        Task<ReturnDataView<CommonSelectVM>> GetContactPersonAsync(int addressID, string search, int page, int pageSize, int organizationID);
         #endregion
     }
 }

@@ -167,5 +167,27 @@ namespace GCTL_App.Controllers.CRM
             return Json(formatted);
         }
         #endregion
+        //#region Get GetContactPerson List
+        //[HttpGet]
+        //public async Task<IActionResult> GetContactPersonList(int addressID,string search = "", int page = 1, int pageSize = 20)
+        //{
+        //    var result = await _leadCreateService.GetContactPersonAsync(
+        //       search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0, addressID
+        //    );
+        //    var hasMore = (page * pageSize) < result.totalItem;
+        //    var formatted = new
+        //    {
+        //        items = result.data.Select(c => new
+        //        {
+        //            value = c.Id.ToString(),
+        //            label = $"{c.Name ?? ""}",
+        //            group = ""
+        //        }),
+        //        hasMore
+        //    };
+
+        //    return Json(formatted);
+        //}
+        //#endregion
     }
 }

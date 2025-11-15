@@ -23,6 +23,7 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly IGenericRepository<LeadServices> _leadServicesRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Services> _servicesRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfoRepository;
+        private readonly IGenericRepository<OtherContacts> _otherContactsRepository;
 
         #region Added by Md. Rakib Hasan
         private readonly IGenericRepository<Heads> _heads;
@@ -442,6 +443,49 @@ namespace GCTL.Service.CRM.LeadCreate
                     {
                         Id = t.ServiceID,
                         Name = t.ServiceName,
+                    })
+                    .ToListAsync();
+
+                return new ReturnDataView<CommonSelectVM>
+                {
+                    data = items,
+                    totalItem = totalCount,
+                    message = "Data loaded"
+                };
+            }
+            catch (Exception ex) { return new ReturnDataView<CommonSelectVM>(); }
+        }
+        #endregion
+        #region get Service List 
+        public async Task<ReturnDataView<CommonSelectVM>> GetContactPersonAsync(int addressID, string search, int page, int pageSize, int organizationID)
+        {
+            try
+            {
+                var query = _otherContactsRepository
+                .AllActive()
+                .Where(q => q.AddressID == addressID);
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    string pattern = $"%{search}%";
+
+                    query = query.Where(c =>
+                        c != null &&
+                        (
+                            EF.Functions.Like(c.FirstName, pattern) ||
+                            EF.Functions.Like(c.CreatedAt.ToString(), pattern)
+                        ));
+                }
+
+                var totalCount = await query.CountAsync();
+
+                var items = await query
+                    .OrderBy(c => c.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize).Select(t => new CommonSelectVM
+                    {
+                        Id = t.OtherContactID,
+                        Name = $"{t.FirstName} {t.LastName}",
                     })
                     .ToListAsync();
 

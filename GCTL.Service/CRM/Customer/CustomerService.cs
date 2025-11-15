@@ -621,6 +621,7 @@ namespace GCTL.Service.CRM.Customer
                     Id = customer.CustomerID,
                     FirstName = address?.FirstName ?? "",
                     LastName = address?.LastName ?? "",
+                    IsIndividual = customer.IsPerson ?? null,
                     CompnayName = customer.IsPerson == true ? "" : customer.FullName,
                     OrganizationTypeID = customer.OrganizationType != null ? customer.OrganizationType.OrganizationTypeID : 0,
                     OrganizationTypeName = customer.OrganizationType != null ? customer.OrganizationType.OrganizationTypeName : "",
@@ -1875,6 +1876,48 @@ GetAllShippingAsync(
                 return new ReturnDataView<SelectListItem>();
             }
             
+        }
+        #endregion
+
+        #region get Branch List 
+        public async Task<ReturnDataView<BranchVM>> GetPagedBranchesAsync(int customerId, string search, int page, int pageSize, int organizationID)
+        {
+            var query = _customersRepository.AllActive().Where(x => x.OrganizationID == organizationID && x.CustomerID == customerId)
+                .SelectMany(c => c.CompanyBranches).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.BranchName, pattern) ||
+                        c.CompanyBranchAddresses.Any(ca =>
+                            ca.Address != null &&
+                            EF.Functions.Like(ca.Address.Email, pattern) ||
+                            EF.Functions.Like(ca.Address.Phone, pattern)
+                        )
+                    ));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(c => c.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize).Select(t => new BranchVM
+                {
+                    Bid = t.BranchID,
+                    BName = t.BranchName ?? string.Empty
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<BranchVM>
+            {
+                data = items,
+                totalItem = totalCount,
+                message = "Data loaded"
+            };
         }
         #endregion
     }

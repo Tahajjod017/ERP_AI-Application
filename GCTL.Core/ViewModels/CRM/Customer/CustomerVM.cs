@@ -5,6 +5,7 @@ namespace GCTL.Core.ViewModels.CRM.Customer
     {
         public int Id { get; set; }
         public string? CompnayName{get; set;}
+        public bool? IsIndividual { get; set; }
         public int? OrganizationTypeID { get; set; }
         public string? OrganizationTypeName { get; set; }
         public string FirstName { get; set; }
