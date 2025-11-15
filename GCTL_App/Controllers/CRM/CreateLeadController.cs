@@ -30,7 +30,6 @@ namespace GCTL_App.Controllers.CRM
         }
         #endregion
 
-
         #region CreateLeadData
         [Permission("Create", "CreateLead")]
         [HttpPost]
@@ -53,9 +52,6 @@ namespace GCTL_App.Controllers.CRM
 
         }
         #endregion
-
-
-        //#endregion
 
         #region Get LeadOwner List
         [HttpGet]
@@ -148,6 +144,7 @@ namespace GCTL_App.Controllers.CRM
             return Json(formatted);
         }
         #endregion
+
         #region Get GetPriorityListAsync List
         [HttpGet]
         public async Task<IActionResult> GetServiceList(string search = "", int page = 1, int pageSize = 20)

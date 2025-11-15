@@ -95,7 +95,6 @@ namespace GCTL.Service.CRM.LeadCreate
                 {
                     CustomerID = individualAddressObj.CustomerID,
                     LeadName = leadsVM.LeadName,
-                    IsIndividualCustomer = leadsVM.IsIndividualCustomer,
                     LeadStatusID = leadsVM.LeadStatusID,
                     LeadSourceID = leadsVM.LeadSourceID,
                     LeadOwnerID = leadsVM.LeadOwnerID,
@@ -412,6 +411,7 @@ namespace GCTL.Service.CRM.LeadCreate
             catch (Exception ex) { return new ReturnDataView<CommonSelectVM>(); }
         }
         #endregion
+
         #region get Service List 
         public async Task<ReturnDataView<CommonSelectVM>> GetServiceListAsync(string search, int page, int pageSize, int organizationID)
         {

@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Helpers;
+﻿using Bogus.DataSets;
+using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.Customer;
@@ -944,6 +945,9 @@ namespace GCTL.Service.CRM.Customer
                     .Include(b => b.CompanyBranchAddresses)
                         .ThenInclude(cba => cba.Address)
                             .ThenInclude(a => a.Country)
+                    .Include(b => b.CompanyBranchAddresses)
+                        .ThenInclude(cba => cba.Address)
+                            .ThenInclude(a => a.OtherContacts)
                     .Where(b => b.CustomerID == customerID &&
                                 b.BranchID == branchId &&
                                 b.Customer != null && b.Customer.OrganizationID == organizationID)
@@ -955,21 +959,33 @@ namespace GCTL.Service.CRM.Customer
                         BOrganizationTypeID = b.OrganizationType != null ? b.OrganizationType.OrganizationTypeID : 0,
                         BOrganizationTypeName = b.OrganizationType != null ? b.OrganizationType.OrganizationTypeName : "",
                         BCustomerName = b.Customer != null ? b.Customer.FullName : "",
-                        BFirstName = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.FirstName : null).FirstOrDefault() ?? "",
-                        BLastName = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.LastName : null).FirstOrDefault() ?? "",
-                        BEmail = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Email : null).FirstOrDefault() ?? "",
-                        BFullAddress = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.FullAddress : null).FirstOrDefault() ?? "",
-                        BAdditionaladdress = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Additionaladdress : null).FirstOrDefault() ?? "",
-                        BCity = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.City : null).FirstOrDefault() ?? "",
-                        BState = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.State : null).FirstOrDefault() ?? "",
-                        BStreet = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Street : null).FirstOrDefault() ?? "",
-                        BPostalCode = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.PostalCode : null).FirstOrDefault() ?? "",
-                        BPhone = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Phone : null).FirstOrDefault() ?? "",
-                        BOtherPhone = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.OtherPhone : null).FirstOrDefault() ?? "",
-                        BCountryID = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.CountryID : null).FirstOrDefault(),
-                        BCountryName = b.CompanyBranchAddresses.Select(a => a.Address != null && a.Address.Country != null ? a.Address.Country.CountryName : null).FirstOrDefault(),
-                        BLongitude = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Longitude : null).FirstOrDefault(),
-                        BLatitude = b.CompanyBranchAddresses.Select(a => a.Address != null ? a.Address.Latitude : null).FirstOrDefault(),
+                        BFirstName = b.CompanyBranchAddresses.Select(a => a.Address.FirstName).FirstOrDefault() ?? "",
+                        BLastName = b.CompanyBranchAddresses.Select(a => a.Address.LastName).FirstOrDefault() ?? "",
+                        BEmail = b.CompanyBranchAddresses.Select(a => a.Address.Email).FirstOrDefault() ?? "",
+                        BFullAddress = b.CompanyBranchAddresses.Select(a => a.Address.FullAddress).FirstOrDefault() ?? "",
+                        BAdditionaladdress = b.CompanyBranchAddresses.Select(a => a.Address.Additionaladdress).FirstOrDefault() ?? "",
+                        BCity = b.CompanyBranchAddresses.Select(a => a.Address.City).FirstOrDefault() ?? "",
+                        BState = b.CompanyBranchAddresses.Select(a => a.Address.State).FirstOrDefault() ?? "",
+                        BStreet = b.CompanyBranchAddresses.Select(a => a.Address.Street).FirstOrDefault() ?? "",
+                        BPostalCode = b.CompanyBranchAddresses.Select(a => a.Address.PostalCode).FirstOrDefault() ?? "",
+                        BPhone = b.CompanyBranchAddresses.Select(a => a.Address.Phone).FirstOrDefault() ?? "",
+                        BOtherPhone = b.CompanyBranchAddresses.Select(a => a.Address.OtherPhone).FirstOrDefault() ?? "",
+                        BCountryID = b.CompanyBranchAddresses.Select(a => a.Address.CountryID).FirstOrDefault(),
+                        BCountryName = b.CompanyBranchAddresses.Select(a => a.Address.Country.CountryName).FirstOrDefault(),
+                        BLongitude = b.CompanyBranchAddresses.Select(a => a.Address.Longitude).FirstOrDefault(),
+                        BLatitude = b.CompanyBranchAddresses.Select(a => a.Address.Latitude).FirstOrDefault(),
+                        BContactInformations = b.CompanyBranchAddresses
+                            .SelectMany(cba => cba.Address.OtherContacts)
+                            .Select(oc => new ClintContact
+                            {
+                                Id = oc.OtherContactID,
+                                FirstName = oc.FirstName ?? string.Empty,
+                                LastName = oc.LastName ?? string.Empty,
+                                Designation = oc.Designation ?? string.Empty,
+                                Phone = oc.Phone1 ?? string.Empty,
+                                OtherPhone = oc.Phone2 ?? string.Empty,
+                                Email = oc.Email ?? string.Empty
+                            }).ToList()
                     })
                     .FirstOrDefaultAsync();
 
@@ -979,6 +995,7 @@ namespace GCTL.Service.CRM.Customer
             {
                 return new BranchVM();
             }
+
         }
 
         #endregion
@@ -998,6 +1015,11 @@ namespace GCTL.Service.CRM.Customer
                 // Base query
                 var query = _companyBranchesRepository.AllActive()
                     .Include(x => x.OrganizationType)
+                    .Include(x => x.CompanyBranchAddresses)
+                        .ThenInclude(a => a.Address)
+                            .ThenInclude(a => a.OtherContacts)
+                    .Include(x => x.CompanyBranchAddresses)
+                        .ThenInclude(a => a.AddressType)
                     .Include(x => x.CompanyBranchAddresses)
                         .ThenInclude(a => a.Address)
                             .ThenInclude(a => a.Country)
@@ -1086,7 +1108,10 @@ namespace GCTL.Service.CRM.Customer
                                 ? a.Address.Country.CountryName
                                 : null)
                             .FirstOrDefault() ?? "",
-                        BTotalContactPerson = x.CompanyBranchAddresses?.Where(u => u.AddressType != null && (u.AddressType.AddressTypeName == "branch")).FirstOrDefault()?.Address?.OtherContacts?.Count() ?? 0
+                        BTotalContactPerson = x.CompanyBranchAddresses
+    .Where(a => a.AddressType != null && a.AddressType.AddressTypeName == "branch")
+    .SelectMany(a => a.Address.OtherContacts)
+    .Count()
                     });
 
                 return result;

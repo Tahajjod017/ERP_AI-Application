@@ -8,7 +8,7 @@
     var pageSize = 5;
     let currentSortColumn = 'CreatedAt';
     let currentSortOrder = 'desc';
-    function loadTableData(sortColumn, sortOrder) {
+    window.loadTableData = function (sortColumn, sortOrder) {
         var searchTerm = $("#customer-searchInput").val();
 
         $.ajax({
@@ -107,7 +107,7 @@
     var bpageSize = 5;
     let bcurrentSortColumn = 'CreatedAt';
     let bcurrentSortOrder = 'desc';
-    function loadWBranchTableData(customerID, sortColumn, sortOrder) {
+    window.loadWBranchTableData = function (customerID, sortColumn, sortOrder) {
         var searchTerm = $("#branch-searchInput").val();
 
         $.ajax({
@@ -189,6 +189,9 @@
                 select2ScrollingDataSet("#BCustomerID", response.bCustomerID, response.bCustomerName)
                 select2ScrollingDataSet("#BOrganizationTypeID", response.bOrganizationTypeID, response.bOrganizationTypeName)
                 setFormValues(form, response);
+                if (response.bContactInformations?.length > 0) {
+                    bloadExistingContacts(response.bContactInformations);
+                }
             },
             error: function (res) {
                 showDev(res);

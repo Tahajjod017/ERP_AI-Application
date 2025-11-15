@@ -126,27 +126,34 @@ window.initCustomerForm = function (root) {
 
                 try {
                     this.disabled = true;
-                    this.textContent = "Saving...";
-                    if (validateFields(fields)) {
-                        const response = await fetch(form.action, {
-                            method: form.method || "POST",
-                            headers: {
-                                "Accept": "application/json",
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(jsonData)
-                        });
 
-                        const data = await response.json();
-                        console.log("Server response:", data);
-                        if (response.ok && data.success) {
-                            const rootHtmlDiv = $("#root-cotact-field");
-                            rootHtmlDiv.empty();
-                            resetForm(form)
-                            toastr.success(data.message || "Customer saved successfully!");
-                        } else {
-                            toastr.error(data.message || "Something went wrong!");
+                    // Run unified validation
+                    if (!validateCustomerForm(fields, contacts)) {
+                        toastr.error("Please fill all required fields.");
+                        return;
+                    }
+                    const response = await fetch(form.action, {
+                        method: form.method || "POST",
+                        headers: {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(jsonData)
+                    });
+
+                    const data = await response.json();
+                    console.log("Server response:", data);
+                    if (response.ok && data.success) {
+                        debugger
+                        const rootHtmlDiv = $("#root-cotact-field");
+                        rootHtmlDiv.empty();
+                        resetForm(form)
+                        toastr.success(data.message || "Customer saved successfully!");
+                        if (typeof loadTableData == 'function') {
+                            loadTableData();
                         }
+                    } else {
+                        toastr.error(data.message || "Something went wrong!");
                     }
                     
                 } catch (error) {
@@ -160,16 +167,15 @@ window.initCustomerForm = function (root) {
         }
 
     }
-
-    function validateFields(fieldIds) {
+    function validateCustomerForm(mainFields, contacts) {
         let isValid = true;
 
-        fieldIds.forEach(id => {
+        // Validate main fields
+        mainFields.forEach(id => {
             const field = document.getElementById(id);
             if (!field) return;
 
             const value = field.value?.trim();
-
             if (!value) {
                 field.classList.add("is-invalid");
                 field.style.border = "2px solid red";
@@ -179,7 +185,7 @@ window.initCustomerForm = function (root) {
                 field.style.border = "";
             }
 
-            // Automatically remove red border when user types
+            // Remove red border on input
             if (!field.dataset.listenerAttached) {
                 field.dataset.listenerAttached = true;
                 field.addEventListener("input", () => {
@@ -191,8 +197,73 @@ window.initCustomerForm = function (root) {
             }
         });
 
+        // Validate each contact row
+        contacts.forEach((contact, index) => {
+            const row = document.querySelector(`#root-cotact-field .contact-item:nth-child(${index + 1})`);
+            if (!row) return;
+
+            const firstName = row.querySelector(`[name="ContactInformations[${index}].FirstName"]`);
+            const phone = row.querySelector(`[name="ContactInformations[${index}].Phone"]`);
+            const email = row.querySelector(`[name="ContactInformations[${index}].Email"]`);
+
+            // First Name required
+            if (!contact.FirstName?.trim()) {
+                firstName.classList.add("is-invalid");
+                firstName.style.border = "2px solid red";
+                isValid = false;
+            } else {
+                firstName.classList.remove("is-invalid");
+                firstName.style.border = "";
+            }
+
+            // Either Phone or Email required
+            const phoneValue = contact.Phone?.trim();
+            const emailValue = contact.Email?.trim();
+            if (!phoneValue && !emailValue) {
+                if (phone) {
+                    phone.classList.add("is-invalid");
+                    phone.style.border = "2px solid red";
+                }
+                if (email) {
+                    email.classList.add("is-invalid");
+                    email.style.border = "2px solid red";
+                }
+                isValid = false;
+            } else {
+                if (phone) {
+                    phone.classList.remove("is-invalid");
+                    phone.style.border = "";
+                }
+                if (email) {
+                    email.classList.remove("is-invalid");
+                    email.style.border = "";
+                }
+            }
+
+            // Validate Phone number using intlTelInput
+            const iti = window.itiMap?.[`#ContactInformations[${index}].Phone`];
+            if (iti && phoneValue && !iti.isValidNumber()) {
+                phone.classList.add("is-invalid");
+                phone.style.border = "2px solid red";
+                isValid = false;
+            }
+
+            // Remove red border on typing
+            [firstName, phone, email].forEach(field => {
+                if (field && !field.dataset.listenerAttached) {
+                    field.dataset.listenerAttached = true;
+                    field.addEventListener("input", () => {
+                        field.classList.remove("is-invalid");
+                        field.style.border = "";
+                    });
+                }
+            });
+        });
+
         return isValid;
     }
+
+
 
     // === Load existing contacts or initialize empty contact section ===
     function loadExistingContacts(contactList = []) {
@@ -224,7 +295,7 @@ window.initCustomerForm = function (root) {
 
                 <div class="col">
                     <label class="form-label">First Name</label>
-                    <input type="text" name="ContactInformations[${index}].FirstName" class="form-control" value="${c.firstName ?? ''}">
+                    <input type="text" name="ContactInformations[${index}].FirstName" class="form-control required-firstname" value="${c.firstName ?? ''}">
                 </div>
                 <div class="col">
                     <label class="form-label">Last Name</label>
@@ -236,7 +307,7 @@ window.initCustomerForm = function (root) {
                 </div>
                 <div class="col">
                     <label class="form-label">Phone 1</label>
-                    <input type="text" name="ContactInformations[${index}].Phone" class="form-control" value="${c.phone ?? ''}">
+                    <input type="text" name="ContactInformations[${index}].Phone" class="form-control required-contac" value="${c.phone ?? ''}">
                 </div>
                 <div class="col">
                     <label class="form-label">Phone 2</label>
@@ -244,7 +315,7 @@ window.initCustomerForm = function (root) {
                 </div>
                 <div class="col">
                     <label class="form-label">Email</label>
-                    <input type="email" name="ContactInformations[${index}].Email" class="form-control" value="${c.email ?? ''}">
+                    <input type="email" name="ContactInformations[${index}].Email" class="form-control required-contac" value="${c.email ?? ''}">
                 </div>
             </div>
         </div>
