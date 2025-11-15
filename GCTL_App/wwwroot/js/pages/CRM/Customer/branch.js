@@ -194,6 +194,10 @@
                         if (response.ok && data.success) {
                             toastr.success(data.message || "Customer saved successfully!");
                             resetForm(form)
+                            if (typeof loadWBranchTableData == 'function') {
+                                loadWBranchTableData();
+                            }
+                            
                         } else {
                             toastr.error(data.message || "Something went wrong!");
                         }
@@ -212,19 +216,17 @@
     function validateFields(fieldIds) {
         let isValid = true;
 
+        // Validate main fields
         fieldIds.forEach(id => {
             const field = document.getElementById(id);
             if (!field) return;
 
-            // Determine if field is a Select2 field
             const isSelect2 = field.classList.contains("select2-hidden-accessible");
             let value = field.value?.trim();
 
             if (!value) {
                 isValid = false;
-
                 if (isSelect2) {
-                    // Apply red border to Select2 box
                     const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
                     if (select2Box) {
                         select2Box.classList.add("is-invalid");
@@ -247,10 +249,9 @@
                 }
             }
 
-            // Automatically remove red border when user types or selects
+            // Remove red border when user interacts
             if (!field.dataset.listenerAttached) {
                 field.dataset.listenerAttached = true;
-
                 if (isSelect2) {
                     $(field).on("change", function () {
                         const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
@@ -270,10 +271,71 @@
             }
         });
 
+        // Validate contacts
+        const contactRows = document.querySelectorAll("#branch-cotact-field .bcontact-item");
+        contactRows.forEach((row, index) => {
+            const firstName = row.querySelector('[name*=".FirstName"]');
+            const phone = row.querySelector('[name*=".Phone"]');
+            const email = row.querySelector('[name*=".Email"]');
+
+            const phoneValid = phone?.value?.trim() && (!window.itiMap[`#${phone.id}`] || window.itiMap[`#${phone.id}`].isValidNumber());
+            const emailValid = email?.value?.trim() && validateEmail(email.value);
+
+            let rowValid = true;
+
+            // First Name required
+            if (!firstName.value?.trim()) {
+                rowValid = false;
+                firstName.classList.add("is-invalid");
+                firstName.style.border = "2px solid red";
+            } else {
+                firstName.classList.remove("is-invalid");
+                firstName.style.border = "";
+            }
+
+            // Either phone or email required
+            if (!phoneValid && !emailValid) {
+                rowValid = false;
+
+                if (phone) {
+                    phone.classList.add("is-invalid");
+                    phone.style.border = "2px solid red";
+                }
+                if (email) {
+                    email.classList.add("is-invalid");
+                    email.style.border = "2px solid red";
+                }
+            } else {
+                if (phone) {
+                    phone.classList.remove("is-invalid");
+                    phone.style.border = "";
+                }
+                if (email) {
+                    email.classList.remove("is-invalid");
+                    email.style.border = "";
+                }
+            }
+
+            if (!rowValid) isValid = false;
+        });
+
         return isValid;
     }
+
+    // Email validation helper
+    function validateEmail(email) {
+        const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return regex.test(email);
+    }
+
+function validateEmail(email) {
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return regex.test(email);
+}
+
+
     // === Load existing contacts or initialize empty contact section ===
-    function loadExistingContacts(contactList = []) {
+    function bloadExistingContacts(contactList = []) {
         const rootHtmlDiv = $("#branch-cotact-field");
         rootHtmlDiv.empty();
 
@@ -284,7 +346,7 @@
             rootHtmlDiv.append(getContactRowHtml(index, c));
         });
     }
-    window.loadExistingContacts = loadExistingContacts;
+    window.bloadExistingContacts = bloadExistingContacts;
 
     // === Reusable function to build each contact HTML ===
     function getContactRowHtml(index, c = {}) {
@@ -329,7 +391,7 @@
 
         <!-- Delete button -->
         <div class="col-auto text-center">
-            <button type="button" class="btn btn-sm btn-danger bremove-contact" title="Remove Contact"  data-contact-id="${c.id ?? 0}">
+            <button type="button" class="btn btn-sm btn-danger bremove-contact" title="Remove Contact"  data-bcontact-id="${c.id ?? 0}">
                 <i class="fas fa-trash"></i>
             </button>
         </div>
@@ -352,13 +414,14 @@
 
         // Delete Contact (delegated)
         $(document).on("click", ".bremove-contact", async function () {
-            const item = $(this).closest(".bcontact-item").remove();
-            const contactIdAttr = $(this).data("contact-id");
+            debugger
+            const item = $(this).closest(".bcontact-item");
+            const contactIdAttr = $(this).data("bcontact-id");
             const contactId = contactIdAttr ? parseInt(contactIdAttr, 10) : 0;
 
             if (contactId === 0) {
                 item.remove();
-                reIndexContacts();
+                reIndexbContacts();
                 return;
             }
 
@@ -380,8 +443,8 @@
             });
             const data = await response.json();
             if (data.success) {
-                $item.remove();
-                reIndexContacts();
+                item.remove();
+                reIndexbContacts();
                 customToaster.success("Succed");
             } else {
                 customToaster.error("Not succed")
@@ -404,8 +467,8 @@ function resetForm(form) {
 //#endregion
 
 //#region reindexing problem
-function reIndexContacts() {
-    $("#root-cotact-field .contact-item").each(function (i) {
+function reIndexbContacts() {
+    $("#branch-cotact-field .bcontact-item").each(function (i) {
         // Update serial number
         $(this).find(".fw-bold").text(i + 1);
 

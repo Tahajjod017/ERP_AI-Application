@@ -1,18 +1,5 @@
 ﻿//#region ids
 const idMapIndex = {
-    indexBase: {
-        customerName: 'ContactNameSearch',
-        customerID: 'customerID',
-        leadName: 'leadName',
-        leadStatusID: 'leadStatusId',
-        leadSourceID: 'leadSourceId',
-        leadOwnerID: 'leadOwnerId',
-        priorityID: 'priorityID',
-        approximateDealValue: 'approximateDealValue',
-        probabilityPercentage: 'probabilityPercentage',
-        leadDescription: 'descriptionText',
-        ServiceTypeIds: 'serviceTypes'
-    },
     demoField: {
         latitude: 'iLatitude',
         longitude: 'iLongitude',
@@ -35,7 +22,7 @@ const idMapIndex = {
 
 $(function () {
     //#region customer serach field
-    $('#customerID').select2({
+    $('#CustomerId').select2({
         placeholder: 'Select Customer',
         width: '100%',
         ajax: {
@@ -73,8 +60,8 @@ $(function () {
     });
     //#endregion
 
-    //#region priorityID
-    $('#priorityID').select2({
+    //#region PriorityID
+    $('#PriorityID').select2({
         placeholder: 'Select Customer',
         width: '100%',
         ajax: {
@@ -106,8 +93,8 @@ $(function () {
         width: '100%'
     });
     //#endregion
-    //#region leadStatusId
-    $('#leadStatusId').select2({
+    //#region LeadStatusID
+    $('#LeadStatusID').select2({
         placeholder: 'Select Customer',
         width: '100%',
         ajax: {
@@ -140,8 +127,8 @@ $(function () {
     });
     //#endregion
 
-    //#region leadSourceId
-    $('#leadSourceId').select2({
+    //#region LeadSourceID
+    $('#LeadSourceID').select2({
         placeholder: 'Select Lead Source',
         width: '100%',
         ajax: {
@@ -175,7 +162,7 @@ $(function () {
     //#endregion
 
     //#region GetServiceList
-    $('#serviceTypes').select2({
+    $('#ServiceTypeIds').select2({
         placeholder: 'Select Service Item',
         width: '100%',
         ajax: {
@@ -209,7 +196,7 @@ $(function () {
     //#endregion
 
     //#region get Lead Owner
-    $('#leadOwnerId').select2({
+    $('#LeadOwnerID').select2({
         placeholder: 'Select Lead Owner',
         width: '100%',
         ajax: {
@@ -282,33 +269,32 @@ $(function () {
             $('#removeContactNameBtn').show();
         });
     }
-    //#endregion
 
+    //#endregion
+    const fields = ["CustomerId", "LeadName", "LeadSourceID", "LeadStatusID", "PriorityID", "LeadOwnerID"];
     //#region create Lead
-    $("#indexSaveBtn").on("click", async function (e) {
+    $("#indexSaveBtn").on("click", function (e) {
         e.preventDefault();
         let services = $("#serviceTypes").val();
 
-        if (await fieldValidation()) {
+        if (validateFields(fields)) {
+            debugger
+            const form = this.closest("form");
+            if (!form) return;
+            const formData = new FormData(form);
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                // Optional: Convert empty string to null for numbers
 
-            const data = {
-                LeadName: $("#" + idMapIndex.indexBase.leadName).val() || "",
-                LeadStatusID: parseInt($("#" + idMapIndex.indexBase.leadStatusID).val()) || 0,
-                LeadSourceID: parseInt($("#" + idMapIndex.indexBase.leadSourceID).val()) || 0,
-                LeadOwnerID: parseInt($("#" + idMapIndex.indexBase.leadOwnerID).val()) || 0,
-                PriorityID: parseInt($("#" + idMapIndex.indexBase.priorityID).val()) || 0,
-                ApproximateDealValue: parseFloat($("#" + idMapIndex.indexBase.approximateDealValue).val()) || 0,
-                ProbabilityPercentage: parseFloat($("#" + idMapIndex.indexBase.probabilityPercentage).val()) || 0,
-                CustomerId: parseInt($("#" + idMapIndex.indexBase.customerID).val()) || 0,
-                LeadDescription: $("#" + idMapIndex.indexBase.leadDescription).val(),
-                ServiceTypeIds: $("#" + idMapIndex.indexBase.ServiceTypeIds).val() || [],
-            };
-            showDev(data);
+                jsonData[key] = value === "" ? null : value;
+            });
+            console.log(jsonData)
+            showDev(formData);
             $.ajax({
                 url: '/CreateLead/CreateLeadData',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify(data),
+                data: JSON.stringify(jsonData),
                 success: function (response) {
                     if (response.success) {
                         toastr.success(response.message);
@@ -355,4 +341,70 @@ $(function () {
     });
 
 
+
+    function validateFields(fieldIds) {
+
+        let isValid = true;
+
+        fieldIds.forEach(id => {
+            const field = document.getElementById(id);
+            if (!field) return;
+
+            // Determine if field is a Select2 field
+            const isSelect2 = field.classList.contains("select2-hidden-accessible");
+            let value = field.value?.trim();
+
+            if (!value) {
+                isValid = false;
+
+                if (isSelect2) {
+                    // Apply red border to Select2 box
+                    const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
+                    if (select2Box) {
+                        select2Box.classList.add("is-invalid");
+                        select2Box.style.borderColor = "red !important";
+                    }
+                } else {
+                    field.classList.add("is-invalid");
+                    field.style.border = "2px solid red !important";
+                }
+            } else {
+                if (isSelect2) {
+                    const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
+                    if (select2Box) {
+                        select2Box.classList.remove("is-invalid");
+                        select2Box.style.borderColor = "";
+                    }
+                } else {
+                    field.classList.remove("is-invalid");
+                    field.style.border = "";
+                }
+            }
+
+            // Automatically remove red border when user types or selects
+            if (!field.dataset.listenerAttached) {
+                field.dataset.listenerAttached = true;
+
+                if (isSelect2) {
+                    $(field).on("change", function () {
+                        const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
+                        if (field.value?.trim() && select2Box) {
+                            select2Box.classList.remove("is-invalid");
+                            select2Box.style.borderColor = "";
+                        }
+                    });
+                } else {
+                    field.addEventListener("input", () => {
+                        if (field.value?.trim()) {
+                            field.classList.remove("is-invalid");
+                            field.style.border = "";
+                        }
+                    });
+                }
+            }
+        });
+
+        return isValid;
+    }
 });
+
