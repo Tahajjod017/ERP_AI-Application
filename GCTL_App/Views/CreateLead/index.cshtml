@@ -16,7 +16,11 @@
                         <label class="form-label">Customer Name</label>
                         <select asp-for="CustomerId" class="select2">
                         </select>
-                        
+                    </div>
+                    <div class="col-md-6" id="branchContainer" style="display:none">
+                        <label class="form-label">Branch Name</label>
+                        <select asp-for="BranchId" class="select2">
+                        </select>
                     </div>
 
                     <div class="col-md-6">
@@ -27,7 +31,6 @@
                         <label class="form-label">Lead Source</label>
                         <select asp-for="LeadSourceID" class="select2">
                         </select>
-                       
                     </div>
 
                     <div class="col-md-6">
@@ -50,7 +53,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label" class="form-label">@Html.SmartLocalize("Approximate Deal Value")</label>>
+                        <label class="form-label">@Html.SmartLocalize("Approximate Deal Value")</label>>
                         <input class="form-control" asp-for="ApproximateDealValue" type="text" placeholder="" />
                     </div>
                     <div class="col-md-6">
@@ -58,14 +61,14 @@
                         <select asp-for="ServiceTypeIds" asp-for="ServiceTypeIds" class="form-select select2-multi" multiple="multiple"> </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" class="form-label p-0">@Html.SmartLocalize("Probability (%)")</label>
+                        <label class="form-label p-0">@Html.SmartLocalize("Probability (%)")</label>
                         <div class="d-flex align-items-center">
                             <input type="range" class="form-range" asp-for="ProbabilityPercentage" min="0" max="100" step="1" value="0" oninput="completionValue.innerText = this.value + '%'">
                             <span class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">0%</span>
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <label class="form-label" class="form-label">@Html.SmartLocalize("Description")</label>
+                        <label class="form-label">@Html.SmartLocalize("Description")</label>
                         <textarea class="form-control h-100" asp-for="LeadDescription" rows="3" placeholder=""></textarea>
                     </div>
 

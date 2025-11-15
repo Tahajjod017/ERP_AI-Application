@@ -13,6 +13,7 @@ namespace GCTL.Core.ViewModels.CRM
         public decimal? ProbabilityPercentage { get; set; }
         public string? LeadDescription { get; set; }
         public int CustomerId { get; set; }
+        public int? BranchId { get; set; }
         public List<int> ServiceTypeIds { get; set; } = new List<int>();
     }
 }

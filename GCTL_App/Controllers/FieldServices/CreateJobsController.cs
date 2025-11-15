@@ -53,7 +53,7 @@ namespace GCTL_App.Controllers.FieldServices
 
         #region get Customer
         [HttpGet]
-        public async Task<IActionResult> GetCustomers(string search = "", int page = 1, int pageSize = 10)
+        public async Task<IActionResult> GetCustomers(string search = "", int page = 1, int pageSize = 20)
         {
             var result = await _createJobService.GetPagedEmployeesAsync(
                 search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0

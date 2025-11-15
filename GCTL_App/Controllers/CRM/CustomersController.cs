@@ -301,5 +301,29 @@ namespace GCTL_App.Controllers.CRM
             }
         }
         #endregion
+
+        #region get Branch List for dropdown
+        [HttpGet]
+        public async Task<IActionResult> GetBranches(int customerID, string search = "", int page = 1, int pageSize = 20)
+        {
+            var result = await _customerService.GetPagedBranchesAsync(
+                customerID, search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+
+            var more = (page * pageSize) < result.totalItem;
+
+            var formatted = new
+            {
+                results = result.data != null ?  result.data.Select(c => new
+                {
+                    id = c.Bid,
+                    text = $"{c.BName}"
+                }) : [],
+                pagination = new { more }
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
     }
 }
