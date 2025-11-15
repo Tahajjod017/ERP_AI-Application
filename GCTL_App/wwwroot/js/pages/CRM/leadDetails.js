@@ -67,6 +67,27 @@ $(function () {
         }
     });
 
+    $("#ContectPersonId").select2({
+        placeholder: 'Select Country',
+        ajax: {
+            url: '/CreateJobs/GetCountryList',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return { search: params.term || '', page: params.page || 1 };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.results,
+                    pagination: { more: data.pagination.more }
+                };
+            },
+            cache: true
+        },
+        width: '100%',
+    });
+
     // won cancel btn
     $('#won-btn-cancel').on('click', function () {
         $('#dateField').show();
