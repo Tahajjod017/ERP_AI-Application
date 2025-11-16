@@ -68,19 +68,45 @@ $(function () {
     });
 
     $("#ContectPersonId").select2({
-        placeholder: 'Select Country',
+        placeholder: 'Select Contact Person',
         ajax: {
-            url: '/CreateJobs/GetCountryList',
+            url: "/LeadDetails/GetContactNumberList",
             dataType: 'json',
             delay: 250,
             data: function (params) {
-                return { search: params.term || '', page: params.page || 1 };
+                return { leadId: $(ids.leadID).val(),search: params.term || '', page: params.page || 1 };
             },
             processResults: function (data, params) {
                 params.page = params.page || 1;
                 return {
-                    results: data.results,
-                    pagination: { more: data.pagination.more }
+                    results: data.items.map(x => ({
+                        id: x.value,
+                        text: x.label
+                    })),
+                    pagination: { more: data.hasMore }
+                };
+            },
+            cache: true
+        },
+        width: '100%',
+    });
+    $("#ContectPersonEmailId").select2({
+        placeholder: 'Select Contact Email',
+        ajax: {
+            url: "/LeadDetails/GetContactEmailList",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return { leadId: $(ids.leadID).val(),search: params.term || '', page: params.page || 1 };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.items.map(x => ({
+                        id: x.value,
+                        text: x.label
+                    })),
+                    pagination: { more: data.hasMore }
                 };
             },
             cache: true

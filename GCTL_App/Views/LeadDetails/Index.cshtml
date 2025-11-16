@@ -488,23 +488,24 @@
                             <div class="mb-1">
                                 <div class="row g-3">
                                     <div class="col-6">
-                                        <label class="text-body-highlight fw-bold mb-2">Set Date and Time</label>
-                                        <div class="input-group mb-3">
-                                        <input class="form-control datetimepicker" id="aDate" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
+                                        <label class="text-body-highlight fw-bold mb-2 form-label fw-9">Set Date and Time</label>
+                                        <div class="input-group">
+                                            <input class="form-control datetimepicker" id="aDate" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
                                             <span class="input-group-text " id="basic-addon2">
                                                 <span class="fs-7 fa-solid far fa-calendar me-2 tab-icon-color"></span>
                                             </span>
                                         </div>
                                     </div>
-                                    <div>
-                                        <div class="col-md-6 ps-1 col-sm-6">
-                                            <label class="form-label">Contact Person</label>
-                                            <select id="ContectPersonId" class="countryField searchableSelect select2">
-                                                <option value="">Select Contact Person</option>
-                                            </select>
-                                        </div>
+                                    <div class="col-md-6 col-sm-6">
+                                        <label class="form-label fw-9 fw-bold pb-2">Contact Person Phone</label>
+                                        <select id="ContectPersonId" class="select2">
+                                        </select>
                                     </div>
-                                    
+                                    <div class="col-md-6 col-sm-6">
+                                        <label class="form-label fw-9 fw-bold pb-2">Contact Person Email</label>
+                                        <select id="ContectPersonEmailId" class="select2">
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -513,7 +514,7 @@
                         <div class="mb-1" id="file-field" style="display:none;">
                             <div class="row g-3">
                                 <div class="col-6">
-                                    <label class="text-body-highlight fw-bold mb-2">File</label>
+                                <label class="text-body-highlight form-label fw-9 fw-bold mb-2">File</label>
                                     <div class="mb-3">
                                         <input class="form-control" type="file" id="aFile">
                                     </div>
@@ -521,15 +522,12 @@
                             </div>
                         </div>
 
-       
-
                         <input type="number" id="leadID" value="@Model.LeadID" hidden/>
-
 
                         <!-- Note field -->
                         <div class="col-md-12" id="note-Field">
                             <div class="mb-3">
-                                <label class="text-body-highlight mb-2">Note </label>
+                                <label class="form-label fw-9 fw-bold pb-2">Note </label>
                                 <textarea class="form-control" id="aNote" rows="3"> </textarea>
                             </div>
                         </div>
@@ -591,14 +589,13 @@
                             }
                         </ul>
                         <div id="activity-result-div">
-                            <h2 class="mb-4" id="activity-label"></h2>
+                            <h2 class="mb-2" id="activity-label"></h2>
                             <div class="row align-items-center g-3 justify-content-between justify-content-start">
                                 <div class="col-12 col-sm-auto">
                                     <div class="search-box mb-2 mb-sm-0">
                                         <form class="position-relative">
                                             <input class="form-control search-input search ms-1" id="search-activity" type="search" placeholder="Search Activity" aria-label="Search" />
                                             <span class="fas fa-search search-box-icon"></span>
-
                                         </form>
                                     </div>
                                 </div>

@@ -345,46 +345,53 @@ $(function () {
     //#region create Lead
     $("#indexSaveBtn").on("click", function (e) {
         e.preventDefault();
-        let services = $("#serviceTypes").val();
 
         if (validateFields(fields)) {
-            debugger
-            const form = this.closest("form");
-            if (!form) return;
+            const form = document.getElementById("leadForm");
+            const token = document.querySelector("input[name='__RequestVerificationToken']").value;
+
             const formData = new FormData(form);
             const jsonData = {};
+
             formData.forEach((value, key) => {
-                // Optional: Convert empty string to null for numbers
+                if (key === "__RequestVerificationToken") return; // skip token
+
+                // convert numbers
+                if (["CustomerId", "LeadStatusID", "LeadSourceID", "LeadOwnerID", "PriorityID"].includes(key)) {
+                    value = parseInt(value) || 0;
+                }
+                if (["ApproximateDealValue", "ProbabilityPercentage"].includes(key)) {
+                    value = parseFloat(value) || 0;
+                }
+
+                // handle multi-select ServiceTypeIds
+                if (key === "ServiceTypeIds") {
+                    if (!jsonData[key]) jsonData[key] = [];
+                    jsonData[key].push(parseInt(value));
+                    return;
+                }
 
                 jsonData[key] = value === "" ? null : value;
             });
-            console.log(jsonData)
-            showDev(formData);
+
             $.ajax({
                 url: '/CreateLead/CreateLeadData',
                 method: 'POST',
-                contentType: 'application/json',
+                contentType: "application/json; charset=utf-8",
+                headers: {
+                    "RequestVerificationToken": token
+                },
                 data: JSON.stringify(jsonData),
                 success: function (response) {
                     if (response.success) {
                         toastr.success(response.message);
-                        document.getElementById("leadForm").reset();
+                        form.reset();
                         window.location.href = "/crm/Index";
                     } else {
                         toastr.error(response.message || "Failed to create lead");
                     }
-                },
-                error: function (xhr, status, error) {
-                    if (xhr.status === 403 && xhr.responseJSON) {
-                        toastr.error(xhr.responseJSON.message || "Access denied.", 'Permission Denied');
-                    } else {
-                        toastr.error("Unexpected error: " + error, 'Server Error');
-
-                    }
                 }
             });
-        } else {
-
         }
     });
     //#endregion

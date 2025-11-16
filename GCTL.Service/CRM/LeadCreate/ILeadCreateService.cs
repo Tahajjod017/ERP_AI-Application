@@ -6,14 +6,15 @@ namespace GCTL.Service.CRM.LeadCreate
     public interface ILeadCreateService
     {
         #region CRUD
-        Task<CommonReturnViewModel> CreateLead(LeadsVM leadsVM);
+        Task<CommonReturnViewModel> CreateLead(int orgId, LeadsVM leadsVM);
         Task<CommonReturnViewModel> EditLead(LeadUpdateVM leadUpdateVM);
         Task<ReturnDataView<CommonSelectVM>> GetLeadSourceListAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CommonSelectVM>> GetLeadStatusListAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CommonSelectVM>> GetPriorityListAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CustomerInfoVM>> GetLeadOwnerListAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CommonSelectVM>> GetServiceListAsync(string search, int page, int pageSize, int organizationID);
-        Task<ReturnDataView<CommonSelectVM>> GetContactPersonAsync(int addressID, string search, int page, int pageSize, int organizationID);
+        Task<ReturnDataView<CommonSelectVM>> GetContactPersonNumberAsync(int leadId, string search, int page, int pageSize, int organizationID);
+        Task<ReturnDataView<CommonSelectVM>> GetContactPersonEmailAsync(int leadId, string search, int page, int pageSize, int organizationID);
         #endregion
     }
 }

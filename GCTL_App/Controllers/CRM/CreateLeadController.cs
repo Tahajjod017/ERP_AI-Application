@@ -7,6 +7,7 @@ using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GCTL_App.Controllers.CRM
 {
@@ -32,24 +33,21 @@ namespace GCTL_App.Controllers.CRM
 
         #region CreateLeadData
         [Permission("Create", "CreateLead")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> CreateLeadData([FromBody] LeadsVM leadsVM)
         {
             if (ModelState.IsValid)
             {
-                if (leadsVM.CustomerId != 0)
-                {
-                    var result = await _leadCreateService.CreateLead(leadsVM);
-                    return Ok(result);
-                }
+                var result = await _leadCreateService.CreateLead(await GetCurrentOrganizationIdAsync() ?? 0, leadsVM);
+                return Ok(result);
             }
-            var results = new ReturnView
+
+            return Ok(new ReturnView
             {
                 Success = false,
-                Message = "Data not inserted",
-            };
-            return Ok(results);
-
+                Message = "Data not inserted"
+            });
         }
         #endregion
 
@@ -167,27 +165,5 @@ namespace GCTL_App.Controllers.CRM
             return Json(formatted);
         }
         #endregion
-        //#region Get GetContactPerson List
-        //[HttpGet]
-        //public async Task<IActionResult> GetContactPersonList(int addressID,string search = "", int page = 1, int pageSize = 20)
-        //{
-        //    var result = await _leadCreateService.GetContactPersonAsync(
-        //       search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0, addressID
-        //    );
-        //    var hasMore = (page * pageSize) < result.totalItem;
-        //    var formatted = new
-        //    {
-        //        items = result.data.Select(c => new
-        //        {
-        //            value = c.Id.ToString(),
-        //            label = $"{c.Name ?? ""}",
-        //            group = ""
-        //        }),
-        //        hasMore
-        //    };
-
-        //    return Json(formatted);
-        //}
-        //#endregion
     }
 }
