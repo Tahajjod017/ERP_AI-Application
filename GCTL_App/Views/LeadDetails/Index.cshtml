@@ -476,7 +476,8 @@
                             {
                                 <button class="btn btn-phoenix-secondary me-1 option-btn mb-2"
                                         type="button"
-                                        data-id="@item.LeadActivityTypeID">
+                                        data-id="@item.LeadActivityTypeID"
+                                        data-usefor="@item.LeadActivityName">
                                     <span class="fs-7 mb-2 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
                                     <br>@item.LeadActivityName
                                 </button>
@@ -496,12 +497,12 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 col-sm-6">
+                                    <div class="col-md-6 col-sm-6" id="contact-field" style="display:none;">
                                         <label class="form-label fw-9 fw-bold pb-2">Contact Person Phone</label>
                                         <select id="ContectPersonId" class="select2">
                                         </select>
                                     </div>
-                                    <div class="col-md-6 col-sm-6">
+                                    <div class="col-md-6 col-sm-6" id="email-field" style="display:none;">
                                         <label class="form-label fw-9 fw-bold pb-2">Contact Person Email</label>
                                         <select id="ContectPersonEmailId" class="select2">
                                         </select>
@@ -585,7 +586,7 @@
                             {
                                 var safeName = item.LeadActivityName.Replace(" ", "-");
 
-                                <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="@safeName-tab"> <span class="fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>@item.LeadActivityName</a></li>
+                        <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="@safeName-tab" data-usefor="@item.LeadActivityName"> <span class="fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>@item.LeadActivityName</a></li>
                             }
                         </ul>
                         <div id="activity-result-div">

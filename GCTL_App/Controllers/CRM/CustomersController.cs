@@ -4,7 +4,6 @@ using GCTL.Service.CRM.Customer;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace GCTL_App.Controllers.CRM
 {

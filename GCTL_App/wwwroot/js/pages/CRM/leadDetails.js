@@ -3,6 +3,8 @@ $(function () {
         note: "#aNote",
         date: '#aDate',
         file: '#aFile',
+        contactNumber : "#ContectPersonId",
+        contactEmail : "#ContectPersonEmailId",
         leadID: '#leadID',
         addActiveBtn: '#addLActivity',
         wonConfirmDiv: '#won-fonfirm-div',
@@ -30,7 +32,7 @@ $(function () {
     $(".option-btn").on('click', function () {
         $(".option-btn").removeClass('active');
         $(this).addClass('active');
-
+        debugger
         let btnText = $(this).data('usefor');
         if (btnText === "Attachment") {
             $('#file-field').show();
@@ -38,10 +40,37 @@ $(function () {
             $(ids.addActiveBtn).removeClass('d-none');
             $(ids.addActiveBtn).removeAttr('disabled');
             $(ids.wonConfirmDiv).addClass('d-none');
-        } else if (btnText === "Won") {
+        }
+        else if (btnText === "Call") {
+            $('#email-field').hide();
+            $('#file-field').hide();
+            $('#contact-field').show();
+        }
+        else if (btnText === "Email") {
+            $('#contact-field').hide();
+            $('#file-field').hide();
+            $('#email-field').show();
+        }
+        else if (btnText === "Email") {
+            $('#contact-field').hide();
+            $('#file-field').hide();
+            $('#email-field').show();
+        }
+        else if (btnText === "Offline Meeting") {
+            $('#contact-field').show();
+            $('#file-field').hide();
+            $('#email-field').show();
+        }
+        else if (btnText === "Online Meeting") {
+            $('#contact-field').show();
+            $('#file-field').hide();
+            $('#email-field').show();
+        }
+        else if (btnText === "Won") {
             let isWonAlready = $(this).data('confirm');
             if (isWonAlready !== 'yes') {
                 $('#file-field').hide();
+                $('#contact-field').hide();
                 $('#dateField').hide();
                 $(ids.addActiveBtn).addClass('d-none');
                 $(ids.addActiveBtn).prop('disabled', true);
@@ -51,6 +80,8 @@ $(function () {
         } else if (btnText === "Lost") {
             $('#file-field').hide();
             $('#dateField').hide();
+            $('#contact-field').hide();
+            $('#email-field').hide();
             $('#note-Field').show();
 
             $(ids.addActiveBtn).removeClass('d-none');
@@ -60,7 +91,9 @@ $(function () {
             $('#file-field').hide();
             $('#dateField').show();
             $('#note-Field').show();
-
+            $('#contact-field').hide();
+            $('#email-field').hide();
+            //$('#contact-field').hide();
             $(ids.addActiveBtn).removeClass('d-none');
             $(ids.addActiveBtn).removeAttr('disabled');
             $(ids.wonConfirmDiv).addClass('d-none');
@@ -165,6 +198,8 @@ $(function () {
         const leadID = $(ids.leadID).val();
         const note = $(ids.note).val();
         const date = $(ids.date).val();
+        const contactNumber = $(ids.contactEmail).val();
+        const contactEmail = $(ids.contactNumber).val();
         const fileInput = $(ids.file)[0];
         const file = fileInput ? fileInput.files[0] : null;
 
@@ -184,6 +219,8 @@ $(function () {
         formData.append("LeadActivityTypeID", parseInt(buttonID));
         formData.append("ActivityNote", note || "");
         formData.append("ActivityTypeName", buttonName);
+        formData.append("ContactEmail", contactEmail);
+        formData.append("ContactNumber", contactNumber);
 
         if (buttonName !== "Won" && buttonName !== "Lost") {
             const convertedDate = convertToISODateTime(date);
@@ -191,7 +228,7 @@ $(function () {
             if (file) formData.append("File", file);
         }
         let isWonOrLostBtnSelected = $('.special-btn').hasClass('active');
-
+        console.log(formData);
         $.ajax({
             url: '/LeadDetails/SaveLeadActivity',
             method: 'POST',

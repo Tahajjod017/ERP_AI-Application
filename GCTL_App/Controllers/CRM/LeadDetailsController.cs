@@ -291,7 +291,7 @@ namespace GCTL_App.Controllers.CRM
             {
                 items = result.data.Select(c => new
                 {
-                    value = c.Id.ToString(),
+                    value = c.Name ?? "",
                     label = $"{c.Name ?? ""}",
                     group = ""
                 }),
@@ -313,7 +313,7 @@ namespace GCTL_App.Controllers.CRM
             {
                 items = result.data.Select(c => new
                 {
-                    value = c.Id.ToString(),
+                    value = c.Name ?? "",
                     label = $"{c.Name ?? ""}",
                     group = ""
                 }),

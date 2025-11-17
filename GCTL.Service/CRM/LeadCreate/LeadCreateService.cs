@@ -503,29 +503,34 @@ namespace GCTL.Service.CRM.LeadCreate
                 }
 
                 var totalCount = await query.CountAsync();
+                var baseContacts = await query.Include(x=>x.Address).ThenInclude(x=>x.CustomerAddresses).ThenInclude(x => x.AddressType).Include(x=>x.Address).ThenInclude(x=>x.CompanyBranchAddresses).ThenInclude(x=> x.AddressType).OrderBy(c => c.CreatedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
-                var items = await query
-                    .OrderBy(c => c.CreatedAt)
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .Select(t => new CommonSelectVM
+                var items = baseContacts
+                    .SelectMany(t=> new[]
                     {
-                        Id = t.OtherContactID,
+                        new {Contact = t, Phone = t.Phone1, Label="Phone1"},
+                        new {Contact = t, Phone = t.Phone2, Label="Phone2"},
+                    })
+                    .Where(x =>
+                        (!string.IsNullOrEmpty(x.Phone))
+                    ).Select(t => new CommonSelectVM
+                    {
+                        Id = t.Contact.OtherContactID,
                         Name =
-                            t.FirstName + " " +
-                            (t.LastName ?? "") + " " +
-                            (t.Phone1 ?? "") + " (" + Capitalize
+                            t.Contact.FirstName + " " +
+                            (t.Contact.LastName ?? "") + " " +
+                            (t.Label) + ": " + (t.Phone)+ " (" + Capitalize
                             (
-                                t.Address.CustomerAddresses
-                                    .Select(x => x.AddressType.AddressTypeName)
+                                t.Contact.Address?.CustomerAddresses?
+                                    .Select(x => x.AddressType?.AddressTypeName)
                                     .FirstOrDefault() ??
-                                t.Address.CompanyBranchAddresses
-                                    .Select(x => x.AddressType.AddressTypeName)
+                                t.Contact.Address?.CompanyBranchAddresses
+                                    .Select(x => x.AddressType?.AddressTypeName)
                                     .FirstOrDefault() ??
                                 ""
                             ) + ")"
                     })
-                    .ToListAsync();
+                    .ToList();
 
 
 
@@ -579,6 +584,7 @@ namespace GCTL.Service.CRM.LeadCreate
                     .OrderBy(c => c.CreatedAt)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
+                    .Where(x=> x.Email != null && x.Email != "")
                     .Select(t => new CommonSelectVM
                     {
                         Id = t.OtherContactID,
