@@ -73,33 +73,14 @@
     //#endregion
 
     //#region customer edit
+
+    
     $(document).on("click", ".customer-edit", function () {
         let id = $(this).data("id");
-        $.ajax({
-            url: '/Customers/GetCustoerInfo',
-            method: 'POST',
-            data: {
-                id: id,
-            },
-            success: function (response) {
-                const rootHtmlDiv = $("#root-cotact-field");
-                rootHtmlDiv.empty();
-
-                changeTab("#customer-tab", "#customer");
-                GoToTop();
-                const form = document.querySelector("#customerForm");
-                select2ScrollingDataSet('#CountryID', response.countryID, response.countryName)
-                select2ScrollingDataSet('#OrganizationTypeID', response.organizationTypeID, response.organizationTypeName)
-                setFormValues(form, response);
-                if (response.contactInformations?.length > 0) {
-                    loadExistingContacts(response.contactInformations);
-                }
-            },
-            error: function (res) {
-                showDev(res)
-            }
-        });
-    })
+        loadCustomerData(id);
+        changeTab("#customer-tab", "#customer");
+        GoToTop();
+    });
     //#endregion
 
     //#region GetAll branch Data
@@ -207,18 +188,7 @@
     })
     //#endregion
 
-    //#region select2ScrollingDataSet
-    function select2ScrollingDataSet(fieldId, id, text) {
-        const countrySelect = $(fieldId);
-        if (id && text) {
-            let newOption = new Option(text, id, true, true);
-            countrySelect.append(newOption).trigger('change');
-        } else {
-            countrySelect.val('').trigger('change'); // clear if no country
-        }
 
-    }
-    //#endregion
 
     //#region warehouse edit
     $(document).on("click", ".warehouse-edit", function () {
@@ -278,25 +248,7 @@
     //#endregion
 
     //#region Save Form Value
-    function setFormValues(form, jsonData) {
-        
-        Object.keys(jsonData).forEach(key => {
-            const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
-            const input = form.querySelector(`[name="${capitalizedKey}"]`);
-            if (!input) return;
-
-            const value = jsonData[key] ?? "";
-
-            if (input.type === "checkbox") {
-                input.checked = !!value;
-            } else if (input.type === "radio") {
-                const radio = form.querySelector(`input[name="${key}"][value="${value}"]`);
-                if (radio) radio.checked = true;
-            } else {
-                input.value = value;
-            }
-        });
-    }
+    
     //#endregion    
 
     //#region change Tag

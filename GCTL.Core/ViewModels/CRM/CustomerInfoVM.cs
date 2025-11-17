@@ -9,6 +9,7 @@ namespace GCTL.Core.ViewModels.CRM
     public class CustomerInfoVM
     {
         public int LeadID { get; set; }
+        public int? CustomerId { get; set; }
         public string? LeadName { get; set; }
         public string? FullName { get; set; }
         public int LeadSourceID { get; set; }

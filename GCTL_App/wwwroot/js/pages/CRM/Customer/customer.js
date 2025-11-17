@@ -57,6 +57,11 @@ window.initCustomerForm = function (root) {
         });
     }
 
+
+    window.showClose = function () {
+        $("#close-btn").css("display", "block");
+    }
+
     const compnayTypeSelect = root.querySelector("#OrganizationTypeID");
     if (compnayTypeSelect && !compnayTypeSelect.dataset.listenerAttached) {
         compnayTypeSelect.dataset.listenerAttached = true;
@@ -152,6 +157,7 @@ window.initCustomerForm = function (root) {
                         if (typeof loadTableData == 'function') {
                             loadTableData();
                         }
+     
                     } else {
                         toastr.error(data.message || "Something went wrong!");
                     }
@@ -284,7 +290,7 @@ window.initCustomerForm = function (root) {
         return `
     <div class="row align-items-center gap-2 mx-2 mb-2 contact-item p-2">
         <!-- Index number -->
-        <div class="col-auto text-center align-self-center fw-bold fs-6">
+        <div class="col-auto text-center align-self-center fw-bold fs-6" style="margin-top: 23px!important;">
             ${index + 1}
         </div>
 
@@ -322,7 +328,7 @@ window.initCustomerForm = function (root) {
 
         <!-- Delete button -->
         <div class="col-auto text-center">
-            <button type="button" class="btn btn-sm btn-danger remove-contact" title="Remove Contact" class="removeBtn"  data-contact-id="${c.id ?? 0}">
+            <button type="button" class="btn btn-sm btn-danger remove-contact" title="Remove Contact" class="removeBtn"  data-contact-id="${c.id ?? 0}" style="margin-top: 23px!important;">
                 <i class="fas fa-trash"></i>
             </button>
         </div>
@@ -466,3 +472,57 @@ function reIndexContacts() {
 }
 //#endregion
 
+window.loadCustomerData = function (id) {
+    $.ajax({
+        url: '/Customers/GetCustoerInfo',
+        method: 'POST',
+        data: {
+            id: id,
+        },
+        success: function (response) {
+            const rootHtmlDiv = $("#root-cotact-field");
+            rootHtmlDiv.empty();
+            const form = document.querySelector("#customerForm");
+            select2ScrollingDataSet('#CountryID', response.countryID, response.countryName)
+            select2ScrollingDataSet('#OrganizationTypeID', response.organizationTypeID, response.organizationTypeName)
+            setFormValues(form, response);
+            if (response.contactInformations?.length > 0) {
+                loadExistingContacts(response.contactInformations);
+            }
+        },
+        error: function (res) {
+            showDev(res)
+        }
+    });
+}
+window.setFormValues = function (form, jsonData) {
+
+    Object.keys(jsonData).forEach(key => {
+        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+        const input = form.querySelector(`[name="${capitalizedKey}"]`);
+        if (!input) return;
+
+        const value = jsonData[key] ?? "";
+
+        if (input.type === "checkbox") {
+            input.checked = !!value;
+        } else if (input.type === "radio") {
+            const radio = form.querySelector(`input[name="${key}"][value="${value}"]`);
+            if (radio) radio.checked = true;
+        } else {
+            input.value = value;
+        }
+    });
+}
+//#region select2ScrollingDataSet
+window.select2ScrollingDataSet = function (fieldId, id, text) {
+    const countrySelect = $(fieldId);
+    if (id && text) {
+        let newOption = new Option(text, id, true, true);
+        countrySelect.append(newOption).trigger('change');
+    } else {
+        countrySelect.val('').trigger('change'); // clear if no country
+    }
+
+}
+//#endregion

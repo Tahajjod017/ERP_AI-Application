@@ -67,6 +67,7 @@ namespace GCTL_App.Controllers.CRM
                                      where lead.LeadID == id
                                      select new CustomerInfoVM
                                      {
+                                         CustomerId = customer.CustomerID,
                                          FullName = customer.FullName,
                                          LeadName = lead.LeadName,
                                          LeadID = lead.LeadID,

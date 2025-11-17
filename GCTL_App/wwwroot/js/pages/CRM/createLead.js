@@ -409,6 +409,9 @@ $(function () {
                     window[key](el);
                     el.dataset.initialized = true; // optional flag
                 }
+                if (typeof showClose == "function") {
+                    showClose();
+                }
             });
 
             // Show modal
