@@ -123,8 +123,8 @@
                     <div class="col-md-6">
                         <div class="mb-2">
                             <label class="form-label" asp-for="StatusID"></label>
-                            <select class="form-select" asp-for="StatusID" asp-items="@ViewBag.StatusDD as SelectList">
-                                <option value="" selected disabled>Select Status</option>
+                            <select class="form-select" asp-for="StatusID" asp-items="ViewBag.StatusDD">
+                                <option value="">Select Status</option> <!-- optional placeholder -->
                             </select>
                         </div>
                     </div>

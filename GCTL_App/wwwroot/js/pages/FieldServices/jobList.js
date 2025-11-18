@@ -80,14 +80,7 @@ function loadJobs(pageNumber = 1) {
                                 </div>
                             </div>
                         </td>
-                    </tr>
-`
-            //    rows += `<tr>
-            //    <td>${job.createJobID}</td>
-            //    <td>${job.jobTitle}</td>
-            //    <td>${job.customerName || '-'}</td>
-            //    <td>${new Date(job.startDateTime).toLocaleString()}</td>
-            //</tr>`;
+                    </tr>`
             });
 
             $('#leal-tables-body').html(rows);

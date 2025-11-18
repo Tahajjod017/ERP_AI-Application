@@ -24,7 +24,8 @@ namespace GCTL_App.Controllers.FieldServices
         public IActionResult Index()
         {
             ViewBag.JobTypesDD = new SelectList(_jobTypeRepository.AllActive().Select(t => new {t.JobTypeID, t.JobTypeName}), "JobTypeID", "JobTypeName");
-            ViewBag.StatusDD = new SelectList(_statusRepository.AllActive().Where(t => t.StatusType == "FieldService").Select(t => new {t.StatusID, t.StatusName}), "StatusID", "StatusName");
+            ViewBag.StatusDD = new SelectList(_statusRepository.AllActive().Select(t => new {t.StatusID, t.StatusName}), "StatusID", "StatusName");
+
             return View();
         }
 
