@@ -77,8 +77,9 @@ namespace GCTL_App.Controllers.CRM
          string sortDirection = "desc",
          string leadStatus = "")
         {
+            int currentOrgId = await GetCurrentOrganizationIdAsync() ?? 0;
             var (leads, totalCount) = await _crmService.GetLeads(
-                customerType, dateRange, leadStatus, pageNumber, pageSize,
+                currentOrgId, customerType, dateRange, leadStatus, pageNumber, pageSize,
                 searchTerm, sortColumn, sortDirection
             );
 

@@ -272,122 +272,136 @@ namespace GCTL.Service.CRM.Customer
 
         #region contact create and Update
         // create and update in one contact function
-        public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model, int addressId)
+
+public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model, int addressId)
+    {
+        var result = new ReturnView();
+
+        if (addressId <= 0 || model == null || !model.Any())
+            return new ReturnView { Success = false, Message = "Invalid address ID or no contacts provided" };
+
+        try
         {
-            var result = new ReturnView();
+            await _customersRepository.BeginTransactionAsync();
 
-            if (addressId <= 0 || model == null || !model.Any())
-                return new ReturnView { Success = false, Message = "Invalid address ID or no contacts provided" };
+            // Filter valid contacts (must have FirstName or Phone)
+            var validContacts = model
+                .Where(c => !string.IsNullOrEmpty(c.FirstName) || !string.IsNullOrEmpty(c.Phone))
+                .ToList();
 
-            try
+            // Fetch IDs of contacts being updated
+            var existingContactIds = validContacts.Where(c => c.Id > 0).Select(c => c.Id).ToList();
+            var existingContacts = existingContactIds.Any()
+                ? await _otherContactsRepository.All()
+                    .Where(c => existingContactIds.Contains(c.OtherContactID))
+                    .ToListAsync()
+                : new List<OtherContacts>();
+
+            // Lists for batch operations
+            var contactsToAdd = new List<OtherContacts>();
+            var contactsToUpdate = new List<OtherContacts>();
+
+            foreach (var c in validContacts)
             {
-                await _customersRepository.BeginTransactionAsync();
+                var contact = existingContacts.FirstOrDefault(x => x.OtherContactID == c.Id);
 
-                // Filter valid contacts
-                var validContacts = model.Where(c => !string.IsNullOrEmpty(c.FirstName) || !string.IsNullOrEmpty(c.Phone)).ToList();
-
-                // 1️⃣ Fetch existing contacts in one query
-                var existingContactIds = validContacts.Where(c => c.Id > 0).Select(c => c.Id).ToList();
-                var existingContacts = existingContactIds.Any()
-                    ? await _otherContactsRepository.All()
-                        .Where(c => existingContactIds.Contains(c.OtherContactID))
-                        .ToListAsync()
-                    : new List<OtherContacts>();
-
-                // Lists for batch operations
-                var contactsToAdd = new List<OtherContacts>();
-                var contactsToUpdate = new List<OtherContacts>();
-
-                foreach (var c in validContacts)
+                if (contact != null)
                 {
-                    var contact = existingContacts.FirstOrDefault(x => x.OtherContactID == c.Id);
-                    if (contact != null)
+                    // Update existing contact
+                    contact.AddressID = addressId;
+                    contact.FirstName = c.FirstName;
+                    contact.LastName = c.LastName;
+                    contact.Designation = c.Designation;
+                    contact.Phone1 = c.Phone;
+                    contact.Phone2 = c.OtherPhone;
+                    contact.Email = c.Email;
+                    contact.LIP = c.LIP;
+                    contact.LMAC = c.LMAC;
+                    contact.UpdatedAt = DateTime.UtcNow;
+                    contact.UpdatedBy = c.UpdatedBy;
+
+                    contactsToUpdate.Add(contact);
+                }
+                else
+                {
+                    // Create new contact
+                    var newContact = new OtherContacts
                     {
-                        // Update existing contact
-                        contact.AddressID = addressId;
-                        contact.FirstName = c.FirstName;
-                        contact.LastName = c.LastName;
-                        contact.Designation = c.Designation;
-                        contact.Phone1 = c.Phone;
-                        contact.Phone2 = c.OtherPhone;
-                        contact.Email = c.Email;
-                        contact.LIP = c.LIP;
-                        contact.LMAC = c.LMAC;
-                        contact.UpdatedAt = DateTime.UtcNow;
-                        contact.UpdatedBy = c.UpdatedBy;
+                        AddressID = addressId,
+                        FirstName = c.FirstName,
+                        LastName = c.LastName,
+                        Designation = c.Designation,
+                        Phone1 = c.Phone,
+                        Phone2 = c.OtherPhone,
+                        Email = c.Email,
+                        LIP = c.LIP,
+                        LMAC = c.LMAC,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = c.CreatedBy
+                    };
 
-                        contactsToUpdate.Add(contact);
-                    }
-                    else
-                    {
-                        // Create new contact
-                        var newContact = new OtherContacts
-                        {
-                            AddressID = addressId,
-                            FirstName = c.FirstName,
-                            LastName = c.LastName,
-                            Designation = c.Designation,
-                            Phone1 = c.Phone,
-                            Phone2 = c.OtherPhone,
-                            Email = c.Email,
-                            LIP = c.LIP,
-                            LMAC = c.LMAC,
-                            CreatedAt = DateTime.UtcNow,
-                            CreatedBy = c.CreatedBy
-                        };
-
-                        contactsToAdd.Add(newContact);
-                    }
+                    contactsToAdd.Add(newContact);
                 }
-
-                // 2️⃣ Batch update and add
-                if (contactsToUpdate.Any())
-                {
-                    await _otherContactsRepository.UpdateRangeAsync(contactsToUpdate);
-                }
-
-                if (contactsToAdd.Any())
-                {
-                    await _otherContactsRepository.AddRangeAsync(contactsToAdd);
-                }
-
-                // 3️⃣ Save changes once
-                await _customersRepository.CommitTransactionAsync();
-
-                // 4️⃣ Action logs per contact after batch operations
-                // Prepare tasks
-                var logTasks = new List<Task>();
-
-                logTasks.AddRange(contactsToUpdate.Select(contact =>
-                    _userInfoService.ActionLogAsync("OtherContacts", ActionName.DataUpdated, null, contact, contact.OtherContactID)
-                ));
-
-                logTasks.AddRange(contactsToAdd.Select(contact =>
-                    _userInfoService.ActionLogAsync("OtherContacts", ActionName.DataAdd, null, contact, contact.OtherContactID)
-                ));
-
-                // Run all logs in parallel
-                await Task.WhenAll(logTasks);
-
-
-                result.Success = true;
-                result.Message = "Contacts saved successfully";
             }
-            catch (Exception ex)
+
+            // 🔥 LIMIT: Maximum 5 contacts allowed under same address
+            int existingCount = await _otherContactsRepository.AllActive()
+                                .CountAsync(x => x.AddressID == addressId);
+            int newAddCount = contactsToAdd.Count;
+
+            if (existingCount + newAddCount > 5)
             {
+                int allowedToAdd = 5 - existingCount;
+
                 await _customersRepository.RollbackTransactionAsync();
-                result.Success = false;
-                result.Message = $"Error saving contacts: {ex.Message}";
+
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = allowedToAdd <= 0
+                        ? "Maximum 5 contacts allowed for this address."
+                        : $"You can add only {allowedToAdd} more contact(s)."
+                };
             }
 
-            return result;
+            // ✔ Batch update then add
+            if (contactsToUpdate.Any())
+                await _otherContactsRepository.UpdateRangeAsync(contactsToUpdate);
+
+            if (contactsToAdd.Any())
+                await _otherContactsRepository.AddRangeAsync(contactsToAdd);
+
+            await _customersRepository.CommitTransactionAsync();
+
+            // 🔹 Log actions after transaction
+            var logTasks = new List<Task>();
+            logTasks.AddRange(contactsToUpdate.Select(contact =>
+                _userInfoService.ActionLogAsync("OtherContacts", ActionName.DataUpdated, null, contact, contact.OtherContactID)
+            ));
+            logTasks.AddRange(contactsToAdd.Select(contact =>
+                _userInfoService.ActionLogAsync("OtherContacts", ActionName.DataAdd, null, contact, contact.OtherContactID)
+            ));
+
+            await Task.WhenAll(logTasks);
+
+            result.Success = true;
+            result.Message = "Contacts saved successfully";
+        }
+        catch (Exception ex)
+        {
+            await _customersRepository.RollbackTransactionAsync();
+            result.Success = false;
+            result.Message = $"Error saving contacts: {ex.Message}";
         }
 
+        return result;
+    }
 
-        #endregion
 
-        #region delete Contact Info
-        public async Task<ReturnView> DeleteContactPersonAsync(int contactId)
+    #endregion
+
+    #region delete Contact Info
+    public async Task<ReturnView> DeleteContactPersonAsync(int contactId)
         {
             try
             {

@@ -4,11 +4,116 @@
         border: 2px solid red !important;
         box-shadow: 0 0 5px rgba(255, 0, 0, 1);
     }
+
+    .select2-selection {
+        height: 37px !important;
+        padding: 0 0 0 11px !important;
+        border-color: rgb(203, 208, 221) !important;
+    }
+
+    /* Timeline container */
+    .timeline {
+        position: relative;
+        margin: 2rem 0;
+    }
+
+        /* Vertical line */
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 40px;
+            width: 4px;
+            height: 100%;
+            background: #dee2e6;
+        }
+
+    /* Timeline item */
+    .timeline-item {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+    }
+
+    /* Timeline icon */
+    .timeline-icon {
+        flex-shrink: 0;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: #fff;
+        margin-right: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+        /* Activity type colors */
+        .timeline-icon.call {
+            background-color: #198754;
+        }
+
+        .timeline-icon.email {
+            background-color: #0d6efd;
+        }
+
+        .timeline-icon.meeting {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .timeline-icon.task {
+            background-color: #dc3545;
+        }
+
+    /* Timeline card */
+    .timeline-card {
+        flex-grow: 1;
+        background: #fff;
+        padding: 1rem 1.5rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+    }
+
+        .timeline-card h6 {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .timeline-card p {
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .timeline-card small {
+            color: #6c757d;
+        }
+
+    @@media (max-width: 576px) {
+        .timeline::before
+
+    {
+        left: 25px;
+    }
+
+    .timeline-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        margin-right: 0.5rem;
+    }
+
+    }
 </style>
 <div class="container p-0 d-flex flex-column align-items-center">
     <div class="row col-md-12 mb-2">
         <h3 class="fs-4 mb-3">@Html.SmartLocalize("Create Lead")</h3>
         <form class="bg-white py-4 form-control shadow-sm" action="shift-roster-ui.html" id="leadForm">
+            @Html.AntiForgeryToken()
             <div class="modal-body pb-2">
                 <div class="row gy-3 ">
 
@@ -53,7 +158,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">@Html.SmartLocalize("Approximate Deal Value")</label>>
+                        <label class="form-label">@Html.SmartLocalize("Approximate Deal Value")</label>
                         <input class="form-control" asp-for="ApproximateDealValue" type="text" placeholder="" />
                     </div>
                     <div class="col-md-6">

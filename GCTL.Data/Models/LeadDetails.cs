@@ -35,6 +35,10 @@ public partial class LeadDetails
 
     public string? FileLink { get; set; }
 
+    public string? PhoneNumber { get; set; }
+
+    public string? EmailAddress { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }

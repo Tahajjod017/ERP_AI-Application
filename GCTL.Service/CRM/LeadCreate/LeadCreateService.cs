@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SkiaSharp;
 using System.Security.Cryptography;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace GCTL.Service.CRM.LeadCreate
@@ -33,7 +34,7 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly ITransactionAccountService _transactionAccountService;
         #endregion
 
-        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, ITransactionAccountService transactionAccountService, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<LeadStatuses> statusesRepository, IGenericRepository<LeadSources> sourcesRepository, IGenericRepository<Services> servicesRepository)
+        public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, ITransactionAccountService transactionAccountService, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<LeadStatuses> statusesRepository, IGenericRepository<LeadSources> sourcesRepository, IGenericRepository<Services> servicesRepository, IGenericRepository<OtherContacts> otherContactsRepository)
         {
             _addressTypesRepository = addressTypesRepository;
             _leadsRepository = leadsRepository;
@@ -49,6 +50,7 @@ namespace GCTL.Service.CRM.LeadCreate
             _statusesRepository = statusesRepository;
             _sourcesRepository = sourcesRepository;
             _servicesRepository = servicesRepository;
+            _otherContactsRepository = otherContactsRepository;
         }
         #endregion
 
@@ -80,60 +82,76 @@ namespace GCTL.Service.CRM.LeadCreate
         #endregion
 
         #region CreateLead
-        public async Task<CommonReturnViewModel> CreateLead(LeadsVM leadsVM)
+        public async Task<CommonReturnViewModel> CreateLead(int orgId, LeadsVM leadsVM)
         {
             // Begin transaction
             await _leadsRepository.BeginTransactionAsync();
 
             try
             {
-                // Get the customer address
-                var individualAddressObj = await _customerAddressesRepository.FirstOrDefaultAsync(
-                    u => u.CustomerID == leadsVM.CustomerId);
-
-                // Create lead
-                var leadObj = new Leads()
+                if (orgId > 0)
                 {
-                    CustomerID = individualAddressObj.CustomerID,
-                    LeadName = leadsVM.LeadName,
-                    LeadStatusID = leadsVM.LeadStatusID,
-                    LeadSourceID = leadsVM.LeadSourceID,
-                    LeadOwnerID = leadsVM.LeadOwnerID,
-                    PriorityID = leadsVM.PriorityID,
-                    ApproximateDealValue = leadsVM.ApproximateDealValue,
-                    ProbabilityPercentage = leadsVM.ProbabilityPercentage,
-                    LeadDescription = leadsVM.LeadDescription,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = leadsVM.CreatedBy,
-                    LIP = leadsVM.LIP,
-                    LMAC = leadsVM.LMAC,
-                    UpdatedAt = DateTime.UtcNow,
-                };
-                await _leadsRepository.AddAsync(leadObj);
-
-                // Add lead services if provided
-                if (leadsVM.ServiceTypeIds != null && leadsVM.ServiceTypeIds.Count > 0)
-                {
-                    var services = leadsVM.ServiceTypeIds.Select(serviceId => new LeadServices
+                    // Get the customer address
+                    var individualAddressObj = await _customerAddressesRepository.AllActive().Include(x => x.Customer).Where(u => u.CustomerID == leadsVM.CustomerId).FirstOrDefaultAsync();
+                    if (individualAddressObj != null)
                     {
-                        LeadID = leadObj.LeadID,
-                        ServiceID = serviceId,
-                        CreatedAt = DateTime.UtcNow,
-                        CreatedBy = leadsVM.CreatedBy,
-                        LIP = leadsVM.LIP,
-                        LMAC = leadsVM.LMAC,
-                    }).ToList();
+                        var leadObj = new Leads()
+                        {
+                            CustomerID = individualAddressObj.CustomerID,
+                            OrganizationID = orgId,
+                            LeadName = leadsVM.LeadName,
+                            CompanyBranchID = individualAddressObj.Customer != null && individualAddressObj.Customer.IsPerson == false ? leadsVM.BranchId : null,
+                            LeadStatusID = leadsVM.LeadStatusID,
+                            LeadSourceID = leadsVM.LeadSourceID,
+                            LeadOwnerID = leadsVM.LeadOwnerID,
+                            PriorityID = leadsVM.PriorityID,
+                            ApproximateDealValue = leadsVM.ApproximateDealValue,
+                            ProbabilityPercentage = leadsVM.ProbabilityPercentage,
+                            LeadDescription = leadsVM.LeadDescription,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = leadsVM.CreatedBy,
+                            LIP = leadsVM.LIP,
+                            LMAC = leadsVM.LMAC,
+                            UpdatedAt = DateTime.UtcNow,
+                        };
+                        await _leadsRepository.AddAsync(leadObj);
 
-                    await _leadServicesRepository.AddRangeAsync(services);
+                        // Add lead services if provided
+                        if (leadsVM.ServiceTypeIds != null && leadsVM.ServiceTypeIds.Count > 0)
+                        {
+                            var services = leadsVM.ServiceTypeIds.Select(serviceId => new LeadServices
+                            {
+                                LeadID = leadObj.LeadID,
+                                ServiceID = serviceId,
+                                CreatedAt = DateTime.UtcNow,
+                                CreatedBy = leadsVM.CreatedBy,
+                                LIP = leadsVM.LIP,
+                                LMAC = leadsVM.LMAC,
+                            }).ToList();
+
+                            await _leadServicesRepository.AddRangeAsync(services);
+                        }
+
+                        // Commit transaction
+                        await _leadsRepository.CommitTransactionAsync();
+
+                        return new CommonReturnViewModel
+                        {
+                            Success = true,
+                            Message = "Data saved successfully",
+                        };
+                    }
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Customer not found",
+                    };
                 }
-
-                // Commit transaction
-                await _leadsRepository.CommitTransactionAsync();
-
+                // Create lead
                 return new CommonReturnViewModel
                 {
-                    Success = true,
-                    Message = "Data saved successfully",
+                    Success = false,
+                    Message = "We did not get your organization",
                 };
             }
             catch (Exception ex)
@@ -456,16 +474,20 @@ namespace GCTL.Service.CRM.LeadCreate
             catch (Exception ex) { return new ReturnDataView<CommonSelectVM>(); }
         }
         #endregion
-        #region get Service List 
-        public async Task<ReturnDataView<CommonSelectVM>> GetContactPersonAsync(int addressID, string search, int page, int pageSize, int organizationID)
+
+        
+        #region GetContactPersonNumberAsync
+        public async Task<ReturnDataView<CommonSelectVM>> GetContactPersonNumberAsync(
+            int leadId, string search, int page, int pageSize, int organizationID)
         {
             try
             {
-                var query = _otherContactsRepository
-                .AllActive()
-                .Where(q => q.AddressID == addressID);
+                var leadObj = await _leadsRepository.GetByIdAsync(leadId);
 
-                if (!string.IsNullOrWhiteSpace(search))
+                var query = _otherContactsRepository.AllActive().Where(x=> 
+                x.Address!= null && x.Address.CustomerAddresses.Any(x=>x.CustomerID == leadObj.CustomerID) || x.Address != null && x.Address.CompanyBranchAddresses.Any(x => x.BranchID == leadObj.CompanyBranchID));
+
+                if(!string.IsNullOrWhiteSpace(search))
                 {
                     string pattern = $"%{search}%";
 
@@ -473,6 +495,85 @@ namespace GCTL.Service.CRM.LeadCreate
                         c != null &&
                         (
                             EF.Functions.Like(c.FirstName, pattern) ||
+                            EF.Functions.Like(c.LastName, pattern) ||
+                            EF.Functions.Like(c.Phone1, pattern) ||
+                            EF.Functions.Like(c.Phone2, pattern) ||
+                            EF.Functions.Like(c.CreatedAt.ToString(), pattern)
+                        ));
+                }
+
+                var totalCount = await query.CountAsync();
+                var baseContacts = await query.Include(x=>x.Address).ThenInclude(x=>x.CustomerAddresses).ThenInclude(x => x.AddressType).Include(x=>x.Address).ThenInclude(x=>x.CompanyBranchAddresses).ThenInclude(x=> x.AddressType).OrderBy(c => c.CreatedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+                var items = baseContacts
+                    .SelectMany(t=> new[]
+                    {
+                        new {Contact = t, Phone = t.Phone1, Label="Phone1"},
+                        new {Contact = t, Phone = t.Phone2, Label="Phone2"},
+                    })
+                    .Where(x =>
+                        (!string.IsNullOrEmpty(x.Phone))
+                    ).Select(t => new CommonSelectVM
+                    {
+                        Id = t.Contact.OtherContactID,
+                        Name =
+                            t.Contact.FirstName + " " +
+                            (t.Contact.LastName ?? "") + " " +
+                            (t.Label) + ": " + (t.Phone)+ " (" + Capitalize
+                            (
+                                t.Contact.Address?.CustomerAddresses?
+                                    .Select(x => x.AddressType?.AddressTypeName)
+                                    .FirstOrDefault() ??
+                                t.Contact.Address?.CompanyBranchAddresses
+                                    .Select(x => x.AddressType?.AddressTypeName)
+                                    .FirstOrDefault() ??
+                                ""
+                            ) + ")"
+                    })
+                    .ToList();
+
+
+
+                return new ReturnDataView<CommonSelectVM>
+                {
+                    data = items,
+                    totalItem = totalCount,
+                    message = "Data loaded"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ReturnDataView<CommonSelectVM>
+                {
+                    data = new List<CommonSelectVM>(),
+                    totalItem = 0,
+                    message = $"Error: {ex.Message}"
+                };
+            }
+        }
+        #endregion
+
+        #region GetContactPersonNumberAsync
+        public async Task<ReturnDataView<CommonSelectVM>> GetContactPersonEmailAsync(
+            int leadId, string search, int page, int pageSize, int organizationID)
+        {
+            try
+            {
+                var leadObj = await _leadsRepository.GetByIdAsync(leadId);
+
+                var query = _otherContactsRepository.AllActive().Where(x=> 
+                x.Address!= null && x.Address.CustomerAddresses.Any(x=>x.CustomerID == leadObj.CustomerID) || x.Address != null && x.Address.CompanyBranchAddresses.Any(x => x.BranchID == leadObj.CompanyBranchID));
+
+                if(!string.IsNullOrWhiteSpace(search))
+                {
+                    string pattern = $"%{search}%";
+
+                    query = query.Where(c =>
+                        c != null &&
+                        (
+                            EF.Functions.Like(c.FirstName, pattern) ||
+                            EF.Functions.Like(c.LastName, pattern) ||
+                            EF.Functions.Like(c.Email, pattern) ||
                             EF.Functions.Like(c.CreatedAt.ToString(), pattern)
                         ));
                 }
@@ -482,12 +583,28 @@ namespace GCTL.Service.CRM.LeadCreate
                 var items = await query
                     .OrderBy(c => c.CreatedAt)
                     .Skip((page - 1) * pageSize)
-                    .Take(pageSize).Select(t => new CommonSelectVM
+                    .Take(pageSize)
+                    .Where(x=> x.Email != null && x.Email != "")
+                    .Select(t => new CommonSelectVM
                     {
                         Id = t.OtherContactID,
-                        Name = $"{t.FirstName} {t.LastName}",
+                        Name =
+                            t.FirstName + " " +
+                            (t.LastName ?? "") + " " +
+                            (t.Email ?? "") + " (" +
+                            Capitalize(
+                                t.Address.CustomerAddresses
+                                    .Select(x => x.AddressType.AddressTypeName)
+                                    .FirstOrDefault() ??
+                                t.Address.CompanyBranchAddresses
+                                    .Select(x => x.AddressType.AddressTypeName)
+                                    .FirstOrDefault() ??
+                                ""
+                            ) + ")"
                     })
                     .ToListAsync();
+
+
 
                 return new ReturnDataView<CommonSelectVM>
                 {
@@ -496,7 +613,25 @@ namespace GCTL.Service.CRM.LeadCreate
                     message = "Data loaded"
                 };
             }
-            catch (Exception ex) { return new ReturnDataView<CommonSelectVM>(); }
+            catch (Exception ex)
+            {
+                return new ReturnDataView<CommonSelectVM>
+                {
+                    data = new List<CommonSelectVM>(),
+                    totalItem = 0,
+                    message = $"Error: {ex.Message}"
+                };
+            }
+        }
+        #endregion
+
+        #region Capitalize function
+        public static string Capitalize(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "";
+
+            return char.ToUpper(value[0]) + value.Substring(1).ToLower();
         }
         #endregion
     }

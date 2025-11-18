@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace GCTL_App.Controllers.CRM
 {
     [Authorize]
@@ -68,6 +67,8 @@ namespace GCTL_App.Controllers.CRM
                                      where lead.LeadID == id
                                      select new CustomerInfoVM
                                      {
+                                         CustomerId = lead.CustomerID,
+                                         BranchId = lead.CompanyBranchID,
                                          FullName = customer.FullName,
                                          LeadName = lead.LeadName,
                                          LeadID = lead.LeadID,
@@ -158,6 +159,8 @@ namespace GCTL_App.Controllers.CRM
           {
               e.LeadDetailID,
               e.ActivityDateTime,
+              e.PhoneNumber,
+              e.EmailAddress,
               e.ActivityNote,
               e.FileLink,
               e.LeadActivityType.LeadActivityName,
@@ -279,5 +282,50 @@ namespace GCTL_App.Controllers.CRM
             var restult = await _leadDetailsService.RestoreLead(id);
             return Ok(restult);
         }
+
+        #region Get GetContactPerson List
+        [HttpGet]
+        public async Task<IActionResult> GetContactNumberList(int leadId, string search = "", int page = 1, int pageSize = 20)
+        {
+            var result = await _leadCreateService.GetContactPersonNumberAsync(
+               leadId, search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+            var hasMore = (page * pageSize) < result.totalItem;
+            var formatted = new
+            {
+                items = result.data.Select(c => new
+                {
+                    value = c.Name ?? "",
+                    label = $"{c.Name ?? ""}",
+                    group = ""
+                }),
+                hasMore
+            };
+
+            return Json(formatted);
+        }
+        #endregion
+        #region Get GetContactPerson List
+        [HttpGet]
+        public async Task<IActionResult> GetContactEmailList(int leadId, string search = "", int page = 1, int pageSize = 20)
+        {
+            var result = await _leadCreateService.GetContactPersonEmailAsync(
+               leadId, search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+            var hasMore = (page * pageSize) < result.totalItem;
+            var formatted = new
+            {
+                items = result.data.Select(c => new
+                {
+                    value = c.Name ?? "",
+                    label = $"{c.Name ?? ""}",
+                    group = ""
+                }),
+                hasMore
+            };
+
+            return Json(formatted);
+        }
+        #endregion
     }
 }

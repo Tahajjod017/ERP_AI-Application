@@ -52,9 +52,16 @@
                     </div>
                     <!-- Right Section -->
                     <div class="col-md-6">
-                        <div class="col-md-12 mb-2">
-                            <label class="form-label">Full Address</label>
-                            <input type="text" asp-for="SFullAddress" class="form-control" placeholder="e.g. 123 Main Street, Dhaka">
+                        <div class="col-md-12">
+                            <div class="mb-2">
+                                <label class="form-label">Full Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                    </span>
+                                    <input type="text" asp-for="SFullAddress" class="form-control" placeholder="e.g. 123 Main Street, Dhaka">
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-12">
                             <div class="row">

@@ -83,6 +83,8 @@ namespace GCTL.Service.CRM.LeadDetail
                         var leadTypeID = leadTypeObj.LeadActivityTypeID;
                         bool checkImageValidation = leadTypeObj.LeadActivityName == leadTypeObj2.LeadActivityName;
 
+                        
+
                         if (leadTypeID != 0)
                         {
                             var leadDetailsObj = new GCTL.Data.Models.LeadDetails()
@@ -91,6 +93,8 @@ namespace GCTL.Service.CRM.LeadDetail
                                 ActivityDateTime = utcDateTime,
                                 LeadActivityTypeID = leadTypeID,
                                 ActivityNote = leadDetailsVM.ActivityNote,
+                                PhoneNumber = leadDetailsVM.ContactNumber,
+                                EmailAddress =  leadDetailsVM.ContactEmail,
                                 FileLink = checkImageValidation && fileLocation != null ? fileLocation : null,
                                 CreatedAt = DateTime.UtcNow,
                                 CreatedBy = leadDetailsVM.CreatedBy,
@@ -204,6 +208,8 @@ namespace GCTL.Service.CRM.LeadDetail
                     ActivityDateTime = e.ActivityDateTime,
                     ActivityNote = e.ActivityNote,
                     FileLink = e.FileLink,
+                    PhoneNumber = e.PhoneNumber,
+                    EmailAddress = e.EmailAddress,
                     LeadActivityName = e.LeadActivityType.LeadActivityName,
                     LeadActivityIcon = e.LeadActivityType.LeadActivityIcon,
                     CreatedByName = e.CreatedByNavigation != null

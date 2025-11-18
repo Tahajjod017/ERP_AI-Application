@@ -51,6 +51,10 @@ public partial class Leads
 
     public int? OrganizationID { get; set; }
 
+    public int? CompanyBranchID { get; set; }
+
+    public virtual CompanyBranches? CompanyBranch { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Customers? Customer { get; set; }

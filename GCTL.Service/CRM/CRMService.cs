@@ -3,12 +3,6 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GCTL.Service.CRM
 {
@@ -28,6 +22,7 @@ namespace GCTL.Service.CRM
 
         #region Task
         public async Task<(List<LeadsTableVM> Leads, int TotalCount)> GetLeads(
+            int currentOrgId,
             int customerType,
             string dateRange,
             string leadStatus2,
@@ -50,6 +45,7 @@ namespace GCTL.Service.CRM
                             on lead.LeadSourceID equals leadSource.LeadSourceID
                         join leadOwner in _context.Employees
                             on lead.LeadOwnerID equals leadOwner.EmployeeID
+                        where lead.OrganizationID == currentOrgId
                         select new LeadsTableVM
                         {
                             LeadId = lead.LeadID,

@@ -2,6 +2,50 @@
 @model CustomerInfoVM
 
 <style>
+    /* Timeline vertical line */
+    /* Container for activities */
+    #upcoming-activity, #activity-list {
+        height: 360px; /* adjust as needed */
+        overflow-y: auto;
+        position: relative;
+        padding-left: 40px; /* space for circle + line */
+    }
+
+        /* Vertical line behind all activities */
+        #upcoming-activity .vertical-line, #activity-list .vertical-line {
+            position: absolute;
+            top: 0;
+            left: 51px; /* center of your circle */
+            width: 3px;
+            background-color: #0d6efd;
+            z-index: 0;
+        }
+
+            #upcoming-activity .vertical-line:after, #activity-list .vertical-line:after {
+                        height: 0% !important;
+            }
+        /* Activity item */
+        #upcoming-activity .activity-item, #activity-list .activity-item {
+            position: relative; /* above the line */
+            z-index: 1;
+            margin-bottom: 20px; /* spacing between items */
+        }
+
+        /* Icon/circle aligned with the line */
+        #upcoming-activity .d-flex.bg-primary-subtle, #activity-list .d-flex.bg-primary-subtle {
+            position: relative;
+            z-index: 1;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+    .select2-selection {
+        border-color: rgb(203, 208, 221) !important;
+    }
     .option-btn.active {
         background-color: #0d6efd; /* Bootstrap primary */
         color: white;
@@ -468,7 +512,8 @@
                         </div>
                     </div>
                 </div>
-
+            <input id="CustomerId" type="number" value="@Model.CustomerId" hidden />
+            <input id="BranchId" type="number" value="@Model.BranchId" hidden />
                 <div class="card mb-5">
                     <div class="card-body">
                         <div class="mb-4 p-1" id="optionBtnDiv">
@@ -476,7 +521,8 @@
                             {
                                 <button class="btn btn-phoenix-secondary me-1 option-btn mb-2"
                                         type="button"
-                                        data-id="@item.LeadActivityTypeID">
+                                        data-id="@item.LeadActivityTypeID"
+                                        data-usefor="@item.LeadActivityName">
                                     <span class="fs-7 mb-2 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
                                     <br>@item.LeadActivityName
                                 </button>
@@ -488,48 +534,45 @@
                             <div class="mb-1">
                                 <div class="row g-3">
                                     <div class="col-6">
-                                        <label class="text-body-highlight fw-bold mb-2">Set Date and Time</label>
-                                        <div class="input-group mb-3">
-                                        <input class="form-control datetimepicker" id="aDate" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
+                                        <label class="text-body-highlight fw-bold mb-2 form-label fw-9">Set Date and Time</label>
+                                        <div class="input-group">
+                                            <input class="form-control datetimepicker" id="aDate" type="text" placeholder="dd/mm/yyyy hour : minute" data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
                                             <span class="input-group-text " id="basic-addon2">
                                                 <span class="fs-7 fa-solid far fa-calendar me-2 tab-icon-color"></span>
                                             </span>
                                         </div>
                                     </div>
-                                    <div>
-                                        <div class="col-md-6 ps-1 col-sm-6">
-                                            <label class="form-label">Contact Person</label>
-                                            <select id="ContectPersonId" class="countryField searchableSelect select2">
-                                                <option value="">Select Contact Person</option>
-                                            </select>
+                                    <div class="col-md-6 col-sm-6" id="contact-field" style="display:none;">
+                                        <label class="form-label fw-9 fw-bold pb-2">Contact Person Phone</label>
+                                        <select id="ContectPersonId" class="select2" multiple="multiple">
+                                        <option></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6" id="email-field" style="display:none;">
+                                        <label class="form-label fw-9 fw-bold pb-2">Contact Person Email</label>
+                                        <select id="ContectPersonEmailId" class="select2" multiple="multiple">
+                                         <option></option>
+                                        </select>
+                                    </div>
+
+                                    <!-- file field-->
+                                    <div class="col-md-6 col-sm-6" id="file-field" style="display:none;">
+                                        <label class="text-body-highlight form-label fw-9 fw-bold mb-2">File</label>
+                                        <div class="mb-3">
+                                            <input class="form-control" type="file" id="aFile">
                                         </div>
                                     </div>
-                                    
                                 </div>
                             </div>
                         </div>
 
-                        <!-- file field-->
-                        <div class="mb-1" id="file-field" style="display:none;">
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <label class="text-body-highlight fw-bold mb-2">File</label>
-                                    <div class="mb-3">
-                                        <input class="form-control" type="file" id="aFile">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-       
 
                         <input type="number" id="leadID" value="@Model.LeadID" hidden/>
-
 
                         <!-- Note field -->
                         <div class="col-md-12" id="note-Field">
                             <div class="mb-3">
-                                <label class="text-body-highlight mb-2">Note </label>
+                                <label class="form-label fw-9 fw-bold pb-2">Note </label>
                                 <textarea class="form-control" id="aNote" rows="3"> </textarea>
                             </div>
                         </div>
@@ -549,7 +592,6 @@
                         </div>
 
                         <div class="d-flex align-items-center " id="activity-btn-div">
-
                             @foreach (var item in ViewBag.LeadActivityTypes2)
                             {
                                 <button
@@ -559,10 +601,7 @@
                                     <span class="fs-7 fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>
                                     @item.LeadActivityName
                                 </button>
-
-                                
                             }
-
                             <div><button class="btn btn-outline-danger rounded-pill d-none" id="restoreBtn2" >Restart</button></div>
                         </div>
 
@@ -574,9 +613,10 @@
                     <div class="card mt-3 p-1 d-none" id="upcomming-div">
                         <h4 class="pt-3 px-2 pb-2 border-bottom">Upcomming  Activities</h4>
 
-                       <div id="upcoming-activity">
-
-                       </div>
+                <div id="upcoming-activity" class="timeline-container">
+                    <!-- vertical line -->
+                    <div class="vertical-line"></div>
+                </div>
 
                     </div>
 
@@ -587,23 +627,24 @@
                             {
                                 var safeName = item.LeadActivityName.Replace(" ", "-");
 
-                                <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="@safeName-tab"> <span class="fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>@item.LeadActivityName</a></li>
+                        <li class="nav-item text-nowrap me-2" role="presentation"><a class="nav-link" id="@safeName-tab" data-usefor="@item.LeadActivityName"> <span class="fa-solid @item.LeadActivityIcon me-2 tab-icon-color"></span>@item.LeadActivityName</a></li>
                             }
                         </ul>
                         <div id="activity-result-div">
-                            <h2 class="mb-4" id="activity-label"></h2>
+                            <h2 class="mb-2" id="activity-label"></h2>
                             <div class="row align-items-center g-3 justify-content-between justify-content-start">
                                 <div class="col-12 col-sm-auto">
                                     <div class="search-box mb-2 mb-sm-0">
                                         <form class="position-relative">
                                             <input class="form-control search-input search ms-1" id="search-activity" type="search" placeholder="Search Activity" aria-label="Search" />
                                             <span class="fas fa-search search-box-icon"></span>
-
                                         </form>
                                     </div>
                                 </div>
                             </div>
-                            <div id="activity-list" class="activity-site"></div>
+                        </div>
+                        <div id="activity-list" class="activity-site timeline-container">
+                            <div class="vertical-line"></div>
                         </div>
                     </div>
                     
@@ -740,7 +781,13 @@
         </div>
     </div>
 </div>
-
+<!-- Modal -->
+<div class="modal fade" id="customerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" id="customerModalContent">
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script src="~/js/pages/CRM/customeToaster.js"></script>
     <script src="~/js/pages/CRM/leadDetails.js"></script>

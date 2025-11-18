@@ -39,6 +39,8 @@ public partial class CompanyBranches
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
+    public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
+
     public virtual OrganizationTypes? OrganizationType { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }

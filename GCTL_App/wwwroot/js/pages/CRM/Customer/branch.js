@@ -197,7 +197,9 @@
                             if (typeof loadWBranchTableData == 'function') {
                                 loadWBranchTableData();
                             }
-                            
+                            if (typeof closeWindow == "function") {
+                                closeWindow();
+                            }
                         } else {
                             toastr.error(data.message || "Something went wrong!");
                         }
@@ -353,7 +355,7 @@ function validateEmail(email) {
         return `
     <div class="row align-items-center gap-2 mx-2 mb-2 bcontact-item p-2">
         <!-- Index number -->
-        <div class="col-auto text-center align-self-center fw-bold fs-6">
+        <div class="col-auto text-center align-self-center fw-bold fs-6" style="margin-top: 23px!important;">
             ${index + 1}
         </div>
 
@@ -391,7 +393,7 @@ function validateEmail(email) {
 
         <!-- Delete button -->
         <div class="col-auto text-center">
-            <button type="button" class="btn btn-sm btn-danger bremove-contact" title="Remove Contact"  data-bcontact-id="${c.id ?? 0}">
+            <button type="button" class="btn btn-sm btn-danger bremove-contact" title="Remove Contact"  data-bcontact-id="${c.id ?? 0}" style="margin-top: 23px!important;">
                 <i class="fas fa-trash"></i>
             </button>
         </div>
@@ -481,3 +483,28 @@ function reIndexbContacts() {
     });
 }
 //#endregion
+
+window.loadBranchData = function (bid, cid) {
+    $.ajax({
+        url: '/Customers/GetBranchInfo',
+        method: 'POST',
+        data: {
+            customerID: cid,
+            branchId: bid,
+        },
+        success: function (response) {
+
+            const form = document.querySelector("#branchForm");
+            select2ScrollingDataSet('#BCountryID', response.bCountryID, response.bCountryName)
+            select2ScrollingDataSet("#BCustomerID", response.bCustomerID, response.bCustomerName)
+            select2ScrollingDataSet("#BOrganizationTypeID", response.bOrganizationTypeID, response.bOrganizationTypeName)
+            setFormValues(form, response);
+            if (response.bContactInformations?.length > 0) {
+                bloadExistingContacts(response.bContactInformations);
+            }
+        },
+        error: function (res) {
+            showDev(res);
+        }
+    });
+}
