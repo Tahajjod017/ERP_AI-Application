@@ -197,7 +197,9 @@
                             if (typeof loadWBranchTableData == 'function') {
                                 loadWBranchTableData();
                             }
-                            
+                            if (typeof closeWindow == "function") {
+                                closeWindow();
+                            }
                         } else {
                             toastr.error(data.message || "Something went wrong!");
                         }
@@ -481,3 +483,28 @@ function reIndexbContacts() {
     });
 }
 //#endregion
+
+window.loadBranchData = function (bid, cid) {
+    $.ajax({
+        url: '/Customers/GetBranchInfo',
+        method: 'POST',
+        data: {
+            customerID: cid,
+            branchId: bid,
+        },
+        success: function (response) {
+
+            const form = document.querySelector("#branchForm");
+            select2ScrollingDataSet('#BCountryID', response.bCountryID, response.bCountryName)
+            select2ScrollingDataSet("#BCustomerID", response.bCustomerID, response.bCustomerName)
+            select2ScrollingDataSet("#BOrganizationTypeID", response.bOrganizationTypeID, response.bOrganizationTypeName)
+            setFormValues(form, response);
+            if (response.bContactInformations?.length > 0) {
+                bloadExistingContacts(response.bContactInformations);
+            }
+        },
+        error: function (res) {
+            showDev(res);
+        }
+    });
+}

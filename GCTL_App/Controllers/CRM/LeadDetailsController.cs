@@ -67,7 +67,8 @@ namespace GCTL_App.Controllers.CRM
                                      where lead.LeadID == id
                                      select new CustomerInfoVM
                                      {
-                                         CustomerId = customer.CustomerID,
+                                         CustomerId = lead.CustomerID,
+                                         BranchId = lead.CompanyBranchID,
                                          FullName = customer.FullName,
                                          LeadName = lead.LeadName,
                                          LeadID = lead.LeadID,
@@ -158,6 +159,8 @@ namespace GCTL_App.Controllers.CRM
           {
               e.LeadDetailID,
               e.ActivityDateTime,
+              e.PhoneNumber,
+              e.EmailAddress,
               e.ActivityNote,
               e.FileLink,
               e.LeadActivityType.LeadActivityName,

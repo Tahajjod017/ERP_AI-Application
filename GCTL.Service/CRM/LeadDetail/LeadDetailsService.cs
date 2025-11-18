@@ -208,6 +208,8 @@ namespace GCTL.Service.CRM.LeadDetail
                     ActivityDateTime = e.ActivityDateTime,
                     ActivityNote = e.ActivityNote,
                     FileLink = e.FileLink,
+                    PhoneNumber = e.PhoneNumber,
+                    EmailAddress = e.EmailAddress,
                     LeadActivityName = e.LeadActivityType.LeadActivityName,
                     LeadActivityIcon = e.LeadActivityType.LeadActivityIcon,
                     CreatedByName = e.CreatedByNavigation != null

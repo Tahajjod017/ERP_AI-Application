@@ -149,7 +149,6 @@ window.initCustomerForm = function (root) {
                     const data = await response.json();
                     console.log("Server response:", data);
                     if (response.ok && data.success) {
-                        debugger
                         const rootHtmlDiv = $("#root-cotact-field");
                         rootHtmlDiv.empty();
                         resetForm(form)
@@ -157,7 +156,9 @@ window.initCustomerForm = function (root) {
                         if (typeof loadTableData == 'function') {
                             loadTableData();
                         }
-     
+                        if (typeof closeWindow == "function") {
+                            closeWindow();
+                        }
                     } else {
                         toastr.error(data.message || "Something went wrong!");
                     }

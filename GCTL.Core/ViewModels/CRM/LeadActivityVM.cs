@@ -15,6 +15,8 @@ namespace GCTL.Core.ViewModels.CRM
         public string? LeadActivityName { get; set; }
         public string? LeadActivityIcon { get; set; }
         public string? CreatedByName { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? EmailAddress { get; set; }
     }
 
 }

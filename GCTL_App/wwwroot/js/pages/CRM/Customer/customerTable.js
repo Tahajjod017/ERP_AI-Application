@@ -152,34 +152,13 @@
     $(document).on("click", ".branch-edit", function () {
         let bid = $(this).data("bid");
         let cid = $(this).data("cid");
-
-        $.ajax({
-            url: '/Customers/GetBranchInfo',
-            method: 'POST',
-            data: {
-                customerID: cid,
-                branchId: bid,
-            },
-            success: function (response) {
-                showDev(response)
-                changeTab("#branch-tab", "#branch");
-                hideOffcanvas('branchOffcanvasBottom');
-
-                const form = document.querySelector("#branchForm");
-                select2ScrollingDataSet('#BCountryID', response.bCountryID, response.bCountryName)
-                select2ScrollingDataSet("#BCustomerID", response.bCustomerID, response.bCustomerName)
-                select2ScrollingDataSet("#BOrganizationTypeID", response.bOrganizationTypeID, response.bOrganizationTypeName)
-                setFormValues(form, response);
-                if (response.bContactInformations?.length > 0) {
-                    bloadExistingContacts(response.bContactInformations);
-                }
-            },
-            error: function (res) {
-                showDev(res);
-            }
-        });
+        loadBranchData(bid, cid);
+        changeTab("#branch-tab", "#branch");
+        hideOffcanvas('branchOffcanvasBottom');
     });
     //#endregion
+
+    
 
     //#region shipping TableDataGet
     $(document).on("click", ".branchListBtn", function () {

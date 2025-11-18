@@ -32,10 +32,11 @@ $(function () {
     $(".option-btn").on('click', function () {
         $(".option-btn").removeClass('active');
         $(this).addClass('active');
-        debugger
         let btnText = $(this).data('usefor');
         if (btnText === "Attachment") {
             $('#file-field').show();
+            $('#contact-field').show();
+            $('#email-field').show();
 
             $(ids.addActiveBtn).removeClass('d-none');
             $(ids.addActiveBtn).removeAttr('disabled');
@@ -62,6 +63,21 @@ $(function () {
             $('#email-field').show();
         }
         else if (btnText === "Online Meeting") {
+            $('#contact-field').show();
+            $('#file-field').hide();
+            $('#email-field').show();
+        }
+        else if (btnText === "Online Meeting") {
+            $('#contact-field').show();
+            $('#file-field').hide();
+            $('#email-field').show();
+        }
+        else if (btnText === "Quatation") {
+            $('#contact-field').show();
+            $('#file-field').hide();
+            $('#email-field').show();
+        }
+        else if (btnText === "Rev. Quatation") {
             $('#contact-field').show();
             $('#file-field').hide();
             $('#email-field').show();
@@ -124,11 +140,13 @@ $(function () {
         language: {
             noResults: function () {
                 return $(
-                    `<span>Data not found. Create a <a id="createCustomer" href="#">Customer</a></span>`
+                    `<span>Data not found. Add a <a id="createCustomer" href="#">Contact</a></span>`
                 );
             }
         },
         width: '100%',
+        multiple: true,
+        
     });
     $("#ContectPersonEmailId").select2({
         placeholder: 'Select Contact Email',
@@ -154,7 +172,7 @@ $(function () {
         language: {
             noResults: function () {
                 return $(
-                    `<span>Data not found. Create a <a id="createCustomer" href="#">Customer</a></span>`
+                    `<span>Data not found. Add a <a id="createCustomer" href="#">Email</a></span>`
                 );
             }
         },
@@ -212,8 +230,8 @@ $(function () {
         const leadID = $(ids.leadID).val();
         const note = $(ids.note).val();
         const date = $(ids.date).val();
-        const contactNumber = $(ids.contactEmail).val();
-        const contactEmail = $(ids.contactNumber).val();
+        const contactNumber = $(ids.contactNumber).val();
+        const contactEmail = $(ids.contactEmail).val();
         const fileInput = $(ids.file)[0];
         const file = fileInput ? fileInput.files[0] : null;
 
@@ -259,6 +277,8 @@ $(function () {
                     $(ids.date).val("");
                     $(ids.note).val("");
                     $(ids.file).val("");
+                    $('#ContectPersonId').val(null).trigger('change');
+                    $('#ContectPersonEmailId').val(null).trigger('change');
                     $('#file-field').hide();
                     $(ids.wonConfirmDiv).addClass("d-none");
                     $(ids.addActiveBtn).removeClass("d-none");
@@ -454,7 +474,7 @@ $(function () {
                             if (item.leadActivityName === 'Attachment') {
                                 $(activityListDiv).append(renderAttachmentActivity(item, activityDate));
                             } else {
-                                $(activityListDiv).append(renderActivity(item, activityDate));
+                                renderActivity(item, activityDate, 'activity-list'); // For main activity list
                             }
                         }
                     });
@@ -568,7 +588,7 @@ $(function () {
                         if (item.leadActivityName === 'Attachment') {
                             $('#upcoming-activity').append(renderAttachmentActivity(item, activityDate));
                         } else {
-                            $('#upcoming-activity').append(renderActivity(item, activityDate));
+                            renderActivity(item, activityDate, 'upcoming-activity'); // For upcoming activities
                         }
 
                     }
@@ -585,30 +605,78 @@ $(function () {
     // ==============================
     // Render a single activity
     // ==============================
-    function renderActivity(value, activityDate) {
-        return `
-            <div class="border-bottom border-translucent py-3 mx-3">
-                <div class="d-flex">
-                    <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
-                         style="width:25px; height:25px">
-                        <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
-                    </div>
-                    <div class="flex-1">
-                        <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                            <div class="flex-1 me-2">
-                                <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
-                                <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
-                            </div>
-                            <div class="fs-9">
-                                <span class="fa-regular fa-calendar-days text-primary me-2"></span>
-                                <span class="fw-semibold">${activityDate}</span>
-                            </div>
-                        </div>
-                        ${value.activityNote ? `<p class="fs-9 mb-0">${value.activityNote}</p>` : ''}
-                    </div>
-                </div>
-            </div>`;
+   function updateVerticalLine() {
+    const container = document.getElementById('upcoming-activity');
+    const line = container.querySelector('.vertical-line');
+
+    if (line) {
+        // Total scrollable height including items
+        line.style.height = container.scrollHeight + 'px';
     }
+}
+
+// Call this after rendering activities
+    //function renderActivity(value, activityDate) {
+    //    const container = document.getElementById('upcoming-activity');
+
+    //    // ------------------------
+    //    // BUILD PHONE HTML FIRST
+    //    // ------------------------
+    //    debugger;
+    //    let phoneHtml = "";
+    //    if (value.phoneNumber && value.phoneNumber.trim() !== "") {
+    //        phoneHtml = value.phoneNumber
+    //            .split(',')
+    //            .map(e => `<p class="fs-9 mb-0">${e.trim()}</p>`)
+    //            .join("");
+    //    }
+
+    //    // ------------------------
+    //    // BUILD EMAIL HTML FIRST
+    //    // ------------------------
+    //    let emailHtml = "";
+    //    if (value.emailAddress && value.emailAddress.trim() !== "") {
+    //        emailHtml = value.emailAddress
+    //            .split(',')
+    //            .map(e => `<p class="fs-9 mb-0">${e.trim()}</p>`)
+    //            .join("");
+    //    }
+
+    //    const div = document.createElement('div');
+    //    div.className = 'activity-item border-bottom border-translucent';
+    //    div.innerHTML = `
+    //    <div class="d-flex">
+    //        <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 mt-2">
+    //            <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
+    //        </div>
+
+    //        <div class="flex-1 card p-2">
+    //            <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
+    //                <div class="flex-1 me-2">
+    //                    <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
+    //                    <p class="fs-9 mb-0">by <a class="ms-1" href="#!">${value.createdByName}</a></p>
+    //                </div>
+    //                <div class="fs-9">
+    //                    <span class="fa-regular fa-calendar-days text-primary me-2"></span>
+    //                    <span class="fw-semibold">${activityDate}</span>
+    //                </div>
+    //            </div>
+
+    //            ${phoneHtml}
+    //            ${emailHtml}
+    //            ${value.activityNote ? `<p class="fs-9 mb-0">${value.activityNote}</p>` : ""}
+    //        </div>
+    //    </div>
+    //`;
+
+    //    container.appendChild(div);
+    //    updateVerticalLine();
+    //}
+
+
+// Example: after rendering all activities
+// activities.forEach(act => renderActivity(act, act.activityDate));
+
 
     // previewFile function
     function previewFile(fileUrl) {
@@ -636,35 +704,63 @@ $(function () {
     }
     // Ensure global access
     window.previewFile = previewFile;
-    function renderAttachmentActivity(value, activityDate) {
-        return `
-        <div class="border-bottom border-translucent py-3 mx-3">
-            <div class="d-flex">
-                <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3"
-                     style="width:25px; height:25px">
-                    <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
-                </div>
-                <div class="flex-1">
-                    <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                        <div class="flex-1 me-2">
-                            <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
-                            <p class="fs-9 mb-0">by<a class="ms-1" href="#!">${value.createdByName}</a></p>
-                            
-                            <p class="fs-9 mb-0">file: 
-                                <a href="javascript:void(0)" onclick="previewFile('${value.fileLink}')">
-                                    ${value.fileLink}
-                                </a>
-                            </p>
-                        </div>
-                        <div class="fs-9">
-                            <span class="fa-regular fa-calendar-days text-primary me-2"></span>
-                            <span class="fw-semibold">${activityDate}</span>
-                        </div>
-                    </div>
-                    <p class="fs-9 mb-0">${value.activityNote}</p>
-                </div>
+    function renderActivity(value, activityDate, containerId) {
+        const container = document.getElementById(containerId);
+
+        // Make sure vertical line exists for this container
+        if (!container.querySelector('.vertical-line')) {
+            const line = document.createElement('div');
+            line.className = 'vertical-line';
+            line.style.position = 'absolute';
+            line.style.left = '51px';
+            line.style.top = '0';
+            line.style.width = '3px';
+            line.style.backgroundColor = '#0d6efd';
+            line.style.zIndex = '0';
+            container.appendChild(line);
+        }
+
+        const div = document.createElement('div');
+        div.className = 'activity-item';
+        div.innerHTML = `
+        <div class="d-flex">
+            <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 mt-3">
+                <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
             </div>
-        </div>`;
+            <div class="flex-1 card p-3">
+                <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
+                    <div class="flex-1 me-2">
+                        <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
+                        <p class="fs-9 mb-0">by <a class="ms-1" href="#!">${value.createdByName}</a></p>
+                    </div>
+                    <div class="fs-9">
+                        <span class="fa-regular fa-calendar-days text-primary me-2"></span>
+                        <span class="fw-semibold">${activityDate}</span>
+                    </div>
+                </div>
+                ${value.phoneNumber
+                ? value.phoneNumber.split(',').map(e =>
+                    `<p class="fs-9 mb-0 position-relative" style="z-index:1;">${e.trim()}</p>`
+                ).join("")
+                : ''
+            }
+
+${value.emailAddress
+                ? value.emailAddress.split(',').map(e =>
+                    `<p class="fs-9 mb-0 position-relative" style="z-index:1;">${e.trim()}</p>`
+                ).join("")
+                : ''
+}
+                ${value.activityNote ? `<p class="fs-9 mb-0">${value.activityNote}</p>` : ''}
+            </div>
+        </div>
+    `;
+
+        container.appendChild(div);
+
+        // Update vertical line height dynamically
+        const line = container.querySelector('.vertical-line');
+        line.style.height = container.scrollHeight + 'px';
     }
 
     // ==============================
@@ -1028,7 +1124,6 @@ $(function () {
 
             // Initialize newly added modal elements
             $('#customerModalContent [data-init]').each(function () {
-                debugger;
                 const el = this;
                 if (typeof showClose == "function") {
                     showClose();
@@ -1036,6 +1131,11 @@ $(function () {
                 if (typeof loadCustomerData == "function") {
                     const id = $("#CustomerId").val();
                     loadCustomerData(id);
+                }
+                if (typeof loadCustomerData == "function") {
+                    const cid = $("#CustomerId").val();
+                    const bid = $("#BranchId").val();
+                    loadBranchData(bid, cid);
                 }
                 const key = el.dataset.init;
                 if (key && typeof window[key] === "function") {
@@ -1051,7 +1151,9 @@ $(function () {
     });
 
 });
-//window.closeWindow = function () {
-//    var modal = new bootstrap.Modal(document.getElementById('customerModal'));
-//    modal.hide();
-//}
+window.closeWindow = function () {
+    debugger;
+    const modalEl = document.getElementById('customerModal');
+    const modal = bootstrap.Modal.getInstance(modalEl); // get existing instance
+    if (modal) modal.hide();
+};
