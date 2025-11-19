@@ -336,13 +336,14 @@ namespace GCTL.Service.FieldServices
                 .Select(t => new CreateJobVM
                 {
                     JobID = t.JobID,
-                    JobTitle = t.JobTitle,
+                    CustomerName = t.Customer != null ? t.Customer.FullName : "",
+                    JobTitle = t.JobTitle!= null ? t.JobTitle : "",
                     StartDate = t.StartDateTime.ToString(),
                     EndDate = t.EndDateTime.ToString(),
-                    StatusName = t.JobStatus.StatusName,
-                    JobLocation = t.Location,
+                    StatusName = t.JobStatus != null ? t.JobStatus.StatusName : string.Empty,
+                    JobLocation = t.Location != null ? t.Location : string.Empty,
                     Note = t.Note,
-                    JobType = t.JobType.JobTypeName,
+                    JobType = t.JobType != null ? t.JobType.JobTypeName : "",
                 })
                 .ToListAsync();
 
@@ -355,9 +356,24 @@ namespace GCTL.Service.FieldServices
         #endregion
 
         #region pending
-        public Task<CreateJobVM> GetByIdAsync(int id)
+        public async Task<CreateJobVM> GetByIdAsync(int organizationID, int jobId)
         {
-            throw new NotImplementedException();
+            var query = await _context.Jobs
+                 .AsNoTracking()
+                 .Where(t => t.Customer != null && t.Customer.OrganizationID == organizationID && t.JobID == jobId).Select(t => new CreateJobVM
+                 {
+                     JobID = t.JobID,
+                     CustomerName = t.Customer != null ? t.Customer.FullName : "",
+                     JobTitle = t.JobTitle != null ? t.JobTitle : "",
+                     StartDate = t.StartDateTime.ToString(),
+                     EndDate = t.EndDateTime.ToString(),
+                     StatusName = t.JobStatus != null ? t.JobStatus.StatusName : string.Empty,
+                     JobLocation = t.Location != null ? t.Location : string.Empty,
+                     Note = t.Note,
+                     JobType = t.JobType != null ? t.JobType.JobTypeName : "",
+                 }).FirstOrDefaultAsync();
+
+            return query ?? new CreateJobVM();
         }
 
         public Task<CreateJobVM> SoftDeleteAsync(DeleteRequestVM requestVM)

@@ -13,6 +13,7 @@ namespace GCTL.Core.ViewModels.FieldServices
         public int CreateJobID { get; set; }
         [Display(Name = "Customer Name")]
         public int? CustomerID { get; set; }
+        public string? CustomerName { get; set; }
         [Display(Name = "Job Title")]
         public string JobTitle { get; set; }
         [Display(Name = "Job Type")]

@@ -1,0 +1,67 @@
+﻿<div class="content">
+    <div class="row g-0 mb-4 align-items-center">
+        <div class="col-5 col-md-6">
+            <h4 class="mb-0 text-body-emphasis fw-bold fs-md-6"><span class="calendar-day d-block d-md-inline mb-1"></span><span class="px-3 fw-thin text-body-quaternary d-none d-md-inline">|</span><span class="calendar-date"></span></h4>
+        </div>
+        <div class="col-7 col-md-6 d-flex justify-content-end">
+            <div class="me-3">
+                <select class="form-select" id="organizerSingle2" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Select Technician</option>
+                    <option>Juel Rana</option>
+                    <option>Hasan</option>
+                    <option>Juzayer</option>
+                    <option>Robiul</option>
+                    <option>Karim</option>
+                </select>
+            </div>
+            <div class="me-3">
+                <select class="form-select" id="organizerSingle2" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                    <option value="">Select Status</option>
+                    <option>New</option>
+                    <option>Not Contacted</option>
+                    <option>Contacted</option>
+                    <option>Nurturing</option>
+                    <option>Qualified</option>
+                    <option>Unqualified</option>
+                </select>
+            </div>
+            <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#addEventModal"> <span class="fas fa-plus pe-2 fs-10"></span>Add new task </button>
+        </div>
+    </div>
+
+    <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 border-y border-translucent">
+        <div class="row py-3 gy-3 gx-0">
+            <div class="col-6 col-md-4 order-1 d-flex align-items-center">
+                <!-- <button class="btn btn-sm btn-phoenix-primary px-4" data-fc-view="timeGridDay">Today</button> -->
+            </div>
+            <div class="col-12 col-md-4 order-md-1 d-flex align-items-center justify-content-center">
+                <button class="btn icon-item icon-item-sm shadow-none text-body-emphasis p-0" type="button" data-event="prev" title="Previous"><span class="fas fa-chevron-left"></span></button>
+                <h3 class="px-3 text-body-emphasis fw-semibold calendar-title mb-0"> </h3>
+                <button class="btn icon-item icon-item-sm shadow-none text-body-emphasis p-0" type="button" data-event="next" title="Next"><span class="fas fa-chevron-right"></span></button>
+            </div>
+            <div class="col-6 col-md-4 ms-auto order-1 d-flex justify-content-end">
+                <div>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-phoenix-secondary" data-fc-view="timeGridDay">Day</button>
+                        <button class="btn btn-phoenix-secondary" data-fc-view="timeGridWeek">Week</button>
+                        <button class="btn btn-phoenix-secondary active-view" data-fc-view="dayGridMonth">Month</button>
+                        <a class="btn btn-phoenix-secondary" href="serviceList.html">List</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="calendar-outline mt-6 mb-9" id="appCalendar"></div>
+    <footer class="footer position-absolute">
+        <div class="row g-0 justify-content-between align-items-center h-100">
+            <div class="col-12 col-sm-auto text-center">
+                <p class="mb-0 mt-2 mt-sm-0 text-body">Thank you for creating with Phoenix<span class="d-none d-sm-inline-block"></span><span class="d-none d-sm-inline-block mx-1">|</span><br class="d-sm-none" />2024 &copy;<a class="mx-1" href="https://themewagon.com">Themewagon</a></p>
+            </div>
+            <div class="col-12 col-sm-auto text-center">
+                <p class="mb-0 text-body-tertiary text-opacity-85">v1.19.0</p>
+            </div>
+        </div>
+    </footer>
+</div>

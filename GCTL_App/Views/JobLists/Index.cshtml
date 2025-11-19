@@ -3,255 +3,198 @@
         font-size: 22px !important;
         text-transform: uppercase !important;
     }
+    table th, table td {
+        white-space: nowrap;
+    }
+    #calenderView:hover {
+        background-color: #34d376 !important;
+    }
 </style>
 <div class="card">
-    <h5 class="card-header">25 Jobs</h5>
-    <div id="lealsTable" data-list='{"valueNames":["name","email","phone","contact","company","date"],"page":10,"pagination":true}'>
-        <div class="row g-3 justify-content-between mx-2 mt-2">
-            <div class="col-auto">
+    <h5 class="card-header" id="card-title">0 Jobs</h5>
+     <div class="row g-3 justify-content-between m-1">
+              <div class="col-auto">
                 <div class="d-md-flex justify-content-between">
-                    <div>
-                        <!-- <button class="btn btn-primary me-4" data-bs-toggle="modal" data-bs-target="#CreateLeadModal">
-                          <span class="fas fa-plus me-2"></span>Create Lead
-                        </button> -->
+                  <div>
+                    <a class="btn btn-primary me-2" asp-controller="CreateJobs">
+                      <span class="fas fa-plus me-2"></span>Create Job
+                    </a>
 
-                        <a class="btn btn-primary me-4" href="../crm/createLeads.html">
-                            <span class="fas fa-plus me-2"></span>Create Lead
-                        </a>
-
-                        <a class="btn btn-link text-body px-0" href="fsmCalendar.html">
-                            <span class="uil uil-calendar-alt fs-9 me-2"></span>Calender View
-                        </a>
-                    </div>
+                    <a class="btn px-3 text-white bg-success-light text-decoration-none" id="calenderView" asp-controller="FieldCalender">
+                        <i class="fa-regular fa-calendar-days me-2"></i>
+                        Calendar View
+                    </a>
+                  </div>
                 </div>
-            </div>
-            <div class="col-auto">
+              </div>
+              <div class="col-auto">
                 <div class="d-flex">
-                    <div class="search-box me-2">
-                        <form class="position-relative">
-                            <input class="form-control search-input search" type="search" placeholder="Search by name" aria-label="Search" />
-                            <span class="fas fa-search search-box-icon"></span>
+                  <div class="search-box me-2">
+                    <form class="position-relative">
+                      <input class="form-control search-input search" type="search" placeholder="Search by name" aria-label="Search" />
+                      <span class="fas fa-search search-box-icon"></span>
+
+                    </form>
+                  </div>
+                  <div class="flatpickr-input-container me-2">
+                    <input class="form-control ps-6 datetimepicker" id="datepicker" type="text" data-options='{"dateFormat":"M j, Y","disableMobile":true,"defaultDate":"Mar 1, 2022"}' /><span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
+                  </div>
+                  <button class="btn px-3 btn-phoenix-secondary" type="button" data-bs-toggle="modal" data-bs-target="#filterModal" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fa-solid fa-filter text-primary" data-fa-transform="down-3"></span></button>
+                  <div class="modal fade" id="filterModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content border border-translucent">
+                        <form id="addEventForm" autocomplete="off">
+                          <div class="modal-header border-translucent p-4 justify-content-between">
+                            <h5 class="modal-title text-body-highlight fs-6 lh-sm">Filter</h5>
+                            <button class="btn p-1 text-danger" type="button" data-bs-dismiss="modal" aria-label="Close"><span class="fas fa-times fs-9"></span></button>
+                          </div>
+                          <div class="modal-body pt-4 pb-2 px-4">
+
+                            <div class="mb-3">
+                              <label class="fw-bold mb-2 text-body-highlight" for="leadStatus">Lead Status</label>
+                              <select class="form-select" id="leadStatus">
+                                <option value="newLead" selected="selected">New Lead</option>
+                                <option value="coldLead">Cold Lead</option>
+                                <option value="wonLead">Won Lead</option>
+                                <option value="canceled">Canceled</option>
+                              </select>
+                            </div>
+
+                            <div class="mb-3">
+                              <label class="fw-bold mb-2 text-body-highlight" for="createDate">Create Date</label>
+                              <select class="form-select" id="createDate">
+                                <option value="today" selected="selected">Today</option>
+                                <option value="last7Days">Last 7 Days</option>
+                                <option value="last30Days">Last 30 Days</option>
+                                <option value="chooseATimePeriod">Choose a time period</option>
+                              </select>
+                            </div>
+
+                            <div class="mb-3">
+                              <label class="fw-bold mb-2 text-body-highlight" for="designation">Designation</label>
+                              <select class="form-select" id="designation">
+                                <option value="VPAccounting" selected="selected">VP Accounting</option>
+                                <option value="ceo">CEO</option>
+                                <option value="creativeDirector">Creative Director</option>
+                                <option value="accountant">Accountant</option>
+                                <option value="executiveManager">Executive Manager</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div class="modal-footer d-flex justify-content-end align-items-center px-4 pb-4 border-0 pt-3">
+                            <button class="btn btn-sm btn-phoenix-primary px-4 fs-10 my-0" type="submit"> <span class="fas fa-arrows-rotate me-2 fs-10"></span>Reset</button>
+                            <button class="btn btn-sm btn-primary px-9 fs-10 my-0" type="submit">Done</button>
+                          </div>
 
                         </form>
+                      </div>
                     </div>
-                    <div class="flatpickr-input-container me-2">
-                        <input class="form-control ps-6 datetimepicker" id="datepicker" type="text" data-options='{"mode":"range","dateFormat":"M j, Y","disableMobile":true,"defaultDate":"Mar 1, 2022"}' />
-                        <span class="uil uil-calendar-alt flatpickr-icon text-body-tertiary"></span>
-                    </div>
-                    <button class="btn px-3 btn-phoenix-secondary" type="button" data-bs-toggle="modal" data-bs-target="#filterModal" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fa-solid fa-filter text-primary" data-fa-transform="down-3"></span></button>
-                    <div class="modal fade" id="filterModal" tabindex="-1">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content border border-translucent">
-                                <form id="addEventForm" autocomplete="off">
-                                    <div class="modal-header border-translucent p-4 justify-content-between">
-                                        <h5 class="modal-title text-body-highlight fs-6 lh-sm">Filter</h5>
-                                        <button class="btn p-1 text-danger" type="button" data-bs-dismiss="modal" aria-label="Close"><span class="fas fa-times fs-9"></span></button>
-                                    </div>
-                                    <div class="modal-body pt-4 pb-2 px-4">
-
-                                        <div class="mb-3">
-                                            <label class="fw-bold mb-2 text-body-highlight" for="leadStatus">Lead Status</label>
-                                            <select class="form-select" id="leadStatus">
-                                                <option value="newLead" selected="selected">New Lead</option>
-                                                <option value="coldLead">Cold Lead</option>
-                                                <option value="wonLead">Won Lead</option>
-                                                <option value="canceled">Canceled</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="fw-bold mb-2 text-body-highlight" for="createDate">Create Date</label>
-                                            <select class="form-select" id="createDate">
-                                                <option value="today" selected="selected">Today</option>
-                                                <option value="last7Days">Last 7 Days</option>
-                                                <option value="last30Days">Last 30 Days</option>
-                                                <option value="chooseATimePeriod">Choose a time period</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="fw-bold mb-2 text-body-highlight" for="designation">Designation</label>
-                                            <select class="form-select" id="designation">
-                                                <option value="VPAccounting" selected="selected">VP Accounting</option>
-                                                <option value="ceo">CEO</option>
-                                                <option value="creativeDirector">Creative Director</option>
-                                                <option value="accountant">Accountant</option>
-                                                <option value="executiveManager">Executive Manager</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="fw-bold mb-2 text-body-highlight" for="designation">Assign To</label>
-                                            <select class="form-select" id="AssignTo">
-                                                <option value="VPAccounting" selected="selected">Juewel Rana</option>
-                                                <option value="ceo">Nozib Ullah</option>
-                                            </select>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="modal-footer d-flex justify-content-end align-items-center px-4 pb-4 border-0 pt-3">
-                                        <button class="btn btn-sm btn-phoenix-primary px-4 fs-10 my-0" type="submit"> <span class="fas fa-arrows-rotate me-2 fs-10"></span>Reset</button>
-                                        <button class="btn btn-sm btn-primary px-9 fs-10 my-0" type="submit">Done</button>
-                                    </div>
-
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
-        </div>
-        <div class="table-responsive scrollbar p-4">
-            <table class="table fs-9 mb-0 leads-table border-top border-translucent">
-                <thead>
-                    <tr>
-                        <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
-                            <div class="form-check mb-0 fs-8">
-                                <input class="form-check-input" type="checkbox" />
+    <div class="table-responsive p-2" style="white-space: nowrap;">
+        <table class="table fs-9 mb-0 border-top border-translucent">
+            <thead>
+                <tr>
+                    <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                        <div class="form-check mb-0 fs-8">
+                            <input class="form-check-input" type="checkbox" />
+                        </div>
+                    </th>
+                    <th class="sort align-middle ps-4 pe-5 text-uppercase border-end border-translucent" style="width:15%;">
+                        <div class="d-inline-flex flex-center">
+                            <div class="d-flex align-items-center px-1 py-1 bg-info-subtle rounded me-2">
+                                <span class="text-info-dark" data-feather="airplay"></span>
                             </div>
-                        </th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase border-end border-translucent" style="width:15%;">
-                            <div class="d-inline-flex flex-center">
-                                <div class="d-flex align-items-center px-1 py-1 bg-info-subtle rounded me-2">
-                                    <span class="text-info-dark" data-feather="user">
+                            <span>
+                                Job Title
+                            </span>
+                        </div>
+                    </th>
+                    <th class="sort align-middle text-center text-uppercase border-end border-translucent" style="width:15%;">
+                        <div class="d-inline-flex flex-center">
+                            <div class="d-flex align-items-center px-1 py-1 bg-info-lighter rounded me-2">
+                                <span class="text-info-dark" data-feather="user"></span>
+                            </div>
+                            <span>
+                                Custommer
+                            </span>
+                        </div>
+                    </th>
+                    <th class="sort align-middle text-center text-uppercase border-end border-translucent" style="width:15%;">
+                        <div class="d-inline-flex flex-center">
+                            <div class="d-flex align-items-center px-1 py-1 bg-danger-lighter rounded me-2">
+                                <span class="text-info-dark" data-feather="book-open"></span>
+                            </div>
+                            <span>
+                                Job Type
+                            </span>
+                        </div>
+                    </th>
+                    <th class="sort align-middle text-center text-uppercase border-end border-translucent" style="width:15%;">
+                        <div class="d-inline-flex flex-center">
+                            <div class="d-flex align-items-center px-1 py-1 bg-warning-lighter rounded me-2">
+                                <span class="text-info-dark" data-feather="calendar"></span>
+                            </div>
+                            <span>
+                                Start Date
+                            </span>
+                        </div>
+                    </th>
+                    <th class="sort align-middle text-center text-uppercase border-end border-translucent" style="width:15%;">
+                        <div class="d-inline-flex flex-center">
+                            <div class="d-flex align-items-center px-1 py-1 bg-info-lighter rounded me-2">
+                                <span class="text-info-dark" data-feather="calendar"></span>
+                            </div>
+                            <span>
+                                End Date
+                            </span>
+                        </div>
+                    </th>
+                    <th class="sort align-middle text-center text-uppercase border-end border-translucent" style="width:15%;">
+                        <div class="d-inline-flex flex-center">
+                            <div class="d-flex align-items-center px-1 py-1 bg-success-lighter rounded me-2">
+                                <span class="text-info-dark" data-feather="bookmark"></span>
+                            </div>
+                            <span>
+                                Status
+                            </span>
+                        </div>
+                    </th>
+                    <th class="sort align-middle text-center text-uppercase border-end border-translucent" style="width:15%;">
+                        <div class="d-inline-flex flex-center">
+                            <div class="d-flex align-items-center px-1 py-1 bg-secondary-light rounded me-2">
+                                <span class="text-info-dark" data-feather="compass"></span>
+                            </div>
+                            <span>
+                                Job Location
+                            </span>
+                        </div>
+                    </th>
+                    <th class="sort align-middle text-center text-uppercase white-space-nowrap text-center" style="width:15%;">
+                        <div class="d-inline-flex flex-center">
+                            <div class="d-flex align-items-center px-1 py-1 bg-primary-lighter rounded me-2">
+                                <span class="text-info-dark" data-feather="bookmark"></span>
+                            </div>
+                            <span>
+                                Note
+                            </span>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="leal-tables-body">
 
-                                    </span>
-                                </div>
-                                <span>
-                                    Custommer
-                                </span>
-                            </div>
-                        </th>
-
-                    </tr>
-                </thead>
-                <tbody class="list" id="leal-tables-body">
-                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                        <td class="fs-9 align-middle">
-                            <div class="form-check mb-0 fs-8">
-                                <input class="form-check-input" type="checkbox" data-bulk-select-row='{"customer":{"avatar":"/team/32.webp","name":"Anthoney Michael","designation":"VP Accounting","status":{"label":"new lead","type":"badge-phoenix-primary"}},"email":"anth125@gmail.com","phone":"+1-202-555-0126","contact":"Ally Aagaard","company":"Google.inc","date":"Jan 01, 12:56 PM"}' />
-                            </div>
-                        </td>
-                        <td class="name align-middle white-space-nowrap ps-0">
-                            <div class="d-flex align-items-center">
-
-                                <div>
-                                    <a class="fs-8 fw-bold text-decoration-none">25 Aug 2025</a>
-                                    <div class="d-flex align-items-center">
-                                        <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">10:00 AM - 12:30 PM</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="contact align-middle white-space-nowrap ps-4 border-end border-translucent fw-semibold text-body-highlight"><span class="badge badge-phoenix badge-phoenix-primary">new lead</span></td>
-                        <td class="email align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="mailto:anth125@gmail.com">Service Call</a></td>
-                        <td class="phone align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent">
-                            <div class="avatar-group mb-4">
-                                <div class="avatar avatar-s ">
-                                    <img class="rounded-circle " src="../../assets/img/team/30.webp" alt="" />
-                                </div>
-                                <div class="avatar avatar-s ">
-                                    <img class="rounded-circle " src="../../assets/img/team/57.webp" alt="" />
-                                </div>
-                                <div class="avatar avatar-s ">
-                                    <img class="rounded-circle " src="../../assets/img/team/25.webp" alt="" />
-                                </div>
-                                <div class="avatar avatar-s ">
-                                    <div class="avatar-name rounded-circle "><span>+3</span></div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="date align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 text-body-tertiary">
-                            <div class="d-flex align-items-center">
-
-                                <div>
-                                    <a class="fs-8 text-black text-decoration-none">Mr. Hashibul Islam</a>
-                                    <div class="d-flex align-items-center">
-                                        <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">#432/43, Mirpur-6, Dhaka-1216</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                            <div class="btn-reveal-trigger position-static">
-                                <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                                <div class="dropdown-menu dropdown-menu-end py-2">
-                                    <a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Export</a>
-                                    <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Remove</a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                        <td class="fs-9 align-middle">
-                            <div class="form-check mb-0 fs-8">
-                                <input class="form-check-input" type="checkbox" data-bulk-select-row='{"customer":{"avatar":"/team/32.webp","name":"Anthoney Michael","designation":"VP Accounting","status":{"label":"new lead","type":"badge-phoenix-primary"}},"email":"anth125@gmail.com","phone":"+1-202-555-0126","contact":"Ally Aagaard","company":"Google.inc","date":"Jan 01, 12:56 PM"}' />
-                            </div>
-                        </td>
-                        <td class="name align-middle white-space-nowrap ps-0">
-                            <div class="d-flex align-items-center">
-
-                                <div>
-                                    <a class="fs-8 fw-bold text-decoration-none">23 Aug 2025</a>
-                                    <div class="d-flex align-items-center">
-                                        <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">11:00 AM - 01:30 PM</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="contact align-middle white-space-nowrap ps-4 border-end border-translucent fw-semibold text-body-highlight"><span class="badge badge-phoenix badge-phoenix-secondary">done</span></td>
-                        <td class="email align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent"><a class="text-body-highlight" href="mailto:anth125@gmail.com">Service Call</a></td>
-                        <td class="phone align-middle white-space-nowrap fw-semibold ps-4 border-end border-translucent">
-                            <div class="avatar-group mb-4">
-                                <div class="avatar avatar-s ">
-                                    <img class="rounded-circle " src="../../assets/img/team/30.webp" alt="" />
-                                </div>
-                                <div class="avatar avatar-s ">
-                                    <img class="rounded-circle " src="../../assets/img/team/57.webp" alt="" />
-                                </div>
-                                <div class="avatar avatar-s ">
-                                    <img class="rounded-circle " src="../../assets/img/team/25.webp" alt="" />
-                                </div>
-                                <div class="avatar avatar-s ">
-                                    <div class="avatar-name rounded-circle "><span>+3</span></div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="date align-middle white-space-nowrap text-body-tertiary text-opacity-85 ps-4 text-body-tertiary">
-                            <div class="d-flex align-items-center">
-
-                                <div>
-                                    <a class="fs-8 text-black text-decoration-none">Mr. Abdullah al mamun</a>
-                                    <div class="d-flex align-items-center">
-                                        <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">#32/4, Savar, Dhaka-1211</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                            <div class="btn-reveal-trigger position-static">
-                                <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent"><span class="fas fa-ellipsis-h fs-10"></span></button>
-                                <div class="dropdown-menu dropdown-menu-end py-2">
-                                    <a class="dropdown-item" href="#!">View</a><a class="dropdown-item" href="#!">Export</a>
-                                    <div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="#!">Remove</a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-        <div class="row align-items-center justify-content-end py-4 pe-4  fs-9">
-            <div class="col-auto d-flex">
-                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="data-list-info"></p><a class="fw-semibold" href="#!" data-list-view="*">View all<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a><a class="fw-semibold d-none" href="#!" data-list-view="less">View Less<span class="fas fa-angle-right ms-1" data-fa-transform="down-1"></span></a>
-            </div>
-            <div class="col-auto d-flex">
-                <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
-                <ul class="mb-0 pagination"></ul>
-                <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
-            </div>
+            </tbody>
+        </table>
+    </div>
+    <div class="row align-items-center justify-content-end py-4 pe-4  fs-9">
+        <div class="col-auto d-flex">
+            <button class="page-link" data-list-pagination="prev"><span class="fas fa-chevron-left"></span></button>
+            <ul class="mb-0 pagination"></ul>
+            <button class="page-link pe-0" data-list-pagination="next"><span class="fas fa-chevron-right"></span></button>
         </div>
     </div>
 </div>
@@ -259,3 +202,28 @@
 @section Scripts {
     <script src="~/js/pages/FieldServices/jobList.js"></script>
 }
+
+
+
+
+
+
+
+
+
+
+
+@* 
+<div class="avatar-group mb-4">
+    <div class="avatar avatar-s ">
+        <img class="rounded-circle " src="../../assets/img/team/30.webp" alt="" />
+    </div>
+    <div class="avatar avatar-s ">
+        <img class="rounded-circle " src="../../assets/img/team/57.webp" alt="" />
+    </div>
+    <div class="avatar avatar-s ">
+        <img class="rounded-circle " src="../../assets/img/team/25.webp" alt="" />
+    </div>
+    <div class="avatar avatar-s ">
+        <div class="avatar-name rounded-circle "><span>+3</span></div>
+    </div> *@
