@@ -36,6 +36,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
+
     public virtual DbSet<Attendance> Attendance { get; set; }
 
     public virtual DbSet<AttendanceLog> AttendanceLog { get; set; }
@@ -681,8 +682,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
- .HasDiscriminator<string>("Discriminator")
- .HasValue<ApplicationUser>("ApplicationUser");
+.HasDiscriminator<string>("Discriminator")
+.HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
@@ -3196,6 +3197,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.JobTypeID)
                 .HasConstraintName("FK__Jobs__JobTypeID__1DBB5747");
 
+            entity.HasOne(d => d.Organization).WithMany(p => p.Jobs)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK_Organization_OrganizationID_Jobs");
+
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.JobsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__Jobs__UpdatedBy__2097C3F2");
@@ -3374,11 +3379,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.EmailAddress).HasMaxLength(200);
             entity.Property(e => e.FileLink).HasMaxLength(50);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.PhoneNumber).HasMaxLength(50);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadDetailsCreatedByNavigation)
@@ -4318,6 +4321,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.FaviconLink).HasMaxLength(100);
             entity.Property(e => e.Fax).HasMaxLength(50);
             entity.Property(e => e.FullAddress).HasMaxLength(500);
+            entity.Property(e => e.GoogleMapAPIKey).HasMaxLength(255);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");

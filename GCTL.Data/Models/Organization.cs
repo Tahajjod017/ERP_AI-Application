@@ -57,6 +57,8 @@ public partial class Organization
 
     public string? FullAddress { get; set; }
 
+    public string? GoogleMapAPIKey { get; set; }
+
     public virtual ICollection<AppSettings> AppSettings { get; set; } = new List<AppSettings>();
 
     public virtual ICollection<ApprovalSettings> ApprovalSettings { get; set; } = new List<ApprovalSettings>();
@@ -106,6 +108,8 @@ public partial class Organization
     public virtual ICollection<EmployeeTransfer> EmployeeTransferToOrganization { get; set; } = new List<EmployeeTransfer>();
 
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
+
+    public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
 
     public virtual ICollection<LeadActivityTypes> LeadActivityTypes { get; set; } = new List<LeadActivityTypes>();
 
