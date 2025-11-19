@@ -38,7 +38,6 @@ namespace GCTL_App.Controllers.CRM
             return Ok(result);
         }
         #endregion
-
-       
     }
 }
+    

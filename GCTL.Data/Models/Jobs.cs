@@ -47,6 +47,8 @@ public partial class Jobs
 
     public int? CustomerID { get; set; }
 
+    public int? OrganizationID { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Customers? Customer { get; set; }
@@ -58,6 +60,8 @@ public partial class Jobs
     public virtual ICollection<JobTeams> JobTeams { get; set; } = new List<JobTeams>();
 
     public virtual JobTypes? JobType { get; set; }
+
+    public virtual Organization? Organization { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

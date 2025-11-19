@@ -12,7 +12,7 @@ namespace GCTL.Service.FieldServices
         Task<bool> AddAsync(CreateJobVM model);
         Task<bool> UpdateAsync(CreateJobVM model);
         Task<CreateJobVM> SoftDeleteAsync(DeleteRequestVM requestVM);
-        Task<CreateJobVM> GetByIdAsync(int id);
+        Task<CreateJobVM> GetByIdAsync(int organizationID, int jobId);
         Task<ReturnDataView<CustomerInfoVM>> GetPagedEmployeesAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CustomerInfoVM>> GetCompanyEmployeesAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<SelectListItem>> GetCountryList(string search, int page, int pageSize, int organizationID);
