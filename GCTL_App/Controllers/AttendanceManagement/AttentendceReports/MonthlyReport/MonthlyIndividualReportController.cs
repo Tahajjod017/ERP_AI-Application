@@ -7,6 +7,7 @@ using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Globalization;
 
 namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyReport
 {
@@ -80,18 +81,36 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyRe
 
             return Json(dataOfMonth);
         }
-        //[HttpGet]
-        //public IActionResult SomeAction2()
+        [HttpGet]
+        public async Task<IActionResult> SomeAction2(string monthyear, int employeeId)
+        {
+            if (employeeId <= 0)
+                return BadRequest("Invalid employee ID.");
+
+            if (!DateTime.TryParseExact(monthyear, "MMMM yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+                parsedDate = DateTime.Now;
+
+            var formattedMonthYear = parsedDate.ToString("yyyy-MM");
+
+            var result = await _monthlyReportService
+                .GetMonthlyAttendanceCalendarAsync(employeeId, formattedMonthYear);
+
+            return Json(result);
+        }
+
+        //[HttpPost]
+        //public async Task<IActionResult> GenerateIndiMonthlyEmpDetailsAttendencePDF(int id)
         //{
-        //    var departmentId = (int?)null;
-        //    var organizationId = 1;
-        //    var employeeId = 14;
-        //    var monthyear = "2025-07"; // Example month-year string
-        //    var dataOfMonth = _monthlyReportService.GetMonthlyAttendanceReport(departmentId, organizationId, employeeId, monthyear);
-
-        //    return Json(dataOfMonth);
+        //    //var pdfBytes = await _employeeReportService.GenaratePDF(id);
+        //    return File(/*pdfBytes,*/ "application/pdf", $"Employee_{id}.pdf");
         //}
+        //[HttpGet]
+        //public async Task<IActionResult> GenerateJobCardPdf(int employeeId, string monthyear)
+        //{
+        //    var pdfBytes = await _monthlyReportService.GenerateJobCardPdfAsync(employeeId, monthyear);
 
-
+        //    var fileName = $"JobCard_{employeeId}_{monthyear}.pdf";
+        //    return File(pdfBytes, "application/pdf", fileName);
+        //}
     }
 }
