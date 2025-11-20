@@ -149,16 +149,16 @@
                     <div class="col-md-6">
                         <div class="mb-2">
                             <label class="form-label" asp-for="FileLink"></label>
-                            <div class="dropzone dropzone-multiple p-0" data-dropzone="data-dropzone" data-options='{"url":"valid/url","maxFiles":1,"dictDefaultMessage":"Choose or Drop a file here"}'>
+                            <div class="dropzone dropzone-multiple p-0" data-dropzone="data-dropzone">
                                 <div class="fallback">
                                     <input type="file" asp-for="FileLink" name="file" />
                                 </div>
                                 <div class="dz-message" data-dz-message="data-dz-message">
-                                    <div class="dz-message-text"><img class="me-2" src="../../../assets/img/icons/cloud-upload.svg" width="25" alt="" />Drop your file here</div>
+                                    <div class="dz-message-text"><img class="me-2" width="25" alt="" />Drop your file here</div>
                                 </div>
                                 <div class="dz-preview dz-preview-multiple m-0 d-flex flex-column">
                                     <div class="d-flex pb-3 border-bottom border-translucent media px-2">
-                                        <div class="border p-2 rounded-2 me-2"><img class="rounded-2 dz-image" src="../../../assets/img/icons/file.png" alt="..." data-dz-thumbnail="data-dz-thumbnail" /></div>
+                                        <div class="border p-2 rounded-2 me-2"><img class="rounded-2 dz-image" alt="..." data-dz-thumbnail="data-dz-thumbnail" /></div>
                                         <div class="flex-1 d-flex flex-between-center">
                                             <div>
                                                 <h6 data-dz-name="data-dz-name"></h6>

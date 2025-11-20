@@ -9,7 +9,7 @@ namespace GCTL.Service.FieldServices
     public interface ICreateJobService
     {
         #region CRUD
-        Task<bool> AddAsync(CreateJobVM model);
+        Task<bool> AddAsync(CreateJobVM model, string FileLink);
         Task<bool> UpdateAsync(CreateJobVM model);
         Task<CreateJobVM> SoftDeleteAsync(DeleteRequestVM requestVM);
         Task<CreateJobVM> GetByIdAsync(int organizationID, int jobId);
