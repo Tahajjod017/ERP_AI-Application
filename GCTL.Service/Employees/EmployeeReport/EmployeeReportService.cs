@@ -933,8 +933,6 @@ namespace GCTL.Service.Employees.EmployeeReport
             }
         }
 
-
-
         public async Task<byte[]> GenerateEmployeeExcelReportAsync(EmployeeFilterModel filters)
         {
             ExcelPackage.License.SetNonCommercialOrganization("GCTL");
