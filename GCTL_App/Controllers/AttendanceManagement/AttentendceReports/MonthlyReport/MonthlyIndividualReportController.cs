@@ -82,7 +82,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyRe
             return Json(dataOfMonth);
         }
         [HttpGet]
-        public async Task<IActionResult> SomeAction2(string monthyear, int employeeId)
+        public async Task<IActionResult> SomeAction2(int? organizationId, int? departmentId, string monthyear, int employeeId)
         {
             if (employeeId <= 0)
                 return BadRequest("Invalid employee ID.");
@@ -93,7 +93,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyRe
             var formattedMonthYear = parsedDate.ToString("yyyy-MM");
 
             var result = await _monthlyReportService
-                .GetMonthlyAttendanceCalendarAsync(employeeId, formattedMonthYear);
+                .GetMonthlyAttendanceCalendarAsync(organizationId,departmentId, employeeId, formattedMonthYear);
 
             return Json(result);
         }
@@ -104,13 +104,13 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyRe
         //    //var pdfBytes = await _employeeReportService.GenaratePDF(id);
         //    return File(/*pdfBytes,*/ "application/pdf", $"Employee_{id}.pdf");
         //}
-        //[HttpGet]
-        //public async Task<IActionResult> GenerateJobCardPdf(int employeeId, string monthyear)
-        //{
-        //    var pdfBytes = await _monthlyReportService.GenerateJobCardPdfAsync(employeeId, monthyear);
+        [HttpGet]
+        public async Task<IActionResult> GenerateJobCardPdf(int? organizationId, int? departmentId, int employeeId, string monthyear)
+        {
+            var pdfBytes = await _monthlyReportService.GenerateJobCardPdfAsync(null,null,4, "2025-11");
 
-        //    var fileName = $"JobCard_{employeeId}_{monthyear}.pdf";
-        //    return File(pdfBytes, "application/pdf", fileName);
-        //}
+            var fileName = $"JobCard_{employeeId}_{monthyear}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
+        }
     }
 }

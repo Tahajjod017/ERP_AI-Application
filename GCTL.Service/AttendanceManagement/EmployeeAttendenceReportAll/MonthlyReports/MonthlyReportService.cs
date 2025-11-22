@@ -4,6 +4,7 @@ using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.AttendanceManagement.AttendenceReportAlls;
 using GCTL.Core.ViewModels.AttendanceManagement.EmployeeAttendence;
+using GCTL.Core.ViewModels.MasterSetup.Departments;
 using GCTL.Core.ViewModels.MasterSetup.Statuses;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using QuestPDF.Drawing.Exceptions;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -42,6 +44,7 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyR
         private readonly LeaveHelper _leaveHelper;
         private readonly IGenericRepository<EmployeeOfficeInfo> _genericEmployeeOfficeInfo;
         private readonly ILocalizationContext _localizationContext;
+
 
         public MonthlyReportService(IUserInfoService userInfoService, IGenericRepository<Attendance> genericRepository, HolidayHelper holidayHelper, WeekendHelper weekendHelper, LeaveHelper leaveHelper, IGenericRepository<EmployeeOfficeInfo> genericEmployeeOfficeInfo, ILocalizationContext localizationContext, AppDbContext context) : base(genericRepository)
         {
@@ -190,8 +193,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyR
         }
 
         public async Task<MonthlyAttendanceCalendarVM> GetMonthlyAttendanceCalendarAsync(
+            int? organizationId,
+            int? departmentId,
         int employeeId,
-        string monthYear)
+        string monthYear
+    )
         {
             if (string.IsNullOrWhiteSpace(monthYear))
                 monthYear = DateTime.Now.ToString("yyyy-MM");
@@ -227,6 +233,12 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyR
             pMonth.ParameterName = "@Month";
             pMonth.Value = month;
             cmd.Parameters.Add(pMonth);
+
+            if (departmentId.HasValue)
+                cmd.Parameters.Add(new SqlParameter("@DepartmentID", departmentId.Value));
+
+            if (organizationId.HasValue)
+                cmd.Parameters.Add(new SqlParameter("@OrganizationID", organizationId.Value));
 
             using var reader = await cmd.ExecuteReaderAsync();
 
@@ -401,248 +413,334 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyR
         //    return new Microsoft.AspNetCore.Mvc.JsonResult(formattedData);
         //}
 
-        //public async Task<byte[]> GenerateJobCardPdfAsync(int employeeId, string monthYear)
-        //{
-        //    // Parse yyyy-MM
-        //    if (string.IsNullOrWhiteSpace(monthYear))
-        //        monthYear = DateTime.Now.ToString("yyyy-MM");
+        public async Task<byte[]> GenerateJobCardPdfAsync(int? organizationId, int? departmentId, int employeeId, string monthYear)
+        {
+            // Parse yyyy-MM
+            if (string.IsNullOrWhiteSpace(monthYear))
+                monthYear = DateTime.Now.ToString("yyyy-MM");
 
-        //    var parts = monthYear.Split('-');
-        //    var year = int.Parse(parts[0]);
-        //    var month = int.Parse(parts[1]);
+            var parts = monthYear.Split('-');
+            var year = int.Parse(parts[0]);
+            var month = int.Parse(parts[1]);
 
-        //    var fromDate = new DateTime(year, month, 1);
-        //    var toDate = fromDate.AddMonths(1).AddDays(-1);
+            var fromDateOnly = new DateOnly(year, month, 1);
+            var toDateOnly = fromDateOnly.AddMonths(1).AddDays(-1);
 
-        //    // Load employee info
-        //    var employee = await _employeeRepo.All()
-        //        .Include(e => e.EmployeeOfficeInfoCreatedByNavigation)
-        //        .FirstOrDefaultAsync(e => e.EmployeeID == employeeId);
+            // 1) Build employee query (IQueryable) and then await
+            var empQuery = _genericEmployeeOfficeInfo.All()
+                .Include(e => e.Department)
+                .Include(e => e.Designation)
+                .Where(e => e.EmployeeID == employeeId);
 
-        //    if (employee == null)
-        //        throw new Exception("Employee not found.");
+            if (organizationId.HasValue)
+                empQuery = empQuery.Where(e => e.OrganizationID == organizationId.Value);   
 
-        //    var deptName = employee.EmployeeOfficeInfoCreatedByNavigation?.Department?.DepartmentName ?? "-";
-        //    var designation = employee.EmployeeOfficeInfoCreatedByNavigation?.Designation ?? "-";
+            if (departmentId.HasValue)
+                empQuery = empQuery.Where(e => e.DepartmentID == departmentId.Value);       
 
-        //    // Load attendance for the month
-        //    var records = await _genericRepository.All()
-        //        .AsNoTracking()
-        //        .Include(a => a.Status)
-        //        .Include(a => a.Shift)
-        //        .Where(a =>
-        //            a.DeletedAt == null &&
-        //            a.EmployeeID == employeeId &&
-        //            a.AttendanceDate >= fromDate &&
-        //            a.AttendanceDate <= toDate)
-        //        .OrderBy(a => a.AttendanceDate)
-        //        .ToListAsync();
+            var employee = await empQuery.FirstOrDefaultAsync();  
 
-        //    // Build rows (one per day from 1..end of month)
-        //    var rows = new List<JobCardRowVm>();
-        //    int daysInMonth = DateTime.DaysInMonth(year, month);
+            if (employee == null)
+                throw new Exception("Employee not found.");
 
-        //    for (int day = 1; day <= daysInMonth; day++)
-        //    {
-        //        var date = new DateTime(year, month, day);
-        //        var rec = records.FirstOrDefault(r => r.AttendanceDate.Date == date.Date);
 
-        //        var vm = new JobCardRowVm
-        //        {
-        //            Date = date,
-        //            DayName = date.ToString("dddd"),
-        //            ShiftName = rec?.Shift?.ShiftName ?? "",
-        //            InTime = ToLocalTime(rec?.CheckInTime),
-        //            OutTime = ToLocalTime(rec?.CheckOutTime),
-        //            Late = FormatMinutes(rec?.LateTimeMinutes),
-        //            EarlyOut = FormatMinutes(rec?.EarlyTimeMinutes),
-        //            WorkHours = FormatMinutes(rec?.WorkingTimeMinutes, asHour: true),
-        //            OvertimeHours = FormatMinutes(rec?.OvertimeMinutes, asHour: true),
-        //            StatusCode = rec?.Status?.StatusName ?? "-",    // map to P/L/A/W/H etc. if needed
-        //            Remarks = rec?.Remarks ?? ""
-        //        };
+            var deptName = employee?.Department?.DepartmentName ?? "-";
+            var designation = employee?.Designation?.DesignationName ?? "-";
 
-        //        rows.Add(vm);
-        //    }
+            // Updated comparison to convert AttendanceDate (DateOnly) to DateTime for comparison  
+            var records = await _genericRepository.All()
+               .AsNoTracking()
+               .Include(a => a.Status)
+               .Include(a => a.Shift)
+               .Where(a =>
+                   a.DeletedAt == null &&
+                   a.EmployeeID == employeeId &&
+                   a.AttendanceDate >= fromDateOnly &&
+                   a.AttendanceDate <= toDateOnly)
+               .OrderBy(a => a.AttendanceDate)
+               .ToListAsync();
 
-        //    // Summary counters (simple version, adjust as needed)
-        //    var totalPresent = rows.Count(r => r.StatusCode == "P");
-        //    var totalLate = rows.Count(r => r.StatusCode == "L");
-        //    var totalAbsent = rows.Count(r => r.StatusCode == "A");
-        //    var totalWeekend = rows.Count(r => r.StatusCode == "W");
-        //    var totalHoliday = rows.Count(r => r.StatusCode == "H");
-        //    var totalLeave = rows.Count(r =>
-        //        r.StatusCode == "CL" || r.StatusCode == "SL" || r.StatusCode == "EL" || r.StatusCode == "UL");
+            // Build rows (one per day from 1..end of month)
+            var rows = new List<JobCardRowVm>();
+            int daysInMonth = DateTime.DaysInMonth(year, month);
 
-        //    var reportVm = new JobCardReportVm
-        //    {
-        //        EmployeeCode = employee.EmployeeCode ?? employee.EmployeeID.ToString(),
-        //        EmployeeName = $"{employee.FirstName} {employee.LastName}",
-        //        Designation = designation,
-        //        Department = deptName,
-        //        CompanyName = "GCTL Infosys",
-        //        FromDate = fromDate,
-        //        ToDate = toDate,
-        //        Rows = rows,
-        //        TotalPresent = totalPresent,
-        //        TotalAbsent = totalAbsent,
-        //        TotalLate = totalLate,
-        //        TotalLeave = totalLeave,
-        //        TotalHoliday = totalHoliday,
-        //        TotalWeekend = totalWeekend,
-        //        TotalAttendance = totalPresent + totalLate // you can refine
-        //    };
+            for (int day = 1; day <= daysInMonth; day++)
+            {
+                var date = new DateTime(year, month, day);
+                var rec = records.FirstOrDefault(r => r.AttendanceDate == DateOnly.FromDateTime(date));
 
-        //    // Generate PDF with QuestPDF
-        //    var pdfBytes = CreateJobCardPdf(reportVm);
-        //    return pdfBytes;
-        //}
+                var vm = new JobCardRowVm
+                {
+                    Date = date,
+                    DayName = date.ToString("dddd"),
+                    ShiftName = rec?.Shift?.ShiftName ?? "",
+                    InTime = (rec?.CheckInTime.HasValue.ToString()),
+                    OutTime = (rec?.CheckOutTime.HasValue.ToString()),
+                    Late = FormatMinutes(rec?.LateTimeMinutes),
+                    EarlyOut = FormatMinutes(rec?.EarlyTimeMinutes),
+                    WorkHours = FormatMinutes(rec?.WorkingTimeMinutes),
+                    OvertimeHours = FormatMinutes(rec?.OvertimeMinutes),
+                    StatusCode = rec?.Status?.StatusName ?? "-",    // map to P/L/A/W/H etc. if needed
+                    Remarks = rec?.Remarks ?? ""
+                };
+
+                rows.Add(vm);
+            }
+
+            // Summary counters (simple version, adjust as needed)
+            var totalPresent = rows.Count(r => r.StatusCode == "Present");
+            var totalLate = rows.Count(r => r.StatusCode == "Late In");
+            var totalAbsent = rows.Count(r => r.StatusCode == "Absent");
+            var totalWeekend = rows.Count(r => r.StatusCode == "Weekend");
+            var totalHoliday = rows.Count(r => r.StatusCode == "Holiday");
+            var totalLeave = rows.Count(r =>
+                r.StatusCode == "On Leave" || r.StatusCode == "SL" || r.StatusCode == "EL" || r.StatusCode == "UL");
+
+            var reportVm = new JobCardReportVm
+            {
+                EmployeeCode = /*employee.EmployeeCode ?? employee.EmployeeID.ToString()*/"",
+                EmployeeName = /*$"{employee.FirstName} {employee.LastName}"*/"",
+                Designation = designation,
+                Department = deptName,
+                CompanyName = "GCTL Infosys",
+                FromDate = fromDateOnly.ToDateTime(new TimeOnly(0,0)),
+                ToDate = toDateOnly.ToDateTime(new TimeOnly(0, 0)),
+                Rows = rows,
+                TotalPresent = totalPresent,
+                TotalAbsent = totalAbsent,
+                TotalLate = totalLate,
+                TotalLeave = totalLeave,
+                TotalHoliday = totalHoliday,
+                TotalWeekend = totalWeekend,
+                TotalAttendance = totalPresent + totalLate // you can refine
+            };
+
+            // Generate PDF with QuestPDF
+            var pdfBytes = CreateJobCardPdf(reportVm);
+            return pdfBytes;
+        }
 
         private byte[] CreateJobCardPdf(JobCardReportVm model)
         {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            var rows = model.Rows ?? new List<JobCardRowVm>();
+
             QuestPDF.Settings.License = LicenseType.Community;
 
-            var doc = Document.Create(container =>
+            using (var stream = new MemoryStream())
             {
-                container.Page(page =>
+                try
                 {
-                    page.Margin(20);
-                    page.Size(PageSizes.A4);
-                    page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(9));
-
-                    page.Header().Element(h =>
+                    Document.Create(container =>
                     {
-                        h.Column(col =>
+                        container.Page(page =>
                         {
-                            col.Item().Row(row =>
+                            page.Size(PageSizes.A4);
+                            page.Margin(20);
+                            page.PageColor(Colors.White);
+                            page.DefaultTextStyle(x => x.FontSize(7));
+
+                            // ============= TOP HEADER (COMPANY / REPORT) ============
+                            page.Header().Column(headerCol =>
                             {
-                                row.RelativeItem().Column(c =>
+                                headerCol.Item().AlignCenter().Text(model.CompanyName ?? string.Empty).Bold().FontSize(14);                           
+                                headerCol.Item().AlignCenter().Text("Job Card Report").Bold();
+                                headerCol.Item().AlignCenter().Text(
+                                    $"Date: {model.FromDate:dd/MM/yyyy} - {model.ToDate:dd/MM/yyyy}");
+                            });
+
+                            // ================== MAIN CONTENT ========================
+                            page.Content().Column(column =>
+                            {
+                                // 1) EMPLOYEE INFO BLOCK (LEFT UNDER HEADER)
+                                column.Item().Row(row =>
                                 {
-                                    c.Item().Text($"Emp. ID : {model.EmployeeCode}");
-                                    c.Item().Text($"Name : {model.EmployeeName}");
-                                    c.Item().Text($"Designation : {model.Designation}");
+                                    row.RelativeItem().Column(c =>
+                                    {
+                                        c.Item().Text($"Employee Code : {model.EmployeeCode}").Bold();
+                                        c.Item().Text($"Name : {model.EmployeeName}").Bold();
+                                        c.Item().Text($"Designation : {model.Designation}").Bold();
+                                        c.Item().Text($"Department : {model.Department}").Bold();
+                                    });
+
+                                    // Right side empty (just to mimic left-aligned employee panel)
+                                    row.RelativeItem();
                                 });
 
-                                row.RelativeItem().AlignRight().Column(c =>
+                                column.Item().Height(10);
+
+                                // 2) TABLE (MATCHING SABBIR PDF COLUMN ORDER)
+                                column.Item().Element(content =>
                                 {
-                                    c.Item().Text(model.CompanyName).Bold().FontSize(14);
-                                    c.Item().Text("Job Card Report").Bold();
-                                    c.Item().Text(
-                                        $"Date: {model.FromDate:dd/MM/yyyy} - {model.ToDate:dd/MM/yyyy}");
+                                    content.Table(table =>
+                                    {
+                                        table.ColumnsDefinition(cols =>
+                                        {
+                                            cols.RelativeColumn(1.0f);  // Date
+                                            cols.RelativeColumn(0.9f);  // Day
+                                            cols.RelativeColumn(1.0f);  // Shift
+                                            cols.RelativeColumn(1.2f);  // In Time
+                                            cols.RelativeColumn(1.0f);  // Late
+                                            cols.RelativeColumn(1.2f);  // Out Time
+                                            cols.RelativeColumn(1.0f);  // Early Out
+                                            cols.RelativeColumn(1.2f);  // W. Hour(s)
+                                            cols.RelativeColumn(0.8f);  // OT(H)
+                                            cols.RelativeColumn(0.7f);  // Status
+                                            cols.RelativeColumn(1.4f);  // Remarks
+                                        });
+
+                                        // Header row – EXACT order from Sabbir PDF
+                                        table.Header(header =>
+                                        {
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("Date").Bold().AlignCenter();
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("Day").Bold().AlignCenter();
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("Shift").Bold().AlignCenter();
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("In Time").Bold().AlignCenter();
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("Late").Bold().AlignCenter();
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("Out Time").Bold().AlignCenter();
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("Early Out").Bold().AlignCenter();
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("W. Hour(s)").Bold().AlignCenter();
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("OT(H)").Bold().AlignCenter();
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("Status").Bold().AlignCenter();
+                                            header.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2).Text("Remarks").Bold().AlignCenter();
+                                        });
+
+                                        // Data rows – bind fields in same order
+                                        foreach (var r in rows)
+                                        {
+                                            // Date
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(r.Date.ToString("dd/MM/yyyy")).AlignCenter();
+
+                                            // Day
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(r.DayName ?? string.Empty).AlignCenter();
+
+                                            // Shift
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(r.ShiftName ?? string.Empty).AlignCenter();
+
+                                            // In Time
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(r.InTime ?? "00:00:00").AlignCenter();
+
+                                            // Late
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(r.Late ?? "00:00:00").AlignCenter();
+
+                                            // Out Time
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(r.OutTime ?? "00:00:00").AlignCenter();
+
+                                            // Early Out
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(r.EarlyOut ?? "00:00:00").AlignCenter();
+
+                                            // W. Hour(s)
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(r.WorkHours ?? "0").AlignCenter();
+
+                                            // OT(H)
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(r.OvertimeHours ?? "0").AlignCenter();
+
+                                            // Status
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(r.StatusCode ?? string.Empty).AlignCenter();
+
+                                            // Remarks – always "-" when empty
+                                            table.Cell().Border(0.4f).BorderColor("#D3D3D3").Padding(2)
+                                                .Text(string.IsNullOrWhiteSpace(r.Remarks) ? "" : r.Remarks);
+                                        }
+                                    });
+                                });
+
+                                column.Item().Height(50);
+
+                                // 3) TOTALS BOX (BORDERED, 2 COLUMNS INSIDE)
+                                column.Item().Element(box =>
+                                {
+                                    box.Border(0.5f).Padding(5).Row(row =>
+                                    {
+                                        // LEFT COLUMN OF TOTALS
+                                        row.RelativeItem().Column(c =>
+                                        {
+                                            c.Item().Text($"Total Present : {model.TotalPresent}");
+                                            c.Item().Text($"Total Absent : {model.TotalAbsent}");
+                                            c.Item().Text($"Total Late : {model.TotalLate}");
+                                            c.Item().Text($"Total Leave : {model.TotalLeave}");
+                                        });
+
+                                        // RIGHT COLUMN OF TOTALS
+                                        row.RelativeItem().Column(c =>
+                                        {
+                                            c.Item().Text($"Total Holiday: {model.TotalHoliday}");
+                                            c.Item().Text($"Total Att.: {model.TotalAttendance}");
+                                            c.Item().Text($"Total Weekend: {model.TotalWeekend}");
+                                        });
+                                    });
+                                });
+
+                                column.Item().Height(10);
+
+                                // 4) STATUS LEGEND
+                                column.Item().Text(
+                                    "Status Legend: P-Present, L- Late, A- Absent, W- Weekend, H- Holiday, " +
+                                    "CL- Casual Leave, SL- Sick Leave, UL- Unpaid Leave, ML- Maternity Leave, " +
+                                    "PL- Paternity Leave, MRL- Marriage Leave, EL- Earn Leave, SPL- Special Leave")
+                                    .FontSize(7);
+
+                                column.Item().Height(20);
+                                // 5) SIGNATURE LABELS
+                                column.Item().PaddingTop(8).Row(row =>
+                                {
+                                    row.RelativeItem().Text("Prepared by");
+                                    row.RelativeItem().Text("Checked by");
+                                    row.RelativeItem().Text("Authorized by");
                                 });
                             });
 
-                            col.Item().Text($"Department : {model.Department}");
-                            col.Item().LineHorizontal(1);
-                        });
-                    });
-
-                    page.Content().Element(c =>
-                    {
-                        c.Table(table =>
-                        {
-                            // columns
-                            table.ColumnsDefinition(cols =>
+                            // ================== FOOTER ============================
+                            page.Footer().Row(row =>
                             {
-                                cols.ConstantColumn(65);   // Date
-                                cols.ConstantColumn(60);   // Day
-                                cols.ConstantColumn(50);   // Shift
-                                cols.ConstantColumn(70);   // In Time
-                                cols.ConstantColumn(60);   // Late
-                                cols.ConstantColumn(70);   // Out Time
-                                cols.ConstantColumn(60);   // Early Out
-                                cols.ConstantColumn(75);   // W. Hour(s)
-                                cols.ConstantColumn(50);   // OT(H)
-                                cols.ConstantColumn(45);   // Status
-                                cols.RelativeColumn();     // Remarks
-                            });
+                                row.RelativeItem().Text(
+                                    $"Print Datetime: {DateTime.Now:dd/MM/yyyy hh:mm:ss tt}")
+                                    .FontSize(8);
 
-                            // header
-                            table.Header(h =>
-                            {
-                                h.Cell().Text("Date").Bold();
-                                h.Cell().Text("Day").Bold();
-                                h.Cell().Text("Shift").Bold();
-                                h.Cell().Text("In Time").Bold();
-                                h.Cell().Text("Late").Bold();
-                                h.Cell().Text("Out Time").Bold();
-                                h.Cell().Text("Early Out").Bold();
-                                h.Cell().Text("W. Hour(s)").Bold();
-                                h.Cell().Text("OT(H)").Bold();
-                                h.Cell().Text("Status").Bold();
-                                h.Cell().Text("Remarks").Bold();
-                            });
-
-                            // rows
-                            foreach (var r in model.Rows)
-                            {
-                                table.Cell().Text(r.Date.ToString("dd/MM/yyyy"));
-                                table.Cell().Text(r.DayName);
-                                table.Cell().Text(r.ShiftName);
-                                table.Cell().Text(r.InTime);
-                                table.Cell().Text(r.Late);
-                                table.Cell().Text(r.OutTime);
-                                table.Cell().Text(r.EarlyOut);
-                                table.Cell().Text(r.WorkHours);
-                                table.Cell().Text(r.OvertimeHours);
-                                table.Cell().Text(r.StatusCode);
-                                table.Cell().Text(r.Remarks);
-                            }
-                        });
-                    });
-
-                    page.Footer().Element(f =>
-                    {
-                        f.Column(col =>
-                        {
-                            col.Item().Row(row =>
-                            {
-                                row.RelativeItem().Column(c =>
-                                {
-                                    c.Item().Text($"Total Present : {model.TotalPresent}");
-                                    c.Item().Text($"Total Absent : {model.TotalAbsent}");
-                                    c.Item().Text($"Total Late : {model.TotalLate}");
-                                    c.Item().Text($"Total Leave : {model.TotalLeave}");
-                                });
-
-                                row.RelativeItem().Column(c =>
-                                {
-                                    c.Item().Text($"Total Holiday: {model.TotalHoliday}");
-                                    c.Item().Text($"Total Att.: {model.TotalAttendance}");
-                                    c.Item().Text($"Total Weekend: {model.TotalWeekend}");
-                                });
-                            });
-
-                            col.Item().Text(
-                                "Status Legend: P-Present, L-Late, A-Absent, W-Weekend, H-Holiday, CL-Casual Leave, SL-Sick Leave, UL-Unpaid Leave, ML-Maternity Leave, PL-Paternity Leave, MRL-Marriage Leave, EL-Earn Leave, SPL-Special Leave")
-                                .FontSize(7);
-
-                            col.Item().Row(row =>
-                            {
-                                row.RelativeItem().Text("Prepared by");
-                                row.RelativeItem().Text("Checked by");
-                                row.RelativeItem().Text("Authorized by");
-                            });
-
-                            col.Item().Row(row =>
-                            {
-                                row.RelativeItem().Text($"Print Datetime: {DateTime.Now:dd/MM/yyyy hh:mm:ss tt}");
                                 row.RelativeItem().AlignRight().Text(text =>
                                 {
-                                    text.Span("Page ");
-                                    text.CurrentPageNumber();
-                                    text.Span(" of ");
-                                    text.TotalPages();
+                                    text.Span("Page ").FontSize(8);
+                                    text.CurrentPageNumber().FontSize(8);
+                                    text.Span(" of ").FontSize(8);
+                                    text.TotalPages().FontSize(8);
                                 });
                             });
                         });
-                    });
-                });
-            });
+                    }).GeneratePdf(stream);
 
-            return doc.GeneratePdf();
+                    return stream.ToArray();
+                }
+                catch (DocumentLayoutException ex)
+                {
+                    Console.WriteLine("QuestPDF layout error: " + ex.Message);
+                    
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Unexpected PDF error: " + ex.Message);
+                    throw;
+                }
+            }
         }
+
+
+
+
+
+
 
     }
 }

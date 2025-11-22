@@ -23,11 +23,11 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyR
         //Task<IActionResult> GetMonthlyAttendanceReport(int? departmentId, int? organizationId, int? employeeId, string monthyear);
         Task<PaginationService<Attendance, AttendanceEmployeeReportVM>.PaginationResult<AttendanceEmployeeReportVM>> GetMonthlyAttendanceReport(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
                             string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null, List<int>? departmentIds = null, List<int>? employeeIds = null, string? monthyear=null , int? employeeId = null);
-        Task<MonthlyAttendanceCalendarVM> GetMonthlyAttendanceCalendarAsync(
+        Task<MonthlyAttendanceCalendarVM> GetMonthlyAttendanceCalendarAsync(int? organizationId, int? departmentId,
          int employeeId,
          string monthYear);
         // Task<byte[]> GenaratePDF(int id);
-        //Task<byte[]> GenerateJobCardPdfAsync(int employeeId, string monthYear);
+        Task<byte[]> GenerateJobCardPdfAsync(int? organizationId, int? departmentId, int employeeId, string monthYear);
         //Task<List<SelectListItem>> GetOrganizationsAsync();
         //Task<List<SelectListItem>> GetMonthAsync();
         //Task<List<SelectListItem>> GetDepartmentAsync();
