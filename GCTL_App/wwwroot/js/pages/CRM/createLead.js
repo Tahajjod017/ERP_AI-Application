@@ -59,6 +59,8 @@ $(function () {
         width: '100%'
     });
     //#endregion
+
+
     //#region customer serach field
     $('#BranchId').select2({
         placeholder: 'Select Customer',
@@ -102,22 +104,25 @@ $(function () {
     $('#CustomerId').on('change', function () {
         // Get the selected value (customer ID)
         var customerId = $(this).val();
-        
-
-        showDev("Selected Customer ID:", customerId);
+        setCustomerDetails(customerId);
+        // You can use this ID for further AJAX calls or processing
+    });
+    function setCustomerDetails(customerId) {
         $.ajax({
-            url: '/Customers/GetCustoerInfo', // replace with your endpoint
+            url: '/Customers/GetCustomerInfo', // replace with your endpoint
             type: 'POST',
             data: { id: customerId },
-            dataType: 'json', 
+            dataType: 'json',
             success: function (response) {
-                if (!response.isIndividual)
-                    { 
-                        $("#BranchId").val(null).trigger('change');
-                        $('#branchContainer').show();
-                    }
-                else
-                    $('#branchContainer').hide();
+                viewCustomerInfo(response)
+                //showDev(response)
+                //if (!response.isIndividual)
+                //    { 
+                //        $("#BranchId").val(null).trigger('change');
+                //        $('#branchContainer').show();
+                //    }
+                //else
+                //    $('#branchContainer').hide();
 
 
                 // do something with response
@@ -126,8 +131,7 @@ $(function () {
                 console.error('Error:', error);
             }
         });
-        // You can use this ID for further AJAX calls or processing
-    });
+    }
 
 
     //#region PriorityID
@@ -298,46 +302,31 @@ $(function () {
     //#endregion
 
     //#region set Customer Info
-    function setDataDesktop(id) {
-
-        $('#customerList').hide();
-        $('#noResults').hide();
-
-        getCustomerInfo(id).then(response => {
-            document.getElementById("customerInfoContainer").style.display = "block";
-            console.log(response);
-            let title = "";
-            if (response.customer.addressTypeName === "billing") {
-                title = "Person Information"
-            } else if (response.customer.addressTypeName === "company") {
-                title = "Company Information"
-            }
-
-            $("#iInformationTitle").text(title);
-            $('#ContactNameSearch').val(response.customer.fullName);
-            $("#customerID").val(response.customer.customerAddressID);
-            const ids = idMapIndex.demoField;
+    function viewCustomerInfo(response) {
+        showDev(response)
+        document.getElementById("customerInfoContainer").style.display = "block";
+        let title = "Customer Info";
+        //if (response.customer.addressTypeName === "billing") {
+        //    title = "Person Information"
+        //} else if (response.customer.addressTypeName === "company") {
+        //    title = "Company Information"
+        //}
+        $("#informationTitle").text(title);
            
-            $("#" + ids.firstName).val(response.customer.firstName);
-            $("#" + ids.lastName).val(response.customer.lastName);
-            $("#" + ids.fullAddress).val(response.customer.fullAddress);
-            $("#" + ids.street).val(response.customer.street);
-            $("#" + ids.city).val(response.customer.city);
-            $("#" + ids.additionalAddress).val(response.customer.additionaladdress);
-            $("#" + ids.state).val(response.customer.state);
-            $("#" + ids.postalCode).val(response.customer.postalCode);
-            choiceManager.setChoiceValue(ids.countryID, response.customer.countryID);
-            $("#" + ids.countryCode).val(response.customer.countryCode);
-            $("#" + ids.latitude).val(response.customer.latitude);
-            $("#" + ids.longitude).val(response.customer.longitude);
-            $("#" + ids.phone).val(response.customer.phone);
-            $("#" + ids.otherPhone).val(response.customer.otherPhone);
-            $("#" + ids.email).val(response.customer.email);
-
-            exExruntimeValidationCheck('#ContactNameSearch');
-            $('#searchResults').hide();
-            $('#removeContactNameBtn').show();
-        });
+        $("#iFirstName").val(response.firstName);
+        $("#iLastName").val(response.lastName);
+        $("#iFullAddress").val(response.fullAddress);
+        $("#iStreet").val(response.street);
+        $("#iCity").val(response.city);
+        $("#iAdditionaladdres").val(response.additionaladdres);
+        $("#iState").val(response.state);
+        $("#iPostalCode").val(response.postalCode);
+            //choiceManager.setChoiceValue(ids.countryID, response.customer.countryID);
+        $("#iLatitude").val(response.latitude);
+        $("#iLongitude").val(response.longitude);
+        $("#iPhone").val(response.phone);
+        $("#iOtherPhone").val(response.otherPhone);
+        $("#iEmail").val(response.email);
     }
 
     //#endregion
@@ -386,7 +375,7 @@ $(function () {
                     if (response.success) {
                         toastr.success(response.message);
                         form.reset();
-                        window.location.href = "/crm/Index";
+                        window.location.href = `/LeadDetails/Index/${response.data.id}`;
                     } else {
                         toastr.error(response.message || "Failed to create lead");
                     }
@@ -395,6 +384,17 @@ $(function () {
         }
     });
     //#endregion
+
+    // initial customer
+    window.selectCustomer = (id, text) => {
+        debugger;
+        debugger;
+        const $select = $('#CustomerId');
+        const newOption = new Option(text, id, true, true);
+        $select.append(newOption).trigger('change');
+        $select.select2('close');
+        setCustomerDetails(id);
+    };
 
     // When you load modal via AJAX
     $(document).on("click", "#createCustomer", function () {
@@ -435,31 +435,28 @@ $(function () {
             let value = field.value?.trim();
 
             if (!value) {
-                isValid = false;
-
+                // field invalid
                 if (isSelect2) {
-                    // Apply red border to Select2 box
                     const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
                     if (select2Box) {
+                        select2Box.classList.remove("is-valid");
                         select2Box.classList.add("is-invalid");
-                        select2Box.style.borderColor = "red !important";
                     }
                 } else {
                     field.classList.add("is-invalid");
-                    field.style.border = "2px solid red !important";
                 }
             } else {
+                // field valid
                 if (isSelect2) {
                     const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
                     if (select2Box) {
                         select2Box.classList.remove("is-invalid");
-                        select2Box.style.borderColor = "";
                     }
                 } else {
                     field.classList.remove("is-invalid");
-                    field.style.border = "";
                 }
             }
+
 
             // Automatically remove red border when user types or selects
             if (!field.dataset.listenerAttached) {
@@ -488,3 +485,8 @@ $(function () {
     }
 });
 
+window.closeWindow = function () {
+    const modalEl = document.getElementById('customerModal');
+    const modal = bootstrap.Modal.getInstance(modalEl); // get existing instance
+    if (modal) modal.hide();
+};

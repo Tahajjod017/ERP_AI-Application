@@ -26,11 +26,11 @@ namespace GCTL.Service.FieldServices
             _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
             _context = context;
             _countryRepository = countryRepository;
-        }
+        } 
         #endregion
 
         #region AddAsync
-        public async Task<bool> AddAsync(CreateJobVM model)
+        public async Task<bool> AddAsync(CreateJobVM model, string FileLink)
         {
             try
             {

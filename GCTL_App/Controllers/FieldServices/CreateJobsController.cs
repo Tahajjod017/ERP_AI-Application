@@ -1,9 +1,11 @@
 ﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
 using GCTL.Service.FieldServices;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
@@ -15,11 +17,13 @@ namespace GCTL_App.Controllers.FieldServices
         private readonly ICreateJobService _createJobService;
         public readonly IGenericRepository<Statuses> _statusRepository;
         public readonly IGenericRepository<JobTypes> _jobTypeRepository;
-        public CreateJobsController(ITranslateService translateService, IUserProfileService userProfileService, ICreateJobService createJobService, IGenericRepository<Statuses> statusRepository, IGenericRepository<JobTypes> jobTypeRepository) : base(translateService, userProfileService)
+        public readonly IWebHostEnvironment _webHostEnvironment;
+        public CreateJobsController(ITranslateService translateService, IUserProfileService userProfileService, ICreateJobService createJobService, IGenericRepository<Statuses> statusRepository, IGenericRepository<JobTypes> jobTypeRepository, IWebHostEnvironment webHostEnvironment) : base(translateService, userProfileService)
         {
             _createJobService = createJobService;
             _statusRepository = statusRepository;
             _jobTypeRepository = jobTypeRepository;
+            _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
@@ -27,6 +31,29 @@ namespace GCTL_App.Controllers.FieldServices
             ViewBag.StatusDD = new SelectList(_statusRepository.AllActive().Select(t => new {t.StatusID, t.StatusName}), "StatusID", "StatusName");
 
             return View();
+        }
+
+        public async Task<string> StorePhoto(IFormFile? file)
+        {
+            if (file == null || file.Length == 0) return null;
+
+            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "media/leads");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff"); // e.g., 20250903154530123
+            var random = new Random().Next(100, 999); // 3-digit random number
+            var extension = Path.GetExtension(file.FileName); // Keep original extension
+            var uniqueFileName = $"{timestamp}_{random}{extension}";
+
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return $"/media/leads/{uniqueFileName}";
         }
 
         #region Create
@@ -37,7 +64,10 @@ namespace GCTL_App.Controllers.FieldServices
             try
             {
                 if (createJobVM.CreateJobID == 0) {
-                    var result = await _createJobService.AddAsync(createJobVM);
+
+                    string fileLocation = createJobVM.FileLink is not null ? await StorePhoto(createJobVM.FileLink) : string.Empty;
+
+                    var result = await _createJobService.AddAsync(createJobVM, fileLocation);
                     if (result)
                     {
                         return Ok(new { Success = true, Message = "Job Created" });
