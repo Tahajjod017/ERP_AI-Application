@@ -118,9 +118,9 @@ window.initCustomerForm = function (root) {
                         FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
                         LastName: row.querySelector('[name*=".LastName"]')?.value || '',
                         Designation: row.querySelector('[name*=".Designation"]')?.value || '',
-                        Phone: row.querySelector('[name*=".Phone"')?.value || '',
-                        OtherPhone: row.querySelector('[name*=".OtherPhone"')?.value || '',
-                        Email: row.querySelector('[name*=".Email"')?.value || ''
+                        Phone: row.querySelector('[name*=".Phone"]')?.value || '',
+                        OtherPhone: row.querySelector('[name*=".OtherPhone"]')?.value || '',
+                        Email: row.querySelector('[name*=".Email"]')?.value || ''
                     };
                     contacts.push(contact);
                 });
@@ -133,7 +133,7 @@ window.initCustomerForm = function (root) {
                     this.disabled = true;
 
                     // Run unified validation
-                    if (!validateCustomerForm(fields, contacts)) {
+                    if (!validateCustomerForm(fields)) {
                         toastr.error("Please fill all required fields.");
                         return;
                     }
@@ -145,10 +145,12 @@ window.initCustomerForm = function (root) {
                         },
                         body: JSON.stringify(jsonData)
                     });
-
+                    debugger;
+                    showDev(response);
                     const data = await response.json();
                     console.log("Server response:", data);
                     if (response.ok && data.success) {
+                        debugger;
                         const rootHtmlDiv = $("#root-cotact-field");
                         rootHtmlDiv.empty();
                         resetForm(form)
@@ -158,6 +160,9 @@ window.initCustomerForm = function (root) {
                         }
                         if (typeof closeWindow == "function") {
                             closeWindow();
+                        }
+                        if (typeof selectCustomer == "function") {
+                            selectCustomer(data.data.id, data.data.text);
                         }
                     } else {
                         toastr.error(data.message || "Something went wrong!");
@@ -174,59 +179,91 @@ window.initCustomerForm = function (root) {
         }
 
     }
-    function validateCustomerForm(mainFields, contacts) {
+
+    function validateCustomerForm(fieldIds) {
         let isValid = true;
 
         // Validate main fields
-        mainFields.forEach(id => {
+        fieldIds.forEach(id => {
             const field = document.getElementById(id);
             if (!field) return;
 
-            const value = field.value?.trim();
+            const isSelect2 = field.classList.contains("select2-hidden-accessible");
+            let value = field.value?.trim();
+
             if (!value) {
-                field.classList.add("is-invalid");
-                field.style.border = "2px solid red";
                 isValid = false;
+                if (isSelect2) {
+                    const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
+                    if (select2Box) {
+                        select2Box.classList.add("is-invalid");
+                        select2Box.style.borderColor = "red !importent";
+                    }
+                } else {
+                    field.classList.add("is-invalid");
+                    field.style.border = "2px solid red !importent";
+                }
             } else {
-                field.classList.remove("is-invalid");
-                field.style.border = "";
+                if (isSelect2) {
+                    const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
+                    if (select2Box) {
+                        select2Box.classList.remove("is-invalid");
+                        select2Box.style.borderColor = "";
+                    }
+                } else {
+                    field.classList.remove("is-invalid");
+                    field.style.border = "";
+                }
             }
 
-            // Remove red border on input
+            // Remove red border when user interacts
             if (!field.dataset.listenerAttached) {
                 field.dataset.listenerAttached = true;
-                field.addEventListener("input", () => {
-                    if (field.value.trim()) {
-                        field.classList.remove("is-invalid");
-                        field.style.border = "";
-                    }
-                });
+                if (isSelect2) {
+                    $(field).on("change", function () {
+                        const select2Box = field.nextElementSibling?.querySelector(".select2-selection");
+                        if (field.value?.trim() && select2Box) {
+                            select2Box.classList.remove("is-invalid");
+                            select2Box.style.borderColor = "";
+                        }
+                    });
+                } else {
+                    field.addEventListener("input", () => {
+                        if (field.value?.trim()) {
+                            field.classList.remove("is-invalid");
+                            field.style.border = "";
+                        }
+                    });
+                }
             }
         });
 
-        // Validate each contact row
-        contacts.forEach((contact, index) => {
-            const row = document.querySelector(`#root-cotact-field .contact-item:nth-child(${index + 1})`);
-            if (!row) return;
+        // Validate contacts
+        const contactRows = document.querySelectorAll("#root-cotact-field .contact-item");
+        contactRows.forEach((row, index) => {
+            const firstName = row.querySelector('[name*=".FirstName"]');
+            const phone = row.querySelector('[name*=".Phone"]');
+            const email = row.querySelector('[name*=".Email"]');
 
-            const firstName = row.querySelector(`[name="ContactInformations[${index}].FirstName"]`);
-            const phone = row.querySelector(`[name="ContactInformations[${index}].Phone"]`);
-            const email = row.querySelector(`[name="ContactInformations[${index}].Email"]`);
+            const phoneValid = phone?.value?.trim() && (!window.itiMap[`#${phone.id}`] || window.itiMap[`#${phone.id}`].isValidNumber());
+            const emailValid = email?.value?.trim() && validateEmail(email.value);
+
+            let rowValid = true;
 
             // First Name required
-            if (!contact.FirstName?.trim()) {
+            if (!firstName.value?.trim()) {
+                rowValid = false;
                 firstName.classList.add("is-invalid");
                 firstName.style.border = "2px solid red";
-                isValid = false;
             } else {
                 firstName.classList.remove("is-invalid");
                 firstName.style.border = "";
             }
 
-            // Either Phone or Email required
-            const phoneValue = contact.Phone?.trim();
-            const emailValue = contact.Email?.trim();
-            if (!phoneValue && !emailValue) {
+            // Either phone or email required
+            if (!phoneValid && !emailValid) {
+                rowValid = false;
+
                 if (phone) {
                     phone.classList.add("is-invalid");
                     phone.style.border = "2px solid red";
@@ -235,7 +272,6 @@ window.initCustomerForm = function (root) {
                     email.classList.add("is-invalid");
                     email.style.border = "2px solid red";
                 }
-                isValid = false;
             } else {
                 if (phone) {
                     phone.classList.remove("is-invalid");
@@ -247,24 +283,7 @@ window.initCustomerForm = function (root) {
                 }
             }
 
-            // Validate Phone number using intlTelInput
-            const iti = window.itiMap?.[`#ContactInformations[${index}].Phone`];
-            if (iti && phoneValue && !iti.isValidNumber()) {
-                phone.classList.add("is-invalid");
-                phone.style.border = "2px solid red";
-                isValid = false;
-            }
-
-            // Remove red border on typing
-            [firstName, phone, email].forEach(field => {
-                if (field && !field.dataset.listenerAttached) {
-                    field.dataset.listenerAttached = true;
-                    field.addEventListener("input", () => {
-                        field.classList.remove("is-invalid");
-                        field.style.border = "";
-                    });
-                }
-            });
+            if (!rowValid) isValid = false;
         });
 
         return isValid;
@@ -475,7 +494,7 @@ function reIndexContacts() {
 
 window.loadCustomerData = function (id) {
     $.ajax({
-        url: '/Customers/GetCustoerInfo',
+        url: '/Customers/GetCustomerInfo',
         method: 'POST',
         data: {
             id: id,

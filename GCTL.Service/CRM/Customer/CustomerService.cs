@@ -1,6 +1,7 @@
 ﻿using Bogus.DataSets;
 using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.Customer;
 using GCTL.Data.Models;
@@ -88,7 +89,7 @@ namespace GCTL.Service.CRM.Customer
         #endregion
 
         #region Create Customer
-        public async Task<ReturnView> CreateCustomer (CustomerVM model)
+        public async Task<CommonReturnViewModel> CreateCustomer (CustomerVM model)
         {
             // Begin transaction
             await _customersRepository.BeginTransactionAsync();
@@ -101,7 +102,7 @@ namespace GCTL.Service.CRM.Customer
                     .Where(q => q.FullName == nameToMatch && q.OrganizationID == model.OrganizationID)
                     .FirstOrDefaultAsync();
                 if (queryObj != null)
-                    return new ReturnView
+                    return new CommonReturnViewModel
                     {
                         Success = false,
                         Message = "Already exists in the database!",
@@ -154,7 +155,7 @@ namespace GCTL.Service.CRM.Customer
 
                 if (subAccDetails == null)
                 {
-                    return new ReturnView
+                    return new CommonReturnViewModel
                     {
                         Success = false,
                         Message = "Please Add Sub Account first!",
@@ -248,12 +249,11 @@ namespace GCTL.Service.CRM.Customer
                 // Commit transaction
                 await _customersRepository.CommitTransactionAsync();
 
-                return new ReturnView
+                return new CommonReturnViewModel
                 {
                     Success = true,
                     Message = message,
-                    Id = returnID,
-                    Name = returnName
+                    Data = new { Id = customerObj.CustomerID, Text = $"{customerObj.FullName} {addresses.Phone} {addresses.Email}" }
                 };
             }
             catch (Exception ex)
@@ -261,7 +261,7 @@ namespace GCTL.Service.CRM.Customer
                 // Rollback transaction on error
                 await _customersRepository.RollbackTransactionAsync();
 
-                return new ReturnView
+                return new CommonReturnViewModel
                 {
                     Success = false,
                     Message = ex.Message,
@@ -435,7 +435,7 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
         #endregion
 
         #region update customer
-        public async Task<ReturnView> UpdateCustomer(CustomerVM model)
+        public async Task<CommonReturnViewModel> UpdateCustomer(CustomerVM model)
         {
             await _customersRepository.BeginTransactionAsync();
 
@@ -452,7 +452,7 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
 
                 if (duplicate != null)
                 {
-                    return new ReturnView
+                    return new CommonReturnViewModel
                     {
                         Success = false,
                         Message = "Already exists in the database!"
@@ -473,7 +473,7 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
 
                 if (customerObj == null)
                 {
-                    return new ReturnView
+                    return new CommonReturnViewModel
                     {
                         Success = false,
                         Message = "Customer not found!"
@@ -572,19 +572,18 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
                 }
                 await _customersRepository.CommitTransactionAsync();
 
-                return new ReturnView
+                return new CommonReturnViewModel
                 {
                     Success = true,
                     Message = message,
-                    Id = address.AddressID,
-                    Name = customerObj.FullName
+                    Data = new { Id = address.AddressID, Name = customerObj.FullName }
                 };
             }
             catch (Exception ex)
             {
                 await _customersRepository.RollbackTransactionAsync();
 
-                return new ReturnView
+                return new CommonReturnViewModel
                 {
                     Success = false,
                     Message = ex.Message

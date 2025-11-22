@@ -165,9 +165,9 @@
                         FirstName: row.querySelector('[name*=".FirstName"]')?.value || '',
                         LastName: row.querySelector('[name*=".LastName"]')?.value || '',
                         Designation: row.querySelector('[name*=".Designation"]')?.value || '',
-                        Phone: row.querySelector('[name*=".Phone"')?.value || '',
-                        OtherPhone: row.querySelector('[name*=".OtherPhone"')?.value || '',
-                        Email: row.querySelector('[name*=".Email"')?.value || ''
+                        Phone: row.querySelector('[name*=".Phone"]')?.value || '',
+                        OtherPhone: row.querySelector('[name*=".OtherPhone"]')?.value || '',
+                        Email: row.querySelector('[name*=".Email"]')?.value || ''
                     };
                     contacts.push(contact);
                 });

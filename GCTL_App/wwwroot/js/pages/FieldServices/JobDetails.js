@@ -30,7 +30,6 @@
 
     function createLines() {
         steps.each(function (index) {
-            debugger;
             if (index === 0) return;
 
             const prevIcon = $(steps[index - 1]).find(".step-icon");
@@ -71,6 +70,7 @@
             const stepNum = Number($(this).data("step"));
             if (stepNum <= selectedStep) {
                 $(this).find(".step-icon").addClass("completed");
+                $(this).find(".timeline-title").addClass("completed");
                 if (index > 0) {
                     $(".step-line").eq(index - 1).addClass("completed");
                 }

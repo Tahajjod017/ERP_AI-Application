@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.CRM;
+﻿using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.Customer;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
@@ -8,8 +9,8 @@ namespace GCTL.Service.CRM.Customer
 {
     public interface ICustomerService
     {
-        Task<ReturnView> CreateCustomer(CustomerVM customerVM);
-        Task<ReturnView> UpdateCustomer(CustomerVM model);
+        Task<CommonReturnViewModel> CreateCustomer(CustomerVM model);
+        Task<CommonReturnViewModel> UpdateCustomer(CustomerVM model);
         Task<ReturnView> CreateBranch(BranchVM branchVM);
         Task<ReturnView> UpdateBranch(BranchVM branchVM);
         Task<ReturnView> CreateWarehouse(WarehouseVM model);

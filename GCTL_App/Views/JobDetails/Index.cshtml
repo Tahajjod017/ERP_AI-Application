@@ -16,6 +16,11 @@
         flex: 1; /* distribute evenly */
     }
 
+    .timeline-title{
+        position: absolute;
+        bottom: -28px;
+        color: lightslategrey;
+    }
     .step-icon {
         width: 50px;
         height: 50px;
@@ -26,11 +31,13 @@
         color: white;
         cursor: pointer;
         z-index: 2;
-        background-color: gray;
+        background-color: lightgray;
     }
         
         .step-icon.completed {
-            color: green;
+            color: white;
+            background: #007bff;
+            box-shadow: 0 4px 5px rgba(65, 105, 225, 0.4);
         }
 
     /* Line connecting steps */
@@ -42,32 +49,53 @@
         z-index: 1;
     }
 
-        .step-line.completed {
-            background-color: green;
-        }
+    .step-line.completed {
+            background: #007bff;
+    }
+
+    .timeline-title.completed {
+        color: #007bff;
+        font-weight: bold;
+    }
+    /* // increase icon size */
+    .step-icon svg {
+        width: 25px;
+        height: 25px;
+    }
 </style>
 <div class="card">
-    <div class="content">
+    <div class="content pt-0">
         <div class="timeline-container">
             <div class="timeline-step" data-step="1">
                 <div class="step-icon"><i class="fa-regular fa-calendar"></i></div>
+                <div class="timeline-title">SCHEDULE</div>
             </div>
             <div class="timeline-step" data-step="2">
-                <div class="step-icon"><i class="fa-regular fa-calendar"></i></div>
+                <div class="step-icon"><i class="fa-solid fa-car-on"></i></i></div>
+                <div class="timeline-title">OMW</div>
             </div>
             <div class="timeline-step" data-step="3">
-                <div class="step-icon"><i class="fa-regular fa-calendar"></i></div>
+                <div class="step-icon"><i class="fa-solid fa-play"></i></i></div>
+                <div class="timeline-title">START</div>
             </div>
             <div class="timeline-step" data-step="4">
-                <div class="step-icon"><i class="fa-regular fa-calendar"></i></div>
+                <div class="step-icon"><i class="fa-solid fa-flag-checkered"></i></i></div>
+                <div class="timeline-title">FINISH</div>
+            </div>
+            <div class="timeline-step" data-step="5">
+                <div class="step-icon"><i class="fa-regular fa-file-lines"></i></div>
+                <div class="timeline-title">INVOICE</div>
+            </div>
+            <div class="timeline-step" data-step="6">
+                <div class="step-icon"><i class="fa-solid fa-money-bill-1-wave"></i></div>
+                <div class="timeline-title">PAY</div>
             </div>
         </div>
 
         <div class="pb-6 card ">
-
-            <div class="d-flex justify-content-between mt-3 px-3">
+            <div class="d-flex justify-content-between align-items-center my-3 px-3 fw-bold">
                 <div class="pt-2">
-                    <h5 class="mb-4" id="jobTitle"></h5>
+                    <h5 class="mb-0" id="jobTitle"></h5>
                 </div>
 
                 <div class="">
@@ -492,7 +520,7 @@
 
 
                 <!-- Google Map -->
-                <div id="map">
+                <div id="map" class="w-100">
                     <iframe class="w-100" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3713.9743141183694!2d92.0126222750432!3d21.430254580321478!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30adc7004ca0d447%3A0xa6cae203b8e06e73!2sCox%E2%80%99s%20Bazar%20Railway%20Station%20South%20View!5e0!3m2!1sen!2sbd!4v1752973402779!5m2!1sen!2sbd"
                             style="border:0;  height: 30rem;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>

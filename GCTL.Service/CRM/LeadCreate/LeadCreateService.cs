@@ -138,6 +138,7 @@ namespace GCTL.Service.CRM.LeadCreate
                         return new CommonReturnViewModel
                         {
                             Success = true,
+                            Data = new { Id = leadObj?.LeadID ?? 0 },
                             Message = "Data saved successfully",
                         };
                     }

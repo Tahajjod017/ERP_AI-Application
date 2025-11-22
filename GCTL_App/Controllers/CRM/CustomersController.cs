@@ -1,4 +1,5 @@
-﻿using GCTL.Core.ViewModels.CRM;
+﻿using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.Customer;
 using GCTL.Service.CRM.Customer;
 using GCTL.Service.Language;
@@ -61,7 +62,7 @@ namespace GCTL_App.Controllers.CRM
             {
                 if (!ModelState.IsValid)
                     return Json(new { success = false, message = "Invalid data" });
-                var result = new ReturnView();
+                var result = new CommonReturnViewModel();
                 if (model.Id == 0)
                 {
                     result = await _customerService.CreateCustomer(model);
@@ -150,7 +151,7 @@ namespace GCTL_App.Controllers.CRM
 
         #region getCustomerInfo
         [HttpPost]
-        public async Task<IActionResult> GetCustoerInfo(int id)
+        public async Task<IActionResult> GetCustomerInfo(int id)
         {
             try
             {
