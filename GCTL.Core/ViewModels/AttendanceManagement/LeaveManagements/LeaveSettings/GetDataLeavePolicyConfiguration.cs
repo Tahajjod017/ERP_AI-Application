@@ -42,5 +42,6 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
         public decimal? WorkingHour { get; set; }
 
         public int? ShortLeaveMaxInADay { get; set; }
+        public bool IsEmailSendEnabled { get; set; }
     }
 }
