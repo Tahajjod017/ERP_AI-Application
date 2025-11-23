@@ -1116,7 +1116,6 @@ ${value.emailAddress
         });
 
 
-
     // When you load modal via AJAX
     $(document).on("click", "#createCustomer", function () {
         $.get('/Customers/IndexModal', function (html) {
