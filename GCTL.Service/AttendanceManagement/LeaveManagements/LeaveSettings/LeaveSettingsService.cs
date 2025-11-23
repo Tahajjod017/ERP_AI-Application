@@ -325,7 +325,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                      IsAllowCrossLeave=entityVM.IsAllowCrossLeave,
                      WorkingHour=entityVM.WorkingHour,
                      ShortLeaveMaxInADay=entityVM.ShortLeaveMaxInADay,
-                     LIP = entityVM.LIP,
+                     IsEmailSendEnabled = entityVM.IsEmailSendEnabled,
+                    LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedBy = entityVM.CreatedBy,
                     CreatedAt = DateTime.Now
@@ -394,6 +395,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingPolicy.IsAllowCrossLeave = entityVM.IsAllowCrossLeave;
                 existingPolicy.WorkingHour = entityVM.WorkingHour;
                 existingPolicy.ShortLeaveMaxInADay = entityVM.ShortLeaveMaxInADay;
+                existingPolicy.IsEmailSendEnabled = entityVM.IsEmailSendEnabled;
                 existingPolicy.LIP = entityVM.LIP;
                 existingPolicy.LMAC = entityVM.LMAC;
                 await leavepolicy.UpdateAsync(existingPolicy);
@@ -449,7 +451,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     IsAllowCrossLeave=x.IsAllowCrossLeave,
                     WorkingHour=x.WorkingHour,
                     ShortLeaveMaxInADay=x.ShortLeaveMaxInADay,
-                    
+                    IsEmailSendEnabled = x.IsEmailSendEnabled
+
                 }).ToList();
 
                 await leavepolicy.CommitTransactionAsync();

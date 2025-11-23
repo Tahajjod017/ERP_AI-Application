@@ -22,7 +22,7 @@
         $('#EnableLeaveBalanceResetDate').prop('checked', false);
         $('#LeaveBalanceResetDate').val('').trigger('change');
         $('input[type=radio][name=IsAllowCrossLeave][value=true]').prop('checked', true);
-
+        $('#IsEmailSendEnabled').prop('checked', false);
 
         initializeDatepickerDMY("LeaveBalanceResetDate");
     }
@@ -87,6 +87,9 @@
             WorkingHour: (function () { const val = $('input[name="WorkingHour"]').val(); return val === '' ? null : parseFloat(val); })(),
 
             ShortLeaveMaxInADay: (function () { const v = parseInt($('#ShortLeaveMaxInADay').val()); return isNaN(v) ? null : v; })(),
+            IsEmailSendEnabled: (function () {
+                return $('#IsEmailSendEnabled').is(':checked');
+            })(),
 
             
         };
@@ -162,6 +165,7 @@
 
                     $('#WorkingHour').val(config.workingHour);
                     $('#ShortLeaveMaxInADay').val(config.shortLeaveMaxInADay);
+                    $('input[name="IsEmailSendEnabled"]').prop('checked', config.isEmailSendEnabled === true);
                 }
             },
             error: function () {

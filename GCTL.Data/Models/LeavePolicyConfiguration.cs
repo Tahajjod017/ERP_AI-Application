@@ -59,6 +59,8 @@ public partial class LeavePolicyConfiguration
 
     public int? ShortLeaveMaxInADay { get; set; }
 
+    public bool IsEmailSendEnabled { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
