@@ -165,13 +165,14 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">@Html.SmartLocalize("Service Type")</label>
-                        <select asp-for="ServiceTypeIds" asp-for="ServiceTypeIds" class="form-select select2-multi" multiple="multiple"> </select>
+                        <select asp-for="ServiceTypeIds"  class="form-select select2-multi" multiple="multiple"> </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label p-0">@Html.SmartLocalize("Probability (%)")</label>
                         <div class="d-flex align-items-center">
-                            <input type="range" class="form-range" asp-for="ProbabilityPercentage" min="0" max="100" step="1" value="0" oninput="completionValue.innerText = this.value + '%'">
-                            <span class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">0%</span>
+                            <input type="range" class="form-range" asp-for="ProbabilityPercentage" min="0" max="100" step="1" value="0"
+                                   oninput="document.getElementById('completionValue').innerText = this.value + '%'">
+                            <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">0%</span>
                         </div>
                     </div>
                     <div class="col-md-12">

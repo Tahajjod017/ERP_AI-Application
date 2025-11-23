@@ -487,43 +487,33 @@ namespace GCTL.Service.CRM.LeadCreate
                 var leadObj = await _leadsRepository.GetByIdAsync(leadId);
                 var items = new List<CommonSelectVM>();
 
-                // 1️⃣ Load Customer Address (always)
-                var customerAddresses = await _customerAddressesRepository.AllActive()
-                    .Where(a => a.CustomerID == leadObj.CustomerID)
-                    .Select(a => new
+                if (leadObj == null)
+                    return new ReturnDataView<CommonSelectVM>
                     {
-                        Phone1 = a.Address.Phone,
-                        Phone2 = a.Address.OtherPhone,
-                        AddressTypeName = a.AddressType.AddressTypeName
-                    })
-                    .ToListAsync();
+                        data = items,
+                        totalItem = 0,
+                        message = "Lead not found"
+                    };
 
-                // 2️⃣ Load OtherContacts
+                string pattern = !string.IsNullOrWhiteSpace(search) ? $"%{search}%" : null;
+
+                // 1️⃣ Load OtherContacts
                 var otherContactsQuery = _otherContactsRepository.AllActive()
                     .Where(x => x.AddressID != null &&
                                 _customerAddressesRepository.AllActive()
                                     .Any(a => a.CustomerID == leadObj.CustomerID && a.AddressID == x.AddressID));
 
-                if (!string.IsNullOrWhiteSpace(search))
+                if (!string.IsNullOrEmpty(pattern))
                 {
-                    string pattern = $"%{search}%";
                     otherContactsQuery = otherContactsQuery.Where(c =>
-                        EF.Functions.Like(c.FirstName, pattern) ||
-                        EF.Functions.Like(c.LastName, pattern) ||
-                        EF.Functions.Like(c.Phone1, pattern) ||
-                        EF.Functions.Like(c.Phone2, pattern)
+                        EF.Functions.Like(c.FirstName ?? "", pattern) ||
+                        EF.Functions.Like(c.LastName ?? "", pattern) ||
+                        EF.Functions.Like(c.Phone1 ?? "", pattern) ||
+                        EF.Functions.Like(c.Phone2 ?? "", pattern)
                     );
-
-                    // Also filter customer address phones if search matches
-                    customerAddresses = customerAddresses
-                        .Where(a =>
-                            (!string.IsNullOrEmpty(a.Phone1) && EF.Functions.Like(a.Phone1, pattern)) ||
-                            (!string.IsNullOrEmpty(a.Phone2) && EF.Functions.Like(a.Phone2, pattern))
-                        )
-                        .ToList();
                 }
 
-                var totalCount = await otherContactsQuery.CountAsync();
+                var totalOtherContacts = await otherContactsQuery.CountAsync();
 
                 var otherContacts = await otherContactsQuery
                     .OrderBy(c => c.CreatedAt)
@@ -531,56 +521,73 @@ namespace GCTL.Service.CRM.LeadCreate
                     .Take(pageSize)
                     .ToListAsync();
 
-                // 3️⃣ Add OtherContact phones + address phones
+                // 2️⃣ Add OtherContact phones (ONLY their own phones)
                 foreach (var oc in otherContacts)
                 {
-                    var phoneList = new List<(string Label, string Phone)>();
-
-                    if (!string.IsNullOrEmpty(oc.Phone1)) phoneList.Add(("Phone1", oc.Phone1));
-                    if (!string.IsNullOrEmpty(oc.Phone2)) phoneList.Add(("Phone2", oc.Phone2));
-
-                    // Append all customer address phones
-                    foreach (var addr in customerAddresses)
-                    {
-                        if (!string.IsNullOrEmpty(addr.Phone1)) phoneList.Add(("Address Phone", addr.Phone1));
-                        if (!string.IsNullOrEmpty(addr.Phone2)) phoneList.Add(("Address Other Phone", addr.Phone2));
-                    }
-
-                    // Remove duplicates
-                    phoneList = phoneList
-                        .GroupBy(p => p.Phone)
-                        .Select(g => g.First())
-                        .ToList();
-
-                    foreach (var p in phoneList)
+                    if (!string.IsNullOrEmpty(oc.Phone1))
                     {
                         items.Add(new CommonSelectVM
                         {
                             Id = oc.OtherContactID,
-                            Name = $"{oc.FirstName} {oc.LastName} {p.Label}: {p.Phone}"
+                            Name = $"{oc.FirstName ?? ""} {oc.LastName ?? ""} Phone1: {oc.Phone1}"
+                        });
+                    }
+                    if (!string.IsNullOrEmpty(oc.Phone2))
+                    {
+                        items.Add(new CommonSelectVM
+                        {
+                            Id = oc.OtherContactID,
+                            Name = $"{oc.FirstName ?? ""} {oc.LastName ?? ""} Phone2: {oc.Phone2}"
                         });
                     }
                 }
 
-                // 4️⃣ If no OtherContact, show only address phones
-                if (!otherContacts.Any())
+                // 3️⃣ Load Customer Address phones (always, independent of OtherContacts)
+                var customerAddressesQuery = _customerAddressesRepository.AllActive()
+                    .Where(a => a.CustomerID == leadObj.CustomerID && a.Address != null);
+
+                if (!string.IsNullOrEmpty(pattern))
                 {
-                    foreach (var addr in customerAddresses)
+                    customerAddressesQuery = customerAddressesQuery.Where(a =>
+                        EF.Functions.Like(a.Address.Phone ?? "", pattern) ||
+                        EF.Functions.Like(a.Address.OtherPhone ?? "", pattern)
+                    );
+                }
+
+                var customerAddresses = await customerAddressesQuery
+                    .Select(a => new
                     {
-                        if (!string.IsNullOrEmpty(addr.Phone1))
-                            items.Add(new CommonSelectVM
-                            {
-                                Id = 0,
-                                Name = $"Address Phone: {addr.Phone1}"
-                            });
-                        if (!string.IsNullOrEmpty(addr.Phone2))
-                            items.Add(new CommonSelectVM
-                            {
-                                Id = 0,
-                                Name = $"Address Other Phone: {addr.Phone2}"
-                            });
+                        Phone1 = a.Address.Phone,
+                        Phone2 = a.Address.OtherPhone,
+                        AddressTypeName = a.AddressType != null ? a.AddressType.AddressTypeName : null
+                    })
+                    .ToListAsync();
+
+                var customerName = leadObj.Customer != null ? leadObj.Customer.FullName : "Customer";
+
+                foreach (var addr in customerAddresses)
+                {
+                    if (!string.IsNullOrEmpty(addr.Phone1))
+                    {
+                        items.Add(new CommonSelectVM
+                        {
+                            Id = 0,
+                            Name = $"{customerName} - Address Phone: {addr.Phone1}" +
+                                   (string.IsNullOrEmpty(addr.AddressTypeName) ? "" : $" ({addr.AddressTypeName})")
+                        });
+                    }
+                    if (!string.IsNullOrEmpty(addr.Phone2))
+                    {
+                        items.Add(new CommonSelectVM
+                        {
+                            Id = 0,
+                            Name = $"{customerName} - Address Other Phone: {addr.Phone2}" +
+                                   (string.IsNullOrEmpty(addr.AddressTypeName) ? "" : $" ({addr.AddressTypeName})")
+                        });
                     }
                 }
+
+                var totalCount = totalOtherContacts + customerAddresses.Count;
 
                 return new ReturnDataView<CommonSelectVM>
                 {
@@ -606,56 +613,93 @@ namespace GCTL.Service.CRM.LeadCreate
 
         #region GetContactPersonEmailAsync
         public async Task<ReturnDataView<CommonSelectVM>> GetContactPersonEmailAsync(
-            int leadId, string search, int page, int pageSize, int organizationID)
+    int leadId, string search, int page, int pageSize, int organizationID)
         {
             try
             {
                 var leadObj = await _leadsRepository.GetByIdAsync(leadId);
+                var items = new List<CommonSelectVM>();
 
-                var query = _otherContactsRepository.AllActive().Where(x=> 
-                x.Address!= null && x.Address.CustomerAddresses.Any(x=>x.CustomerID == leadObj.CustomerID) || x.Address != null && x.Address.CompanyBranchAddresses.Any(x => x.BranchID == leadObj.CompanyBranchID));
+                if (leadObj == null)
+                    return new ReturnDataView<CommonSelectVM>
+                    {
+                        data = items,
+                        totalItem = 0,
+                        message = "Lead not found"
+                    };
 
-                if(!string.IsNullOrWhiteSpace(search))
+                string pattern = !string.IsNullOrWhiteSpace(search) ? $"%{search}%" : null;
+
+                // 1️⃣ OtherContacts emails
+                var otherContactsQuery = _otherContactsRepository.AllActive()
+                    .Where(x => x.AddressID != null &&
+                                _customerAddressesRepository.AllActive()
+                                    .Any(a => a.CustomerID == leadObj.CustomerID && a.AddressID == x.AddressID));
+
+                if (!string.IsNullOrEmpty(pattern))
                 {
-                    string pattern = $"%{search}%";
-
-                    query = query.Where(c =>
-                        c != null &&
-                        (
-                            EF.Functions.Like(c.FirstName, pattern) ||
-                            EF.Functions.Like(c.LastName, pattern) ||
-                            EF.Functions.Like(c.Email, pattern) ||
-                            EF.Functions.Like(c.CreatedAt.ToString(), pattern)
-                        ));
+                    otherContactsQuery = otherContactsQuery.Where(c =>
+                        EF.Functions.Like(c.FirstName ?? "", pattern) ||
+                        EF.Functions.Like(c.LastName ?? "", pattern) ||
+                        EF.Functions.Like(c.Email ?? "", pattern)
+                    );
                 }
 
-                var totalCount = await query.CountAsync();
+                var totalOtherContacts = await otherContactsQuery.CountAsync();
 
-                var items = await query
+                var otherContacts = await otherContactsQuery
                     .OrderBy(c => c.CreatedAt)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
-                    .Where(x=> x.Email != null && x.Email != "")
-                    .Select(t => new CommonSelectVM
+                    .ToListAsync();
+
+                foreach (var oc in otherContacts)
+                {
+                    if (!string.IsNullOrEmpty(oc.Email))
                     {
-                        Id = t.OtherContactID,
-                        Name =
-                            t.FirstName + " " +
-                            (t.LastName ?? "") + " " +
-                            (t.Email ?? "") + " (" +
-                            Capitalize(
-                                t.Address.CustomerAddresses
-                                    .Select(x => x.AddressType.AddressTypeName)
-                                    .FirstOrDefault() ??
-                                t.Address.CompanyBranchAddresses
-                                    .Select(x => x.AddressType.AddressTypeName)
-                                    .FirstOrDefault() ??
-                                ""
-                            ) + ")"
+                        items.Add(new CommonSelectVM
+                        {
+                            Id = oc.OtherContactID,
+                            Name = $"{oc.FirstName ?? ""} {oc.LastName ?? ""}: {oc.Email}"
+                        });
+                    }
+                }
+
+                // 2️⃣ Customer Address emails
+                var customerAddressesQuery = _customerAddressesRepository.AllActive()
+                    .Where(a => a.CustomerID == leadObj.CustomerID &&
+                                a.Address != null &&
+                                !string.IsNullOrEmpty(a.Address.Email));
+
+                if (!string.IsNullOrEmpty(pattern))
+                {
+                    customerAddressesQuery = customerAddressesQuery.Where(a =>
+                        EF.Functions.Like(a.Address.Email ?? "", pattern)
+                    );
+                }
+
+                var customerAddresses = await customerAddressesQuery
+                    .Select(a => new
+                    {
+                        Email = a.Address.Email,
+                        AddressTypeName = a.AddressType != null ? a.AddressType.AddressTypeName : null
                     })
                     .ToListAsync();
 
+                var customerName = leadObj.Customer != null ? leadObj.Customer.FullName : "Customer";
 
+                foreach (var addr in customerAddresses)
+                {
+                    items.Add(new CommonSelectVM
+                    {
+                        Id = 0, // Not tied to OtherContact
+                        Name = $"{customerName}: {addr.Email}" +
+                               (string.IsNullOrEmpty(addr.AddressTypeName) ? "" : $" ({addr.AddressTypeName})")
+                    });
+                }
+
+                // totalItem: include OtherContacts + Address emails count
+                var totalCount = totalOtherContacts + customerAddresses.Count;
 
                 return new ReturnDataView<CommonSelectVM>
                 {
@@ -674,6 +718,11 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
+
+
+
+
+
         #endregion
 
         #region Capitalize function

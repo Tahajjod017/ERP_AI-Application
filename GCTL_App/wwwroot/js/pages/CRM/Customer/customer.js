@@ -102,7 +102,7 @@ window.initCustomerForm = function (root) {
             saveBtn.addEventListener("click", async function () {
                 const form = this.closest("form");
                 if (!form) return;
-
+                debugger;
                 // Convert FormData → JSON
                 const formData = new FormData(form);
                 const jsonData = {};
@@ -179,8 +179,14 @@ window.initCustomerForm = function (root) {
         }
 
     }
-
+    function validateEmail(email) {
+        if (!email) return false;
+        // Simple regex for basic email validation
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email.trim());
+    }
     function validateCustomerForm(fieldIds) {
+        debugger;
         let isValid = true;
 
         // Validate main fields
