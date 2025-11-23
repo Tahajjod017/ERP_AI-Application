@@ -2,6 +2,7 @@
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.FieldServices
 {
@@ -28,5 +29,22 @@ namespace GCTL_App.Controllers.FieldServices
             }
             catch (Exception) { return Ok(); }
         }
+
+        public async Task<IActionResult> GetCalenderJobList(DateTime start, DateTime end, string searchTerm = "")
+        {
+            try
+            {
+                var organizationID = await GetCurrentOrganizationIdAsync() ?? 0;
+
+
+                var result = await _jobService.GetCalenderData(organizationID, start, end, searchTerm);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new List<object>());
+            }
+        }
+
     }
 }

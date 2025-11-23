@@ -21,6 +21,7 @@ $(function () {
     $('#CustomerID').select2({
         placeholder: 'Select Customer',
         width: '100%',
+        dropdownParent: $('#CustomerID').closest('.modal').length ? $('#CustomerID').closest('.modal') : null,
         ajax: {
             url: '/CreateJobs/GetCustomers',
             dataType: 'json',
