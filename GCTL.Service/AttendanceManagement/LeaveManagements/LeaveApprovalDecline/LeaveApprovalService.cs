@@ -1018,10 +1018,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     };
                 }
 
-                // Determine approval step and finality
-               // bool hasFirst = approvalSettings.FirstApprovalID.HasValue;
-               // bool hasSecond = approvalSettings.SecondApprovalID.HasValue && approvalSettings.IsEnableSecondApproval;
-               // bool hasThird = approvalSettings.ThirdApprovalID.HasValue && approvalSettings.IsEnableThirdApproval;
+               
 
                 bool isFinalApproval = false;
                 int? approvalPersonId = null;
@@ -1244,152 +1241,156 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                 // Email notification
 
-                var allEmployeeData = await (from emp in employee.AllActive()
-                                             join empOff in empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
-                                                 on emp.EmployeeID equals empOff.EmployeeID
+                var isemailEnabled = await leavePolicyConfiguration.AllActive().Where(x => x.IsEmailSendEnabled).FirstOrDefaultAsync();
 
-                                             select new
-                                             {
-                                                 emp.EmployeeID,
-                                                 emp.FirstName,
-                                                 emp.LastName,
-                                                 emp.Email,
-                                                 empOff.OfficeEmail,
-                                                 DepartmentName = empOff.Department.DepartmentName,
-                                                 DesignationName = empOff.Designation.DesignationName
-                                             }).ToListAsync();
+                if (isemailEnabled != null && isemailEnabled.IsEmailSendEnabled == true)
+                {
+                    var allEmployeeData = await (from emp in employee.AllActive()
+                                                 join empOff in empoffi.AllActive().Include(x => x.Department).Include(x => x.Designation)
+                                                     on emp.EmployeeID equals empOff.EmployeeID
 
-                var applicantData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == entityVM.EmployeeIDEdit);
-               
-                
-               var approverData  = allEmployeeData.FirstOrDefault(x => x.EmployeeID == approvalPersonId);
-                
-               
+                                                 select new
+                                                 {
+                                                     emp.EmployeeID,
+                                                     emp.FirstName,
+                                                     emp.LastName,
+                                                     emp.Email,
+                                                     empOff.OfficeEmail,
+                                                     DepartmentName = empOff.Department.DepartmentName,
+                                                     DesignationName = empOff.Designation.DesignationName
+                                                 }).ToListAsync();
 
-                var leaveName = await leaveTypesRepository.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit).Select(x => x.LeaveTypeName).FirstOrDefaultAsync();
-               
-                int totalDays = 0;
+                    var applicantData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == entityVM.EmployeeIDEdit);
 
-                if (entityVM.FromDateEdit.HasValue && entityVM.ToDateEdit.HasValue)
-                {
-                    totalDays = (entityVM.ToDateEdit.Value.DayNumber - entityVM.FromDateEdit.Value.DayNumber) + 1;
-                }
-                string toEmail;
-                string statusMessage;
-                string name=string.Empty;
-                bool isApplicant = statusId == leavStatusDecline || isFinalApproval;
-                if (isApplicant)
-                {
-                    // Applicant receives final approval/decline
-                    toEmail = applicantData.OfficeEmail ?? applicantData.Email ?? string.Empty;
-                    statusMessage = statusId == leavStatusDecline ? "Your leave request has been declined." : "Your leave request has been approved.";
-                    name = $"{applicantData?.FirstName} {applicantData?.LastName}"; //({applicantData?.DesignationName}, {applicantData?.DepartmentName}
-                }
-                else
-                {
-                    name="HR Team";
-                    toEmail = approverData?.OfficeEmail ?? approverData?.Email ?? string.Empty;
-                    statusMessage = $"This is an automated leave request submitted by an employee. Please find the details below:";
-                }
-                var orgainfo = await _organizationRepository.AllActive().Include(x => x.Country).Include(x => x.EmployeeOfficeInfo.Where(x => x.EmployeeID == entityVM.EmployeeIDEdit))
-               .Select(x => new {
-                   x.OrganizationName,
-                   x.LogoLink,
-                   x.FaviconLink,
-                   x.Address,
-                   x.FullAddress,
-                   x.EmailAddress,
-                   CountryName = x.Country.CountryName ,
-                   x.Phone
-               }).FirstOrDefaultAsync();
-                string formattedAddress = string.Empty;
-                if (orgainfo != null && !string.IsNullOrWhiteSpace(orgainfo.Address))
-                {
-                    var parts = orgainfo.Address.Split(',');
-                    formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
-                }
-                else
-                {
-                    formattedAddress = "No address available"; 
-                }
-                string logourl;
-                if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
-                {
-                    logourl = $"http://usasoft.xyz/media/company/logo/{orgainfo.LogoLink}";
-                }
-                else
-                {
-                    var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
-                        ? "?" : orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
-                    logourl = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
-                }
-                if (orgainfo == null)
-                {
-                    return new CommonReturnViewModel
+
+                    var approverData = allEmployeeData.FirstOrDefault(x => x.EmployeeID == approvalPersonId);
+
+
+
+                    var leaveName = await leaveTypesRepository.AllActive().Where(x => x.LeaveTypeID == entityVM.LeaveTypeIDEdit).Select(x => x.LeaveTypeName).FirstOrDefaultAsync();
+
+                    int totalDays = 0;
+
+                    if (entityVM.FromDateEdit.HasValue && entityVM.ToDateEdit.HasValue)
                     {
-                        Success = false,
-                        Message = "Organization Info does not exists"
+                        totalDays = (entityVM.ToDateEdit.Value.DayNumber - entityVM.FromDateEdit.Value.DayNumber) + 1;
+                    }
+                    string toEmail;
+                    string statusMessage;
+                    string name = string.Empty;
+                    bool isApplicant = statusId == leavStatusDecline || isFinalApproval;
+                    if (isApplicant)
+                    {
+                        // Applicant receives final approval/decline
+                        toEmail = applicantData.OfficeEmail ?? applicantData.Email ?? string.Empty;
+                        statusMessage = statusId == leavStatusDecline ? "Your leave request has been declined." : "Your leave request has been approved.";
+                        name = $"{applicantData?.FirstName} {applicantData?.LastName}"; //({applicantData?.DesignationName}, {applicantData?.DepartmentName}
+                    }
+                    else
+                    {
+                        name = "HR Team";
+                        toEmail = approverData?.OfficeEmail ?? approverData?.Email ?? string.Empty;
+                        statusMessage = $"This is an automated leave request submitted by an employee. Please find the details below:";
+                    }
+                    var orgainfo = await _organizationRepository.AllActive().Include(x => x.Country).Include(x => x.EmployeeOfficeInfo.Where(x => x.EmployeeID == entityVM.EmployeeIDEdit))
+                   .Select(x => new {
+                       x.OrganizationName,
+                       x.LogoLink,
+                       x.FaviconLink,
+                       x.Address,
+                       x.FullAddress,
+                       x.EmailAddress,
+                       CountryName = x.Country.CountryName,
+                       x.Phone
+                   }).FirstOrDefaultAsync();
+                    string formattedAddress = string.Empty;
+                    if (orgainfo != null && !string.IsNullOrWhiteSpace(orgainfo.Address))
+                    {
+                        var parts = orgainfo.Address.Split(',');
+                        formattedAddress = string.Join("<br>", parts.Select(p => p.Trim()));
+                    }
+                    else
+                    {
+                        formattedAddress = "No address available";
+                    }
+                    string logourl;
+                    if (!string.IsNullOrWhiteSpace(orgainfo.LogoLink))
+                    {
+                        logourl = $"http://usasoft.xyz/media/company/logo/{orgainfo.LogoLink}";
+                    }
+                    else
+                    {
+                        var firstLetter = string.IsNullOrWhiteSpace(orgainfo.OrganizationName)
+                            ? "?" : orgainfo.OrganizationName.Trim()[0].ToString().ToUpper();
+                        logourl = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
+                    }
+                    if (orgainfo == null)
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "Organization Info does not exists"
+                        };
+                    }
+
+                    //
+
+                    var model = new EmailTemplateVM
+                    {
+                        LogoUrl = logourl,
+                        FormattedAddress = formattedAddress ?? "No address available",
+                        CountryName = orgainfo.CountryName ?? "No country",
+                        Email = orgainfo.EmailAddress ?? "No email",
+                        Phone = orgainfo.Phone ?? "No phone",
+                        RecipientName = applicantData.FirstName + " " + applicantData.LastName,
+                        StatusMessage = statusMessage,
+                        ApplicantName = applicantData.FirstName + " " + applicantData.LastName,
+                        Department = applicantData.DepartmentName,
+                        Designation = applicantData.DesignationName,
+                        LeaveName = leaveName,
+                        FromDate = entityVM.FromDateEdit,
+                        ToDate = entityVM.ToDateEdit,
+                        Reason = entityVM.ReasonEdit,
+                        AcceptUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={entityVM.LeaveApplicationID}&approverId={approvalPersonId}&isApproved=true&secrectCode={secrectCode}",
+                        DenyUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={entityVM.LeaveApplicationID}&approverId={approvalPersonId}&isApproved=false&secrectCode={secrectCode}",
+                        ModifyLink = $"{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{entityVM.LeaveApplicationID}",
+                        IsApplicant = isApplicant
                     };
-                }
 
-                //
+                    // var emailBody = await commonDroDownService.RenderViewToStringAsync("LeaveApprovalDecline/LeaveRequestEmail", model);
 
-                var model = new EmailTemplateVM
-                {
-                    LogoUrl = logourl,
-                    FormattedAddress = formattedAddress ?? "No address available",
-                    CountryName = orgainfo.CountryName ?? "No country",
-                    Email = orgainfo.EmailAddress ?? "No email",
-                    Phone = orgainfo.Phone ?? "No phone",
-                    RecipientName = applicantData.FirstName + " " + applicantData.LastName,
-                    StatusMessage = statusMessage,
-                    ApplicantName = applicantData.FirstName + " " + applicantData.LastName,
-                    Department = applicantData.DepartmentName,
-                    Designation = applicantData.DesignationName,
-                    LeaveName = leaveName,
-                    FromDate = entityVM.FromDateEdit,
-                    ToDate = entityVM.ToDateEdit,
-                    Reason = entityVM.ReasonEdit,
-                    AcceptUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={entityVM.LeaveApplicationID}&approverId={approvalPersonId}&isApproved=true&secrectCode={secrectCode}",
-                    DenyUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={entityVM.LeaveApplicationID}&approverId={approvalPersonId}&isApproved=false&secrectCode={secrectCode}",
-                    ModifyLink = $"{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{entityVM.LeaveApplicationID}",
-                    IsApplicant = isApplicant
-                };
+                    //var emailModel33 = new EmailVM
+                    //{
+                    //    To = applicantData?.Email ?? applicantData?.OfficeEmail,
+                    //    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
+                    //    Body = emailBody
+                    //};
 
-                // var emailBody = await commonDroDownService.RenderViewToStringAsync("LeaveApprovalDecline/LeaveRequestEmail", model);
+                    //
+                    var supervisors = await empoffi.AllActive().Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
+                   .Select(x => new
+                   {
+                       ImmediateSupervisor = x.ImmediateSupervisorId != null && x.ImmediateSupervisorId != 0 ? x.ImmediateSupervisorId : (int?)null,
+                       SeniorSupervisor = x.SeniorSupervisorId != null && x.SeniorSupervisorId != 0 ? x.SeniorSupervisorId : (int?)null,
+                       HeadOfDepartment = x.HeadOfDepartmentId != null && x.HeadOfDepartmentId != 0 ? x.HeadOfDepartmentId : (int?)null
+                   }).FirstOrDefaultAsync();
 
-                //var emailModel33 = new EmailVM
-                //{
-                //    To = applicantData?.Email ?? applicantData?.OfficeEmail,
-                //    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
-                //    Body = emailBody
-                //};
-
-                //
-               var supervisors = await empoffi.AllActive().Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
-              .Select(x => new
-              {
-                  ImmediateSupervisor = x.ImmediateSupervisorId != null && x.ImmediateSupervisorId != 0 ? x.ImmediateSupervisorId : (int?)null,
-                  SeniorSupervisor = x.SeniorSupervisorId != null && x.SeniorSupervisorId != 0 ? x.SeniorSupervisorId : (int?)null,
-                  HeadOfDepartment = x.HeadOfDepartmentId != null && x.HeadOfDepartmentId != 0 ? x.HeadOfDepartmentId : (int?)null
-              }).FirstOrDefaultAsync();
-
-                var supervisorList = new List<(string Role, int? Id)>();
-                if (supervisors?.ImmediateSupervisor != null) supervisorList.Add(("Immediate Supervisor", supervisors.ImmediateSupervisor));
-                if (supervisors?.SeniorSupervisor != null) supervisorList.Add(("Senior Supervisor", supervisors.SeniorSupervisor));
-                if (supervisors?.HeadOfDepartment != null) supervisorList.Add(("Head of Department", supervisors.HeadOfDepartment));
+                    var supervisorList = new List<(string Role, int? Id)>();
+                    if (supervisors?.ImmediateSupervisor != null) supervisorList.Add(("Immediate Supervisor", supervisors.ImmediateSupervisor));
+                    if (supervisors?.SeniorSupervisor != null) supervisorList.Add(("Senior Supervisor", supervisors.SeniorSupervisor));
+                    if (supervisors?.HeadOfDepartment != null) supervisorList.Add(("Head of Department", supervisors.HeadOfDepartment));
 
 
-                var supervisorIds = supervisorList.Select(s => s.Id).ToList();
-                var supervisorNames = await employee.AllActive().Where(x => supervisorIds.Contains(x.EmployeeID))
-                    .ToDictionaryAsync(x => x.EmployeeID, x => x.FirstName + " " + x.LastName);
+                    var supervisorIds = supervisorList.Select(s => s.Id).ToList();
+                    var supervisorNames = await employee.AllActive().Where(x => supervisorIds.Contains(x.EmployeeID))
+                        .ToDictionaryAsync(x => x.EmployeeID, x => x.FirstName + " " + x.LastName);
 
-                //
-                   var approvedPerson =await GetByPersonLeaveStepVM(entityVM.LeaveApplicationID);
+                    //
+                    var approvedPerson = await GetByPersonLeaveStepVM(entityVM.LeaveApplicationID);
                     var timelineHtml = new StringBuilder();
-               
-                // Step 1: Submitted (always first)
-                timelineHtml.Append($@"
+
+                    // Step 1: Submitted (always first)
+                    timelineHtml.Append($@"
 <td style=""width:20%; position:relative; vertical-align:top;"">
   <div style=""width:50px;height:50px;background:linear-gradient(135deg, #10b981, #059669);border-radius:50%;margin:auto;display:flex;align-items:center;justify-content:center;"">
     <span style=""color:#fff;font-size:20px;font-weight:bold;margin:10px 0px 0px 17px !important;"">✓</span>
@@ -1399,66 +1400,66 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
   <p style=""margin:0;font-size:11px;color:#6b7280;"">{DateTime.Now:hh:mm tt}</p>
 </td>");
 
-                // Connector after submitted
-                if (supervisorList.Count > 0)
-                {
-                    timelineHtml.Append(@"<td style=""width:10%; vertical-align:middle;"">
+                    // Connector after submitted
+                    if (supervisorList.Count > 0)
+                    {
+                        timelineHtml.Append(@"<td style=""width:10%; vertical-align:middle;"">
                    <div style=""height:3px;background:#10b981;margin:0 5px;""></div>
                </td>");
-                }
-
-                // Dynamic approvals
-                for (int i = 0; i < supervisorList.Count; i++)
-                {
-                    var sup = supervisorList[i];
-                    string supName;
-                    if (!supervisorNames.TryGetValue((int)sup.Id, out supName))
-                    {
-                        supName = "Pending";
                     }
 
-
-                    // Assign colors/icons dynamically
-                    //string bgColor = i == 0 ? "linear-gradient(135deg, #fbbf24, #f59e0b)" : "linear-gradient(135deg, #e5e7eb, #d1d5db)";
-                    //string icon = i == 0 ? "⏳" : "•••";
-                    //string textColor = i == 0 ? "#f59e0b" : "#9ca3af";
-                   
-                    // Default
-
-                    var personStatus = approvedPerson.FirstOrDefault(p => p.ApprovarPerson.Contains(supName))?.StatusName ?? "Pending";
-
-                    // Default colors/icons
-                    string bgColor = "linear-gradient(135deg, #e5e7eb, #d1d5db)";
-                    string icon = "•••";
-                    string textColor = "#9ca3af";
-                    string displayStatus = "Pending"; 
-                    // Assign based on status
-                    if (personStatus.Equals("APPROVED", StringComparison.OrdinalIgnoreCase))
+                    // Dynamic approvals
+                    for (int i = 0; i < supervisorList.Count; i++)
                     {
-                        bgColor = "linear-gradient(135deg, #34d399, #059669)"; // green
-                        icon = "✔️";
-                        textColor = "#059669";
-                        displayStatus = "APPROVED"; // Add this
-                    }
-                    else if (personStatus.Equals("DECLINED", StringComparison.OrdinalIgnoreCase))
-                    {
-                        bgColor = "linear-gradient(135deg, #f87171, #dc2626)"; // red
-                        icon = "❌";
-                        textColor = "#dc2626";
-                        displayStatus = "DECLINED"; // Add this
-                    }
-                    else // Pending
-                    {
-                        bgColor = i == 0 ? "linear-gradient(135deg, #fbbf24, #f59e0b)" : "linear-gradient(135deg, #e5e7eb, #d1d5db)";
-                        icon = i == 0 ? "⏳" : "•••";
-                        textColor = i == 0 ? "#f59e0b" : "#9ca3af";
-                        displayStatus = "Pending"; // Add this
-                    }
+                        var sup = supervisorList[i];
+                        string supName;
+                        if (!supervisorNames.TryGetValue((int)sup.Id, out supName))
+                        {
+                            supName = "Pending";
+                        }
 
 
-                    string stepText = sup.Role;
+                        // Assign colors/icons dynamically
+                        //string bgColor = i == 0 ? "linear-gradient(135deg, #fbbf24, #f59e0b)" : "linear-gradient(135deg, #e5e7eb, #d1d5db)";
+                        //string icon = i == 0 ? "⏳" : "•••";
+                        //string textColor = i == 0 ? "#f59e0b" : "#9ca3af";
 
-                    timelineHtml.Append($@"
+                        // Default
+
+                        var personStatus = approvedPerson.FirstOrDefault(p => p.ApprovarPerson.Contains(supName))?.StatusName ?? "Pending";
+
+                        // Default colors/icons
+                        string bgColor = "linear-gradient(135deg, #e5e7eb, #d1d5db)";
+                        string icon = "•••";
+                        string textColor = "#9ca3af";
+                        string displayStatus = "Pending";
+                        // Assign based on status
+                        if (personStatus.Equals("APPROVED", StringComparison.OrdinalIgnoreCase))
+                        {
+                            bgColor = "linear-gradient(135deg, #34d399, #059669)"; // green
+                            icon = "✔️";
+                            textColor = "#059669";
+                            displayStatus = "APPROVED"; // Add this
+                        }
+                        else if (personStatus.Equals("DECLINED", StringComparison.OrdinalIgnoreCase))
+                        {
+                            bgColor = "linear-gradient(135deg, #f87171, #dc2626)"; // red
+                            icon = "❌";
+                            textColor = "#dc2626";
+                            displayStatus = "DECLINED"; // Add this
+                        }
+                        else // Pending
+                        {
+                            bgColor = i == 0 ? "linear-gradient(135deg, #fbbf24, #f59e0b)" : "linear-gradient(135deg, #e5e7eb, #d1d5db)";
+                            icon = i == 0 ? "⏳" : "•••";
+                            textColor = i == 0 ? "#f59e0b" : "#9ca3af";
+                            displayStatus = "Pending"; // Add this
+                        }
+
+
+                        string stepText = sup.Role;
+
+                        timelineHtml.Append($@"
                          <td style=""width:20%; position:relative; vertical-align:top;"">
                         <div style=""width:50px;height:50px;background:{bgColor};border-radius:50%;margin:auto;display:flex;align-items:center;justify-content:center;"">
                         <span style=""color:#fff;font-size:20px;font-weight:bold; margin:10px 0px 0px 17px !important;"">{icon}</span>
@@ -1469,23 +1470,23 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                       </td>");
 
 
-                    //
+                        //
 
-                    // Connector after each supervisor except last
-                    if (i != supervisorList.Count - 1)
-                    {
-                        timelineHtml.Append($@"<td style=""width:10%; vertical-align:middle;"">
+                        // Connector after each supervisor except last
+                        if (i != supervisorList.Count - 1)
+                        {
+                            timelineHtml.Append($@"<td style=""width:10%; vertical-align:middle;"">
                            <div style=""height:3px;background:#e5e7eb;margin:0 5px;""></div>
                              </td>");
+                        }
                     }
-                }
-                //
+                    //
 
-                string buttonHtml = string.Empty;
-                //
-                if (!isApplicant)
-                {
-                    buttonHtml = $@"
+                    string buttonHtml = string.Empty;
+                    //
+                    if (!isApplicant)
+                    {
+                        buttonHtml = $@"
                     <tr>
                         <td class=""content section-button"">
                             <div style=""margin-bottom: 15px; text-align: center;"">
@@ -1503,15 +1504,15 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                             </p>
                         </td>
                     </tr>";
-                }
+                    }
 
 
-                var emailModel = new EmailVM
-                {
-                    To = toEmail,
-                    //To=applicantData.OfficeEmail ?? applicantData.Email,
-                    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
-                    Body = $@"
+                    var emailModel = new EmailVM
+                    {
+                        To = toEmail,
+                        //To=applicantData.OfficeEmail ?? applicantData.Email,
+                        Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
+                        Body = $@"
                         <!DOCTYPE html>
 <html>
 <head>
@@ -1773,11 +1774,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 </body>
 </html>
                         "
-                };
+                    };
 
-                //
+                    //
 
-                await emailService.SendEmailLeaveRequest(emailModel, entityVM.EmployeeIDEdit);
+                    await emailService.SendEmailLeaveRequest(emailModel, entityVM.EmployeeIDEdit);
+                }
+                   
                 await leaveRequest.CommitTransactionAsync();
                 return new CommonReturnViewModel
                 {
