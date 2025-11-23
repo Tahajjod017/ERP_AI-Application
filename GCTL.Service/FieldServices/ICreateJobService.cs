@@ -1,4 +1,5 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
@@ -20,6 +21,7 @@ namespace GCTL.Service.FieldServices
         Task<ReturnDataView<CustomerInfoVM>> GetTechnicianListAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CreateJobVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5,
             string searchTerm = "", string sortColumn = "CreateJobID", string sortOrder = "asc");
+        Task<CommonReturnViewModel> GetCalenderData(int organizationID, DateTime start, DateTime end, string searchTerm = "");
         #endregion
     }
 }

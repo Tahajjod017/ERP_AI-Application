@@ -32,6 +32,10 @@ namespace GCTL_App.Controllers.FieldServices
 
             return View();
         }
+        public IActionResult IndexModal()
+        {
+            return PartialView("_PartialModal");
+        }
 
         public async Task<string> StorePhoto(IFormFile? file)
         {

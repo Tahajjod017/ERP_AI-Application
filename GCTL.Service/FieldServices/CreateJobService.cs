@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
+using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -384,6 +385,47 @@ namespace GCTL.Service.FieldServices
         public Task<bool> UpdateAsync(CreateJobVM model)
         {
             throw new NotImplementedException();
+        }
+        #endregion
+
+
+
+        #region GetCalenderData
+        public async Task<CommonReturnViewModel> GetCalenderData(int organizationID, DateTime start, DateTime end, string searchTerm = "")
+        {
+            try
+            {
+                var jobs = await _context.Jobs
+                    .AsNoTracking()
+                    .Where(t => t.Customer != null && t.Customer.OrganizationID == organizationID)
+                    .Where(t => t.StartDateTime >= start && t.StartDateTime <= end) // filter by calendar range
+                    .Where(t => string.IsNullOrEmpty(searchTerm) || EF.Functions.Like(t.JobTitle, $"%{searchTerm}%"))
+                    .Select(t => new
+                    {
+                        id = t.JobID,
+                        title = t.JobTitle,
+                        start = t.StartDateTime.HasValue ? t.StartDateTime.Value.ToString("yyyy-MM-ddTHH:mm:ss"): null,
+                        end = t.EndDateTime.HasValue ? t.EndDateTime.Value.ToString("yyyy-MM-ddTHH:mm:ss") : null,
+                        allDay = false,
+                        customer = t.Customer.FullName,
+                        status = t.JobStatus != null ? t.JobStatus.StatusName : ""
+                    })
+                    .ToListAsync();
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Data = jobs
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Something goes to wrong"
+                };
+            }
+            
         }
         #endregion
     }
