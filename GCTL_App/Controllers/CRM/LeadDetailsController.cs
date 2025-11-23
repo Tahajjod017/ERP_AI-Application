@@ -179,10 +179,9 @@ namespace GCTL_App.Controllers.CRM
         {
             var currentDate = DateTime.UtcNow;
 
-            const int pageSize = 10; // Number of items per page
-            int skip = (page - 1) * pageSize; // Calculate how many items to skip
+            const int pageSize = 10; 
+            int skip = (page - 1) * pageSize; 
 
-            // Fetch filtered and paginated data using LIKE
             var list = await _leadDetailsRepository
             .AllActive().Where(u => u.LeadID == id && u.ActivityDateTime >= currentDate)
             .Skip(skip)

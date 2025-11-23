@@ -116,13 +116,13 @@ $(function () {
             success: function (response) {
                 viewCustomerInfo(response)
                 //showDev(response)
-                //if (!response.isIndividual)
-                //    { 
-                //        $("#BranchId").val(null).trigger('change');
-                //        $('#branchContainer').show();
-                //    }
-                //else
-                //    $('#branchContainer').hide();
+                if (!response.isIndividual)
+                    { 
+                        $("#BranchId").val(null).trigger('change');
+                        $('#branchContainer').show();
+                    }
+                else
+                    $('#branchContainer').hide();
 
 
                 // do something with response
