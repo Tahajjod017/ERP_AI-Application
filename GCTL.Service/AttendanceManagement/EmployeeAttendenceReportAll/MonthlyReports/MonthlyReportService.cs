@@ -473,9 +473,21 @@ namespace GCTL.Service.AttendanceManagement.EmployeeAttendenceReportAll.MonthlyR
                 {
                     Date = date,
                     DayName = date.ToString("dddd"),
-                    ShiftName = rec?.Shift?.ShiftName ?? "",
-                    InTime = (rec?.CheckInTime.HasValue.ToString()),
-                    OutTime = (rec?.CheckOutTime.HasValue.ToString()),
+                    ShiftName = rec?.Shift != null
+    ? $"{(rec.Shift.StartTime.HasValue
+        ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(rec.Shift.StartTime.Value, _localizationContext)
+        : "--")} - {(rec.Shift.EndTime.HasValue
+        ? TimeConversionHelper.ConvertUtcTimeOnlyToLocalFormatted(rec.Shift.EndTime.Value, _localizationContext)
+        : "--")}"
+    : string.Empty,
+                    InTime = rec?.CheckInTime.HasValue == true
+    ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(rec.CheckInTime.Value, _localizationContext)
+    : string.Empty,
+
+                    OutTime = rec?.CheckOutTime.HasValue == true
+    ? TimeConversionHelper.ConvertUtcDateTimeToLocalHHmm(rec.CheckOutTime.Value, _localizationContext)
+    : string.Empty,
+
                     Late = FormatMinutes(rec?.LateTimeMinutes),
                     EarlyOut = FormatMinutes(rec?.EarlyTimeMinutes),
                     WorkHours = FormatMinutes(rec?.WorkingTimeMinutes),
