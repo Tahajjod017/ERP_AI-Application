@@ -1357,14 +1357,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         IsApplicant = isApplicant
                     };
 
-                    // var emailBody = await commonDroDownService.RenderViewToStringAsync("LeaveApprovalDecline/LeaveRequestEmail", model);
-
-                    //var emailModel33 = new EmailVM
-                    //{
-                    //    To = applicantData?.Email ?? applicantData?.OfficeEmail,
-                    //    Subject = $"Leave Application from {applicantData?.FirstName} {applicantData?.LastName}",
-                    //    Body = emailBody
-                    //};
+                    
 
                     //
                     var supervisors = await empoffi.AllActive().Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
@@ -1419,12 +1412,6 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                         }
 
 
-                        // Assign colors/icons dynamically
-                        //string bgColor = i == 0 ? "linear-gradient(135deg, #fbbf24, #f59e0b)" : "linear-gradient(135deg, #e5e7eb, #d1d5db)";
-                        //string icon = i == 0 ? "⏳" : "•••";
-                        //string textColor = i == 0 ? "#f59e0b" : "#9ca3af";
-
-                        // Default
 
                         var personStatus = approvedPerson.FirstOrDefault(p => p.ApprovarPerson.Contains(supName))?.StatusName ?? "Pending";
 
