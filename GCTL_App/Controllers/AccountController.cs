@@ -56,6 +56,26 @@ namespace GCTL_App.Controllers
         [HttpGet]
         public IActionResult Login(string returnUrl = null)
         {
+            var companies = _Db.Organization
+                            .Where(x => x.DeletedAt == null)
+                            .Select(x => x.LogoLink)   
+                            .AsNoTracking()           
+                            .ToList();                
+
+            if (companies.Count == 1)
+            {
+                var company = companies.First();
+
+                // Build relative path directly using the filename from DB
+                ViewBag.LogoPath = $"media/company/logo/{company}";
+            }
+            else
+            {
+                // More than one company → show default logo
+                ViewBag.LogoPath = "media/MultipleCompany/default.png";
+            }
+
+
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
