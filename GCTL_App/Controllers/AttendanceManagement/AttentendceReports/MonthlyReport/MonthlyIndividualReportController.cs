@@ -83,7 +83,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyRe
         }
         [HttpGet]
         public async Task<IActionResult> SomeAction2(int? organizationId, int? departmentId, string monthyear, int employeeId)
-        {
+         {
             if (employeeId <= 0)
                 return BadRequest("Invalid employee ID.");
 
@@ -104,10 +104,21 @@ namespace GCTL_App.Controllers.AttendanceManagement.AttentendceReports.MonthlyRe
         //    //var pdfBytes = await _employeeReportService.GenaratePDF(id);
         //    return File(/*pdfBytes,*/ "application/pdf", $"Employee_{id}.pdf");
         //}
-        [HttpGet]
+       
+       
         public async Task<IActionResult> GenerateJobCardPdf(int? organizationId, int? departmentId, int employeeId, string monthyear)
         {
-            var pdfBytes = await _monthlyReportService.GenerateJobCardPdfAsync(null,null,4, "2025-11");
+            if (!DateTime.TryParseExact(monthyear, "MMMM yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+                parsedDate = DateTime.Now;
+
+            var formattedMonthYear = parsedDate.ToString("yyyy-MM");
+
+            var pdfBytes = await _monthlyReportService.GenerateJobCardPdfAsync(
+                organizationId,
+                departmentId,
+                employeeId,
+                formattedMonthYear
+            );
 
             var fileName = $"JobCard_{employeeId}_{monthyear}.pdf";
             return File(pdfBytes, "application/pdf", fileName);
