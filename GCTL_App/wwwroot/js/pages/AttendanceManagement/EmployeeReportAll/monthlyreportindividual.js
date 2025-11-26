@@ -39,7 +39,7 @@ function fetchAttendanceData() {
     }
 
     $.ajax({
-        url: "/MonthlyIndividualReport/SomeAction2",  // <-- your actual controller action
+        url: "cSomeAction2",  // <-- your actual controller action
         type: "GET",
         data: {
             monthyear: monthyear,
@@ -121,6 +121,7 @@ function populateAttendanceTable(data, monthyear) {
 
 // Call the fetchAttendanceData function when the page loads
 $(document).ready(function () {
+
     fetchAttendanceData();
 });
 
@@ -258,3 +259,55 @@ fetch('/api/attendance?empId=123&month=2025-10')
   .then(data => renderMonthlyAttendanceSameDesign('individualEmployeemonthlyAttendanceTable', data))
   .catch(console.error);
 */
+
+$('#btnPrintJobCard').on('click', function () {
+    const orgId = $('#organizationid').val() || null;
+
+    const deptId = $('#DepartmentIDsSelect').val()
+        ? $('#DepartmentIDsSelect').val()
+        : null;
+
+    const employeeId = $('#EmployeeIDsSelect').val();
+    debugger
+    const monthyear = $('#year-month-picker-1').val();
+
+    if (!employeeId) {
+        alert('Please select an Employee.');
+        return;
+    }
+
+    if (!monthyear) {
+        alert('Please select a Month.');
+        return;
+    }
+
+    $.ajax({
+        url: '/MonthlyIndividualReport/GenerateJobCardPdf',
+        type: 'GET',
+        data: {
+            organizationId: orgId,
+            departmentId: deptId,
+            employeeId: employeeId,
+            monthyear: monthyear // নিশ্চিত হন এটা "2025-11" ফরম্যাটে আসছে
+        },
+      
+        success: function (data) {
+            // Blob থেকে ফাইল ডাউনলোড ট্রিগার
+            const blob = new Blob([data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `JobCard_${employeeId}_${monthyear}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            window.URL.revokeObjectURL(url);
+        },
+        error: function (xhr, status, error) {
+            console.error(error);
+            alert('Failed to generate Job Card PDF.');
+        }
+    });
+});
