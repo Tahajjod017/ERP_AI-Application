@@ -4,7 +4,7 @@
         <div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
             <div class="dropdown me-3">
                 <select class="form-select" id="addShift-dd-search" asp-items="ViewBag.OrganizationDD as SelectList" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                    <option value="">@Html.SmartLocalize("Company Name")</option>
+                    <option value="">@Html.SmartLocalize("Organization Name")</option>
                 </select>
             </div>
         </div>
@@ -53,7 +53,7 @@
                             <input type="checkbox" class="form-check-input" id="addShift-check-all" />
                         </th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="ShiftName">@Html.SmartLocalize("Shift Name")</th>
-                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="OrganizationName">@Html.SmartLocalize("Company Name")</th>
+                        <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="OrganizationName">@Html.SmartLocalize("Organization Name")</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="StartTime">@Html.SmartLocalize("Start Time")</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="EndTime">@Html.SmartLocalize("End Time")</th>
                         <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="GraceTime">@Html.SmartLocalize("Grace Time")</th>
