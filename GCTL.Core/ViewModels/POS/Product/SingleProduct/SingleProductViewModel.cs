@@ -10,21 +10,39 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
 {
     public class SingleProductViewModel : BaseViewModel
     {
+
+
+        [Required(ErrorMessage = "Product Name is required")]
+        [Display(Name = "Product Name")]
+        public string ProductName { get; set; }
+
+        [Required(ErrorMessage = "SKU is required")]
+        [Display(Name = "SKU")]
+        public string SKU { get; set; }
+
+        [Required(ErrorMessage = "Category is required")]
+        [Display(Name = "Category")]
+        public string Category { get; set; }
+
+
+       
+
+
         [Required]
         [Display(Name = "Product Type")]
         public string ProductType { get; set; } = "sp";
 
-        [Required]
-        [Display(Name = "Product Name")]
-        public string ProductName { get; set; }
+        //[Required]
+        //[Display(Name = "Product Name")]
+        //public string ProductName { get; set; }
 
-        [Required]
-        [Display(Name = "SKU")]
-        public string SKU { get; set; }
+        //[Required]
+        //[Display(Name = "SKU")]
+        //public string SKU { get; set; }
 
-        [Required]
-        [Display(Name = "Category")]
-        public string Category { get; set; }
+        //[Required]
+        //[Display(Name = "Category")]
+        //public string Category { get; set; }
 
         [Required]
         [Display(Name = "Sub Category")]
@@ -90,6 +108,8 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         [Required]
         [Display(Name = "VAT %")]
         public string VATPercentage { get; set; }
+
+
 
        
 

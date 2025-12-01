@@ -32,7 +32,7 @@ $(function () {
     /* ==============================================================
        4. FORM SUBMIT – AJAX + FILES + JSON
        ============================================================== */
-    $('form').on('submit', function (e) {
+    $('#attributeForm').on('submit', function (e) {
         e.preventDefault();
 
         /* ---- 4.1 Description validation ---- */
@@ -82,9 +82,9 @@ $(function () {
         // JSON of selected attributes (controller reads it as string)
         formData.append('AttrSelectedValuesJson', JSON.stringify(selectedAttrs));
 
-        const $submit = $('button[type=submit]');
-        const oldText = $submit.text();
-        $submit.prop('disabled', true).text('Saving...');
+        //const $submit = $('button[type=submit]');
+        //const oldText = $submit.text();
+        //$submit.prop('disabled', true).text('Saving...');
 
         $.ajax({
             url: $(this).attr('action'),
@@ -149,7 +149,7 @@ $(function () {
     /* ==============================================================
        6. OPTIONAL: Add a Reset button next to Save
        ============================================================== */
-    const $resetBtn = $('<button type="button" class="btn btn-secondary ms-2">Reset All</button>');
-    $resetBtn.on('click', attrResetAll);
-    $('button[type=submit]').after($resetBtn);
+    //const $resetBtn = $('<button type="button" class="btn btn-secondary ms-2">Reset All</button>');
+    //$resetBtn.on('click', attrResetAll);
+    //$('button[type=submit]').after($resetBtn);
 });
