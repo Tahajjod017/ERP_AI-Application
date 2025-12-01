@@ -276,13 +276,15 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
             try
             {
                 var query = _genericRepository.All()
-                    .AsNoTracking()
-                    .Include(x => x.Shift)
-                    .Include(x => x.Employee)
-                    .ThenInclude(x => x.EmployeeOfficeInfoEmployee)
-                    .ThenInclude(x => x.Organization)
-                    .ThenInclude(x => x.Departments)
-                    .Where(x => x.DeletedAt == null);
+                            .AsNoTracking()
+                            .Include(x => x.Shift)
+                            .Include(x => x.Employee)
+                            .ThenInclude(x => x.EmployeeOfficeInfoEmployee)
+                            .ThenInclude(x => x.Organization)
+                            .Include(x => x.Employee)
+                            .ThenInclude(x => x.EmployeeOfficeInfoEmployee)
+                            .ThenInclude(x => x.Department)
+                            .Where(x => x.DeletedAt == null);
 
                 if (!string.IsNullOrEmpty(sortColumn))
                 {
@@ -308,9 +310,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                 }
 
                 var result = await PaginationService<DefaultShifts, AssignDefaultShiftSetupVM>.GetPaginatedData(query, pageNumber, pageSize, searchTerm, sortColumn, sortOrder,
-                    term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%") 
-                    || EF.Functions.Like(x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Organization.OrganizationName, $"%{term}%") 
-                    || EF.Functions.Like(x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName, $"%{term}%") 
+                    term => x => EF.Functions.Like(x.Shift.ShiftName, $"%{term}%")
+                    || EF.Functions.Like(x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Organization.OrganizationName, $"%{term}%")
+                    || EF.Functions.Like(x.Employee.EmployeeOfficeInfoEmployee.FirstOrDefault().Department.DepartmentName, $"%{term}%")
                     || EF.Functions.Like(x.Employee.FirstName, $"%{term}%"),
                     x => new AssignDefaultShiftSetupVM
                     {
@@ -328,6 +330,133 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                 throw new Exception(ex.Message, ex);
             }
         }
+
+
+        #region Separate
+        //public async Task<PaginationResultVM<DefaultShiftListVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "DefaultShiftID", string sortOrder = "desc")
+        //{
+        //    try
+        //    {
+        //        var query =
+        //            from ds in _genericRepository.AllActive().AsNoTracking()
+
+        //            join sft in _shiftsRepository.AllActive().AsNoTracking()
+        //                on ds.ShiftID equals sft.ShiftID into sftJoin
+        //            from sft in sftJoin.DefaultIfEmpty()
+
+        //            join emp in _employeesRepository.AllActive().AsNoTracking()
+        //                on ds.EmployeeID equals emp.EmployeeID into empJoin
+        //            from emp in empJoin.DefaultIfEmpty()
+
+        //            join eoi in _employeeOfficeInfo.AllActive().AsNoTracking()
+        //                on emp.EmployeeID equals eoi.EmployeeID into eoiJoin
+        //            from eoi in eoiJoin.DefaultIfEmpty()
+
+        //            join org in _organizationRepository.AllActive().AsNoTracking()
+        //                on eoi.OrganizationID equals org.OrganizationID into orgJoin
+        //            from org in orgJoin.DefaultIfEmpty()
+
+        //            join dep in _departmentRepository.AllActive().AsNoTracking()
+        //                on eoi.DepartmentID equals dep.DepartmentID into depJoin
+        //            from dep in depJoin.DefaultIfEmpty()
+
+        //            select new DefaultShiftListVM
+        //            {
+        //                DefaultShiftID = ds.DefaultShiftID,
+        //                ShiftName = sft.ShiftName ?? "-",
+        //                EmployeeName = emp != null ? emp.FirstName + " " + emp.LastName : "-",
+        //                EmployeeCode = emp.EmployeeCode ?? "-",
+        //                OrganizationName = org.OrganizationName ?? "-",
+        //                DepartmentName = dep.DepartmentName ?? "-"
+        //            };
+
+
+
+        //        if (!string.IsNullOrWhiteSpace(searchTerm))
+        //        {
+        //            searchTerm = searchTerm.Trim().ToLower();
+
+        //            query = query.Where(x =>
+        //                EF.Functions.Like(x.ShiftName.ToLower(), $"%{searchTerm}%") ||
+        //                EF.Functions.Like(x.EmployeeName.ToLower(), $"%{searchTerm}%") ||
+        //                EF.Functions.Like(x.OrganizationName.ToLower(), $"%{searchTerm}%") ||
+        //                EF.Functions.Like(x.DepartmentName.ToLower(), $"%{searchTerm}%")
+        //            );
+        //        }
+
+        //        var sortMap = new Dictionary<string, Expression<Func<DefaultShiftListVM, object>>>
+        //        {
+        //            { "DefaultShiftID", x => x.DefaultShiftID },
+        //            { "ShiftName", x => x.ShiftName },
+        //            { "EmployeeName", x => x.EmployeeName },
+        //            { "OrganizationName", x => x.OrganizationName },
+        //            { "DepartmentName", x => x.DepartmentName }
+        //        };
+
+        //        if (sortMap.ContainsKey(sortColumn))
+        //        {
+        //            var sortExpr = sortMap[sortColumn];
+
+        //            query = sortOrder == "desc" ? query.OrderByDescending(sortExpr) : query.OrderBy(sortExpr);
+        //        }
+        //        else
+        //        {
+        //            query = query.OrderByDescending(x => x.DefaultShiftID);
+        //        }
+
+        //        //query = (sortColumn, sortOrder.ToLower()) switch
+        //        //{
+        //        //    ("ShiftName", "asc") => query.OrderBy(x => x.ShiftName),
+        //        //    ("ShiftName", "desc") => query.OrderByDescending(x => x.ShiftName),
+        //        //    ("EmployeeName", "asc") => query.OrderBy(x => x.EmployeeName),
+        //        //    ("EmployeeName", "desc") => query.OrderByDescending(x => x.EmployeeName),
+        //        //    ("OrganizationName", "asc") => query.OrderBy(x => x.OrganizationName),
+        //        //    ("OrganizationName", "desc") => query.OrderByDescending(x => x.OrganizationName),
+        //        //    ("DepartmentName", "asc") => query.OrderBy(x => x.DepartmentName),
+        //        //    ("DepartmentName", "desc") => query.OrderByDescending(x => x.DepartmentName),
+        //        //    ("DefaultShiftID", "asc") => query.OrderBy(x => x.DefaultShiftID),
+        //        //    _ => query.OrderByDescending(x => x.DefaultShiftID)
+        //        //};
+
+        //        int totalItems = await query.CountAsync();
+
+        //        if (pageSize == 0)
+        //        {
+        //            pageSize = totalItems;
+        //            pageNumber = 1;
+        //        }
+
+        //        var data = await query
+        //            .Skip((pageNumber - 1) * pageSize)
+        //            .Take(pageSize)
+        //            .ToListAsync();
+
+        //        int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        //        var pagination = new PaginationInfoVM
+        //        {
+        //            TotalItems = totalItems,
+        //            TotalPages = totalPages,
+        //            CurrentPage = pageNumber,
+        //            StartItem = totalItems == 0 ? 0 : (pageNumber - 1) * pageSize + 1,
+        //            EndItem = Math.Min(pageNumber * pageSize, totalItems),
+        //            PageNumbers = Enumerable.Range(1, totalPages).ToList()
+        //        };
+
+        //        return new PaginationResultVM<DefaultShiftListVM>
+        //        {
+        //            Data = data,
+        //            PaginationInfo = pagination,
+        //            TotalCount = totalItems
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(ex.Message, ex);
+        //    }
+        //}
+        #endregion
+
         #endregion
 
 
