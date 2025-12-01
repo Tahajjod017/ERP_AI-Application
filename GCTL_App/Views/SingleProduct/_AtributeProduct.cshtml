@@ -4,7 +4,7 @@
 
 
 
-<form asp-controller="SingleProduct" asp-action="AddAttributeProduct" method="post" enctype="multipart/form-data">
+<form asp-controller="SingleProduct" asp-action="AddAttributeProduct" method="post" id="attributeForm" enctype="multipart/form-data">
     <div class="add-product">
         <div class="accordions-items-seperate border-0" id="accordionSpacingExampleAP">
             <div class="accordion-item mb-4">
@@ -343,7 +343,8 @@
                                     </div>
                                 </div>
 
-                                <!-- Dynamic Divs for Attribute Values -->
+
+
                                 @foreach (var attr in ViewBag.AttributeNames)
                                 {
                                     var relatedValues = ((IEnumerable<dynamic>)ViewBag.AttributeValues)
@@ -360,19 +361,55 @@
                                                 string valId = $"{val.AttributeID}";
                                                 <div class="col-md-2">
                                                     <div class="form-check">
-                                                        <input name="AttrSelected_@attr.AttributeName"
+                                                        <!-- Use plain HTML for checkboxes -->
+                                                        <input type="checkbox"
+                                                               name="AttrSelected_@attr.AttributeName"
                                                                class="form-check-input"
-                                                               type="checkbox"
                                                                id="@valId"
-                                                               value="@val.AttributeValue"
-                                                               data-id="@val.AttributeID">
-                                                        <label class="form-check-label" for="@valId">@val.AttributeValue</label>
+                                                               value="@val.AttributeID"
+                                                               data-name="@val.AttributeValue">
+                                                        <label class="form-check-label" for="@valId">
+                                                            @val.AttributeValue
+                                                        </label>
                                                     </div>
                                                 </div>
                                             }
                                         </div>
                                     </div>
                                 }
+
+
+
+
+                                @*@foreach (var attr in ViewBag.AttributeNames)
+        {
+            var relatedValues = ((IEnumerable<dynamic>)ViewBag.AttributeValues)
+                .Where(v => v.AttributeNameID == attr.AttributeNameID)
+                .ToList();
+
+            <div class="col-md-12 attr-section" id="div_@attr.AttributeNameID" style="display:none;">
+                <div class="row">
+                    <h4 class="mt-3">@attr.AttributeName (@relatedValues.Count Options)</h4>
+                    <h6 class="border-bottom"></h6>
+
+                    @foreach (var val in relatedValues)
+                    {
+                        string valId = $"{val.AttributeID}";
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <input name="AttrSelected_@attr.AttributeName"
+                                       class="form-check-input"
+                                       type="checkbox"
+                                       id="@valId"
+                                       value="@val.AttributeValue"
+                                       data-id="@val.AttributeID">
+                                <label class="form-check-label" for="@valId">@val.AttributeValue</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }*@
 
                                 <div class="modal-footer">
                                     <button class="btn btn-primary" id="showPriceTable" type="button">@Html.SmartLocalize("Create")</button>
@@ -422,22 +459,73 @@
                 <div id="SpacingFour" class="accordion-collapse collapse show" aria-labelledby="headingSpacingFour">
                     <div class="accordion-body">
                         <div class="mt-4">
-                            <div class="p-3  rounded d-flex align-items-center border mb-3">
+                            @*<div class="p-3  rounded d-flex align-items-center border mb-3">
                                 <div class=" d-flex align-items-center">
                                     <div class="form-check form-check-inline">
-                                        <input asp-for="AttrWarrantiesEnabled" class="form-check-input" type="checkbox" id="attrWarranties" value="">
+                                        <input asp-for="AttrWarrantiesEnabled" class="form-check-input" type="checkbox" id="attrWarranties" value="false">
                                         <label class="form-check-label" for="attrWarranties">@Html.SmartLocalize("Warranties")</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input asp-for="AttrManufacturerEnabled" class="form-check-input" type="checkbox" id="attrManufacturer" value="">
+                                        <input asp-for="AttrManufacturerEnabled" class="form-check-input" type="checkbox" id="attrManufacturer" value="false">
                                         <label class="form-check-label" for="attrManufacturer">@Html.SmartLocalize("Manufacturer")</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input asp-for="AttrExpiryEnabled" class="form-check-input" type="checkbox" id="attrExpiry" value="">
+                                        <input asp-for="AttrExpiryEnabled" class="form-check-input" type="checkbox" id="attrExpiry" value="false">
                                         <label class="form-check-label" for="attrExpiry">@Html.SmartLocalize("Expiry")</label>
                                     </div>
                                 </div>
+                            </div>*@
+
+
+
+                            <div class="p-3 rounded d-flex align-items-center border mb-3">
+                                <div class="d-flex align-items-center">
+                                    <!-- Warranty - using plain HTML to avoid tag helper issues -->
+                                    <input type="hidden" name="AttrWarrantiesEnabled" value="false" />
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="attrWarranties"
+                                               name="AttrWarrantiesEnabled"
+                                               value="true"
+                                               @(Model?.AttrWarrantiesEnabled == true ? "checked" : "")>
+                                        <label class="form-check-label" for="attrWarranties">
+                                            @Html.SmartLocalize("Warranties")
+                                        </label>
+                                    </div>
+
+                                    <!-- Manufacturer -->
+                                    <input type="hidden" name="AttrManufacturerEnabled" value="false" />
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="attrManufacturer"
+                                               name="AttrManufacturerEnabled"
+                                               value="true"
+                                               @(Model?.AttrManufacturerEnabled == true ? "checked" : "")>
+                                        <label class="form-check-label" for="attrManufacturer">
+                                            @Html.SmartLocalize("Manufacturer")
+                                        </label>
+                                    </div>
+
+                                    <!-- Expiry -->
+                                    <input type="hidden" name="AttrExpiryEnabled" value="false" />
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="attrExpiry"
+                                               name="AttrExpiryEnabled"
+                                               value="true"
+                                               @(Model?.AttrExpiryEnabled == true ? "checked" : "")>
+                                        <label class="form-check-label" for="attrExpiry">
+                                            @Html.SmartLocalize("Expiry")
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
+
+
+
                             <div class="row">
                                 <div class="col-sm-6 col-12">
                                     <div class="mb-3">

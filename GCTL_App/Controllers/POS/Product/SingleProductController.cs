@@ -14,6 +14,8 @@ namespace GCTL_App.Controllers.POS.Product
 {
     public class SingleProductController : BaseController
     {
+        #region CTOR
+
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<AttributeNames> _attributeNamesRepository;
         private readonly IGenericRepository<AttributeValues> _attributeValuesRepository;
@@ -46,7 +48,9 @@ namespace GCTL_App.Controllers.POS.Product
             _attributeNamesRepository = attributeNamesRepository;
             _attributeValuesRepository = attributeValuesRepository;
         }
+        #endregion
 
+        #region Index
         public IActionResult Index()
         {
             var model = new SingleProductPageViewModel();
@@ -94,7 +98,7 @@ namespace GCTL_App.Controllers.POS.Product
 
             return View(model);
         }
-
+        #endregion
 
         #region Single Prosuct
 
@@ -158,7 +162,7 @@ namespace GCTL_App.Controllers.POS.Product
 
 
         [HttpPost]
-        public async Task<IActionResult> AddAttributeProduct(    AttrProductAddViewModel model,    List<IFormFile> AttrProductImages,    [FromForm] string AttrSelectedValuesJson)   // <-- always present
+        public async Task<IActionResult> AddAttributeProduct(AttrProductAddViewModel model, List<IFormFile> AttrProductImages, [FromForm] string AttrSelectedValuesJson)   // <-- always present
         {
 
             if (!string.IsNullOrWhiteSpace(AttrSelectedValuesJson))
