@@ -55,13 +55,13 @@
                         } else {
                             postDefaultShift(url, formData);
                         }
-                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     },
                     error: function (err) {
                         console.error('Conflict check failed:', err);
-                        $(settings.saveBtn).prop('disabled', false).html('Save');
                     }
                 });
+            }).always(function () {
+                $(settings.saveBtn).prop('disabled', false).html('Save');
             });
             // #endregion
 
@@ -142,9 +142,10 @@
                     tbody.append(`
                         <tr>
                             <td class="text-center text-middle align-middle">${item.defaultShiftID ?? '-'}</td>
-                            <td class="text-start text-middle align-middle">${item.employeeID ?? '-'}</td>
-                            <td class="text-start text-middle align-middle">${item.departmentID ?? '-'}</td>
-                            <td class="text-start text-middle align-middle">${item.shiftID}</td>
+                            <td class="text-center text-middle align-middle">${item.organizationName ?? '-'}</td>
+                            <td class="text-start text-middle align-middle">${item.departmentName ?? '-'}</td>
+                            <td class="text-start text-middle align-middle">${item.employeeName ?? '-'}</td>
+                            <td class="text-start text-middle align-middle">${item.shiftName}</td>
                             <td class="text-center text-middle align-middle"><input type="checkbox" class="form-check-input conflict-checkbox" data-id="${item.employeeID}" /></td>
                         </tr>
                     `);

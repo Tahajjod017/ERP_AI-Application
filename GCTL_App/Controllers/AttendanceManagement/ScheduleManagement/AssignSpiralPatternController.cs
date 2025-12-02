@@ -60,7 +60,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
         #region Create
         [Permission("Create", "AssignSpiralPattern")]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(AssignSpiralPatternSetupVM model)
         {

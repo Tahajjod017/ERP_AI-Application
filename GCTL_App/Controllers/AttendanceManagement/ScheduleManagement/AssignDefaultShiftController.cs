@@ -27,6 +27,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Index
+        [Permission("View", "AssignDefaultShift")]
         public async Task<IActionResult> Index()
         {
             try
@@ -118,6 +119,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region CheckConflicts
+        [Permission("Create", "AssignDefaultShift")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CheckConflicts(AssignDefaultShiftSetupVM model)
@@ -135,6 +137,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Update
+        [Permission("Edit", "AssignDefaultShift")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(AssignDefaultShiftSetupVM model)
@@ -153,6 +156,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region UpdateEmpShift
+        [Permission("Edit", "AssignDefaultShift")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> UpdateEmpShift(AssignDefaultShiftSetupVM model)
