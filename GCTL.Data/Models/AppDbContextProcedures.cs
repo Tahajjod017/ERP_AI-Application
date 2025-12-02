@@ -70,6 +70,40 @@ namespace GCTL.Data.Models
             return _;
         }
 
+        public virtual async Task<List<ccResult>> ccAsync(string SchemaTables, string ColumnPositions, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
+        {
+            var parameterreturnValue = new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Direction = System.Data.ParameterDirection.Output,
+                SqlDbType = System.Data.SqlDbType.Int,
+            };
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "SchemaTables",
+                    Size = -1,
+                    Value = SchemaTables ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "ColumnPositions",
+                    Size = -1,
+                    Value = ColumnPositions ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.NVarChar,
+                },
+                parameterreturnValue,
+            };
+            var _ = await _context.SqlQueryAsync<ccResult>("EXEC @returnValue = [dbo].[cc] @SchemaTables = @SchemaTables, @ColumnPositions = @ColumnPositions", sqlParameters, cancellationToken);
+
+            returnValue?.SetValue(parameterreturnValue.Value);
+
+            return _;
+        }
+
         public virtual async Task<List<GetModulesResult>> GetModulesAsync(string RoleId, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
@@ -346,26 +380,6 @@ namespace GCTL.Data.Models
                 parameterreturnValue,
             };
             var _ = await _context.Database.ExecuteSqlRawAsync("EXEC @returnValue = [dbo].[sp_processFinalAtt]", sqlParameters, cancellationToken);
-
-            returnValue?.SetValue(parameterreturnValue.Value);
-
-            return _;
-        }
-
-        public virtual async Task<List<sp_ProcessFinalDailyAttendanceResult>> sp_ProcessFinalDailyAttendanceAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
-        {
-            var parameterreturnValue = new SqlParameter
-            {
-                ParameterName = "returnValue",
-                Direction = System.Data.ParameterDirection.Output,
-                SqlDbType = System.Data.SqlDbType.Int,
-            };
-
-            var sqlParameters = new []
-            {
-                parameterreturnValue,
-            };
-            var _ = await _context.SqlQueryAsync<sp_ProcessFinalDailyAttendanceResult>("EXEC @returnValue = [dbo].[sp_ProcessFinalDailyAttendance]", sqlParameters, cancellationToken);
 
             returnValue?.SetValue(parameterreturnValue.Value);
 

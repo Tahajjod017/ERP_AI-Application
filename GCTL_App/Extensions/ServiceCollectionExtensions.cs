@@ -265,6 +265,7 @@ namespace GCTL_App.Extensions
             #region POS
 
             services.AddScoped<ISingleProduct, SingleProductService>();
+            services.AddScoped<IAttributeProduct, AttributeProductService>();
 
 
             #endregion

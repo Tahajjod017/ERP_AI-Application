@@ -124,9 +124,11 @@ namespace GCTL.Service.POS.Product
                     ManufacturedDate = model.HasManufacturer == true ? model.ManufacturedDate : null,
                     ManufacturerName = model.HasManufacturer == true ? model.Manufacturer : null,
                     ExpiryDate = model.HasExpiry == true ? model.ExpiryDate : null,
+                    CreatedAt = DateTime.Now,
+                    CreatedBy = model.CreatedBy.ToString()
                 };
                 
-                await _productCustomFieldsRepository.AddAsync(customField, model);
+                await _productCustomFieldsRepository.AddAsync(customField);
                 await _userInfoService.ActionLogAsync("SingleProduct/PriceCustomField", ActionName.DataAdd, null, customField, customField.CustomFieldID, model);
 
 
@@ -187,7 +189,7 @@ namespace GCTL.Service.POS.Product
         }
 
 
-        private async Task<string> SaveImageAsync(IFormFile file, string folderName, string fileName)
+        public async Task<string> SaveImageAsync(IFormFile file, string folderName, string fileName)
         {
             var folderPath = Path.Combine("wwwroot", "media", "products", folderName);
             if (!Directory.Exists(folderPath))

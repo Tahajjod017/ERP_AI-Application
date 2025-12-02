@@ -366,7 +366,8 @@
                                                                name="AttrSelected_@attr.AttributeName"
                                                                class="form-check-input"
                                                                id="@valId"
-                                                               value="@val.AttributeID"
+                                                               value="@valId"
+                                                               @*value="@val.AttributeID"*@
                                                                data-name="@val.AttributeValue">
                                                         <label class="form-check-label" for="@valId">
                                                             @val.AttributeValue
@@ -531,11 +532,9 @@
                                     <div class="mb-3">
                                         <label asp-for="AttrWarranty">@Html.SmartLocalize("Warranty")</label>
                                         <span asp-validation-for="AttrWarranty" class="text-danger"></span>
-                                        <select asp-for="AttrWarranty" class="form-select searchableSelect" id="attrWarranty">
+                                        <select asp-for="AttrWarranty" class="form-select searchableSelect" id="attrWarranty"  asp-items="@ViewBag.WarrantyDD as SelectList">
                                             <option>@Html.SmartLocalize("Select")</option>
-                                            <option value="Replacement Warranty">@Html.SmartLocalize("Replacement Warranty")</option>
-                                            <option value="On-Site Warranty">@Html.SmartLocalize("On-Site Warranty")</option>
-                                            <option value="Accidental Protection Plan">@Html.SmartLocalize("Accidental Protection Plan")</option>
+                                          
                                         </select>
                                     </div>
                                 </div>

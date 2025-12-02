@@ -29,10 +29,11 @@ namespace GCTL_App.Controllers.POS.Product
         private readonly IGenericRepository<CalculationTypes> _calculationTypesRepository;
         private readonly IGenericRepository<Classes> _assetTypeRepository;
         private readonly ISingleProduct _singleProductService;
+        private readonly IAttributeProduct _attributeProductService;
 
 
 
-        public SingleProductController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Products> productRepository, IGenericRepository<ProductCategories> productCategoryRepository, IGenericRepository<ProductSubCategories> productSubCategoryRepository, IGenericRepository<ProductBrands> productBrandRepository, IGenericRepository<UnitTypes> unitRepository, IGenericRepository<Classes> assetTypeRepository, ISingleProduct singleProductService, IGenericRepository<WarrantyTypes> warrantyRepository, IGenericRepository<ProductTypes> productTypeRepository, IGenericRepository<CustomerGroup> customerGroupRepository, IGenericRepository<CalculationTypes> calculationTypesRepository, IGenericRepository<AttributeNames> attributeNamesRepository, IGenericRepository<AttributeValues> attributeValuesRepository) : base(translateService, userProfileService)
+        public SingleProductController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Products> productRepository, IGenericRepository<ProductCategories> productCategoryRepository, IGenericRepository<ProductSubCategories> productSubCategoryRepository, IGenericRepository<ProductBrands> productBrandRepository, IGenericRepository<UnitTypes> unitRepository, IGenericRepository<Classes> assetTypeRepository, ISingleProduct singleProductService, IGenericRepository<WarrantyTypes> warrantyRepository, IGenericRepository<ProductTypes> productTypeRepository, IGenericRepository<CustomerGroup> customerGroupRepository, IGenericRepository<CalculationTypes> calculationTypesRepository, IGenericRepository<AttributeNames> attributeNamesRepository, IGenericRepository<AttributeValues> attributeValuesRepository, IAttributeProduct attributeProductService) : base(translateService, userProfileService)
         {
             _productRepository = productRepository;
             _productCategoryRepository = productCategoryRepository;
@@ -47,12 +48,15 @@ namespace GCTL_App.Controllers.POS.Product
             _calculationTypesRepository = calculationTypesRepository;
             _attributeNamesRepository = attributeNamesRepository;
             _attributeValuesRepository = attributeValuesRepository;
+            _attributeProductService = attributeProductService;
         }
         #endregion
 
         #region Index
         public IActionResult Index()
         {
+            
+
             var model = new SingleProductPageViewModel();
 
             ViewBag.CategoryDD = new SelectList(_productCategoryRepository.AllActive().Select(e => new { id = e.ProductCategoryID, name = e.ProductCategoryName }).ToList(), "id", "name");
@@ -195,38 +199,11 @@ namespace GCTL_App.Controllers.POS.Product
                 return Json(new { success = false, errors = errors, message = messages });
             }
 
-            // ---- Deserialize attribute selections (guaranteed non-null) ----
-            if (!string.IsNullOrWhiteSpace(AttrSelectedValuesJson))
-            {
-                model.AttrSelectedValues = JsonConvert.DeserializeObject<
-                    Dictionary<string, List<AttributeValueDto>>>(AttrSelectedValuesJson)
-                    ?? new();
-            }
-            else
-            {
-                model.AttrSelectedValues = new Dictionary<string, List<AttributeValueDto>>();
-            }
+            
 
-            // ---- Save uploaded images ----
-            if (AttrProductImages?.Any() == true)
-            {
-                var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/products");
-                Directory.CreateDirectory(uploadFolder);
+            var result = await _attributeProductService.AddAttrProductAsync(model);
 
-                foreach (var file in AttrProductImages)
-                {
-                    var safeName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-                    var fullPath = Path.Combine(uploadFolder, safeName);
-                    using var stream = System.IO.File.Create(fullPath);
-                    await file.CopyToAsync(stream);
-
-                    model.AttrUploadedImageNames.Add(safeName);
-                }
-            }
-
-            // TODO: persist model to DB, generate variants, etc.
-
-            return Json(new { success = true });
+            return Json(result);
         }
 
         #endregion

@@ -9,17 +9,11 @@ using Microsoft.AspNetCore.Http;
 namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
 {
     
-    public class AttrProductAddViewModel
+    public class AttrProductAddViewModel : BaseViewModel
     {
-
-      
         public bool AttrWarrantiesEnabled { get; set; } = false;
         public bool AttrManufacturerEnabled { get; set; } = false;
         public bool AttrExpiryEnabled { get; set; } = false;
-
-        
-
-
 
         // ---------- Basic product info ----------
         [Display(Name = "Product Type")]
@@ -80,16 +74,19 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         //public bool AttrManufacturerEnabled { get; set; } = false;
         //public bool AttrExpiryEnabled { get; set; } = false;
 
-        [Display(Name = "Warranty")] public string AttrWarranty { get; set; }
-        [Display(Name = "Manufacturer Name")] public string AttrManufacturerName { get; set; }
+        [Display(Name = "Warranty")] 
+        public int? AttrWarranty { get; set; }
+
+        [Display(Name = "Manufacturer Name")] 
+        public string? AttrManufacturerName { get; set; }
 
         [Display(Name = "Manufactured Date")]
         [DataType(DataType.Date)]
-        public DateTime? AttrManufacturedDate { get; set; }
+        public DateOnly? AttrManufacturedDate { get; set; }
 
         [Display(Name = "Expiry Date")]
         [DataType(DataType.Date)]
-        public DateTime? AttrExpiryDate { get; set; }
+        public DateOnly? AttrExpiryDate { get; set; }
 
 
         public List<string> AttrUploadedImageNames { get; set; } = new List<string>();
@@ -97,7 +94,7 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         public Dictionary<string, List<AttributeValueDto>> AttrSelectedValues { get; set; }    = new();
 
         // Files will be sent separately
-        public List<IFormFile> AttrProductImages { get; set; }
+        public List<IFormFile>? AttrProductImages { get; set; }
 
 
 

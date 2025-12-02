@@ -11,8 +11,6 @@ public partial class AttributeNames
 
     public string AttributeName { get; set; } = null!;
 
-    public string AttributeValue { get; set; } = null!;
-
     public bool? IsActive { get; set; }
 
     public string? LIP { get; set; }
@@ -36,8 +34,6 @@ public partial class AttributeNames
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
-
-    public virtual ICollection<ProductAttributes> ProductAttributes { get; set; } = new List<ProductAttributes>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }
