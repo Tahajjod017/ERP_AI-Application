@@ -68,7 +68,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
         #region Create
         [Permission("Create", "OffDayRoster")]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(RosterInOffDaySetupVM model)
         {
@@ -125,7 +125,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
         #region UpdateEmpShiftAsync
         [Permission("Edit", "OffDayRoster")]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         [Route("OffDayRoster/UpdateEmpShiftAsync")]
         [HttpPost]
         public async Task<IActionResult> UpdateEmpShiftAsync(RosterInOffDayEditVM model)

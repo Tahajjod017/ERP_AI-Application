@@ -31,6 +31,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Index
+        [Permission("View", "OfficeDayRoster")]
         public async Task<IActionResult> Index()
         {
             RosterInOfficeDaysPageVM model = new RosterInOfficeDaysPageVM();
@@ -168,7 +169,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
         #region UpdateEmpShiftAsync
         [Permission("Edit", "OfficeDayRoster")]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         [Route("OfficeDayRoster/UpdateEmpShiftAsync")]
         [HttpPost]
         public async Task<IActionResult> UpdateEmpShiftAsync(RosterInOfficeDayEditVM model)
@@ -199,7 +200,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
         #region AddEmpShiftAsync
         [Permission("Create", "OfficeDayRoster")]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         [Route("OfficeDayRoster/AddEmpShiftAsync")]
         [HttpPost]
         public async Task<IActionResult> AddEmpShiftAsync(RosterInOfficeDayModalAddVM model)

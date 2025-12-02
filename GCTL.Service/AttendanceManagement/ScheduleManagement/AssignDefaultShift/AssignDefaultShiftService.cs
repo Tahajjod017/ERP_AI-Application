@@ -179,7 +179,16 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
 
                 foreach (var employee in employees)
                 {
-                    var existingEntity = await _genericRepository.All().Where(x => x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                    var existingEntity = await _genericRepository.All()
+                        .Where(x => x.EmployeeID == employee.EmployeeID)
+                        .Include(x => x.Shift)
+                        .Include(x => x.Employee)
+                        .ThenInclude(x => x.EmployeeOfficeInfoEmployee)
+                        .ThenInclude(x => x.Organization)
+                        .Include(x => x.Employee)
+                        .ThenInclude(x => x.EmployeeOfficeInfoEmployee)
+                        .ThenInclude(x => x.Department)
+                        .FirstOrDefaultAsync();
 
                     if (existingEntity != null)
                     {
@@ -187,8 +196,12 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                         {
                             DefaultShiftID = existingEntity.DefaultShiftID,
                             OrganizationID = employee.OrganizationID,
+                            OrganizationName = existingEntity.Employee?.EmployeeOfficeInfoEmployee.Select(x => x.Organization?.OrganizationName).FirstOrDefault(),
+                            DepartmentName = existingEntity.Employee?.EmployeeOfficeInfoEmployee.Select(x => x.Department?.DepartmentName).FirstOrDefault(),
                             EmployeeID = employee.EmployeeID ?? 0,
-                            ShiftID = existingEntity.ShiftID
+                            EmployeeName = $"{existingEntity.Employee?.FirstName} {existingEntity.Employee?.LastName}" ?? "",
+                            ShiftID = existingEntity.ShiftID,
+                            ShiftName = existingEntity.Shift?.ShiftName ?? ""
                         });
                     }
                 }

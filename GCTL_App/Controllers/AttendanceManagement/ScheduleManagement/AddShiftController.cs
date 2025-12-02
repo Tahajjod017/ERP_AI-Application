@@ -220,6 +220,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Delete
+        [Permission("Delete", "AddShift")]
         [HttpPost]
         public async Task<IActionResult> Delete(DeleteRequestVM requestVM)
         {

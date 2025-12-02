@@ -426,7 +426,9 @@
 
 
             // #region Clear
-            $(settings.resetBtn).on('click', function () {
+            $(settings.resetBtn).on('click', function (e) {
+                e.preventDefault();
+
                 clear();
             });
 
@@ -436,11 +438,13 @@
                 $('#ShiftID').val('0');
                 $('.text-danger').hide();
                 $('.form-control').removeClass('is-invalid');
+                $('.form-control').removeClass('is-valid');
                 $('.form-control').each(function () {
                     if ($(this).css('border-color') === 'rgb(255, 0, 0)') {
                         $(this).css('border-color', '#ccc');
                     }
                 });
+                resetValidation(["OrganizationIDs", "ShiftName", "StartTime", "EndTime"]);
                 $(settings.addform).find(settings.saveBtn).text('Save');
                 $("#addShift-check-all").prop('checked', false);
                 $('.addShift-selectItem').prop('checked', false);

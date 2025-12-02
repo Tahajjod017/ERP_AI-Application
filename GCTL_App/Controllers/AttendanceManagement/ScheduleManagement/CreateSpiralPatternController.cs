@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralP
 using GCTL.Service.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using GCTL.Service.CommonService;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.AttendanceManagement.ScheduleManagement.CreateSpiralPattern;
 using Microsoft.AspNetCore.Authorization;
@@ -32,6 +33,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Index
+        [Permission("View", "CreateSpiralPattern")]
         public async Task<IActionResult> Index()
         {
             CreateSpiralPatternPageVM model = new CreateSpiralPatternPageVM();
@@ -64,8 +66,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Create
-        //[Permission("Create", "OffDayRoster")]
-        //[ValidateAntiForgeryToken]
+        [Permission("Create", "CreateSpiralPattern")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(CreateSpiralPatternVM model)
         {
@@ -100,8 +102,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region AddShift
-        //[Permission("Update", "OffDayRoster")]
-        //[ValidateAntiForgeryToken]
+        [Permission("Update", "CreateSpiralPattern")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> AddShift(AddSpiralWeeklyPatternVM model)
         {
@@ -136,8 +138,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region AddFortMonthlyShift
-        //[Permission("Update", "OffDayRoster")]
-        //[ValidateAntiForgeryToken]
+        [Permission("Update", "CreateSpiralPattern")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> AddFortMonthlyShift(AddSpiralFortMonthlyPatternVM model)
         {
@@ -172,8 +174,8 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region Update
-        //[Permission("Update", "OffDayRoster")]
-        //[ValidateAntiForgeryToken]
+        [Permission("Update", "CreateSpiralPattern")]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(UpdateSpiralPatternVM model)
         {
@@ -208,6 +210,7 @@ namespace GCTL_App.Controllers.AttendanceManagement.ScheduleManagement
 
 
         #region SoftDeleteFortnightly
+        [Permission("Delete", "CreateSpiralPattern")]
         [HttpPost]
         public async Task<IActionResult> SoftDeleteFortnightly(DeleteRequestVM requestVM)
         {
