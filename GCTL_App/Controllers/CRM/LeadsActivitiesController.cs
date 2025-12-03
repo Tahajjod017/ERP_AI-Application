@@ -6,6 +6,7 @@ using GCTL.Data.Models;
 using GCTL.Service.CRM;
 using GCTL.Service.CRM.LeadsActivities;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -33,6 +34,7 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region index
+        [Permission("View", "CreateLead")]
         public IActionResult Index()
         {
 

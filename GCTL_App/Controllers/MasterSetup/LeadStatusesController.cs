@@ -23,14 +23,19 @@ namespace GCTL_App.Controllers.MasterSetup
         }
 
         #endregion
+
+        #region Index
+        [Permission("View", "LeadStatuses")]
         public IActionResult Index()
         {
             SetSmartPageCode(600100);
             var vm = new GCTL_App.ViewModels.MasterSetup.LeadStatuses.LeadStatusPageVM();
             return View(vm);
         }
+        #endregion
 
         #region create
+        [Permission("Create", "LeadStatuses")]
         [HttpPost]
         public async Task<IActionResult> Create(LeadStatusVM model)
         {
@@ -59,7 +64,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
         #region Update
-        //[Permission("Edit", "Genders")]
+        [Permission("Edit", "LeadStatuses")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(LeadStatusVM model)
@@ -120,7 +125,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
         #region SoftDelete
-        //[Permission("Delete", "Genders")]
+        [Permission("Delete", "LeadStatuses")]
         [HttpPost]
         public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {

@@ -1,13 +1,9 @@
-using GCTL.Core.Helpers.FeviconDynamic;
-using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Data.Models;
 using GCTL.Service;
 using GCTL.Service.AccessPermissions;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.AdminSettings.GeneralSettings;
-using GCTL.Service.CRM;
 using GCTL.Service.RolePermissions;
-using GCTL.Service.VisitingPath;
 using GCTL_App.EmailServicesMethod;
 using GCTL_App.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

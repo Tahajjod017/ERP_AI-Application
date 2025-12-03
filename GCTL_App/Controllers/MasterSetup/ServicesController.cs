@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels.MasterSetup.ServiceType;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.ServiceType;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,14 +19,19 @@ namespace GCTL_App.Controllers.MasterSetup
         }
 
         #endregion
+
+        #region Index
+        [Permission("View", "Services")]
         public IActionResult Index()
         {
             SetSmartPageCode(600100);
             var vm = new GCTL_App.ViewModels.MasterSetup.ServiceType.ServicePageVM();
             return View(vm);
         }
+        #endregion
 
         #region create
+        [Permission("Create", "Services")]
         [HttpPost]
         public async Task<IActionResult> Create(ServiceVM model)
         {
@@ -54,7 +60,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
         #region Update
-        //[Permission("Edit", "Genders")]
+        [Permission("Edit", "Services")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(ServiceVM model)
@@ -82,7 +88,6 @@ namespace GCTL_App.Controllers.MasterSetup
             }
         }
         #endregion
-
 
         #region GetAll
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "ServiceName", string sortOrder = "asc")
@@ -116,7 +121,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
         #region SoftDelete
-        //[Permission("Delete", "Genders")]
+        [Permission("Delete", "Services")]
         [HttpPost]
         public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {

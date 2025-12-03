@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels.MasterSetup.Priority;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.LeadSource;
 using GCTL.Service.MasterSetup.Priority;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL_App.ViewModels.MasterSetup.Priority;
 using Microsoft.AspNetCore.Mvc;
@@ -21,14 +22,19 @@ namespace GCTL_App.Controllers.MasterSetup
         }
 
         #endregion
+
+        #region Index
+        [Permission("View", "Priorities")]
         public IActionResult Index()
         {
             SetSmartPageCode(600500);
             var vm = new PriorityPageVM();
             return View(vm);
         }
+        #endregion
 
         #region create
+        [Permission("Create", "Priorities")]
         [HttpPost]
         public async Task<IActionResult> Create(PriorityVM model)
         {
@@ -57,7 +63,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
         #region Update
-        //[Permission("Edit", "Genders")]
+        [Permission("Edit", "Priorities")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(PriorityVM model)
@@ -85,7 +91,6 @@ namespace GCTL_App.Controllers.MasterSetup
             }
         }
         #endregion
-
 
         #region GetAll
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "PriorityName", string sortOrder = "asc")
@@ -119,7 +124,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
         #region SoftDelete
-        //[Permission("Delete", "Genders")]
+        [Permission("Delete", "Priorities")]
         [HttpPost]
         public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {

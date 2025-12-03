@@ -26,7 +26,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
-        //[Permission("View", "Grades")]
+        [Permission("View", "LeadActivityTypes")]
         public IActionResult Index()
         {
             LeadActivityTypePageVM model = new LeadActivityTypePageVM();
@@ -41,7 +41,6 @@ namespace GCTL_App.Controllers.MasterSetup
             return View(model);
         }
         #endregion
-
 
         #region GetById
         public async Task<IActionResult> GetById(int id)
@@ -63,7 +62,6 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region GetAll
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "LeadActivityName", string sortOrder = "asc")
         {
@@ -73,9 +71,8 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region Create
-        //[Permission("Create", "Grades")]
+        [Permission("Create", "LeadActivityTypes")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(LeadActivityTypeVM model)
@@ -103,9 +100,8 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region Update
-        //[Permission("Edit", "Grades")]
+        [Permission("Edit", "LeadActivityTypes")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(LeadActivityTypeVM model)
@@ -127,7 +123,6 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region CheckNameUnique
         [HttpPost]
         public async Task<IActionResult> CheckNameUnique(string bankName)
@@ -148,9 +143,8 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region SoftDelete
-        [Permission("Delete", "Grades")]
+        [Permission("Delete", "LeadActivityTypes")]
         [HttpPost]
         public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {

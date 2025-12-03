@@ -3,6 +3,7 @@ using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.Customer;
 using GCTL.Service.CRM.Customer;
 using GCTL.Service.Language;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,11 +17,12 @@ namespace GCTL_App.Controllers.CRM
         {
             _customerService = customerService;
         }
-
+        [Permission("View", "Customers")]
         public IActionResult Index()
         {
             return View();
         }
+        [Permission("View", "Customers")]
         public IActionResult IndexModal()
         {
             return PartialView("_indexModal");
@@ -55,6 +57,7 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region SaveCustomer
+        [Permission("Create", "Customers")]
         [HttpPost]
         public async Task<IActionResult> SaveCustomer([FromBody] CustomerVM model)
         {
@@ -84,6 +87,7 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region SaveBranch
+        [Permission("Create", "Customers")]
         [HttpPost]
         public async Task<IActionResult> SaveBranch([FromBody] BranchVM model)
         {
@@ -106,6 +110,7 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region SaveShipping
+        [Permission("Create", "Customers")]
         [HttpPost]
         public async Task<IActionResult> SaveShipping([FromBody] ShippingVM model)
         {
@@ -128,6 +133,7 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region SaveWarehouse
+        [Permission("Create", "Customers")]
         [HttpPost]
         public async Task<IActionResult> SaveWarehouse([FromBody] WarehouseVM model)
         {
@@ -288,6 +294,7 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region delete Contact person
+        [Permission("Delete", "Customers")]
         [HttpPost]
         public async Task<IActionResult> DeleteContactPerson(int contactId)
         {

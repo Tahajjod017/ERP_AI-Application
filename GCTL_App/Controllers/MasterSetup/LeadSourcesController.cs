@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels.MasterSetup.LeadSource;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.LeadSource;
+using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,14 +19,19 @@ namespace GCTL_App.Controllers.MasterSetup
         }
 
         #endregion
+
+        #region Index
+        [Permission("View", "LeadSources")]
         public IActionResult Index()
         {
             SetSmartPageCode(600100);
             var vm = new GCTL_App.ViewModels.MasterSetup.LeadSource.LeadSourcePageVM();
             return View(vm);
         }
+        #endregion
 
         #region create
+        [Permission("Create", "LeadSources")]
         [HttpPost]
         public async Task<IActionResult> Create(LeadSourceVM model)
         {
@@ -54,7 +60,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
         #region Update
-        //[Permission("Edit", "Genders")]
+        [Permission("Edit", "LeadSources")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(LeadSourceVM model)
@@ -116,7 +122,7 @@ namespace GCTL_App.Controllers.MasterSetup
         #endregion
 
         #region SoftDelete
-        //[Permission("Delete", "Genders")]
+        [Permission("Delete", "LeadSources")]
         [HttpPost]
         public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {
