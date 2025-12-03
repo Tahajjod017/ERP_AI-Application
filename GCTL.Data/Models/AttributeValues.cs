@@ -35,5 +35,7 @@ public partial class AttributeValues
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
+    public virtual ICollection<ProductAttributes> ProductAttributes { get; set; } = new List<ProductAttributes>();
+
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

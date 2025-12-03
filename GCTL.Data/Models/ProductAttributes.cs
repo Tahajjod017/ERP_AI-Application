@@ -11,7 +11,7 @@ public partial class ProductAttributes
 
     public int ProductID { get; set; }
 
-    public int AttributeNameID { get; set; }
+    public int AttributeID { get; set; }
 
     public string? LIP { get; set; }
 
@@ -29,7 +29,7 @@ public partial class ProductAttributes
 
     public int? DeletedBy { get; set; }
 
-    public virtual AttributeNames AttributeName { get; set; } = null!;
+    public virtual AttributeValues Attribute { get; set; } = null!;
 
     public virtual Employees? CreatedByNavigation { get; set; }
 

@@ -14,6 +14,7 @@ namespace GCTL.Data.Models
     public partial interface IAppDbContextProcedures
     {
         Task<int> aaAsync(string TableName, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
+        Task<List<ccResult>> ccAsync(string SchemaTables, string ColumnPositions, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<GetModulesResult>> GetModulesAsync(string RoleId, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<GetPaginatedEmployeeAttendanceResult>> GetPaginatedEmployeeAttendanceAsync(int? Month, int? Year, int? PageNumber, int? PageSize, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<GetUserByEmailResult>> GetUserByEmailAsync(string Email, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
@@ -23,7 +24,6 @@ namespace GCTL.Data.Models
         Task<List<sp_GetUserPermissionsByRoleIdsResult>> sp_GetUserPermissionsByRoleIdsAsync(string RoleIds, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_InsertOrUpdateShiftsResult>> sp_InsertOrUpdateShiftsAsync(DataTable ShiftInputs, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<int> sp_processFinalAttAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
-        Task<List<sp_ProcessFinalDailyAttendanceResult>> sp_ProcessFinalDailyAttendanceAsync(OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
         Task<List<sp_ProcessPunchResult>> sp_ProcessPunchAsync(int? enroll_id, DateTime? CHECKTIME, string DeviceSN, string SourceType, string Latitude, string Longitude, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default);
     }
 }

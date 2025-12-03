@@ -21,6 +21,14 @@ $(function () {
         $(this).toggleClass('is-invalid', words > 60);
     });
 
+    $("#rstBtn").click(function () {
+        showDev('click00')
+        
+        clearAttributeForm();
+       
+    });
+
+
     window.clearAttrDescription = function () {
         $('#attrDescription').val('').removeClass('is-invalid');
         $('#attrWordCounter').text('0 / 60 words');
@@ -94,8 +102,14 @@ $(function () {
             contentType: false,
             cache: false,
             success: function (res) {
-                alert('Product saved successfully!');
-                attrResetAll();               // <-- reset after success
+                if (res.success) {
+                    toastr.success(res.message || 'Product saved successfully!');
+                    clearAttributeForm();
+                } else {
+                    toastr.warning(res.message || 'Product saved successfully!');
+                }
+               
+                //attrResetAll();               
             },
             error: function (xhr) {
                 const msg = xhr.responseText || 'Server error';
@@ -145,6 +159,46 @@ $(function () {
             if (this._flatpickr) this._flatpickr.clear();
         });
     };
+
+    /* ==============================================================
+       6. OPTIONAL: Reset button
+       ============================================================== */
+
+    // jQuery function to clear the entire form
+    function clearAttributeForm() {
+        // Reset the form using native reset method (handles most inputs, selects, checkboxes, radios)
+        $('#attributeForm')[0].reset();
+
+       
+
+
+        // Clear the word counter for description
+        $('#attrWordCounter').text('0 / 60 words');
+        $('#attrDescription').removeClass('is-invalid');
+
+        // Clear file upload previews and reset file input
+        attrFiles = []; // Assuming attrFiles is a global array from your script
+        $('#attrPreviewContainer').empty();
+        $('#attrFileInput').val('');
+        $('#attrUploadZoneWrapper').removeClass('has-images');
+        $('#attrUploadComplete').removeClass('show');
+
+        // Clear hidden inputs for images and selected values
+        $('#attrHiddenImageNames').val('');
+        $('#attrHiddenSelectedValues').val('');
+
+        // Hide any dynamically shown attribute sections (reset checkboxes will uncheck them, but ensure sections are hidden)
+        $('.attr-section').hide();
+
+        // If there are any other custom elements, add clears here
+        // For example, if you have date pickers, you might need to reset them separately
+        // $('.datetimepicker').val(''); // Uncomment if needed
+
+        $(".attr-section").hide();
+    }
+
+
+
 
     /* ==============================================================
        6. OPTIONAL: Add a Reset button next to Save
