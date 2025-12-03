@@ -50,7 +50,10 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
             {
                 if (model.OrganizationID != null && model.DepartmentIDs == null && model.EmployeeIDs == null)
                 {
-                    var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID);
+                    var employees = await _employeeOfficeInfo.AllActive()
+                        .Include(x => x.Employee)
+                        .Where(x => x.OrganizationID == model.OrganizationID && x.EmploymentStatusId != 0 && x.Employee.IsActive != false).ToListAsync();
+
                     //if (employees == null || !employees.Any())
                     //    continue;
                     foreach (var employee in employees)
@@ -87,7 +90,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                 {
                     foreach (var depId in model.DepartmentIDs)
                     {
-                        var employees = await _employeeOfficeInfo.FindAsync(x => x.DepartmentID == depId && x.OrganizationID == model.OrganizationID);
+                        var employees = await _employeeOfficeInfo.AllActive()
+                            .Include(x => x.Employee)
+                            .Where(x => x.DepartmentID == depId && x.OrganizationID == model.OrganizationID && x.EmploymentStatusId != 0 && x.Employee.IsActive != false).ToListAsync();
                         if (employees == null || !employees.Any())
                             continue;
                         foreach (var employee in employees)
@@ -121,13 +126,15 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                 {
                     foreach (var empId in model.EmployeeIDs)
                     {
-                        var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID && x.EmployeeID == empId);
+                        var employees = await _employeeOfficeInfo.AllActive()
+                            .Include(x => x.Employee)
+                            .Where(x => x.OrganizationID == model.OrganizationID && x.EmployeeID == empId && x.EmploymentStatusId != 0 && x.Employee.IsActive != false).ToListAsync();
                         if (employees == null || !employees.Any())
                             continue;
 
                         foreach (var employee in employees)
                         {
-                            var existingEntity = await _genericRepository.All().Where(x => x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
+                            var existingEntity = await _genericRepository.AllActive().Where(x => x.EmployeeID == employee.EmployeeID).FirstOrDefaultAsync();
 
                             if (existingEntity != null)
                             {
@@ -175,7 +182,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
 
             if (model.OrganizationID != null && model.DepartmentIDs == null && model.EmployeeIDs == null)
             {
-                var employees = await _employeeOfficeInfo.FindAsync(x => x.OrganizationID == model.OrganizationID);
+                var employees = await _employeeOfficeInfo.AllActive()
+                    .Include(x => x.Employee)
+                    .Where(x => x.OrganizationID == model.OrganizationID && x.EmploymentStatusId != 0 && x.Employee.IsActive != false).ToListAsync();
 
                 foreach (var employee in employees)
                 {
@@ -480,7 +489,9 @@ namespace GCTL.Service.AttendanceManagement.ScheduleManagement.AssignDefaultShif
                 .Include(x => x.Employee)
                 .ThenInclude(x => x.EmployeeOfficeInfoEmployee)
                 .ThenInclude(x => x.Organization)
-                .ThenInclude(x => x.Departments)
+                .Include(x => x.Employee)
+                .ThenInclude(x => x.EmployeeOfficeInfoEmployee)
+                .ThenInclude(x => x.Department)
                 .FirstOrDefaultAsync(x => x.DefaultShiftID == id);
             var defaultShift = entity as DefaultShifts;
 
