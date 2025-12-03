@@ -44,7 +44,7 @@ namespace GCTL.Service.POS.Product
                 return new CommonReturnViewModel { Success = false, Message = "Image is Require, Please add least one Image", };
             }
 
-            await _productImageRepository.BeginTransactionAsync();
+            await _productAttributeRepository.BeginTransactionAsync();
             try
             {
                 var product = new Products
@@ -150,7 +150,7 @@ namespace GCTL.Service.POS.Product
                 }
 
               
-                await _productRepository.CommitTransactionAsync();
+                await _productAttributeRepository.CommitTransactionAsync();
 
                 return new CommonReturnViewModel
                 {
@@ -161,7 +161,7 @@ namespace GCTL.Service.POS.Product
             }
             catch (Exception ex)
             {
-                await _productRepository.RollbackTransactionAsync();
+                await _productAttributeRepository.RollbackTransactionAsync();
                 return new CommonReturnViewModel
                 {
                     Success = false,
