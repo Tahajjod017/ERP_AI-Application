@@ -942,6 +942,20 @@
 
             // Render rows
             let bodyHtml = '';
+
+            if (employees.length === 0) {
+                const totalColumns = headers.length + 1; // 1 for Employee Name + days
+                bodyHtml = `
+                    <tr>
+                        <td colspan="${totalColumns}" class="text-center py-4 fw-semibold text-muted">
+                            No data available
+                        </td>
+                    </tr>
+                `;
+                $('table.leads-table tbody').html(bodyHtml);
+                return; 
+            }
+
             employees.forEach(emp => {
                 bodyHtml += '<tr>';
 

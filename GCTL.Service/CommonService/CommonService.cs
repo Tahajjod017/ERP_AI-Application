@@ -159,7 +159,10 @@ namespace GCTL.Service.CommonService
         {
             try
             {
-                var query = _employeeOfficeInfo.AllActive().Include(x => x.Employee).Include(x => x.Department).AsNoTracking();
+                var query = _employeeOfficeInfo.AllActive()
+                    .Include(x => x.Employee)
+                    .Where(x => x.EmploymentStatusId != 0 && x.Employee.IsActive != false)
+                    .Include(x => x.Department).AsNoTracking();
 
                 if (!string.IsNullOrWhiteSpace(search))
                 {
@@ -176,8 +179,9 @@ namespace GCTL.Service.CommonService
                     .Take(pageSize)
                     .Select(x => new CommonSelectVM
                     {
-                        Id = x.EmployeeID,
-                        Name = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})" ?? "-"
+                        Id = (int)x.EmployeeID,
+                        Name = $"{x.Employee.FirstName} {x.Employee.LastName} ({x.Employee.EmployeeCode})" ?? "-",
+                        GroupName = x.Department.DepartmentName ?? ""
                     })
                     .ToListAsync();
 
@@ -186,30 +190,6 @@ namespace GCTL.Service.CommonService
                     Items = items,
                     HasMore = (page * pageSize) < totalCount
                 };
-
-                //var employees = await (from emp in _employees.AllActive().AsNoTracking()
-
-                //                       join empOi in _employeeOfficeInfo.AllActive() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
-                //                       from empOi in empOiGroup.DefaultIfEmpty()
-
-                //                       where emp.IsActive == true && empOi.EmploymentStatusId == 1 &&
-                //                             (string.IsNullOrEmpty(search) || (emp.FirstName + " " + emp.LastName + " " + emp.EmployeeCode).Contains(search))
-
-                //                       join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
-                //                       from dep in depGroup.DefaultIfEmpty()
-
-                //                       orderby emp.FirstName
-
-                //                       select new CommonSelectVM
-                //                       {
-                //                           Id = emp.EmployeeID,
-                //                           Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
-                //                           GroupName = dep.DepartmentName ?? "-"
-                //                       })
-                //               .Take(pageSize) 
-                //               .ToListAsync();
-
-                //return employees;
             }
             catch (Exception ex)
             {
@@ -273,12 +253,12 @@ namespace GCTL.Service.CommonService
         {
             try
             {
-                var data = await (from emp in _employees.AllActive().AsNoTracking()
+                var data = await (from empOi in _employeeOfficeInfo.AllActive().AsNoTracking()
 
-                                  join empOi in _employeeOfficeInfo.AllActive() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
-                                  from empOi in empOiGroup.DefaultIfEmpty()
+                                  join emp in _employees.AllActive() on empOi.EmployeeID equals emp.EmployeeID into empOiGroup
+                                  from emp in empOiGroup.DefaultIfEmpty()
 
-                                  where emp.IsActive == true && empOi.EmploymentStatusId == 1
+                                  where emp.IsActive != false && (empOi == null || empOi.EmploymentStatusId != 0)
 
                                   join dep in _departments.AllActive() on empOi.DepartmentID equals dep.DepartmentID into depGroup
                                   from dep in depGroup.DefaultIfEmpty()
@@ -288,7 +268,7 @@ namespace GCTL.Service.CommonService
                                       Id = emp.EmployeeID,
                                       Name = $"{emp.FirstName} {emp.LastName} ({emp.EmployeeCode})" ?? "-",
                                       GroupName = dep.DepartmentName ?? "-"
-                                  }).Take(50).ToListAsync();
+                                  }).ToListAsync();
                 return data;
             }
             catch (Exception)
@@ -848,7 +828,9 @@ namespace GCTL.Service.CommonService
             int currentPage = page ?? 1;
             int currentPageSize = pageSize ?? 50;
 
-            var baseQuery = _employeeOfficeInfo.AllActive().AsNoTracking().Where(eoi => eoi.EmploymentStatusId == 1);
+            var baseQuery = _employeeOfficeInfo.AllActive().AsNoTracking()
+                .Include(x => x.Employee)
+                .Where(eoi => eoi.EmploymentStatusId != 0 && eoi.Employee.IsActive != false);
 
             if (orgId.HasValue && orgId.Value != 0)
                 baseQuery = baseQuery.Where(eoi => eoi.OrganizationID == orgId.Value);
@@ -873,7 +855,7 @@ namespace GCTL.Service.CommonService
             var result = await (from eoi in baseQuery
 
                                 join emp in _employees.AllActive().AsNoTracking().Where(emp => emp.IsActive == true) on eoi.EmployeeID equals emp.EmployeeID
-                                
+
                                 join dep in _departments.AllActive().AsNoTracking() on eoi.DepartmentID equals dep.DepartmentID into depGroup
                                 from dep in depGroup.DefaultIfEmpty()
 
@@ -905,7 +887,7 @@ namespace GCTL.Service.CommonService
                            join emp in _employees.AllActive().AsNoTracking() on empOi.EmployeeID equals emp.EmployeeID into empGroup
                            from emp in empGroup.DefaultIfEmpty()
 
-                           where emp.IsActive == true && empOi.EmploymentStatusId == 1
+                           where emp.IsActive != false && (empOi == null || empOi.EmploymentStatusId != 0)
 
                            join org in _organization.AllActive().AsNoTracking() on empOi.OrganizationID equals org.OrganizationID into orgGroup
                            from org in orgGroup.DefaultIfEmpty()
@@ -1059,7 +1041,7 @@ namespace GCTL.Service.CommonService
                     .Select(x => x.First())
                     .Select(x => new CommonSelectVM
                     {
-                        Id = x.EmployeeID,
+                        Id = (int)x.EmployeeID,
                         Name = $"{x.FirstName} {x.LastName} ({x.EmployeeCode})",
                         GroupName = x.DepartmentName
                     })
@@ -1103,7 +1085,7 @@ namespace GCTL.Service.CommonService
                            join empOi in _employeeOfficeInfo.AllActive().AsNoTracking() on emp.EmployeeID equals empOi.EmployeeID into empOiGroup
                            from empOi in empOiGroup.DefaultIfEmpty()
 
-                           where emp.IsActive == true && empOi.EmploymentStatusId == 1
+                           where emp.IsActive != false && (empOi == null || empOi.EmploymentStatusId != 0)
 
                            join org in _organization.AllActive().AsNoTracking() on empOi.OrganizationID equals org.OrganizationID into orgGroup
                            from org in orgGroup.DefaultIfEmpty()

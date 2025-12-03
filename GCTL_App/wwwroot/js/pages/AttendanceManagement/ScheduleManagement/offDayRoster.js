@@ -1014,6 +1014,18 @@
             thead += '</tr>';
             $('#rosterTableHead').html(thead);
 
+            if (!rosterList || rosterList.length === 0) {
+                const totalColumns = (uniqueDates.length + 1); // Employee Name + dates
+                $('#rosterTableBody').html(`
+                    <tr>
+                        <td colspan="${totalColumns}" class="text-center py-4 fw-semibold text-muted">
+                            No data available
+                        </td>
+                    </tr>
+                `);
+                return;
+            }
+
             let tbody = '';
             rosterList.forEach(emp => {
                 tbody += `<tr>
