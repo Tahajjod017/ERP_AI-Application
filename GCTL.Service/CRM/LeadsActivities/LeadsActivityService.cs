@@ -6,6 +6,7 @@ using GCTL.Service.FileHandler;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
+using System.Globalization;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Text;
@@ -43,17 +44,17 @@ namespace GCTL.Service.CRM.LeadsActivities
 
         #region GetUpcomingActivityList
         public async Task<ReturnDataView<LeadDetailsDTO>> GetUpcomingActivityList(
-            int page,
-            int itemPerPage,
-            string search,
-            string sort,
-            string direction,
-            string dateRange,
-            int? userID,
-            int? CustomerTypeID, 
-            string? LeadStatusID,
-            int? ActivityTypeID
-            )   // current user ID
+    int page,
+    int itemPerPage,
+    string search,
+    string sort,
+    string direction,
+    string dateRange,
+    int? userID,
+    int? CustomerTypeID,
+    string? LeadStatusID,
+    int? ActivityTypeID
+)
         {
             try
             {
@@ -71,105 +72,143 @@ namespace GCTL.Service.CRM.LeadsActivities
                 }
 
                 int skip = (page - 1) * itemPerPage;
-                var now = DateTime.UtcNow;
                 var today = DateTime.Today;
+                var now = DateTime.Now;
 
-                var baseQuery = _leadDetailsRepository.AllActive()
-                    .Where(u => u.ActivityDateTime >= today && u.CreatedBy == userID.Value);
-
-                var totalItem = await baseQuery.CountAsync();
-
-                var totalNowItem = await _leadDetailsRepository.AllActive()
-                    .Where(u => u.ActivityDateTime >= now && u.CreatedBy == userID.Value)
-                    .CountAsync();
-
+                // Base query WITHOUT date filter
                 var query = _leadDetailsRepository.AllActive()
-                    .Where(u => u.ActivityDateTime >= now && u.CreatedBy == userID.Value);
+                    .Where(u => u.CreatedBy == userID.Value);
 
-                if (!string.IsNullOrEmpty(dateRange))
+                // --------------------------------------------
+                // DATE FILTER LOGIC (FULLY FIXED)
+                // --------------------------------------------
+                if (string.IsNullOrWhiteSpace(dateRange))
+                {
+                    // No date selected → Show today and future
+                    query = query.Where(u => u.ActivityDateTime >= today);
+                }
+                else
                 {
                     var dates = dateRange.Split(" to ", StringSplitOptions.RemoveEmptyEntries);
 
+                    // Single date filter
                     if (dates.Length == 1 &&
                         DateTime.TryParseExact(dates[0].Trim(), "dd/MM/yy",
-                            System.Globalization.CultureInfo.InvariantCulture,
-                            System.Globalization.DateTimeStyles.None, out var singleDate))
+                            CultureInfo.InvariantCulture, DateTimeStyles.None,
+                            out var singleDate))
                     {
-                        query = query.Where(r => r.ActivityDateTime == singleDate.Date &&
-                                                 r.ActivityDateTime >= now);
+                        var start = singleDate.Date;
+                        var end = singleDate.Date.AddDays(1).AddTicks(-1);
+
+                        query = query.Where(u =>
+                            u.ActivityDateTime >= start &&
+                            u.ActivityDateTime <= end);
                     }
+                    // Range filter
                     else if (dates.Length == 2 &&
-                             DateTime.TryParseExact(dates[0].Trim(), "dd/MM/yy",
-                                 System.Globalization.CultureInfo.InvariantCulture,
-                                 System.Globalization.DateTimeStyles.None, out var startDate) &&
-                             DateTime.TryParseExact(dates[1].Trim(), "dd/MM/yy",
-                                 System.Globalization.CultureInfo.InvariantCulture,
-                                 System.Globalization.DateTimeStyles.None, out var endDate))
+                        DateTime.TryParseExact(dates[0].Trim(), "dd/MM/yy",
+                            CultureInfo.InvariantCulture, DateTimeStyles.None,
+                            out var startDate) &&
+                        DateTime.TryParseExact(dates[1].Trim(), "dd/MM/yy",
+                            CultureInfo.InvariantCulture, DateTimeStyles.None,
+                            out var endDate))
                     {
-                        query = query.Where(r => r.ActivityDateTime >= startDate.Date &&
-                                                 r.ActivityDateTime <= endDate.Date &&
-                                                 r.ActivityDateTime >= now);
+                        var start = startDate.Date;
+                        var end = endDate.Date.AddDays(1).AddTicks(-1);
+
+                        query = query.Where(u =>
+                            u.ActivityDateTime >= start &&
+                            u.ActivityDateTime <= end);
                     }
                 }
 
+                // ---------------------------
+                // SEARCH FILTER
+                // ---------------------------
                 if (!string.IsNullOrEmpty(search))
                 {
                     if (DateTime.TryParse(search, out var searchDate))
                     {
+                        var s = searchDate.Date;
+                        var e = s.AddDays(1).AddTicks(-1);
+
                         query = query.Where(u =>
                             EF.Functions.Like(u.ActivityNote, $"%{search}%") ||
-                            u.ActivityDateTime == searchDate.Date ||
-                            u.CreatedAt == searchDate.Date
-                        );
+                            (u.ActivityDateTime >= s && u.ActivityDateTime <= e));
                     }
                     else
                     {
                         query = query.Where(u =>
-                            EF.Functions.Like(u.ActivityNote, $"%{search}%")
-                        );
+                            EF.Functions.Like(u.ActivityNote, $"%{search}%"));
                     }
                 }
 
-                if (CustomerTypeID.HasValue && CustomerTypeID.Value > 0)
+                // ---------------------------
+                // Other filters
+                // ---------------------------
+                if (CustomerTypeID > 0)
                 {
-                    query = query.Where(u => u.Lead.Customer.CustomerAddresses.First().AddressTypeID == CustomerTypeID.Value);
+                    query = query.Where(u =>
+                        u.Lead.Customer.CustomerAddresses.First().AddressTypeID == CustomerTypeID.Value);
                 }
 
                 if (!string.IsNullOrEmpty(LeadStatusID))
                 {
-                    query = query.Where(u => u.Lead.LeadStatus.LeadStatusName== LeadStatusID);
+                    query = query.Where(u =>
+                        u.Lead.LeadStatus.LeadStatusName == LeadStatusID);
                 }
+
                 if (ActivityTypeID > 0)
                 {
                     query = query.Where(u => u.LeadActivityTypeID == ActivityTypeID);
                 }
 
+                // ---------------------------
+                // Count Before Sorting/Paging
+                // ---------------------------
+                var totalItem = await _leadDetailsRepository.AllActive()
+                    .Where(u => u.ActivityDateTime >= today && u.CreatedBy == userID)
+                    .CountAsync();
+
+                var totalNowItem = await _leadDetailsRepository.AllActive()
+                    .Where(u => u.ActivityDateTime >= now && u.CreatedBy == userID)
+                    .CountAsync();
 
                 var totalSearchItem = await query.CountAsync();
 
+                // ---------------------------
+                // SORTING
+                // ---------------------------
                 query = direction?.ToLower() == "asc"
                     ? query.OrderBy(u => EF.Property<object>(u, sort ?? "ActivityDateTime"))
                     : query.OrderByDescending(u => EF.Property<object>(u, sort ?? "ActivityDateTime"));
 
-                var data = await query.Skip(skip).Take(itemPerPage).Select(u => new LeadDetailsDTO
-                {
-                    LeadActivityID = u.LeadDetailID,
-                    LeadActivityType = u.LeadActivityType.LeadActivityName,
-                    ActivityNote = u.ActivityNote,
-                    ActivityDateTime = u.ActivityDateTime,
-                    CreatedAt = u.CreatedAt,
-                    LeadName = u.Lead.LeadName,
-                    LeadID = u.LeadID,
-                    File  = u.FileLink,
-                    CustomerName = u.Lead.Customer.FullName,
-                    LeadStage =  u.Lead.LeadStatus.LeadStatusName,
-                    LeadPriority = u.Lead.Priority.PriorityName,
-                    LeadSource = u.Lead.LeadStatus.LeadStatusName,
-                    LeadProbability = u.Lead.ProbabilityPercentage,
-                    LeadOwner = u.Lead.LeadOwner.FirstName + " " + u.Lead.LeadOwner.LastName,
+                // ---------------------------
+                // PAGINATION + SELECT
+                // ---------------------------
+                var data = await query.Skip(skip).Take(itemPerPage)
+                    .Select(u => new LeadDetailsDTO
+                    {
+                        LeadActivityID = u.LeadDetailID,
+                        LeadActivityType = u.LeadActivityType.LeadActivityName,
+                        ActivityNote = u.ActivityNote,
+                        ActivityDateTime = u.ActivityDateTime,
+                        CreatedAt = u.CreatedAt,
+                        LeadName = u.Lead.LeadName,
+                        LeadID = u.LeadID,
+                        File = u.FileLink,
+                        CustomerName = u.Lead.Customer.FullName,
+                        LeadStage = u.Lead.LeadStatus.LeadStatusName,
+                        LeadPriority = u.Lead.Priority.PriorityName,
+                        LeadSource = u.Lead.LeadStatus.LeadStatusName,
+                        LeadProbability = u.Lead.ProbabilityPercentage,
+                        LeadOwner = u.Lead.LeadOwner.FirstName + " " + u.Lead.LeadOwner.LastName,
+                    })
+                    .ToListAsync();
 
-                }).ToListAsync();
-
+                // ---------------------------
+                // FINAL RETURN
+                // ---------------------------
                 return new ReturnDataView<LeadDetailsDTO>
                 {
                     success = true,
@@ -178,9 +217,7 @@ namespace GCTL.Service.CRM.LeadsActivities
                     totalItem = totalItem,
                     totalNowItem = totalNowItem,
                     totalSearchItem = totalSearchItem
-                   
                 };
-
             }
             catch (Exception ex)
             {
@@ -191,6 +228,7 @@ namespace GCTL.Service.CRM.LeadsActivities
                 };
             }
         }
+
         #endregion
 
         public async Task<List<ApplicationUser>> GetAdminUsersAsync(int orgId)

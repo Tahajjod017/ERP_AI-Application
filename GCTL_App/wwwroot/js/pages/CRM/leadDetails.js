@@ -1149,6 +1149,21 @@ ${value.emailAddress
         });
     });
 
+
+    // keyboard shorcurt for note input field
+    $("#aNote").on("keydown", function (e) {
+        // Check if Ctrl + V is pressed
+        if (e.ctrlKey && e.key === "s") {
+            e.preventDefault(); // Stop normal paste
+
+            let textarea = this;
+            let before = textarea.value.substring(0, textarea.selectionStart);
+            let after = textarea.value.substring(textarea.selectionEnd);
+
+            // Insert text at cursor position
+            textarea.value = before + "Communication start from phone." + after;
+        }
+    });
 });
 window.closeWindow = function () {
     debugger;

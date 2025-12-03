@@ -2,7 +2,6 @@
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.FieldServices
 {

@@ -25,7 +25,7 @@ namespace GCTL_App.Controllers.MasterSetup
 
 
         #region Index
-        //[Permission("View", "OrganizationTypes")]
+        [Permission("View", "OrganizationTypes")]
         public IActionResult Index()
         {
             OrganizationTypePageVM model = new OrganizationTypePageVM();
@@ -41,7 +41,6 @@ namespace GCTL_App.Controllers.MasterSetup
             return View(model);
         }
         #endregion
-
 
         #region GetById
         public async Task<IActionResult> GetById(int id)
@@ -63,7 +62,6 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region GetAll
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CreatedAt", string sortOrder = "asc")
         {
@@ -73,9 +71,8 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region Create
-        //[Permission("Create", "OrganizationTypes")]
+        [Permission("Create", "OrganizationTypes")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Create(OrganizationTypeVM model)
@@ -103,9 +100,8 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region Update
-        //[Permission("Edit", "OrganizationTypes")]
+        [Permission("Edit", "OrganizationTypes")]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Update(OrganizationTypeVM model)
@@ -127,7 +123,6 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region CheckNameUnique
         [HttpPost]
         public async Task<IActionResult> CheckNameUnique(string name)
@@ -148,9 +143,8 @@ namespace GCTL_App.Controllers.MasterSetup
         }
         #endregion
 
-
         #region SoftDelete
-        //[Permission("Delete", "OrganizationTypes")]
+        [Permission("Delete", "OrganizationTypes")]
         [HttpPost]
         public async Task<IActionResult> SoftDelete(DeleteRequestVM requestVM)
         {

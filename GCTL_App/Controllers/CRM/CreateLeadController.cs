@@ -24,6 +24,7 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region Index
+        [Permission("View", "CreateLead")]
         public IActionResult index()
         {
             SetSmartPageCode(600100);
