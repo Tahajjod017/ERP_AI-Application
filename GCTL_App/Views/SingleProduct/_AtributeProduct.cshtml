@@ -169,10 +169,27 @@
                                     <input asp-for="AttrQuantityAlert" type="text" class="form-control" id="attrQuantityAlert">
                                 </div>
                             </div>
+
+
+
+
+                            <div class="col-lg-6 col-sm-6 col-12">
+                                <div class="mb-3">
+                                    <label asp-for="AttrWarranty">@Html.SmartLocalize("Warranty")</label>
+                                    <span asp-validation-for="AttrWarranty" class="text-danger"></span>
+                                    <select asp-for="AttrWarranty" class="form-select searchableSelect" id="attrWarranty" asp-items="@ViewBag.WarrantyDD as SelectList">
+                                        <option>@Html.SmartLocalize("Select")</option>
+
+                                    </select>
+                                </div>
+                            </div>
+
+
+
                             <div class="col-lg-2 col-sm-6 col-12">
                                 <div class="form-check form-switch my-3">
                                     <input asp-for="AttrTrackBatch" class="form-check-input" id="attrTrackBatch" type="checkbox" />
-                                    <label class="form-check-label" for="attrTrackBatch">@Html.SmartLocalize("Track Batch")</label>
+                                    <label class="form-check-label" for="attrTrackBatch">@Html.SmartLocalize("Batch")</label>
                                 </div>
                             </div>
                             <div class="col-lg-2 col-sm-6 col-12">
@@ -184,13 +201,13 @@
                             <div class="col-lg-2 col-sm-6 col-12">
                                 <div class="form-check form-switch my-3">
                                     <input asp-for="AttrTraceManufacturingDate" class="form-check-input" id="attrTraceManufacturingDate" type="checkbox" />
-                                    <label class="form-check-label" for="attrTraceManufacturingDate">@Html.SmartLocalize("Trace Manufacturing Date")</label>
+                                    <label class="form-check-label" for="attrTraceManufacturingDate">@Html.SmartLocalize("Manufacturing Date")</label>
                                 </div>
                             </div>
                             <div class="col-lg-2 col-sm-6 col-12">
                                 <div class="form-check form-switch my-3">
                                     <input asp-for="AttrTraceExpiryDate" class="form-check-input" id="attrTraceExpiryDate" type="checkbox" />
-                                    <label class="form-check-label" for="attrTraceExpiryDate">@Html.SmartLocalize("Trace Expiry Date")</label>
+                                    <label class="form-check-label" for="attrTraceExpiryDate">@Html.SmartLocalize("Expiry Date")</label>
                                 </div>
                             </div>
                             <div class="col-lg-2 col-sm-6 col-12">
@@ -199,6 +216,16 @@
                                     <label class="form-check-label" for="attrSerialNumber">@Html.SmartLocalize("Serial Number")</label>
                                 </div>
                             </div>
+
+                            
+
+                            <div class="col-lg-2 col-sm-6 col-12">
+                                <div class="form-check form-switch my-3">
+                                    <input asp-for="AttrManufacturerEnabled" id="singleManufacturer" type="checkbox" class="form-check-input" />
+                                    <label class="form-check-label" for="singleManufacturer">@Html.SmartLocalize("Manufacturer")</label>
+                                </div>
+                            </div>
+
                         </div>
 
 
@@ -382,35 +409,7 @@
 
 
 
-                                @*@foreach (var attr in ViewBag.AttributeNames)
-        {
-            var relatedValues = ((IEnumerable<dynamic>)ViewBag.AttributeValues)
-                .Where(v => v.AttributeNameID == attr.AttributeNameID)
-                .ToList();
-
-            <div class="col-md-12 attr-section" id="div_@attr.AttributeNameID" style="display:none;">
-                <div class="row">
-                    <h4 class="mt-3">@attr.AttributeName (@relatedValues.Count Options)</h4>
-                    <h6 class="border-bottom"></h6>
-
-                    @foreach (var val in relatedValues)
-                    {
-                        string valId = $"{val.AttributeID}";
-                        <div class="col-md-2">
-                            <div class="form-check">
-                                <input name="AttrSelected_@attr.AttributeName"
-                                       class="form-check-input"
-                                       type="checkbox"
-                                       id="@valId"
-                                       value="@val.AttributeValue"
-                                       data-id="@val.AttributeID">
-                                <label class="form-check-label" for="@valId">@val.AttributeValue</label>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        }*@
+                                
 
                                 <div class="modal-footer">
                                     <button class="btn btn-primary" id="showPriceTable" type="button">@Html.SmartLocalize("Create")</button>
@@ -437,139 +436,87 @@
             </script>
 
 
+            <div class="border-top border-translucent p-3 mt-4" id="priceTable" style="display: none;">
+                <div id="employeeListTable1">
 
-            @*<input type="hidden" id="hiddenImageNames" name="AttrUploadedImageNames" />
-        <input type="hidden" id="hiddenSelectedValues" name="AttrSelectedValuesJson" />*@
+                    <div class="table-responsive scrollbar mx-n1 px-1">
+                        <table class="table table-sm fs-9 leads-table" id="atdTempTable">
+                            <thead>
+                                <tr>
+                                    <th class="white-space-nowrap fs-9 align-middle ps-0" style="max-width:20px; width:18px;">
+                                        <div class="form-check mb-0 fs-8">
+                                            <input class="form-check-input" type="checkbox" />
+                                        </div>
+                                    </th>
+                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col"
+                                        data-sort="itemName">Item Name</th>
+                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col"
+                                        data-sort="itemCost">SKU</th>
+                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col"
+                                        data-sort="itemPrice">Selling Price <br> (Excluding VAT)</th>
+                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col"
+                                        data-sort="itemPrice">VAT(%)</th>
+                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col"
+                                        data-sort="itemPrice">Weight</th>
+                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col"
+                                        data-sort="itemPrice">Attribute</th>
+                                    <th class="sort align-middle pe-5 text-uppercase text-nowrap" scope="col" data-sort="">
+                                        STATUS
+                                    </th>
+                                    <th class="sort text-end align-middle pe-0 ps-4" scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="list" id="atdTempTable-body">
+                                
+                                
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+                        <div class="d-flex">
+                            <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" id="showDown2" data-list-info="data-list-info">
+                                Showing 1 to 3 of 3
+                            </p>
+
+                        </div>
+
+                        <div class="d-flex">
+                            <button class="page-link" data-list-pagination="prev">
+                                <span class="fas fa-chevron-left"></span>
+                            </button>
+                            <ul class="mb-0 pagination">
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            </ul>
+                            <button class="page-link pe-0" data-list-pagination="next">
+                                <span class="fas fa-chevron-right"></span>
+                            </button>
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+            </div>
+
+
+
+
+          
 
             <input type="hidden" id="attrHiddenImageNames" name="AttrUploadedImageNames" />
             <input type="hidden" id="attrHiddenSelectedValues" name="AttrSelectedValuesJson" />
 
 
 
-            <div class="accordion-item mb-4">
-                <h2 class="accordion-header" id="headingSpacingFour">
-                    <div class="accordion-button collapsed " data-bs-toggle="collapse" data-bs-target="#SpacingFour"
-                         aria-expanded="true" aria-controls="SpacingFour">
-                        <div class="d-flex align-items-center justify-content-between flex-fill">
-                            <h5 class="d-flex align-items-center my-3">
-                                <i data-feather="list" class="text-primary me-2"></i><span>@Html.SmartLocalize("Custom Fields")</span>
-                            </h5>
-                        </div>
-                    </div>
-                </h2>
-                <div id="SpacingFour" class="accordion-collapse collapse show" aria-labelledby="headingSpacingFour">
-                    <div class="accordion-body">
-                        <div class="mt-4">
-                            @*<div class="p-3  rounded d-flex align-items-center border mb-3">
-                                <div class=" d-flex align-items-center">
-                                    <div class="form-check form-check-inline">
-                                        <input asp-for="AttrWarrantiesEnabled" class="form-check-input" type="checkbox" id="attrWarranties" value="false">
-                                        <label class="form-check-label" for="attrWarranties">@Html.SmartLocalize("Warranties")</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input asp-for="AttrManufacturerEnabled" class="form-check-input" type="checkbox" id="attrManufacturer" value="false">
-                                        <label class="form-check-label" for="attrManufacturer">@Html.SmartLocalize("Manufacturer")</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input asp-for="AttrExpiryEnabled" class="form-check-input" type="checkbox" id="attrExpiry" value="false">
-                                        <label class="form-check-label" for="attrExpiry">@Html.SmartLocalize("Expiry")</label>
-                                    </div>
-                                </div>
-                            </div>*@
+          
 
 
 
-                            <div class="p-3 rounded d-flex align-items-center border mb-3">
-                                <div class="d-flex align-items-center">
-                                    <!-- Warranty - using plain HTML to avoid tag helper issues -->
-                                    <input type="hidden" name="AttrWarrantiesEnabled" value="false" />
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               id="attrWarranties"
-                                               name="AttrWarrantiesEnabled"
-                                               value="true"
-                                               @(Model?.AttrWarrantiesEnabled == true ? "checked" : "")>
-                                        <label class="form-check-label" for="attrWarranties">
-                                            @Html.SmartLocalize("Warranties")
-                                        </label>
-                                    </div>
 
-                                    <!-- Manufacturer -->
-                                    <input type="hidden" name="AttrManufacturerEnabled" value="false" />
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               id="attrManufacturer"
-                                               name="AttrManufacturerEnabled"
-                                               value="true"
-                                               @(Model?.AttrManufacturerEnabled == true ? "checked" : "")>
-                                        <label class="form-check-label" for="attrManufacturer">
-                                            @Html.SmartLocalize("Manufacturer")
-                                        </label>
-                                    </div>
-
-                                    <!-- Expiry -->
-                                    <input type="hidden" name="AttrExpiryEnabled" value="false" />
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input"
-                                               type="checkbox"
-                                               id="attrExpiry"
-                                               name="AttrExpiryEnabled"
-                                               value="true"
-                                               @(Model?.AttrExpiryEnabled == true ? "checked" : "")>
-                                        <label class="form-check-label" for="attrExpiry">
-                                            @Html.SmartLocalize("Expiry")
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-
-
-                            <div class="row">
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="AttrWarranty">@Html.SmartLocalize("Warranty")</label>
-                                        <span asp-validation-for="AttrWarranty" class="text-danger"></span>
-                                        <select asp-for="AttrWarranty" class="form-select searchableSelect" id="attrWarranty"  asp-items="@ViewBag.WarrantyDD as SelectList">
-                                            <option>@Html.SmartLocalize("Select")</option>
-                                          
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3 add-product">
-                                        <label asp-for="AttrManufacturerName">@Html.SmartLocalize("Manufacturer")</label>
-                                        <span asp-validation-for="AttrManufacturerName" class="text-danger"></span>
-                                        <input asp-for="AttrManufacturerName" type="text" class="form-control" id="attrManufacturerName">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="AttrManufacturedDate">@Html.SmartLocalize("Manufactured Date")</label>
-                                        <span asp-validation-for="AttrManufacturedDate" class="text-danger"></span>
-                                        <div class="input-groupicon calender-input">
-                                            <input asp-for="AttrManufacturedDate" type="text" class="datetimepicker form-control" placeholder="dd/mm/yyyy" id="attrManufacturedDate">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="AttrExpiryDate">@Html.SmartLocalize("Expiry On")</label>
-                                        <span asp-validation-for="AttrExpiryDate" class="text-danger"></span>
-                                        <div class="input-groupicon calender-input">
-                                            <input asp-for="AttrExpiryDate" type="text" class="datetimepicker form-control" placeholder="dd/mm/yyyy" id="attrExpiryDate">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     <button type="submit" class="btn btn-primary">@Html.SmartLocalize("Save")</button>

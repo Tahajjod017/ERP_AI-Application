@@ -184,3 +184,17 @@ label.req::after {
     color: #9fa6bc !important;
     background: #141824;
 }
+
+
+
+
+
+[data-bs-theme="dark"] .colmDrag {
+    border: 1px solid #373e53;
+    color: #51586e !important;
+}
+
+.colmDrag {
+    border: 1px solid #cbd0dd;
+    color: #979aa3 !important;
+}

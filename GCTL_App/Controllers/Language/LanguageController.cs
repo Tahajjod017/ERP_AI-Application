@@ -117,7 +117,7 @@ namespace GCTL_App.Controllers.Language
             ViewBag.total = total;
 
             var options = new ChromeOptions();
-            options.AddArgument("--headless");
+           // options.AddArgument("--headless");
             options.AddArgument("--disable-gpu");
             options.AddArgument("--no-sandbox");
 
