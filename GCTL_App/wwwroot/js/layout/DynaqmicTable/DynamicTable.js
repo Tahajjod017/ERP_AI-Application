@@ -79,7 +79,7 @@ const DynamicTable = {
         const dropdown = document.createElement('div');
         dropdown.classList.add('dropdown', 'me-3');
         dropdown.innerHTML = `
-            <button class="btn btn-light dropdown-toggle bg-white text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: 1px solid #cbd0dd;color: #979aa3 !important;">
+            <button class="btn  dropdown-toggle colmDrag  text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false" >
                 <i class="fas fa-columns me-2"></i>Columns
             </button>
             <div class="dropdown-menu column-toggle-dropdown p-2">
@@ -255,7 +255,7 @@ const DynamicTableDD = {
         const dropdown = document.createElement('div');
         dropdown.classList.add('dropdown');
         dropdown.innerHTML = `
-            <button class="btn btn-light dropdown-toggle bg-white text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: 1px solid #cbd0dd;color: #979aa3 !important;">
+            <button class="btn  dropdown-toggle colmDrag  text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false" >
                 <i class="fas fa-columns me-2"></i>Columns
             </button>
             <div class="dropdown-menu column-toggle-dropdown p-2" style="min-width: 200px;">
@@ -1068,7 +1068,7 @@ const DynamicTableDrag = {
             ? order.map(index => headers.find(h => parseInt(h.dataset.column) === index))
             : headers;
         dropdown.innerHTML = `
-            <button class="btn btn-light dropdown-toggle bg-white text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: 1px solid #cbd0dd;color: #979aa3 !important;">
+            <button class="btn  dropdown-toggle colmDrag  text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false" >
                 <i class="fas fa-columns me-2"></i>Columns
             </button>
             <div class="dropdown-menu column-toggle-dropdown p-2" style="min-width: 200px;">
@@ -1095,6 +1095,9 @@ const DynamicTableDrag = {
         `;
         console.log(`Created dropdown for ${tableId} with visibility: ${JSON.stringify(visibility)}`);
         return dropdown;
+
+        //<button class="btn btn-light dropdown-toggle bg-white text-muted" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: 1px solid #cbd0dd;color: #979aa3 !important;">
+
     },
 
     toggleColumn(table, columnIndex, isVisible) {

@@ -7,13 +7,13 @@
 <div class="p-4 bg-body-emphasis">
 
     <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
-        <li class="nav-item"><a class="nav-link active" id="SingleProduct-tab" data-bs-toggle="tab" href="#tab-SingleProduct" role="tab" aria-controls="tab-SingleProduct" aria-selected="true">Single Product</a></li>
-        <li class="nav-item"><a class="nav-link" id="attributeProduct-tab" data-bs-toggle="tab" href="#tab-attributeProduct" role="tab" aria-controls="tab-attributeProduct" aria-selected="false">Attribute Product</a></li>
-        <li class="nav-item"><a class="nav-link" id="bxgy-tab" data-bs-toggle="tab" href="#tab-bxgy" role="tab" aria-controls="tab-bxgy" aria-selected="false">Buy x Get Y</a></li>
-        <li class="nav-item"><a class="nav-link" id="cp-tab" data-bs-toggle="tab" href="#tab-cp" role="tab" aria-controls="tab-cp" aria-selected="false">Combo Product</a></li>
-        <li class="nav-item"><a class="nav-link" id="ser-tab" data-bs-toggle="tab" href="#tab-ser" role="tab" aria-controls="tab-ser" aria-selected="false">Service</a></li>
+        <li class="nav-item"><a class="nav-link active" id="SingleProduct-tab" data-bs-toggle="tab" href="#tab-SingleProduct" role="tab" aria-controls="tab-SingleProduct" aria-selected="true">@Html.SmartLocalize("Single Product")</a></li>
+<li class="nav-item"><a class="nav-link" id="attributeProduct-tab" data-bs-toggle="tab" href="#tab-attributeProduct" role="tab" aria-controls="tab-attributeProduct" aria-selected="false">@Html.SmartLocalize("Attribute Product")</a></li>
+<li class="nav-item"><a class="nav-link" id="bxgy-tab" data-bs-toggle="tab" href="#tab-bxgy" role="tab" aria-controls="tab-bxgy" aria-selected="false">@Html.SmartLocalize("Buy x Get Y")</a></li>
+<li class="nav-item"><a class="nav-link" id="cp-tab" data-bs-toggle="tab" href="#tab-cp" role="tab" aria-controls="tab-cp" aria-selected="false">@Html.SmartLocalize("Combo / Bundle Product")</a></li>
+<li class="nav-item"><a class="nav-link" id="ser-tab" data-bs-toggle="tab" href="#tab-ser" role="tab" aria-controls="tab-ser" aria-selected="false">@Html.SmartLocalize("Service")</a></li>
 
-    </ul>
+</ul>
     <div class="tab-content mt-3" id="myTabContent1">
 
         <div class="tab-pane fade show active" id="tab-SingleProduct" role="tabpanel" aria-labelledby="SingleProduct-tab">
@@ -28,9 +28,10 @@
 
         <div class="tab-pane fade" id="tab-bxgy" role="tabpanel" aria-labelledby="bxgy-tab">
             <ul class="nav nav-underline fs-9" id="myTab2" role="tablist">
-                <li class="nav-item"><a class="nav-link active" id="bxgyf-tab" data-bs-toggle="tab" href="#tab-bxgyf" role="tab" aria-controls="tab-bxgyf" aria-selected="true">Buy X Get Y Free</a></li>
-                <li class="nav-item"><a class="nav-link" id="bxgyd-tab" data-bs-toggle="tab" href="#tab-bxgyd" role="tab" aria-controls="tab-bxgyd" aria-selected="false">Buy X Get Y Discount</a></li>
-                <li class="nav-item"><a class="nav-link" id="bcgg-tab" data-bs-toggle="tab" href="#tab-bcgg" role="tab" aria-controls="tab-bcgg" aria-selected="false">Buy Collection Get Gift</a></li>
+                <li class="nav-item"><a class="nav-link active" id="bxgyf-tab" data-bs-toggle="tab" href="#tab-bxgyf" role="tab" aria-controls="tab-bxgyf" aria-selected="true">@Html.SmartLocalize("Buy X Get Y Free")</a></li>
+                <li class="nav-item"><a class="nav-link" id="bxgyd-tab" data-bs-toggle="tab" href="#tab-bxgyd" role="tab" aria-controls="tab-bxgyd" aria-selected="false">@Html.SmartLocalize("Buy X Get Y Discount")</a></li>
+                <li class="nav-item"><a class="nav-link" id="bcgg-tab" data-bs-toggle="tab" href="#tab-bcgg" role="tab" aria-controls="tab-bcgg" aria-selected="false">@Html.SmartLocalize("Buy Collection Get Gift")</a></li>
+            
             </ul>
             <div class="tab-content mt-3" id="myTabContent2">
                 <div class="tab-pane fade show active" id="tab-bxgyf" role="tabpanel" aria-labelledby="bxgyf-tab">

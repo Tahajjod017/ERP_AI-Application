@@ -127,6 +127,9 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         [Display(Name = "Has Manufacturer")]
         public bool HasManufacturer { get; set; }
 
+        [Display(Name = "Has Size")]
+        public bool HasSize { get; set; }
+
         [Display(Name = "Has Expiry")]
         public bool HasExpiry { get; set; }
 

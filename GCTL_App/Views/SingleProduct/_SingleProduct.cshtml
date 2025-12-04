@@ -196,10 +196,22 @@
                                 </div>
                             </div>
 
+                            
+                            <div class="col-lg-6 col-sm-6 col-12">
+                                <div class="mb-3">
+                                    <label asp-for="Warranty" class="form-label">@Html.SmartLocalize("Warranty")</label>
+                                    <select asp-for="Warranty" id="singleWarranty" class="form-select searchableSelect" asp-items="@ViewBag.WarrantyDD as SelectList">
+                                        <option value="">@Html.SmartLocalize("Select")</option>
+
+                                    </select>
+                                    <span asp-validation-for="Warranty" class="text-danger"></span>
+                                </div>
+                            </div>
+
                             <div class="col-lg-2 col-sm-6 col-12">
                                 <div class="form-check form-switch my-3">
                                     <input asp-for="TrackBatch" id="singleTrackBatch" type="checkbox" class="form-check-input" />
-                                    <label class="form-check-label" for="singleTrackBatch">@Html.SmartLocalize("Track Batch")</label>
+                                    <label class="form-check-label" for="singleTrackBatch">@Html.SmartLocalize("Batch")</label>
                                 </div>
                             </div>
 
@@ -213,14 +225,14 @@
                             <div class="col-lg-2 col-sm-6 col-12">
                                 <div class="form-check form-switch my-3">
                                     <input asp-for="TraceManufacturingDate" id="singleTraceManufacturingDate" type="checkbox" class="form-check-input" />
-                                    <label class="form-check-label" for="singleTraceManufacturingDate">@Html.SmartLocalize("Trace Manufacturing Date")</label>
+                                    <label class="form-check-label" for="singleTraceManufacturingDate">@Html.SmartLocalize("Manufacturing Date")</label>
                                 </div>
                             </div>
 
                             <div class="col-lg-2 col-sm-6 col-12">
                                 <div class="form-check form-switch my-3">
                                     <input asp-for="TraceExpiryDate" id="singleTraceExpiryDate" type="checkbox" class="form-check-input" />
-                                    <label class="form-check-label" for="singleTraceExpiryDate">@Html.SmartLocalize("Trace Expiry Date")</label>
+                                    <label class="form-check-label" for="singleTraceExpiryDate">@Html.SmartLocalize("Expiry Date")</label>
                                 </div>
                             </div>
 
@@ -230,6 +242,21 @@
                                     <label class="form-check-label" for="singleSerialNumber">@Html.SmartLocalize("Serial Number")</label>
                                 </div>
                             </div>
+
+                            <div class="col-lg-2 col-sm-6 col-12">
+                                <div class="form-check form-switch my-3">
+                                    <input asp-for="HasSize" id="singleHasSize" type="checkbox" class="form-check-input" />
+                                    <label class="form-check-label" for="singleHasSize">@Html.SmartLocalize("Size")</label>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 col-sm-6 col-12">
+                                <div class="form-check form-switch my-3">
+                                    <input asp-for="HasManufacturer" id="singleManufacturer" type="checkbox" class="form-check-input" />
+                                    <label class="form-check-label" for="singleManufacturer">@Html.SmartLocalize("Manufacturer")</label>
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="row">
@@ -354,7 +381,7 @@
 
                 <div id="SpacingTwo" class="accordion-collapse collapse show" aria-labelledby="headingSpacingTwo">
                     <div class="accordion-body">
-                        <div class="text-editor add-list add mt-4">
+                        <div class="text-editor add-list add ">
                             <div class="col-md-12">
                                 <div id="singleDiv1" class="p-3">
                                     <div class="row">
@@ -395,7 +422,7 @@
 
 
 
-            <div class="accordion-item mb-4">
+            @*<div class="accordion-item mb-4">
                 <h2 class="accordion-header" id="headingSpacingFour">
                     <div class="accordion-button collapsed " data-bs-toggle="collapse" data-bs-target="#SpacingFour"
                          aria-expanded="true" aria-controls="SpacingFour">
@@ -469,7 +496,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>*@
 
         </div>
 

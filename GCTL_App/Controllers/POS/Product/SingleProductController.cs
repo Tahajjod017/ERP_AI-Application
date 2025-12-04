@@ -55,7 +55,7 @@ namespace GCTL_App.Controllers.POS.Product
         #region Index
         public IActionResult Index()
         {
-            
+            SetSmartPageCode(1897000);
 
             var model = new SingleProductPageViewModel();
 
