@@ -8,7 +8,20 @@
 
 
 <form asp-action="AddSingleProduct" asp-controller="SingleProduct" id="singleProductForm" method="post" enctype="multipart/form-data" class="">
-    <div class="add-product">
+
+    <h2 class="accordion-header" id="headingSpacingOne">
+        <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#SpacingOne"
+             aria-expanded="true" aria-controls="SpacingOne">
+            <div class="d-flex align-items-center justify-content-between flex-fill">
+                <h5 class="d-flex align-items-center my-3">
+                    <i data-feather="info" class="text-primary me-2"></i>
+                    <span>@Html.SmartLocalize("Product Information (Single Product)")</span>
+                </h5>
+            </div>
+        </div>
+    </h2>
+
+    <div class=" bg-body-emphasis p-3 add-product">
 
         <div class="accordions-items-seperate border-0" id="accordionSpacingExample">
 
@@ -16,26 +29,15 @@
 
             <!-- Product Information Section -->
             <div class="accordion-item mb-4">
-                <h2 class="accordion-header" id="headingSpacingOne">
-                    <div class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#SpacingOne"
-                         aria-expanded="true" aria-controls="SpacingOne">
-                        <div class="d-flex align-items-center justify-content-between flex-fill">
-                            <h5 class="d-flex align-items-center my-3">
-                                <i data-feather="info" class="text-primary me-2"></i>
-                                <span>@Html.SmartLocalize("Product Information (Single Product)")</span>
-                            </h5>
-                        </div>
-                    </div>
-                </h2>
+
                 <div id="SpacingOne" class="accordion-collapse collapse show" aria-labelledby="headingSpacingOne">
                     <div class="accordion-body">
 
-                        <div class="row mt-4">
+                        <div class="row ">
                             <div class="col-sm-12 col-12">
                                 <div class="mb-3">
                                     <label asp-for="ProductType" class="form-label">@Html.SmartLocalize("Product Type")</label>
                                     <select asp-for="ProductType" id="singleProductType" class="form-select searchableSelect" asp-items="@ViewBag.ProductTypeDD as SelectList">
-                                       
                                     </select>
                                     <span asp-validation-for="ProductType" class="text-danger"></span>
                                 </div>
@@ -196,7 +198,7 @@
                                 </div>
                             </div>
 
-                            
+
                             <div class="col-lg-6 col-sm-6 col-12">
                                 <div class="mb-3">
                                     <label asp-for="Warranty" class="form-label">@Html.SmartLocalize("Warranty")</label>
@@ -267,8 +269,8 @@
                                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription1" aria-expanded="false" aria-controls="collapseDescription1">
 
 
-                                                <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Upload Your Images") 
-                                                
+                                                <i class="bi bi-file-earmark-text me-2"></i>@Html.SmartLocalize("Upload Your Images")
+
                                                 <small class="text-muted text-end ms-2">(@Html.SmartLocalize("Drag and drop or click to upload, then edit and crop as needed"))</small>
 
 
@@ -423,80 +425,80 @@
 
 
             @*<div class="accordion-item mb-4">
-                <h2 class="accordion-header" id="headingSpacingFour">
-                    <div class="accordion-button collapsed " data-bs-toggle="collapse" data-bs-target="#SpacingFour"
-                         aria-expanded="true" aria-controls="SpacingFour">
-                        <div class="d-flex align-items-center justify-content-between flex-fill">
-                            <h5 class="d-flex align-items-center my-3">
-                                <i data-feather="list" class="text-primary me-2"></i><span>@Html.SmartLocalize("Custom Fields")</span>
-                            </h5>
-                        </div>
-                    </div>
-                </h2>
-                <div id="SpacingFour" class="accordion-collapse collapse show" aria-labelledby="headingSpacingFour">
-                    <div class="accordion-body">
-                        <div class="mt-4">
-                            <div class="p-3  rounded d-flex align-items-center border mb-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="form-check form-check-inline">
-                                        <input asp-for="HasWarranties" id="singleWarranties" type="checkbox" class="form-check-input">
-                                        <label class="form-check-label" for="singleWarranties">@Html.SmartLocalize("Warranties")</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input asp-for="HasManufacturer" id="singleManufacturer" type="checkbox" class="form-check-input">
-                                        <label class="form-check-label" for="singleManufacturer">@Html.SmartLocalize("Manufacturer")</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input asp-for="HasExpiry" id="singleExpiry" type="checkbox" class="form-check-input">
-                                        <label class="form-check-label" for="singleExpiry">@Html.SmartLocalize("Expiry")</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="Warranty" class="form-label">@Html.SmartLocalize("Warranty")</label>
-                                        <select asp-for="Warranty" id="singleWarranty" class="form-select searchableSelect" asp-items="@ViewBag.WarrantyDD as SelectList">
-                                            <option value="">@Html.SmartLocalize("Select")</option>
-
-                                        </select>
-                                        <span asp-validation-for="Warranty" class="text-danger"></span>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3 add-product">
-                                        <label asp-for="Manufacturer" class="form-label">@Html.SmartLocalize("Manufacturer")</label>
-                                        <input asp-for="Manufacturer" id="singleManufacturerName" type="text" class="form-control">
-                                        <span asp-validation-for="Manufacturer" class="text-danger"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="ManufacturedDate" class="form-label">@Html.SmartLocalize("Manufactured Date")</label>
-                                        <div class="input-groupicon calender-input">
-                                            <input asp-for="ManufacturedDate" id="singleManufacturedDate" type="text" class="datetimepicker caiCon form-control" placeholder="dd/mm/yyyy">
-                                        </div>
-                                        <span asp-validation-for="ManufacturedDate" class="text-danger"></span>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6 col-12">
-                                    <div class="mb-3">
-                                        <label asp-for="ExpiryDate" class="form-label">@Html.SmartLocalize("Expiry On")</label>
-                                        <div class="input-groupicon calender-input">
-                                            <input asp-for="ExpiryDate" id="singleExpiryDate" type="text" class="datetimepicker caiCon form-control" placeholder="dd/mm/yyyy">
-                                        </div>
-                                        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
-                                    </div>
-                                </div>
+                    <h2 class="accordion-header" id="headingSpacingFour">
+                        <div class="accordion-button collapsed " data-bs-toggle="collapse" data-bs-target="#SpacingFour"
+                             aria-expanded="true" aria-controls="SpacingFour">
+                            <div class="d-flex align-items-center justify-content-between flex-fill">
+                                <h5 class="d-flex align-items-center my-3">
+                                    <i data-feather="list" class="text-primary me-2"></i><span>@Html.SmartLocalize("Custom Fields")</span>
+                                </h5>
                             </div>
                         </div>
+                    </h2>
+                    <div id="SpacingFour" class="accordion-collapse collapse show" aria-labelledby="headingSpacingFour">
+                        <div class="accordion-body">
+                            <div class="mt-4">
+                                <div class="p-3  rounded d-flex align-items-center border mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="form-check form-check-inline">
+                                            <input asp-for="HasWarranties" id="singleWarranties" type="checkbox" class="form-check-input">
+                                            <label class="form-check-label" for="singleWarranties">@Html.SmartLocalize("Warranties")</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input asp-for="HasManufacturer" id="singleManufacturer" type="checkbox" class="form-check-input">
+                                            <label class="form-check-label" for="singleManufacturer">@Html.SmartLocalize("Manufacturer")</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input asp-for="HasExpiry" id="singleExpiry" type="checkbox" class="form-check-input">
+                                            <label class="form-check-label" for="singleExpiry">@Html.SmartLocalize("Expiry")</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-6 col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="Warranty" class="form-label">@Html.SmartLocalize("Warranty")</label>
+                                            <select asp-for="Warranty" id="singleWarranty" class="form-select searchableSelect" asp-items="@ViewBag.WarrantyDD as SelectList">
+                                                <option value="">@Html.SmartLocalize("Select")</option>
+
+                                            </select>
+                                            <span asp-validation-for="Warranty" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="mb-3 add-product">
+                                            <label asp-for="Manufacturer" class="form-label">@Html.SmartLocalize("Manufacturer")</label>
+                                            <input asp-for="Manufacturer" id="singleManufacturerName" type="text" class="form-control">
+                                            <span asp-validation-for="Manufacturer" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-6 col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="ManufacturedDate" class="form-label">@Html.SmartLocalize("Manufactured Date")</label>
+                                            <div class="input-groupicon calender-input">
+                                                <input asp-for="ManufacturedDate" id="singleManufacturedDate" type="text" class="datetimepicker caiCon form-control" placeholder="dd/mm/yyyy">
+                                            </div>
+                                            <span asp-validation-for="ManufacturedDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="ExpiryDate" class="form-label">@Html.SmartLocalize("Expiry On")</label>
+                                            <div class="input-groupicon calender-input">
+                                                <input asp-for="ExpiryDate" id="singleExpiryDate" type="text" class="datetimepicker caiCon form-control" placeholder="dd/mm/yyyy">
+                                            </div>
+                                            <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>*@
+                </div>*@
 
         </div>
 

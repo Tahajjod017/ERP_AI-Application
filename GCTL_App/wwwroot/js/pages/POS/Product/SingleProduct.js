@@ -14,6 +14,34 @@
     initializeSelect();
 
 
+    //#region On change add sku
+
+    $("#singleCategory").change(function () {
+        var catId = $(this).val();   // get selected category id
+        if (catId) {
+            $.ajax({
+                url: '/SingleProduct/GetSKUByCategory',   // controller action
+                type: 'GET',
+                data: { categoryId: catId },
+                success: function (data) {
+                    // populate SKU field
+                    $("#singleSKU").val(data);
+                },
+                error: function () {
+                    alert("Error fetching SKU");
+                }
+            });
+        } else {
+            $("#singleSKU").val(""); // clear if no category selected
+        }
+    });
+
+
+
+    //#endregion 
+
+
+
     //#region Single Product
 
     $(document).on('select2:open', () => {

@@ -19,22 +19,20 @@ namespace GCTL.Service.POS.Product
         private readonly IGenericRepository<ProductAttributes> _productAttributeRepository;
         private readonly IGenericRepository<ProductImages> _productImageRepository;
         private readonly IGenericRepository<ProductPricing> _productPricingRepository;
-        private readonly IGenericRepository<ProductCustomFields> _productCustomFieldsRepository;
+       // private readonly IGenericRepository<ProductCustomFields> _productCustomFieldsRepository;
         private readonly IGenericRepository<ProductAdvancedPricing> _productAdvPriceRepository;
         private readonly IUserInfoService _userInfoService;
         private readonly ISingleProduct _singleProductService;
 
-
-        public AttributeProductService(IGenericRepository<Products> productRepository, IGenericRepository<ProductImages> productImageRepository, IGenericRepository<ProductPricing> productPricingRepository, IGenericRepository<ProductCustomFields> productCustomFieldsRepository, IGenericRepository<ProductAdvancedPricing> productAdvPriceRepository, IUserInfoService userInfoService, ISingleProduct singleProductService, IGenericRepository<ProductAttributes> productAttributeRepository)
+        public AttributeProductService(IGenericRepository<Products> productRepository, IGenericRepository<ProductAttributes> productAttributeRepository, IGenericRepository<ProductImages> productImageRepository, IGenericRepository<ProductPricing> productPricingRepository, IGenericRepository<ProductAdvancedPricing> productAdvPriceRepository, IUserInfoService userInfoService, ISingleProduct singleProductService)
         {
             _productRepository = productRepository;
+            _productAttributeRepository = productAttributeRepository;
             _productImageRepository = productImageRepository;
             _productPricingRepository = productPricingRepository;
-            _productCustomFieldsRepository = productCustomFieldsRepository;
             _productAdvPriceRepository = productAdvPriceRepository;
             _userInfoService = userInfoService;
             _singleProductService = singleProductService;
-            _productAttributeRepository = productAttributeRepository;
         }
 
         public async Task<CommonReturnViewModel> AddAttrProductAsync(AttrProductAddViewModel model)
@@ -110,19 +108,19 @@ namespace GCTL.Service.POS.Product
 
                
 
-                var customField = new ProductCustomFields()
-                {
-                    ProductID = product.ProductID,
-                    WarrantyTypeID = model.AttrWarrantiesEnabled == true ? model.AttrWarranty : null, 
-                    ManufacturedDate = model.AttrManufacturerEnabled == true ? model.AttrManufacturedDate : null,
-                    ManufacturerName = model.AttrManufacturerEnabled == true ? model.AttrManufacturerName : null,
-                    ExpiryDate = model.AttrExpiryEnabled == true ? model.AttrExpiryDate : null,
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = model.CreatedBy.ToString()
-                };
+                //var customField = new ProductCustomFields()
+                //{
+                //    ProductID = product.ProductID,
+                //    WarrantyTypeID = model.AttrWarrantiesEnabled == true ? model.AttrWarranty : null, 
+                //    ManufacturedDate = model.AttrManufacturerEnabled == true ? model.AttrManufacturedDate : null,
+                //    ManufacturerName = model.AttrManufacturerEnabled == true ? model.AttrManufacturerName : null,
+                //    ExpiryDate = model.AttrExpiryEnabled == true ? model.AttrExpiryDate : null,
+                //    CreatedAt = DateTime.Now,
+                //    CreatedBy = model.CreatedBy.ToString()
+                //};
 
-                await _productCustomFieldsRepository.AddAsync(customField);
-                await _userInfoService.ActionLogAsync("SingleProduct/PriceCustomField", ActionName.DataAdd, null, customField, customField.CustomFieldID, model);
+                //await _productCustomFieldsRepository.AddAsync(customField);
+                //await _userInfoService.ActionLogAsync("SingleProduct/PriceCustomField", ActionName.DataAdd, null, customField, customField.CustomFieldID, model);
 
 
                 if (model.AttrSelectedValues.Any())

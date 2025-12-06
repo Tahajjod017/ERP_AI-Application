@@ -299,8 +299,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ProductCategories> ProductCategories { get; set; }
 
-    public virtual DbSet<ProductCustomFields> ProductCustomFields { get; set; }
-
     public virtual DbSet<ProductImages> ProductImages { get; set; }
 
     public virtual DbSet<ProductPricing> ProductPricing { get; set; }
@@ -392,6 +390,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
 
         modelBuilder.Entity<ActionLogs>(entity =>
         {
@@ -5126,29 +5125,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__ProductCa__Updat__6265874F");
         });
 
-        modelBuilder.Entity<ProductCustomFields>(entity =>
-        {
-            entity.HasKey(e => e.CustomFieldID).HasName("PK__ProductC__403326D4ABD770A2");
-
-            entity.ToTable("ProductCustomFields", "SC");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.CreatedBy).HasMaxLength(100);
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.ManufacturerName).HasMaxLength(255);
-
-            entity.HasOne(d => d.Product).WithMany(p => p.ProductCustomFields)
-                .HasForeignKey(d => d.ProductID)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__ProductCu__Produ__0DD9F539");
-
-            entity.HasOne(d => d.WarrantyType).WithMany(p => p.ProductCustomFields)
-                .HasForeignKey(d => d.WarrantyTypeID)
-                .HasConstraintName("FK__ProductCu__Warra__0ECE1972");
-        });
-
         modelBuilder.Entity<ProductImages>(entity =>
         {
             entity.HasKey(e => e.ProductImageID).HasName("PK__ProductI__07B2B1D829F8C88A");
@@ -5286,6 +5262,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.HasWarranty).HasDefaultValue(false);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.ProductMode).HasMaxLength(150);
@@ -5293,6 +5270,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.ProductPartNo).HasMaxLength(150);
             entity.Property(e => e.QuantityAlert).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.SKU).HasMaxLength(30);
+            entity.Property(e => e.ServiceDailyRate).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ServiceHourlyRate).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ServicePerJobRate).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ServicePerMeterRate).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.Weight).HasColumnType("decimal(18, 2)");
 
@@ -5335,6 +5316,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ProductsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__Products__Update__05AEC38C");
+
+            entity.HasOne(d => d.WarrantyType).WithMany(p => p.Products)
+                .HasForeignKey(d => d.WarrantyTypeID)
+                .HasConstraintName("FK_Teams_WarrantyTypeID_Products");
         });
 
         modelBuilder.Entity<ProvisionPeriodTtimeTypes>(entity =>

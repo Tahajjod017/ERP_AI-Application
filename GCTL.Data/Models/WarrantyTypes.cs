@@ -35,7 +35,7 @@ public partial class WarrantyTypes
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual ICollection<ProductCustomFields> ProductCustomFields { get; set; } = new List<ProductCustomFields>();
+    public virtual ICollection<Products> Products { get; set; } = new List<Products>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

@@ -123,6 +123,7 @@ using GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.PayRollManagements.PayRollSettings;
 using GCTL.Service.POS.Product;
+using GCTL.Service.POS.Product.ServiceProduct;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL.Service.VisitingPath;
@@ -266,6 +267,7 @@ namespace GCTL_App.Extensions
 
             services.AddScoped<ISingleProduct, SingleProductService>();
             services.AddScoped<IAttributeProduct, AttributeProductService>();
+            services.AddScoped<IServiceProduct, ServiceProductService>();
 
 
             #endregion

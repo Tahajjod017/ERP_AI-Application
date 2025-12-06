@@ -19,16 +19,16 @@ namespace GCTL.Service.POS.Product
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<ProductImages> _productImageRepository;
         private readonly IGenericRepository<ProductPricing> _productPricingRepository;
-        private readonly IGenericRepository<ProductCustomFields> _productCustomFieldsRepository;
+        //private readonly IGenericRepository<ProductCustomFields> _productCustomFieldsRepository;
         private readonly IGenericRepository<ProductAdvancedPricing> _productAdvPriceRepository;
         private readonly IUserInfoService _userInfoService;
 
-        public SingleProductService(IGenericRepository<Products> productRepository, IGenericRepository<ProductImages> productImageRepository, IGenericRepository<ProductPricing> productPricingRepository, IGenericRepository<ProductCustomFields> productCustomFieldsRepository, IGenericRepository<ProductAdvancedPricing> productAdvPriceRepository, IUserInfoService userInfoService)
+        public SingleProductService(IGenericRepository<Products> productRepository, IGenericRepository<ProductImages> productImageRepository, IGenericRepository<ProductPricing> productPricingRepository,  IGenericRepository<ProductAdvancedPricing> productAdvPriceRepository, IUserInfoService userInfoService)
         {
             _productRepository = productRepository;
             _productImageRepository = productImageRepository;
             _productPricingRepository = productPricingRepository;
-            _productCustomFieldsRepository = productCustomFieldsRepository;
+           // _productCustomFieldsRepository = productCustomFieldsRepository;
             _productAdvPriceRepository = productAdvPriceRepository;
             _userInfoService = userInfoService;
         }
@@ -117,19 +117,19 @@ namespace GCTL.Service.POS.Product
                 await _userInfoService.ActionLogAsync("SingleProduct/ProductPrice", ActionName.DataAdd, null, price, price.PriceID, model);
 
 
-                var customField = new ProductCustomFields()
-                {
-                    ProductID = product.ProductID,
-                    WarrantyTypeID = model.HasWarranties == true ? model.Warranty : null,
-                    ManufacturedDate = model.HasManufacturer == true ? model.ManufacturedDate : null,
-                    ManufacturerName = model.HasManufacturer == true ? model.Manufacturer : null,
-                    ExpiryDate = model.HasExpiry == true ? model.ExpiryDate : null,
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = model.CreatedBy.ToString()
-                };
+                //var customField = new ProductCustomFields()
+                //{
+                //    ProductID = product.ProductID,
+                //    WarrantyTypeID = model.HasWarranties == true ? model.Warranty : null,
+                //    ManufacturedDate = model.HasManufacturer == true ? model.ManufacturedDate : null,
+                //    ManufacturerName = model.HasManufacturer == true ? model.Manufacturer : null,
+                //    ExpiryDate = model.HasExpiry == true ? model.ExpiryDate : null,
+                //    CreatedAt = DateTime.Now,
+                //    CreatedBy = model.CreatedBy.ToString()
+                //};
                 
-                await _productCustomFieldsRepository.AddAsync(customField);
-                await _userInfoService.ActionLogAsync("SingleProduct/PriceCustomField", ActionName.DataAdd, null, customField, customField.CustomFieldID, model);
+                //await _productCustomFieldsRepository.AddAsync(customField);
+                //await _userInfoService.ActionLogAsync("SingleProduct/PriceCustomField", ActionName.DataAdd, null, customField, customField.CustomFieldID, model);
 
 
                 var advPrice = new ProductAdvancedPricing()
