@@ -699,10 +699,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[SC].[ProductCustomFields]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[SC].[ProductImages]",
          "ObjectType": 0
       },

@@ -23,9 +23,7 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         [Required]
         [Range(0.01, double.MaxValue, ErrorMessage = "Per meter rate must be greater than 0.")]
         public decimal? ServicePerMeterRate { get; set; }
-        public string ServiceSearch { get; set; }
-        public string ServiceSort { get; set; }
-        public List<ServiceListViewModel> ServiceServices { get; set; } = new List<ServiceListViewModel>();
+       
     }
     public class ServiceListViewModel
     {

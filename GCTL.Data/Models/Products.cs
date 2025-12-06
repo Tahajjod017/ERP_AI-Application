@@ -65,6 +65,22 @@ public partial class Products
 
     public int? DeletedBy { get; set; }
 
+    public bool? IsSize { get; set; }
+
+    public bool? HasWarranty { get; set; }
+
+    public int? WarrantyTypeID { get; set; }
+
+    public int? WarrantyDays { get; set; }
+
+    public decimal? ServiceHourlyRate { get; set; }
+
+    public decimal? ServiceDailyRate { get; set; }
+
+    public decimal? ServicePerJobRate { get; set; }
+
+    public decimal? ServicePerMeterRate { get; set; }
+
     public virtual Classes? AssetsType { get; set; }
 
     public virtual BarcodeGenerateFrom? BarcodeGenerateFrom { get; set; }
@@ -83,8 +99,6 @@ public partial class Products
 
     public virtual ProductCategories? ProductCategory { get; set; }
 
-    public virtual ICollection<ProductCustomFields> ProductCustomFields { get; set; } = new List<ProductCustomFields>();
-
     public virtual ICollection<ProductImages> ProductImages { get; set; } = new List<ProductImages>();
 
     public virtual ICollection<ProductPricing> ProductPricing { get; set; } = new List<ProductPricing>();
@@ -96,4 +110,6 @@ public partial class Products
     public virtual UnitTypes? UnitType { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
+
+    public virtual WarrantyTypes? WarrantyType { get; set; }
 }
