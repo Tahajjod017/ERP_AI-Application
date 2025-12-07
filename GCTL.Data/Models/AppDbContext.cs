@@ -175,6 +175,14 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<Holidays> Holidays { get; set; }
 
+    public virtual DbSet<InvoiceBaseCAddresses> InvoiceBaseCAddresses { get; set; }
+
+    public virtual DbSet<InvoiceVersionItems> InvoiceVersionItems { get; set; }
+
+    public virtual DbSet<Invoices> Invoices { get; set; }
+
+    public virtual DbSet<InvoicesVersions> InvoicesVersions { get; set; }
+
     public virtual DbSet<JobTeamActivities> JobTeamActivities { get; set; }
 
     public virtual DbSet<JobTeams> JobTeams { get; set; }
@@ -285,6 +293,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<PostingRules> PostingRules { get; set; }
 
+    public virtual DbSet<PriceQuotationVersionItems> PriceQuotationVersionItems { get; set; }
+
+    public virtual DbSet<PriceQuotationVersions> PriceQuotationVersions { get; set; }
+
+    public virtual DbSet<PriceQuotations> PriceQuotations { get; set; }
+
     public virtual DbSet<Priorities> Priorities { get; set; }
 
     public virtual DbSet<ProbetionPeriodSettings> ProbetionPeriodSettings { get; set; }
@@ -333,6 +347,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<SalaryTypes> SalaryTypes { get; set; }
 
+    public virtual DbSet<SalesOrderVersionItems> SalesOrderVersionItems { get; set; }
+
+    public virtual DbSet<SalesOrders> SalesOrders { get; set; }
+
+    public virtual DbSet<SalesOrdersVersions> SalesOrdersVersions { get; set; }
+
     public virtual DbSet<ServiceYears> ServiceYears { get; set; }
 
     public virtual DbSet<Services> Services { get; set; }
@@ -377,6 +397,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<UnitTypes> UnitTypes { get; set; }
 
+    public virtual DbSet<UnitTypes1> UnitTypes1 { get; set; }
+
     public virtual DbSet<UserVisitLogs> UserVisitLogs { get; set; }
 
     public virtual DbSet<WarrantyTypes> WarrantyTypes { get; set; }
@@ -390,7 +412,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
 
         modelBuilder.Entity<ActionLogs>(entity =>
         {
@@ -3148,6 +3169,173 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__Holidays__Update__673F4B05");
         });
 
+        modelBuilder.Entity<InvoiceBaseCAddresses>(entity =>
+        {
+            entity.HasKey(e => e.InvoiceBaseCAddressID).HasName("PK__InvoiceB__5BF7AB261829D904");
+
+            entity.ToTable("InvoiceBaseCAddresses", "SC");
+
+            entity.Property(e => e.Additionaladdress).HasMaxLength(255);
+            entity.Property(e => e.City).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.FirstName).HasMaxLength(100);
+            entity.Property(e => e.FullAddress).HasMaxLength(255);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LastName).HasMaxLength(100);
+            entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");
+            entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
+            entity.Property(e => e.OtherPhone).HasMaxLength(30);
+            entity.Property(e => e.Phone).HasMaxLength(30);
+            entity.Property(e => e.PostalCode).HasMaxLength(100);
+            entity.Property(e => e.State).HasMaxLength(255);
+            entity.Property(e => e.Street).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Country).WithMany(p => p.InvoiceBaseCAddresses)
+                .HasForeignKey(d => d.CountryID)
+                .HasConstraintName("FK__InvoiceBa__Count__1E6562BD");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InvoiceBaseCAddressesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__InvoiceBa__Creat__1F5986F6");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.InvoiceBaseCAddressesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__InvoiceBa__Delet__204DAB2F");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InvoiceBaseCAddressesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__InvoiceBa__Updat__2141CF68");
+        });
+
+        modelBuilder.Entity<InvoiceVersionItems>(entity =>
+        {
+            entity.HasKey(e => e.InvoiceVersionItemID).HasName("PK__InvoiceV__96EB3FCC46F9D11C");
+
+            entity.ToTable("InvoiceVersionItems", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Quantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InvoiceVersionItemsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__InvoiceVe__Creat__4C2C2D6D");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.InvoiceVersionItemsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__InvoiceVe__Delet__4D2051A6");
+
+            entity.HasOne(d => d.InvoicesVersion).WithMany(p => p.InvoiceVersionItems)
+                .HasForeignKey(d => d.InvoicesVersionID)
+                .HasConstraintName("FK__InvoiceVe__Invoi__4E1475DF");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.InvoiceVersionItems)
+                .HasForeignKey(d => d.ProductID)
+                .HasConstraintName("FK__InvoiceVe__Produ__4F089A18");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InvoiceVersionItemsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__InvoiceVe__Updat__4FFCBE51");
+        });
+
+        modelBuilder.Entity<Invoices>(entity =>
+        {
+            entity.HasKey(e => e.InvoiceID).HasName("PK__Invoices__D796AAD59C171E33");
+
+            entity.ToTable("Invoices", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.InvoiceNumber).HasMaxLength(30);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InvoicesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Invoices__Create__41AE9EFA");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.InvoicesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Invoices__Delete__42A2C333");
+
+            entity.HasOne(d => d.SalesOrders).WithMany(p => p.Invoices)
+                .HasForeignKey(d => d.SalesOrdersID)
+                .HasConstraintName("FK__Invoices__SalesO__4396E76C");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InvoicesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Invoices__Update__448B0BA5");
+        });
+
+        modelBuilder.Entity<InvoicesVersions>(entity =>
+        {
+            entity.HasKey(e => e.InvoicesVersionID).HasName("PK__Invoices__2BC05CB999D46EDF");
+
+            entity.ToTable("InvoicesVersions", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.DueAmount).HasColumnType("decimal(12, 2)");
+            entity.Property(e => e.GrandTotal).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.InvoiceDate).HasColumnType("datetime");
+            entity.Property(e => e.InvoiceNote).HasMaxLength(200);
+            entity.Property(e => e.InvoiceNumber).HasMaxLength(20);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.OtherReference).HasMaxLength(200);
+            entity.Property(e => e.PaidAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.SubTotal).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.VatAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.VatPercentage).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.Version).HasDefaultValue(1);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InvoicesVersionsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__InvoicesV__Creat__457F2FDE");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.InvoicesVersions)
+                .HasForeignKey(d => d.CustomerID)
+                .HasConstraintName("FK__InvoicesV__Custo__46735417");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.InvoicesVersionsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__InvoicesV__Delet__47677850");
+
+            entity.HasOne(d => d.IBaseBillingAddress).WithMany(p => p.InvoicesVersionsIBaseBillingAddress)
+                .HasForeignKey(d => d.IBaseBillingAddressID)
+                .HasConstraintName("FK__InvoicesV__IBase__485B9C89");
+
+            entity.HasOne(d => d.IBaseShippingAddress).WithMany(p => p.InvoicesVersionsIBaseShippingAddress)
+                .HasForeignKey(d => d.IBaseShippingAddressID)
+                .HasConstraintName("FK__InvoicesV__IBase__494FC0C2");
+
+            entity.HasOne(d => d.Invoice).WithMany(p => p.InvoicesVersions)
+                .HasForeignKey(d => d.InvoiceID)
+                .HasConstraintName("FK_Invoices_InvoiceID_InvoicesVersions");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InvoicesVersionsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__InvoicesV__Updat__4A43E4FB");
+        });
+
         modelBuilder.Entity<JobTeamActivities>(entity =>
         {
             entity.HasKey(e => e.JobTeamActivityID).HasName("PK__JobTeamA__01F3E134AC99DCF0");
@@ -4887,6 +5075,108 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__PostingRu__Updat__3F1C4B12");
         });
 
+        modelBuilder.Entity<PriceQuotationVersionItems>(entity =>
+        {
+            entity.HasKey(e => e.PriceQuotationVersionItemID).HasName("PK__PriceQuo__F95C0B40FE88B89C");
+
+            entity.ToTable("PriceQuotationVersionItems", "SC");
+
+            entity.Property(e => e.Area).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Rate).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PriceQuotationVersionItemsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PriceQuot__Creat__53CD4F35");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PriceQuotationVersionItemsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PriceQuot__Delet__54C1736E");
+
+            entity.HasOne(d => d.PriceQuotationVersion).WithMany(p => p.PriceQuotationVersionItems)
+                .HasForeignKey(d => d.PriceQuotationVersionID)
+                .HasConstraintName("FK_PriceQuotations_PriceQuotationID_PriceQuotationItems");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PriceQuotationVersionItemsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PriceQuot__Updat__56A9BBE0");
+        });
+
+        modelBuilder.Entity<PriceQuotationVersions>(entity =>
+        {
+            entity.HasKey(e => e.PriceQuotationVersionID).HasName("PK__PriceQuo__2B4F81DEE6B07E8E");
+
+            entity.ToTable("PriceQuotationVersions", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Note).HasMaxLength(20);
+            entity.Property(e => e.OtherNumber).HasMaxLength(30);
+            entity.Property(e => e.QuotationDate).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.VatPercentage).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.Version).HasDefaultValue(1);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PriceQuotationVersionsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PriceQuot__Creat__58920452");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.PriceQuotationVersions)
+                .HasForeignKey(d => d.CustomerID)
+                .HasConstraintName("FK__PriceQuot__Custo__5A7A4CC4");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PriceQuotationVersionsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PriceQuot__Delet__5C629536");
+
+            entity.HasOne(d => d.PriceQuotation).WithMany(p => p.PriceQuotationVersions)
+                .HasForeignKey(d => d.PriceQuotationID)
+                .HasConstraintName("FK_Product_PriceQuotationID_PriceQuotationVersions");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PriceQuotationVersionsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PriceQuot__Updat__5E4ADDA8");
+        });
+
+        modelBuilder.Entity<PriceQuotations>(entity =>
+        {
+            entity.HasKey(e => e.PriceQuotationID).HasName("PK__PriceQuo__1FEA68373C154818");
+
+            entity.ToTable("PriceQuotations", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.QuotationNumber).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PriceQuotationsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PriceQuot__Creat__50F0E28A");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PriceQuotationsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PriceQuot__Delet__51E506C3");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PriceQuotationsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PriceQuot__Updat__52D92AFC");
+        });
+
         modelBuilder.Entity<Priorities>(entity =>
         {
             entity.HasKey(e => e.PriorityID).HasName("PK__Prioriti__D0A3D0DE062AF9E9");
@@ -5103,6 +5393,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("ProductCategories", "SC");
 
+            entity.Property(e => e.CategoryCode).HasMaxLength(5);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -5707,6 +5998,113 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SalaryTypesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__SalaryTyp__Updat__7DB89C09");
+        });
+
+        modelBuilder.Entity<SalesOrderVersionItems>(entity =>
+        {
+            entity.HasKey(e => e.SalesOrderVersionItemID).HasName("PK__SalesOrd__F5A7197F1BA2697D");
+
+            entity.ToTable("SalesOrderVersionItems", "SC");
+
+            entity.Property(e => e.Area).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Quantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Rate).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.SalesOrderVersionItemsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__SalesOrde__Creat__69BC9054");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.SalesOrderVersionItemsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__SalesOrde__Delet__6AB0B48D");
+
+            entity.HasOne(d => d.SalesOrdersVersion).WithMany(p => p.SalesOrderVersionItems)
+                .HasForeignKey(d => d.SalesOrdersVersionID)
+                .HasConstraintName("FK__SalesOrde__Sales__6BA4D8C6");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SalesOrderVersionItemsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__SalesOrde__Updat__6D8D2138");
+        });
+
+        modelBuilder.Entity<SalesOrders>(entity =>
+        {
+            entity.HasKey(e => e.SalesOrdersID).HasName("PK__SalesOrd__9A2B5DE42608822F");
+
+            entity.ToTable("SalesOrders", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.SalesOrderNumber).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.SalesOrdersCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__SalesOrde__Creat__61274A53");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.SalesOrdersDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__SalesOrde__Delet__621B6E8C");
+
+            entity.HasOne(d => d.PriceQuotation).WithMany(p => p.SalesOrders)
+                .HasForeignKey(d => d.PriceQuotationID)
+                .HasConstraintName("FK__SalesOrde__Price__630F92C5");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SalesOrdersUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__SalesOrde__Updat__6403B6FE");
+        });
+
+        modelBuilder.Entity<SalesOrdersVersions>(entity =>
+        {
+            entity.HasKey(e => e.SalesOrdersVersionID).HasName("PK__SalesOrd__475F87E4E79EAFEF");
+
+            entity.ToTable("SalesOrdersVersions", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Note).HasMaxLength(200);
+            entity.Property(e => e.SalesOrderDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.VatPercentage).HasColumnType("decimal(5, 2)");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.SalesOrdersVersionsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__SalesOrde__Creat__64F7DB37");
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.SalesOrdersVersions)
+                .HasForeignKey(d => d.CustomerID)
+                .HasConstraintName("FK__SalesOrde__Custo__65EBFF70");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.SalesOrdersVersionsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__SalesOrde__Delet__66E023A9");
+
+            entity.HasOne(d => d.SalesOrders).WithMany(p => p.SalesOrdersVersions)
+                .HasForeignKey(d => d.SalesOrdersID)
+                .HasConstraintName("FK_SalesOrders_SalesOrdersID_SalesOrdersVersions");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SalesOrdersVersionsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__SalesOrde__Updat__67D447E2");
         });
 
         modelBuilder.Entity<ServiceYears>(entity =>
@@ -6406,6 +6804,37 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UnitTypesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__UnitTypes__Updat__7948ECA7");
+        });
+
+        modelBuilder.Entity<UnitTypes1>(entity =>
+        {
+            entity.HasKey(e => e.UnitTypeID).HasName("PK__UnitType__1B7AB91410C127FF");
+
+            entity.ToTable("UnitTypes", "Settings");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UnitFor)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.UnitTypeName).HasMaxLength(200);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.UnitTypes1CreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__UnitTypes__Creat__715DB21C");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.UnitTypes1DeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__UnitTypes__Delet__7251D655");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UnitTypes1UpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__UnitTypes__Updat__7345FA8E");
         });
 
         modelBuilder.Entity<UserVisitLogs>(entity =>

@@ -1,0 +1,387 @@
+﻿@model GCTL.Core.ViewModels.Sales.PriceQuotationDetails.PriceQuotationDetailsViewModel
+@{
+    var sidebarData = ViewBag.SidebarData as GCTL.Core.ViewModels.Sales.PriceQuotationDetails.QuotationSidebarDetailsViewModel;
+
+    var isEditMode = ViewBag.IsEditMode ?? false; // Check if we're in edit mode
+}
+
+<div class="row">
+    <div class="row col-xl-12 border-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <p class="mb-1 fw-lighter fs-5">Price Quotation</p>
+            <a class="btn btn-primary" href="/PriceQuotationList/Index">Back to List</a>
+        </div>
+    </div>
+</div>
+
+<div class="">
+    @if (isEditMode)
+    {
+        <!-- EDIT MODE - Form with editable fields -->
+        <form asp-action="Save" method="post" id="quotationForm">
+            <input asp-for="Id" type="hidden" />
+
+            <div class="row mb-4">
+                <div class="col-xl-9">
+                    <div class="card pt-4 p-5 mb-3" style="min-height: 1000px;">
+                        
+                        <div class="row col-xl-12">
+                            <p class="mb-1 fw-bold fs-7">Quotation</p>
+                            <p class="mb-2 fw-lighter fs-9">
+                                Quotation details appear in your invoice. Invoice Date is used in the dashboard and reports.
+                                Select the date you expect to get paid as the Due Date.
+                            </p>
+                            <div class="border-bottom border-2"></div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="row justify-content-between">
+                                    
+                                    <!-- Customer Dropdown -->
+                                    <div class="col-xl-5">
+                                        <div class="mt-2">
+                                            <div class="d-flex gap-3">
+                                                <div class="col-md-12">
+                                                    <input asp-for="SelectedCustomerId" type="hidden" id="selectedCustomerId" />
+
+                                                    <button type="button" class="btn border border-github py-5 px-10 mt-4" id="showUserDropdownBtn">
+                                                        <i class="fa fa-user fs-3 mb-2"></i>
+                                                        <p>+ Add User</p>
+                                                    </button>
+
+                                                    <div id="userDropdownContainer" style="display:none;">
+                                                        <label class="form-label">Select Customer</label>
+                                                        <select id="customerDropdown" class="form-select">
+                                                            <option value="">-- Select Customer --</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <script type="application/json" id="customersData">
+                                                        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Customers))
+                                                    </script>
+                                                    <input type="hidden" id="preSelectedCustomerId" value="@(Model.SelectedCustomerId?.ToString() ?? "")" />
+
+                                                    <div id="userInfo" class="card mb-3 mt-3" style="display:none;">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title mb-2">Billing Information</h5>
+                                                            <div class="d-flex">
+                                                                <div class="me-auto">
+                                                                    <p class="mb-1 fs-9 info-company"></p>
+                                                                    <p class="mb-1 fs-9 info-addr1"></p>
+                                                                    <p class="mb-1 fs-9 info-addr2"></p>
+                                                                </div>
+                                                                <div class="mx-auto">
+                                                                    <p class="mb-1 fs-9 info-tax"></p>
+                                                                    <p class="mb-1 fs-9 info-phone"></p>
+                                                                    <p class="mb-1 fs-9 info-email"></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Quotation Details -->
+                                    <div class="col-xl-7">
+                                        <div class="row mt-3">
+                                            <div class="col-xl-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Quotation Number</label>
+                                                    <input asp-for="InvoiceNumber" id="quotationNumber" class="form-control" readonly />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Quotation Date</label>
+                                                    <input asp-for="InvoiceDate" class="form-control" type="date" />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Other Number</label>
+                                                    <input asp-for="OtherNumber" class="form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Items Table -->
+                        <div class="col-xl-12 mt-3">
+                            <table class="table" id="itemsTable" style="border-bottom: 0px solid #ffffff00;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">SL</th>
+                                        <th class="text-center">Description</th>
+                                        <th class="text-center">Unit</th>
+                                        <th class="text-center">Area</th>
+                                        <th class="text-center">Rate (BDT)</th>
+                                        <th class="text-end">Amount (BDT)</th>
+                                        <th style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Items.Count; i++)
+                                    {
+                                        <tr data-index="@i">
+                                            <td class="fs-8 text-center align-middle">@(i + 1)</td>
+                                            <td><input asp-for="Items[i].Description" class="form-control" /></td>
+                                            <td>
+                                                <select asp-for="Items[i].Unit" class="form-select unitDD searchableSelect" asp-items="ViewBag.Unit">
+                                                    <option value="">-- Select Unit --</option>
+                                                </select>
+                                            </td>
+                                            <td><input asp-for="Items[i].Area" class="form-control calc" type="number" step="any" /></td>
+                                            <td><input asp-for="Items[i].Rate" class="form-control calc" type="number" step="any" /></td>
+                                            <td class="amount text-end align-middle">@Model.Items[i].AmountPerPercent.ToString("N2")</td>
+                                            <td class="text-center align-middle">
+                                                <button type="button" class="btn btn-sm btn-outline-danger mx-2 remove-item">
+                                                    <i class="far fa-trash-alt text-black"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td colspan="8" class="text-center">
+                                            <a id="add-item-btn" class="text-primary py-2" role="button" style="cursor:pointer;">
+                                                + Add an Item
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" class="text-end fs-9 fw-bold">Sub Total Taka.</td>
+                                        <td colspan="2" class="text-center fs-9 fw-bold" id="subTotal">@Model.SubTotal.ToString("N2")</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" class="text-end fs-9 py-2">
+                                            <div class="d-flex justify-content-end">
+                                                <div class="mx-2 mt-2">Deduction of Retention Money (VAT)</div>
+                                                <div><input asp-for="RetentionPercent" id="retentionPercent" class="form-control vatPercent" type="number" step="any" /></div>
+                                            </div>
+                                        </td>
+                                        <td colspan="2" class="text-center fs-9" id="retention">@((Model.RetentionAmount ?? 0).ToString("N2"))</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5" class="text-end h5">Grand Total Taka</td>
+                                        <td colspan="2" class="text-center h5" id="grandTotal">@((Model.GrandTotal ?? 0).ToString("N2"))</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Note -->
+                        <div class=" col-xl-12 mb-3">
+                            <p class="mb-1 fw-bold fs-8">Note</p>
+                            <div class="">
+                                <textarea asp-for="Note" class="form-control" rows="3" placeholder="Add any additional notes here..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class=" col-xl-12 mb-3">
+                            <div class="d-flex justify-content-end">
+                                <a href="@Url.Action("Index", "PriceQuotationDetails", new { id = Model.Id })" class="btn btn-secondary me-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary ">Save Quotation</button>
+
+                                @*<button type="button" class="btn btn-secondary me-2" id="clearFormBtn">Clear</button>
+                                <button type="button" class="btn btn-info" id="sendToBtn">Send To</button>*@
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                @if (sidebarData != null)
+                {
+                    <partial name="_QuotationSidebar" model="sidebarData" />
+                }
+            </div>
+        </form>
+    }
+    else
+    {
+        <!-- READ-ONLY MODE - Display only -->
+        <div class="row mb-4">
+            <div class="col-xl-9">
+                <div class="card pt-4 p-5 mb-3" style="min-height: 1000px;">
+
+                    <div class="row col-xl-12">
+                        <p class="mb-1 fw-bold fs-7">Quotation Details</p>
+                        <div class="border-bottom border-2"></div>
+                    </div>
+
+                    <div class="row mb-3 mt-3">
+                        <div class="col-md-12">
+                            <div class="row">
+
+                                <!-- Customer Info -->
+                                <div class="col-xl-6">
+                                    <div class="card mb-3" style="min-height: 165px;">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-2">Billing Information</h5>
+                                            <p class="mb-1 fs-9"><strong>Company:</strong> @Model.CustomerData.CompanyName </p>
+                                            <p class="mb-1 fs-9"><strong>Address:</strong> @Model.CustomerData.AddressLine1</p>
+                                            <p class="mb-1 fs-9"><strong>Phone:</strong> @Model.CustomerData.Phone</p>
+                                            <p class="mb-1 fs-9"><strong>Email:</strong> @Model.CustomerData.Email</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Quotation Info -->
+                                <div class="col-xl-6">
+                                    <div class="card pb-1 ps-2 p-3 mb-3" style="min-height: 165px;">
+                                        <div class="row">
+
+                                            <div class="col-6">
+                                                <div class="">
+                                                    <label class="form-label fw-bold">Quotation Number</label>
+                                                    <p class="fs-8 ms-3">@Model.InvoiceNumber</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                @if (!string.IsNullOrEmpty(Model.OtherNumber))
+                                                {
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Other Number</label>
+                                                        <p class="fs-8 ms-3">@Model.OtherNumber</p>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Quotation Date</label>
+                                                    <p class="fs-8 ms-3">@Model.InvoiceDate?.ToString("MMM dd, yyyy")</p>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                       
+                                        
+                                      
+                                    </div>
+                                </div>
+                                </div>
+                        </div>
+                    </div>
+
+                    <!-- Items Table (Read-only) -->
+                    <div class="col-xl-12 mt-3">
+                        <table class="table" style="border-bottom: 0px solid #ffffff00;"">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">SL</th>
+                                    <th>Description</th>
+                                    <th class="text-center">Unit</th>
+                                    <th class="text-center">Area</th>
+                                    <th class="text-center">Rate (BDT)</th>
+                                    <th class="text-center">Amount (BDT)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Items.Count; i++)
+                                {
+                                    <tr>
+                                        <td class="fs-8 text-center align-middle">@(i + 1)</td>
+                                        <td>@Model.Items[i].Description</td>
+                                        <td class="text-center">@Model.Items[i].UnitName?.ToString()</td>
+                                        <td class="text-center">@Model.Items[i].Area.ToString("N2")</td>
+                                        <td class="text-center">@Model.Items[i].Rate.ToString("N2")</td>
+                                        <td class="text-end">@Model.Items[i].AmountPerPercent.ToString("N2")</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td colspan="5" class="text-end fs-9 fw-bold">Sub Total Taka.</td>
+                                    <td class="text-end fs-9 fw-bold">@Model.SubTotal.ToString("N2")</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" class="text-end fs-9">Deduction of Retention Money (VAT) - @Model.RetentionPercent%</td>
+                                    <td class="text-end fs-9">@((Model.RetentionAmount ?? 0).ToString("N2"))</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" class="text-end h5">Grand Total Taka</td>
+                                    <td class="text-end h5">@((Model.GrandTotal ?? 0).ToString("N2"))</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Note (Read-only) -->
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <div class=" col-xl-12 mb-3">
+                            <p class="mb-1 fw-bold fs-8">Note</p>
+                            <div class="">
+                                <p class="fs-9">@Model.Note</p>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="">
+                       
+                            <div class="d-flex justify-content-end gap-2 align-items-center">
+                                <p class="mb-1 fw-lighter fs-5"></p>
+                                @if (!isEditMode && sidebarData != null && sidebarData.CanEdit)
+                                {
+                                    <a href="@Url.Action("Edit", "PriceQuotationDetails", new { id = Model.Id })" class="btn btn-primary">
+                                        <i class="fa fa-edit me-1"></i> Edit Quotation
+                                    </a>
+
+                                    @*<a href="@Url.Action("SetDefault", "PriceQuotationDetails", new { id = Model.Id })" class="btn btn-primary">
+                                        <i class="fa fa-circle me-1"></i> Set As Default
+                                    </a>*@
+                                }
+                            </div>
+                       
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            @if (sidebarData != null)
+            {
+                <partial name="_QuotationSidebar" model="sidebarData" />
+            }
+            else
+            {
+                <!-- Fallback for new quotations -->
+                <div class="col-md-3 mb-4">
+                    <div class="card mb-3" style="min-height: 1000px;">
+                        <div class="card-body">
+                            <div class="alert alert-warning" role="alert">
+                                Save the quotation to see sidebar options.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/pages/Sales/PriceQuotationDetails.js"></script>
+    <script src="~/js/pages/Sales/QuotationSidebarActions.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    @if (!isEditMode)
+    {
+        <script>
+            // Helper function for save button in sidebar alert
+            function saveQuotation() {
+                window.location.href = '@Url.Action("Edit", "PriceQuotationDetails", new { id = Model.Id })';
+            }
+        </script>
+    }
+}
+

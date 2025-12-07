@@ -1,0 +1,256 @@
+﻿@model GCTL.Core.ViewModels.Sales.PriceQuotationDetails.QuotationSidebarDetailsViewModel
+
+
+
+<div class="col-md-3 mb-4">
+    <div class="card mb-3" style="min-height: 1000px;">
+        <div class="card-body">
+
+            <div class="invoice-card">
+
+                <div>
+                    @if (Model.Status == GCTL.Core.Enums.QuotationStatus.Draft)
+                    {
+                        <div class="alert alert-subtle-warning" role="alert">
+                            Quotation in draft mode Click<a class="text-decoration-none" href="javascript:void(0)" onclick="saveQuotation()"> Save </a> to Confirm
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.QuotationStatus.Sent)
+                    {
+                        <div class="alert alert-subtle-primary" role="alert">
+                            Quotation sent to customer. Awaiting approval.
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.QuotationStatus.Approved)
+                    {
+                        <div class="alert alert-subtle-success" role="alert">
+                            Quotation approved. Ready to convert to Work Order.
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.QuotationStatus.Converted)
+                    {
+                        <div class="alert alert-subtle-info" role="alert">
+                            Quotation converted to Work Order.
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.QuotationStatus.Rejected)
+                    {
+                        <div class="alert alert-subtle-danger" role="alert">
+                            Quotation rejected by customer.
+                        </div>
+                    }
+                </div>
+
+                <div class="accordion" id="accordionExample">
+                    
+                    <!-- Create Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingCreate">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreate" aria-expanded="true" aria-controls="collapseCreate">
+                                Create
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseCreate" aria-labelledby="headingCreate" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9" id="createPerson">
+                                    <strong>Created By:</strong> @Model.CreatedByName <br />
+                                    <strong>Created At:</strong> @Model.CreatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    @if (!string.IsNullOrEmpty(Model.UpdatedByName))
+                                    {
+                                        <br />
+                                        <strong>Updated By:</strong> @Model.UpdatedByName <br />
+                                        <strong>Updated At:</strong> @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingEdit">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEdit" aria-expanded="true" aria-controls="collapseEdit">
+                                Edit
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseEdit" aria-labelledby="headingEdit" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9">
+                                    Quotation Number: @Model.QuotationNumber <br>
+                                    @if (Model.CanEdit)
+                                    {
+                                        @foreach (var item in Model.QuotationIdList)
+                                        {
+                                            if (item.current == "current")
+                                            {
+                                                <a href="#" style="color: black;text-decoration: none;">Version @item.version</a> @item.draftSign @item.finalSign <br>
+                                            }
+                                            else
+                                            {
+                                                <a href="@Url.Action("Index", "PriceQuotationDetails", new { id = item.id })">Version @item.version</a> @item.draftSign @item.finalSign <br>
+                                            }
+
+
+                                        }
+
+
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Cannot edit (Status: @Model.StatusDisplay)</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Duplicate Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingDuplicate">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuplicate" aria-expanded="true" aria-controls="collapseDuplicate">
+                                Duplicate
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseDuplicate" aria-labelledby="headingDuplicate" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9">
+                                    Quotation Number: @Model.QuotationNumber <br>
+                                    <a href="javascript:void(0)" onclick="duplicateQuotation(@Model.QuotationId)">Create Duplicate</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Work Order Section -->
+                    @if (Model.HasWorkOrder)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingWorkOrder">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWorkOrder" aria-expanded="true" aria-controls="collapseWorkOrder">
+                                    Work Order
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseWorkOrder" aria-labelledby="headingWorkOrder" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <span class="fs-9">Work Order Number: <a href="@Url.Action("Index", "WorkOrder", new { id = Model.WorkOrderId })">@Model.WorkOrderNumber</a></span><br>
+                                    <span class="fs-9">Status: Converted</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (Model.CanConvertToWorkOrder)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingWorkOrder">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWorkOrder" aria-expanded="true" aria-controls="collapseWorkOrder">
+                                    Work Order
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseWorkOrder" aria-labelledby="headingWorkOrder" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" onclick="convertToWorkOrder(@Model.QuotationId)">Convert to Work Order</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Delivery Chalan Section (For future when Work Order is created) -->
+                    @if (Model.HasWorkOrder)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingChalan">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChalan" aria-expanded="true" aria-controls="collapseChalan">
+                                    Delivery Chalan
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseChalan" aria-labelledby="headingChalan" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">View chalans in Work Order page</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Send Email Section -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingEmail">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEmail" aria-expanded="true" aria-controls="collapseEmail">
+                                Send Email
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseEmail" aria-labelledby="headingEmail" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                @if (Model.CanSendEmail)
+                                {
+                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" data-bs-toggle="modal" data-bs-target="#showSendModal"><i class="far fa-envelope" aria-hidden="true"></i> </a>
+                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" onclick="printQuotation(@Model.QuotationId)"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                }
+                                else
+                                {
+                                    <p class="fs-9 text-muted">Already converted to Work Order</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Actions (Mark as Approved, etc.) -->
+                    @if (Model.Status == GCTL.Core.Enums.QuotationStatus.Draft)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingStatus">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStatus" aria-expanded="true" aria-controls="collapseStatus">
+                                    Status Actions
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseStatus" aria-labelledby="headingStatus" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" onclick="markAsApproved(@Model.QuotationId)">Mark as Approved</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send Email Modal -->
+<div class="modal fade" id="showSendModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Send Quotation via Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Recipient Email</label>
+                    <input type="email" class="form-control" id="recipientEmail" placeholder="customer@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-control" id="emailSubject" value="Price Quotation - @Model.QuotationNumber">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-control" id="emailMessage" rows="5">Dear Customer,
+
+Please find attached the price quotation for your review.
+
+Best regards</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="sendEmailNow(@Model.QuotationId)">Send Email</button>
+            </div>
+        </div>
+    </div>
+</div>

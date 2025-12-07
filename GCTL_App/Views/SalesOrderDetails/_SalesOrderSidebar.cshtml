@@ -1,0 +1,222 @@
+﻿@model GCTL.Core.ViewModels.Sales.SalesOrders.SalesOrderSidebarDetailsViewModel
+
+<div class="col-md-3 mb-4">
+    <div class="card mb-3" style="min-height: 1000px;">
+        <div class="card-body">
+            <div class="invoice-card">
+                <div class="accordion" id="accordionExample">
+
+                    <!-- Create Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingCreate">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreate" aria-expanded="true" aria-controls="collapseCreate">
+                                Create
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseCreate" aria-labelledby="headingCreate" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9" id="createPerson">
+                                    <strong>Created By:</strong> @Model.CreatedByName <br />
+                                    <strong>Created At:</strong> @Model.CreatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    @if (!string.IsNullOrEmpty(Model.UpdatedByName))
+                                    {
+                                        <br />
+                                        <strong>Updated By:</strong> @Model.UpdatedByName <br />
+                                        <strong>Updated At:</strong> @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingEdit">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEdit" aria-expanded="true" aria-controls="collapseEdit">
+                                Edit
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseEdit" aria-labelledby="headingEdit" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9">
+                                    Sales Order Number: @Model.SalesOrderNumber <br>
+                                    @if (Model.CanEdit)
+                                    {
+                                        @foreach (var item in Model.SalesOrderIdList)
+                                        {
+                                            if (item.current == "current")
+                                            {
+                                                <a href="#" style="color: black;text-decoration: none;">Version @item.version</a> @item.draftSign @item.finalSign <br>
+                                            }
+                                            else
+                                            {
+                                                <a href="@Url.Action("Edit", "SalesOrderDetails", new { id = item.id })">Version @item.version</a> @item.draftSign @item.finalSign <br>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Cannot edit</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Duplicate Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingDuplicate">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuplicate" aria-expanded="true" aria-controls="collapseDuplicate">
+                                Duplicate
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseDuplicate" aria-labelledby="headingDuplicate" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9">
+                                    Sales Order Number: @Model.SalesOrderNumber <br>
+                                    <a href="javascript:void(0)" onclick="duplicateSalesOrder(@Model.SalesOrderId)">Create Duplicate</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Source Quotation Section -->
+                    @if (!string.IsNullOrEmpty(Model.QuotationNumber))
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingQuotation">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQuotation" aria-expanded="true" aria-controls="collapseQuotation">
+                                    Source Quotation
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseQuotation" aria-labelledby="headingQuotation" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        Quotation Number: @Model.QuotationNumber
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Send Email Section -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingEmail">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEmail" aria-expanded="true" aria-controls="collapseEmail">
+                                Send Email
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseEmail" aria-labelledby="headingEmail" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                @if (Model.CanSendEmail)
+                                {
+                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" data-bs-toggle="modal" data-bs-target="#showSendModal">
+                                        <i class="far fa-envelope" aria-hidden="true"></i>
+                                    </a>
+                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" onclick="printSalesOrder(@Model.SalesOrderId)">
+                                        <i class="fa fa-print" aria-hidden="true"></i>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send Email Modal -->
+<div class="modal fade" id="showSendModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Send Sales Order via Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Recipient Email</label>
+                    <input type="email" class="form-control" id="recipientEmail" placeholder="customer@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-control" id="emailSubject" value="Sales Order - @Model.SalesOrderNumber">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-control" id="emailMessage" rows="5">Dear Customer,
+
+Please find attached the sales order for your review.
+
+Best regards</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="sendEmailNow(@Model.SalesOrderId)">Send Email</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function duplicateSalesOrder(salesOrderId) {
+    if (confirm('Are you sure you want to duplicate this sales order?')) {
+        $.ajax({
+            url: '/SalesOrderDetails/Duplicate',
+            method: 'POST',
+            data: { id: salesOrderId },
+            success: function (response) {
+                if (response.success) {
+                    toastr.success('Sales Order duplicated successfully!');
+                    window.location.href = '/SalesOrderDetails/Index/' + response.newSalesOrderId;
+                } else {
+                    toastr.error('Failed to duplicate: ' + response.message);
+                }
+            },
+            error: function () {
+                toastr.error('Failed to duplicate sales order.');
+            }
+        });
+    }
+}
+
+function sendEmailNow(salesOrderId) {
+    const recipient = $('#recipientEmail').val();
+    const subject = $('#emailSubject').val();
+    const message = $('#emailMessage').val();
+
+    if (!recipient) {
+        toastr.warning('Please enter recipient email address');
+        return;
+    }
+
+    $.ajax({
+        url: '/SalesOrderDetails/SendEmail',
+        method: 'POST',
+        data: {
+            id: salesOrderId,
+            recipientEmail: recipient,
+            subject: subject,
+            message: message
+        },
+        success: function (response) {
+            if (response.success) {
+                toastr.success('Email sent successfully!');
+                $('#showSendModal').modal('hide');
+            } else {
+                toastr.error('Failed to send email: ' + response.message);
+            }
+        },
+        error: function () {
+            toastr.error('Failed to send email.');
+        }
+    });
+}
+
+function printSalesOrder(salesOrderId) {
+    window.open('/SalesOrderDetails/PrintPDF/' + salesOrderId, '_blank');
+}
+</script>

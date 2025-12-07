@@ -5,11 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class ProductCategories
+public partial class Invoices
 {
-    public int ProductCategoryID { get; set; }
+    public int InvoiceID { get; set; }
 
-    public string? ProductCategoryName { get; set; }
+    public int? SalesOrdersID { get; set; }
+
+    public string InvoiceNumber { get; set; } = null!;
 
     public string? LIP { get; set; }
 
@@ -27,13 +29,13 @@ public partial class ProductCategories
 
     public int? DeletedBy { get; set; }
 
-    public string? CategoryCode { get; set; }
-
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Products> Products { get; set; } = new List<Products>();
+    public virtual ICollection<InvoicesVersions> InvoicesVersions { get; set; } = new List<InvoicesVersions>();
+
+    public virtual SalesOrders? SalesOrders { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

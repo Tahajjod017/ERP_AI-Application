@@ -1,4 +1,6 @@
 ﻿#region References
+using System;
+using System.Data;
 using GCTL.Core.Configurations;
 using GCTL.Core.Helpers.AttendenceHelper;
 using GCTL.Core.Helpers.CommonSelectMasterDropDown;
@@ -48,7 +50,6 @@ using GCTL.Service.CRM.LeadCreate;
 using GCTL.Service.CRM.LeadDetail;
 using GCTL.Service.CRM.LeadsActivities;
 using GCTL.Service.ElementPermission;
-
 using GCTL.Service.Employees.EmployeeAdditional;
 using GCTL.Service.Employees.EmployeeAllowance;
 using GCTL.Service.Employees.EmployeeBenifit;
@@ -125,12 +126,16 @@ using GCTL.Service.PayRollManagements.PayRollSettings;
 using GCTL.Service.POS.Product;
 using GCTL.Service.POS.Product.ServiceProduct;
 using GCTL.Service.RolePermissions;
+using GCTL.Service.Sales.InvoiceF;
+using GCTL.Service.Sales.InvoiceListF;
+using GCTL.Service.Sales.PriceQuotation;
+using GCTL.Service.Sales.PriceQuotationList;
+using GCTL.Service.Sales.SalesOrderList;
+using GCTL.Service.Sales.SalesOrdersF;
 using GCTL.Service.UserProfile;
 using GCTL.Service.VisitingPath;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Data;
 
 
 #endregion
@@ -340,6 +345,22 @@ namespace GCTL_App.Extensions
             services.AddScoped<IJobTypeService, JobTypeService>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IOrganizationTypeService, OrganizationTypeService>();
+            #endregion
+
+
+            #region Sales
+
+            services.AddScoped<IPriceQuotation, PriceQuotationService>();
+            services.AddScoped<IPriceQuotationList, PriceQuotationListService>();
+
+            services.AddScoped<ISalesOrder, SalesOrderService>();
+            services.AddScoped<ISalesOrderList, SalesOrderListService>();
+
+            services.AddScoped<IInvoice, InvoiceService>();
+            services.AddScoped<IInvoiceList, InvoiceListService>();
+
+
+
             #endregion
 
             services.AddHostedService<ScheduledTaskService>();

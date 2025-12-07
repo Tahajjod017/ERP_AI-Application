@@ -679,6 +679,34 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[InvoiceBaseCAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[Invoices]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[InvoicesVersions]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[InvoiceVersionItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[PriceQuotations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[PriceQuotationVersionItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[PriceQuotationVersions]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[ProductAdvancedPricing]",
          "ObjectType": 0
       },
@@ -719,6 +747,18 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[SalesOrders]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[SalesOrdersVersions]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[SalesOrderVersionItems]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[UnitTypes]",
          "ObjectType": 0
       },
@@ -752,6 +792,10 @@
       },
       {
          "Name": "[Settings].[Timezones]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Settings].[UnitTypes]",
          "ObjectType": 0
       },
       {

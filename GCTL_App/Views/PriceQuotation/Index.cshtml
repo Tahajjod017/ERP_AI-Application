@@ -1,0 +1,278 @@
+﻿@model GCTL.Core.ViewModels.Sales.PriceQuotation.PriceQuotationViewModel
+@{
+    ViewData["Title"] = "Price Quotation";
+}
+<div class="row mb-1">
+    <div class="row col-xl-12 border-2">
+        <p class="mb-2 fw-lighter fs-5">Price Quotation</p>
+    </div>
+</div>
+
+<div class="p-4 bg-body-emphasis">
+    <form asp-action="Save" method="post" id="quotationForm">
+        <!-- hidden fields for binding -->
+        <input asp-for="Id" type="hidden" />
+       
+
+      
+        <div class="row mb-4 mt-3">
+            <div class="row col-xl-12">
+                <p class="mb-1 fw-bold fs-7">Quotation</p>
+                <p class="mb-2 fw-lighter fs-9">
+                    Quotation details appear in your invoice. Invoice Date is used in the dashboard and reports.
+                    Select the date you expect to get paid as the Due Date.
+                </p>
+                <div class="border-bottom border-2"></div>
+            </div>
+
+
+            <div class="row mb-3">
+                <div class="col-xl-12">
+                    <div class="row justify-content-between">
+
+                        <!-- USER DROPDOWN -->
+                        <div class="col-xl-5">
+                            <div class="mt-2">
+                                <div class="d-flex gap-3">
+                                    <div class="col-md-12">
+
+                                        <input asp-for="SelectedCustomerId" type="hidden" id="selectedCustomerId" />
+
+                                        <button type="button" class="btn border border-github py-5 px-10 mt-4" id="showUserDropdownBtn">
+                                            <i class="fa fa-user fs-3 mb-2"></i>
+                                            <p>+ Add User</p>
+                                        </button>
+
+
+                                        <div id="userDropdownContainer" style="display:none;">
+                                            <label class="form-label">Select Customer</label>
+                                            <select id="customerDropdown" class="form-select">
+                                                <option value="">-- Select Customer --</option>
+                                            </select>
+
+
+                                            @*<button type="button" class="btn btn-link ps-0 mt-2" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                            + Add New Customer
+                                        </button>*@
+
+
+                                        </div>
+
+
+                                        <script type="application/json" id="customersData">
+                                            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Customers))
+                                        </script>
+                                        <input type="hidden" id="preSelectedCustomerId" value="@(Model.SelectedCustomerId?.ToString() ?? "")" />
+
+
+                                        <div id="userInfo" class="card mb-3 mt-3" style="display:none;">
+                                            <div class="card-body">
+                                                <h5 class="card-title mb-2">Billing Information</h5>
+                                                @*<p class="mb-1 fs-9 fw-bold">Bill To</p>*@
+                                                <div class="d-flex">
+                                                    <div class="me-auto">
+                                                        <p class="mb-1 fs-9 info-company"></p>
+                                                        <p class="mb-1 fs-9 info-addr1"></p>
+                                                        <p class="mb-1 fs-9 info-addr2"></p>
+                                                    </div>
+                                                    <div class="mx-auto">
+                                                        <p class="mb-1 fs-9 info-tax"></p>
+                                                        <p class="mb-1 fs-9 info-phone"></p>
+                                                        <p class="mb-1 fs-9 info-email"></p>
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="modal fade" id="addUserModal" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Add New Customer</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Company Name *</label>
+                                                    <input type="text" class="form-control" id="newCompanyName" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Contact Name</label>
+                                                    <input type="text" class="form-control" id="newContactName">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Email</label>
+                                                    <input type="email" class="form-control" id="newEmail">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Phone Number</label>
+                                                    <input type="tel" class="form-control" id="newPhone">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Address Line 1</label>
+                                                    <input type="text" class="form-control" id="newAddress1">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Address Line 2</label>
+                                                    <input type="text" class="form-control" id="newAddress2">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Tax Number</label>
+                                                    <input type="text" class="form-control" id="newTaxNumber">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="button" class="btn btn-primary" id="saveNewCustomerBtn">Save Customer</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-xl-7">
+                            <div class="row mt-3">
+
+                                <div class="col-xl-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Quotation Number</label>
+                                        <input asp-for="InvoiceNumber" id="quotationNumber" class="form-control" readonly/>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Quotation Date</label>
+                                        <input asp-for="InvoiceDate" class="form-control" type="date" />
+                                    </div>
+                                </div>
+
+                                @*<div class="col-xl-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Due Date</label>
+                                    <input asp-for="DueDate" class="form-control" type="date" />
+                                </div>
+                            </div>*@
+                                <div class="col-xl-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Other Number</label>
+                                        <input asp-for="OtherNumber" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-xl-12 mt-3">
+                <table class="table " id="itemsTable" style="border-bottom: 0px solid #ffffff00;">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">SL</th>
+                            <th class="text-center">Description</th>
+                            <th class="text-center">Unit</th>
+                            <th class="text-center">Area</th>
+                            <th class="text-center">Rate (BDT)</th>
+                            <th class="text-end">Amount (BDT)</th>
+                            @*<th class="text-center">% in Bill</th>*@
+                            <th style="width: 50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Items.Count; i++)
+                        {
+                            <tr data-index="@i">
+                                <td class="fs-8 text-center align-middle">@(i + 1)</td>
+                                <td><input asp-for="Items[i].Description" class="form-control" /></td>
+                                <td>
+                                    <select asp-for="Items[i].Unit" class="form-select unitDD searchableSelect" asp-items="ViewBag.Unit">
+                                        <option value="">-- Select Unit --</option>
+                                    </select>
+                                    @*<input asp-for="Items[i].Unit" class="form-control" placeholder="Sft" />*@
+                                </td>
+                                <td><input asp-for="Items[i].Area" class="form-control calc" type="number" step="any" /></td>
+                                <td><input asp-for="Items[i].Rate" class="form-control calc" type="number" step="any" /></td>
+                                <td class="amount text-end align-middle">@Model.Items[i].AmountPerPercent.ToString("N2")</td>
+                                @*<td><input asp-for="Items[i].PercentInBill" class="form-control calc-percent" type="number" step="any" value="100" /></td>*@
+                                <td class="text-center align-middle">
+                                    <button type="button" class="btn btn-sm btn-outline-danger mx-2 remove-item"> <i class="far fa-trash-alt text-black "></i></button>
+                                </td>
+                            </tr>
+                        }
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                <a id="add-item-btn" class="text-primary py-2" role="button" style="cursor:pointer;">
+                                    + Add an Item
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-end fs-9 fw-bold">Sub Total Taka.</td>
+                            <td colspan="2" class="text-center fs-9 fw-bold" id="subTotal">@Model.SubTotal.ToString("N2")</td>
+                            @*<td colspan="2"></td>*@
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-end fs-9 py-2">
+                                <div class="d-flex justify-content-end">
+                                    <div class="mx-2 mt-2">Deduction of Retention Money (VAT)</div>
+                                    <div><input asp-for="RetentionPercent" id="retentionPercent" class="form-control vatPercent" type="number" step="any" /></div>
+                                </div>
+
+
+                            </td>
+                            <td colspan="2" class="text-center fs-9" id="retention">@Model.RetentionAmount.Value.ToString("N2")</td>
+                            @*<td colspan="2"></td>*@
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-end h5">Grand Total Taka</td>
+                            <td colspan="2" class="text-center h5" id="grandTotal">@Model.GrandTotal.Value.ToString("N2")</td>
+                            @*<td colspan="2"></td>*@
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div class="row col-xl-12 mb-3">
+                <p class="mb-1 fw-bold fs-8">Note</p>
+                <div class="pe-3">
+                    <textarea asp-for="Note" class="form-control" rows="3" placeholder="Add any additional notes here..."></textarea>
+                </div>
+            </div>
+
+
+            <div class="row col-xl-12 mb-3">
+                <div class="mb-3 d-flex justify-content-end">
+                    <input asp-for="IsDraft" class="me-2" type="checkbox" />
+                    <label class="">Save as Draft</label>
+                </div>
+            </div>
+
+
+            <!-- ==== ACTION BUTTONS ==== -->
+            <div class="row col-xl-12 mb-3">
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-secondary me-2" id="clearFormBtn">Clear</button>
+                    <button type="submit" class="btn btn-primary me-2">Save Quotation</button>
+                    @*<button type="button" class="btn btn-info" id="sendToBtn">Send To</button>*@
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/pages/Sales/PriceQuotation.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+}
