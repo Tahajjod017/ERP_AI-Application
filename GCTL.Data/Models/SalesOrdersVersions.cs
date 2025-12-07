@@ -5,11 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class ProductCategories
+public partial class SalesOrdersVersions
 {
-    public int ProductCategoryID { get; set; }
+    public int SalesOrdersVersionID { get; set; }
 
-    public string? ProductCategoryName { get; set; }
+    public int? Version { get; set; }
+
+    public int? CustomerID { get; set; }
+
+    public DateTime SalesOrderDate { get; set; }
+
+    public decimal? VatPercentage { get; set; }
+
+    public string? Note { get; set; }
 
     public string? LIP { get; set; }
 
@@ -27,13 +35,21 @@ public partial class ProductCategories
 
     public int? DeletedBy { get; set; }
 
-    public string? CategoryCode { get; set; }
+    public bool? IsDraft { get; set; }
+
+    public int? SalesOrdersID { get; set; }
+
+    public bool IsFinal { get; set; }
 
     public virtual Employees? CreatedByNavigation { get; set; }
 
+    public virtual Customers? Customer { get; set; }
+
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Products> Products { get; set; } = new List<Products>();
+    public virtual ICollection<SalesOrderVersionItems> SalesOrderVersionItems { get; set; } = new List<SalesOrderVersionItems>();
+
+    public virtual SalesOrders? SalesOrders { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

@@ -47,6 +47,8 @@ public partial class Customers
 
     public virtual Heads? Head { get; set; }
 
+    public virtual ICollection<InvoicesVersions> InvoicesVersions { get; set; } = new List<InvoicesVersions>();
+
     public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
 
     public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
@@ -54,6 +56,10 @@ public partial class Customers
     public virtual Organization? Organization { get; set; }
 
     public virtual OrganizationTypes? OrganizationType { get; set; }
+
+    public virtual ICollection<PriceQuotationVersions> PriceQuotationVersions { get; set; } = new List<PriceQuotationVersions>();
+
+    public virtual ICollection<SalesOrdersVersions> SalesOrdersVersions { get; set; } = new List<SalesOrdersVersions>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

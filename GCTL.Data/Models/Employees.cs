@@ -559,6 +559,30 @@ public partial class Employees
 
     public virtual ICollection<Employees> InverseUpdatedByNavigation { get; set; } = new List<Employees>();
 
+    public virtual ICollection<InvoiceBaseCAddresses> InvoiceBaseCAddressesCreatedByNavigation { get; set; } = new List<InvoiceBaseCAddresses>();
+
+    public virtual ICollection<InvoiceBaseCAddresses> InvoiceBaseCAddressesDeletedByNavigation { get; set; } = new List<InvoiceBaseCAddresses>();
+
+    public virtual ICollection<InvoiceBaseCAddresses> InvoiceBaseCAddressesUpdatedByNavigation { get; set; } = new List<InvoiceBaseCAddresses>();
+
+    public virtual ICollection<InvoiceVersionItems> InvoiceVersionItemsCreatedByNavigation { get; set; } = new List<InvoiceVersionItems>();
+
+    public virtual ICollection<InvoiceVersionItems> InvoiceVersionItemsDeletedByNavigation { get; set; } = new List<InvoiceVersionItems>();
+
+    public virtual ICollection<InvoiceVersionItems> InvoiceVersionItemsUpdatedByNavigation { get; set; } = new List<InvoiceVersionItems>();
+
+    public virtual ICollection<Invoices> InvoicesCreatedByNavigation { get; set; } = new List<Invoices>();
+
+    public virtual ICollection<Invoices> InvoicesDeletedByNavigation { get; set; } = new List<Invoices>();
+
+    public virtual ICollection<Invoices> InvoicesUpdatedByNavigation { get; set; } = new List<Invoices>();
+
+    public virtual ICollection<InvoicesVersions> InvoicesVersionsCreatedByNavigation { get; set; } = new List<InvoicesVersions>();
+
+    public virtual ICollection<InvoicesVersions> InvoicesVersionsDeletedByNavigation { get; set; } = new List<InvoicesVersions>();
+
+    public virtual ICollection<InvoicesVersions> InvoicesVersionsUpdatedByNavigation { get; set; } = new List<InvoicesVersions>();
+
     public virtual ICollection<JobTeamActivities> JobTeamActivitiesCreatedByNavigation { get; set; } = new List<JobTeamActivities>();
 
     public virtual ICollection<JobTeamActivities> JobTeamActivitiesDeletedByNavigation { get; set; } = new List<JobTeamActivities>();
@@ -867,6 +891,24 @@ public partial class Employees
 
     public virtual ICollection<PostingRules> PostingRulesUpdatedByNavigation { get; set; } = new List<PostingRules>();
 
+    public virtual ICollection<PriceQuotationVersionItems> PriceQuotationVersionItemsCreatedByNavigation { get; set; } = new List<PriceQuotationVersionItems>();
+
+    public virtual ICollection<PriceQuotationVersionItems> PriceQuotationVersionItemsDeletedByNavigation { get; set; } = new List<PriceQuotationVersionItems>();
+
+    public virtual ICollection<PriceQuotationVersionItems> PriceQuotationVersionItemsUpdatedByNavigation { get; set; } = new List<PriceQuotationVersionItems>();
+
+    public virtual ICollection<PriceQuotationVersions> PriceQuotationVersionsCreatedByNavigation { get; set; } = new List<PriceQuotationVersions>();
+
+    public virtual ICollection<PriceQuotationVersions> PriceQuotationVersionsDeletedByNavigation { get; set; } = new List<PriceQuotationVersions>();
+
+    public virtual ICollection<PriceQuotationVersions> PriceQuotationVersionsUpdatedByNavigation { get; set; } = new List<PriceQuotationVersions>();
+
+    public virtual ICollection<PriceQuotations> PriceQuotationsCreatedByNavigation { get; set; } = new List<PriceQuotations>();
+
+    public virtual ICollection<PriceQuotations> PriceQuotationsDeletedByNavigation { get; set; } = new List<PriceQuotations>();
+
+    public virtual ICollection<PriceQuotations> PriceQuotationsUpdatedByNavigation { get; set; } = new List<PriceQuotations>();
+
     public virtual ICollection<Priorities> PrioritiesCreatedByNavigation { get; set; } = new List<Priorities>();
 
     public virtual ICollection<Priorities> PrioritiesDeletedByNavigation { get; set; } = new List<Priorities>();
@@ -1013,6 +1055,24 @@ public partial class Employees
 
     public virtual ICollection<SalaryTypes> SalaryTypesUpdatedByNavigation { get; set; } = new List<SalaryTypes>();
 
+    public virtual ICollection<SalesOrderVersionItems> SalesOrderVersionItemsCreatedByNavigation { get; set; } = new List<SalesOrderVersionItems>();
+
+    public virtual ICollection<SalesOrderVersionItems> SalesOrderVersionItemsDeletedByNavigation { get; set; } = new List<SalesOrderVersionItems>();
+
+    public virtual ICollection<SalesOrderVersionItems> SalesOrderVersionItemsUpdatedByNavigation { get; set; } = new List<SalesOrderVersionItems>();
+
+    public virtual ICollection<SalesOrders> SalesOrdersCreatedByNavigation { get; set; } = new List<SalesOrders>();
+
+    public virtual ICollection<SalesOrders> SalesOrdersDeletedByNavigation { get; set; } = new List<SalesOrders>();
+
+    public virtual ICollection<SalesOrders> SalesOrdersUpdatedByNavigation { get; set; } = new List<SalesOrders>();
+
+    public virtual ICollection<SalesOrdersVersions> SalesOrdersVersionsCreatedByNavigation { get; set; } = new List<SalesOrdersVersions>();
+
+    public virtual ICollection<SalesOrdersVersions> SalesOrdersVersionsDeletedByNavigation { get; set; } = new List<SalesOrdersVersions>();
+
+    public virtual ICollection<SalesOrdersVersions> SalesOrdersVersionsUpdatedByNavigation { get; set; } = new List<SalesOrdersVersions>();
+
     public virtual ICollection<ServiceYears> ServiceYearsCreatedByNavigation { get; set; } = new List<ServiceYears>();
 
     public virtual ICollection<ServiceYears> ServiceYearsDeletedByNavigation { get; set; } = new List<ServiceYears>();
@@ -1130,6 +1190,12 @@ public partial class Employees
     public virtual ICollection<TransactionAccounts> TransactionAccountsDeletedByNavigation { get; set; } = new List<TransactionAccounts>();
 
     public virtual ICollection<TransactionAccounts> TransactionAccountsUpdatedByNavigation { get; set; } = new List<TransactionAccounts>();
+
+    public virtual ICollection<UnitTypes1> UnitTypes1CreatedByNavigation { get; set; } = new List<UnitTypes1>();
+
+    public virtual ICollection<UnitTypes1> UnitTypes1DeletedByNavigation { get; set; } = new List<UnitTypes1>();
+
+    public virtual ICollection<UnitTypes1> UnitTypes1UpdatedByNavigation { get; set; } = new List<UnitTypes1>();
 
     public virtual ICollection<UnitTypes> UnitTypesCreatedByNavigation { get; set; } = new List<UnitTypes>();
 

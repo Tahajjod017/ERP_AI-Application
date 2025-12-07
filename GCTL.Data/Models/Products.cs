@@ -89,6 +89,8 @@ public partial class Products
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
+    public virtual ICollection<InvoiceVersionItems> InvoiceVersionItems { get; set; } = new List<InvoiceVersionItems>();
+
     public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();
 
     public virtual ICollection<ProductAttributes> ProductAttributes { get; set; } = new List<ProductAttributes>();
