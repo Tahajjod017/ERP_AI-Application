@@ -113,8 +113,8 @@ namespace GCTL_App.Controllers.POS.Product
         public IActionResult GetSKUByCategory(int categoryId)
         {
             // Example: fetch SKU based on categoryId from DB
-            var sku = _context.Products
-                              .Where(p => p.CategoryId == categoryId)
+            var sku = _productRepository.AllActive()
+                              .Where(p => p.ProductCategoryID == categoryId)
                               .Select(p => p.SKU)
                               .FirstOrDefault();
 
