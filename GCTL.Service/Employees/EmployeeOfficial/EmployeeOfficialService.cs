@@ -283,7 +283,7 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                     return result;
                 }
 
-                var beforeEntity = JsonConvert.DeserializeObject<EmployeeOfficialPostViewModel>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                //var beforeEntity = JsonConvert.DeserializeObject<EmployeeOfficialPostViewModel>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                 var activeStatus = await _statusRepository.AllActive().Where(e => e.StatusName.ToLower() == "active").FirstOrDefaultAsync();
                 var inActiveStatus = await _statusRepository.AllActive().Where(e => e.StatusName.ToLower() == "inactive").FirstOrDefaultAsync();
@@ -373,9 +373,9 @@ namespace GCTL.Service.Employees.EmployeeOfficial
                 await _employeeOfficialRepository.UpdateAsync(entity);
 
 
-                var afterEntity = JsonConvert.DeserializeObject<EmployeeOfficialPostViewModel>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                //var afterEntity = JsonConvert.DeserializeObject<EmployeeOfficialPostViewModel>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
-                await _userInfoService.ActionLogAsync("EmpOffice Update", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EmployeeOfficeInfoID, model);
+                //await _userInfoService.ActionLogAsync("EmpOffice Update", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EmployeeOfficeInfoID, model);
 
 
                 await _employeeOfficialRepository.CommitTransactionAsync();

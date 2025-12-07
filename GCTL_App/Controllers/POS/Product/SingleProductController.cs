@@ -8,6 +8,7 @@ using GCTL.Service.POS.Product.ServiceProduct;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SkiaSharp;
@@ -110,15 +111,41 @@ namespace GCTL_App.Controllers.POS.Product
 
         #region SKU
 
-        public IActionResult GetSKUByCategory(int categoryId)
+        public async Task<IActionResult> GetSKUByCategory(int categoryId)
         {
-            // Example: fetch SKU based on categoryId from DB
-            var sku = _productRepository.AllActive()
-                              .Where(p => p.ProductCategoryID == categoryId)
-                              .Select(p => p.SKU)
-                              .FirstOrDefault();
+            var category = await _productCategoryRepository.AllActive().Where(e => e.ProductCategoryID == categoryId).FirstOrDefaultAsync();
 
-            return Json(sku); // return SKU as JSON
+            string categoryCode = string.Empty;
+
+            if (category != null && !string.IsNullOrEmpty(category.ProductCategoryName))
+            {
+                categoryCode = new string(category.ProductCategoryName.Where(char.IsLetter).Take(3).ToArray()).ToUpper(); 
+            }
+
+            var sku = await _productRepository.AllActive().Where(p => p.ProductCategoryID == categoryId).OrderByDescending(s => s.ProductID).Select(p => p.SKU).FirstOrDefaultAsync();
+
+            string newSku;
+
+            if (string.IsNullOrEmpty(sku))
+            {
+                newSku = categoryCode + 1.ToString("D4");
+            }
+            else
+            {
+                var last4 = sku.Substring(sku.Length - 4);
+
+                if (int.TryParse(last4, out int number))
+                {
+                    number++; 
+                    newSku = categoryCode + number.ToString("D4");
+                }
+                else
+                {
+                    newSku = categoryCode + 1.ToString("D4");
+                }
+            }
+
+            return Json(newSku);
         }
 
         #endregion
@@ -250,14 +277,25 @@ namespace GCTL_App.Controllers.POS.Product
         [HttpGet]
         public async Task<IActionResult> GetServiceList(int page = 1, int pageSize = 10, string search = "", string sort = "")
         {
-            var allData = await _productRepository.AllActive().Where(e=>e.ProductTypeID == 3).Select(e=> new ServiceViewModel
+            var cat = await _productTypeRepository.AllActive().Where(e => e.ProductTypeName.ToLower() == "service").FirstOrDefaultAsync();
+
+            List<ServiceViewModel> allData = new List<ServiceViewModel>();
+
+            if (cat != null)
             {
-                ServiceSelectService = e.ProductName,
-                ServiceHourlyRate = e.ServiceHourlyRate,
-                ServiceDailyRate = e.ServiceDailyRate,
-                ServicePerJobRate = e.ServicePerJobRate,
-                ServicePerMeterRate = e.ServicePerMeterRate
-            }).ToListAsync();
+           
+                 allData = await _productRepository.AllActive().Where(e => e.ProductTypeID == cat.ProductTypeID).Select(e => new ServiceViewModel
+                {
+                    ServiceSelectService = e.ProductName,
+                    ServiceHourlyRate = e.ServiceHourlyRate,
+                    ServiceDailyRate = e.ServiceDailyRate,
+                    ServicePerJobRate = e.ServicePerJobRate,
+                    ServicePerMeterRate = e.ServicePerMeterRate
+                }).ToListAsync();
+            }  
+
+
+            
 
             
 

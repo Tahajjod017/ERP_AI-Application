@@ -44,7 +44,7 @@ $(document).ready(function () {
 });
 
 function saveService() {
-    debugger
+    
     // Step 1: Get all rate fields
     const nameSer = $("#serviceSelectService").val();
     const hourly = $("#serviceHourlyRate").val();
@@ -101,7 +101,7 @@ function saveService() {
                 return;
             }
 
-            toastr.error(response.message || "Service added successfully!");
+            toastr.success(response.message || "Service added successfully!");
             $("#serviceForm")[0].reset();
             loadServiceList();
         },

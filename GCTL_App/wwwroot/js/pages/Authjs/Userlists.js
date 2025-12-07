@@ -258,14 +258,65 @@ function loadUserTableData(sortColumn, sortOrder) {
 
                 </a>
             `;
+                    //tableBody.append(`
+                    //    <tr class="position-static">
+
+                    //        <td class="align-middle white-space-nowrap ps-3">${item.employeeCode}</td>
+                    //        <td class="align-middle white-space-nowrap ps-0">${item.employeeName}</td>
+                    //        <td class="align-middle white-space-nowrap ps-0">${item.email}</td>
+                    //        <td class="align-middle white-space-nowrap ps-0">${item.defaultPass}</td>
+
+                    //        <td class="align-middle text-end">
+                    //        <div class="row g-3">
+                    //            <a class="btn btn-phoenix-secondary btn-icon me-1 fs-10 text-warning px-0 userList-single-reset"
+                    //                data-bs-toggle="modal" data-bs-target="#confirmResetModal"
+                    //                data-user-id="${item.id}" title="Reset Password" data-bs-placement="top">
+                    //                <span class="fas fa-key"></span>
+                    //            </a>
+                    //           <!-- Active/Inactive button with text -->
+
+                    //        </div>
+                    //    </td>
+
+                    //    </tr>
+                    //`);
+
+
                     tableBody.append(`
                         <tr class="position-static">
                             
                             <td class="align-middle white-space-nowrap ps-3">${item.employeeCode}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.employeeName}</td>
+
+                           <td class="align-middle white-space-nowrap ps-0">
+                                <a href="#" class="text-decoration-none text-dark copy-full-details"
+                                   data-details="Login Details:\n-----------------\nEmployee Code: ${item.employeeCode}\nEmployee Name: ${item.employeeName}\nEmail: ${item.email}\nPassword: ${item.defaultPass}" 
+                                   title="Copy Login Details">
+                                    ${item.employeeName}
+                                    <i class="fas fa-copy ms-1 text-primary"></i>
+                                </a>
+                            </td>
+
+                          <!--  <td class="align-middle white-space-nowrap ps-0">${item.employeeName}</td>
+
                             <td class="align-middle white-space-nowrap ps-0">${item.email}</td>
-                            <td class="align-middle white-space-nowrap ps-0">${item.defaultPass}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.defaultPass}</td> -->
                            
+
+                             <td class="align-middle white-space-nowrap ps-0">
+                                <span class="me-2">${item.email}</span>
+                                <a href="#" class="text-primary copy-btn" data-copy="${item.email}" title="Copy Email">
+                                    <i class="fas fa-copy"></i>
+                                </a>
+                            </td>
+
+                            <td class="align-middle white-space-nowrap ps-0">
+                                <span class="me-2">${item.defaultPass}</span>
+                                <a href="#" class="text-primary copy-btn" data-copy="${item.defaultPass}" title="Copy Password">
+                                    <i class="fas fa-copy"></i>
+                                </a>
+                            </td>
+
+
                             <td class="align-middle text-end">
                             <div class="row g-3">
                                 <a class="btn btn-phoenix-secondary btn-icon me-1 fs-10 text-warning px-0 userList-single-reset"
@@ -280,6 +331,11 @@ function loadUserTableData(sortColumn, sortOrder) {
 
                         </tr>
                     `);
+
+
+
+
+
                 });
             } else {
                 tableBody.append('<tr><td colspan="7" class="text-center">No data available</td></tr>');
@@ -294,6 +350,49 @@ function loadUserTableData(sortColumn, sortOrder) {
         }
     });
 }
+
+
+
+
+function fallbackCopy(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.opacity = "0";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
+    } catch (err) {
+        console.error('Copy failed', err);
+    }
+    document.body.removeChild(textArea);
+}
+
+// For .copy-full-details
+$(document).on('click', '.copy-full-details', function (e) {
+    e.preventDefault();
+    const details = $(this).data('details');
+    if (details) {
+        fallbackCopy(details);
+        toastr.success('Login details copied to clipboard!');
+    }
+});
+
+// For .copy-btn
+$(document).on('click', '.copy-btn', function (e) {
+    e.preventDefault();
+    const text = $(this).data('copy');
+    if (text) {
+        fallbackCopy(text);
+        toastr.success('Copied: ' + text);
+    }
+});
+
+
+
+
 
 // Handle the click event for user status change (active or inactive)
 $(document).on('click', '.userStatus-toggle', function () {
@@ -429,8 +528,10 @@ $('#confirmResetBtn').click(function () {
         success: function (response) {
             // Success message
             toastr.success(response.message);
-            $('#confirmResetModal').modal('hide');
-            // Optional: Reload the table or update UI here
+            hideModal('confirmResetModal')
+            loadUserTableData();
+            //$('#confirmResetModal').modal('hide');
+            
         },
         error: function (xhr) {
             // Error message

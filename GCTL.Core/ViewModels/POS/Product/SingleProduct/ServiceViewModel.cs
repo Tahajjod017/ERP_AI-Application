@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
 {
-    public class ServiceViewModel
+    public class ServiceViewModel : BaseViewModel
     {
         [Required]
         public string ServiceSelectService { get; set; }
