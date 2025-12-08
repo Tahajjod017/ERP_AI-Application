@@ -43,5 +43,7 @@ public partial class SalesOrderVersionItems
 
     public virtual SalesOrdersVersions? SalesOrdersVersion { get; set; }
 
+    public virtual UnitTypes? UnitType { get; set; }
+
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

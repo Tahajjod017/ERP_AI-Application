@@ -15,6 +15,38 @@
    "T4TemplatePath": null,
    "Tables": [
       {
+         "Name": "[Bank].[BankAccountInfo]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Bank].[BankBranches]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Bank].[Banks]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Bank].[ChequeDetails]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Bank].[PaymentChequeActivity]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Bank].[PaymentChequeInfo]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Bank].[PaymentMethods]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Bank].[PaymentTransactions]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[COA].[BaseAccounts]",
          "ObjectType": 0
       },
@@ -792,10 +824,6 @@
       },
       {
          "Name": "[Settings].[Timezones]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[Settings].[UnitTypes]",
          "ObjectType": 0
       },
       {

@@ -16,6 +16,7 @@ namespace GCTL.Service.Sales.SalesOrdersF
 
     public class SalesOrderService : ISalesOrder
     {
+        private readonly IGenericRepository<BloodGroup> _bloodRepository;
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
         private readonly IGenericRepository<SalesOrderVersionItems> _salesOrderItemRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
@@ -25,12 +26,14 @@ namespace GCTL.Service.Sales.SalesOrdersF
             IGenericRepository<SalesOrders> salesOrderRepository,
             IGenericRepository<SalesOrderVersionItems> salesOrderItemRepository,
             IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
-            IUserInfoService userInfoService)
+            IUserInfoService userInfoService,
+            IGenericRepository<BloodGroup> bloodRepository)
         {
             _salesOrderRepository = salesOrderRepository;
             _salesOrderItemRepository = salesOrderItemRepository;
             _salesOrderVersionRepository = salesOrderVersionRepository;
             _userInfoService = userInfoService;
+            _bloodRepository = bloodRepository;
         }
 
         public async Task<string> GetNextSOcode()
@@ -57,7 +60,7 @@ namespace GCTL.Service.Sales.SalesOrdersF
 
         public async Task<CommonReturnViewModel> SaveAsync(SalesOrderViewModel vm)
         {
-            await _salesOrderVersionRepository.BeginTransactionAsync();
+            await _bloodRepository.BeginTransactionAsync();
 
             var result = await _salesOrderVersionRepository.AllActive().FirstOrDefaultAsync(e => e.SalesOrdersVersionID == vm.Id);
 
@@ -199,10 +202,11 @@ namespace GCTL.Service.Sales.SalesOrdersF
                     }
 
                     // Commit transaction
-                    await _salesOrderItemRepository.CommitTransactionAsync();
+                    await _bloodRepository.CommitTransactionAsync();
 
                     return new CommonReturnViewModel
                     {
+
                         Success = true,
                         Message = "Sales Order saved successfully",
                         Data = version.SalesOrdersVersionID
@@ -213,7 +217,7 @@ namespace GCTL.Service.Sales.SalesOrdersF
             }
             catch (Exception ex)
             {
-                await _salesOrderItemRepository.RollbackTransactionAsync();
+                await _bloodRepository.RollbackTransactionAsync();
                 return new CommonReturnViewModel
                 {
                     Success = false,

@@ -59,6 +59,12 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<AttributeValues> AttributeValues { get; set; }
 
+    public virtual DbSet<BankAccountInfo> BankAccountInfo { get; set; }
+
+    public virtual DbSet<BankBranches> BankBranches { get; set; }
+
+    public virtual DbSet<Banks> Banks { get; set; }
+
     public virtual DbSet<BarcodeGenerateFrom> BarcodeGenerateFrom { get; set; }
 
     public virtual DbSet<BaseAccounts> BaseAccounts { get; set; }
@@ -72,6 +78,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<BloodGroup> BloodGroup { get; set; }
 
     public virtual DbSet<CalculationTypes> CalculationTypes { get; set; }
+
+    public virtual DbSet<ChequeDetails> ChequeDetails { get; set; }
 
     public virtual DbSet<Classes> Classes { get; set; }
 
@@ -281,9 +289,17 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<PaySlips> PaySlips { get; set; }
 
+    public virtual DbSet<PaymentChequeActivity> PaymentChequeActivity { get; set; }
+
+    public virtual DbSet<PaymentChequeInfo> PaymentChequeInfo { get; set; }
+
+    public virtual DbSet<PaymentMethods> PaymentMethods { get; set; }
+
     public virtual DbSet<PaymentModes> PaymentModes { get; set; }
 
     public virtual DbSet<PaymentPeriodTypes> PaymentPeriodTypes { get; set; }
+
+    public virtual DbSet<PaymentTransactions> PaymentTransactions { get; set; }
 
     public virtual DbSet<Percentages> Percentages { get; set; }
 
@@ -396,8 +412,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<TransactionAccounts> TransactionAccounts { get; set; }
 
     public virtual DbSet<UnitTypes> UnitTypes { get; set; }
-
-    public virtual DbSet<UnitTypes1> UnitTypes1 { get; set; }
 
     public virtual DbSet<UserVisitLogs> UserVisitLogs { get; set; }
 
@@ -995,6 +1009,111 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__Attribute__Updat__73E5190C");
         });
 
+        modelBuilder.Entity<BankAccountInfo>(entity =>
+        {
+            entity.HasKey(e => e.BankAccountInfoID).HasName("PK__BankAcco__3068176428F44D95");
+
+            entity.ToTable("BankAccountInfo", "Bank");
+
+            entity.Property(e => e.AccountName).HasMaxLength(30);
+            entity.Property(e => e.AccountNumber).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.BankBranch).WithMany(p => p.BankAccountInfo)
+                .HasForeignKey(d => d.BankBranchID)
+                .HasConstraintName("FK__BankAccou__BankB__0EB90AD9");
+
+            entity.HasOne(d => d.Bank).WithMany(p => p.BankAccountInfo)
+                .HasForeignKey(d => d.BankID)
+                .HasConstraintName("FK__BankAccou__BankI__0FAD2F12");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.BankAccountInfoCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__BankAccou__Creat__10A1534B");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.BankAccountInfoDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__BankAccou__Delet__11957784");
+
+            entity.HasOne(d => d.Head).WithMany(p => p.BankAccountInfo)
+                .HasForeignKey(d => d.HeadID)
+                .HasConstraintName("FK__BankAccou__HeadI__137DBFF6");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.BankAccountInfoUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__BankAccou__Updat__12899BBD");
+        });
+
+        modelBuilder.Entity<BankBranches>(entity =>
+        {
+            entity.HasKey(e => e.BankBranchID).HasName("PK__BankBran__135DBA9579DF6E28");
+
+            entity.ToTable("BankBranches", "Bank");
+
+            entity.Property(e => e.BankBranchName).HasMaxLength(50);
+            entity.Property(e => e.Comment).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.SwiftCode).HasMaxLength(20);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Bank).WithMany(p => p.BankBranches)
+                .HasForeignKey(d => d.BankID)
+                .HasConstraintName("FK__BankBranc__BankI__1471E42F");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.BankBranchesCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__BankBranc__Creat__15660868");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.BankBranchesDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__BankBranc__Delet__165A2CA1");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.BankBranchesUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__BankBranc__Updat__174E50DA");
+        });
+
+        modelBuilder.Entity<Banks>(entity =>
+        {
+            entity.HasKey(e => e.BankID).HasName("PK__Banks__AA08CB33F51C7CE6");
+
+            entity.ToTable("Banks", "Bank");
+
+            entity.Property(e => e.BankName).HasMaxLength(50);
+            entity.Property(e => e.Comment).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.SwiftCode).HasMaxLength(20);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.BanksCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Banks__CreatedBy__18427513");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.BanksDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Banks__DeletedBy__1936994C");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.BanksUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Banks__UpdatedBy__1A2ABD85");
+        });
+
         modelBuilder.Entity<BarcodeGenerateFrom>(entity =>
         {
             entity.HasKey(e => e.BarcodeGenerateFromID).HasName("PK__BarcodeG__FE3499A746EA48A8");
@@ -1219,6 +1338,51 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.CalculationTypesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__Calculati__Updat__4EFDAD20");
+        });
+
+        modelBuilder.Entity<ChequeDetails>(entity =>
+        {
+            entity.HasKey(e => e.ChequeDetailID).HasName("PK__ChequeDe__AF57C25E5BC98010");
+
+            entity.ToTable("ChequeDetails", "Bank");
+
+            entity.Property(e => e.BounceCount).HasDefaultValue(0);
+            entity.Property(e => e.ChequeNo).HasMaxLength(50);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IssuerName).HasMaxLength(200);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LastStatusChangeDate).HasColumnType("datetime");
+            entity.Property(e => e.MaxBounceAllowed).HasDefaultValue(3);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.BankBranch).WithMany(p => p.ChequeDetails)
+                .HasForeignKey(d => d.BankBranchID)
+                .HasConstraintName("FK__ChequeDet__BankB__1B1EE1BE");
+
+            entity.HasOne(d => d.Bank).WithMany(p => p.ChequeDetails)
+                .HasForeignKey(d => d.BankID)
+                .HasConstraintName("FK__ChequeDet__BankI__1C1305F7");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ChequeDetailsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__ChequeDet__Creat__1D072A30");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ChequeDetailsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__ChequeDet__Delet__1DFB4E69");
+
+            entity.HasOne(d => d.PaymentTransaction).WithMany(p => p.ChequeDetails)
+                .HasForeignKey(d => d.PaymentTransactionID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ChequeDet__Payme__006AEB82");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ChequeDetailsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__ChequeDet__Updat__015F0FBB");
         });
 
         modelBuilder.Entity<Classes>(entity =>
@@ -4919,6 +5083,101 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__PaySlips__Update__4B4D17CD");
         });
 
+        modelBuilder.Entity<PaymentChequeActivity>(entity =>
+        {
+            entity.HasKey(e => e.PaymentChequeActivityID).HasName("PK__PaymentC__CA81E96980E63FA0");
+
+            entity.ToTable("PaymentChequeActivity", "Bank");
+
+            entity.Property(e => e.ActionDate).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PaymentChequeActivityCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PaymentCh__Creat__025333F4");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PaymentChequeActivityDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PaymentCh__Delet__0347582D");
+
+            entity.HasOne(d => d.PaymentChequeInfo).WithMany(p => p.PaymentChequeActivity)
+                .HasForeignKey(d => d.PaymentChequeInfoID)
+                .HasConstraintName("FK__PaymentCh__Payme__043B7C66");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PaymentChequeActivityUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PaymentCh__Updat__052FA09F");
+        });
+
+        modelBuilder.Entity<PaymentChequeInfo>(entity =>
+        {
+            entity.HasKey(e => e.PaymentChequeInfoID).HasName("PK__PaymentC__44A06FB3482EF2E0");
+
+            entity.ToTable("PaymentChequeInfo", "Bank");
+
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ChequeNo).HasMaxLength(50);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.BankAccountInfo).WithMany(p => p.PaymentChequeInfo)
+                .HasForeignKey(d => d.BankAccountInfoID)
+                .HasConstraintName("FK__PaymentCh__BankA__0623C4D8");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PaymentChequeInfoCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PaymentCh__Creat__0717E911");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PaymentChequeInfoDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PaymentCh__Delet__080C0D4A");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PaymentChequeInfoUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PaymentCh__Updat__09003183");
+        });
+
+        modelBuilder.Entity<PaymentMethods>(entity =>
+        {
+            entity.HasKey(e => e.PaymentMethodID).HasName("PK__PaymentM__DC31C1F370B14C29");
+
+            entity.ToTable("PaymentMethods", "Bank");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(200);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.MethodName).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PaymentMethodsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PaymentMe__Creat__0BDC9E2E");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PaymentMethodsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PaymentMe__Delet__0CD0C267");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PaymentMethodsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PaymentMe__Updat__0DC4E6A0");
+        });
+
         modelBuilder.Entity<PaymentModes>(entity =>
         {
             entity.HasKey(e => e.PaymentModeID).HasName("PK__PaymentM__F9599529C6552414");
@@ -4969,6 +5228,54 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PaymentPeriodTypesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__PaymentPe__Updat__2077C861");
+        });
+
+        modelBuilder.Entity<PaymentTransactions>(entity =>
+        {
+            entity.HasKey(e => e.PaymentTransactionID).HasName("PK__PaymentT__C22AEF8015A5A09F");
+
+            entity.ToTable("PaymentTransactions", "Bank");
+
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Status).HasMaxLength(20);
+            entity.Property(e => e.TransactionDate).HasColumnType("datetime");
+            entity.Property(e => e.TransactionRefNo).HasMaxLength(50);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.BankBranch).WithMany(p => p.PaymentTransactions)
+                .HasForeignKey(d => d.BankBranchID)
+                .HasConstraintName("FK__PaymentTr__BankB__5D21AF45");
+
+            entity.HasOne(d => d.Bank).WithMany(p => p.PaymentTransactions)
+                .HasForeignKey(d => d.BankID)
+                .HasConstraintName("FK__PaymentTr__BankI__5E15D37E");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PaymentTransactionsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__PaymentTr__Creat__5F09F7B7");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PaymentTransactionsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__PaymentTr__Delet__5FFE1BF0");
+
+            entity.HasOne(d => d.PaymentMethod).WithMany(p => p.PaymentTransactions)
+                .HasForeignKey(d => d.PaymentMethodID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__PaymentTr__Payme__60F24029");
+
+            entity.HasOne(d => d.RelatedInvoice).WithMany(p => p.PaymentTransactions)
+                .HasForeignKey(d => d.RelatedInvoiceID)
+                .HasConstraintName("FK__PaymentTr__Relat__64C2D10D");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PaymentTransactionsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__PaymentTr__Updat__62DA889B");
         });
 
         modelBuilder.Entity<Percentages>(entity =>
@@ -5103,6 +5410,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.PriceQuotationVersion).WithMany(p => p.PriceQuotationVersionItems)
                 .HasForeignKey(d => d.PriceQuotationVersionID)
                 .HasConstraintName("FK_PriceQuotations_PriceQuotationID_PriceQuotationItems");
+
+            entity.HasOne(d => d.UnitType).WithMany(p => p.PriceQuotationVersionItems)
+                .HasForeignKey(d => d.UnitTypeID)
+                .HasConstraintName("FK_PriceQuotationVersionItems_UnitTypeID");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PriceQuotationVersionItemsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
@@ -6030,6 +6341,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.SalesOrdersVersionID)
                 .HasConstraintName("FK__SalesOrde__Sales__6BA4D8C6");
 
+            entity.HasOne(d => d.UnitType).WithMany(p => p.SalesOrderVersionItems)
+                .HasForeignKey(d => d.UnitTypeID)
+                .HasConstraintName("FK_SalesOrderVersionItems_UnitTypeID");
+
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SalesOrderVersionItemsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__SalesOrde__Updat__6D8D2138");
@@ -6804,37 +7119,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UnitTypesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__UnitTypes__Updat__7948ECA7");
-        });
-
-        modelBuilder.Entity<UnitTypes1>(entity =>
-        {
-            entity.HasKey(e => e.UnitTypeID).HasName("PK__UnitType__1B7AB91410C127FF");
-
-            entity.ToTable("UnitTypes", "Settings");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.LIP).HasMaxLength(20);
-            entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.UnitFor)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.UnitTypeName).HasMaxLength(200);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.UnitTypes1CreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__UnitTypes__Creat__715DB21C");
-
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.UnitTypes1DeletedByNavigation)
-                .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__UnitTypes__Delet__7251D655");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.UnitTypes1UpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__UnitTypes__Updat__7345FA8E");
         });
 
         modelBuilder.Entity<UserVisitLogs>(entity =>

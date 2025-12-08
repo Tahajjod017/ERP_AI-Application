@@ -41,5 +41,7 @@ public partial class PriceQuotationVersionItems
 
     public virtual PriceQuotationVersions? PriceQuotationVersion { get; set; }
 
+    public virtual UnitTypes? UnitType { get; set; }
+
     public virtual Employees? UpdatedByNavigation { get; set; }
 }
