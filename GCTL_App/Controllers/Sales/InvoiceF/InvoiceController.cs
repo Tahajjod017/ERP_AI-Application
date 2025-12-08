@@ -18,21 +18,31 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
         private readonly IGenericRepository<Addresses> _addressRepository;
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
-        //private readonly IGenericRepository<PaymentMethods> _paymentMethodRepository;
+        private readonly IGenericRepository<PaymentMethods> _paymentMethodRepository;
         private readonly IInvoice _invoiceService;
 
-        public InvoiceController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Products> productRepository, IGenericRepository<Customers> customerRepository, IGenericRepository<CustomerAddresses> customerAddressRepository, IGenericRepository<Addresses> addressRepository, IGenericRepository<SalesOrders> salesOrderRepository, IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository, IInvoice invoiceService) : base(translateService, userProfileService)
+        public InvoiceController(
+            ITranslateService translateService,
+            IUserProfileService userProfileService,
+            IGenericRepository<Products> productRepository,
+            IInvoice invoiceService,
+            IGenericRepository<Customers> customerRepository,
+            IGenericRepository<CustomerAddresses> customerAddressRepository,
+            IGenericRepository<Addresses> addressRepository,
+            IGenericRepository<SalesOrders> salesOrderRepository,
+            IGenericRepository<PaymentMethods> paymentMethodRepository,
+            IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository)
+            : base(translateService, userProfileService)
         {
             _productRepository = productRepository;
+            _invoiceService = invoiceService;
             _customerRepository = customerRepository;
             _customerAddressRepository = customerAddressRepository;
             _addressRepository = addressRepository;
             _salesOrderRepository = salesOrderRepository;
+            _paymentMethodRepository = paymentMethodRepository;
             _salesOrderVersionRepository = salesOrderVersionRepository;
-            _invoiceService = invoiceService;
         }
-
-
 
         // ==============================
         // GET: /Invoice/Index
@@ -40,7 +50,7 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
         public IActionResult Index()
         {
             ViewBag.Products = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
-           // ViewBag.PaymentMethods = new SelectList(_paymentMethodRepository.AllActive().ToList(), "PaymentMethodID", "MethodName");
+            ViewBag.PaymentMethods = new SelectList(_paymentMethodRepository.AllActive().ToList(), "PaymentMethodID", "MethodName");
 
             var data = new InvoiceViewModel();
             data.InvoiceDate = DateTime.Today;
@@ -191,7 +201,7 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
                 {
                     id = p.ProductID,
                     name = p.ProductName,
-                    //price = p.QtyUnitPrice ?? 0
+                    price = p.ProductAdvancedPricing != null ? p.ProductAdvancedPricing.Select(e=>e.PriceValue).FirstOrDefault() : 0m
                 })
                 .ToList();
 
@@ -226,7 +236,7 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
         {
             var salesOrder = _salesOrderVersionRepository.AllActive()
                 .Include(so => so.SalesOrderVersionItems)
-               // .ThenInclude(i => i.UnitType)
+                .ThenInclude(i => i.UnitType)
                 .FirstOrDefault(so => so.SalesOrdersVersionID == salesOrderId);
 
             if (salesOrder == null)
@@ -242,7 +252,7 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
                 items = salesOrder.SalesOrderVersionItems.Select(item => new
                 {
                     description = item.Description,
-                    //unitName = item.UnitType?.UnitTypeName,
+                    unitName = item.UnitType?.UnitTypeName,
                     area = item.Area ?? 0,
                     rate = item.Rate ?? 0,
                     quantity = item.Quantity ?? 0
@@ -255,19 +265,19 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
         // ==============================
         // AJAX: Get Payment Methods
         // ==============================
-        //[HttpGet]
-        //public JsonResult GetPaymentMethods()
-        //{
-        //    var result = _paymentMethodRepository.AllActive()
-        //        .Select(pm => new
-        //        {
-        //            id = pm.PaymentMethodID,
-        //            name = pm.MethodName
-        //        })
-        //        .ToList();
+        [HttpGet]
+        public JsonResult GetPaymentMethods()
+        {
+            var result = _paymentMethodRepository.AllActive()
+                .Select(pm => new
+                {
+                    id = pm.PaymentMethodID,
+                    name = pm.MethodName
+                })
+                .ToList();
 
-        //    return Json(result);
-        //}
+            return Json(result);
+        }
 
         // ==============================
         // Helper: Generate Invoice Number

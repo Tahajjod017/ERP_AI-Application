@@ -27,4 +27,5 @@ namespace GCTL.Core.ViewModels.Sales
         public string? LastName { get; set; }
 
     }
+
 }

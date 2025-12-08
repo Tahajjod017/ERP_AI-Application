@@ -126,7 +126,7 @@ namespace GCTL_App.Controllers.Sales
                 {
                     SL = m.PriceQuotationVersionItemID,
                     Description = m.Description,
-                  //  UnitName = m.UnitType != null ? m.UnitType.UnitTypeName : "",
+                    UnitName = m.UnitType != null ? m.UnitType.UnitTypeName : "",
                     Area = m.Area ?? 0m,
                     Rate = m.Rate ?? 0m,
                     PercentInBill = 100
@@ -228,7 +228,7 @@ namespace GCTL_App.Controllers.Sales
                     SL = m.PriceQuotationVersionItemID,
                     Description = m.Description,
                     Unit = m.UnitTypeID ?? 0,
-                    //UnitName = m.UnitType != null ? m.UnitType.UnitTypeName : "",
+                    UnitName = m.UnitType != null ? m.UnitType.UnitTypeName : "",
                     Area = m.Area ?? 0m,
                     Rate = m.Rate ?? 0m,
                     PercentInBill = 100

@@ -28,25 +28,40 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
         private readonly IGenericRepository<CustomerAddresses> _customerAddressRepository;
         private readonly IGenericRepository<Addresses> _addressRepository;
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
-        //private readonly IGenericRepository<PaymentTransactions> _paymentTransactionRepository;
-        //private readonly IGenericRepository<PaymentMethods> _paymentMethodRepository;
+        private readonly IGenericRepository<PaymentTransactions> _paymentTransactionRepository;
+        private readonly IGenericRepository<PaymentMethods> _paymentMethodRepository;
         private readonly IUserInfoService _userInfoService;
 
-        public InvoiceDetailsController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Invoices> invoiceRepository, IGenericRepository<InvoiceVersionItems> invoiceItemRepository, IGenericRepository<InvoicesVersions> invoiceVersionRepository, IInvoice invoiceService, IGenericRepository<Products> productRepository, IGenericRepository<Customers> customerRepository, IGenericRepository<CustomerAddresses> customerAddressRepository, IGenericRepository<Addresses> addressRepository, IGenericRepository<SalesOrders> salesOrderRepository, IUserInfoService userInfoService) : base(translateService, userProfileService)
+        public InvoiceDetailsController(
+            ITranslateService translateService,
+            IUserProfileService userProfileService,
+            IGenericRepository<Invoices> invoiceRepository,
+            IGenericRepository<InvoiceVersionItems> invoiceItemRepository,
+            IInvoice invoiceService,
+            IGenericRepository<Products> productRepository,
+            IGenericRepository<Customers> customerRepository,
+            IGenericRepository<CustomerAddresses> customerAddressRepository,
+            IGenericRepository<Addresses> addressRepository,
+            IGenericRepository<SalesOrders> salesOrderRepository,
+            IGenericRepository<PaymentTransactions> paymentTransactionRepository,
+            IGenericRepository<PaymentMethods> paymentMethodRepository,
+            IUserInfoService userInfoService,
+            IGenericRepository<InvoicesVersions> invoiceVersionRepository)
+            : base(translateService, userProfileService)
         {
             _invoiceRepository = invoiceRepository;
             _invoiceItemRepository = invoiceItemRepository;
-            _invoiceVersionRepository = invoiceVersionRepository;
             _invoiceService = invoiceService;
             _productRepository = productRepository;
             _customerRepository = customerRepository;
             _customerAddressRepository = customerAddressRepository;
             _addressRepository = addressRepository;
             _salesOrderRepository = salesOrderRepository;
+            _paymentTransactionRepository = paymentTransactionRepository;
+            _paymentMethodRepository = paymentMethodRepository;
             _userInfoService = userInfoService;
+            _invoiceVersionRepository = invoiceVersionRepository;
         }
-
-
 
         #endregion
 
@@ -56,7 +71,7 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
             try
             {
                 ViewBag.Products = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
-               // ViewBag.PaymentMethods = new SelectList(_paymentMethodRepository.AllActive().ToList(), "PaymentMethodID", "MethodName");
+                ViewBag.PaymentMethods = new SelectList(_paymentMethodRepository.AllActive().ToList(), "PaymentMethodID", "MethodName");
                 ViewBag.IsEditMode = false;
 
                 var invoice = _invoiceVersionRepository.AllActive()
@@ -67,7 +82,7 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
                     .Include(e => e.IBaseShippingAddress)
                     .Include(e => e.CreatedByNavigation)
                     .Include(e => e.UpdatedByNavigation)
-                    //.Include(e => e.PaymentTransactions).ThenInclude(pt => pt.PaymentMethod)
+                    .Include(e => e.PaymentTransactions).ThenInclude(pt => pt.PaymentMethod)
                     .FirstOrDefault(e => e.InvoicesVersionID == id);
 
                 if (invoice == null)
@@ -238,17 +253,15 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
                         Email = invoice.IBaseBillingAddress.Email
                     } : null,
 
-                    PaymentHistory = 
-                    //invoice.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
-                    //{
-                    //    PaymentTransactionID = pt.PaymentTransactionID,
-                    //    TransactionRefNo = pt.TransactionRefNo,
-                    //    TransactionDate = pt.TransactionDate,
-                    //    PaymentMethodName = pt.PaymentMethod?.MethodName ?? "Unknown",
-                    //    Amount = pt.Amount,
-                    //    Status = pt.Status
-                    //}).ToList() ?? 
-                    new List<PaymentHistoryViewModel>(),
+                    PaymentHistory = invoice.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
+                    {
+                        PaymentTransactionID = pt.PaymentTransactionID,
+                        TransactionRefNo = pt.TransactionRefNo,
+                        TransactionDate = pt.TransactionDate,
+                        PaymentMethodName = pt.PaymentMethod?.MethodName ?? "Unknown",
+                        Amount = pt.Amount,
+                        Status = pt.Status
+                    }).ToList() ?? new List<PaymentHistoryViewModel>(),
 
                     CreatedByName = invoice.CreatedByNavigation != null
         ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}"
@@ -302,7 +315,7 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
         public IActionResult Edit(int id)
         {
             ViewBag.Products = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
-            //ViewBag.PaymentMethods = new SelectList(_paymentMethodRepository.AllActive().ToList(), "PaymentMethodID", "MethodName");
+            ViewBag.PaymentMethods = new SelectList(_paymentMethodRepository.AllActive().ToList(), "PaymentMethodID", "MethodName");
             ViewBag.IsEditMode = true;
 
             var invoice = _invoiceVersionRepository.AllActive()
@@ -313,7 +326,7 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
                 .ThenInclude(e => e.SalesOrders)
                 .Include(e => e.IBaseBillingAddress)
                 .Include(e => e.IBaseShippingAddress)
-               // .Include(e => e.PaymentTransactions)
+                .Include(e => e.PaymentTransactions)
                 .FirstOrDefault(e => e.InvoicesVersionID == id);
 
             if (invoice == null)
@@ -452,17 +465,15 @@ namespace GCTL_App.Controllers.Sales.InvoiceF
                     Email = invoice.IBaseBillingAddress.Email
                 } : null,
 
-                PaymentHistory = 
-                //invoice.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
-                //{
-                //    PaymentTransactionID = pt.PaymentTransactionID,
-                //    TransactionRefNo = pt.TransactionRefNo,
-                //    TransactionDate = pt.TransactionDate,
-                //    PaymentMethodName = pt.PaymentMethod?.MethodName ?? "Unknown",
-                //    Amount = pt.Amount,
-                //    Status = pt.Status
-                //}).ToList() ?? 
-                new List<PaymentHistoryViewModel>(),
+                PaymentHistory = invoice.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
+                {
+                    PaymentTransactionID = pt.PaymentTransactionID,
+                    TransactionRefNo = pt.TransactionRefNo,
+                    TransactionDate = pt.TransactionDate,
+                    PaymentMethodName = pt.PaymentMethod?.MethodName ?? "Unknown",
+                    Amount = pt.Amount,
+                    Status = pt.Status
+                }).ToList() ?? new List<PaymentHistoryViewModel>(),
 
                 CreatedByName = invoice.CreatedByNavigation != null
        ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}"

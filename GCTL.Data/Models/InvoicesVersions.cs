@@ -73,5 +73,7 @@ public partial class InvoicesVersions
 
     public virtual ICollection<InvoiceVersionItems> InvoiceVersionItems { get; set; } = new List<InvoiceVersionItems>();
 
+    public virtual ICollection<PaymentTransactions> PaymentTransactions { get; set; } = new List<PaymentTransactions>();
+
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

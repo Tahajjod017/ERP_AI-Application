@@ -5,11 +5,21 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class UnitTypes1
+public partial class PaymentChequeInfo
 {
-    public int UnitTypeID { get; set; }
+    public int PaymentChequeInfoID { get; set; }
 
-    public string? UnitTypeName { get; set; }
+    public string? ChequeNo { get; set; }
+
+    public int? BankAccountInfoID { get; set; }
+
+    public decimal Amount { get; set; }
+
+    public DateOnly? IssueDate { get; set; }
+
+    public DateOnly? MaturityDate { get; set; }
+
+    public int? PurchaseReceiveID { get; set; }
 
     public string? LIP { get; set; }
 
@@ -27,11 +37,15 @@ public partial class UnitTypes1
 
     public int? DeletedBy { get; set; }
 
-    public string? UnitFor { get; set; }
+    public int? PurchasOrderID { get; set; }
+
+    public virtual BankAccountInfo? BankAccountInfo { get; set; }
 
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
+
+    public virtual ICollection<PaymentChequeActivity> PaymentChequeActivity { get; set; } = new List<PaymentChequeActivity>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

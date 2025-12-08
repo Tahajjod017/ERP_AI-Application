@@ -69,7 +69,7 @@ namespace GCTL_App.Controllers.Sales.SalesOrderC
             ViewBag.IsEditMode = false; // Read-only mode
 
             var salesOrder = _salesOrderVersionRepository.AllActive()
-                .Include(e => e.SalesOrderVersionItems)  //.ThenInclude(e => e.UnitType)
+                .Include(e => e.SalesOrderVersionItems).ThenInclude(e => e.UnitType)
                 .Include(e => e.Customer)
                 .Include(e => e.SalesOrders).ThenInclude(e => e.PriceQuotation)
                 .Include(e => e.CreatedByNavigation)

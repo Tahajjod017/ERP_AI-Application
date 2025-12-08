@@ -31,7 +31,11 @@ public partial class UnitTypes
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
+    public virtual ICollection<PriceQuotationVersionItems> PriceQuotationVersionItems { get; set; } = new List<PriceQuotationVersionItems>();
+
     public virtual ICollection<Products> Products { get; set; } = new List<Products>();
+
+    public virtual ICollection<SalesOrderVersionItems> SalesOrderVersionItems { get; set; } = new List<SalesOrderVersionItems>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

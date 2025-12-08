@@ -169,6 +169,24 @@ public partial class Employees
 
     public virtual ICollection<AttributeValues> AttributeValuesUpdatedByNavigation { get; set; } = new List<AttributeValues>();
 
+    public virtual ICollection<BankAccountInfo> BankAccountInfoCreatedByNavigation { get; set; } = new List<BankAccountInfo>();
+
+    public virtual ICollection<BankAccountInfo> BankAccountInfoDeletedByNavigation { get; set; } = new List<BankAccountInfo>();
+
+    public virtual ICollection<BankAccountInfo> BankAccountInfoUpdatedByNavigation { get; set; } = new List<BankAccountInfo>();
+
+    public virtual ICollection<BankBranches> BankBranchesCreatedByNavigation { get; set; } = new List<BankBranches>();
+
+    public virtual ICollection<BankBranches> BankBranchesDeletedByNavigation { get; set; } = new List<BankBranches>();
+
+    public virtual ICollection<BankBranches> BankBranchesUpdatedByNavigation { get; set; } = new List<BankBranches>();
+
+    public virtual ICollection<Banks> BanksCreatedByNavigation { get; set; } = new List<Banks>();
+
+    public virtual ICollection<Banks> BanksDeletedByNavigation { get; set; } = new List<Banks>();
+
+    public virtual ICollection<Banks> BanksUpdatedByNavigation { get; set; } = new List<Banks>();
+
     public virtual ICollection<BarcodeGenerateFrom> BarcodeGenerateFromCreatedByNavigation { get; set; } = new List<BarcodeGenerateFrom>();
 
     public virtual ICollection<BarcodeGenerateFrom> BarcodeGenerateFromDeletedByNavigation { get; set; } = new List<BarcodeGenerateFrom>();
@@ -212,6 +230,12 @@ public partial class Employees
     public virtual ICollection<CalculationTypes> CalculationTypesDeletedByNavigation { get; set; } = new List<CalculationTypes>();
 
     public virtual ICollection<CalculationTypes> CalculationTypesUpdatedByNavigation { get; set; } = new List<CalculationTypes>();
+
+    public virtual ICollection<ChequeDetails> ChequeDetailsCreatedByNavigation { get; set; } = new List<ChequeDetails>();
+
+    public virtual ICollection<ChequeDetails> ChequeDetailsDeletedByNavigation { get; set; } = new List<ChequeDetails>();
+
+    public virtual ICollection<ChequeDetails> ChequeDetailsUpdatedByNavigation { get; set; } = new List<ChequeDetails>();
 
     public virtual ICollection<Classes> ClassesCreatedByNavigation { get; set; } = new List<Classes>();
 
@@ -861,6 +885,24 @@ public partial class Employees
 
     public virtual ICollection<PaySlips> PaySlipsUpdatedByNavigation { get; set; } = new List<PaySlips>();
 
+    public virtual ICollection<PaymentChequeActivity> PaymentChequeActivityCreatedByNavigation { get; set; } = new List<PaymentChequeActivity>();
+
+    public virtual ICollection<PaymentChequeActivity> PaymentChequeActivityDeletedByNavigation { get; set; } = new List<PaymentChequeActivity>();
+
+    public virtual ICollection<PaymentChequeActivity> PaymentChequeActivityUpdatedByNavigation { get; set; } = new List<PaymentChequeActivity>();
+
+    public virtual ICollection<PaymentChequeInfo> PaymentChequeInfoCreatedByNavigation { get; set; } = new List<PaymentChequeInfo>();
+
+    public virtual ICollection<PaymentChequeInfo> PaymentChequeInfoDeletedByNavigation { get; set; } = new List<PaymentChequeInfo>();
+
+    public virtual ICollection<PaymentChequeInfo> PaymentChequeInfoUpdatedByNavigation { get; set; } = new List<PaymentChequeInfo>();
+
+    public virtual ICollection<PaymentMethods> PaymentMethodsCreatedByNavigation { get; set; } = new List<PaymentMethods>();
+
+    public virtual ICollection<PaymentMethods> PaymentMethodsDeletedByNavigation { get; set; } = new List<PaymentMethods>();
+
+    public virtual ICollection<PaymentMethods> PaymentMethodsUpdatedByNavigation { get; set; } = new List<PaymentMethods>();
+
     public virtual ICollection<PaymentModes> PaymentModesCreatedByNavigation { get; set; } = new List<PaymentModes>();
 
     public virtual ICollection<PaymentModes> PaymentModesDeletedByNavigation { get; set; } = new List<PaymentModes>();
@@ -872,6 +914,12 @@ public partial class Employees
     public virtual ICollection<PaymentPeriodTypes> PaymentPeriodTypesDeletedByNavigation { get; set; } = new List<PaymentPeriodTypes>();
 
     public virtual ICollection<PaymentPeriodTypes> PaymentPeriodTypesUpdatedByNavigation { get; set; } = new List<PaymentPeriodTypes>();
+
+    public virtual ICollection<PaymentTransactions> PaymentTransactionsCreatedByNavigation { get; set; } = new List<PaymentTransactions>();
+
+    public virtual ICollection<PaymentTransactions> PaymentTransactionsDeletedByNavigation { get; set; } = new List<PaymentTransactions>();
+
+    public virtual ICollection<PaymentTransactions> PaymentTransactionsUpdatedByNavigation { get; set; } = new List<PaymentTransactions>();
 
     public virtual ICollection<Percentages> PercentagesCreatedByNavigation { get; set; } = new List<Percentages>();
 
@@ -1190,12 +1238,6 @@ public partial class Employees
     public virtual ICollection<TransactionAccounts> TransactionAccountsDeletedByNavigation { get; set; } = new List<TransactionAccounts>();
 
     public virtual ICollection<TransactionAccounts> TransactionAccountsUpdatedByNavigation { get; set; } = new List<TransactionAccounts>();
-
-    public virtual ICollection<UnitTypes1> UnitTypes1CreatedByNavigation { get; set; } = new List<UnitTypes1>();
-
-    public virtual ICollection<UnitTypes1> UnitTypes1DeletedByNavigation { get; set; } = new List<UnitTypes1>();
-
-    public virtual ICollection<UnitTypes1> UnitTypes1UpdatedByNavigation { get; set; } = new List<UnitTypes1>();
 
     public virtual ICollection<UnitTypes> UnitTypesCreatedByNavigation { get; set; } = new List<UnitTypes>();
 

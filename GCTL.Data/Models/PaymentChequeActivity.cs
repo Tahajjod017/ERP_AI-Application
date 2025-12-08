@@ -5,9 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Heads
+public partial class PaymentChequeActivity
 {
-    public int HeadID { get; set; }
+    public int PaymentChequeActivityID { get; set; }
+
+    public int? PaymentChequeInfoID { get; set; }
+
+    public string Status { get; set; } = null!;
+
+    public DateTime? ActionDate { get; set; }
 
     public string? LIP { get; set; }
 
@@ -25,21 +31,11 @@ public partial class Heads
 
     public int? DeletedBy { get; set; }
 
-    public int? HeadDetailID { get; set; }
-
-    public virtual ICollection<BankAccountInfo> BankAccountInfo { get; set; } = new List<BankAccountInfo>();
-
     public virtual Employees? CreatedByNavigation { get; set; }
-
-    public virtual ICollection<Customers> Customers { get; set; } = new List<Customers>();
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Employees> Employees { get; set; } = new List<Employees>();
-
-    public virtual HeadDetails? HeadDetail { get; set; }
-
-    public virtual ICollection<TransactionAccounts> TransactionAccounts { get; set; } = new List<TransactionAccounts>();
+    public virtual PaymentChequeInfo? PaymentChequeInfo { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }
