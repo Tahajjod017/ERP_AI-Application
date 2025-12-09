@@ -1,6 +1,7 @@
-﻿@model GCTL.Core.ViewModels.Sales.InvoiceDetailsF.InvoiceDetailsViewModel
+﻿@using GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
+@model InvoiceDetailsViewModel
 @{
-    var sidebarData = ViewBag.SidebarData as GCTL.Core.ViewModels.Sales.InvoiceDetailsF.InvoiceSidebarDetailsViewModel;
+    var sidebarData = ViewBag.SidebarData as GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF.InvoiceSidebarDetailsViewModel;
     var isEditMode = ViewBag.IsEditMode ?? false;
 }
 
@@ -37,29 +38,29 @@
 
                                     <!-- Customer Dropdown -->
                                     @*<div class="col-xl-5">
-                        <div class="mt-2">
-                            <input asp-for="SelectedCustomerId" type="hidden" id="selectedCustomerId" />
-                            <input type="hidden" id="preSelectedCustomerId" value="@(Model.SelectedCustomerId?.ToString() ?? "")" />
+                                            <div class="mt-2">
+                                                <input asp-for="SelectedCustomerId" type="hidden" id="selectedCustomerId" />
+                                                <input type="hidden" id="preSelectedCustomerId" value="@(Model.SelectedCustomerId?.ToString() ?? "")" />
 
-                            <div id="userInfo" class="card mb-3 mt-3">
-                                <div class="card-body">
-                                    <h5 class="card-title mb-2">Customer Information</h5>
-                                    <div class="d-flex">
-                                        <div class="me-auto">
-                                            <p class="mb-1 fs-9 info-company"></p>
-                                            <p class="mb-1 fs-9 info-addr1"></p>
-                                            <p class="mb-1 fs-9 info-addr2"></p>
-                                        </div>
-                                        <div class="mx-auto">
-                                            <p class="mb-1 fs-9 info-tax"></p>
-                                            <p class="mb-1 fs-9 info-phone"></p>
-                                            <p class="mb-1 fs-9 info-email"></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
+                                                <div id="userInfo" class="card mb-3 mt-3">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title mb-2">Customer Information</h5>
+                                                        <div class="d-flex">
+                                                            <div class="me-auto">
+                                                                <p class="mb-1 fs-9 info-company"></p>
+                                                                <p class="mb-1 fs-9 info-addr1"></p>
+                                                                <p class="mb-1 fs-9 info-addr2"></p>
+                                                            </div>
+                                                            <div class="mx-auto">
+                                                                <p class="mb-1 fs-9 info-tax"></p>
+                                                                <p class="mb-1 fs-9 info-phone"></p>
+                                                                <p class="mb-1 fs-9 info-email"></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>*@
 
                                     <div class="col-xl-5">
                                         <div class="mt-2">
@@ -600,7 +601,7 @@
                                     <i class="fa fa-edit me-1"></i> Edit Invoice
                                 </a>
                             }
-                            
+
                         </div>
                     </div>
 

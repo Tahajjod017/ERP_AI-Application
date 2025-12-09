@@ -44,7 +44,7 @@
                                                 <span class="fas fa-caret-right dropdown-indicator-icon"></span>
                                             </div>
                                             <span class="nav-link-icon"><span data-feather="@menu.Icon" width="16" height="16"></span></span>
-                                            <span class="nav-link-text">@menu.Title</span>
+                                            <span class="nav-link-text">@Html.SmartLocalize(menu.Title)</span>
                                         </div>
                                     </a>
                                     <div class="parent-wrapper label-1">
@@ -63,7 +63,7 @@
                                                                     <span class="fas fa-caret-right dropdown-indicator-icon"></span>
                                                                 </div>
                                                                 <span class="nav-link-icon p-0"><i class="@subMenu.Icon"></i></span>
-                                                                <span class="nav-link-text p-0">@subMenu.Title</span>
+                                                                <span class="nav-link-text p-0">@Html.SmartLocalize(subMenu.Title)</span>
                                                             </div>
                                                         </a>
                                                     }
@@ -72,7 +72,7 @@
                                                         <a class="nav-link @(subMenu.ControllerName == currentController ? "active" : "")" href="@Url.Action("Index", subMenu.ControllerName)">
                                                             <div class="d-flex align-items-center">
                                                                 <span class="nav-link-icon p-0"><i class="@subMenu.Icon"></i></span>
-                                                                <span class="nav-link-text p-0">@subMenu.Title</span>
+                                                                <span class="nav-link-text p-0">@Html.SmartLocalize(subMenu.Title)</span>
                                                             </div>
                                                         </a>
                                                     }
@@ -95,7 +95,7 @@
                                                                                     <span class="fas fa-caret-right dropdown-indicator-icon"></span>
                                                                                 </div>
                                                                                 <span class="nav-link-icon p-0"><i class="@grandChild.Icon"></i></span>
-                                                                                <span class="nav-link-text p-0">@grandChild.Title</span>
+                                                                                <span class="nav-link-text p-0">@Html.SmartLocalize(grandChild.Title)</span>
                                                                             </div>
                                                                         </a>
                                                                     }
@@ -104,7 +104,7 @@
                                                                         <a class="nav-link @(grandChild.ControllerName == currentController ? "active" : "")" href="@Url.Action("Index", grandChild.ControllerName)">
                                                                             <div class="d-flex align-items-center">
                                                                                 <span class="nav-link-icon p-0"><i class="@grandChild.Icon"></i></span>
-                                                                                <span class="nav-link-text p-0">@grandChild.Title</span>
+                                                                                <span class="nav-link-text p-0">@Html.SmartLocalize(grandChild.Title)</span>
                                                                             </div>
                                                                         </a>
                                                                     }
@@ -119,7 +119,7 @@
                                                                                     <a class="nav-link @(greatGrandChild.ControllerName == currentController ? "active" : "")" href="@Url.Action("Index", greatGrandChild.ControllerName)">
                                                                                         <div class="d-flex align-items-center">
                                                                                             <span class="nav-link-icon p-0"><i class="@greatGrandChild.Icon"></i></span>
-                                                                                            <span class="nav-link-text p-0">@greatGrandChild.Title</span>
+                                                                                            <span class="nav-link-text p-0">@Html.SmartLocalize(greatGrandChild.Title)</span>
                                                                                         </div>
                                                                                     </a>
                                                                                 </li>
@@ -140,7 +140,7 @@
                                     <a class="nav-link @(menu.ControllerName == currentController ? "active" : "")" href="@Url.Action("Index", menu.ControllerName)">
                                         <div class="d-flex align-items-center">
                                             <span class="nav-link-icon"><i class="@menu.Icon"></i></span>
-                                            <span class="nav-link-text">@menu.Title</span>
+                                            <span class="nav-link-text">@Html.SmartLocalize(menu.Title)</span>
                                         </div>
                                     </a>
                                 }

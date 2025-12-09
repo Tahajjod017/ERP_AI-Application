@@ -109,6 +109,14 @@ public partial class Organization
 
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
+    public virtual ICollection<Inventory> Inventory { get; set; } = new List<Inventory>();
+
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistory { get; set; } = new List<InventoryTransactionHistory>();
+
+    public virtual ICollection<InventoryTransfers> InventoryTransfersFromOrganization { get; set; } = new List<InventoryTransfers>();
+
+    public virtual ICollection<InventoryTransfers> InventoryTransfersToOrganization { get; set; } = new List<InventoryTransfers>();
+
     public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
 
     public virtual ICollection<LeadActivityTypes> LeadActivityTypes { get; set; } = new List<LeadActivityTypes>();
@@ -143,6 +151,8 @@ public partial class Organization
 
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettings { get; set; } = new List<ProbetionPeriodSettings>();
 
+    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
+
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistory { get; set; } = new List<ResignationsApprovalHistory>();
 
     public virtual ICollection<RosterInHolyDays> RosterInHolyDays { get; set; } = new List<RosterInHolyDays>();
@@ -170,4 +180,6 @@ public partial class Organization
     public virtual Employees? UpdatedByNavigation { get; set; }
 
     public virtual ICollection<WeekendSettings> WeekendSettings { get; set; } = new List<WeekendSettings>();
+
+    public virtual ICollection<Wirehouses> Wirehouses { get; set; } = new List<Wirehouses>();
 }
