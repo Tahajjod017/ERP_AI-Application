@@ -39,6 +39,8 @@ public partial class LeadDetails
 
     public string? EmailAddress { get; set; }
 
+    public bool? IsDone { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }

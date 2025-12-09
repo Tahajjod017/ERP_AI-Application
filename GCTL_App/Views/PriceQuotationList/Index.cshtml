@@ -5,7 +5,7 @@
     </span>
     <div class="col">
         <h3 class="mb-0 text-primary position-relative fw-bold">
-            <span class="bg-body pe-2">Price Quotation List</span>
+            <span class="bg-body pe-2">@Html.SmartLocalize("Price Quotation List")</span>
             <span class="border border-primary position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
         </h3>
     </div>
@@ -42,7 +42,7 @@
                     <div class="dropdown me-3">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Showing</span>
+                                <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
                             </div>
                             <select class="form-select" id="pageSizeSelect" name="pageSizeSelect">
                                 <option value="5">5</option>
@@ -56,7 +56,9 @@
 
 
                     <div class="me-3">
-                        <a href="/PriceQuotation/index" class="btn btn-phoenix-primary">Price Quotation</a>
+                        <a href="/PriceQuotation/index" class="btn btn-phoenix-primary">
+                              @Html.SmartLocalize("Price Quotation")
+                        </a>
                     </div>
 
 
@@ -75,50 +77,60 @@
                                 <tr>
                                     <th class="white-space-nowrap align-middle ps-0" scope="col" data-sort="PriceQuotationID">
                                         <a href="#" class="text-decoration-none text-body sort-header" data-column="PriceQuotationID">
-                                            PQ_ID <i class="fas fa-sort" id="sort-PriceQuotationID"></i>
+                                            @Html.SmartLocalize("PQ_ID")
+                                            <i class="fas fa-sort" id="sort-PriceQuotationID"></i>
                                         </a>
                                     </th>
                                     <th class="white-space-nowrap align-middle ps-0" scope="col" data-sort="QuotationNumber">
                                         <a href="#" class="text-decoration-none text-body sort-header" data-column="QuotationNumber">
-                                            Quotation Number <i class="fas fa-sort" id="sort-QuotationNumber"></i>
+                                            @Html.SmartLocalize("Quotation Number")
+                                            <i class="fas fa-sort" id="sort-QuotationNumber"></i>
                                         </a>
                                     </th>
                                     <th class="white-space-nowrap align-middle ps-2" scope="col" data-sort="CustomerName">
                                         <a href="#" class="text-decoration-none text-body sort-header" data-column="CustomerName">
-                                            Customer <i class="fas fa-sort" id="sort-CustomerName"></i>
+                                            @Html.SmartLocalize("Customer")
+                                            <i class="fas fa-sort" id="sort-CustomerName"></i>
                                         </a>
                                     </th>
                                     <th class="white-space-nowrap align-middle ps-2" scope="col" data-sort="CreatedBy">
                                         <a href="#" class="text-decoration-none text-body sort-header" data-column="CreatedBy">
-                                            Created By <i class="fas fa-sort" id="sort-CreatedBy"></i>
+                                            @Html.SmartLocalize("Created By")
+                                            <i class="fas fa-sort" id="sort-CreatedBy"></i>
                                         </a>
                                     </th>
                                     <th class="white-space-nowrap align-middle ps-2" scope="col" data-sort="QuotationDate">
                                         <a href="#" class="text-decoration-none text-body sort-header" data-column="QuotationDate">
-                                            Quotation Date <i class="fas fa-sort" id="sort-QuotationDate"></i>
+                                            @Html.SmartLocalize("Quotation Date")
+                                            <i class="fas fa-sort" id="sort-QuotationDate"></i>
                                         </a>
                                     </th>
                                     <th class="white-space-nowrap align-middle ps-2" scope="col" data-sort="TotalItems">
                                         <a href="#" class="text-decoration-none text-body sort-header" data-column="TotalItems">
-                                            Total Items <i class="fas fa-sort" id="sort-TotalItems"></i>
+                                            @Html.SmartLocalize("Total Items")
+                                            <i class="fas fa-sort" id="sort-TotalItems"></i>
                                         </a>
                                     </th>
                                     <th class="white-space-nowrap align-middle ps-2" scope="col" data-sort="VatPercentage">
                                         <a href="#" class="text-decoration-none text-body sort-header" data-column="VatPercentage">
-                                            VAT % <i class="fas fa-sort" id="sort-VatPercentage"></i>
+                                            @Html.SmartLocalize("VAT %")
+                                            <i class="fas fa-sort" id="sort-VatPercentage"></i>
                                         </a>
                                     </th>
                                     @*<th class="white-space-nowrap align-middle ps-2" scope="col">
                                         Status
                                     </th>*@
                                     <th class="white-space-nowrap align-middle ps-2" scope="col">
-                                        Note
+                                        @Html.SmartLocalize("Note")
+
                                     </th>
                                     <th class="text-end white-space-nowrap pe-6" scope="col">
-                                        Export
+                                        @Html.SmartLocalize("Export")
+
                                     </th>
                                     <th class="text-end white-space-nowrap pe-6" scope="col">
-                                        Action
+                                        @Html.SmartLocalize("Action")
+
                                     </th>
                                 </tr>
                             </thead>
@@ -131,16 +143,17 @@
                     <!-- Pagination and Showing Info -->
                     <div class="d-flex justify-content-between align-items-center mt-3">
                         <div id="showDown2" class="text-muted">
-                            Showing 0 to 0 of 0
+                            @Html.SmartLocalize("Showing 0 to 0 of 0")
+
                         </div>
                         <nav aria-label="Table pagination" class="pagination-container">
                             <ul class="pagination mb-0">
                                 <li class="page-item disabled" data-list-pagination="prev">
-                                    <a class="page-link" href="#">Previous</a>
+                                    <a class="page-link" href="#">@Html.SmartLocalize("Previous")</a>
                                 </li>
                                 <!-- Dynamic pages will be inserted here -->
                                 <li class="page-item disabled" data-list-pagination="next">
-                                    <a class="page-link" href="#">Next</a>
+                                    <a class="page-link" href="#">@Html.SmartLocalize("Next")</a>
                                 </li>
                             </ul>
                         </nav>

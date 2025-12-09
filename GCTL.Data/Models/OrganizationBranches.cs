@@ -75,7 +75,17 @@ public partial class OrganizationBranches
 
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
+    public virtual ICollection<Inventory> Inventory { get; set; } = new List<Inventory>();
+
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistory { get; set; } = new List<InventoryTransactionHistory>();
+
+    public virtual ICollection<InventoryTransfers> InventoryTransfersFromOrganizationBranch { get; set; } = new List<InventoryTransfers>();
+
+    public virtual ICollection<InventoryTransfers> InventoryTransfersToOrganizationBranch { get; set; } = new List<InventoryTransfers>();
+
     public virtual Organization? Organization { get; set; }
+
+    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 

@@ -1,10 +1,12 @@
-﻿@model GCTL.Core.ViewModels.Sales.SalesOrders.SalesOrderViewModel
+﻿@using GCTL.Core.ViewModels.POS.Sales.SalesOrders
+@model SalesOrderViewModel
 @{
-    ViewData["Title"] = "Sales Order";
+    ViewData["Title"] = Html.SmartLocalize("Sales Order");
 }
+
 <div class="row mb-1">
     <div class="row col-xl-12 border-2">
-        <p class="mb-2 fw-lighter fs-5">Sales Order</p>
+        <p class="mb-2 fw-lighter fs-5">@Html.SmartLocalize("Sales Order")</p>
     </div>
 </div>
 
@@ -14,9 +16,9 @@
 
         <div class="row mb-4 mt-3">
             <div class="row col-xl-12">
-                <p class="mb-1 fw-bold fs-7">Sales Order</p>
+                <p class="mb-1 fw-bold fs-7">@Html.SmartLocalize("Sales Order")</p>
                 <p class="mb-2 fw-lighter fs-9">
-                    Sales Order details for customer orders. Select a customer and optionally link to a price quotation.
+                    @Html.SmartLocalize("Sales Order details for customer orders. Select a customer and optionally link to a price quotation.")
                 </p>
                 <div class="border-bottom border-2"></div>
             </div>
@@ -24,32 +26,27 @@
             <div class="row mb-3">
                 <div class="col-xl-12">
                     <div class="row justify-content-between">
-
                         <!-- CUSTOMER DROPDOWN -->
                         <div class="col-xl-5">
                             <div class="mt-2">
                                 <div class="d-flex gap-3">
                                     <div class="col-md-12">
                                         <input asp-for="SelectedCustomerId" type="hidden" id="selectedCustomerId" />
-
                                         <button type="button" class="btn border border-github py-5 px-10 mt-4" id="showUserDropdownBtn">
                                             <i class="fa fa-user fs-3 mb-2"></i>
-                                            <p>+ Add Customer</p>
+                                            <p>@Html.SmartLocalize("Add Customer")</p>
                                         </button>
-
                                         <div id="userDropdownContainer" style="display:none;">
-                                            <label class="form-label">Select Customer</label>
+                                            <label class="form-label">@Html.SmartLocalize("Select Customer")</label>
                                             <select id="customerDropdown" class="form-select">
-                                                <option value="">-- Select Customer --</option>
+                                                <option value="">@Html.SmartLocalize("-- Select Customer --")</option>
                                             </select>
                                         </div>
-
                                         <input type="hidden" id="preSelectedCustomerId" value="@(Model.SelectedCustomerId?.ToString() ?? "")" />
                                         <input type="hidden" id="preSelectedQuotationId" value="@(Model.SelectedQuotationId?.ToString() ?? "")" />
-
                                         <div id="userInfo" class="card mb-3 mt-3" style="display:none;">
                                             <div class="card-body">
-                                                <h5 class="card-title mb-2">Customer Information</h5>
+                                                <h5 class="card-title mb-2">@Html.SmartLocalize("Customer Information")</h5>
                                                 <div class="d-flex">
                                                     <div class="me-auto">
                                                         <p class="mb-1 fs-9 info-company"></p>
@@ -64,8 +61,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
-
                                     </div>
                                 </div>
                             </div>
@@ -75,44 +70,37 @@
                             <div class="row mt-3">
                                 <div class="col-xl-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Sales Order Number</label>
+                                        <label class="form-label">@Html.SmartLocalize("Sales Order Number")</label>
                                         <input asp-for="OrderNumber" id="orderNumber" class="form-control" readonly />
                                     </div>
                                 </div>
-
                                 <div class="col-xl-6">
                                     <div class="mb-3">
                                         <!-- QUOTATION DROPDOWN -->
                                         <div id="quotationDropdownContainer" style="display:none;">
-                                            <label class="form-label">Link to Quotation (Optional)</label>
+                                            <label class="form-label">@Html.SmartLocalize("Link to Quotation (Optional)")</label>
                                             <select id="quotationDropdown" asp-for="SelectedQuotationId" class="form-select">
-                                                <option value="">-- Select Quotation --</option>
+                                                <option value="">@Html.SmartLocalize("-- Select Quotation --")</option>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="col-xl-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Order Date</label>
+                                        <label class="form-label">@Html.SmartLocalize("Order Date")</label>
                                         <input asp-for="OrderDate" class="form-control" type="date" />
                                     </div>
                                 </div>
-
-
                                 <div class="col-xl-6">
                                     <div class="mb-3">
                                         <div class="form-check">
                                             <input asp-for="IsDraft" class="form-check-input" type="checkbox" id="isDraft" />
                                             <label class="form-check-label" for="isDraft">
-                                                Save as Draft
+                                                @Html.SmartLocalize("Save as Draft")
                                             </label>
                                         </div>
                                     </div>
                                 </div>
-
-
-
                             </div>
                         </div>
                     </div>
@@ -124,15 +112,13 @@
                 <table class="table" id="itemsTable" style="border-bottom: 0px solid #ffffff00;">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">SL</th>
-                            <th class="text-center">Description</th>
-                            <th class="text-center">Unit</th>
-                            <th class="text-center">Area</th>
-                            <th class="text-center">Rate (BDT)</th>
-                            <th class="text-center">Quantity</th>
-                            @*<th class="text-center">LIP</th>
-                            <th class="text-center">LMAC</th>*@
-                            <th class="text-center">Amount (BDT)</th>
+                            <th style="width: 50px;">@Html.SmartLocalize("SL")</th>
+                            <th class="text-center">@Html.SmartLocalize("Description")</th>
+                            <th class="text-center">@Html.SmartLocalize("Unit")</th>
+                            <th class="text-center">@Html.SmartLocalize("Area")</th>
+                            <th class="text-center">@Html.SmartLocalize("Rate (BDT)")</th>
+                            <th class="text-center">@Html.SmartLocalize("Quantity")</th>
+                            <th class="text-center">@Html.SmartLocalize("Amount (BDT)")</th>
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
@@ -144,14 +130,12 @@
                                 <td><input asp-for="Items[i].Description" class="form-control" /></td>
                                 <td>
                                     <select asp-for="Items[i].Unit" class="form-select unitDD searchableSelect" asp-items="ViewBag.Unit">
-                                        <option value="">-- Select Unit --</option>
+                                        <option value="">@Html.SmartLocalize("-- Select Unit --")</option>
                                     </select>
                                 </td>
                                 <td><input asp-for="Items[i].Area" class="form-control calc" type="number" step="any" /></td>
                                 <td><input asp-for="Items[i].Rate" class="form-control calc" type="number" step="any" /></td>
                                 <td><input asp-for="Items[i].Quantity" class="form-control calc-qty" type="number" step="any" /></td>
-                                @*<td><input asp-for="Items[i].LIP" class="form-control" /></td>
-                                <td><input asp-for="Items[i].LMAC" class="form-control" /></td>*@
                                 <td class="amount text-end align-middle">@Model.Items[i].Amount.ToString("N2")</td>
                                 <td class="text-center align-middle">
                                     <button type="button" class="btn btn-sm btn-outline-danger mx-2 remove-item">
@@ -163,25 +147,25 @@
                         <tr>
                             <td colspan="10" class="text-center">
                                 <a id="add-item-btn" class="text-primary py-2" role="button" style="cursor:pointer;">
-                                    + Add an Item
+                                    @Html.SmartLocalize("Add an Item")
                                 </a>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="8" class="text-end fs-9 fw-bold">Sub Total Taka.</td>
+                            <td colspan="8" class="text-end fs-9 fw-bold">@Html.SmartLocalize("Sub Total Taka")</td>
                             <td colspan="2" class="text-center fs-9 fw-bold" id="subTotal">@Model.SubTotal.ToString("N2")</td>
                         </tr>
                         <tr>
                             <td colspan="8" class="text-end fs-9 py-2">
                                 <div class="d-flex justify-content-end">
-                                    <div class="mx-2 mt-2">VAT/Deduction (%)</div>
+                                    <div class="mx-2 mt-2">@Html.SmartLocalize("VAT/Deduction (%)")</div>
                                     <div><input asp-for="VatPercent" id="vatPercent" class="form-control" type="number" step="any" /></div>
                                 </div>
                             </td>
                             <td colspan="2" class="text-center fs-9" id="vatAmount">@Model.VatAmount.ToString("N2")</td>
                         </tr>
                         <tr>
-                            <td colspan="8" class="text-end h5">Grand Total Taka</td>
+                            <td colspan="8" class="text-end h5">@Html.SmartLocalize("Grand Total Taka")</td>
                             <td colspan="2" class="text-center h5" id="grandTotal">@Model.GrandTotal.ToString("N2")</td>
                         </tr>
                     </tbody>
@@ -189,17 +173,17 @@
             </div>
 
             <div class="row col-xl-12 mb-3">
-                <p class="mb-1 fw-bold fs-8">Note</p>
+                <p class="mb-1 fw-bold fs-8">@Html.SmartLocalize("Note")</p>
                 <div class="pe-3">
-                    <textarea asp-for="Note" id="note" class="form-control" rows="3" placeholder="Add any additional notes here..."></textarea>
+                    <textarea asp-for="Note" id="note" class="form-control" rows="3" placeholder="@Html.SmartLocalize("Add any additional notes here...")"></textarea>
                 </div>
             </div>
 
             <!-- ACTION BUTTONS -->
             <div class="row col-xl-12 mb-3">
                 <div class="d-flex justify-content-end">
-                    <button type="button" class="btn btn-secondary me-2" id="clearFormBtn">Clear</button>
-                    <button type="submit" class="btn btn-primary me-2">Save Sales Order</button>
+                    <button type="button" class="btn btn-secondary me-2" id="clearFormBtn">@Html.SmartLocalize("Clear")</button>
+                    <button type="submit" class="btn btn-primary me-2">@Html.SmartLocalize("Save Sales Order")</button>
                 </div>
             </div>
         </div>

@@ -1,51 +1,49 @@
-﻿@model GCTL.Core.ViewModels.Sales.InvoiceDetailsF.InvoiceSidebarDetailsViewModel
+﻿@using GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
+@model InvoiceSidebarDetailsViewModel
 
 <div class="col-md-3 mb-4">
     <div class="card mb-3" style="min-height: 1000px;">
         <div class="card-body">
-
             <div class="invoice-card">
-
                 <div>
                     @if (Model.IsDraft)
                     {
                         <div class="alert alert-subtle-warning" role="alert">
-                            Invoice in draft mode
+                            @Html.SmartLocalize("Invoice in draft mode")
                         </div>
                     }
                     else if (Model.IsFullyPaid)
                     {
                         <div class="alert alert-subtle-success" role="alert">
-                            Invoice fully paid
+                            @Html.SmartLocalize("Invoice fully paid")
                         </div>
                     }
                     else
                     {
                         <div class="alert alert-subtle-danger" role="alert">
-                            Outstanding balance: @Model.DueAmount.ToString("N2") BDT
+                            @Html.SmartLocalize("Outstanding balance:") @Model.DueAmount.ToString("N2") BDT
                         </div>
                     }
                 </div>
 
                 <div class="accordion" id="accordionExample">
-
                     <!-- Create Section -->
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingCreate">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreate" aria-expanded="true" aria-controls="collapseCreate">
-                                Create
+                                @Html.SmartLocalize("Create")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseCreate" aria-labelledby="headingCreate" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 <p class="fs-9" id="createPerson">
-                                    <strong>Created By:</strong> @Model.CreatedByName <br />
-                                    <strong>Created At:</strong> @Model.CreatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    <strong>@Html.SmartLocalize("Created By:")</strong> @Model.CreatedByName <br />
+                                    <strong>@Html.SmartLocalize("Created At:")</strong> @Model.CreatedAt?.ToString("MMM dd, yyyy hh:mm tt")
                                     @if (!string.IsNullOrEmpty(Model.UpdatedByName))
                                     {
                                         <br />
-                                        <strong>Updated By:</strong> @Model.UpdatedByName <br />
-                                        <strong>Updated At:</strong> @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                        <strong>@Html.SmartLocalize("Updated By:")</strong> @Model.UpdatedByName <br />
+                                        <strong>@Html.SmartLocalize("Updated At:")</strong> @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")
                                     }
                                 </p>
                             </div>
@@ -56,20 +54,20 @@
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingPayment">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePayment" aria-expanded="true" aria-controls="collapsePayment">
-                                Payment Status
+                                @Html.SmartLocalize("Payment Status")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapsePayment" aria-labelledby="headingPayment" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 <p class="fs-9">
-                                    <strong>Total Amount:</strong> @Model.TotalAmount.ToString("N2") BDT<br>
-                                    <strong>Paid Amount:</strong> <span class="text-success">@Model.PaidAmount.ToString("N2") BDT</span><br>
-                                    <strong>Due Amount:</strong> <span class="text-danger">@Model.DueAmount.ToString("N2") BDT</span><br>
+                                    <strong>@Html.SmartLocalize("Total Amount:")</strong> @Model.TotalAmount.ToString("N2") BDT<br>
+                                    <strong>@Html.SmartLocalize("Paid Amount:")</strong> <span class="text-success">@Model.PaidAmount.ToString("N2") BDT</span><br>
+                                    <strong>@Html.SmartLocalize("Due Amount:")</strong> <span class="text-danger">@Model.DueAmount.ToString("N2") BDT</span><br>
                                     @if (!Model.IsFullyPaid && !Model.IsDraft)
                                     {
                                         <br>
                                         <a href="javascript:void(0)" onclick="addPayment(@Model.InvoiceId)" class="btn btn-sm btn-primary mt-2">
-                                            <i class="fa fa-plus me-1"></i> Add Payment
+                                            <i class="fa fa-plus me-1"></i> @Html.SmartLocalize("Add Payment")
                                         </a>
                                     }
                                 </p>
@@ -81,25 +79,23 @@
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingEdit">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEdit" aria-expanded="true" aria-controls="collapseEdit">
-                                Edit
+                                @Html.SmartLocalize("Edit")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseEdit" aria-labelledby="headingEdit" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 <p class="fs-9">
-                                    Invoice Number: @Model.InvoiceNumber <br>
+                                    @Html.SmartLocalize("Invoice Number:") @Model.InvoiceNumber <br>
                                     @if (Model.CanEdit)
                                     {
-                                        <a href="@Url.Action("Edit", "InvoiceDetails", new { id = Model.InvoiceId })">Edit Invoice</a>
+                                        <a href="@Url.Action("Edit", "InvoiceDetails", new { id = Model.InvoiceId })">@Html.SmartLocalize("Edit Invoice")</a>
                                     }
                                     else
                                     {
-                                        @*<span class="text-muted">Cannot edit finalized invoice</span>*@
                                         @foreach (var item in Model.InvoiceIdList)
                                         {
-                                            <a href="@Url.Action("Index", "InvoiceDetails", new { id = item.id })">Version @item.version</a> @item.draftSign @item.finalSign <br>
+                                            <a href="@Url.Action("Index", "InvoiceDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
                                         }
-
                                     }
                                 </p>
                             </div>
@@ -110,14 +106,14 @@
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingDuplicate">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuplicate" aria-expanded="true" aria-controls="collapseDuplicate">
-                                Duplicate
+                                @Html.SmartLocalize("Duplicate")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseDuplicate" aria-labelledby="headingDuplicate" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 <p class="fs-9">
-                                    Invoice Number: @Model.InvoiceNumber <br>
-                                    <a href="javascript:void(0)" onclick="duplicateInvoice(@Model.InvoiceId)">Create Duplicate</a>
+                                    @Html.SmartLocalize("Invoice Number:") @Model.InvoiceNumber <br>
+                                    <a href="javascript:void(0)" onclick="duplicateInvoice(@Model.InvoiceId)">@Html.SmartLocalize("Create Duplicate")</a>
                                 </p>
                             </div>
                         </div>
@@ -129,12 +125,12 @@
                         <div class="accordion-item border-top">
                             <h2 class="accordion-header" id="headingSalesOrder">
                                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSalesOrder" aria-expanded="true" aria-controls="collapseSalesOrder">
-                                    Sales Order
+                                    @Html.SmartLocalize("Sales Order")
                                 </button>
                             </h2>
                             <div class="accordion-collapse collapse show" id="collapseSalesOrder" aria-labelledby="headingSalesOrder" data-bs-parent="#accordionExample">
                                 <div class="accordion-body pt-0">
-                                    <span class="fs-9">Sales Order Number: @Model.SalesOrderNumber</span>
+                                    <span class="fs-9">@Html.SmartLocalize("Sales Order Number:") @Model.SalesOrderNumber</span>
                                 </div>
                             </div>
                         </div>
@@ -144,22 +140,20 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingEmail">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEmail" aria-expanded="true" aria-controls="collapseEmail">
-                                Send Email
+                                @Html.SmartLocalize("Send Email")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseEmail" aria-labelledby="headingEmail" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 @if (Model.CanSendEmail)
                                 {
-                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" data-bs-toggle="modal" data-bs-target="#showSendModal"><i class="far fa-envelope" aria-hidden="true"></i> </a>
+                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" data-bs-toggle="modal" data-bs-target="#showSendModal"><i class="far fa-envelope" aria-hidden="true"></i></a>
                                     <a class="btn btn-subtle-primary me-1 mb-1" type="button" onclick="printInvoice(@Model.InvoiceId)"><i class="fa fa-print" aria-hidden="true"></i></a>
                                 }
                             </div>
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </div>
     </div>
@@ -170,30 +164,26 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Send Invoice via Email</h5>
+                <h5 class="modal-title">@Html.SmartLocalize("Send Invoice via Email")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Recipient Email</label>
-                    <input type="email" class="form-control" id="recipientEmail" placeholder="customer@example.com">
+                    <label class="form-label">@Html.SmartLocalize("Recipient Email")</label>
+                    <input type="email" class="form-control" id="recipientEmail" placeholder="@Html.SmartLocalize("customer@example.com")">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Subject</label>
-                    <input type="text" class="form-control" id="emailSubject" value="Invoice - @Model.InvoiceNumber">
+                    <label class="form-label">@Html.SmartLocalize("Subject")</label>
+                    <input type="text" class="form-control" id="emailSubject" value="@Html.SmartLocalize("Invoice -") @Model.InvoiceNumber">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Message</label>
-                    <textarea class="form-control" id="emailMessage" rows="5">Dear Customer,
-
-Please find attached the invoice for your review.
-
-Best regards</textarea>
+                    <label class="form-label">@Html.SmartLocalize("Message")</label>
+                    <textarea class="form-control" id="emailMessage" rows="5">@Html.SmartLocalize("Dear Customer,\nPlease find attached the invoice for your review.\nBest regards")</textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="sendEmailNow(@Model.InvoiceId)">Send Email</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                <button type="button" class="btn btn-primary" onclick="sendEmailNow(@Model.InvoiceId)">@Html.SmartLocalize("Send Email")</button>
             </div>
         </div>
     </div>
@@ -201,21 +191,21 @@ Best regards</textarea>
 
 <script>
     function duplicateInvoice(invoiceId) {
-        if (confirm('Are you sure you want to duplicate this invoice?')) {
+        if (confirm('@Html.SmartLocalize("Are you sure you want to duplicate this invoice?")')) {
             $.ajax({
                 url: '/InvoiceDetails/Duplicate',
                 method: 'POST',
                 data: { id: invoiceId },
                 success: function (response) {
                     if (response.success) {
-                        toastr.success('Invoice duplicated successfully!');
+                        toastr.success('@Html.SmartLocalize("Invoice duplicated successfully!")');
                         window.location.href = '/InvoiceDetails/Index/' + response.newInvoiceId;
                     } else {
-                        toastr.error('Failed to duplicate: ' + response.message);
+                        toastr.error('@Html.SmartLocalize("Failed to duplicate:") ' + response.message);
                     }
                 },
                 error: function () {
-                    toastr.error('Failed to duplicate invoice.');
+                    toastr.error('@Html.SmartLocalize("Failed to duplicate invoice.")');
                 }
             });
         }
@@ -225,12 +215,10 @@ Best regards</textarea>
         const recipient = $('#recipientEmail').val();
         const subject = $('#emailSubject').val();
         const message = $('#emailMessage').val();
-
         if (!recipient) {
-            toastr.warning('Please enter recipient email address');
+            toastr.warning('@Html.SmartLocalize("Please enter recipient email address")');
             return;
         }
-
         $.ajax({
             url: '/InvoiceDetails/SendEmail',
             method: 'POST',
@@ -242,14 +230,14 @@ Best regards</textarea>
             },
             success: function (response) {
                 if (response.success) {
-                    toastr.success('Email sent successfully!');
+                    toastr.success('@Html.SmartLocalize("Email sent successfully!")');
                     $('#showSendModal').modal('hide');
                 } else {
-                    toastr.error('Failed to send email: ' + response.message);
+                    toastr.error('@Html.SmartLocalize("Failed to send email:") ' + response.message);
                 }
             },
             error: function () {
-                toastr.error('Failed to send email.');
+                toastr.error('@Html.SmartLocalize("Failed to send email.")');
             }
         });
     }
@@ -259,7 +247,6 @@ Best regards</textarea>
     }
 
     function addPayment(invoiceId) {
-        // Redirect to payment creation page or open payment modal
         window.location.href = '/Payment/Create?invoiceId=' + invoiceId;
     }
 </script>
