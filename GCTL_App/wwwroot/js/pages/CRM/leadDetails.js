@@ -1164,6 +1164,60 @@ ${value.emailAddress
             textarea.value = before + "Communication start from phone." + after;
         }
     });
+
+    $(document).on("click", "#openCreateLeadModal", function () {
+        $.get('/CreateLead/IndexModal', function (html) {
+            $('.create-lead-modal-body').html(html);
+
+            // FIXED: correct path + removed extra quotation
+            $.getScript('/js/pages/crm/createlead2.js')
+                .done(function () {
+                    // Important: init after JS loaded
+                    initCreateLeadModal();
+                });
+
+            var modal = new bootstrap.Modal(document.getElementById('createLeadModalToggle'));
+            modal.show();
+        });
+    });
+
+    $(document).on("click", "#openCustomerModal", function (e) {
+        e.preventDefault();
+
+        $.get('/Customers/IndexModal', function (html) {
+            $('.customer-modal-content').html(html);
+
+            // Initialize newly added modal elements
+            $('.customer-modal-content [data-init]').each(function () {
+                const el = this;
+                const key = el.dataset.init;
+                if (key && typeof window[key] === "function") {
+                    window[key](el);
+                    el.dataset.initialized = true; // optional flag
+                }
+                if (typeof showClose == "function") {
+                    showClose();
+                }
+            });
+
+            $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
+                .done(function () {
+                    initCustomerModal(); // perfect
+                });
+
+            // Close the select2 dropdown
+            $('#CustomerId2').select2('close');
+            // Hide first modal
+            let first = bootstrap.Modal.getInstance(document.getElementById('createLeadModalToggle'));
+            if (first) first.hide();
+            // Open the second modal
+            var modal = new bootstrap.Modal(document.getElementById('openCustomerModalToggle'));
+            modal.show();
+        });
+        
+    });
+
+
 });
 window.closeWindow = function () {
     debugger;

@@ -1,0 +1,78 @@
+﻿@model GCTL.Core.ViewModels.CRM.LeadsVM
+<div class="row col-md-12 m-0 ">
+    <form class="bg-body-heighlight p-0 form-control shadow-sm" action="shift-roster-ui.html" id="leadForm">
+        @Html.AntiForgeryToken()
+        <div class="modal-body pb-2">
+            <div class="row gy-3 ">
+
+                <div class="col-md-6">
+                    <label class="form-label">Customer Name</label>
+                    <select id="CustomerId2" class="select2">
+                    </select>
+                </div>
+                <div class="col-md-6" id="branchContainer" style="display:none">
+                    <label class="form-label">Branch Name</label>
+                    <select id="BranchId2" class="select2">
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">@Html.SmartLocalize("Lead Name")</label>
+                    <input class="form-control" id="LeadName" type="text" placeholder="" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Lead Source</label>
+                    <select id="LeadSourceID2" class="select2">
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Lead Status</label>
+                    <select id="LeadStatusID2" class="select2">
+                    </select>
+
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Priority Name</label>
+                    <select id="PriorityID2" class="select2">
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Lead Owner Name</label>
+                    <select id="LeadOwnerID2" class="form-select-lg">
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">@Html.SmartLocalize("Approximate Deal Value")</label>
+                    <input class="form-control" id="ApproximateDealValue" type="text" placeholder="" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">@Html.SmartLocalize("Service Type")</label>
+                    <select id="ServiceTypeIds2" class="form-select select2-multi" multiple="multiple"> </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label p-0">@Html.SmartLocalize("Probability (%)")</label>
+                    <div class="d-flex align-items-center">
+                        <input type="range" class="form-range" id="ProbabilityPercentage" min="0" max="100" step="1" value="0"
+                               oninput="document.getElementById('completionValue').innerText = this.value + '%'">
+                        <span id="completionValue" class="text-primary fw-bold ps-2 fs-8" style="width: 55px;">0%</span>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">@Html.SmartLocalize("Description")</label>
+                    <textarea class="form-control h-100" id="LeadDescription" rows="3" placeholder=""></textarea>
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-footer mt-4">
+            <button type="button" class="btn btn-light me-2">Cancel</button>
+            <button type="submit" id="indexSaveBtn" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+
+
+</div>

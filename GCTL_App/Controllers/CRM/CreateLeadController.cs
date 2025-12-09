@@ -30,6 +30,10 @@ namespace GCTL_App.Controllers.CRM
             SetSmartPageCode(600100);
             return View();
         }
+        public IActionResult IndexModal()
+        {
+            return PartialView("_createLeadPartial");
+        }
         #endregion
 
         #region CreateLeadData
