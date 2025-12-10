@@ -46,7 +46,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
 
-
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
@@ -263,6 +262,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<LoanInstallmentPeriods> LoanInstallmentPeriods { get; set; }
 
     public virtual DbSet<Localizations> Localizations { get; set; }
+
+    public virtual DbSet<Locations> Locations { get; set; }
 
     public virtual DbSet<MainAccounts> MainAccounts { get; set; }
 
@@ -3390,13 +3391,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Inventory__Delet__4238AEDF");
 
-            entity.HasOne(d => d.OrganizationBranch).WithMany(p => p.Inventory)
-                .HasForeignKey(d => d.OrganizationBranchID)
-                .HasConstraintName("FK__Inventory__Organ__3E681DFB");
-
-            entity.HasOne(d => d.Organization).WithMany(p => p.Inventory)
-                .HasForeignKey(d => d.OrganizationID)
-                .HasConstraintName("FK__Inventory__Organ__3D73F9C2");
+            entity.HasOne(d => d.Location).WithMany(p => p.Inventory)
+                .HasForeignKey(d => d.LocationID)
+                .HasConstraintName("FK_Locations_LocationID_Inventory");
 
             entity.HasOne(d => d.Product).WithMany(p => p.Inventory)
                 .HasForeignKey(d => d.ProductID)
@@ -3431,13 +3428,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Inventory__Delet__554B8353");
 
-            entity.HasOne(d => d.OrganizationBranch).WithMany(p => p.InventoryTransactionHistory)
-                .HasForeignKey(d => d.OrganizationBranchID)
-                .HasConstraintName("FK__Inventory__Organ__5086CE36");
-
-            entity.HasOne(d => d.Organization).WithMany(p => p.InventoryTransactionHistory)
-                .HasForeignKey(d => d.OrganizationID)
-                .HasConstraintName("FK__Inventory__Organ__4F92A9FD");
+            entity.HasOne(d => d.Inventory).WithMany(p => p.InventoryTransactionHistory)
+                .HasForeignKey(d => d.InventoryID)
+                .HasConstraintName("FK_Inventory_InventoryID_InventoryTransactionHistory");
 
             entity.HasOne(d => d.Product).WithMany(p => p.InventoryTransactionHistory)
                 .HasForeignKey(d => d.ProductID)
@@ -3476,21 +3469,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Inventory__Delet__4BC21919");
 
-            entity.HasOne(d => d.FromOrganizationBranch).WithMany(p => p.InventoryTransfersFromOrganizationBranch)
-                .HasForeignKey(d => d.FromOrganizationBranchID)
-                .HasConstraintName("FK__Inventory__FromO__46093FC3");
+            entity.HasOne(d => d.FromLocation).WithMany(p => p.InventoryTransfersFromLocation)
+                .HasForeignKey(d => d.FromLocationID)
+                .HasConstraintName("FK_Locations_FromLocationID_InventoryTransfers");
 
-            entity.HasOne(d => d.FromOrganization).WithMany(p => p.InventoryTransfersFromOrganization)
-                .HasForeignKey(d => d.FromOrganizationID)
-                .HasConstraintName("FK__Inventory__FromO__45151B8A");
-
-            entity.HasOne(d => d.ToOrganizationBranch).WithMany(p => p.InventoryTransfersToOrganizationBranch)
-                .HasForeignKey(d => d.ToOrganizationBranchID)
-                .HasConstraintName("FK__Inventory__ToOrg__47F18835");
-
-            entity.HasOne(d => d.ToOrganization).WithMany(p => p.InventoryTransfersToOrganization)
-                .HasForeignKey(d => d.ToOrganizationID)
-                .HasConstraintName("FK__Inventory__ToOrg__46FD63FC");
+            entity.HasOne(d => d.ToLocation).WithMany(p => p.InventoryTransfersToLocation)
+                .HasForeignKey(d => d.ToLocationID)
+                .HasConstraintName("FK_Locations_ToLocationID_InventoryTransfers");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InventoryTransfersUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
@@ -4705,6 +4690,41 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LocalizationsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__Localizat__Updat__064DE20A");
+        });
+
+        modelBuilder.Entity<Locations>(entity =>
+        {
+            entity.HasKey(e => e.LocationID).HasName("PK__Location__E7FEA477D9AFF181");
+
+            entity.ToTable("Locations", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LocationsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Locations__Creat__4203A4B5");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LocationsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Locations__Delet__44E01160");
+
+            entity.HasOne(d => d.OrganizationBranch).WithMany(p => p.Locations)
+                .HasForeignKey(d => d.OrganizationBranchID)
+                .HasConstraintName("FK__Locations__Organ__410F807C");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.Locations)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK__Locations__Organ__401B5C43");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LocationsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Locations__Updat__42F7C8EE");
         });
 
         modelBuilder.Entity<MainAccounts>(entity =>

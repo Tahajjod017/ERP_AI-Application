@@ -9,13 +9,7 @@ public partial class InventoryTransfers
 {
     public int InventoryTransferID { get; set; }
 
-    public int? FromOrganizationID { get; set; }
-
-    public int? FromOrganizationBranchID { get; set; }
-
     public int? ToOrganizationID { get; set; }
-
-    public int? ToOrganizationBranchID { get; set; }
 
     public DateTime? FromDate { get; set; }
 
@@ -37,17 +31,17 @@ public partial class InventoryTransfers
 
     public int? DeletedBy { get; set; }
 
+    public int? FromLocationID { get; set; }
+
+    public int? ToLocationID { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual Organization? FromOrganization { get; set; }
+    public virtual Locations? FromLocation { get; set; }
 
-    public virtual OrganizationBranches? FromOrganizationBranch { get; set; }
-
-    public virtual Organization? ToOrganization { get; set; }
-
-    public virtual OrganizationBranches? ToOrganizationBranch { get; set; }
+    public virtual Locations? ToLocation { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

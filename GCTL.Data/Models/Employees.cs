@@ -809,6 +809,12 @@ public partial class Employees
 
     public virtual ICollection<Localizations> LocalizationsUpdatedByNavigation { get; set; } = new List<Localizations>();
 
+    public virtual ICollection<Locations> LocationsCreatedByNavigation { get; set; } = new List<Locations>();
+
+    public virtual ICollection<Locations> LocationsDeletedByNavigation { get; set; } = new List<Locations>();
+
+    public virtual ICollection<Locations> LocationsUpdatedByNavigation { get; set; } = new List<Locations>();
+
     public virtual ICollection<MainAccounts> MainAccountsCreatedByNavigation { get; set; } = new List<MainAccounts>();
 
     public virtual ICollection<MainAccounts> MainAccountsDeletedByNavigation { get; set; } = new List<MainAccounts>();
