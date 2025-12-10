@@ -863,7 +863,8 @@ ${value.emailAddress
     // ======================
     $(document).on("click", "#editModalBtn", function (e) {
         var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
-            keyboard: false
+            keyboard: false,
+            backdrop: 'static',
         });
         myModal.show();
 
@@ -1164,7 +1165,77 @@ ${value.emailAddress
             textarea.value = before + "Communication start from phone." + after;
         }
     });
+    // OPEN FIRST MODAL (Create Lead)
+    $(document).on("click", "#openCreateLeadModal", function () {
+
+        $.get('/CreateLead/IndexModal', function (html) {
+
+            $('.create-lead-modal-body').html(html);
+
+            // Load script if needed
+            $.getScript('/js/pages/crm/createlead2.js')
+                .done(() => {
+                    if (typeof initCreateLeadModal === "function") {
+                        initCreateLeadModal();
+                    }
+                });
+
+            const modalEl = document.getElementById('createLeadModalToggle');
+            modalEl.setAttribute("data-bs-backdrop", "static");
+            modalEl.setAttribute("data-bs-keyboard", "false");
+
+            // Now open modal
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        });
+    });
+
+
+    // OPEN SECOND MODAL (Customer) from inside first modal
+    $(document).on("click", "#openCustomerModal", function (e) {
+        e.preventDefault();
+
+        const firstModalEl = document.getElementById('createLeadModalToggle');
+        const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
+
+        // Load customer modal content
+        $.get('/Customers/IndexModal', function (html) {
+
+            $('.customer-modal-content').html(html);
+
+            // Load script if needed
+            if (typeof initCustomerModal !== 'function') {
+                $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
+                    .done(() => initCustomerModal && initCustomerModal());
+            } else {
+                initCustomerModal();
+            }
+
+            // Make first modal non-interactive but NOT aria-hidden
+            firstModalEl.setAttribute("inert", "");
+
+            // Show second modal on top
+            const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
+                backdrop: 'static',
+                focus: true,
+                keyboard: false
+            });
+
+            secondModal.show();
+
+            // When second modal closes ? restore first modal
+            $('#openCustomerModalToggle').one('hidden.bs.modal', function () {
+                firstModalEl.removeAttribute("inert");
+                firstModal.show();
+            });
+
+        });
+
+        // Hide first modal visually now
+        firstModal.hide();
+    });
+
 });
+
 window.closeWindow = function () {
     debugger;
     const modalEl = document.getElementById('customerModal');

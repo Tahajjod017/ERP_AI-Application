@@ -27,12 +27,12 @@
 </style>
 <div data-init="initCustomerForm">
     <div class="d-flex flex-column h-100 my-3">
-        <h5 class="mb-2 text-body-highlight ms-7 fs-7 fw-semibold ms-2">Add Customer</h5>
+        <h5 class="mb-2 text-body-highlight fw-semibold ms-2">Add Customer</h5>
         <div class="row g-3" id="branchForm">
             <form id="customerForm" action="/Customers/SaveCustomer" method="post">
                 <input type="hidden" asp-for="Id" value="0" />
 
-                <div class="row px-5">
+                <div class="row">
                     <!-- Left Section -->
                     <div class="col-md-6">
                         <div class="row">
@@ -161,8 +161,8 @@
                     </div>
 
                 </div>
-                <div class="contact-div mx-4 mx-2">
-                    <div class="row justify-content-center mx-2 mt-4 mb-2 rounded p-1 bg-body-highlight">
+                <div class="contact-div mx-1">
+                    <div class="row justify-content-center mx-0 mb-2 rounded p-1 bg-body-highlight">
                        <div class="col-12 d-flex justify-content-between align-items-center">
                             <div> <div class="fw-bold fs-7 mb-2 mt-2">Contact Information</div></div>
                             <div class="btn border-2 border-dark" id="contact-btn">Add Contact</div>
@@ -171,7 +171,7 @@
                     <div id="root-cotact-field"></div>
                 </div>
                 
-                <div class="modal-footer border-0 pt-0 pb-2 mx-5 mt-2 gap-2 d-flex justify-content-end">
+                <div class="modal-footer border-0 pt-0 pb-2 mt-2 gap-2 d-flex justify-content-end">
                     <div>
                         @* <button type="button" class="btn btn-light" id="saveAndgoWarehouseTab">Save & Add Branch</button> *@
                         <button type="button" class="btn btn-primary" id="saveAndExit">Save</button>
