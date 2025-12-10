@@ -648,6 +648,13 @@
         padding: 1.25rem 1.5rem;
         background-color: var(--bg-subtle);
     }
+
+    /* very label Capitalize */
+
+    .form-label {
+        text-transform: capitalize !important;
+        font-size: 14px;
+    }
 </style>
 
 <div class="pb-4">
@@ -1192,34 +1199,28 @@
         </div>
     </div>
 </div>
-
-@* modal inside another modal *@
-<div class="modal fade" id="createLeadModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+<!-- FIRST MODAL -->
+<div class="modal fade" id="createLeadModalToggle" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalToggleLabel">Create Lead</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Create Lead</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="create-lead-modal-body">
-               
-            </div>
+            <div class="create-lead-modal-body"></div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="openCustomerModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+
+<!-- SECOND MODAL -->
+<div class="modal fade" id="openCustomerModalToggle" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="customer-modal-content">
-            @* <div class="modal-header"> *@
-            @*     <h5 class="modal-title" id="exampleModalToggleLabel2">Modal 2</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="customer-modal-body">
-                Hide this modal and show the first with the button below.
-            </div> *@
-            @* <div class="modal-footer">
-                <button class="btn btn-primary" data-bs-target="#createLeadModalToggle" data-bs-toggle="modal" data-bs-dismiss="modal">Back to first</button>
-            </div> *@
+            <div class="customer-modal-content"></div>
         </div>
     </div>
 </div>

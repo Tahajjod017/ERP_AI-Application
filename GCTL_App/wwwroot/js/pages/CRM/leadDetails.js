@@ -863,7 +863,8 @@ ${value.emailAddress
     // ======================
     $(document).on("click", "#editModalBtn", function (e) {
         var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
-            keyboard: false
+            keyboard: false,
+            backdrop: 'static',
         });
         myModal.show();
 
@@ -1164,61 +1165,77 @@ ${value.emailAddress
             textarea.value = before + "Communication start from phone." + after;
         }
     });
-
+    // OPEN FIRST MODAL (Create Lead)
     $(document).on("click", "#openCreateLeadModal", function () {
+
         $.get('/CreateLead/IndexModal', function (html) {
+
             $('.create-lead-modal-body').html(html);
 
-            // FIXED: correct path + removed extra quotation
+            // Load script if needed
             $.getScript('/js/pages/crm/createlead2.js')
-                .done(function () {
-                    // Important: init after JS loaded
-                    initCreateLeadModal();
+                .done(() => {
+                    if (typeof initCreateLeadModal === "function") {
+                        initCreateLeadModal();
+                    }
                 });
 
-            var modal = new bootstrap.Modal(document.getElementById('createLeadModalToggle'));
-            modal.show();
+            const modalEl = document.getElementById('createLeadModalToggle');
+            modalEl.setAttribute("data-bs-backdrop", "static");
+            modalEl.setAttribute("data-bs-keyboard", "false");
+
+            // Now open modal
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
         });
     });
 
+
+    // OPEN SECOND MODAL (Customer) from inside first modal
     $(document).on("click", "#openCustomerModal", function (e) {
         e.preventDefault();
 
+        const firstModalEl = document.getElementById('createLeadModalToggle');
+        const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
+
+        // Load customer modal content
         $.get('/Customers/IndexModal', function (html) {
+
             $('.customer-modal-content').html(html);
 
-            // Initialize newly added modal elements
-            $('.customer-modal-content [data-init]').each(function () {
-                const el = this;
-                const key = el.dataset.init;
-                if (key && typeof window[key] === "function") {
-                    window[key](el);
-                    el.dataset.initialized = true; // optional flag
-                }
-                if (typeof showClose == "function") {
-                    showClose();
-                }
+            // Load script if needed
+            if (typeof initCustomerModal !== 'function') {
+                $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
+                    .done(() => initCustomerModal && initCustomerModal());
+            } else {
+                initCustomerModal();
+            }
+
+            // Make first modal non-interactive but NOT aria-hidden
+            firstModalEl.setAttribute("inert", "");
+
+            // Show second modal on top
+            const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
+                backdrop: 'static',
+                focus: true,
+                keyboard: false
             });
 
-            $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
-                .done(function () {
-                    initCustomerModal(); // perfect
-                });
+            secondModal.show();
 
-            // Close the select2 dropdown
-            $('#CustomerId2').select2('close');
-            // Hide first modal
-            let first = bootstrap.Modal.getInstance(document.getElementById('createLeadModalToggle'));
-            if (first) first.hide();
-            // Open the second modal
-            var modal = new bootstrap.Modal(document.getElementById('openCustomerModalToggle'));
-            modal.show();
+            // When second modal closes ? restore first modal
+            $('#openCustomerModalToggle').one('hidden.bs.modal', function () {
+                firstModalEl.removeAttribute("inert");
+                firstModal.show();
+            });
+
         });
-        
+
+        // Hide first modal visually now
+        firstModal.hide();
     });
 
-
 });
+
 window.closeWindow = function () {
     debugger;
     const modalEl = document.getElementById('customerModal');

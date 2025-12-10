@@ -29,6 +29,8 @@ public partial class Statuses
 
     public int? DeletedBy { get; set; }
 
+    public string? StatusCode { get; set; }
+
     public virtual ICollection<Attendance> Attendance { get; set; } = new List<Attendance>();
 
     public virtual Employees? CreatedByNavigation { get; set; }
