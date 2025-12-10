@@ -351,6 +351,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[LanguageInd_en]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[LanguageInd_hi]",
          "ObjectType": 0
       },
@@ -547,6 +551,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[FS].[EmployeeAdvances]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[FS].[Jobs]",
          "ObjectType": 0
       },
@@ -711,6 +719,18 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[Inventory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[InventoryTransactionHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[InventoryTransfers]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[InvoiceBaseCAddresses]",
          "ObjectType": 0
       },
@@ -724,6 +744,10 @@
       },
       {
          "Name": "[SC].[InvoiceVersionItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[Locations]",
          "ObjectType": 0
       },
       {
@@ -779,6 +803,42 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[PurchaseReceiveDrafts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[PurchaseReceiveItemDrafts]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[PurchaseReceiveItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[PurchaseReceives]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[PurchasOrderItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[PurchasOrders]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[PurOrderBaseSAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[SAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[SAddressTypes]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[SalesOrders]",
          "ObjectType": 0
       },
@@ -791,11 +851,23 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[SupplierAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[Suppliers]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[UnitTypes]",
          "ObjectType": 0
       },
       {
          "Name": "[SC].[WarrantyTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[Wirehouses]",
          "ObjectType": 0
       },
       {
@@ -829,6 +901,10 @@
       {
          "Name": "[Shift].[EmployeeFinalShifts]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ServiceView]",
+         "ObjectType": 3
       },
       {
          "Name": "[dbo].[aa]",
@@ -884,7 +960,6 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
-   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -903,6 +978,5 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false,
-   "UseT4Split": false
+   "UseT4": false
 }

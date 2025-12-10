@@ -89,6 +89,10 @@ public partial class Products
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
+    public virtual ICollection<Inventory> Inventory { get; set; } = new List<Inventory>();
+
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistory { get; set; } = new List<InventoryTransactionHistory>();
+
     public virtual ICollection<InvoiceVersionItems> InvoiceVersionItems { get; set; } = new List<InvoiceVersionItems>();
 
     public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();
@@ -108,6 +112,12 @@ public partial class Products
     public virtual ProductSubCategories? ProductSubCategory { get; set; }
 
     public virtual ProductTypes? ProductType { get; set; }
+
+    public virtual ICollection<PurchasOrderItems> PurchasOrderItems { get; set; } = new List<PurchasOrderItems>();
+
+    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDrafts { get; set; } = new List<PurchaseReceiveItemDrafts>();
+
+    public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
 
     public virtual UnitTypes? UnitType { get; set; }
 

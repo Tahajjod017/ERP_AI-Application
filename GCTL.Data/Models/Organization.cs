@@ -129,6 +129,8 @@ public partial class Organization
 
     public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
 
+    public virtual ICollection<Locations> Locations { get; set; } = new List<Locations>();
+
     public virtual ICollection<MobileApps> MobileApps { get; set; } = new List<MobileApps>();
 
     public virtual ICollection<OTPSettings> OTPSettings { get; set; } = new List<OTPSettings>();
@@ -142,6 +144,8 @@ public partial class Organization
     public virtual ICollection<Priorities> Priorities { get; set; } = new List<Priorities>();
 
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettings { get; set; } = new List<ProbetionPeriodSettings>();
+
+    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
 
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistory { get; set; } = new List<ResignationsApprovalHistory>();
 
@@ -170,4 +174,6 @@ public partial class Organization
     public virtual Employees? UpdatedByNavigation { get; set; }
 
     public virtual ICollection<WeekendSettings> WeekendSettings { get; set; } = new List<WeekendSettings>();
+
+    public virtual ICollection<Wirehouses> Wirehouses { get; set; } = new List<Wirehouses>();
 }

@@ -29,6 +29,8 @@ public partial class Statuses
 
     public int? DeletedBy { get; set; }
 
+    public string? StatusCode { get; set; }
+
     public virtual ICollection<Attendance> Attendance { get; set; } = new List<Attendance>();
 
     public virtual Employees? CreatedByNavigation { get; set; }
@@ -36,6 +38,8 @@ public partial class Statuses
     public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatus { get; set; } = new List<DailyAttendanceStatus>();
 
     public virtual Employees? DeletedByNavigation { get; set; }
+
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvances { get; set; } = new List<EmployeeAdvances>();
 
     public virtual ICollection<EmployeeCareerChangeHistory> EmployeeCareerChangeHistory { get; set; } = new List<EmployeeCareerChangeHistory>();
 
@@ -51,6 +55,8 @@ public partial class Statuses
 
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistory { get; set; } = new List<InventoryTransactionHistory>();
+
     public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
 
     public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
@@ -60,6 +66,8 @@ public partial class Statuses
     public virtual ICollection<Loan> Loan { get; set; } = new List<Loan>();
 
     public virtual ICollection<LoanBaseApprovalHistory> LoanBaseApprovalHistory { get; set; } = new List<LoanBaseApprovalHistory>();
+
+    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
 
     public virtual ICollection<Resignations> Resignations { get; set; } = new List<Resignations>();
 

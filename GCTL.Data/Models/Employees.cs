@@ -379,6 +379,16 @@ public partial class Employees
 
     public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoUpdatedByNavigation { get; set; } = new List<EmployeeAdditionalInfo>();
 
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvancesApprovedByUser { get; set; } = new List<EmployeeAdvances>();
+
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvancesCreatedByNavigation { get; set; } = new List<EmployeeAdvances>();
+
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvancesDeletedByNavigation { get; set; } = new List<EmployeeAdvances>();
+
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvancesRequestedByUser { get; set; } = new List<EmployeeAdvances>();
+
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvancesUpdatedByNavigation { get; set; } = new List<EmployeeAdvances>();
+
     public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetupCreatedByNavigation { get; set; } = new List<EmployeeAllowanceSetup>();
 
     public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetupDeletedByNavigation { get; set; } = new List<EmployeeAllowanceSetup>();
@@ -576,6 +586,24 @@ public partial class Employees
     public virtual ICollection<Holidays> HolidaysDeletedByNavigation { get; set; } = new List<Holidays>();
 
     public virtual ICollection<Holidays> HolidaysUpdatedByNavigation { get; set; } = new List<Holidays>();
+
+    public virtual ICollection<Inventory> InventoryCreatedByNavigation { get; set; } = new List<Inventory>();
+
+    public virtual ICollection<Inventory> InventoryDeletedByNavigation { get; set; } = new List<Inventory>();
+
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistoryCreatedByNavigation { get; set; } = new List<InventoryTransactionHistory>();
+
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistoryDeletedByNavigation { get; set; } = new List<InventoryTransactionHistory>();
+
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistoryUpdatedByNavigation { get; set; } = new List<InventoryTransactionHistory>();
+
+    public virtual ICollection<InventoryTransfers> InventoryTransfersCreatedByNavigation { get; set; } = new List<InventoryTransfers>();
+
+    public virtual ICollection<InventoryTransfers> InventoryTransfersDeletedByNavigation { get; set; } = new List<InventoryTransfers>();
+
+    public virtual ICollection<InventoryTransfers> InventoryTransfersUpdatedByNavigation { get; set; } = new List<InventoryTransfers>();
+
+    public virtual ICollection<Inventory> InventoryUpdatedByNavigation { get; set; } = new List<Inventory>();
 
     public virtual ICollection<Employees> InverseCreatedByNavigation { get; set; } = new List<Employees>();
 
@@ -790,6 +818,12 @@ public partial class Employees
     public virtual ICollection<Localizations> LocalizationsDeletedByNavigation { get; set; } = new List<Localizations>();
 
     public virtual ICollection<Localizations> LocalizationsUpdatedByNavigation { get; set; } = new List<Localizations>();
+
+    public virtual ICollection<Locations> LocationsCreatedByNavigation { get; set; } = new List<Locations>();
+
+    public virtual ICollection<Locations> LocationsDeletedByNavigation { get; set; } = new List<Locations>();
+
+    public virtual ICollection<Locations> LocationsUpdatedByNavigation { get; set; } = new List<Locations>();
 
     public virtual ICollection<MainAccounts> MainAccountsCreatedByNavigation { get; set; } = new List<MainAccounts>();
 
@@ -1035,6 +1069,50 @@ public partial class Employees
 
     public virtual ICollection<ProvisionPeriodTtimeTypes> ProvisionPeriodTtimeTypesUpdatedByNavigation { get; set; } = new List<ProvisionPeriodTtimeTypes>();
 
+    public virtual ICollection<PurOrderBaseSAddresses> PurOrderBaseSAddressesCreatedByNavigation { get; set; } = new List<PurOrderBaseSAddresses>();
+
+    public virtual ICollection<PurOrderBaseSAddresses> PurOrderBaseSAddressesDeletedByNavigation { get; set; } = new List<PurOrderBaseSAddresses>();
+
+    public virtual ICollection<PurOrderBaseSAddresses> PurOrderBaseSAddressesUpdatedByNavigation { get; set; } = new List<PurOrderBaseSAddresses>();
+
+    public virtual ICollection<PurchasOrderItems> PurchasOrderItemsCreatedByNavigation { get; set; } = new List<PurchasOrderItems>();
+
+    public virtual ICollection<PurchasOrderItems> PurchasOrderItemsDeletedByNavigation { get; set; } = new List<PurchasOrderItems>();
+
+    public virtual ICollection<PurchasOrderItems> PurchasOrderItemsUpdatedByNavigation { get; set; } = new List<PurchasOrderItems>();
+
+    public virtual ICollection<PurchasOrders> PurchasOrdersCreatedBy1 { get; set; } = new List<PurchasOrders>();
+
+    public virtual ICollection<PurchasOrders> PurchasOrdersCreatedByNavigation { get; set; } = new List<PurchasOrders>();
+
+    public virtual ICollection<PurchasOrders> PurchasOrdersDeletedByNavigation { get; set; } = new List<PurchasOrders>();
+
+    public virtual ICollection<PurchasOrders> PurchasOrdersUpdatedByNavigation { get; set; } = new List<PurchasOrders>();
+
+    public virtual ICollection<PurchaseReceiveDrafts> PurchaseReceiveDraftsCreatedByNavigation { get; set; } = new List<PurchaseReceiveDrafts>();
+
+    public virtual ICollection<PurchaseReceiveDrafts> PurchaseReceiveDraftsDeletedByNavigation { get; set; } = new List<PurchaseReceiveDrafts>();
+
+    public virtual ICollection<PurchaseReceiveDrafts> PurchaseReceiveDraftsUpdatedByNavigation { get; set; } = new List<PurchaseReceiveDrafts>();
+
+    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDraftsCreatedByNavigation { get; set; } = new List<PurchaseReceiveItemDrafts>();
+
+    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDraftsDeletedByNavigation { get; set; } = new List<PurchaseReceiveItemDrafts>();
+
+    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDraftsUpdatedByNavigation { get; set; } = new List<PurchaseReceiveItemDrafts>();
+
+    public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItemsCreatedByNavigation { get; set; } = new List<PurchaseReceiveItems>();
+
+    public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItemsDeletedByNavigation { get; set; } = new List<PurchaseReceiveItems>();
+
+    public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItemsUpdatedByNavigation { get; set; } = new List<PurchaseReceiveItems>();
+
+    public virtual ICollection<PurchaseReceives> PurchaseReceivesCreatedByNavigation { get; set; } = new List<PurchaseReceives>();
+
+    public virtual ICollection<PurchaseReceives> PurchaseReceivesDeletedByNavigation { get; set; } = new List<PurchaseReceives>();
+
+    public virtual ICollection<PurchaseReceives> PurchaseReceivesUpdatedByNavigation { get; set; } = new List<PurchaseReceives>();
+
     public virtual Religions? Religion { get; set; }
 
     public virtual ICollection<Religions> ReligionsCreatedByNavigation { get; set; } = new List<Religions>();
@@ -1090,6 +1168,18 @@ public partial class Employees
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysEmployee { get; set; } = new List<RosterInOfficeDays>();
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDaysUpdatedByNavigation { get; set; } = new List<RosterInOfficeDays>();
+
+    public virtual ICollection<SAddressTypes> SAddressTypesCreatedByNavigation { get; set; } = new List<SAddressTypes>();
+
+    public virtual ICollection<SAddressTypes> SAddressTypesDeletedByNavigation { get; set; } = new List<SAddressTypes>();
+
+    public virtual ICollection<SAddressTypes> SAddressTypesUpdatedByNavigation { get; set; } = new List<SAddressTypes>();
+
+    public virtual ICollection<SAddresses> SAddressesCreatedByNavigation { get; set; } = new List<SAddresses>();
+
+    public virtual ICollection<SAddresses> SAddressesDeletedByNavigation { get; set; } = new List<SAddresses>();
+
+    public virtual ICollection<SAddresses> SAddressesUpdatedByNavigation { get; set; } = new List<SAddresses>();
 
     public virtual ICollection<SMSSettings> SMSSettingsCreatedByNavigation { get; set; } = new List<SMSSettings>();
 
@@ -1201,6 +1291,18 @@ public partial class Employees
 
     public virtual ICollection<SubAccounts> SubAccountsUpdatedByNavigation { get; set; } = new List<SubAccounts>();
 
+    public virtual ICollection<SupplierAddresses> SupplierAddressesCreatedByNavigation { get; set; } = new List<SupplierAddresses>();
+
+    public virtual ICollection<SupplierAddresses> SupplierAddressesDeletedByNavigation { get; set; } = new List<SupplierAddresses>();
+
+    public virtual ICollection<SupplierAddresses> SupplierAddressesUpdatedByNavigation { get; set; } = new List<SupplierAddresses>();
+
+    public virtual ICollection<Suppliers> SuppliersCreatedByNavigation { get; set; } = new List<Suppliers>();
+
+    public virtual ICollection<Suppliers> SuppliersDeletedByNavigation { get; set; } = new List<Suppliers>();
+
+    public virtual ICollection<Suppliers> SuppliersUpdatedByNavigation { get; set; } = new List<Suppliers>();
+
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryApprovalPerson { get; set; } = new List<TerminationApprovalHistory>();
 
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistoryCreatedByNavigation { get; set; } = new List<TerminationApprovalHistory>();
@@ -1264,6 +1366,12 @@ public partial class Employees
     public virtual ICollection<WeekendSettings> WeekendSettingsDeletedByNavigation { get; set; } = new List<WeekendSettings>();
 
     public virtual ICollection<WeekendSettings> WeekendSettingsUpdatedByNavigation { get; set; } = new List<WeekendSettings>();
+
+    public virtual ICollection<Wirehouses> WirehousesCreatedByNavigation { get; set; } = new List<Wirehouses>();
+
+    public virtual ICollection<Wirehouses> WirehousesDeletedByNavigation { get; set; } = new List<Wirehouses>();
+
+    public virtual ICollection<Wirehouses> WirehousesUpdatedByNavigation { get; set; } = new List<Wirehouses>();
 
     public virtual ICollection<YearlyEndBonusTypes> YearlyEndBonusTypesCreatedByNavigation { get; set; } = new List<YearlyEndBonusTypes>();
 

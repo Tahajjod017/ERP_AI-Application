@@ -5,17 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LeadDetails
+public partial class Wirehouses
 {
-    public int LeadDetailID { get; set; }
+    public int WirehouseID { get; set; }
 
-    public int? LeadID { get; set; }
+    public int? OrganizationID { get; set; }
 
-    public int? LeadActivityTypeID { get; set; }
+    public string? WirehouseName { get; set; }
 
-    public DateTime? ActivityDateTime { get; set; }
+    public string? FullAddress { get; set; }
 
-    public string? ActivityNote { get; set; }
+    public string? Email { get; set; }
+
+    public string? Phone { get; set; }
 
     public string? LIP { get; set; }
 
@@ -33,21 +35,11 @@ public partial class LeadDetails
 
     public int? DeletedBy { get; set; }
 
-    public string? FileLink { get; set; }
-
-    public string? PhoneNumber { get; set; }
-
-    public string? EmailAddress { get; set; }
-
-    public bool? IsDone { get; set; }
-
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual Leads? Lead { get; set; }
-
-    public virtual LeadActivityTypes? LeadActivityType { get; set; }
+    public virtual Organization? Organization { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

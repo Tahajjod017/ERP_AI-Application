@@ -75,7 +75,11 @@ public partial class OrganizationBranches
 
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
+    public virtual ICollection<Locations> Locations { get; set; } = new List<Locations>();
+
     public virtual Organization? Organization { get; set; }
+
+    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 

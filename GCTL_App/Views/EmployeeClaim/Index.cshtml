@@ -1,0 +1,180 @@
+﻿
+<nav class="mb-3" aria-label="breadcrumb">
+	<ol class="breadcrumb mb-0">
+		<li class="breadcrumb-item"><a href="#!">Page 1</a></li>
+		<li class="breadcrumb-item"><a href="#!">Page 2</a></li>
+		<li class="breadcrumb-item active">Default</li>
+	</ol>
+</nav>
+
+<div class="card">
+	<div class="card-header">
+		<h3>Employee  New Claim</h3>
+	</div>
+	<div class="card-body">
+		<div class="row col-md-12">
+			<form asp-controller="EmployeeClaim"asp-action="Create">
+				<div class="modal-body pb-0">
+					<div class="row mt-3">
+
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label" for="exampleFormControlInput">Client Name</label>
+								<select class="form-select" id="organizerMultiple" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
+
+									<option>Client 1</option>
+									<option>Client 2</option>
+									<option>Client 3</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label" for="exampleFormControlInput">Project Name</label>
+								<select class="form-select" id="organizerMultiple" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
+
+									<option>Project 1</option>
+									<option>Project 2</option>
+									<option>Project 3</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label" for="organizerMultiple">Job Type</label>
+								<select class="form-select" id="" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+									<option value="">Sales</option>
+									<option>Services</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label form-switch" for="exampleFormControlInput">Claim By </label>
+								<select class="form-select" id="" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+									<option>Mahamudul Hasan</option>
+									<option>Mashum Billah</option>
+									<option>Abdul Motin</option>
+								</select>
+							</div>
+						</div>
+
+
+
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label" for="exampleFormControlInput">Other Employees Name</label>
+								<select class="form-select" id="organizerMultiple" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
+
+									<option>Mahamudul Hasan</option>
+									<option>Mashum Billah</option>
+									<option>Abdul Motin</option>
+								</select>
+							</div>
+						</div>
+
+
+
+
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label" for="organizerMultiple">From Date</label>
+								<input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label" for="organizerMultiple">To Date</label>
+								<input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+							</div>
+						</div>
+
+
+
+						<div class="col-md-12 mt-3 border">
+							<table class="table">
+								<thead>
+									<tr>
+										<th scope="col">SL</th>
+										<th scope="col">Claim Catagory</th>
+										<th scope="col">Amount</th>
+										<th scope="col">Other Person</th>
+										<th scope="col">Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<th scope="row">1</th>
+										<td>
+											<div>
+												Food Expense
+											</div>
+										</td>
+										<td>140</td>
+										<td>
+											Hashim Khan, Rakibul Islam
+										</td>
+										<td>12 Aug, 2025</td>
+									</tr>
+									<tr>
+										<th scope="row">2</th>
+										<td>
+											<select class="form-select" id="" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+												<option>দুপুরের খাবার</option>
+												<option>রাতের খাবার</option>
+												<option>সকালের নাস্তা</option>
+												<option>বিকালের নাস্তা</option>
+												<option>হোটেল ভাড়া </option>
+												<option>বাস ভাড়া</option>
+												<option>রিকশা ভাড়া</option>
+												<option>বিমান ভাড়া</option>
+												<option>নৌকা ভাড়া</option>
+												<option>সি এন জি ভাড়া</option>
+												<option>অটোরিকশা ভাড়া </option>
+												<option>মই ভাড়া </option>
+												<option>মোটরসাইকেল ভাড়া</option>
+												<option>বিকাশের টাকা উত্তলন</option>
+												<option>মোবাইল রিচার্জ</option>
+												<option>ইন্টারনেট রিচার্জ</option>
+											</select>
+										</td>
+										<td><input class="form-control" id="" type="number" /></td>
+										<td>
+											<select class="form-select" id="" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
+												<option>Mahamudul Hasan</option>
+												<option>Mashum Billah</option>
+												<option>Abdul Motin</option>
+											</select>
+										</td>
+										<td><input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' /></td>
+									</tr>
+								</tbody>
+								<tfoot>
+									<tr>
+										<th scope="row" colspan="4">
+											<button class="btn" type="button">+Add</button>
+										</th>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+
+
+
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Send for Approval</button>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</div>
+
+

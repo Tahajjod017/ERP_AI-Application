@@ -5,17 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LeadDetails
+public partial class Suppliers
 {
-    public int LeadDetailID { get; set; }
+    public int SupplierID { get; set; }
 
-    public int? LeadID { get; set; }
+    public string? FullName { get; set; }
 
-    public int? LeadActivityTypeID { get; set; }
-
-    public DateTime? ActivityDateTime { get; set; }
-
-    public string? ActivityNote { get; set; }
+    public bool? IsPerson { get; set; }
 
     public string? LIP { get; set; }
 
@@ -33,21 +29,13 @@ public partial class LeadDetails
 
     public int? DeletedBy { get; set; }
 
-    public string? FileLink { get; set; }
-
-    public string? PhoneNumber { get; set; }
-
-    public string? EmailAddress { get; set; }
-
-    public bool? IsDone { get; set; }
-
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual Leads? Lead { get; set; }
+    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
 
-    public virtual LeadActivityTypes? LeadActivityType { get; set; }
+    public virtual ICollection<SupplierAddresses> SupplierAddresses { get; set; } = new List<SupplierAddresses>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }
