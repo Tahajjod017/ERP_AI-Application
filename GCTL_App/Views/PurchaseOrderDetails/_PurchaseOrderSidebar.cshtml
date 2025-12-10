@@ -1,0 +1,266 @@
+﻿@model GCTL.Core.ViewModels.RequisitionDistribution.PurchaseOrder.PurchaseOrderSidebarDetailsViewModel
+
+<div class="col-md-3 mb-4">
+    <div class="card mb-3" style="min-height: 1000px;">
+        <div class="card-body">
+
+            <div class="invoice-card">
+
+                <div>
+                    @if (Model.IsDraft)
+                    {
+                        <div class="alert alert-subtle-warning" role="alert">
+                            Purchase Order in draft mode
+                        </div>
+                    }
+                    else if (Model.IsFullyPaid)
+                    {
+                        <div class="alert alert-subtle-success" role="alert">
+                            Purchase Order fully paid
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-subtle-danger" role="alert">
+                            Outstanding balance: @Model.DueAmount.ToString("N2") BDT
+                        </div>
+                    }
+                </div>
+
+                <div class="accordion" id="accordionExample">
+
+                    <!-- Create Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingCreate">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreate" aria-expanded="true" aria-controls="collapseCreate">
+                                Create
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseCreate" aria-labelledby="headingCreate" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9" id="createPerson">
+                                    <strong>Created By:</strong> @Model.CreatedByName <br />
+                                    <strong>Created At:</strong> @Model.CreatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    @if (!string.IsNullOrEmpty(Model.UpdatedByName))
+                                    {
+                                        <br />
+                                        <strong>Updated By:</strong> @Model.UpdatedByName <br />
+                                        <strong>Updated At:</strong> @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Status Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingPayment">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePayment" aria-expanded="true" aria-controls="collapsePayment">
+                                Payment Status
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapsePayment" aria-labelledby="headingPayment" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9">
+                                    <strong>Total Amount:</strong> @Model.TotalAmount.ToString("N2") BDT<br>
+                                    <strong>Paid Amount:</strong> <span class="text-success">@Model.PaidAmount.ToString("N2") BDT</span><br>
+                                    <strong>Due Amount:</strong> <span class="text-danger">@Model.DueAmount.ToString("N2") BDT</span><br>
+                                    @if (!Model.IsFullyPaid && !Model.IsDraft)
+                                    {
+                                        <br>
+                                        <a href="javascript:void(0)" onclick="addPayment(@Model.PurchaseOrderId)" class="btn btn-sm btn-primary mt-2">
+                                            <i class="fa fa-plus me-1"></i> Add Payment
+                                        </a>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingEdit">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEdit" aria-expanded="true" aria-controls="collapseEdit">
+                                Edit
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseEdit" aria-labelledby="headingEdit" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9">
+                                    PO Number: @Model.POID <br>
+                                    @if (Model.CanEdit)
+                                    {
+                                        <a href="@Url.Action("Edit", "PurchaseOrderDetails", new { id = Model.PurchaseOrderId })">Edit Purchase Order</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Cannot edit finalized PO</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Duplicate Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingDuplicate">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuplicate" aria-expanded="true" aria-controls="collapseDuplicate">
+                                Duplicate
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseDuplicate" aria-labelledby="headingDuplicate" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9">
+                                    PO Number: @Model.POID <br>
+                                    <a href="javascript:void(0)" onclick="duplicatePurchaseOrder(@Model.PurchaseOrderId)">Create Duplicate</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingStatus">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStatus" aria-expanded="true" aria-controls="collapseStatus">
+                                Status
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseStatus" aria-labelledby="headingStatus" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9">
+                                    Current Status: <strong>@Model.StatusName</strong><br>
+                                    <a href="javascript:void(0)" onclick="updateStatus(@Model.PurchaseOrderId)">Update Status</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Send Email Section -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingEmail">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEmail" aria-expanded="true" aria-controls="collapseEmail">
+                                Send Email
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseEmail" aria-labelledby="headingEmail" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                @if (Model.CanSendEmail)
+                                {
+                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" data-bs-toggle="modal" data-bs-target="#showSendModal"><i class="far fa-envelope" aria-hidden="true"></i> </a>
+                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" onclick="printPurchaseOrder(@Model.PurchaseOrderId)"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send Email Modal -->
+<div class="modal fade" id="showSendModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Send Purchase Order via Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Recipient Email</label>
+                    <input type="email" class="form-control" id="recipientEmail" placeholder="supplier@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-control" id="emailSubject" value="Purchase Order - @Model.POID">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-control" id="emailMessage" rows="5">Dear Supplier,
+
+Please find attached the purchase order for your review.
+
+Best regards</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="sendEmailNow(@Model.PurchaseOrderId)">Send Email</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function duplicatePurchaseOrder(poId) {
+    if (confirm('Are you sure you want to duplicate this purchase order?')) {
+        $.ajax({
+            url: '/PurchaseOrderDetails/Duplicate',
+            method: 'POST',
+            data: { id: poId },
+            success: function (response) {
+                if (response.success) {
+                    toastr.success('Purchase Order duplicated successfully!');
+                    window.location.href = '/PurchaseOrderDetails/Index/' + response.newPurchaseOrderId;
+                } else {
+                    toastr.error('Failed to duplicate: ' + response.message);
+                }
+            },
+            error: function () {
+                toastr.error('Failed to duplicate purchase order.');
+            }
+        });
+    }
+}
+
+function updateStatus(poId) {
+    // Open status update modal or redirect
+    // For now, just alert
+    toastr.info('Status update functionality - to be implemented');
+}
+
+function sendEmailNow(poId) {
+    const recipient = $('#recipientEmail').val();
+    const subject = $('#emailSubject').val();
+    const message = $('#emailMessage').val();
+
+    if (!recipient) {
+        toastr.warning('Please enter recipient email address');
+        return;
+    }
+
+    $.ajax({
+        url: '/PurchaseOrderDetails/SendEmail',
+        method: 'POST',
+        data: {
+            id: poId,
+            recipientEmail: recipient,
+            subject: subject,
+            message: message
+        },
+        success: function (response) {
+            if (response.success) {
+                toastr.success('Email sent successfully!');
+                $('#showSendModal').modal('hide');
+            } else {
+                toastr.error('Failed to send email: ' + response.message);
+            }
+        },
+        error: function () {
+            toastr.error('Failed to send email.');
+        }
+    });
+}
+
+function printPurchaseOrder(poId) {
+    window.open('/PurchaseOrderDetails/PrintPDF/' + poId, '_blank');
+}
+
+function addPayment(poId) {
+    // Redirect to payment creation page
+    window.location.href = '/Payment/Create?purchaseOrderId=' + poId;
+}
+</script>

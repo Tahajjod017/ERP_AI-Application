@@ -11,10 +11,6 @@ public partial class InventoryTransactionHistory
 
     public int? ProductID { get; set; }
 
-    public int? OrganizationID { get; set; }
-
-    public int? OrganizationBranchID { get; set; }
-
     public decimal? Quantity { get; set; }
 
     public decimal? UnitPrice { get; set; }
@@ -37,13 +33,13 @@ public partial class InventoryTransactionHistory
 
     public int? DeletedBy { get; set; }
 
+    public int? InventoryID { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual Organization? Organization { get; set; }
-
-    public virtual OrganizationBranches? OrganizationBranch { get; set; }
+    public virtual Inventory? Inventory { get; set; }
 
     public virtual Products? Product { get; set; }
 

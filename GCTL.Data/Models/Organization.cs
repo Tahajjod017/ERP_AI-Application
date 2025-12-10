@@ -109,14 +109,6 @@ public partial class Organization
 
     public virtual ICollection<Holidays> Holidays { get; set; } = new List<Holidays>();
 
-    public virtual ICollection<Inventory> Inventory { get; set; } = new List<Inventory>();
-
-    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistory { get; set; } = new List<InventoryTransactionHistory>();
-
-    public virtual ICollection<InventoryTransfers> InventoryTransfersFromOrganization { get; set; } = new List<InventoryTransfers>();
-
-    public virtual ICollection<InventoryTransfers> InventoryTransfersToOrganization { get; set; } = new List<InventoryTransfers>();
-
     public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
 
     public virtual ICollection<LeadActivityTypes> LeadActivityTypes { get; set; } = new List<LeadActivityTypes>();
@@ -136,6 +128,8 @@ public partial class Organization
     public virtual ICollection<LeaveTypes> LeaveTypes { get; set; } = new List<LeaveTypes>();
 
     public virtual ICollection<Localizations> Localizations { get; set; } = new List<Localizations>();
+
+    public virtual ICollection<Locations> Locations { get; set; } = new List<Locations>();
 
     public virtual ICollection<MobileApps> MobileApps { get; set; } = new List<MobileApps>();
 

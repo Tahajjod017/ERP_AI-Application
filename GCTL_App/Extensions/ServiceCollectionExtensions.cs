@@ -131,6 +131,9 @@ using GCTL.Service.POS.Sales.PriceQuotation;
 using GCTL.Service.POS.Sales.PriceQuotationList;
 using GCTL.Service.POS.Sales.SalesOrderF;
 using GCTL.Service.POS.Sales.SalesOrderList;
+using GCTL.Service.RequisitionDistribution.CreatePO;
+using GCTL.Service.RequisitionDistribution.ProductPurchase;
+using GCTL.Service.RequisitionDistribution.PurchaseWaitingList;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL.Service.VisitingPath;
@@ -274,6 +277,25 @@ namespace GCTL_App.Extensions
             services.AddScoped<IAttributeProduct, AttributeProductService>();
             services.AddScoped<IServiceProduct, ServiceProductService>();
 
+            #region Sales
+
+            services.AddScoped<IPriceQuotation, PriceQuotationService>();
+            services.AddScoped<IPriceQuotationList, PriceQuotationListService>();
+
+            services.AddScoped<ISalesOrder, SalesOrderService>();
+            services.AddScoped<ISalesOrderList, SalesOrderListService>();
+
+            services.AddScoped<IInvoice, InvoiceService>();
+            services.AddScoped<IInvoiceList, InvoiceListService>();
+
+
+
+            #endregion
+
+            services.AddScoped<IProductPurchaseService, ProductPurchaseService>();
+            services.AddScoped<IPurchaseWaitingList, PurchaseWaitingListService>();
+            services.AddScoped<ICreatePurchaseOrder, CreatePurchaseOrderService>();
+
 
             #endregion
 
@@ -348,20 +370,7 @@ namespace GCTL_App.Extensions
             #endregion
 
 
-            #region Sales
-
-            services.AddScoped<IPriceQuotation, PriceQuotationService>();
-            services.AddScoped<IPriceQuotationList, PriceQuotationListService>();
-
-            services.AddScoped<ISalesOrder, SalesOrderService>();
-            services.AddScoped<ISalesOrderList, SalesOrderListService>();
-
-            services.AddScoped<IInvoice, InvoiceService>();
-            services.AddScoped<IInvoiceList, InvoiceListService>();
-
-
-
-            #endregion
+            
 
             services.AddHostedService<ScheduledTaskService>();
         }

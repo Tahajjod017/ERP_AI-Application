@@ -743,6 +743,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[Locations]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[PriceQuotations]",
          "ObjectType": 0
       },

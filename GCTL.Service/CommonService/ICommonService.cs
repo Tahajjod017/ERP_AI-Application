@@ -88,6 +88,9 @@ namespace GCTL.Service.CommonService
         #endregion
 
 
+        Task<List<CommonSelectVM>> GetPaymentMethods();
+        Task<List<CommonSelectVM>> GetBankAccounts();
+
         #region BodyTabs
         Task<List<MenuTab>> GetFinanceBodyTabsAsync();
         #endregion

@@ -1,0 +1,428 @@
+﻿@model GCTL.Core.ViewModels.RequisitionDistribution.PurchaseOrder.PurchaseOrderDetailsViewModel
+@{
+    var sidebarData = ViewBag.SidebarData as GCTL.Core.ViewModels.RequisitionDistribution.PurchaseOrder.PurchaseOrderSidebarDetailsViewModel;
+    var isEditMode = ViewBag.IsEditMode ?? false;
+}
+
+<div class="row">
+    <div class="row col-xl-12 border-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <p class="mb-1 fw-lighter fs-5">Purchase Order</p>
+        </div>
+    </div>
+</div>
+
+<div class="">
+    @if (isEditMode)
+    {
+        <!-- EDIT MODE - Form with editable fields -->
+        <form asp-action="Save" method="post" id="purchaseOrderForm">
+            <input asp-for="Id" type="hidden" />
+
+            <div class="row mb-4">
+                <div class="col-xl-9">
+                    <div class="card pt-4 p-5 mb-3" style="min-height: 1000px;">
+
+                        <div class="row col-xl-12">
+                            <p class="mb-1 fw-bold fs-7">Purchase Order</p>
+                            <p class="mb-2 fw-lighter fs-9">
+                                Edit purchase order details.
+                            </p>
+                            <div class="border-bottom border-2"></div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="row justify-content-between">
+
+                                    <!-- Supplier Info -->
+                                    <div class="col-xl-5">
+                                        <div class="mt-2">
+                                            <div class="card mb-3 mt-3">
+                                                <div class="card-body">
+                                                    <h5 class="card-title mb-2">Supplier Information</h5>
+                                                    <div class="d-flex">
+                                                        <div class="me-auto">
+                                                            <p class="mb-1 fs-9">Supplier: @Model.SupplierName</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- PO Details -->
+                                    <div class="col-xl-7">
+                                        <div class="row mt-3">
+                                            <div class="col-xl-12">
+                                                <div class="mb-3">
+                                                    <label class="form-label">PO Number</label>
+                                                    <input asp-for="POID" class="form-control" readonly />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Purchase Date</label>
+                                                    <input asp-for="PurchaseDate" class="form-control" type="date" />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Due Date</label>
+                                                    <input asp-for="DueDate" class="form-control" type="date" />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Status</label>
+                                                    <select asp-for="StatusID" class="form-select" asp-items="ViewBag.Statuses">
+                                                        <option value="">-- Select Status --</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-xl-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Delivery Location</label>
+                                                    <select asp-for="ToLocation" class="form-select" asp-items="ViewBag.Locations">
+                                                        <option value="">-- Select Location --</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            @if (!string.IsNullOrEmpty(Model.WorkorderNo))
+                                            {
+                                                <div class="col-xl-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Work Order No</label>
+                                                        <input asp-for="WorkorderNo" class="form-control" readonly />
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Items Table (Editable) -->
+                        <div class="col-xl-12 mt-3">
+                            <table class="table" id="itemsTable" style="border-bottom: 0px solid #ffffff00;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">SL</th>
+                                        <th class="text-center">Product</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-center">Unit Price</th>
+                                        <th class="text-center">Amount</th>
+                                        <th style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Items.Count; i++)
+                                    {
+                                        <tr data-index="@i">
+                                            <td class="fs-8 text-center align-middle">@(i + 1)</td>
+                                            <td>
+                                                <select asp-for="Items[i].ProductId" class="form-select productDD searchableSelect" asp-items="ViewBag.Products">
+                                                    <option value="">-- Select Product --</option>
+                                                </select>
+                                            </td>
+                                            <td><input asp-for="Items[i].Quantity" class="form-control calc" type="number" step="any" /></td>
+                                            <td><input asp-for="Items[i].UnitPrice" class="form-control calc" type="number" step="any" /></td>
+                                            <td class="amount text-end align-middle">@Model.Items[i].Amount.ToString("N2")</td>
+                                            <td class="text-center align-middle">
+                                                <button type="button" class="btn btn-sm btn-outline-danger mx-2 remove-item">
+                                                    <i class="far fa-trash-alt text-black"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <a id="add-item-btn" class="text-primary py-2" role="button" style="cursor:pointer;">
+                                                + Add an Item
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="text-end fs-9 fw-bold">Total Amount Taka.</td>
+                                        <td colspan="2" class="text-center fs-9 fw-bold" id="totalAmount">@Model.TotalAmount.ToString("N2")</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="text-end fs-9 py-2">
+                                            <div class="d-flex justify-content-end">
+                                                <div class="mx-2 mt-2">Tax (%)</div>
+                                                <div><input asp-for="TaxPercent" id="taxPercent" class="form-control" type="number" step="any" /></div>
+                                            </div>
+                                        </td>
+                                        <td colspan="2" class="text-center fs-9" id="taxAmount">@Model.TaxAmount.ToString("N2")</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="text-end h5">Grand Total Taka</td>
+                                        <td colspan="2" class="text-center h5" id="grandTotal">@Model.GrandTotalAmount.ToString("N2")</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Note -->
+                        <div class="col-xl-12 mb-3">
+                            <p class="mb-1 fw-bold fs-8">Note</p>
+                            <div class="">
+                                <textarea asp-for="Note" class="form-control" rows="3" placeholder="Add any additional notes here..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="col-xl-12 mb-3">
+                            <p class="mb-1 fw-bold fs-8">Terms and Conditions</p>
+                            <div class="">
+                                <textarea asp-for="TermsAndConditions" class="form-control" rows="3" placeholder="Terms and conditions..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="col-xl-12 mb-3">
+                            <div class="d-flex justify-content-end">
+                                <a href="@Url.Action("Index", "PurchaseOrderDetails", new { id = Model.Id })" class="btn btn-secondary me-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Save Purchase Order</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                @if (sidebarData != null)
+                {
+                    <partial name="_PurchaseOrderSidebar" model="sidebarData" />
+                }
+            </div>
+        </form>
+    }
+    else
+    {
+        <!-- READ-ONLY MODE - Display only -->
+        <div class="row mb-4">
+            <div class="col-xl-9">
+                <div class="card pt-4 p-5 mb-3" style="min-height: 1000px;">
+
+                    <div class="row col-xl-12">
+                        <p class="mb-1 fw-bold fs-7">Purchase Order Details</p>
+                        <div class="border-bottom border-2"></div>
+                    </div>
+
+                    <div class="row mb-3 mt-3">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <!-- Supplier Info -->
+                                <div class="col-xl-6">
+                                    <div class="card mb-3" style="min-height: 165px;">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-2">Supplier Information</h5>
+                                            <p class="mb-1 fs-9"><strong>Supplier:</strong> @Model.SupplierName</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- PO Info -->
+                                <div class="col-xl-6">
+                                    <div class="card pb-1 ps-2 p-3 mb-3" style="min-height: 165px;">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="">
+                                                    <label class="form-label fw-bold">PO Number</label>
+                                                    <p class="fs-8 ms-3">@Model.POID</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Purchase Date</label>
+                                                    <p class="fs-8 ms-3">@Model.PurchaseDate.ToString("MMM dd, yyyy")</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Due Date</label>
+                                                    <p class="fs-8 ms-3">@Model.DueDate.ToString("MMM dd, yyyy")</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Status</label>
+                                                    <p class="fs-8 ms-3">
+                                                        @if (Model.IsDraft)
+                                                        {
+                                                            <span class="badge badge-phoenix badge-phoenix-warning">Draft</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-phoenix badge-phoenix-success">@Model.StatusName</span>
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(Model.LocationName))
+                                            {
+                                                <div class="col-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Delivery Location</label>
+                                                        <p class="fs-8 ms-3">@Model.LocationName</p>
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(Model.WorkorderNo))
+                                            {
+                                                <div class="col-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Work Order</label>
+                                                        <p class="fs-8 ms-3">@Model.WorkorderNo (@Model.WorkOrderDate?.ToString("MMM dd, yyyy"))</p>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Billing & Shipping Addresses -->
+                    @if (Model.BillingAddress != null || Model.ShippingAddress != null)
+                    {
+                        <div class="row mb-3">
+                            @if (Model.BillingAddress != null)
+                            {
+                                <div class="col-xl-6">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-2">Billing Address</h5>
+                                            <p class="mb-1 fs-9">@Model.BillingAddress.FirstName @Model.BillingAddress.LastName</p>
+                                            <p class="mb-1 fs-9">@Model.BillingAddress.FullAddress</p>
+                                            <p class="mb-1 fs-9">@Model.BillingAddress.City, @Model.BillingAddress.State @Model.BillingAddress.PostalCode</p>
+                                            <p class="mb-1 fs-9">@Model.BillingAddress.Phone</p>
+                                            <p class="mb-1 fs-9">@Model.BillingAddress.Email</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.ShippingAddress != null)
+                            {
+                                <div class="col-xl-6">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-2">Shipping Address</h5>
+                                            <p class="mb-1 fs-9">@Model.ShippingAddress.FirstName @Model.ShippingAddress.LastName</p>
+                                            <p class="mb-1 fs-9">@Model.ShippingAddress.FullAddress</p>
+                                            <p class="mb-1 fs-9">@Model.ShippingAddress.City, @Model.ShippingAddress.State @Model.ShippingAddress.PostalCode</p>
+                                            <p class="mb-1 fs-9">@Model.ShippingAddress.Phone</p>
+                                            <p class="mb-1 fs-9">@Model.ShippingAddress.Email</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!-- Items Table (Read-only) -->
+                    <div class="col-xl-12 mt-3">
+                        <table class="table" style="border-bottom: 0px solid #ffffff00;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">SL</th>
+                                    <th>Product</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-center">Unit Price</th>
+                                    <th class="text-center">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Items.Count; i++)
+                                {
+                                    <tr>
+                                        <td class="fs-8 text-center align-middle">@(i + 1)</td>
+                                        <td>@Model.Items[i].ProductName</td>
+                                        <td class="text-center">@Model.Items[i].Quantity.ToString("N2")</td>
+                                        <td class="text-center">@Model.Items[i].UnitPrice.ToString("N2")</td>
+                                        <td class="text-end">@Model.Items[i].Amount.ToString("N2")</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td colspan="4" class="text-end fs-9 fw-bold">Total Amount Taka.</td>
+                                    <td class="text-end fs-9 fw-bold">@Model.TotalAmount.ToString("N2")</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end fs-9">Tax - @Model.TaxPercent%</td>
+                                    <td class="text-end fs-9">@Model.TaxAmount.ToString("N2")</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end h5">Grand Total Taka</td>
+                                    <td class="text-end h5">@Model.GrandTotalAmount.ToString("N2")</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end fs-9 text-success fw-bold">Paid Amount</td>
+                                    <td class="text-end fs-9 text-success fw-bold">@Model.PaidAmount.ToString("N2")</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end fs-9 text-danger fw-bold">Due Amount</td>
+                                    <td class="text-end fs-9 text-danger fw-bold">@Model.DueAmount.ToString("N2")</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Note (Read-only) -->
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <div class="col-xl-12 mb-3">
+                            <p class="mb-1 fw-bold fs-8">Note</p>
+                            <div class="">
+                                <p class="fs-9">@Model.Note</p>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Terms and Conditions (Read-only) -->
+                    @if (!string.IsNullOrEmpty(Model.TermsAndConditions))
+                    {
+                        <div class="col-xl-12 mb-3">
+                            <p class="mb-1 fw-bold fs-8">Terms and Conditions</p>
+                            <div class="">
+                                <p class="fs-9">@Model.TermsAndConditions</p>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="">
+                        <div class="d-flex justify-content-end gap-2 align-items-center">
+                            @if (!isEditMode && sidebarData != null && sidebarData.CanEdit)
+                            {
+                                <a href="@Url.Action("Edit", "PurchaseOrderDetails", new { id = Model.Id })" class="btn btn-primary">
+                                    <i class="fa fa-edit me-1"></i> Edit Purchase Order
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            @if (sidebarData != null)
+            {
+                <partial name="_PurchaseOrderSidebar" model="sidebarData" />
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/pages/Purchase/PurchaseOrderDetails.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+}
