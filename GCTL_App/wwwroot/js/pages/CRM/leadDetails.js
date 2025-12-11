@@ -856,58 +856,58 @@ ${value.emailAddress
     // Initial load
     // ==============================
     updateActivate(1, "reset");
-    updateUpcomingActivate();
+    updateUpcomingActivate();   
 
     // ====================
     // Edit Button work
     // ======================
-    $(document).on("click", "#editModalBtn", function (e) {
-        var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
-            keyboard: false,
-            backdrop: 'static',
-        });
-        myModal.show();
+    //$(document).on("click", "#editModalBtn", function (e) {
+    //    var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
+    //        keyboard: false,
+    //        backdrop: 'static',
+    //    });
+    //    myModal.show();
 
-        let leadID = $(ids.leadID).val();
-        $.ajax({
-            url: '/CRM/GetLeadInfo',
-            method: 'POST',
-            data: { id: leadID },
-            success: function (response) {
-                //updateEmployee();
-                $("#leadID").val(response.leadID);
-                $("#leadName").val(response.leadName);
-                $("#leadStatusID").val(response.leadStatusID);
-                $("#leadSourceID").val(response.leadSourceID);
-                $("#leadPriorityID").val(response.priorityID);
-                $("#approximateDealValue").val(response.approximateDealValue);
-                $("#probabilityPercentage2").val(response.probability);
-                $("#completionValue2").text(response.probability + "%");
-                $("#descriptionText").val(response.leadDescription);
-                $("#queryText").val(response.leadOwnerName);
-                $("#selectedID").val(response.leadOwnerId);
-                // multiselect edit field read
-                $('#serviceTypes').val(response.serviceIds).each(function () {
-                    coreui.MultiSelect.getInstance(this)?.update();
-                });
+    //    let leadID = $(ids.leadID).val();
+    //    $.ajax({
+    //        url: '/CRM/GetLeadInfo',
+    //        method: 'POST',
+    //        data: { id: leadID },
+    //        success: function (response) {
+    //            //updateEmployee();
+    //            $("#leadID").val(response.leadID);
+    //            $("#leadName").val(response.leadName);
+    //            $("#leadStatusID").val(response.leadStatusID);
+    //            $("#leadSourceID").val(response.leadSourceID);
+    //            $("#leadPriorityID").val(response.priorityID);
+    //            $("#approximateDealValue").val(response.approximateDealValue);
+    //            $("#probabilityPercentage2").val(response.probability);
+    //            $("#completionValue2").text(response.probability + "%");
+    //            $("#descriptionText").val(response.leadDescription);
+    //            $("#queryText").val(response.leadOwnerName);
+    //            $("#selectedID").val(response.leadOwnerId);
+    //            // multiselect edit field read
+    //            $('#serviceTypes').val(response.serviceIds).each(function () {
+    //                coreui.MultiSelect.getInstance(this)?.update();
+    //            });
 
-                // employee add
-                const currentOwnerId = response.leadOwnerId;
-                const currentOwnerName = response.leadOwnerName;
-                if (currentOwnerId && currentOwnerName) {
-                    choices.setChoices(
-                        [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
-                        'value',
-                        'label',
-                        false // false = append (don?t clear)
-                    );
-                }
-            },
-            error: function (xhr) {
-                toastr.error("Error creating lead");
-            }
-        });
-    });
+    //            // employee add
+    //            const currentOwnerId = response.leadOwnerId;
+    //            const currentOwnerName = response.leadOwnerName;
+    //            if (currentOwnerId && currentOwnerName) {
+    //                choices.setChoices(
+    //                    [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
+    //                    'value',
+    //                    'label',
+    //                    false // false = append (don?t clear)
+    //                );
+    //            }
+    //        },
+    //        error: function (xhr) {
+    //            toastr.error("Error creating lead");
+    //        }
+    //    });
+    //});
 
     // ======================
     // employee
@@ -920,23 +920,23 @@ ${value.emailAddress
     let lastSearch3 = '';
     let hasMore = true;
 
-    const choices = new Choices(selectEl, {
-        searchEnabled: true,
-        placeholder: true,
-        placeholderValue: 'Select Organization...',
-        searchPlaceholderValue: 'Type to search...',
-        noChoicesText: 'Type 3 or more characters...',
-        searchResultLimit: -1, // disable local limiting
-        shouldSort: false,
-        duplicateItemsAllowed: false,
-        itemSelectText: '',
-        removeItemButton: true,
+    //const choices = new Choices(selectEl, {
+    //    searchEnabled: true,
+    //    placeholder: true,
+    //    placeholderValue: 'Select Organization...',
+    //    searchPlaceholderValue: 'Type to search...',
+    //    noChoicesText: 'Type 3 or more characters...',
+    //    searchResultLimit: -1, // disable local limiting
+    //    shouldSort: false,
+    //    duplicateItemsAllowed: false,
+    //    itemSelectText: '',
+    //    removeItemButton: true,
 
-        // ?? disable client-side filtering (server handles search)
-        searchChoices: false,
-        fuseOptions: false,
-        searchFn: () => true
-    });
+    //    // ?? disable client-side filtering (server handles search)
+    //    searchChoices: false,
+    //    fuseOptions: false,
+    //    searchFn: () => true
+    //});
 
     // Fetch data from server
     async function fetchOptions(search, page = 1, pageSize = 50) {
@@ -955,27 +955,27 @@ ${value.emailAddress
     }
 
     // Handle debounce on search
-    selectEl.addEventListener('search', function (e) {
-        const searchTerm = e.detail.value;
-        clearTimeout(debounceTimer);
+    //selectEl.addEventListener('search', function (e) {
+    //    const searchTerm = e.detail.value;
+    //    clearTimeout(debounceTimer);
 
-        if (searchTerm.length < 1) {
-            choices.clearChoices();
-            return;
-        }
+    //    if (searchTerm.length < 1) {
+    //        choices.clearChoices();
+    //        return;
+    //    }
 
-        debounceTimer = setTimeout(async () => {
-            currentPage3 = 1;
-            lastSearch3 = searchTerm;
-            const data = await fetchOptions(searchTerm, currentPage3);
+    //    debounceTimer = setTimeout(async () => {
+    //        currentPage3 = 1;
+    //        lastSearch3 = searchTerm;
+    //        const data = await fetchOptions(searchTerm, currentPage3);
 
-            choices.clearChoices();
-            if (data.items.length > 0) {
-                // replace with new results
-                choices.setChoices(data.items, 'value', 'label', true);
-            }
-        }, 500); // debounce delay
-    });
+    //        choices.clearChoices();
+    //        if (data.items.length > 0) {
+    //            // replace with new results
+    //            choices.setChoices(data.items, 'value', 'label', true);
+    //        }
+    //    }, 500); // debounce delay
+    //});
 
     // Scroll handler
     async function handleScroll(e) {
@@ -991,14 +991,14 @@ ${value.emailAddress
         }
     }
 
-    // Reattach scroll listener when dropdown opens
-    choices.passedElement.element.addEventListener('showDropdown', () => {
-        const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
-        if (dropdownList) {
-            dropdownList.removeEventListener('scroll', handleScroll);
-            dropdownList.addEventListener('scroll', handleScroll);
-        }
-    });
+    //// Reattach scroll listener when dropdown opens
+    //choices.passedElement.element.addEventListener('showDropdown', () => {
+    //    const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
+    //    if (dropdownList) {
+    //        dropdownList.removeEventListener('scroll', handleScroll);
+    //        dropdownList.addEventListener('scroll', handleScroll);
+    //    }
+    //});
     // #endregion
 
     // ==============================
@@ -1129,11 +1129,11 @@ ${value.emailAddress
                     showClose();
                 }
                 if (typeof loadCustomerData == "function") {
-                    const id = $("#CustomerId").val();
+                    const id = $("#CustomerId2").val();
                     loadCustomerData(id);
                 }
                 if (typeof loadCustomerData == "function") {
-                    const cid = $("#CustomerId").val();
+                    const cid = $("#CustomerId2").val();
                     const bid = $("#BranchId").val();
                     loadBranchData(bid, cid);
                 }
@@ -1165,6 +1165,8 @@ ${value.emailAddress
             textarea.value = before + "Communication start from phone." + after;
         }
     });
+
+
     // OPEN FIRST MODAL (Create Lead)
     $(document).on("click", "#openCreateLeadModal", function () {
 

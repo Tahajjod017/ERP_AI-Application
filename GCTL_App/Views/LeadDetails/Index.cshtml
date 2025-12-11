@@ -695,13 +695,14 @@
                                     </div>
                                     <div>
                                         <h5 class="mb-1">@Model.FullName</h5>
-                                        <div class="dropdown">
+                                        <p>@Model.LeadOwnerName</p>
+                                        @* <div class="dropdown">
                                             <a class="text-muted dropdown-toggle text-decoration-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false">
-                                                Lead Owner<span class="fa-solid fa-caret-down ms-2 fs-9"></span>
+                                                @Model.LeadOwnerName<span class="fa-solid fa-caret-down ms-2 fs-9"></span>
                                             </a>
                                             <div class="dropdown-menu shadow" style="min-width:20rem">
                                                 <div class="p-3">
-                                                    <h5 class="mb-3 fw-bold">Switch Ownership</h5>
+                                                    <h5 class="mb-3 fw-bold">@Model.LeadOwnerName</h5>
                                                     <label class="form-label">Deal Owner</label>
                                                     <select class="form-select mb-3">
                                                         <option selected>Select Owner</option>
@@ -715,7 +716,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> *@
                                     </div>
                                 </div>
 
@@ -821,7 +822,7 @@
                                 <td class="text-center px-3">:</td>
                                 <td><span class="text-dark">@Model.Email</span></td>
                             </tr>
-
+                            
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
@@ -839,6 +840,24 @@
                                 </td>
                                 <td class="text-center px-3">:</td>
                                 <td><span class="text-dark">@Model.Created</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="info-icon bg-info-subtle me-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                 class="text-info">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polyline points="12 6 12 12 16 14"></polyline>
+                                            </svg>
+                                        </div>
+                                        <span class="fw-semibold">Services</span>
+                                    </div>
+                                </td>
+                                <td class="text-center px-3">:</td>
+                                <td><span class="text-dark">@string.Join(",", Model.ServiceNames)</span></td>
                             </tr>
 
                             <tr class="d-none" id="closingDateDiv">
@@ -875,7 +894,7 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Lead Source</label>
-                            <select class="form-select" id="leadSource" asp-for="LeadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
+                            <select class="form-select" id="leadSource" asp-for="LDLeadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
                                 <option value="" disabled selected>Select Source</option>
                             </select>
                         </div>
@@ -887,7 +906,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Stage</label>
-                            <select class="form-select" id="lead-status" asp-for="LeadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
+                            <select class="form-select" id="lead-status" asp-for="LDLeadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
                                 <option value="" disabled selected>Select Status</option>
                             </select>
                         </div>
@@ -895,7 +914,7 @@
                 </div>
             </div>
 
-            <input id="CustomerId" type="number" value="@Model.CustomerId" hidden />
+            <input id="CustomerId2" type="number" value="@Model.CustomerId" hidden />
             <input id="BranchId" type="number" value="@Model.BranchId" hidden />
             <input type="number" id="leadID" value="@Model.LeadID" hidden />
 
@@ -1114,7 +1133,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="row g-3">
+                @* <div class="row g-3">
                     <input type="hidden" id="leadID" />
 
                     <div class="col-md-6">
@@ -1131,6 +1150,7 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Lead Owner</label>
+                        ]
                         <select class="form-select" id="leadOwnerId">
                             <option value="" selected disabled>Select Owner</option>
                         </select>
@@ -1181,7 +1201,7 @@
                         <label class="form-label">Description</label>
                         <textarea class="form-control" id="descriptionText" rows="4" placeholder="Enter lead description..."></textarea>
                     </div>
-                </div>
+                </div> *@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

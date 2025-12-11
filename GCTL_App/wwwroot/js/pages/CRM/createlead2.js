@@ -22,7 +22,7 @@ const idMapIndex = {
 
 function initCreateLeadModal() {
     //#region customer serach field
-    $('#CustomerId2').select2({
+    $('#CustomerId').select2({
         placeholder: 'Select Customer',
         width: '100%',
         dropdownParent: $('#createLeadModalToggle'),
@@ -63,7 +63,7 @@ function initCreateLeadModal() {
 
 
     //#region customer serach field
-    $('#BranchId2').select2({
+    $('#BranchId').select2({
         placeholder: 'Select Customer',
         width: '100%',
         dropdownParent: $('#createLeadModalToggle'),
@@ -103,7 +103,7 @@ function initCreateLeadModal() {
     });
     //#endregion
 
-    $('#CustomerId2').on('change', function () {
+    $('#CustomerId').on('change', function () {
         var customerId = $(this).val();
         setCustomerDetails(customerId);
     });
@@ -134,7 +134,7 @@ function initCreateLeadModal() {
 
 
     //#region PriorityID
-    $('#PriorityID2').select2({
+    $('#PriorityID').select2({
         placeholder: 'Select Customer',
         width: '100%',
         dropdownParent: $('#createLeadModalToggle'),
@@ -168,8 +168,8 @@ function initCreateLeadModal() {
     });
     //#endregion
     //#region LeadStatusID
-    $('#LeadStatusID2').select2({
-        placeholder: 'Select Customer',
+    $('#LeadSourceID2').select2({
+        placeholder: 'Select Lead Source',
         width: '100%',
         dropdownParent: $('#createLeadModalToggle'),
         ajax: {
@@ -203,7 +203,7 @@ function initCreateLeadModal() {
     //#endregion
 
     //#region LeadSourceID
-    $('#LeadSourceID2').select2({
+    $('#LeadSourceID').select2({
         placeholder: 'Select Lead Source',
         width: '100%',
         dropdownParent: $('#createLeadModalToggle'),
@@ -238,7 +238,7 @@ function initCreateLeadModal() {
     //#endregion
 
     //#region GetServiceList
-    $('#ServiceTypeIds2').select2({
+    $('#ServiceTypeIds').select2({
         placeholder: 'Select Service Item',
         width: '100%',
         dropdownParent: $('#createLeadModalToggle'),
@@ -273,7 +273,7 @@ function initCreateLeadModal() {
     //#endregion
 
     //#region get Lead Owner
-    $('#LeadOwnerID2').select2({
+    $('#LeadOwnerID').select2({
         placeholder: 'Select Lead Owner',
         width: '100%',
         dropdownParent: $('#createLeadModalToggle'),
@@ -333,6 +333,62 @@ function initCreateLeadModal() {
         });
     });
 
+
+    //#endregion
+    const fields = ["CustomerId", "LeadName", "LeadSourceID", "LeadStatusID", "PriorityID", "LeadOwnerID"];
+    //#region create Lead
+    $("#indexSaveBtn").on("click", function (e) {
+        e.preventDefault();
+
+        if (validateFields(fields)) {
+            const form = document.getElementById("leadForm");
+            const token = document.querySelector("input[name='__RequestVerificationToken']").value;
+
+            const formData = new FormData(form);
+            const jsonData = {};
+
+            formData.forEach((value, key) => {
+                if (key === "__RequestVerificationToken") return; // skip token
+
+                // convert numbers
+                if (["CustomerId", "LeadStatusID2", "LeadSourceID", "LeadOwnerID", "PriorityID"].includes(key)) {
+                    value = parseInt(value) || 0;
+                }
+                if (["ApproximateDealValue", "ProbabilityPercentage"].includes(key)) {
+                    value = parseFloat(value) || 0;
+                }
+
+                // handle multi-select ServiceTypeIds
+                if (key === "ServiceTypeIds") {
+                    if (!jsonData[key]) jsonData[key] = [];
+                    jsonData[key].push(parseInt(value));
+                    return;
+                }
+
+                jsonData[key] = value === "" ? null : value;
+            });
+
+            $.ajax({
+                url: '/CreateLead/CreateLeadData',
+                method: 'POST',
+                contentType: "application/json; charset=utf-8",
+                headers: {
+                    "RequestVerificationToken": token
+                },
+                data: JSON.stringify(jsonData),
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        form.reset();
+                        window.location.href = `/LeadDetails/Index/${response.data.id}`;
+                    } else {
+                        toastr.error(response.message || "Failed to create lead");
+                    }
+                }
+            });
+        }
+    });
+    //#endregion
 
 
     function validateFields(fieldIds) {

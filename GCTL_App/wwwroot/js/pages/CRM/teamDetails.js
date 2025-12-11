@@ -7,11 +7,8 @@
         const segments = path.split('/');
         const id = segments[segments.length - 1];
 
-        console.log(id); // "2"
-
         // If you want it as a number
         const numericId = parseInt(id, 10);
-        console.log(numericId); // 2
 
         try {
             const response = await fetch(`/TeamDetails/GetTeamDetails?id=${numericId}`);

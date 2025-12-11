@@ -72,8 +72,8 @@ namespace GCTL_App.Controllers.CRM
                                          FullName = customer.FullName,
                                          LeadName = lead.LeadName,
                                          LeadID = lead.LeadID,
-                                         LeadSourceID = lead.LeadSourceID ?? 0,
-                                         LeadStatusID = lead.LeadStatusID ?? 0,
+                                         LDLeadSourceID = lead.LeadSourceID ?? 0,
+                                         LDLeadStatusID = lead.LeadStatusID ?? 0,
                                          PriorityID = lead.PriorityID ?? 0,
                                          Created = lead.CreatedAt,
                                          ApproximateDealValue = lead.ApproximateDealValue ?? 0m,
@@ -84,6 +84,12 @@ namespace GCTL_App.Controllers.CRM
                                          LeadOwnerId = lead.LeadOwnerID,
                                          LeadOwnerName = lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName,
                                          ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
+                                         ServiceNames = string.Join(", ",
+                                                lead.LeadServices
+                                                    .Where(s => s.ServiceID.HasValue)
+                                                    .Select(s => s.Service.ServiceName)
+                                                    .ToList()
+                                            )
                                      }).FirstOrDefaultAsync();
             if (customerObj != null)
             {
