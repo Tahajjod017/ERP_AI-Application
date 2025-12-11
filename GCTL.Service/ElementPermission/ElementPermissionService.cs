@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels.AdminSettingsVM;
 using GCTL.Core.ViewModels.ElementPermission;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
+using GCTL.Service.RolePermissions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -100,7 +101,7 @@ namespace GCTL.Service.ElementPermission
                     PageId = x.PageId,
                     ElementKeys = x.ElementKey,
                     RoleId = x.RoleId,
-                    RoleName = x.Role.Name,
+                    RoleName = x.Role.Name.ToCleanRoleName(),
                     PageName = x.Page.Name,
 
 
@@ -155,5 +156,18 @@ namespace GCTL.Service.ElementPermission
             }
         }
         #endregion
+
+        public async Task<List<int?>> GetEmployeesForElementAsync(string elementKey)
+        {
+            // Join RoleElementPermissions -> AspNetUserRoles -> AspNetUsers
+            var employeeIds = await (from re in _genericRepository.All()  // RoleElementPermissions
+                                     join ar in _dbContext.UserRoles on re.RoleId equals ar.RoleId
+                                     join us in _dbContext.Users on ar.UserId equals us.Id
+                                     where re.ElementKey == elementKey
+                                     select us.EmployeeId)
+                                    .ToListAsync();
+
+            return employeeIds;
+        }
     }
 }
