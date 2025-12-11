@@ -24,12 +24,8 @@
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Client Name</label>
-                                <select class="form-select" id="" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                    <option>Client 1</option>
-                                    <option>Client 2</option>
-                                    <option>Client 3</option>
-                                </select>
+                                <label class="form-label" asp-for="CustomerID">Client Name</label>
+                                <select asp-for="CustomerID"></select>
                             </div>
                         </div>
 
@@ -48,10 +44,7 @@
                         <div class="col-md-3">
                             <div class="mb-3">
                                 <label class="form-label" for="organizerMultiple">Job Type</label>
-                                <select class="form-select" id="" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                    <option value="">Sales</option>
-                                    <option>Services</option>
-                                </select>
+                                <select asp-for="JobID" ></select>
                             </div>
                         </div>
 
@@ -93,16 +86,7 @@
                             </div>
                         </div>
 
-                        <script>
-                            const checkbox = document.getElementById('toggleCheckbox');
-                            const hiddenDiv1 = document.getElementById('hiddenDiv1');
-                            const hiddenDiv2 = document.getElementById('hiddenDiv2');
-
-                            checkbox.addEventListener('change', function() {
-                              hiddenDiv1.style.display = this.checked ? 'block' : 'none';
-                              hiddenDiv2.style.display = this.checked ? 'block' : 'none';
-                            });
-                        </script>
+                        
 
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -253,3 +237,33 @@
     </div>
 
 </div>
+
+<!-- FIRST MODAL -->
+<div class="modal fade" id="createCustomerModalToggle" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="create-lead-modal-body"></div>
+        </div>
+    </div>
+</div>
+
+<!--SECOND MODAL-->
+<div class="modal fade" id="createJobModalToggle" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="create-job-modal-body"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+	<script src="~/js/pages/fieldservices/employeeadvanced.js"></script>
+}

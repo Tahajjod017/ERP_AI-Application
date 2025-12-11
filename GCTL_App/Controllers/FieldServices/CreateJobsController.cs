@@ -28,6 +28,7 @@ namespace GCTL_App.Controllers.FieldServices
         public IActionResult Index()
         {
             ViewBag.JobTypesDD = new SelectList(_jobTypeRepository.AllActive().Select(t => new {t.JobTypeID, t.JobTypeName}), "JobTypeID", "JobTypeName");
+
             ViewBag.StatusDD = new SelectList(_statusRepository.AllActive().Select(t => new {t.StatusID, t.StatusName}), "StatusID", "StatusName");
 
             return View();
@@ -102,6 +103,28 @@ namespace GCTL_App.Controllers.FieldServices
                 {
                     id = c.LeadID,                          
                     text = $"{c.LeadName} {c.Phone} {c.Email}" 
+                }),
+                pagination = new { more }
+            };
+
+            return Ok(formatted);
+        }
+        
+        [HttpGet]
+        public async Task<IActionResult> GetJobs(string search = "", int page = 1, int pageSize = 20)
+        {
+            var result = await _createJobService.GetJobAsync(
+                search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+
+            var more = (page * pageSize) < result.totalItem;
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.Value,                          
+                    text = c.Text
                 }),
                 pagination = new { more }
             };

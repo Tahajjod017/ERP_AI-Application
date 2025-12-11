@@ -10,7 +10,9 @@ namespace GCTL.Core.ViewModels.FieldServices
     {
         public int EmployeeAdvanceID { get; set; }
 
+        public int? CustomerID { get; set; }
         public int? JobID { get; set; }
+
         public int? RequestedByUserID { get; set; }
         public decimal AmountRequested { get; set; }
         public DateOnly? StartDate { get; set; }

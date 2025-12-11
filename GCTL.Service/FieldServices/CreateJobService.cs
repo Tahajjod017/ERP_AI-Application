@@ -118,6 +118,46 @@ namespace GCTL.Service.FieldServices
                 message = "Data loaded"
             };
         }
+        public async Task<ReturnDataView<SelectListItem>> GetJobAsync(string search, int page, int pageSize, int organizationID)
+        {
+            var query = _jobsRepository
+                .AllActive()
+                .Where(q => q.OrganizationID == organizationID);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.JobTitle, pattern)
+                    ));
+            }
+
+
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(c => c.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize).Select(t => new SelectListItem
+                {
+                    
+                    Value = t.JobID.ToString(),
+                    Text = t.JobTitle,
+                    
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<SelectListItem>
+            {
+                data = items,
+                totalItem = totalCount,
+                message = "Data loaded"
+            };
+        }
         #endregion
 
         #region get Customer List 
