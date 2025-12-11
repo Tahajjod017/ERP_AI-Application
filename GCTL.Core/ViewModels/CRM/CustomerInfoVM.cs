@@ -13,8 +13,8 @@ namespace GCTL.Core.ViewModels.CRM
         public int? BranchId { get; set; }
         public string? LeadName { get; set; }
         public string? FullName { get; set; }
-        public int LeadSourceID { get; set; }
-        public int LeadStatusID { get; set; }
+        public int LDLeadSourceID { get; set; }
+        public int LDLeadStatusID { get; set; }
         public decimal ApproximateDealValue { get; set; }
         public int PriorityID { get; set; }
         public int? Probability { get; set; } = 0;
@@ -38,6 +38,7 @@ namespace GCTL.Core.ViewModels.CRM
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public List<int?> ServiceIds { get; set; }
+        public string? ServiceNames { get; set; }
         public int? LeadOwnerId { get; set; }
         public string? LeadOwnerName { get; set; }
         public int? SuccessPercentage { get; set; }

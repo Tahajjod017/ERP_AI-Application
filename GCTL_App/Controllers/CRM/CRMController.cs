@@ -121,8 +121,8 @@ namespace GCTL_App.Controllers.CRM
                                      {
                                          LeadID = lead.LeadID,
                                          LeadName = lead.LeadName,
-                                         LeadSourceID = lead.LeadSourceID ?? 0,
-                                         LeadStatusID = lead.LeadStatusID ?? 0,
+                                         LDLeadSourceID = lead.LeadSourceID ?? 0,
+                                         LDLeadStatusID = lead.LeadStatusID ?? 0,
                                          PriorityID = lead.PriorityID ?? 0,
                                          ApproximateDealValue = lead.ApproximateDealValue ?? 0m,
                                          Priority = lead.Priority.PriorityName,
