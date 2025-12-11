@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using GCTL.Core.ViewModels.RequisitionDistribution.Purchase.CreatePO;
+using GCTL.Core.ViewModels.POS.Purchasess.Purchase.CreatePO;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;

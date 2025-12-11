@@ -1,4 +1,4 @@
-﻿using GCTL.Core.ViewModels.RequisitionDistribution.Purchase.CreatePO;
+﻿using GCTL.Core.ViewModels.POS.Purchasess.Purchase.CreatePO;
 
 namespace GCTL.Service.ReportService
 {

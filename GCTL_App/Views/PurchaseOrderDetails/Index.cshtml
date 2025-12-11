@@ -1,6 +1,7 @@
-﻿@model GCTL.Core.ViewModels.RequisitionDistribution.PurchaseOrder.PurchaseOrderDetailsViewModel
+﻿@using GCTL.Core.ViewModels.POS.Purchasess.PurchaseOrder
+@model PurchaseOrderDetailsViewModel
 @{
-    var sidebarData = ViewBag.SidebarData as GCTL.Core.ViewModels.RequisitionDistribution.PurchaseOrder.PurchaseOrderSidebarDetailsViewModel;
+    var sidebarData = ViewBag.SidebarData as PurchaseOrderSidebarDetailsViewModel;
     var isEditMode = ViewBag.IsEditMode ?? false;
 }
 
