@@ -55,6 +55,8 @@ public partial class Jobs
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvances { get; set; } = new List<EmployeeAdvances>();
+
     public virtual Statuses? JobStatus { get; set; }
 
     public virtual ICollection<JobTeams> JobTeams { get; set; } = new List<JobTeams>();

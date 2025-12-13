@@ -5,19 +5,27 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class PurchaseReceiveDrafts
+public partial class EmployeeAdvances
 {
-    public int PurchaseReceiveDraftID { get; set; }
+    public int EmployeeAdvanceID { get; set; }
 
-    public int? PurchasOrderID { get; set; }
+    public int? JobID { get; set; }
 
-    public string? PRNumber { get; set; }
+    public int? RequestedByUserID { get; set; }
 
-    public DateTime? PRDate { get; set; }
+    public decimal AmountRequested { get; set; }
 
-    public string? VendorBill_Chalan { get; set; }
+    public DateOnly? StartDate { get; set; }
 
-    public DateTime? BillDate { get; set; }
+    public DateOnly? EndDate { get; set; }
+
+    public bool? IsGroupAdvance { get; set; }
+
+    public int? ApprovalStatusID { get; set; }
+
+    public int? ApprovedByUserID { get; set; }
+
+    public DateTime? ApprovalDate { get; set; }
 
     public string? LIP { get; set; }
 
@@ -35,13 +43,17 @@ public partial class PurchaseReceiveDrafts
 
     public int? DeletedBy { get; set; }
 
+    public virtual Statuses? ApprovalStatus { get; set; }
+
+    public virtual Employees? ApprovedByUser { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual PurchasOrderVersions? PurchasOrder { get; set; }
+    public virtual Jobs? Job { get; set; }
 
-    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDrafts { get; set; } = new List<PurchaseReceiveItemDrafts>();
+    public virtual Employees? RequestedByUser { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

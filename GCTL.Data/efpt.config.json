@@ -4,18 +4,14 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "IrregularWords": null,
-   "MinimumProductVersion": "2.6.1244",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
-   "PluralRules": null,
    "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "GCTL.Data",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 2,
    "SelectedToBeGenerated": 0,
-   "SingularRules": null,
    "T4TemplatePath": null,
    "Tables": [
       {
@@ -555,6 +551,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[FS].[EmployeeAdvances]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[FS].[Jobs]",
          "ObjectType": 0
       },
@@ -819,11 +819,15 @@
          "ObjectType": 0
       },
       {
-         "Name": "[SC].[PurchasOrderItems]",
+         "Name": "[SC].[PurchasOrderItemVersions]",
          "ObjectType": 0
       },
       {
          "Name": "[SC].[PurchasOrders]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[PurchasOrderVersions]",
          "ObjectType": 0
       },
       {
@@ -964,7 +968,6 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
-   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,

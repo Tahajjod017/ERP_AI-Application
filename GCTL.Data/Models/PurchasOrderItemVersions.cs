@@ -5,19 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class PurchaseReceiveDrafts
+public partial class PurchasOrderItemVersions
 {
-    public int PurchaseReceiveDraftID { get; set; }
+    public int PurchasOrderVersionItemID { get; set; }
 
-    public int? PurchasOrderID { get; set; }
+    public int? ProductID { get; set; }
 
-    public string? PRNumber { get; set; }
+    public decimal? Quantity { get; set; }
 
-    public DateTime? PRDate { get; set; }
-
-    public string? VendorBill_Chalan { get; set; }
-
-    public DateTime? BillDate { get; set; }
+    public decimal? UnitPrice { get; set; }
 
     public string? LIP { get; set; }
 
@@ -35,13 +31,15 @@ public partial class PurchaseReceiveDrafts
 
     public int? DeletedBy { get; set; }
 
+    public int? PurchasOrderVersionID { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual PurchasOrderVersions? PurchasOrder { get; set; }
+    public virtual Products? Product { get; set; }
 
-    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDrafts { get; set; } = new List<PurchaseReceiveItemDrafts>();
+    public virtual PurchasOrderVersions? PurchasOrderVersion { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

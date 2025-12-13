@@ -203,9 +203,11 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 {
                     id = p.ProductID,
                     name = p.ProductName,
-                    price = p.ProductAdvancedPricing != null ? p.ProductAdvancedPricing.Select(e=>e.PriceValue).FirstOrDefault() : 0m
+                    price = p.ProductAdvancedPricing != null ? p.ProductAdvancedPricing.Select(e => e.PriceValue).FirstOrDefault() : 0m
                 })
                 .ToList();
+
+           
 
             return Json(result);
         }
