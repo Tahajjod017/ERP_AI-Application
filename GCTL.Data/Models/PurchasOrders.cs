@@ -11,58 +11,6 @@ public partial class PurchasOrders
 
     public string? POID { get; set; }
 
-    public int? StatusID { get; set; }
-
-    public int? CreatedByID { get; set; }
-
-    public int? SupplierID { get; set; }
-
-    public int? OBBillingAddressID { get; set; }
-
-    public int? OBShipingAddressID { get; set; }
-
-    public DateTime? PurchaseDate { get; set; }
-
-    public DateTime? DueDate { get; set; }
-
-    public string? OtherReference { get; set; }
-
-    public string? Note { get; set; }
-
-    public string? AttachmentLink { get; set; }
-
-    public string? TermsAndConditions { get; set; }
-
-    public string? WorkorderNo { get; set; }
-
-    public DateTime? WorkOrderDate { get; set; }
-
-    public int? OrganizationID { get; set; }
-
-    public int? OrganizationBranchID { get; set; }
-
-    public int? PaymentMethodID { get; set; }
-
-    public int? BankAccountInfoID { get; set; }
-
-    public string? CheckNumber { get; set; }
-
-    public DateOnly? CheckDate { get; set; }
-
-    public decimal? TotalAmount { get; set; }
-
-    public decimal? TaxPercent { get; set; }
-
-    public decimal? TaxAmount { get; set; }
-
-    public decimal? GrandTotalAmount { get; set; }
-
-    public decimal? PaidAmount { get; set; }
-
-    public decimal? DueAmount { get; set; }
-
-    public bool IsDraft { get; set; }
-
     public string? LIP { get; set; }
 
     public string? LMAC { get; set; }
@@ -79,29 +27,11 @@ public partial class PurchasOrders
 
     public int? DeletedBy { get; set; }
 
-    public virtual Employees? CreatedBy1 { get; set; }
-
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual PurOrderBaseSAddresses? OBBillingAddress { get; set; }
-
-    public virtual PurOrderBaseSAddresses? OBShipingAddress { get; set; }
-
-    public virtual Organization? Organization { get; set; }
-
-    public virtual OrganizationBranches? OrganizationBranch { get; set; }
-
-    public virtual ICollection<PurchasOrderItems> PurchasOrderItems { get; set; } = new List<PurchasOrderItems>();
-
-    public virtual ICollection<PurchaseReceiveDrafts> PurchaseReceiveDrafts { get; set; } = new List<PurchaseReceiveDrafts>();
-
-    public virtual ICollection<PurchaseReceives> PurchaseReceives { get; set; } = new List<PurchaseReceives>();
-
-    public virtual Statuses? Status { get; set; }
-
-    public virtual Suppliers? Supplier { get; set; }
+    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersions { get; set; } = new List<PurchasOrderVersions>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

@@ -264,6 +264,7 @@ namespace GCTL.Core.Repository
                 _ownsTransaction = true;
             }
         }
+       
 
         public async Task CommitTransactionAsync()
         {
@@ -274,11 +275,42 @@ namespace GCTL.Core.Repository
             _ownsTransaction = false;
             await transaction.DisposeAsync();
         }
+       
 
         public async Task RollbackTransactionAsync()
         {
             var transaction = _context.Database.CurrentTransaction;
             if (transaction == null || !_ownsTransaction) return;
+
+            await transaction.RollbackAsync();
+            _ownsTransaction = false;
+            await transaction.DisposeAsync();
+        }
+
+
+        public async Task OpenTransactionAsync()
+        {
+            if (_context.Database.CurrentTransaction == null)
+            {
+                await _context.Database.BeginTransactionAsync();
+               
+            }
+        }
+
+        public async Task CompleteTransactionAsync()
+        {
+            var transaction = _context.Database.CurrentTransaction;
+            if (transaction == null ) return;
+
+            await transaction.CommitAsync();
+            _ownsTransaction = false;
+            await transaction.DisposeAsync();
+        }
+
+        public async Task  AbortTransactionAsync()
+        {
+            var transaction = _context.Database.CurrentTransaction;
+            if (transaction == null ) return;
 
             await transaction.RollbackAsync();
             _ownsTransaction = false;

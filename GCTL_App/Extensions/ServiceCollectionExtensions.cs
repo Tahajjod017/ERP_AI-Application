@@ -125,9 +125,8 @@ using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.PayRollManagements.PayRollSettings;
 using GCTL.Service.POS.Product;
 using GCTL.Service.POS.Product.ServiceProduct;
-using GCTL.Service.POS.Purchasess.CreatePO;
-using GCTL.Service.POS.Purchasess.ProductPurchase;
-using GCTL.Service.POS.Purchasess.PurchaseWaitingList;
+using GCTL.Service.POS.Purchase.PurchaseOrder;
+using GCTL.Service.POS.Purchase.PurchaseOrderList;
 using GCTL.Service.POS.Sales.InvoiceF;
 using GCTL.Service.POS.Sales.InvoiceListF;
 using GCTL.Service.POS.Sales.PriceQuotation;
@@ -292,9 +291,13 @@ namespace GCTL_App.Extensions
 
             #endregion
 
-            services.AddScoped<IProductPurchaseService, ProductPurchaseService>();
-            services.AddScoped<IPurchaseWaitingList, PurchaseWaitingListService>();
-            services.AddScoped<ICreatePurchaseOrder, CreatePurchaseOrderService>();
+            #region Purchase
+
+            // Purchase Order Services
+            services.AddScoped<IPurchaseOrder, PurchaseOrderService>();
+            services.AddScoped<IPurchaseOrderList, PurchaseOrderListService>();
+
+            #endregion
 
 
             #endregion

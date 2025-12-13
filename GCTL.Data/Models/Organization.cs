@@ -145,7 +145,7 @@ public partial class Organization
 
     public virtual ICollection<ProbetionPeriodSettings> ProbetionPeriodSettings { get; set; } = new List<ProbetionPeriodSettings>();
 
-    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
+    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersions { get; set; } = new List<PurchasOrderVersions>();
 
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistory { get; set; } = new List<ResignationsApprovalHistory>();
 

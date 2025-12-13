@@ -379,6 +379,16 @@ public partial class Employees
 
     public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoUpdatedByNavigation { get; set; } = new List<EmployeeAdditionalInfo>();
 
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvancesApprovedByUser { get; set; } = new List<EmployeeAdvances>();
+
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvancesCreatedByNavigation { get; set; } = new List<EmployeeAdvances>();
+
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvancesDeletedByNavigation { get; set; } = new List<EmployeeAdvances>();
+
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvancesRequestedByUser { get; set; } = new List<EmployeeAdvances>();
+
+    public virtual ICollection<EmployeeAdvances> EmployeeAdvancesUpdatedByNavigation { get; set; } = new List<EmployeeAdvances>();
+
     public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetupCreatedByNavigation { get; set; } = new List<EmployeeAllowanceSetup>();
 
     public virtual ICollection<EmployeeAllowanceSetup> EmployeeAllowanceSetupDeletedByNavigation { get; set; } = new List<EmployeeAllowanceSetup>();
@@ -1065,13 +1075,19 @@ public partial class Employees
 
     public virtual ICollection<PurOrderBaseSAddresses> PurOrderBaseSAddressesUpdatedByNavigation { get; set; } = new List<PurOrderBaseSAddresses>();
 
-    public virtual ICollection<PurchasOrderItems> PurchasOrderItemsCreatedByNavigation { get; set; } = new List<PurchasOrderItems>();
+    public virtual ICollection<PurchasOrderItemVersions> PurchasOrderItemVersionsCreatedByNavigation { get; set; } = new List<PurchasOrderItemVersions>();
 
-    public virtual ICollection<PurchasOrderItems> PurchasOrderItemsDeletedByNavigation { get; set; } = new List<PurchasOrderItems>();
+    public virtual ICollection<PurchasOrderItemVersions> PurchasOrderItemVersionsDeletedByNavigation { get; set; } = new List<PurchasOrderItemVersions>();
 
-    public virtual ICollection<PurchasOrderItems> PurchasOrderItemsUpdatedByNavigation { get; set; } = new List<PurchasOrderItems>();
+    public virtual ICollection<PurchasOrderItemVersions> PurchasOrderItemVersionsUpdatedByNavigation { get; set; } = new List<PurchasOrderItemVersions>();
 
-    public virtual ICollection<PurchasOrders> PurchasOrdersCreatedBy1 { get; set; } = new List<PurchasOrders>();
+    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersionsCreatedBy1 { get; set; } = new List<PurchasOrderVersions>();
+
+    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersionsCreatedByNavigation { get; set; } = new List<PurchasOrderVersions>();
+
+    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersionsDeletedByNavigation { get; set; } = new List<PurchasOrderVersions>();
+
+    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersionsUpdatedByNavigation { get; set; } = new List<PurchasOrderVersions>();
 
     public virtual ICollection<PurchasOrders> PurchasOrdersCreatedByNavigation { get; set; } = new List<PurchasOrders>();
 

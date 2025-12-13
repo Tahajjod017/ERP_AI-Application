@@ -1,77 +1,63 @@
-﻿@using GCTL.Core.ViewModels.POS.Purchasess.PurchaseOrder
+﻿@using GCTL.Core.ViewModels.POS.Purchase.PurchaseOrderDetails
 @model PurchaseOrderSidebarDetailsViewModel
 
 <div class="col-md-3 mb-4">
     <div class="card mb-3" style="min-height: 1000px;">
         <div class="card-body">
-
             <div class="invoice-card">
-
                 <div>
-                    @if (Model.IsDraft)
+                    @if (Model.Status == GCTL.Core.Enums.PurchaseOrderStatus.Draft)
                     {
                         <div class="alert alert-subtle-warning" role="alert">
-                            Purchase Order in draft mode
+                            @Html.SmartLocalize("Purchase Order in draft mode. Click")
+                            <a class="text-decoration-none" href="javascript:void(0)" onclick="savePurchaseOrder()">@Html.SmartLocalize("Save")</a>
+                            @Html.SmartLocalize("to Confirm")
                         </div>
                     }
-                    else if (Model.IsFullyPaid)
+                    else if (Model.Status == GCTL.Core.Enums.PurchaseOrderStatus.Pending)
+                    {
+                        <div class="alert alert-subtle-primary" role="alert">
+                            @Html.SmartLocalize("Purchase Order pending approval.")
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.PurchaseOrderStatus.Approved)
                     {
                         <div class="alert alert-subtle-success" role="alert">
-                            Purchase Order fully paid
+                            @Html.SmartLocalize("Purchase Order approved. Ready to receive.")
                         </div>
                     }
-                    else
+                    else if (Model.Status == GCTL.Core.Enums.PurchaseOrderStatus.Received)
+                    {
+                        <div class="alert alert-subtle-info" role="alert">
+                            @Html.SmartLocalize("Purchase Order received.")
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.PurchaseOrderStatus.Cancelled)
                     {
                         <div class="alert alert-subtle-danger" role="alert">
-                            Outstanding balance: @Model.DueAmount.ToString("N2") BDT
+                            @Html.SmartLocalize("Purchase Order cancelled.")
                         </div>
                     }
                 </div>
 
                 <div class="accordion" id="accordionExample">
-
                     <!-- Create Section -->
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingCreate">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreate" aria-expanded="true" aria-controls="collapseCreate">
-                                Create
+                                @Html.SmartLocalize("Create")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseCreate" aria-labelledby="headingCreate" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 <p class="fs-9" id="createPerson">
-                                    <strong>Created By:</strong> @Model.CreatedByName <br />
-                                    <strong>Created At:</strong> @Model.CreatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    <strong>@Html.SmartLocalize("Created By:")</strong> @Model.CreatedByName <br />
+                                    <strong>@Html.SmartLocalize("Created At:")</strong> @Model.CreatedAt?.ToString("MMM dd, yyyy hh:mm tt")
                                     @if (!string.IsNullOrEmpty(Model.UpdatedByName))
                                     {
                                         <br />
-                                        <strong>Updated By:</strong> @Model.UpdatedByName <br />
-                                        <strong>Updated At:</strong> @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")
-                                    }
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payment Status Section -->
-                    <div class="accordion-item border-top">
-                        <h2 class="accordion-header" id="headingPayment">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePayment" aria-expanded="true" aria-controls="collapsePayment">
-                                Payment Status
-                            </button>
-                        </h2>
-                        <div class="accordion-collapse collapse show" id="collapsePayment" aria-labelledby="headingPayment" data-bs-parent="#accordionExample">
-                            <div class="accordion-body pt-0">
-                                <p class="fs-9">
-                                    <strong>Total Amount:</strong> @Model.TotalAmount.ToString("N2") BDT<br>
-                                    <strong>Paid Amount:</strong> <span class="text-success">@Model.PaidAmount.ToString("N2") BDT</span><br>
-                                    <strong>Due Amount:</strong> <span class="text-danger">@Model.DueAmount.ToString("N2") BDT</span><br>
-                                    @if (!Model.IsFullyPaid && !Model.IsDraft)
-                                    {
-                                        <br>
-                                        <a href="javascript:void(0)" onclick="addPayment(@Model.PurchaseOrderId)" class="btn btn-sm btn-primary mt-2">
-                                            <i class="fa fa-plus me-1"></i> Add Payment
-                                        </a>
+                                        <strong>@Html.SmartLocalize("Updated By:")</strong> @Model.UpdatedByName <br />
+                                        <strong>@Html.SmartLocalize("Updated At:")</strong> @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")
                                     }
                                 </p>
                             </div>
@@ -82,20 +68,30 @@
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingEdit">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEdit" aria-expanded="true" aria-controls="collapseEdit">
-                                Edit
+                                @Html.SmartLocalize("Edit")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseEdit" aria-labelledby="headingEdit" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 <p class="fs-9">
-                                    PO Number: @Model.POID <br>
+                                    @Html.SmartLocalize("Purchase Order Number:") @Model.PurchaseOrderNumber <br>
                                     @if (Model.CanEdit)
                                     {
-                                        <a href="@Url.Action("Edit", "PurchaseOrderDetails", new { id = Model.PurchaseOrderId })">Edit Purchase Order</a>
+                                        @foreach (var item in Model.PurchaseOrderIdList)
+                                        {
+                                            if (item.current == "current")
+                                            {
+                                                <a href="#" style="color: black;text-decoration: none;">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
+                                            }
+                                            else
+                                            {
+                                                <a href="@Url.Action("Index", "PurchaseOrderDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
+                                            }
+                                        }
                                     }
                                     else
                                     {
-                                        <span class="text-muted">Cannot edit finalized PO</span>
+                                        <span class="text-muted">@Html.SmartLocalize("Cannot edit (Status:") @Model.StatusDisplay)</span>
                                     }
                                 </p>
                             </div>
@@ -106,56 +102,95 @@
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingDuplicate">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuplicate" aria-expanded="true" aria-controls="collapseDuplicate">
-                                Duplicate
+                                @Html.SmartLocalize("Duplicate")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseDuplicate" aria-labelledby="headingDuplicate" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 <p class="fs-9">
-                                    PO Number: @Model.POID <br>
-                                    <a href="javascript:void(0)" onclick="duplicatePurchaseOrder(@Model.PurchaseOrderId)">Create Duplicate</a>
+                                    @Html.SmartLocalize("Purchase Order Number:") @Model.PurchaseOrderNumber <br>
+                                    <a href="javascript:void(0)" onclick="duplicatePurchaseOrder(@Model.PurchaseOrderId)">@Html.SmartLocalize("Create Duplicate")</a>
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Status Section -->
-                    <div class="accordion-item border-top">
-                        <h2 class="accordion-header" id="headingStatus">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStatus" aria-expanded="true" aria-controls="collapseStatus">
-                                Status
-                            </button>
-                        </h2>
-                        <div class="accordion-collapse collapse show" id="collapseStatus" aria-labelledby="headingStatus" data-bs-parent="#accordionExample">
-                            <div class="accordion-body pt-0">
-                                <p class="fs-9">
-                                    Current Status: <strong>@Model.StatusName</strong><br>
-                                    <a href="javascript:void(0)" onclick="updateStatus(@Model.PurchaseOrderId)">Update Status</a>
-                                </p>
+                    <!-- Receive Section -->
+                    @if (Model.HasReceive)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingReceive">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReceive" aria-expanded="true" aria-controls="collapseReceive">
+                                    @Html.SmartLocalize("Purchase Receive")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseReceive" aria-labelledby="headingReceive" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <span class="fs-9">@Html.SmartLocalize("Receive Number:") <a href="@Url.Action("Index", "PurchaseReceive", new { id = Model.ReceiveId })">@Model.ReceiveNumber</a></span><br>
+                                    <span class="fs-9">@Html.SmartLocalize("Status: Received")</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
+                    else if (Model.CanConvertToReceive)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingReceive">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReceive" aria-expanded="true" aria-controls="collapseReceive">
+                                    @Html.SmartLocalize("Purchase Receive")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseReceive" aria-labelledby="headingReceive" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" onclick="convertToReceive(@Model.PurchaseOrderId)">@Html.SmartLocalize("Convert to Receive")</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
 
                     <!-- Send Email Section -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingEmail">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEmail" aria-expanded="true" aria-controls="collapseEmail">
-                                Send Email
+                                @Html.SmartLocalize("Send Email")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseEmail" aria-labelledby="headingEmail" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 @if (Model.CanSendEmail)
                                 {
-                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" data-bs-toggle="modal" data-bs-target="#showSendModal"><i class="far fa-envelope" aria-hidden="true"></i> </a>
+                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" data-bs-toggle="modal" data-bs-target="#showSendModal"><i class="far fa-envelope" aria-hidden="true"></i></a>
                                     <a class="btn btn-subtle-primary me-1 mb-1" type="button" onclick="printPurchaseOrder(@Model.PurchaseOrderId)"><i class="fa fa-print" aria-hidden="true"></i></a>
+                                }
+                                else
+                                {
+                                    <p class="fs-9 text-muted">@Html.SmartLocalize("Already received")</p>
                                 }
                             </div>
                         </div>
                     </div>
 
+                    <!-- Status Actions -->
+                    @if (Model.Status == GCTL.Core.Enums.PurchaseOrderStatus.Draft)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingStatus">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStatus" aria-expanded="true" aria-controls="collapseStatus">
+                                    @Html.SmartLocalize("Status Actions")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseStatus" aria-labelledby="headingStatus" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" onclick="markAsApproved(@Model.PurchaseOrderId)">@Html.SmartLocalize("Mark as Approved")</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
-
             </div>
         </div>
     </div>
@@ -166,102 +201,27 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Send Purchase Order via Email</h5>
+                <h5 class="modal-title">@Html.SmartLocalize("Send Purchase Order via Email")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Recipient Email</label>
-                    <input type="email" class="form-control" id="recipientEmail" placeholder="supplier@example.com">
+                    <label class="form-label">@Html.SmartLocalize("Recipient Email")</label>
+                    <input type="email" class="form-control" id="recipientEmail" placeholder="@Html.SmartLocalize("supplier@example.com")">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Subject</label>
-                    <input type="text" class="form-control" id="emailSubject" value="Purchase Order - @Model.POID">
+                    <label class="form-label">@Html.SmartLocalize("Subject")</label>
+                    <input type="text" class="form-control" id="emailSubject" value="@Html.SmartLocalize("Purchase Order -") @Model.PurchaseOrderNumber">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Message</label>
-                    <textarea class="form-control" id="emailMessage" rows="5">Dear Supplier,
-
-Please find attached the purchase order for your review.
-
-Best regards</textarea>
+                    <label class="form-label">@Html.SmartLocalize("Message")</label>
+                    <textarea class="form-control" id="emailMessage" rows="5">@Html.SmartLocalize("Dear Supplier,\nPlease find attached the purchase order.\nBest regards")</textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="sendEmailNow(@Model.PurchaseOrderId)">Send Email</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                <button type="button" class="btn btn-primary" onclick="sendEmailNow(@Model.PurchaseOrderId)">@Html.SmartLocalize("Send Email")</button>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-function duplicatePurchaseOrder(poId) {
-    if (confirm('Are you sure you want to duplicate this purchase order?')) {
-        $.ajax({
-            url: '/PurchaseOrderDetails/Duplicate',
-            method: 'POST',
-            data: { id: poId },
-            success: function (response) {
-                if (response.success) {
-                    toastr.success('Purchase Order duplicated successfully!');
-                    window.location.href = '/PurchaseOrderDetails/Index/' + response.newPurchaseOrderId;
-                } else {
-                    toastr.error('Failed to duplicate: ' + response.message);
-                }
-            },
-            error: function () {
-                toastr.error('Failed to duplicate purchase order.');
-            }
-        });
-    }
-}
-
-function updateStatus(poId) {
-    // Open status update modal or redirect
-    // For now, just alert
-    toastr.info('Status update functionality - to be implemented');
-}
-
-function sendEmailNow(poId) {
-    const recipient = $('#recipientEmail').val();
-    const subject = $('#emailSubject').val();
-    const message = $('#emailMessage').val();
-
-    if (!recipient) {
-        toastr.warning('Please enter recipient email address');
-        return;
-    }
-
-    $.ajax({
-        url: '/PurchaseOrderDetails/SendEmail',
-        method: 'POST',
-        data: {
-            id: poId,
-            recipientEmail: recipient,
-            subject: subject,
-            message: message
-        },
-        success: function (response) {
-            if (response.success) {
-                toastr.success('Email sent successfully!');
-                $('#showSendModal').modal('hide');
-            } else {
-                toastr.error('Failed to send email: ' + response.message);
-            }
-        },
-        error: function () {
-            toastr.error('Failed to send email.');
-        }
-    });
-}
-
-function printPurchaseOrder(poId) {
-    window.open('/PurchaseOrderDetails/PrintPDF/' + poId, '_blank');
-}
-
-function addPayment(poId) {
-    // Redirect to payment creation page
-    window.location.href = '/Payment/Create?purchaseOrderId=' + poId;
-}
-</script>

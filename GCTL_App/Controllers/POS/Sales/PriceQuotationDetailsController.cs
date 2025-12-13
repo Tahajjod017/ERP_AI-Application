@@ -406,7 +406,7 @@ namespace GCTL_App.Controllers.POS.Sales
         [HttpPost]
         public async Task<IActionResult> Duplicate(int id, BaseViewModel vm)
         {
-            await _priceQuotationRepository.BeginTransactionAsync();
+            await _priceQuotationRepository.OpenTransactionAsync();
 
             try
             {
@@ -471,13 +471,13 @@ namespace GCTL_App.Controllers.POS.Sales
                 }
                 
 
-                await _priceQuotationItemRepository.CommitTransactionAsync();
+                await _priceQuotationItemRepository.CompleteTransactionAsync();
 
                 return Json(new { success = true, newQuotationId = duplicateVersion.PriceQuotationVersionID });
             }
             catch (Exception ex)
             {
-                await _priceQuotationItemRepository.RollbackTransactionAsync();
+                await _priceQuotationItemRepository.AbortTransactionAsync();
                 return Json(new { success = false, message = ex.Message });
             }
         }

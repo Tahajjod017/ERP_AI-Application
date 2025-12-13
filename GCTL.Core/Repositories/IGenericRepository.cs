@@ -49,6 +49,13 @@ namespace GCTL.Core.Repository
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();
         Task RollbackTransactionAsync();
+
+
+        Task OpenTransactionAsync();
+        Task CompleteTransactionAsync();
+        Task AbortTransactionAsync();
+
+
         #endregion
 
 
