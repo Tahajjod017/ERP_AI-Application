@@ -9,88 +9,15 @@
         --warning-color: #f59e0b;
         --info-color: #3b82f6;
         --secondary-color: #6b7280;
+        --purple-color: #8b5cf6;
+        --indigo-color: #6366f1;
         --border-color: #e5e7eb;
         --bg-subtle: #f9fafb;
         --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        --transition-base: all 0.2s ease;
-    }
-
-    /* ====== Timeline Styling ====== */
-    .timeline-container {
-        position: relative;
-        padding-left: 45px;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--border-color) transparent;
-    }
-
-        .timeline-container::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .timeline-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .timeline-container::-webkit-scrollbar-thumb {
-            background-color: var(--border-color);
-            border-radius: 3px;
-        }
-
-    #upcoming-activity {
-        max-height: 400px;
-    }
-
-    #activity-list {
-        max-height: 600px;
-        margin-top: 1.5rem;
-    }
-
-    .vertical-line {
-        position: absolute;
-        top: 0;
-        left: 51px;
-        width: 2px;
-        height: 100%;
-        background: linear-gradient(to bottom, var(--primary-color), transparent);
-        z-index: 0;
-    }
-
-    .activity-item {
-        position: relative;
-        z-index: 1;
-        margin-bottom: 1.5rem;
-        opacity: 0;
-        transform: translateY(20px);
-        animation: slideIn 0.4s ease-out forwards;
-    }
-
-    @@keyframes slideIn {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .activity-icon {
-        position: relative;
-        z-index: 2;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 0 4px #fff;
-        transition: var(--transition-base);
-    }
-
-    .activity-item:hover .activity-icon {
-        transform: scale(1.15);
-        box-shadow: 0 0 0 4px #fff, var(--shadow-md);
+        --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* ====== Card Enhancements ====== */
@@ -238,6 +165,7 @@
         color: #374151;
         margin-bottom: 0.5rem;
         font-size: 0.875rem;
+        text-transform: capitalize !important;
     }
 
     /* ====== Range Input Styling ====== */
@@ -570,41 +498,596 @@
         color: var(--secondary-color);
     }
 
-    /* ====== Responsive Adjustments ====== */
+    /* ====== PROFESSIONAL ACTIVITY TIMELINE STYLES - FIXED ====== */
+    .timeline-container {
+        position: relative;
+    }
+
+    .timeline-wrapper {
+        position: relative;
+        max-height: 600px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+        padding-left: 70px;
+        padding-right: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+        .timeline-wrapper::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .timeline-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .timeline-wrapper::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+            .timeline-wrapper::-webkit-scrollbar-thumb:hover {
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+
+    /* Vertical Timeline Line - FIXED */
+    .vertical-timeline-line {
+        position: absolute;
+        top: 0;
+        left: 24px;
+        width: 3px;
+        height: 100%;
+        min-height: 100%;
+        background: linear-gradient(to bottom, #0d6efd 0%, #3b82f6 50%, rgba(13, 110, 253, 0.3) 100%);
+        border-radius: 2px;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    /* Activity Timeline Item */
+    .timeline-activity-item {
+        position: relative;
+        z-index: 2;
+        margin-bottom: 32px;
+        padding-left: 0;
+        opacity: 0;
+        transform: translateX(-20px);
+        animation: slideInTimeline 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+        .timeline-activity-item:last-child {
+            margin-bottom: 8px;
+        }
+
+    @@keyframes slideInTimeline {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Stagger animation */
+    .timeline-activity-item:nth-child(2) { animation-delay: 0.05s; }
+    .timeline-activity-item:nth-child(3) { animation-delay: 0.1s; }
+    .timeline-activity-item:nth-child(4) { animation-delay: 0.15s; }
+    .timeline-activity-item:nth-child(5) { animation-delay: 0.2s; }
+    .timeline-activity-item:nth-child(6) { animation-delay: 0.25s; }
+    .timeline-activity-item:nth-child(n+7) { animation-delay: 0.3s; }
+
+    /* Activity Icon Circle - FIXED */
+    .timeline-activity-icon {
+        position: absolute;
+        left: -46px;
+        top: 0;
+        z-index: 10;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 0 5px #ffffff, 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+    }
+
+    /* Icon Background Colors - VIBRANT GRADIENTS */
+    .timeline-icon-call {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .timeline-icon-meeting {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    }
+
+    .timeline-icon-email {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .timeline-icon-note {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .timeline-icon-task {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    }
+
+    .timeline-icon-success {
+        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    }
+
+    .timeline-icon-lost {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .timeline-icon-cancel {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    }
+
+    .timeline-icon-default {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    }
+
+    /* Icon Hover Effect */
+    .timeline-activity-item:hover .timeline-activity-icon {
+        transform: scale(1.15) rotate(8deg);
+        box-shadow: 0 0 0 6px #ffffff, 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Pulse Animation for Upcoming */
+    .timeline-icon-pulse {
+        animation: timelinePulse 2s infinite;
+    }
+
+    @@keyframes timelinePulse {
+        0%, 100% {
+            box-shadow: 0 0 0 5px #ffffff, 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        50% {
+            box-shadow: 0 0 0 8px #ffffff, 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 14px rgba(13, 110, 253, 0.3);
+        }
+    }
+
+    /* Activity Content Card */
+    .timeline-activity-content {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 22px 26px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .timeline-activity-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, #0d6efd 0%, #3b82f6 100%);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+    .timeline-activity-item:hover .timeline-activity-content {
+        border-color: #0d6efd;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transform: translateX(8px) translateY(-2px);
+    }
+
+        .timeline-activity-item:hover .timeline-activity-content::before {
+            opacity: 1;
+        }
+
+    /* Activity Header */
+    .timeline-activity-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+        gap: 14px;
+        flex-wrap: wrap;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .timeline-activity-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+        line-height: 1.4;
+        flex: 1;
+        min-width: 0;
+        letter-spacing: -0.025em;
+    }
+
+    .timeline-activity-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 16px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-badge-call {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+        border-color: #10b981;
+    }
+
+    .timeline-badge-meeting {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        border-color: #3b82f6;
+    }
+
+    .timeline-badge-email {
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        color: #3730a3;
+        border-color: #6366f1;
+    }
+
+    .timeline-badge-note {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+        border-color: #f59e0b;
+    }
+
+    .timeline-badge-task {
+        background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+        color: #5b21b6;
+        border-color: #8b5cf6;
+    }
+
+    .timeline-badge-success {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+        border-color: #10b981;
+    }
+
+    .timeline-badge-lost {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+        border-color: #ef4444;
+    }
+
+    /* Activity Meta Info */
+    .timeline-activity-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 14px;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .timeline-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+        .timeline-meta-item i {
+            font-size: 14px;
+            color: #0d6efd;
+            flex-shrink: 0;
+        }
+
+    /* Activity Description with Show More */
+    .timeline-activity-description {
+        font-size: 14px;
+        color: #4b5563;
+        line-height: 1.7;
+        margin-bottom: 14px;
+        position: relative;
+    }
+
+        .timeline-activity-description p {
+            margin: 0;
+        }
+
+    .timeline-description-text {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .timeline-description-text.collapsed {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+        }
+
+        .timeline-description-text.expanded {
+            display: block;
+        }
+
+    .timeline-show-more-btn {
+        background: none;
+        border: none;
+        color: #0d6efd;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 6px 0;
+        margin-top: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .timeline-show-more-btn:hover {
+            color: #0a58ca;
+            text-decoration: underline;
+        }
+
+        .timeline-show-more-btn i {
+            font-size: 10px;
+            transition: transform 0.3s;
+        }
+
+        .timeline-show-more-btn.expanded i {
+            transform: rotate(180deg);
+        }
+
+    /* Activity Footer */
+    .timeline-activity-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 14px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .timeline-activity-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+        .timeline-activity-status i {
+            font-size: 12px;
+        }
+
+    .timeline-status-completed {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+        border-color: #10b981;
+    }
+
+    .timeline-status-pending {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+        border-color: #f59e0b;
+    }
+
+    .timeline-status-overdue {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+        border-color: #ef4444;
+    }
+
+    .timeline-status-upcoming {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        border-color: #3b82f6;
+    }
+
+    .timeline-activity-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .timeline-action-btn {
+        padding: 8px 18px;
+        border: 1.5px solid #e5e7eb;
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border-radius: 8px;
+        font-size: 13px;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-weight: 600;
+    }
+
+        .timeline-action-btn:hover {
+            background: linear-gradient(135deg, #0d6efd 0%, #3b82f6 100%);
+            border-color: #0d6efd;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.25);
+        }
+
+        .timeline-action-btn i {
+            font-size: 12px;
+        }
+
+    /* Activity Attachments */
+    .timeline-activity-attachments {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .timeline-attachment-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #6b7280;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+        .timeline-attachment-item:hover {
+            background: white;
+            border-color: #0d6efd;
+            color: #0d6efd;
+            transform: translateY(-2px);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .timeline-attachment-item i {
+            font-size: 14px;
+        }
+
+    /* Empty State */
+    .timeline-empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: #6b7280;
+    }
+
+        .timeline-empty-state i {
+            font-size: 72px;
+            color: #d1d5db;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .timeline-empty-state h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .timeline-empty-state p {
+            font-size: 14px;
+            color: #6b7280;
+            margin: 0;
+        }
+
+    /* Loading State */
+    .timeline-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 60px 20px;
+    }
+
+    .timeline-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e5e7eb;
+        border-top-color: #0d6efd;
+        border-radius: 50%;
+        animation: timelineSpin 1s linear infinite;
+    }
+
+    @@keyframes timelineSpin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Responsive Design */
     @@media (max-width: 768px) {
-        .card-body {
-            padding: 1rem;
+        .timeline-wrapper {
+            padding-left: 60px;
         }
 
-        .option-btn {
-            min-width: 80px;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.813rem;
+        .timeline-activity-icon {
+            left: -42px;
+            width: 44px;
+            height: 44px;
+            font-size: 16px;
         }
 
-        .sticky-leads-sidebar {
-            position: relative;
+        .vertical-timeline-line {
+            left: 20px;
+        }
+
+        .timeline-activity-item:hover .timeline-activity-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .timeline-activity-content {
+            padding: 16px 18px;
+        }
+
+        .timeline-activity-title {
+            font-size: 16px;
+        }
+
+        .timeline-activity-meta {
+            font-size: 12px;
+            gap: 12px;
+        }
+
+        .timeline-activity-description {
+            font-size: 13px;
         }
     }
 
-    /* ====== Loading States ====== */
-    .loading-shimmer {
-        background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
-    }
-
-    @@keyframes shimmer {
-        0% {
-            background-position: -200% 0;
+    @@media (max-width: 576px) {
+        .timeline-wrapper {
+            padding-left: 55px;
         }
 
-        100% {
-            background-position: 200% 0;
+        .timeline-activity-icon {
+            left: -40px;
+            width: 40px;
+            height: 40px;
+            font-size: 15px;
+        }
+
+        .vertical-timeline-line {
+            left: 18px;
+        }
+
+        .timeline-activity-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .timeline-activity-footer {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .timeline-wrapper {
+            max-height: 500px;
         }
     }
 
-    /* ====== Utility Classes ====== */
+    /* Utility Classes */
     .text-muted-light {
         color: #9ca3af;
     }
@@ -617,16 +1100,7 @@
         background-color: var(--bg-subtle);
     }
 
-    /* ====== Icon Colors ====== */
-    .tab-icon-color {
-        color: var(--primary-color);
-    }
-
-    .text-success-dark {
-        color: #065f46;
-    }
-
-    /* ====== Modal Improvements ====== */
+    /* Modal Improvements */
     .modal-content {
         border-radius: 16px;
         border: none;
@@ -648,28 +1122,16 @@
         padding: 1.25rem 1.5rem;
         background-color: var(--bg-subtle);
     }
-
-    /* very label Capitalize */
-
-    .form-label {
-        text-transform: capitalize !important;
-        font-size: 14px;
-    }
 </style>
 
 <div class="pb-4">
     <!-- Page Header -->
     <div class="row align-items-center justify-content-between g-3 mb-4">
         <div class="col-12 col-md-auto">
-            <h2 class="mb-0 fw-bold text-dark">Lead Details</h2>
+            <h2 class="fw-bold text-dark mb-0">Lead Details</h2>
         </div>
         <div class="col-12 col-md-auto d-flex gap-2">
             <a class="btn btn-phoenix-secondary px-4" id="openCreateLeadModal" role="button">Create Lead</a>
-
-            @* <button class="btn btn-phoenix-secondary px-4" id="editModalBtn">
-                <span class="fa-solid fa-edit me-2"></span>
-                <span>Create Lead</span>
-            </button> *@
             <button class="btn btn-phoenix-secondary px-4" id="editModalBtn">
                 <span class="fa-solid fa-edit me-2"></span>
                 <span>Edit Lead</span>
@@ -696,27 +1158,6 @@
                                     <div>
                                         <h5 class="mb-1">@Model.FullName</h5>
                                         <p>@Model.LeadOwnerName</p>
-                                        @* <div class="dropdown">
-                                            <a class="text-muted dropdown-toggle text-decoration-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false">
-                                                @Model.LeadOwnerName<span class="fa-solid fa-caret-down ms-2 fs-9"></span>
-                                            </a>
-                                            <div class="dropdown-menu shadow" style="min-width:20rem">
-                                                <div class="p-3">
-                                                    <h5 class="mb-3 fw-bold">@Model.LeadOwnerName</h5>
-                                                    <label class="form-label">Deal Owner</label>
-                                                    <select class="form-select mb-3">
-                                                        <option selected>Select Owner</option>
-                                                        <option value="1">Jerry Seinfield</option>
-                                                        <option value="2">Anthoney Michael</option>
-                                                        <option value="3">Ansolo Lazinatov</option>
-                                                    </select>
-                                                    <div class="d-flex justify-content-end gap-2">
-                                                        <button class="btn btn-sm btn-link text-danger" type="button">Cancel</button>
-                                                        <button class="btn btn-sm btn-primary px-4" type="button">Save</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div> *@
                                     </div>
                                 </div>
 
@@ -736,7 +1177,7 @@
                                 <!-- Probability Slider -->
                                 <div class="mb-3">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <label class="form-label mb-0 fw-semibold">Probability</label>
+                                        <label class="form-label fw-semibold mb-0">Probability</label>
                                         <span id="completionValue" class="text-primary fw-bold fs-7">@Model.Probability%</span>
                                     </div>
                                     <input type="range"
@@ -782,7 +1223,7 @@
                                         <span class="fw-semibold">Contact Name</span>
                                     </div>
                                 </td>
-                                <td class="text-center px-3">:</td>
+                                <td class="px-3 text-center">:</td>
                                 <td><span class="text-dark">@Model.FullName</span></td>
                             </tr>
 
@@ -800,7 +1241,7 @@
                                         <span class="fw-semibold">Phone</span>
                                     </div>
                                 </td>
-                                <td class="text-center px-3">:</td>
+                                <td class="px-3 text-center">:</td>
                                 <td><span class="text-dark">@Model.Phone</span></td>
                             </tr>
 
@@ -819,10 +1260,10 @@
                                         <span class="fw-semibold">Email</span>
                                     </div>
                                 </td>
-                                <td class="text-center px-3">:</td>
+                                <td class="px-3 text-center">:</td>
                                 <td><span class="text-dark">@Model.Email</span></td>
                             </tr>
-                            
+
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
@@ -838,7 +1279,7 @@
                                         <span class="fw-semibold">Create Date</span>
                                     </div>
                                 </td>
-                                <td class="text-center px-3">:</td>
+                                <td class="px-3 text-center">:</td>
                                 <td><span class="text-dark">@Model.Created</span></td>
                             </tr>
                             <tr>
@@ -856,7 +1297,7 @@
                                         <span class="fw-semibold">Services</span>
                                     </div>
                                 </td>
-                                <td class="text-center px-3">:</td>
+                                <td class="px-3 text-center">:</td>
                                 <td><span class="text-dark">@string.Join(",", Model.ServiceNames)</span></td>
                             </tr>
 
@@ -877,7 +1318,7 @@
                                         <span class="fw-semibold">Closing Date</span>
                                     </div>
                                 </td>
-                                <td class="text-center px-3">:</td>
+                                <td class="px-3 text-center">:</td>
                                 <td><span id="closingDateResult" class="text-dark"></span></td>
                             </tr>
                         </table>
@@ -940,19 +1381,20 @@
                     <!-- Date and Time Field -->
                     <div class="mb-3" id="dateField">
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            @* <div class="col-md-6">
                                 <label class="form-label fw-semibold">Set Date and Time</label>
                                 <div class="input-group">
                                     <input class="form-control datetimepicker"
                                            id="aDate"
                                            type="text"
                                            placeholder="dd/mm/yyyy hour : minute"
-                                           data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' />
+                                           data-options='{"enableTime":true,"dateFormat":"d/m/y H:i","disableMobile":true}' 
+                                           />
                                     <span class="input-group-text">
                                         <span class="fa-solid fa-calendar"></span>
                                     </span>
                                 </div>
-                            </div>
+                            </div> *@
 
                             <div class="col-md-6" id="contact-field" style="display:none;">
                                 <label class="form-label fw-semibold">Contact Person Phone</label>
@@ -987,7 +1429,7 @@
                             <button type="submit" id="addLActivity" class="btn btn-primary px-4">
                                 <span class="fa-solid fa-plus me-2"></span>Add Activity
                             </button>
-                            <div class="d-flex align-items-center gap-2 d-none" id="won-fonfirm-div">
+                            <div class="d-flex align-items-center d-none gap-2" id="won-fonfirm-div">
                                 <span class="fw-semibold">Transfer To Field Service</span>
                                 <div class="btn-group">
                                     <button class="btn btn-success btn-xs" id="wonYes">Yes</button>
@@ -1022,8 +1464,11 @@
                     <h4 class="mb-0">Upcoming Activities</h4>
                 </div>
                 <div class="card-body">
-                    <div id="upcoming-activity" class="timeline-container">
-                        <div class="vertical-line"></div>
+                    <div class="timeline-container">
+                        <div id="upcoming-activity" class="timeline-wrapper" data-timeline-type="upcoming">
+                            <div class="vertical-timeline-line"></div>
+                            <!-- Activities will be loaded here dynamically -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1032,7 +1477,7 @@
             <div class="d-none" id="all-activity-div">
                 <ul class="nav nav-underline mb-4" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link active" id="activity-tab">
+                        <a class="nav-link active" id="activity-tab" data-filter="all">
                             <span class="fa-solid fa-chart-line me-2"></span>All Activity
                         </a>
                     </li>
@@ -1040,7 +1485,7 @@
                     {
                         var safeName = item.LeadActivityName.Replace(" ", "-");
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link" id="@safeName-tab" data-usefor="@item.LeadActivityName">
+                            <a class="nav-link" id="@safeName-tab" data-usefor="@item.LeadActivityName" data-filter="@item.LeadActivityName.ToLower()">
                                 <span class="fa-solid @item.LeadActivityIcon me-2"></span>@item.LeadActivityName
                             </a>
                         </li>
@@ -1049,7 +1494,7 @@
 
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
                             <h4 class="mb-0" id="activity-label">Activity Timeline</h4>
                             <div class="search-box">
                                 <form class="position-relative">
@@ -1062,8 +1507,11 @@
                                 </form>
                             </div>
                         </div>
-                        <div id="activity-list" class="timeline-container">
-                            <div class="vertical-line"></div>
+                        <div class="timeline-container">
+                            <div id="activity-list" class="timeline-wrapper" data-timeline-type="all">
+                                <div class="vertical-timeline-line"></div>
+                                <!-- Activities will be loaded here dynamically -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1133,75 +1581,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                @* <div class="row g-3">
-                    <input type="hidden" id="leadID" />
-
-                    <div class="col-md-6">
-                        <label class="form-label">Lead Name</label>
-                        <input class="form-control" id="leadName" type="text" placeholder="Enter lead name" />
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" id="leadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
-                            <option value="" disabled selected>Select Status</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Lead Owner</label>
-                        ]
-                        <select class="form-select" id="leadOwnerId">
-                            <option value="" selected disabled>Select Owner</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Lead Source</label>
-                        <select class="form-select" id="leadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
-                            <option value="" disabled>Select Source</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Priority</label>
-                        <select class="form-select" id="leadPriorityID" asp-items="@ViewBag.LeadPriorities as SelectList">
-                            <option value="" disabled>Select Priority</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Approximate Deal Value</label>
-                        <input class="form-control" id="approximateDealValue" type="text" placeholder="Enter amount" />
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Service Type</label>
-                        <select class="form-multi-select" multiple id="serviceTypes" asp-items="@ViewBag.ServiceDD as SelectList">
-                            <option value="" disabled>Select Services...</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Probability (%)</label>
-                        <div class="d-flex align-items-center">
-                            <input type="range"
-                                   class="form-range"
-                                   min="0"
-                                   max="100"
-                                   step="1"
-                                   id="probabilityPercentage2"
-                                   value="0"
-                                   oninput="completionValue2.innerText = this.value + '%'">
-                            <span id="completionValue2" class="text-primary fw-bold ps-3 fs-7" style="min-width: 55px;">0%</span>
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" id="descriptionText" rows="4" placeholder="Enter lead description..."></textarea>
-                    </div>
-                </div> *@
+                <!-- Edit form will be loaded here -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -1219,6 +1599,7 @@
         </div>
     </div>
 </div>
+
 <!-- FIRST MODAL -->
 <div class="modal fade" id="createLeadModalToggle" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -1245,7 +1626,7 @@
     </div>
 </div>
 
-@section Scripts { 
+@section Scripts {
     <script src="~/js/pages/CRM/customeToaster.js"></script>
     <script src="~/js/pages/CRM/leadDetails.js"></script>
 }

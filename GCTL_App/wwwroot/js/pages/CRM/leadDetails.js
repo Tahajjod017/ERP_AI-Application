@@ -1175,7 +1175,7 @@ ${value.emailAddress
             $('.create-lead-modal-body').html(html);
 
             // Load script if needed
-            $.getScript('/js/pages/crm/createlead2.js')
+            $.getScript('/js/pages/crm/createlead_modal.js')
                 .done(() => {
                     if (typeof initCreateLeadModal === "function") {
                         initCreateLeadModal();
