@@ -79,6 +79,8 @@ public partial class PurchasOrderVersions
 
     public int? PurchasOrderID { get; set; }
 
+    public bool? IsFinal { get; set; }
+
     public virtual Employees? CreatedBy1 { get; set; }
 
     public virtual Employees? CreatedByNavigation { get; set; }

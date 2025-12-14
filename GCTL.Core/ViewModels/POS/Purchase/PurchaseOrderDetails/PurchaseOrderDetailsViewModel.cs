@@ -21,6 +21,9 @@ namespace GCTL.Core.ViewModels.POS.Purchase.PurchaseOrderDetails
         public List<SupplierDetailsViewModel> Suppliers { get; set; } = new();
         public SupplierDetailsViewModel SupplierData { get; set; } = new();
 
+        public AddressDetailsViewModel BillingAddress { get; set; } = new();
+        public AddressDetailsViewModel ShippingAddress { get; set; } = new();
+        public List<AddressDetailsViewModel> Addresses { get; set; } = new();
         public int? BillingAddressId { get; set; }
         public int? ShippingAddressId { get; set; }
         public int? OrganizationId { get; set; }

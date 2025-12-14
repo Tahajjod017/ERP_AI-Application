@@ -9,10 +9,6 @@ public partial class Invoices
 {
     public int InvoiceID { get; set; }
 
-    public int? SalesOrdersID { get; set; }
-
-    public string InvoiceNumber { get; set; } = null!;
-
     public string? LIP { get; set; }
 
     public string? LMAC { get; set; }
@@ -29,11 +25,57 @@ public partial class Invoices
 
     public int? DeletedBy { get; set; }
 
+    public bool? IsDraft { get; set; }
+
+    public string? InvoiceNumber { get; set; }
+
+    public int? CustomerID { get; set; }
+
+    public int? IBaseBillingAddressID { get; set; }
+
+    public int? IBaseShippingAddressID { get; set; }
+
+    public DateTime InvoiceDate { get; set; }
+
+    public decimal? VatPercentage { get; set; }
+
+    public decimal? VatAmount { get; set; }
+
+    public decimal? SubTotal { get; set; }
+
+    public decimal? GrandTotal { get; set; }
+
+    public decimal? PaidAmount { get; set; }
+
+    public string? OtherReference { get; set; }
+
+    public string? InvoiceNote { get; set; }
+
+    public int Version { get; set; }
+
+    public bool IsFinal { get; set; }
+
+    public decimal DueAmount { get; set; }
+
+    public int? SalesOrdersID { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
+
+    public virtual ICollection<CreditNote> CreditNote { get; set; } = new List<CreditNote>();
+
+    public virtual Customers? Customer { get; set; }
+
+    public virtual ICollection<DebitNote> DebitNote { get; set; } = new List<DebitNote>();
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual ICollection<InvoicesVersions> InvoicesVersions { get; set; } = new List<InvoicesVersions>();
+    public virtual InvoiceBaseCAddresses? IBaseBillingAddress { get; set; }
+
+    public virtual InvoiceBaseCAddresses? IBaseShippingAddress { get; set; }
+
+    public virtual ICollection<InvoiceItems> InvoiceItems { get; set; } = new List<InvoiceItems>();
+
+    public virtual ICollection<PaymentTransactions> PaymentTransactions { get; set; } = new List<PaymentTransactions>();
 
     public virtual SalesOrders? SalesOrders { get; set; }
 

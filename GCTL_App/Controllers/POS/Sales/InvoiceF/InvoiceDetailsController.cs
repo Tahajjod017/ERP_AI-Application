@@ -20,8 +20,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         #region CTOR
 
         private readonly IGenericRepository<Invoices> _invoiceRepository;
-        private readonly IGenericRepository<InvoiceVersionItems> _invoiceItemRepository;
-        private readonly IGenericRepository<InvoicesVersions> _invoiceVersionRepository;
+        private readonly IGenericRepository<InvoiceItems> _invoiceItemRepository;
+        //private readonly IGenericRepository<InvoicesVersions> _invoiceVersionRepository;
         private readonly IInvoice _invoiceService;
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<Customers> _customerRepository;
@@ -36,7 +36,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             ITranslateService translateService,
             IUserProfileService userProfileService,
             IGenericRepository<Invoices> invoiceRepository,
-            IGenericRepository<InvoiceVersionItems> invoiceItemRepository,
+            IGenericRepository<InvoiceItems> invoiceItemRepository,
             IInvoice invoiceService,
             IGenericRepository<Products> productRepository,
             IGenericRepository<Customers> customerRepository,
@@ -45,8 +45,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             IGenericRepository<SalesOrders> salesOrderRepository,
             IGenericRepository<PaymentTransactions> paymentTransactionRepository,
             IGenericRepository<PaymentMethods> paymentMethodRepository,
-            IUserInfoService userInfoService,
-            IGenericRepository<InvoicesVersions> invoiceVersionRepository)
+            IUserInfoService userInfoService)
+            //IGenericRepository<InvoicesVersions> invoiceVersionRepository)
             : base(translateService, userProfileService)
         {
             _invoiceRepository = invoiceRepository;
@@ -60,7 +60,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             _paymentTransactionRepository = paymentTransactionRepository;
             _paymentMethodRepository = paymentMethodRepository;
             _userInfoService = userInfoService;
-            _invoiceVersionRepository = invoiceVersionRepository;
+            //_invoiceVersionRepository = invoiceVersionRepository;
         }
 
         #endregion
@@ -76,16 +76,16 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 ViewBag.PaymentMethods = new SelectList(_paymentMethodRepository.AllActive().ToList(), "PaymentMethodID", "MethodName");
                 ViewBag.IsEditMode = false;
 
-                var invoice = _invoiceVersionRepository.AllActive()
-                    .Include(e => e.InvoiceVersionItems).ThenInclude(e => e.Product)
+                var invoice = _invoiceRepository.AllActive()
+                    .Include(e => e.InvoiceItems).ThenInclude(e => e.Product)
                     .Include(e => e.Customer)
-                    .Include(e => e.Invoice).ThenInclude(e => e.SalesOrders)
+                    .Include(e => e.SalesOrders)
                     .Include(e => e.IBaseBillingAddress)
                     .Include(e => e.IBaseShippingAddress)
                     .Include(e => e.CreatedByNavigation)
                     .Include(e => e.UpdatedByNavigation)
                     .Include(e => e.PaymentTransactions).ThenInclude(pt => pt.PaymentMethod)
-                    .FirstOrDefault(e => e.InvoicesVersionID == id);
+                    .FirstOrDefault(e => e.InvoiceID == id);
 
                 if (invoice == null)
                 {
@@ -111,9 +111,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                                }).FirstOrDefault();
 
 
-                var versions = _invoiceVersionRepository.AllActive().Where(e => e.InvoiceNumber == invoice.InvoiceNumber).Select(e => new PriceQuotationVersionViewModel
+                var versions = _invoiceRepository.AllActive().Where(e => e.InvoiceNumber == invoice.InvoiceNumber).Select(e => new PriceQuotationVersionViewModel
                 {
-                    id = e.InvoicesVersionID,
+                    id = e.InvoiceID,
                     number = e.InvoiceNumber,
                     version = e.Version,
                     draft = e.IsDraft,
@@ -121,7 +121,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     finalSign = e.IsFinal == true && e.IsDraft != true ? "(Final)" : ""
                 }).ToList();
 
-                var FinalAse = _invoiceVersionRepository.AllActive().FirstOrDefault(e => e.InvoiceNumber == invoice.InvoiceNumber && e.IsFinal == true && e.IsDraft != true);
+                var FinalAse = _invoiceRepository.AllActive().FirstOrDefault(e => e.InvoiceNumber == invoice.InvoiceNumber && e.IsFinal == true && e.IsDraft != true);
 
                 //var vm = new InvoiceDetailsViewModel
                 //{
@@ -205,17 +205,17 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
 
                 var vm = new InvoiceDetailsViewModel
                 {
-                    Id = invoice.InvoicesVersionID,
+                    Id = invoice.InvoiceID,
                     InvoiceDate = invoice.InvoiceDate,
-                    InvoiceNumber = invoice.Invoice?.InvoiceNumber ?? "N/A",
+                    InvoiceNumber = invoice?.InvoiceNumber ?? "N/A",
                     SelectedCustomerId = invoice.CustomerID,
-                    SelectedSalesOrderId = invoice.Invoice?.SalesOrdersID,
-                    SalesOrderNumber = invoice.Invoice?.SalesOrders?.SalesOrderNumber, // safe chaining
+                    SelectedSalesOrderId = invoice?.SalesOrdersID,
+                    SalesOrderNumber = invoice?.SalesOrders?.SalesOrderNumber, // safe chaining
                     IsDraft = invoice.IsDraft ?? false,
 
-                    Items = invoice.InvoiceVersionItems?.Select(m => new InvoiceItemDetails
+                    Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
                     {
-                        SL = m.InvoiceVersionItemID,
+                        SL = m.InvoiceItemID,
                         ProductId = m.ProductID ?? 0,
                         ProductName = m.Product?.ProductName ?? "Unknown Product",
                         Quantity = m.Quantity ?? 0m,
@@ -265,13 +265,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                         Status = pt.Status
                     }).ToList() ?? new List<PaymentHistoryViewModel>(),
 
-                    CreatedByName = invoice.CreatedByNavigation != null
-        ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}"
-        : "Unknown",
+                    CreatedByName = invoice.CreatedByNavigation != null ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}" : "Unknown",
 
-                    UpdatedByName = invoice.UpdatedByNavigation != null
-        ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}"
-        : "Unknown",
+                    UpdatedByName = invoice.UpdatedByNavigation != null ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}" : "Unknown",
 
                     CustomerData = new CustomerDetailsViewModel()
                     {
@@ -320,16 +316,15 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             ViewBag.PaymentMethods = new SelectList(_paymentMethodRepository.AllActive().ToList(), "PaymentMethodID", "MethodName");
             ViewBag.IsEditMode = true;
 
-            var invoice = _invoiceVersionRepository.AllActive()
-                .Include(e => e.InvoiceVersionItems)
+            var invoice = _invoiceRepository.AllActive()
+                .Include(e => e.InvoiceItems)
                 .Include(e => e.CreatedByNavigation)
                 .Include(e => e.UpdatedByNavigation)
-                .Include(e => e.Invoice)
-                .ThenInclude(e => e.SalesOrders)
+                .Include(e => e.SalesOrders)
                 .Include(e => e.IBaseBillingAddress)
                 .Include(e => e.IBaseShippingAddress)
                 .Include(e => e.PaymentTransactions)
-                .FirstOrDefault(e => e.InvoicesVersionID == id);
+                .FirstOrDefault(e => e.InvoiceID == id);
 
             if (invoice == null)
             {
@@ -337,17 +332,17 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             }
 
 
-            var versions = _invoiceVersionRepository.AllActive().Where(e => e.InvoiceID == invoice.InvoiceID).Select(e => new PriceQuotationVersionViewModel
+            var versions = _invoiceRepository.AllActive().Where(e => e.InvoiceID == invoice.InvoiceID).Select(e => new PriceQuotationVersionViewModel
             {
-                id = e.InvoicesVersionID,
-                number = e.Invoice.InvoiceNumber,
+                id = e.InvoiceID,
+                number = e.InvoiceNumber,
                 version = e.Version,
                 draft = e.IsDraft,
                 draftSign = e.IsDraft != true ? "" : "(Draft)",
                 finalSign = e.IsFinal == true && e.IsDraft != true ? "(Final)" : ""
             }).ToList();
 
-            var ifFinal = _invoiceVersionRepository.AllActive().FirstOrDefault(e => e.InvoiceNumber == invoice.InvoiceNumber && e.IsFinal == true && e.IsDraft != true);
+            var ifFinal = _invoiceRepository.AllActive().FirstOrDefault(e => e.InvoiceNumber == invoice.InvoiceNumber && e.IsFinal == true && e.IsDraft != true);
 
 
             //var vm = new InvoiceDetailsViewModel
@@ -417,17 +412,17 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
 
             var vm = new InvoiceDetailsViewModel
             {
-                Id = invoice.InvoicesVersionID,
+                Id = invoice.InvoiceID,
                 InvoiceDate = invoice.InvoiceDate,
-                InvoiceNumber = invoice.Invoice?.InvoiceNumber ?? "N/A",
+                InvoiceNumber = invoice?.InvoiceNumber ?? "N/A",
                 SelectedCustomerId = invoice.CustomerID,
-                SelectedSalesOrderId = invoice.Invoice?.SalesOrdersID,
-                SalesOrderNumber = invoice.Invoice?.SalesOrders?.SalesOrderNumber, // safe chaining
+                SelectedSalesOrderId = invoice?.SalesOrdersID,
+                SalesOrderNumber = invoice?.SalesOrders?.SalesOrderNumber, // safe chaining
                 IsDraft = invoice.IsDraft ?? false,
 
-                Items = invoice.InvoiceVersionItems?.Select(m => new InvoiceItemDetails
+                Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
                 {
-                    SL = m.InvoiceVersionItemID,
+                    SL = m.InvoiceItemID,
                     ProductId = m.ProductID ?? 0,
                     ProductName = m.Product?.ProductName ?? "Unknown Product",
                     Quantity = m.Quantity ?? 0m,
@@ -583,7 +578,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         {
             try
             {
-                var invoice = _invoiceVersionRepository.All().FirstOrDefault(e => e.InvoicesVersionID == id);
+                var invoice = _invoiceRepository.All().FirstOrDefault(e => e.InvoiceID == id);
                 if (invoice == null)
                 {
                     return Json(new { success = false, message = "Invoice not found" });

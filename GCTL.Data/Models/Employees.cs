@@ -289,6 +289,18 @@ public partial class Employees
 
     public virtual Employees? CreatedByNavigation { get; set; }
 
+    public virtual ICollection<CreditNote> CreditNoteCreatedByNavigation { get; set; } = new List<CreditNote>();
+
+    public virtual ICollection<CreditNote> CreditNoteDeletedByNavigation { get; set; } = new List<CreditNote>();
+
+    public virtual ICollection<CreditNoteItems> CreditNoteItemsCreatedByNavigation { get; set; } = new List<CreditNoteItems>();
+
+    public virtual ICollection<CreditNoteItems> CreditNoteItemsDeletedByNavigation { get; set; } = new List<CreditNoteItems>();
+
+    public virtual ICollection<CreditNoteItems> CreditNoteItemsUpdatedByNavigation { get; set; } = new List<CreditNoteItems>();
+
+    public virtual ICollection<CreditNote> CreditNoteUpdatedByNavigation { get; set; } = new List<CreditNote>();
+
     public virtual ICollection<Currencies> CurrenciesCreatedByNavigation { get; set; } = new List<Currencies>();
 
     public virtual ICollection<Currencies> CurrenciesDeletedByNavigation { get; set; } = new List<Currencies>();
@@ -318,6 +330,18 @@ public partial class Employees
     public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatusEmployee { get; set; } = new List<DailyAttendanceStatus>();
 
     public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatusUpdatedByNavigation { get; set; } = new List<DailyAttendanceStatus>();
+
+    public virtual ICollection<DebitNote> DebitNoteCreatedByNavigation { get; set; } = new List<DebitNote>();
+
+    public virtual ICollection<DebitNote> DebitNoteDeletedByNavigation { get; set; } = new List<DebitNote>();
+
+    public virtual ICollection<DebitNoteItems> DebitNoteItemsCreatedByNavigation { get; set; } = new List<DebitNoteItems>();
+
+    public virtual ICollection<DebitNoteItems> DebitNoteItemsDeletedByNavigation { get; set; } = new List<DebitNoteItems>();
+
+    public virtual ICollection<DebitNoteItems> DebitNoteItemsUpdatedByNavigation { get; set; } = new List<DebitNoteItems>();
+
+    public virtual ICollection<DebitNote> DebitNoteUpdatedByNavigation { get; set; } = new List<DebitNote>();
 
     public virtual ICollection<DefaultShifts> DefaultShiftsCreatedByNavigation { get; set; } = new List<DefaultShifts>();
 
@@ -617,23 +641,17 @@ public partial class Employees
 
     public virtual ICollection<InvoiceBaseCAddresses> InvoiceBaseCAddressesUpdatedByNavigation { get; set; } = new List<InvoiceBaseCAddresses>();
 
-    public virtual ICollection<InvoiceVersionItems> InvoiceVersionItemsCreatedByNavigation { get; set; } = new List<InvoiceVersionItems>();
+    public virtual ICollection<InvoiceItems> InvoiceItemsCreatedByNavigation { get; set; } = new List<InvoiceItems>();
 
-    public virtual ICollection<InvoiceVersionItems> InvoiceVersionItemsDeletedByNavigation { get; set; } = new List<InvoiceVersionItems>();
+    public virtual ICollection<InvoiceItems> InvoiceItemsDeletedByNavigation { get; set; } = new List<InvoiceItems>();
 
-    public virtual ICollection<InvoiceVersionItems> InvoiceVersionItemsUpdatedByNavigation { get; set; } = new List<InvoiceVersionItems>();
+    public virtual ICollection<InvoiceItems> InvoiceItemsUpdatedByNavigation { get; set; } = new List<InvoiceItems>();
 
     public virtual ICollection<Invoices> InvoicesCreatedByNavigation { get; set; } = new List<Invoices>();
 
     public virtual ICollection<Invoices> InvoicesDeletedByNavigation { get; set; } = new List<Invoices>();
 
     public virtual ICollection<Invoices> InvoicesUpdatedByNavigation { get; set; } = new List<Invoices>();
-
-    public virtual ICollection<InvoicesVersions> InvoicesVersionsCreatedByNavigation { get; set; } = new List<InvoicesVersions>();
-
-    public virtual ICollection<InvoicesVersions> InvoicesVersionsDeletedByNavigation { get; set; } = new List<InvoicesVersions>();
-
-    public virtual ICollection<InvoicesVersions> InvoicesVersionsUpdatedByNavigation { get; set; } = new List<InvoicesVersions>();
 
     public virtual ICollection<JobTeamActivities> JobTeamActivitiesCreatedByNavigation { get; set; } = new List<JobTeamActivities>();
 
