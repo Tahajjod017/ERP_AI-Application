@@ -9,7 +9,6 @@ $(function () {
         addActiveBtn: '#addLActivity',
         wonConfirmDiv: '#won-fonfirm-div',
         restoreBtn: '#restoreBtn2',
-
         wonBtn: '.special-btn:first',   // first .special-btn
         lostBtn: '.special-btn:last',   // last .special-btn
         cSpecialBtn: '.special-btn',
@@ -881,7 +880,7 @@ ${value.emailAddress
             }
 
             // Make first modal non-interactive but NOT aria-hidden
-            firstModalEl.setAttribute("inert", "");
+            //firstModalEl.setAttribute("inert", "");
 
             // Show second modal on top
             const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
@@ -944,10 +943,10 @@ const firstModalEl = document.getElementById('createLeadModalToggle');
             success: function (response) {
                 //updateEmployee();
                 $("#leadID").val(response.leadID);
-                $("#leadName").val(response.leadName);
-                $("#leadStatusID").val(response.leadStatusID);
-                $("#leadSourceID").val(response.leadSourceID);
-                $("#leadPriorityID").val(response.priorityID);
+                $("#LeadName").val(response.leadName);
+                $("#LeadStatusID").val(response.leadStatusID);
+                $("#LeadSourceID").val(response.leadSourceID);
+                $("#PriorityID").val(response.priorityID);
                 $("#approximateDealValue").val(response.approximateDealValue);
                 $("#probabilityPercentage2").val(response.probability);
                 $("#completionValue2").text(response.probability + "%");
@@ -1242,7 +1241,6 @@ const firstModalEl = document.getElementById('createLeadModalToggle');
 
             $('.create-lead-modal-body').html(html);
 
-            // Load script if needed
             $.getScript('/js/pages/crm/createlead_modal.js')
                 .done(() => {
                     if (typeof initCreateLeadModal === "function") {
@@ -1251,13 +1249,16 @@ const firstModalEl = document.getElementById('createLeadModalToggle');
                 });
 
             const modalEl = document.getElementById('createLeadModalToggle');
-            modalEl.setAttribute("data-bs-backdrop", "static");
-            modalEl.setAttribute("data-bs-keyboard", "false");
 
-            // Now open modal
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl, {
+                backdrop: 'static',
+                keyboard: false
+            });
+
+            modalInstance.show();
         });
     });
+
 
 
     // OPEN SECOND MODAL (Customer) from inside first modal
@@ -1281,7 +1282,7 @@ const firstModalEl = document.getElementById('createLeadModalToggle');
             }
 
             // Make first modal non-interactive but NOT aria-hidden
-            firstModalEl.setAttribute("inert", "");
+            //firstModalEl.setAttribute("inert", "");
 
             // Show second modal on top
             const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
