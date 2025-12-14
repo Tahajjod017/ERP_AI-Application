@@ -858,56 +858,119 @@ ${value.emailAddress
     updateActivate(1, "reset");
     updateUpcomingActivate();   
 
+
+    //#region edit customer button modal call
+    // OPEN SECOND MODAL (Customer) from inside first modal
+    $(document).on("click", "#editCustomerBtn", function (e) {
+        e.preventDefault();
+
+        const firstModalEl = document.getElementById('createLeadModalToggle');
+        const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
+
+        // Load customer modal content
+        $.get('/Customers/IndexModal', function (html) {
+
+            $('.customer-modal-content').html(html);
+
+            // Load script if needed
+            if (typeof initCustomerModal !== 'function') {
+                $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
+                    .done(() => initCustomerModal && initCustomerModal());
+            } else {
+                initCustomerModal();
+            }
+
+            // Make first modal non-interactive but NOT aria-hidden
+            firstModalEl.setAttribute("inert", "");
+
+            // Show second modal on top
+            const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
+                backdrop: 'static',
+                focus: true,
+                keyboard: false
+            });
+
+            secondModal.show();
+
+            // When second modal closes ? restore first modal
+            $('#openCustomerModalToggle').one('hidden.bs.modal', function () {
+                firstModalEl.removeAttribute("inert");
+                firstModal.show();
+            });
+
+        });
+
+        // Hide first modal visually now
+        firstModal.hide();
+    });
+    //#endregion
+
+
     // ====================
     // Edit Button work
     // ======================
-    //$(document).on("click", "#editModalBtn", function (e) {
-    //    var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
-    //        keyboard: false,
-    //        backdrop: 'static',
-    //    });
-    //    myModal.show();
+    $(document).on("click", "#editModalBtn", function (e) {
+        $.get('/CreateLead/IndexModal', function (html) {
 
-    //    let leadID = $(ids.leadID).val();
-    //    $.ajax({
-    //        url: '/CRM/GetLeadInfo',
-    //        method: 'POST',
-    //        data: { id: leadID },
-    //        success: function (response) {
-    //            //updateEmployee();
-    //            $("#leadID").val(response.leadID);
-    //            $("#leadName").val(response.leadName);
-    //            $("#leadStatusID").val(response.leadStatusID);
-    //            $("#leadSourceID").val(response.leadSourceID);
-    //            $("#leadPriorityID").val(response.priorityID);
-    //            $("#approximateDealValue").val(response.approximateDealValue);
-    //            $("#probabilityPercentage2").val(response.probability);
-    //            $("#completionValue2").text(response.probability + "%");
-    //            $("#descriptionText").val(response.leadDescription);
-    //            $("#queryText").val(response.leadOwnerName);
-    //            $("#selectedID").val(response.leadOwnerId);
-    //            // multiselect edit field read
-    //            $('#serviceTypes').val(response.serviceIds).each(function () {
-    //                coreui.MultiSelect.getInstance(this)?.update();
-    //            });
+            $('.create-lead-modal-body').html(html);
 
-    //            // employee add
-    //            const currentOwnerId = response.leadOwnerId;
-    //            const currentOwnerName = response.leadOwnerName;
-    //            if (currentOwnerId && currentOwnerName) {
-    //                choices.setChoices(
-    //                    [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
-    //                    'value',
-    //                    'label',
-    //                    false // false = append (don?t clear)
-    //                );
-    //            }
-    //        },
-    //        error: function (xhr) {
-    //            toastr.error("Error creating lead");
-    //        }
-    //    });
-    //});
+            // Load script if needed
+            $.getScript('/js/pages/crm/createlead_modal.js')
+                .done(() => {
+                    if (typeof initCreateLeadModal === "function") {
+                        initCreateLeadModal();
+                    }
+                });
+
+            const modalEl = document.getElementById('createLeadModalToggle');
+            modalEl.setAttribute("data-bs-backdrop", "static");
+            modalEl.setAttribute("data-bs-keyboard", "false");
+
+            // Now open modal
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        });
+
+
+        let leadID = $(ids.leadID).val();
+        $.ajax({
+            url: '/CRM/GetLeadInfo',
+            method: 'POST',
+            data: { id: leadID },
+            success: function (response) {
+                //updateEmployee();
+                $("#leadID").val(response.leadID);
+                $("#leadName").val(response.leadName);
+                $("#leadStatusID").val(response.leadStatusID);
+                $("#leadSourceID").val(response.leadSourceID);
+                $("#leadPriorityID").val(response.priorityID);
+                $("#approximateDealValue").val(response.approximateDealValue);
+                $("#probabilityPercentage2").val(response.probability);
+                $("#completionValue2").text(response.probability + "%");
+                $("#descriptionText").val(response.leadDescription);
+                $("#queryText").val(response.leadOwnerName);
+                $("#selectedID").val(response.leadOwnerId);
+                // multiselect edit field read
+                $('#serviceTypes').val(response.serviceIds).each(function () {
+                    coreui.MultiSelect.getInstance(this)?.update();
+                });
+
+                // employee add
+                const currentOwnerId = response.leadOwnerId;
+                const currentOwnerName = response.leadOwnerName;
+                if (currentOwnerId && currentOwnerName) {
+                    choices.setChoices(
+                        [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
+                        'value',
+                        'label',
+                        false // false = append (don?t clear)
+                    );
+                }
+            },
+            error: function (xhr) {
+                toastr.error("Error creating lead");
+            }
+        });
+    });
 
     // ======================
     // employee
