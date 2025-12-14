@@ -20,7 +20,7 @@
     <link href="~/js/vendors/simplebar/simplebar.min.css" rel="stylesheet" />
     <link href="~/js/vendors/choices/choices.min.css" rel="stylesheet" />
     <link href="~/js/layout/select2/css/select2.min.css" rel="stylesheet" />
-    <link href="~/js/vendors/flatpickr/ .min.css" rel="stylesheet" />
+    <link href="~/js/vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
     <link href="~/js/vendors/dropzone/dropzone.css" rel="stylesheet" />
     <link href="~/js/vendors/leaflet/leaflet.css" rel="stylesheet" />
     <link href="~/js/vendors/leaflet.markercluster/markercluster.default.css" rel="stylesheet" />
@@ -112,8 +112,8 @@
             @await Component.InvokeAsync(typeof(MenuViewComponents))
             <partial name="_Header" />
 
-            @*<div class="content card px-2 " style="background: whitesmoke">*@
-            <div class="content card px-2 bg-body-highlight">
+            @*<div class="content card px-2" style="background: whitesmoke">*@
+            <div class="content card bg-body-highlight px-2">
            
                 <div id="mainContent">
                     @RenderBody()
@@ -122,7 +122,7 @@
                 <footer class="footer position-absolute bg-body-highlight">
                     <div class="row g-0 justify-content-between align-items-center h-100">
                         <div class="col-12 col-sm-auto text-center">
-                            <p class="mb-0 mt-2 mt-sm-0 text-body">
+                            <p class="mt-sm-0 text-body mb-0 mt-2">
                                 @Html.SmartLocalize("Thank you for creating with GCTL")
                                 <span class="d-none d-sm-inline-block mx-1">|</span>
                                 <br class="d-sm-none" />@date &copy;
@@ -130,7 +130,7 @@
                             </p>
                         </div>
                         <div class="col-12 col-sm-auto text-center">
-                            <p class="mb-0 text-body-tertiary text-opacity-85">v1.19.0</p>
+                            <p class="text-body-tertiary mb-0 text-opacity-85">v1.19.0</p>
                         </div>
                     </div>
                 </footer>
