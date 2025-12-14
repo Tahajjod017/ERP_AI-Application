@@ -83,6 +83,35 @@
                                         </div>
                                     </div>
 
+
+
+                                    <!-- Add after Supplier Info card in read-only mode -->
+                                    <div class="col-xl-6">
+                                        <div class="card mb-3" style="min-height: 165px;">
+                                            <div class="card-body">
+                                                <h5 class="card-title mb-2">@Html.SmartLocalize("Billing Address")</h5>
+                                                <p class="mb-1 fs-9">@Model.BillingAddress.FullName</p>
+                                                <p class="mb-1 fs-9">@Model.BillingAddress.FullAddress</p>
+                                                <p class="mb-1 fs-9">@Model.BillingAddress.City, @Model.BillingAddress.State @Model.BillingAddress.PostalCode</p>
+                                                <p class="mb-1 fs-9">@Model.BillingAddress.Phone</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="card mb-3" style="min-height: 165px;">
+                                            <div class="card-body">
+                                                <h5 class="card-title mb-2">@Html.SmartLocalize("Shipping Address")</h5>
+                                                <p class="mb-1 fs-9">@Model.ShippingAddress.FullName</p>
+                                                <p class="mb-1 fs-9">@Model.ShippingAddress.FullAddress</p>
+                                                <p class="mb-1 fs-9">@Model.ShippingAddress.City, @Model.ShippingAddress.State @Model.ShippingAddress.PostalCode</p>
+                                                <p class="mb-1 fs-9">@Model.ShippingAddress.Phone</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
                                     <!-- Purchase Order Details -->
                                     <div class="col-xl-7">
                                         <div class="row mt-3">

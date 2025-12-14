@@ -47,7 +47,7 @@ public partial class Customers
 
     public virtual Heads? Head { get; set; }
 
-    public virtual ICollection<InvoicesVersions> InvoicesVersions { get; set; } = new List<InvoicesVersions>();
+    public virtual ICollection<Invoices> Invoices { get; set; } = new List<Invoices>();
 
     public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
 

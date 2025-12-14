@@ -20,21 +20,21 @@ namespace GCTL.Service.POS.Sales.InvoiceF
     public class InvoiceService : IInvoice
     {
         private readonly IGenericRepository<Invoices> _invoiceRepository;
-        private readonly IGenericRepository<InvoiceVersionItems> _invoiceItemRepository;
-        private readonly IGenericRepository<InvoicesVersions> _invoiceVersionRepository;
+        private readonly IGenericRepository<InvoiceItems> _invoiceItemRepository;
+       // private readonly IGenericRepository<InvoicesVersions> _invoiceVersionRepository;
         private readonly IGenericRepository<InvoiceBaseCAddresses> _addressRepository;
         private readonly IUserInfoService _userInfoService;
 
         public InvoiceService(
             IGenericRepository<Invoices> invoiceRepository,
-            IGenericRepository<InvoiceVersionItems> invoiceItemRepository,
-            IGenericRepository<InvoicesVersions> invoiceVersionRepository,
+            IGenericRepository<InvoiceItems> invoiceItemRepository,
+           // IGenericRepository<InvoicesVersions> invoiceVersionRepository,
             IGenericRepository<InvoiceBaseCAddresses> addressRepository,
             IUserInfoService userInfoService)
         {
             _invoiceRepository = invoiceRepository;
             _invoiceItemRepository = invoiceItemRepository;
-            _invoiceVersionRepository = invoiceVersionRepository;
+          //  _invoiceVersionRepository = invoiceVersionRepository;
             _addressRepository = addressRepository;
             _userInfoService = userInfoService;
         }
@@ -76,24 +76,15 @@ namespace GCTL.Service.POS.Sales.InvoiceF
 
                 
                 
-                var invoice = await _invoiceRepository.AllActive().Include(e => e.InvoicesVersions).FirstOrDefaultAsync(e => e.InvoiceNumber == vm.InvoiceNumber);
+                var invoice = await _invoiceRepository.AllActive().FirstOrDefaultAsync(e => e.InvoiceNumber == vm.InvoiceNumber);
                 
-                if (invoice == null)
-                {
-                    invoice = new Invoices
-                    {
-                        SalesOrdersID = vm.SelectedSalesOrderId,
-                        InvoiceNumber = await GetNextInvoiceCode()
-                    };
-                    await _invoiceRepository.AddAsync(invoice, vm);
-                    await _userInfoService.ActionLogAsync("Invoice", ActionName.DataAdd, null, invoice, invoice.InvoiceID, vm);
-                }
+                
 
-                if (isUpdate)
-                {
-                    vers = invoice != null ? invoice.InvoicesVersions.Count + 1 : 1;
+                //if (isUpdate)
+                //{
+                //    vers = invoice != null ? invoice.InvoicesVersions.Count + 1 : 1;
 
-                }
+                //}
                
 
                 // Save Billing Address
@@ -143,41 +134,46 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                 decimal vatAmount = subTotal * vm.VatPercent / 100;
                 decimal grandTotal = subTotal + vatAmount;
 
-                
 
+
+                if (invoice == null)
+                {
+                    invoice = new Invoices
+                    {
+                        SalesOrdersID = vm.SelectedSalesOrderId,
+                        InvoiceNumber = await GetNextInvoiceCode(),
+                        Version = vers,
+                        IsDraft = vm.IsDraft,
+                        IsFinal = !vm.IsDraft,
+                        //InvoiceNumber = vm.InvoiceNumber,
+                        CustomerID = vm.SelectedCustomerId,
+                        IBaseBillingAddressID = billingAddressId,
+                        IBaseShippingAddressID = shippingAddressId,
+
+                        InvoiceDate = vm.InvoiceDate,
+                        VatPercentage = vm.VatPercent,
+                        VatAmount = vatAmount,
+                        SubTotal = subTotal,
+                        GrandTotal = grandTotal,
+                        PaidAmount = 0,
+                        OtherReference = vm.OtherReference,
+                        InvoiceNote = vm.InvoiceNote,
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = vm.CreatedBy
+                    };
+                    await _invoiceRepository.AddAsync(invoice, vm);
+                    await _userInfoService.ActionLogAsync("Invoice", ActionName.DataAdd, null, invoice, invoice.InvoiceID, vm);
+                }
 
                 // Create invoice header
-                var invoiceVersion = new InvoicesVersions
-                {
-                    InvoiceID = invoice.InvoiceID,
-                    Version = vers,
-                    IsDraft = vm.IsDraft,
-                    //InvoiceNumber = vm.InvoiceNumber,
-                    CustomerID = vm.SelectedCustomerId,
-                    IBaseBillingAddressID = billingAddressId,
-                    IBaseShippingAddressID = shippingAddressId,
-                    
-                    InvoiceDate = vm.InvoiceDate,
-                    VatPercentage = vm.VatPercent,
-                    VatAmount = vatAmount,
-                    SubTotal = subTotal,
-                    GrandTotal = grandTotal,
-                    PaidAmount = 0,
-                    OtherReference = vm.OtherReference,
-                    InvoiceNote = vm.InvoiceNote,
-                    CreatedAt = DateTime.Now,
-                    CreatedBy = vm.CreatedBy
-                };
-
-                await _invoiceVersionRepository.AddAsync(invoiceVersion);
-                await _userInfoService.ActionLogAsync("Invoice Version", ActionName.DataAdd, null, invoiceVersion, invoiceVersion.InvoicesVersionID, vm);
+                
 
                 // Save invoice items
                 foreach (var item in vm.Items)
                 {
-                    var modelItem = new InvoiceVersionItems
+                    var modelItem = new InvoiceItems
                     {
-                        InvoicesVersionID = invoiceVersion.InvoicesVersionID,
+                        InvoiceID = invoice.InvoiceID,
                         ProductID = item.ProductId,
                         Quantity = item.Quantity,
                         UnitPrice = item.UnitPrice,
@@ -186,7 +182,7 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                     };
 
                     await _invoiceItemRepository.AddAsync(modelItem);
-                    await _userInfoService.ActionLogAsync("Invoice", ActionName.DataAdd, null, modelItem, modelItem.InvoiceVersionItemID, vm);
+                    await _userInfoService.ActionLogAsync("Invoice", ActionName.DataAdd, null, modelItem, modelItem.InvoiceItemID, vm);
                 }
 
                 // Commit transaction
@@ -196,7 +192,7 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                 {
                     Success = true,
                     Message = "Invoice saved successfully",
-                    Data = invoiceVersion.InvoicesVersionID
+                    Data = invoice.InvoiceID
                 };
             }
             catch (Exception ex)
@@ -213,12 +209,12 @@ namespace GCTL.Service.POS.Sales.InvoiceF
 
         public async Task<CommonReturnViewModel> UpdateAsync(InvoiceViewModel vm)
         {
-            await _invoiceItemRepository.BeginTransactionAsync();
+            await _invoiceItemRepository.OpenTransactionAsync();
 
             try
             {
                 // Fetch existing invoice
-                var invoice = await _invoiceVersionRepository.GetByIdAsync(vm.Id);
+                var invoice = await _invoiceRepository.AllActive().FirstOrDefaultAsync(i => i.InvoiceID == vm.Id);
                 if (invoice == null)
                 {
                     return new CommonReturnViewModel
@@ -231,7 +227,7 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                 // If invoice is finalized, create new instead of updating
                 if (invoice.IsDraft == false)
                 {
-                    await _invoiceVersionRepository.CommitTransactionAsync();
+                    await _invoiceRepository.CompleteTransactionAsync();
                     var data = await SaveAsync(vm, true);
                     return data;
                 }
@@ -299,7 +295,7 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                 invoice.UpdatedAt = DateTime.Now;
                 invoice.UpdatedBy = vm.UpdatedBy;
 
-                await _invoiceVersionRepository.UpdateAsync(invoice);
+                await _invoiceRepository.UpdateAsync(invoice);
 
                 var afterEntity = JsonConvert.DeserializeObject<CustomerListVM>(JsonConvert.SerializeObject(invoice, JsonSettings.IgnoreReferenceLoop));
 
@@ -307,15 +303,15 @@ namespace GCTL.Service.POS.Sales.InvoiceF
 
                 // Replace existing items
                 var existingItems = await _invoiceItemRepository.AllActive()
-                    .Where(e => e.InvoicesVersionID == invoice.InvoicesVersionID).ToListAsync();
+                    .Where(e => e.InvoiceID == invoice.InvoiceID).ToListAsync();
 
                 await _invoiceItemRepository.DeleteRangeAsync(existingItems);
 
                 foreach (var item in vm.Items)
                 {
-                    var modelItem = new InvoiceVersionItems
+                    var modelItem = new InvoiceItems
                     {
-                        InvoicesVersionID = invoice.InvoicesVersionID,
+                        InvoiceID = invoice.InvoiceID,
                         ProductID = item.ProductId,
                         Quantity = item.Quantity,
                         UnitPrice = item.UnitPrice,
@@ -325,7 +321,7 @@ namespace GCTL.Service.POS.Sales.InvoiceF
 
                     await _invoiceItemRepository.AddAsync(modelItem);
                     await _userInfoService.ActionLogAsync("Invoice Item", ActionName.DataAdd,
-                        null, modelItem, modelItem.InvoiceVersionItemID, vm);
+                        null, modelItem, modelItem.InvoiceItemID, vm);
                 }
 
                 // Commit transaction
@@ -335,7 +331,7 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                 {
                     Success = true,
                     Message = "Invoice updated successfully",
-                    Data = invoice.InvoicesVersionID
+                    Data = invoice.InvoiceID
                 };
             }
             catch (Exception ex)

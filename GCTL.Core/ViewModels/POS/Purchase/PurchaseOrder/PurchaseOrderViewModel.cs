@@ -22,8 +22,10 @@ namespace GCTL.Core.ViewModels.POS.Purchase.PurchaseOrder
         public List<SupplierDto> Suppliers { get; set; } = new();
 
         // ----- Addresses -----------------------------------------------
+        public List<AddressDto> Addresses { get; set; } = new();
         public int? BillingAddressId { get; set; }
         public int? ShippingAddressId { get; set; }
+        public bool SameAsShipping { get; set; } = false;
 
         // ----- Organization --------------------------------------------
         public int? OrganizationId { get; set; }

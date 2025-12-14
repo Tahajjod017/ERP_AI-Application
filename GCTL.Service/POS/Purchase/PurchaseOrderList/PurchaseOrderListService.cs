@@ -45,7 +45,8 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrderList
                     .Include(q => q.Supplier)
                     .Include(q => q.PurchasOrderItemVersions)
                     .Include(q => q.CreatedByNavigation)
-                    .Include(q => q.Status);
+                    .Include(q => q.Status)
+                    .Where(e=>e.IsDraft == true || e.IsFinal == true);
 
                 // Apply search filter
                 if (!string.IsNullOrEmpty(searchTerm))
@@ -61,26 +62,13 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrderList
                 // Apply sorting
                 query = sortColumn switch
                 {
-                    "PurchaseOrderID" => sortDirection == "asc"                        ? query.OrderBy(q => q.PurchasOrderID)
-                        : query.OrderByDescending(q => q.PurchasOrderID),
-                    "POID" => sortDirection == "asc"
-                        ? query.OrderBy(q => q.PurchasOrder.POID)
-                        : query.OrderByDescending(q => q.PurchasOrder.POID),
-                    "SupplierName" => sortDirection == "asc"
-                        ? query.OrderBy(q => q.Supplier.FullName)
-                        : query.OrderByDescending(q => q.Supplier.FullName),
-                    "CreatedBy" => sortDirection == "asc"
-                        ? query.OrderBy(q => q.CreatedByNavigation.FirstName)
-                        : query.OrderByDescending(q => q.CreatedByNavigation.FirstName),
-                    "PurchaseDate" => sortDirection == "asc"
-                        ? query.OrderBy(q => q.PurchaseDate)
-                        : query.OrderByDescending(q => q.PurchaseDate),
-                    "GrandTotalAmount" => sortDirection == "asc"
-                        ? query.OrderBy(q => q.GrandTotalAmount)
-                        : query.OrderByDescending(q => q.GrandTotalAmount),
-                    _ => sortDirection == "asc"
-                        ? query.OrderBy(q => q.CreatedAt)
-                        : query.OrderByDescending(q => q.CreatedAt)
+                    "PurchaseOrderID" => sortDirection == "asc" ? query.OrderBy(q => q.PurchasOrderID) : query.OrderByDescending(q => q.PurchasOrderID),
+                    "POID" => sortDirection == "asc" ? query.OrderBy(q => q.PurchasOrder.POID) : query.OrderByDescending(q => q.PurchasOrder.POID),
+                    "SupplierName" => sortDirection == "asc" ? query.OrderBy(q => q.Supplier.FullName) : query.OrderByDescending(q => q.Supplier.FullName),
+                    "CreatedBy" => sortDirection == "asc" ? query.OrderBy(q => q.CreatedByNavigation.FirstName) : query.OrderByDescending(q => q.CreatedByNavigation.FirstName),
+                    "PurchaseDate" => sortDirection == "asc" ? query.OrderBy(q => q.PurchaseDate) : query.OrderByDescending(q => q.PurchaseDate),
+                    "GrandTotalAmount" => sortDirection == "asc" ? query.OrderBy(q => q.GrandTotalAmount) : query.OrderByDescending(q => q.GrandTotalAmount),
+                    _ => sortDirection == "asc" ? query.OrderBy(q => q.CreatedAt) : query.OrderByDescending(q => q.CreatedAt)
                 };
 
                 var totalRecords = await query.CountAsync();

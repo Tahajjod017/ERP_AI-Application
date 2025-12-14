@@ -55,6 +55,22 @@
          "ObjectType": 0
       },
       {
+         "Name": "[COA].[CreditNote]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[CreditNoteItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[DebitNote]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[DebitNoteItems]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[COA].[FinancialYears]",
          "ObjectType": 0
       },
@@ -735,15 +751,11 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[InvoiceItems]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[Invoices]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[SC].[InvoicesVersions]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[SC].[InvoiceVersionItems]",
          "ObjectType": 0
       },
       {
@@ -905,6 +917,10 @@
       {
          "Name": "[Shift].[EmployeeFinalShifts]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ServiceView]",
+         "ObjectType": 3
       },
       {
          "Name": "[dbo].[aa]",

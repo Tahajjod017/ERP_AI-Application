@@ -54,7 +54,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
 
         public async Task<CommonReturnViewModel> SaveAsync(PurchaseOrderViewModel vm)
         {
-            await _purchaseOrderItemRepository.BeginTransactionAsync();
+            await _purchaseOrderItemRepository.OpenTransactionAsync();
 
             try
             {
@@ -91,6 +91,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
                     prevVersion.PaidAmount = vm.PaidAmount;
                     prevVersion.DueAmount = vm.DueAmount;
                     prevVersion.IsDraft = vm.IsDraft;
+                    prevVersion.IsFinal = !vm.IsDraft;
                     prevVersion.UpdatedAt = DateTime.Now;
                     prevVersion.UpdatedBy = vm.CreatedBy;
 
@@ -187,6 +188,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
                         PaidAmount = vm.PaidAmount,
                         DueAmount = vm.DueAmount,
                         IsDraft = vm.IsDraft,
+                        IsFinal = !vm.IsDraft,
                         CreatedAt = DateTime.Now,
                         CreatedBy = vm.CreatedBy
                     };
@@ -209,7 +211,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
                         await _purchaseOrderItemRepository.AddAsync(modelItem);
                     }
 
-                    await _purchaseOrderItemRepository.CommitTransactionAsync();
+                    await _purchaseOrderItemRepository.CompleteTransactionAsync();
 
                     return new CommonReturnViewModel
                     {
@@ -221,7 +223,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
             }
             catch (Exception ex)
             {
-                await _purchaseOrderItemRepository.RollbackTransactionAsync();
+                await _purchaseOrderItemRepository.AbortTransactionAsync();
                 return new CommonReturnViewModel
                 {
                     Success = false,

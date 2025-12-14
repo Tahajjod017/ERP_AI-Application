@@ -16,6 +16,8 @@ namespace GCTL_App.Controllers.POS.Purchase
     {
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<Suppliers> _supplierRepository;
+        private readonly IGenericRepository<PurOrderBaseSAddresses> _addressRepository;
+
         private readonly IPurchaseOrder _purchaseOrderService;
 
         public PurchaseOrderController(
@@ -23,12 +25,14 @@ namespace GCTL_App.Controllers.POS.Purchase
             IUserProfileService userProfileService,
             IGenericRepository<Products> productRepository,
             IPurchaseOrder purchaseOrderService,
-            IGenericRepository<Suppliers> supplierRepository)
+            IGenericRepository<Suppliers> supplierRepository,
+            IGenericRepository<PurOrderBaseSAddresses> addressRepository)
             : base(translateService, userProfileService)
         {
             _productRepository = productRepository;
             _purchaseOrderService = purchaseOrderService;
             _supplierRepository = supplierRepository;
+            _addressRepository = addressRepository;
         }
 
         #region STATIC DATA
@@ -237,5 +241,51 @@ namespace GCTL_App.Controllers.POS.Purchase
             var result = _purchaseOrderService.GetNextPOCode().Result;
             return Ok(result);
         }
+
+        [HttpGet]
+        public JsonResult GetAddresses()
+        {
+            var result = _addressRepository.AllActive()
+                .Select(a => new
+                {
+                    Id = a.PurOrderBaseSAddressID,
+                    FullName = a.FirstName + " " + a.LastName,
+                    FullAddress = a.FullAddress,
+                    City = a.City,
+                    State = a.State,
+                    PostalCode = a.PostalCode,
+                    Phone = a.Phone,
+                    Email = a.Email
+                }).ToList();
+
+            return Json(result);
+        }
+
+        [HttpPost]
+        public JsonResult AddAddress([FromBody] AddressDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.FullAddress))
+                return Json(new { error = "Invalid address data" });
+
+            var address = new PurOrderBaseSAddresses
+            {
+                FirstName = dto.FullName?.Split(' ').FirstOrDefault(),
+                LastName = dto.FullName?.Split(' ').Skip(1).FirstOrDefault(),
+                FullAddress = dto.FullAddress,
+                City = dto.City,
+                State = dto.State,
+                PostalCode = dto.PostalCode,
+                Phone = dto.Phone,
+                Email = dto.Email,
+                CreatedAt = DateTime.Now,
+                CreatedBy = 1 // Replace with actual user ID
+            };
+
+            _addressRepository.AddAsync(address);
+
+            dto.Id = address.PurOrderBaseSAddressID;
+            return Json(dto);
+        }
+
     }
 }

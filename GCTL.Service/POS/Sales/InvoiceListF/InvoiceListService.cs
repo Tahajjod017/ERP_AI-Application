@@ -13,24 +13,23 @@ namespace GCTL.Service.POS.Sales.InvoiceListF
     public class InvoiceListService : IInvoiceList
     {
         private readonly IGenericRepository<Invoices> _invoiceRepository;
-        private readonly IGenericRepository<InvoiceVersionItems> _invoiceItemRepository;
-        private readonly IGenericRepository<InvoicesVersions> _invoiceVersionRepository;
+        private readonly IGenericRepository<InvoiceItems> _invoiceItemRepository;
+        //private readonly IGenericRepository<InvoicesVersions> _invoiceVersionRepository;
 
-        public InvoiceListService(IGenericRepository<Invoices> invoiceRepository, IGenericRepository<InvoiceVersionItems> invoiceItemRepository, IGenericRepository<InvoicesVersions> invoiceVersionRepository)
+        public InvoiceListService(IGenericRepository<Invoices> invoiceRepository, IGenericRepository<InvoiceItems> invoiceItemRepository)
         {
             _invoiceRepository = invoiceRepository;
             _invoiceItemRepository = invoiceItemRepository;
-            _invoiceVersionRepository = invoiceVersionRepository;
+            //_invoiceVersionRepository = invoiceVersionRepository;
         }
 
         public async Task<InvoiceListResultViewModel> GetInvoicesWithPagination(int page, int pageSize, string searchTerm, string sortColumn, string sortDirection)
         {
-            var query = _invoiceVersionRepository.AllActive()
+            var query = _invoiceRepository.AllActive()
                 .Include(inv => inv.Customer)
-                .Include(inv => inv.Invoice)
-                .ThenInclude(inv => inv.SalesOrders)
+                .Include(inv => inv.SalesOrders)
                 .Include(inv => inv.CreatedByNavigation)
-                .Include(inv => inv.InvoiceVersionItems)
+                .Include(inv => inv.InvoiceItems)
                 .AsQueryable();
 
             // Search
@@ -39,7 +38,7 @@ namespace GCTL.Service.POS.Sales.InvoiceListF
                 query = query.Where(inv =>
                     inv.InvoiceNumber.Contains(searchTerm) ||
                     inv.Customer.FullName.Contains(searchTerm) ||
-                    inv.Invoice.SalesOrders != null && inv.Invoice.SalesOrders.SalesOrderNumber.Contains(searchTerm) ||
+                    inv.SalesOrders != null && inv.SalesOrders.SalesOrderNumber.Contains(searchTerm) ||
                     inv.InvoiceNote != null && inv.InvoiceNote.Contains(searchTerm));
             }
 
@@ -78,13 +77,13 @@ namespace GCTL.Service.POS.Sales.InvoiceListF
                 .Take(pageSize)
                 .Select(inv => new InvoiceListItemViewModel
                 {
-                    InvoiceID = inv.InvoicesVersionID,
-                    InvoiceNumber = inv.Invoice.InvoiceNumber ?? "",
+                    InvoiceID = inv.InvoiceID,
+                    InvoiceNumber = inv.InvoiceNumber ?? "",
                     CustomerName = inv.Customer != null ? inv.Customer.FullName : "",
-                    SalesOrderNumber = inv.Invoice.SalesOrders != null ? inv.Invoice.SalesOrders.SalesOrderNumber : "",
+                    SalesOrderNumber = inv.SalesOrders != null ? inv.SalesOrders.SalesOrderNumber : "",
                     CreatedBy = inv.CreatedByNavigation != null ? inv.CreatedByNavigation.FirstName + " " + inv.CreatedByNavigation.LastName : "",
                     InvoiceDate = inv.InvoiceDate,
-                    TotalItems = inv.InvoiceVersionItems.Count,
+                    TotalItems = inv.InvoiceItems.Count,
                     VatPercentage = inv.VatPercentage ?? 0,
                     GrandTotal = inv.GrandTotal ?? 0,
                     PaidAmount = inv.PaidAmount ?? 0,
