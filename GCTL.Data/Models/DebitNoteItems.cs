@@ -5,17 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class InvoiceVersionItems
+public partial class DebitNoteItems
 {
-    public int InvoiceVersionItemID { get; set; }
+    public int DebitNoteItemID { get; set; }
 
-    public int? InvoicesVersionID { get; set; }
+    public int? DebitNoteID { get; set; }
 
     public int? ProductID { get; set; }
 
     public decimal? Quantity { get; set; }
 
     public decimal? UnitPrice { get; set; }
+
+    public decimal? TotalPrice { get; set; }
 
     public string? LIP { get; set; }
 
@@ -35,9 +37,9 @@ public partial class InvoiceVersionItems
 
     public virtual Employees? CreatedByNavigation { get; set; }
 
-    public virtual Employees? DeletedByNavigation { get; set; }
+    public virtual DebitNote? DebitNote { get; set; }
 
-    public virtual InvoicesVersions? InvoicesVersion { get; set; }
+    public virtual Employees? DeletedByNavigation { get; set; }
 
     public virtual Products? Product { get; set; }
 

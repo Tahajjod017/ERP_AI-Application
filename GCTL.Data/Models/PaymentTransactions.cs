@@ -53,7 +53,7 @@ public partial class PaymentTransactions
 
     public virtual PaymentMethods PaymentMethod { get; set; } = null!;
 
-    public virtual InvoicesVersions? RelatedInvoice { get; set; }
+    public virtual Invoices? RelatedInvoice { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

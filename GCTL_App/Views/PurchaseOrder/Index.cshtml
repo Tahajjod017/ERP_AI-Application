@@ -28,11 +28,15 @@
             </div>
             <div class="row mb-3">
                 <div class="col-xl-12">
+
+
                     <div class="row justify-content-between">
                         <!-- SUPPLIER DROPDOWN -->
                         <div class="col-xl-5">
                             <div class="mt-2">
                                 <div class="d-flex gap-3">
+
+
                                     <div class="col-md-12">
                                         <input asp-for="SelectedSupplierId" type="hidden" id="selectedSupplierId" />
                                         <button type="button" class="btn border border-github py-5 px-10 mt-4" id="showSupplierDropdownBtn">
@@ -67,7 +71,20 @@
                                             </div>
                                         </div>
                                     </div>
+
+
+
+                                    
+
+
+
+
+
+
+
+
                                 </div>
+
                                 <div class="modal fade" id="addSupplierModal" tabindex="-1">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -112,6 +129,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                         <div class="col-xl-7">
@@ -149,6 +167,41 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <div class="row col-xl-12 mb-3 mt-3">
+                        <p class="mb-1 fw-bold fs-7">@Html.SmartLocalize("Addresses")</p>
+                        <div class="border-bottom border-2 mb-3"></div>
+
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <label class="form-label">@Html.SmartLocalize("Billing Address")</label>
+                                <select asp-for="BillingAddressId" id="billingAddressDropdown" class="form-select">
+                                    <option value="">@Html.SmartLocalize("-- Select Billing Address --")</option>
+                                </select>
+                                <button type="button" class="btn btn-sm btn-link" data-bs-toggle="modal" data-bs-target="#addAddressModal" data-address-type="billing">
+                                    @Html.SmartLocalize("+ Add New Address")
+                                </button>
+                            </div>
+
+                            <div class="col-xl-6">
+                                <label class="form-label">@Html.SmartLocalize("Shipping Address")</label>
+                                <select asp-for="ShippingAddressId" id="shippingAddressDropdown" class="form-select">
+                                    <option value="">@Html.SmartLocalize("-- Select Shipping Address --")</option>
+                                </select>
+                                <div class="form-check mt-2">
+                                    <input asp-for="SameAsShipping" class="form-check-input" type="checkbox" id="sameAsBilling">
+                                    <label class="form-check-label" for="sameAsBilling">
+                                        @Html.SmartLocalize("Same as Billing Address")
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
                 </div>
             </div>
             <div class="col-xl-12 mt-3">
@@ -237,6 +290,68 @@
         </div>
     </form>
 </div>
+
+
+
+
+
+
+<div class="modal fade" id="addAddressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Html.SmartLocalize("Add New Address")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">@Html.SmartLocalize("Full Name") *</label>
+                    <input type="text" class="form-control" id="newAddressFullName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">@Html.SmartLocalize("Full Address") *</label>
+                    <textarea class="form-control" id="newAddressFullAddress" rows="2" required></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">@Html.SmartLocalize("City")</label>
+                        <input type="text" class="form-control" id="newAddressCity">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">@Html.SmartLocalize("State")</label>
+                        <input type="text" class="form-control" id="newAddressState">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">@Html.SmartLocalize("Postal Code")</label>
+                        <input type="text" class="form-control" id="newAddressPostalCode">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">@Html.SmartLocalize("Phone")</label>
+                        <input type="tel" class="form-control" id="newAddressPhone">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">@Html.SmartLocalize("Email")</label>
+                    <input type="email" class="form-control" id="newAddressEmail">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                <button type="button" class="btn btn-primary" id="saveNewAddressBtn">@Html.SmartLocalize("Save Address")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -59,9 +59,9 @@ public partial class InvoiceBaseCAddresses
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual ICollection<InvoicesVersions> InvoicesVersionsIBaseBillingAddress { get; set; } = new List<InvoicesVersions>();
+    public virtual ICollection<Invoices> InvoicesIBaseBillingAddress { get; set; } = new List<Invoices>();
 
-    public virtual ICollection<InvoicesVersions> InvoicesVersionsIBaseShippingAddress { get; set; } = new List<InvoicesVersions>();
+    public virtual ICollection<Invoices> InvoicesIBaseShippingAddress { get; set; } = new List<Invoices>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

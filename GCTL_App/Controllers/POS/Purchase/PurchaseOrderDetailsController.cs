@@ -11,6 +11,7 @@ using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Language;
 using GCTL.Service.POS.Purchase.PurchaseOrder;
 using GCTL.Service.UserProfile;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +26,8 @@ namespace GCTL_App.Controllers.POS.Purchase
         private readonly IPurchaseOrder _purchaseOrderService;
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<Suppliers> _supplierRepository;
+        private readonly IGenericRepository<PurOrderBaseSAddresses> _addressRepository;
+
         private readonly IUserInfoService _userInfoService;
 
         public PurchaseOrderDetailsController(
@@ -36,7 +39,8 @@ namespace GCTL_App.Controllers.POS.Purchase
             IGenericRepository<Products> productRepository,
             IGenericRepository<Suppliers> supplierRepository,
             IUserInfoService userInfoService,
-            IGenericRepository<PurchasOrderVersions> purchaseOrderVersionRepository)
+            IGenericRepository<PurchasOrderVersions> purchaseOrderVersionRepository,
+            IGenericRepository<PurOrderBaseSAddresses> addressRepository)
             : base(translateService, userProfileService)
         {
             _purchaseOrderRepository = purchaseOrderRepository;
@@ -46,6 +50,7 @@ namespace GCTL_App.Controllers.POS.Purchase
             _supplierRepository = supplierRepository;
             _userInfoService = userInfoService;
             _purchaseOrderVersionRepository = purchaseOrderVersionRepository;
+            _addressRepository = addressRepository;
         }
         #endregion
 
@@ -96,6 +101,41 @@ namespace GCTL_App.Controllers.POS.Purchase
                     TaxNumber = "s.TaxNumber"
                 }).FirstOrDefault();
 
+            var billingAddress = purchaseOrder.OBBillingAddressID.HasValue
+                ? _addressRepository.AllActive()
+                    .Where(a => a.PurOrderBaseSAddressID == purchaseOrder.OBBillingAddressID)
+                    .Select(a => new AddressDetailsViewModel
+                    {
+                        Id = a.PurOrderBaseSAddressID,
+                        FullName = a.FirstName + " " + a.LastName,
+                        FullAddress = a.FullAddress,
+                        City = a.City,
+                        State = a.State,
+                        PostalCode = a.PostalCode,
+                        Phone = a.Phone,
+                        Email = a.Email
+                    }).FirstOrDefault()
+                : new AddressDetailsViewModel();
+
+            var shippingAddress = purchaseOrder.OBShipingAddressID.HasValue
+                ? _addressRepository.AllActive()
+                    .Where(a => a.PurOrderBaseSAddressID == purchaseOrder.OBShipingAddressID)
+                    .Select(a => new AddressDetailsViewModel
+                    {
+                        Id = a.PurOrderBaseSAddressID,
+                        FullName = a.FirstName + " " + a.LastName,
+                        FullAddress = a.FullAddress,
+                        City = a.City,
+                        State = a.State,
+                        PostalCode = a.PostalCode,
+                        Phone = a.Phone,
+                        Email = a.Email
+                    }).FirstOrDefault()
+                : new AddressDetailsViewModel();
+
+           
+           
+
             var vm = new PurchaseOrderDetailsViewModel
             {
                 Id = purchaseOrder.PurchasOrderVersionID,
@@ -126,7 +166,9 @@ namespace GCTL_App.Controllers.POS.Purchase
                     ? purchaseOrder.UpdatedByNavigation.FirstName + " " + purchaseOrder.UpdatedByNavigation.LastName
                     : "Unknown",
                 UpdatedAt = purchaseOrder.UpdatedAt,
-                SupplierData = supplier ?? new SupplierDetailsViewModel()
+                SupplierData = supplier ?? new SupplierDetailsViewModel(),
+                BillingAddress = billingAddress,
+                ShippingAddress = shippingAddress
             };
 
             vm.SubTotal = vm.Items.Sum(i => i.Amount);

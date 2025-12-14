@@ -64,6 +64,93 @@
         });
     }
 
+
+
+    // Add after loadSuppliers() function:
+
+    let addressesData = [];
+
+    function loadAddresses() {
+        $.ajax({
+            url: '/PurchaseOrder/GetAddresses',
+            method: 'GET',
+            success: function (data) {
+                addressesData = data;
+                populateAddressDropdowns();
+            },
+            error: function () {
+                console.error('Failed to load addresses');
+            }
+        });
+    }
+
+    function populateAddressDropdowns() {
+        const $billingDropdown = $('#billingAddressDropdown');
+        const $shippingDropdown = $('#shippingAddressDropdown');
+
+        $billingDropdown.find('option:not(:first)').remove();
+        $shippingDropdown.find('option:not(:first)').remove();
+
+        addressesData.forEach(function (address) {
+            const text = address.fullName + ' - ' + address.fullAddress;
+            $billingDropdown.append(`<option value="${address.id}">${text}</option>`);
+            $shippingDropdown.append(`<option value="${address.id}">${text}</option>`);
+        });
+    }
+
+    // Same as Billing checkbox handler
+    $('#sameAsBilling').on('change', function () {
+        if ($(this).is(':checked')) {
+            const billingValue = $('#billingAddressDropdown').val();
+            $('#shippingAddressDropdown').val(billingValue);
+        }
+    });
+
+    // Save new address
+    $('#saveNewAddressBtn').on('click', function () {
+        const address = {
+            fullName: $('#newAddressFullName').val().trim(),
+            fullAddress: $('#newAddressFullAddress').val().trim(),
+            city: $('#newAddressCity').val().trim(),
+            state: $('#newAddressState').val().trim(),
+            postalCode: $('#newAddressPostalCode').val().trim(),
+            phone: $('#newAddressPhone').val().trim(),
+            email: $('#newAddressEmail').val().trim()
+        };
+
+        if (!address.fullAddress) {
+            alert('Full Address is required');
+            return;
+        }
+
+        $.ajax({
+            url: '/PurchaseOrder/AddAddress',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(address)
+        })
+            .done(function (newAddress) {
+                addressesData.push(newAddress);
+                populateAddressDropdowns();
+
+                $('#billingAddressDropdown').val(newAddress.id);
+
+                $('#addAddressModal').modal('hide');
+                $('#addAddressModal input, #addAddressModal textarea').val('');
+
+                toastr.success('Address added successfully!');
+            })
+            .fail(function () {
+                alert('Failed to save address');
+            });
+    });
+
+    // Call this in document ready:
+    loadAddresses();
+
+
+
+
     function populateDropdown() {
         const $dropdown = $('#supplierDropdown');
         $dropdown.find('option:not(:first)').remove();

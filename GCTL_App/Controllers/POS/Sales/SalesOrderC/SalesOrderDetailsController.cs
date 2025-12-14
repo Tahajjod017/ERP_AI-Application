@@ -22,7 +22,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
         private readonly IGenericRepository<SalesOrderVersionItems> _salesOrderItemRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
-        private readonly IGenericRepository<InvoicesVersions> _invoiceVersionRepository;
+       // private readonly IGenericRepository<InvoicesVersions> _invoiceVersionRepository;
         private readonly ISalesOrder _salesOrderService;
         private readonly IGenericRepository<UnitTypes> _unitTypeRepository;
         private readonly IGenericRepository<Customers> _customerRepository;
@@ -43,7 +43,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             IGenericRepository<Addresses> addressRepository,
             IGenericRepository<PriceQuotations> priceQuotationRepository,
             IUserInfoService userInfoService,
-            IGenericRepository<InvoicesVersions> invoiceVersionRepository,
+            //IGenericRepository<InvoicesVersions> invoiceVersionRepository,
             IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository)
             : base(translateService, userProfileService)
         {
@@ -56,7 +56,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             _addressRepository = addressRepository;
             _priceQuotationRepository = priceQuotationRepository;
             _userInfoService = userInfoService;
-            _invoiceVersionRepository = invoiceVersionRepository;
+           // _invoiceVersionRepository = invoiceVersionRepository;
             _salesOrderVersionRepository = salesOrderVersionRepository;
         }
 
