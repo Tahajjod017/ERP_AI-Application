@@ -910,6 +910,9 @@ ${value.emailAddress
     // Edit Button work
     // ======================
     $(document).on("click", "#editModalBtn", function (e) {
+const firstModalEl = document.getElementById('createLeadModalToggle');
+        const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
+
         $.get('/CreateLead/IndexModal', function (html) {
 
             $('.create-lead-modal-body').html(html);
@@ -930,6 +933,8 @@ ${value.emailAddress
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
         });
 
+        // Hide first modal visually now
+        firstModal.hide();
 
         let leadID = $(ids.leadID).val();
         $.ajax({
@@ -1180,38 +1185,38 @@ ${value.emailAddress
         });
 
 
-    // When you load modal via AJAX
-    $(document).on("click", "#createCustomer", function () {
-        $.get('/Customers/IndexModal', function (html) {
-            $('#customerModalContent').html(html);
+    //// When you load modal via AJAX
+    //$(document).on("click", "#createCustomer", function () {
+    //    $.get('/Customers/IndexModal', function (html) {
+    //        $('#customerModalContent').html(html);
 
-            // Initialize newly added modal elements
-            $('#customerModalContent [data-init]').each(function () {
-                const el = this;
-                if (typeof showClose == "function") {
-                    showClose();
-                }
-                if (typeof loadCustomerData == "function") {
-                    const id = $("#CustomerId2").val();
-                    loadCustomerData(id);
-                }
-                if (typeof loadCustomerData == "function") {
-                    const cid = $("#CustomerId2").val();
-                    const bid = $("#BranchId").val();
-                    loadBranchData(bid, cid);
-                }
-                const key = el.dataset.init;
-                if (key && typeof window[key] === "function") {
-                    window[key](el);
-                    el.dataset.initialized = true; // optional flag
-                }
-            });
+    //        // Initialize newly added modal elements
+    //        $('#customerModalContent [data-init]').each(function () {
+    //            const el = this;
+    //            if (typeof showClose == "function") {
+    //                showClose();
+    //            }
+    //            if (typeof loadCustomerData == "function") {
+    //                const id = $("#CustomerId2").val();
+    //                loadCustomerData(id);
+    //            }
+    //            if (typeof loadCustomerData == "function") {
+    //                const cid = $("#CustomerId2").val();
+    //                const bid = $("#BranchId").val();
+    //                loadBranchData(bid, cid);
+    //            }
+    //            const key = el.dataset.init;
+    //            if (key && typeof window[key] === "function") {
+    //                window[key](el);
+    //                el.dataset.initialized = true; // optional flag
+    //            }
+    //        });
 
-            // Show modal
-            var modal = new bootstrap.Modal(document.getElementById('customerModal'));
-            modal.show();
-        });
-    });
+    //        // Show modal
+    //        var modal = new bootstrap.Modal(document.getElementById('customerModal'));
+    //        modal.show();
+    //    });
+    //});
 
 
     // keyboard shorcurt for note input field
