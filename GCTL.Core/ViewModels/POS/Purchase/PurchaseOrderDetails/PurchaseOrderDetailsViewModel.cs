@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.Enums;
+using GCTL.Core.ViewModels.POS.Purchase.PurchaseOrder;
 
 namespace GCTL.Core.ViewModels.POS.Purchase.PurchaseOrderDetails
 {
@@ -26,6 +27,8 @@ namespace GCTL.Core.ViewModels.POS.Purchase.PurchaseOrderDetails
         public List<AddressDetailsViewModel> Addresses { get; set; } = new();
         public int? BillingAddressId { get; set; }
         public int? ShippingAddressId { get; set; }
+        public int? SelectedShippingAddressId { get; set; }
+        public List<ShippingAddressDto> ShippingAddresses { get; set; } = new();
         public int? OrganizationId { get; set; }
         public int? OrganizationBranchId { get; set; }
 

@@ -28,6 +28,9 @@
     // ==============================================================
     // SUPPLIER DROPDOWN HANDLING
     // ==============================================================
+
+    //#region Supplier Dropdown Handling
+
     const $card = $('#supplierInfo');
     const $dropdownContainer = $('#supplierDropdownContainer');
     const $info = {
@@ -40,6 +43,27 @@
     };
 
     let suppliersData = [];
+
+
+
+    // ==============================================================
+    // CLOSE SUPPLIER ADDRESS CARD
+    // ==============================================================
+    $('#closeSupplierAddressBtn').on('click', function () {
+        // Hide the address card
+        $card.hide();
+
+        // Clear the selected value
+        $('#supplierDropdown').val('');
+        $('#selectedShippingAddressId').val('');
+
+        // Show the dropdown container and button again
+        $('#supplierDropdownContainer').hide();
+        $('#showSupplierDropdownBtn').show();
+    });
+
+
+
 
     function loadSuppliers() {
         $.ajax({
@@ -271,6 +295,237 @@
                 alert('Failed to save supplier');
             });
     });
+
+    //#endregion
+
+
+    // ==============================================================
+    // SHIPPING ADDRESS DROPDOWN HANDLING
+    // ==============================================================
+
+    //#region Shipping Address Dropdown Handling
+    const $shippingCard = $('#shippingAddressInfo');
+    const $shippingDropdownContainer = $('#shippingAddressDropdownContainer');
+    const $shippingInfo = {
+        fullName: $('.shipping-info-fullName'),
+        fullAddress: $('.shipping-info-fullAddress'),
+        city: $('.shipping-info-city'),
+        state: $('.shipping-info-state'),
+        postalCode: $('.shipping-info-postalCode'),
+        phone: $('.shipping-info-phone'),
+        email: $('.shipping-info-email')
+    };
+
+    let shippingAddressesData = [];
+
+    function loadShippingAddresses() {
+        // Check if data is embedded in the page
+        const embeddedData = $('#shippingAddressesData').html();
+        if (embeddedData && embeddedData.trim() !== '') {
+            try {
+                shippingAddressesData = JSON.parse(embeddedData);
+                populateShippingDropdown();
+
+                const preSelectedId = $('#preSelectedShippingAddressId').val();
+                if (preSelectedId) {
+                    $('#showShippingAddressDropdownBtn').hide();
+                    $('#shippingAddressDropdownContainer').show();
+                    $('#shippingAddressDropdown').val(preSelectedId);
+                    showShippingAddress(preSelectedId);
+                }
+            } catch (e) {
+                console.error('Failed to parse embedded shipping addresses:', e);
+                loadShippingAddressesFromServer();
+            }
+        } else {
+            loadShippingAddressesFromServer();
+        }
+    }
+
+    function loadShippingAddressesFromServer() {
+        $.ajax({
+            url: '/PurchaseOrder/GetShippingAddresses', // Adjust endpoint as needed
+            method: 'GET',
+            success: function (data) {
+                shippingAddressesData = data;
+                populateShippingDropdown();
+
+                const preSelectedId = $('#preSelectedShippingAddressId').val();
+                if (preSelectedId) {
+                    $('#showShippingAddressDropdownBtn').hide();
+                    $('#shippingAddressDropdownContainer').show();
+                    $('#shippingAddressDropdown').val(preSelectedId);
+                    showShippingAddress(preSelectedId);
+                }
+            },
+            error: function () {
+                console.error('Failed to load shipping addresses');
+            }
+        });
+    }
+
+    function populateShippingDropdown() {
+        const $dropdown = $('#shippingAddressDropdown');
+        $dropdown.find('option:not(:first)').remove();
+
+        shippingAddressesData.forEach(function (address) {
+            const displayText = address.fullName + (address.fullAddress ? ' - ' + address.fullAddress.substring(0, 30) + '...' : '');
+            const $option = $('<option>')
+                .val(address.id)
+                .text(displayText)
+                .data({
+                    fullName: address.fullName,
+                    fullAddress: address.fullAddress,
+                    city: address.city,
+                    state: address.state,
+                    postalCode: address.postalCode,
+                    phone: address.phone,
+                    email: address.email
+                });
+
+            $dropdown.append($option);
+        });
+    }
+
+    function showShippingAddress(addressId) {
+        if (!addressId) {
+            $shippingCard.hide();
+            $('#selectedShippingAddressId').val('');
+            return;
+        }
+
+        const $option = $('#shippingAddressDropdown option[value="' + addressId + '"]');
+        if ($option.length === 0) {
+            $shippingCard.hide();
+            return;
+        }
+
+        const fullName = $option.data('fullname');
+        const fullAddress = $option.data('fulladdress');
+        const city = $option.data('city');
+        const state = $option.data('state');
+        const postalCode = $option.data('postalcode');
+        const phone = $option.data('phone');
+        const email = $option.data('email');
+
+        $shippingInfo.fullName.text(fullName || '');
+        $shippingInfo.fullAddress.text(fullAddress || '');
+        $shippingInfo.city.text(city || '');
+        $shippingInfo.state.text(state || '');
+        $shippingInfo.postalCode.text(postalCode || '');
+        $shippingInfo.phone.text(phone || '');
+        $shippingInfo.email.text(email || '');
+
+        $('#selectedShippingAddressId').val(addressId);
+        $shippingDropdownContainer.hide();
+        $shippingCard.show();
+    }
+
+    // Event Handlers
+    $('#showShippingAddressDropdownBtn').on('click', function () {
+        $(this).hide();
+        $('#shippingAddressDropdownContainer').show();
+        $('#shippingAddressDropdown').focus();
+    });
+
+    $('#shippingAddressDropdown').on('change', function () {
+        const selectedId = $(this).val();
+        showShippingAddress(selectedId);
+    });
+
+    // ==============================================================
+    // ADD NEW SHIPPING ADDRESS
+    // ==============================================================
+    $('#saveNewShippingAddressBtn').on('click', function () {
+        const address = {
+            fullName: $('#newShippingFullName').val().trim(),
+            fullAddress: $('#newShippingFullAddress').val().trim(),
+            city: $('#newShippingCity').val().trim(),
+            state: $('#newShippingState').val().trim(),
+            postalCode: $('#newShippingPostalCode').val().trim(),
+            phone: $('#newShippingPhone').val().trim(),
+            email: $('#newShippingEmail').val().trim()
+        };
+
+        if (!address.fullName || !address.fullAddress) {
+            alert('Full Name and Full Address are required');
+            return;
+        }
+
+        $.ajax({
+            url: '/PurchaseOrder/AddShippingAddress', // Adjust endpoint as needed
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(address)
+        })
+            .done(function (newAddress) {
+                shippingAddressesData.push(newAddress);
+
+                const displayText = newAddress.fullName + (newAddress.fullAddress ? ' - ' + newAddress.fullAddress.substring(0, 30) + '...' : '');
+                const $newOption = $('<option>')
+                    .val(newAddress.id)
+                    .text(displayText)
+                    .data({
+                        fullName: newAddress.fullName,
+                        fullAddress: newAddress.fullAddress,
+                        city: newAddress.city,
+                        state: newAddress.state,
+                        postalCode: newAddress.postalCode,
+                        phone: newAddress.phone,
+                        email: newAddress.email
+                    });
+
+                $('#shippingAddressDropdown').append($newOption);
+                $('#shippingAddressDropdown').val(newAddress.id);
+                showShippingAddress(newAddress.id);
+
+                $('#addShippingAddressModal').modal('hide');
+                $('#addShippingAddressModal input, #addShippingAddressModal textarea').val('');
+
+                toastr.success('Shipping address added successfully!');
+            })
+            .fail(function () {
+                alert('Failed to save shipping address');
+            });
+    });
+
+    // ==============================================================
+    // SAME AS BILLING FUNCTIONALITY
+    // ==============================================================
+    $('#sameAsShipping').on('change', function () {
+        if ($(this).is(':checked')) {
+            // Get billing address value and set it as shipping
+            const billingValue = $('#billingAddressDropdown').val();
+            if (billingValue) {
+                $('#shippingAddressDropdown').val(billingValue);
+                showShippingAddress(billingValue);
+            }
+        }
+    });
+
+    // ==============================================================
+    // CLOSE SHIPPING ADDRESS CARD
+    // ==============================================================
+    $('#closeShippingAddressBtn').on('click', function () {
+        // Hide the address card
+        $shippingCard.hide();
+
+        // Clear the selected value
+        $('#shippingAddressDropdown').val('');
+        $('#selectedShippingAddressId').val('');
+
+        // Show the dropdown container and button again
+        $('#shippingAddressDropdownContainer').hide();
+        $('#showShippingAddressDropdownBtn').show();
+    });
+
+    // Initialize on document ready
+    //$(document).ready(function () {
+        loadShippingAddresses();
+    //});
+
+   //#endregion
+
 
     // ==============================================================
     // LINE ITEMS - ADD/REMOVE
