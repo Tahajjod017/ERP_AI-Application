@@ -6,11 +6,11 @@
             <div class="row gy-3">
                 <!-- Customer -->
                 <div class="col-md-6">
-                    <label class="form-label">
-                        Customer Name <span class="text-danger">*</span> <button class="icon-circle-btn success" id="editCustomerBtn">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                    </label>
+                    <div class="d-flex justify-content-between">
+                        <label class="form-label">Customer Name <span class="text-danger">*</span></label>
+                        <button class="border-0 bg-white text-primary d-none fs-9" id="editCustomerBtn"><i class="fa-solid fa-pen"></i> Edit Customer</button>
+                    </div>
+                    
                     <select id="CustomerId" name="CustomerId" class="form-select">
                         <option value="">Select Customer</option>
                     </select>
@@ -24,7 +24,10 @@
                     </select>
                 </div> *@
                  <div class="col-md-6 d-none" id="branchContainer">
-                    <label class="form-label">Branch Name <span class="text-danger">*</span></label>
+                    <div class="d-flex justify-content-between">
+                        <label class="form-label">Branch Name <span class="text-danger">*</span></label>
+                        <button class="border-0 bg-white text-primary d-none fs-9" id="editBranchBtn"><i class="fa-solid fa-pen"></i> Edit Branch</button>
+                    </div>
                     <select id="BranchId1" name="BranchId1" class="form-select ">
                         <option value="">Select Branch</option>
                     </select>

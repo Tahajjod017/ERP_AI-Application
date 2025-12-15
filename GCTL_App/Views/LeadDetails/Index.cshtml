@@ -1610,7 +1610,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create Lead</h5>
+                <h5 class="modal-title"><span id="leadModalTitle"></span> Lead</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="create-lead-modal-body"></div>
@@ -1623,7 +1623,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create Customer</h5>
+                <h5 class="modal-title"><span id="customerModalActionName"></span> Customer</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="customer-modal-content"></div>
@@ -1633,5 +1633,5 @@
 
 @section Scripts {
     <script src="~/js/pages/CRM/customeToaster.js"></script>
-    <script src="~/js/pages/CRM/leadDetails.js"></script>
+    <script src="~/js/pages/CRM/LeadDetails.js"></script>
 }

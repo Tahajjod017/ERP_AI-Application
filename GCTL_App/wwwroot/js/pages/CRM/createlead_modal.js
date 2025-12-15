@@ -255,7 +255,13 @@
 
 
     $('#CustomerId').on('change', function () {
+        
         const customerId = $(this).val();
+        if (Number(customerId) > 0) {
+            $("#editCustomerBtn").removeClass("d-none");
+        } else {
+            $("#editCustomerBtn").addClass("d-none");
+        }
         const $branchContainer = $('#branchContainer');
         const $branch = $('#BranchId1');
         showDev(customerId)
@@ -297,7 +303,112 @@
         });
     });
 
+    //#region branch edit modal option
+    $('#BranchId1').on('change', function () {
+        
+        const customerId = $(this).val();
+        if (Number(customerId) > 0) {
+            $("#editBranchBtn").removeClass("d-none");
+        } else {
+            $("#editBranchBtn").addClass("d-none");
+        }
+        const $branchContainer = $('#branchContainer');
+        const $branch = $('#BranchId1');
+    });
+    //#endregion
 
+    //#region EditCustomer From modal 
+
+    $(document).on("click", "#editCustomerBtn", function (e) {
+        e.preventDefault();
+        $("#customerModalActionName").text("Edit")
+        const firstModalEl = document.getElementById('createLeadModalToggle');
+        const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
+
+        // Load customer modal content
+        $.get('/Customers/IndexModal', function (html) {
+
+            $('.customer-modal-content').html(html);
+
+            // Load script if needed
+            if (typeof initCustomerModal !== 'function') {
+                $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
+                    .done(() => initCustomerModal && initCustomerModal());
+            } else {
+                initCustomerModal();
+            }
+            // show data
+            debugger
+            const id = $('#CustomerId').val();
+            loadCustomerData(id);
+            //changeTab("#customer-tab", "#customer");
+            // Show second modal on top
+            const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
+                backdrop: 'static',
+                focus: true,
+                keyboard: false
+            });
+
+            secondModal.show();
+
+            // When second modal closes ? restore first modal
+            $('#openCustomerModalToggle').one('hidden.bs.modal', function () {
+                firstModalEl.removeAttribute("inert");
+                firstModal.show();
+            });
+
+        });
+
+        // Hide first modal visually now
+        firstModal.hide();
+    });
+    //#endregion
+
+    //#region editBranchModalWork
+    $(document).on("click", "#editBranchBtn", function (e) {
+        e.preventDefault();
+        $("#customerModalActionName").text("Edit")
+        const firstModalEl = document.getElementById('createLeadModalToggle');
+        const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
+
+        // Load customer modal content
+        $.get('/Customers/IndexModal', function (html) {
+
+            $('.customer-modal-content').html(html);
+
+            // Load script if needed
+            if (typeof initCustomerModal !== 'function') {
+                $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
+                    .done(() => initCustomerModal && initCustomerModal());
+            } else {
+                initCustomerModal();
+            }
+            // show data
+            debugger
+            const id = $('#CustomerId').val();
+            loadCustomerData(id);
+            //changeTab("#customer-tab", "#customer");
+            // Show second modal on top
+            const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
+                backdrop: 'static',
+                focus: true,
+                keyboard: false
+            });
+
+            secondModal.show();
+
+            // When second modal closes ? restore first modal
+            $('#openCustomerModalToggle').one('hidden.bs.modal', function () {
+                firstModalEl.removeAttribute("inert");
+                firstModal.show();
+            });
+
+        });
+
+        // Hide first modal visually now
+        firstModal.hide();
+    });
+    //#endregion
     function initBranchSelect222() {
         const $branch = $('#BranchId1');
 
