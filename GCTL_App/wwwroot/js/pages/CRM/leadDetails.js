@@ -858,58 +858,16 @@ ${value.emailAddress
     updateUpcomingActivate();   
 
 
-    //#region edit customer button modal call
-    // OPEN SECOND MODAL (Customer) from inside first modal
-    $(document).on("click", "#editCustomerBtn", function (e) {
-        e.preventDefault();
-
-        const firstModalEl = document.getElementById('createLeadModalToggle');
-        const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
-
-        // Load customer modal content
-        $.get('/Customers/IndexModal', function (html) {
-
-            $('.customer-modal-content').html(html);
-
-            // Load script if needed
-            if (typeof initCustomerModal !== 'function') {
-                $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
-                    .done(() => initCustomerModal && initCustomerModal());
-            } else {
-                initCustomerModal();
-            }
-
-            // Make first modal non-interactive but NOT aria-hidden
-            //firstModalEl.setAttribute("inert", "");
-
-            // Show second modal on top
-            const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
-                backdrop: 'static',
-                focus: true,
-                keyboard: false
-            });
-
-            secondModal.show();
-
-            // When second modal closes ? restore first modal
-            $('#openCustomerModalToggle').one('hidden.bs.modal', function () {
-                firstModalEl.removeAttribute("inert");
-                firstModal.show();
-            });
-
-        });
-
-        // Hide first modal visually now
-        firstModal.hide();
-    });
-    //#endregion
 
 
     // ====================
     // Edit Button work
     // ======================
     $(document).on("click", "#editModalBtn", function (e) {
-const firstModalEl = document.getElementById('createLeadModalToggle');
+
+        $("#leadModalTitle").text("Edit");
+
+        const firstModalEl = document.getElementById('createLeadModalToggle');
         const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
 
         $.get('/CreateLead/IndexModal', function (html) {
@@ -1236,7 +1194,7 @@ const firstModalEl = document.getElementById('createLeadModalToggle');
 
     // OPEN FIRST MODAL (Create Lead)
     $(document).on("click", "#openCreateLeadModal", function () {
-
+        $("#leadModalTitle").text("Create");
         $.get('/CreateLead/IndexModal', function (html) {
 
             $('.create-lead-modal-body').html(html);
@@ -1264,7 +1222,7 @@ const firstModalEl = document.getElementById('createLeadModalToggle');
     // OPEN SECOND MODAL (Customer) from inside first modal
     $(document).on("click", "#openCustomerModal", function (e) {
         e.preventDefault();
-
+        $("#customerModalActionName").text("Create")
         const firstModalEl = document.getElementById('createLeadModalToggle');
         const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
 

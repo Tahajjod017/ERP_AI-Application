@@ -123,6 +123,8 @@ public partial class Products
 
     public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
 
+    public virtual ICollection<RequisitionItems> RequisitionItems { get; set; } = new List<RequisitionItems>();
+
     public virtual UnitTypes? UnitType { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }

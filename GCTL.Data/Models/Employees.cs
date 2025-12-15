@@ -1151,6 +1151,34 @@ public partial class Employees
 
     public virtual ICollection<ReportContent> ReportContentUpdatedByNavigation { get; set; } = new List<ReportContent>();
 
+    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsCreatedByNavigation { get; set; } = new List<ReqApprovalSettings>();
+
+    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsDeletedByNavigation { get; set; } = new List<ReqApprovalSettings>();
+
+    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsSelfExceptionApproval { get; set; } = new List<ReqApprovalSettings>();
+
+    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsUpdatedByNavigation { get; set; } = new List<ReqApprovalSettings>();
+
+    public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistoryApprovalPerson { get; set; } = new List<ReqItemApprovalHistory>();
+
+    public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistoryCreatedByNavigation { get; set; } = new List<ReqItemApprovalHistory>();
+
+    public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistoryDeletedByNavigation { get; set; } = new List<ReqItemApprovalHistory>();
+
+    public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistoryUpdatedByNavigation { get; set; } = new List<ReqItemApprovalHistory>();
+
+    public virtual ICollection<RequisitionItems> RequisitionItemsCreatedByNavigation { get; set; } = new List<RequisitionItems>();
+
+    public virtual ICollection<RequisitionItems> RequisitionItemsDeletedByNavigation { get; set; } = new List<RequisitionItems>();
+
+    public virtual ICollection<RequisitionItems> RequisitionItemsUpdatedByNavigation { get; set; } = new List<RequisitionItems>();
+
+    public virtual ICollection<Requisitions> RequisitionsCreatedByNavigation { get; set; } = new List<Requisitions>();
+
+    public virtual ICollection<Requisitions> RequisitionsDeletedByNavigation { get; set; } = new List<Requisitions>();
+
+    public virtual ICollection<Requisitions> RequisitionsUpdatedByNavigation { get; set; } = new List<Requisitions>();
+
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistoryApprovalPerson { get; set; } = new List<ResignationsApprovalHistory>();
 
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistoryCreatedByNavigation { get; set; } = new List<ResignationsApprovalHistory>();

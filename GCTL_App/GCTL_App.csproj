@@ -5,6 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<UserSecretsId>093c6bc6-2906-4900-be65-773f3eefd68c</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="wwwroot\images\**" />

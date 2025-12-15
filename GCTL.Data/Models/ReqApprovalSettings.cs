@@ -5,15 +5,25 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class ApprovalTypes
+public partial class ReqApprovalSettings
 {
-    public int ApprovalTypeID { get; set; }
+    public int ReqItemApprovalHistoryID { get; set; }
 
     public int? OrganizationID { get; set; }
 
     public int? OrganizationBranchID { get; set; }
 
-    public string? ApprovalTypeName { get; set; }
+    public int? ApprovalTypeID { get; set; }
+
+    public DateTime? StartDate { get; set; }
+
+    public DateTime? EndDate { get; set; }
+
+    public bool? AllowSelfApproval { get; set; }
+
+    public int? SelfExceptionApprovalID { get; set; }
+
+    public int? Step { get; set; }
 
     public string? LIP { get; set; }
 
@@ -31,7 +41,7 @@ public partial class ApprovalTypes
 
     public int? DeletedBy { get; set; }
 
-    public virtual ICollection<ApprovalSettings> ApprovalSettings { get; set; } = new List<ApprovalSettings>();
+    public virtual ApprovalTypes? ApprovalType { get; set; }
 
     public virtual Employees? CreatedByNavigation { get; set; }
 
@@ -41,9 +51,7 @@ public partial class ApprovalTypes
 
     public virtual OrganizationBranches? OrganizationBranch { get; set; }
 
-    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettings { get; set; } = new List<ReqApprovalSettings>();
-
-    public virtual ICollection<Requisitions> Requisitions { get; set; } = new List<Requisitions>();
+    public virtual Employees? SelfExceptionApproval { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

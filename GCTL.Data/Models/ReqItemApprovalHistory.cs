@@ -5,15 +5,25 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class ApprovalTypes
+public partial class ReqItemApprovalHistory
 {
-    public int ApprovalTypeID { get; set; }
+    public int ReqItemApprovalHistoryID { get; set; }
 
-    public int? OrganizationID { get; set; }
+    public int? RequisitionItemID { get; set; }
 
-    public int? OrganizationBranchID { get; set; }
+    public int? ApprovalPersonID { get; set; }
 
-    public string? ApprovalTypeName { get; set; }
+    public int? StatusID { get; set; }
+
+    public string? ApprovalPersonNote { get; set; }
+
+    public DateTime? ApprovedAt { get; set; }
+
+    public int? ApprovalStep { get; set; }
+
+    public int? DeclineById { get; set; }
+
+    public DateTime? DeclineAt { get; set; }
 
     public string? LIP { get; set; }
 
@@ -31,19 +41,15 @@ public partial class ApprovalTypes
 
     public int? DeletedBy { get; set; }
 
-    public virtual ICollection<ApprovalSettings> ApprovalSettings { get; set; } = new List<ApprovalSettings>();
+    public virtual Employees? ApprovalPerson { get; set; }
 
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual Organization? Organization { get; set; }
+    public virtual RequisitionItems? RequisitionItem { get; set; }
 
-    public virtual OrganizationBranches? OrganizationBranch { get; set; }
-
-    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettings { get; set; } = new List<ReqApprovalSettings>();
-
-    public virtual ICollection<Requisitions> Requisitions { get; set; } = new List<Requisitions>();
+    public virtual Statuses? Status { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }
