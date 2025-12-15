@@ -7,17 +7,28 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
+using NetTopologySuite.Precision;
 
 namespace GCTL.Service.FieldServices.EmployeeAdvanced
 {
     public class EmployeeAdvancedService : AppService<EmployeeAdvances>, IEmployeeAdvanced
     {
         public readonly IGenericRepository<EmployeeAdvances> _genericRepository;
+        public readonly IGenericRepository<GCTL.Data.Models.Employees> _employees;
 
-        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository) : base(genericRepository)
+
+
+
+
+
+        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees) : base(genericRepository)
         {
             _genericRepository = genericRepository;
+            _employees = employees;
         }
+
 
         public async Task<CommonReturnViewModel> AddAsync(EmployeeAdvancedVM emp)
         {
@@ -30,12 +41,16 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 empadvance.JobID = emp.JobID;
                 empadvance.AmountRequested = emp.AmountRequested;
                 empadvance.RequestedByUserID = emp.RequestedByUserID;
-                empadvance.StartDate = emp.StartDate;
-                empadvance.EndDate = emp.EndDate;
+                empadvance.StartDate = emp.StartDate.HasValue ? DateOnly.FromDateTime(emp.StartDate.Value) : null;
+                empadvance.EndDate = emp.EndDate.HasValue ? DateOnly.FromDateTime(emp.EndDate.Value) : null;
                 empadvance.LIP = emp.LIP;
                 empadvance.LMAC = emp.LMAC;
                 empadvance.CreatedAt = DateTime.UtcNow;
                 empadvance.CreatedBy = emp.CreatedBy;
+                empadvance.UpdatedBy = emp.UpdatedBy;
+                empadvance.ApprovedByUserID = emp.ApprovedByUserID;
+                
+                //empadvance.JobID = emp.JobID;
                 await _genericRepository.AddAsync(empadvance);
                 await _genericRepository.CommitTransactionAsync();
                 return new CommonReturnViewModel
@@ -47,11 +62,30 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                throw;
+                await _genericRepository.RollbackTransactionAsync();
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = ex.Message,
+                };
             }
+            
+        }
+
+        //Modern Dropdown for Employees
+        public async Task <IEnumerable<CommonSelectVM>> EmployeeDD()
+        {
+            var data = await _employees.AllActive()
+                .Select(x => new CommonSelectVM
+                {
+                    Id = x.EmployeeID,
+                    Name = $"{x.FirstName} {x.LastName} ({x.EmployeeID})",
+
+                }).ToListAsync();
+            return data;
         }
     }
 }

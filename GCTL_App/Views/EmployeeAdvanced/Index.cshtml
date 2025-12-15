@@ -19,7 +19,7 @@
     </div>
     <div class="card-body">
         <div class="row col-md-12">
-            <form asp-controller="EmployeeAdvanced" asp-action="Create">
+            <form asp-controller="EmployeeAdvanced" id="formClear" asp-action="Create">
                 <div class="modal-body pb-0">
                     <div class="row mt-3">
                         <div class="col-md-6">
@@ -32,11 +32,9 @@
                         <div class="col-md-3">
                             <div class="mb-3">
                                 <label class="form-label" for="exampleFormControlInput">Project Name</label>
-                                <select class="form-select" id="" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <select asp-for="JobID">
 
-                                    <option>Project 1</option>
-                                    <option>Project 2</option>
-                                    <option>Project 3</option>
+           
                                 </select>
                             </div>
                         </div>
@@ -44,7 +42,7 @@
                         <div class="col-md-3">
                             <div class="mb-3">
                                 <label class="form-label" for="organizerMultiple">Job Type</label>
-                                <select asp-for="JobID" ></select>
+                                <select asp-for="RequestedByUserID" asp-items="ViewBag.JobTypesDDD"></select>
                             </div>
                         </div>
 
@@ -58,30 +56,16 @@
 
                                 </label>
 
-                                <select class="form-select" id="" data-choices="data-choices" size="1" required="required" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
-
-                                    <option>Mahamudul Hasan</option>
-                                    <option>Mashum Billah</option>
-                                    <option>Abdul Motin</option>
+                                <select asp-for="ApprovedByUserID" class="form-select" data-choices="data-choices"
+                                        asp-items="ViewBag.EmployeeDD"> <!--Advanced Recieved by-->
                                 </select>
                             </div>
                         </div>
 
-                        <div class="col-md-2" id="hiddenDiv1">
-                            <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Number of Persons to go</label>
-                                <input class="form-control" id="" type="number" />
-                            </div>
-                        </div>
-
-                        <div class="col-md-4" id="hiddenDiv2">
+                        <div class="col-md-6" id="hiddenDiv2">
                             <div class="mb-3">
                                 <label class="form-label" for="exampleFormControlInput">Other Employees Name</label>
-                                <select class="form-select" id="organizerMultiple" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
-
-                                    <option>Mahamudul Hasan</option>
-                                    <option>Mashum Billah</option>
-                                    <option>Abdul Motin</option>
+                                <select asp-for="ApprovedByUserID" class="form-select" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}' asp-items="ViewBag.EmployeeDD">
                                 </select>
                             </div>
                         </div>
@@ -90,29 +74,28 @@
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="organizerMultiple">From Date</label>
-                                <input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
+                                <label class="form-label" asp-for="StartDate">From Date</label>
+                                <input class="form-control" asp-for="StartDate" type="date" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" asp-for="EndDate">To Date</label>
+                                <input class="form-control" asp-for="EndDate" type="date" />
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="organizerMultiple">To Date</label>
-                                <input class="form-control datetimepicker" id="" type="text" placeholder="dd/mm/yyyy" data-options='{"disableMobile":true,"dateFormat":"d/m/Y"}' />
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label" for="exampleFormControlInput">Amount</label>
-                                <input class="form-control" id="" type="number" />
+                                <label class="form-label" asp-for="AmountRequested">Amount</label>
+                                <input class="form-control" asp-for="AmountRequested" type="number" />
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Send for Approval</button>
+                    <button type="button" id="cancleBtn" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="saveBtn" class="btn btn-primary">Send for Approval</button>
                 </div>
             </form>
         </div>
@@ -267,3 +250,4 @@
 @section Scripts {
 	<script src="~/js/pages/fieldservices/employeeadvanced.js"></script>
 }
+

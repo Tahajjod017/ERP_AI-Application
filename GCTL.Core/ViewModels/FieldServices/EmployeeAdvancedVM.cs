@@ -15,9 +15,9 @@ namespace GCTL.Core.ViewModels.FieldServices
 
         public int? RequestedByUserID { get; set; }
         public decimal AmountRequested { get; set; }
-        public DateOnly? StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
-        public DateOnly? EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public bool? IsGroupAdvance { get; set; }
 

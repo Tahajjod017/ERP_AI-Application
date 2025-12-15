@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Repository;
+﻿using System.Threading.Tasks;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
@@ -154,6 +155,18 @@ namespace GCTL_App.Controllers.FieldServices
             };
 
             return Ok(formatted);
+        }
+        #endregion
+
+        #region get Customer Info
+        public async Task<IActionResult> GetCustomerInfo(int id)
+        {
+            var result = _createJobService.GetCustomerInfo(id, await GetCurrentOrganizationIdAsync() ?? 0);
+            return Json(new
+            {
+                id = result.LeadID,
+                text = $"{result.LeadName} {result.Phone} {result.Email}"
+            });
         }
         #endregion
 

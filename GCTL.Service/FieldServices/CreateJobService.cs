@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Web.Helpers;
 
 
 namespace GCTL.Service.FieldServices
@@ -159,6 +160,20 @@ namespace GCTL.Service.FieldServices
             };
         }
         #endregion
+
+        public CustomerInfoVM GetCustomerInfo(int jobId, int organizationID)
+        {
+            return _jobsRepository
+                .AllActive().Include(x => x.Customer)
+                .Where(q => q.JobID ==jobId && q.OrganizationID == organizationID).Select(t => new CustomerInfoVM
+                {
+                    LeadID = t.CustomerID ?? 0,
+                    Email = t.Customer.CustomerAddresses.Select(ca => ca.Address.Email).FirstOrDefault(),
+                    LeadName = t.Customer.FullName,
+                    Phone = t.Customer.CustomerAddresses.Select(ca => ca.Address.Phone).FirstOrDefault(),
+                }).FirstOrDefault()?? new CustomerInfoVM();
+        }
+
 
         #region get Customer List 
         public async Task<ReturnDataView<SelectListItem>> GetCountryList(string search, int page, int pageSize, int organizationID)

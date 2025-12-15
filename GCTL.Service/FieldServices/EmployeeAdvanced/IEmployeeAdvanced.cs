@@ -11,5 +11,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
     public interface IEmployeeAdvanced
     {
         Task<CommonReturnViewModel>AddAsync(EmployeeAdvancedVM emp);
+        Task<IEnumerable<CommonSelectVM>>EmployeeDD();
+        
     }
 }

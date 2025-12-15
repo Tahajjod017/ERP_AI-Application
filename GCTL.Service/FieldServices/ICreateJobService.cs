@@ -23,6 +23,7 @@ namespace GCTL.Service.FieldServices
         Task<ReturnDataView<CreateJobVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5,
             string searchTerm = "", string sortColumn = "CreateJobID", string sortOrder = "asc");
         Task<CommonReturnViewModel> GetCalenderData(int organizationID, DateTime start, DateTime end, string searchTerm = "");
+        CustomerInfoVM GetCustomerInfo(int jobId, int organizationID);
         #endregion
     }
 }
