@@ -1340,7 +1340,7 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Lead Source</label>
-                            <select class="form-select" id="leadSource" asp-for="LDLeadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
+                            <select class="form-select" id="leadSource" asp-for="LeadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
                                 <option value="" disabled selected>Select Source</option>
                             </select>
                         </div>
@@ -1352,7 +1352,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Stage</label>
-                            <select class="form-select" id="lead-status" asp-for="LDLeadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
+                            <select class="form-select" id="lead-status" asp-for="LeadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
                                 <option value="" disabled selected>Select Status</option>
                             </select>
                         </div>
