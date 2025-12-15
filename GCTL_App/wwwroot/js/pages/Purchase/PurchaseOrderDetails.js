@@ -12,6 +12,77 @@
 
     initializeSelect();
 
+
+
+
+    // ==============================================================
+    // CLOSE SHIPPING ADDRESS CARD
+    // ==============================================================
+    $('#closeShippingAddressBtn').on('click', function () {
+        // Hide the address card
+        $('#shippingAddressInfo').hide();
+
+        // Clear the selected value
+        $('#shippingAddressDropdown').val('');
+        $('#selectedShippingAddressId').val('');
+
+        // Show the dropdown container and button again
+        $('#shippingAddressDropdownContainer').show();
+        $('#showShippingAddressDropdownBtn').show();
+
+        // Uncheck the "Same as Billing" checkbox if checked
+        $('#sameAsBilling').prop('checked', false);
+    });
+
+    function showShippingAddress(addressId) {
+        const $shippingCard = $('#shippingAddressInfo');
+        const $shippingDropdownContainer = $('#shippingAddressDropdownContainer');
+
+        if (!addressId) {
+            $shippingCard.hide();
+            $('#selectedShippingAddressId').val('');
+            return;
+        }
+
+        const $option = $('#shippingAddressDropdown option[value="' + addressId + '"]');
+        if ($option.length === 0) {
+            $shippingCard.hide();
+            return;
+        }
+
+        // Get address data from option
+        const fullName = $option.data('fullname');
+        const fullAddress = $option.data('fulladdress');
+        const city = $option.data('city');
+        const state = $option.data('state');
+        const postalCode = $option.data('postalcode');
+        const phone = $option.data('phone');
+        const email = $option.data('email');
+
+        // Update the display elements
+        $('.shipping-info-fullName').text(fullName || '');
+        $('.shipping-info-fullAddress').text(fullAddress || '');
+        $('.shipping-info-city').text(city || '');
+        $('.shipping-info-state').text(state || '');
+        $('.shipping-info-postalCode').text(postalCode || '');
+        $('.shipping-info-phone').text(phone || '');
+        $('.shipping-info-email').text(email || '');
+
+        // Update hidden field
+        $('#selectedShippingAddressId').val(addressId);
+
+        // Hide dropdown, show card
+        $shippingDropdownContainer.hide();
+        $shippingCard.show();
+        $('#showShippingAddressDropdownBtn').hide();
+    }
+
+    $('#shippingAddressDropdown').on('change', function () {
+        const selectedId = $(this).val();
+        showShippingAddress(selectedId);
+    });
+
+
     // ==============================================================
     // SUPPLIER DROPDOWN HANDLING
     // ==============================================================
@@ -75,6 +146,9 @@
 
     loadSuppliers();
 
+
+
+
     function showSupplier(supplierId) {
         if (!supplierId) {
             $card.hide();
@@ -118,6 +192,24 @@
         const selectedId = $(this).val();
         showSupplier(selectedId);
     });
+
+
+    // ==============================================================
+    // CLOSE SUPPLIER CARD
+    // ==============================================================
+    $('#closeSupplierBtn').on('click', function () {
+        // Hide the supplier card
+        $card.hide();
+
+        // Clear the selected value
+        $('#supplierDropdown').val('');
+        $('#selectedSupplierId').val('');
+
+        // Show the dropdown container and button again
+        $('#supplierDropdownContainer').show();
+        $('#showSupplierDropdownBtn').show();
+    });
+
 
     // ==============================================================
     // ADD NEW SUPPLIER

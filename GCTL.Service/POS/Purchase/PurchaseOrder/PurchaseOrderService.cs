@@ -74,7 +74,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
                     prevVersion.WorkorderNo = vm.WorkorderNo;
                     prevVersion.WorkOrderDate = vm.WorkOrderDate;
                     prevVersion.OBBillingAddressID = vm.BillingAddressId;
-                    prevVersion.OBShipingAddressID = vm.ShippingAddressId;
+                    prevVersion.OBShipingAddressID = vm.SelectedShippingAddressId;
                     prevVersion.OrganizationID = vm.OrganizationId;
                     prevVersion.OrganizationBranchID = vm.OrganizationBranchId;
                     prevVersion.PaymentMethodID = vm.PaymentMethodId;
@@ -171,7 +171,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
                         WorkorderNo = vm.WorkorderNo,
                         WorkOrderDate = vm.WorkOrderDate,
                         OBBillingAddressID = vm.BillingAddressId,
-                        OBShipingAddressID = vm.ShippingAddressId,
+                        OBShipingAddressID = vm.SelectedShippingAddressId,
                         OrganizationID = vm.OrganizationId,
                         OrganizationBranchID = vm.OrganizationBranchId,
                         PaymentMethodID = vm.PaymentMethodId,

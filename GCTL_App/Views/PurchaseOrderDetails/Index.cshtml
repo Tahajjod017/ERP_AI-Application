@@ -45,7 +45,9 @@
                                     <div class="col-xl-5">
                                         <div class="mt-2">
                                             <div class="d-flex gap-3">
-                                                <div class="col-md-12">
+
+
+                                                <div class="col-md-6">
                                                     <input asp-for="SelectedSupplierId" type="hidden" id="selectedSupplierId" />
                                                     <button type="button" class="btn border border-github py-5 px-10 mt-4" id="showSupplierDropdownBtn">
                                                         <i class="fa fa-user fs-3 mb-2"></i>
@@ -61,9 +63,10 @@
                                                         @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Suppliers))
                                                     </script>
                                                     <input type="hidden" id="preSelectedSupplierId" value="@(Model.SelectedSupplierId?.ToString() ?? "")" />
-                                                    <div id="supplierInfo" class="card mb-3 mt-3" style="display:none;">
+                                                    <div id="supplierInfo" class="card mb-3 mt-3" style="display: none; min-height: 205px;">
                                                         <div class="card-body">
                                                             <h5 class="card-title mb-2">@Html.SmartLocalize("Supplier Information")</h5>
+                                                            <button type="button" class="btn-close" id="closeSupplierBtn"></button>
                                                             <div class="d-flex">
                                                                 <div class="me-auto">
                                                                     <p class="mb-1 fs-9 info-company"></p>
@@ -79,35 +82,74 @@
                                                         </div>
                                                     </div>
                                                 </div>
+
+
+                                                <div class="col-md-6">
+                                                    <!-- Hidden field for selected shipping address -->
+                                                    <input asp-for="SelectedShippingAddressId" type="hidden" id="selectedShippingAddressId" />
+
+                                                    <!-- Button to show shipping address dropdown -->
+                                                    <button type="button" class="btn border border-github py-5 px-10 mt-4" id="showShippingAddressDropdownBtn">
+                                                        <i class="fa fa-truck fs-3 mb-2"></i>
+                                                        <p>@Html.SmartLocalize("Add Shipping Address")</p>
+                                                    </button>
+
+                                                    <!-- Shipping Address Dropdown (initially hidden) -->
+                                                    <div id="shippingAddressDropdownContainer" style="display:none;">
+                                                        <label class="form-label">@Html.SmartLocalize("Select Shipping Address")</label>
+                                                        <select id="shippingAddressDropdown" class="form-select">
+                                                            <option value="">@Html.SmartLocalize("-- Select Shipping Address --")</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- JSON data for addresses (if needed) -->
+                                                    <script type="application/json" id="shippingAddressesData">
+                                                        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ShippingAddresses))
+                                                    </script>
+
+                                                    <!-- Pre-selected shipping address ID -->
+                                                    <input type="hidden" id="preSelectedShippingAddressId" value="@(Model.SelectedShippingAddressId?.ToString() ?? "")" />
+
+                                                    <!-- Shipping Address Information Card (initially hidden) -->
+                                                    <div id="shippingAddressInfo" class="card mb-3 mt-3" style="display:none;">
+                                                        <div class="card-body">
+                                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                                <h5 class="card-title mb-0">@Html.SmartLocalize("Shipping Address Information")</h5>
+                                                                <button type="button" class="btn-close" id="closeShippingAddressBtn"></button>
+                                                            </div>
+                                                            <div class="d-flex">
+                                                                <div class="me-auto">
+                                                                    <p class="mb-1 fs-9 shipping-info-fullName"></p>
+                                                                    <p class="mb-1 fs-9 shipping-info-fullAddress"></p>
+                                                                    <p class="mb-1 fs-9 shipping-info-city"></p>
+                                                                </div>
+                                                                <div class="mx-auto">
+                                                                    <p class="mb-1 fs-9 shipping-info-state"></p>
+                                                                    <p class="mb-1 fs-9 shipping-info-postalCode"></p>
+                                                                    <p class="mb-1 fs-9 shipping-info-phone"></p>
+                                                                    <p class="mb-1 fs-9 shipping-info-email"></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+              
+                                                </div>
+
+
+
+
+
+
+
+
                                             </div>
                                         </div>
                                     </div>
 
 
 
-                                    <!-- Add after Supplier Info card in read-only mode -->
-                                    <div class="col-xl-6">
-                                        <div class="card mb-3" style="min-height: 165px;">
-                                            <div class="card-body">
-                                                <h5 class="card-title mb-2">@Html.SmartLocalize("Billing Address")</h5>
-                                                <p class="mb-1 fs-9">@Model.BillingAddress.FullName</p>
-                                                <p class="mb-1 fs-9">@Model.BillingAddress.FullAddress</p>
-                                                <p class="mb-1 fs-9">@Model.BillingAddress.City, @Model.BillingAddress.State @Model.BillingAddress.PostalCode</p>
-                                                <p class="mb-1 fs-9">@Model.BillingAddress.Phone</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-6">
-                                        <div class="card mb-3" style="min-height: 165px;">
-                                            <div class="card-body">
-                                                <h5 class="card-title mb-2">@Html.SmartLocalize("Shipping Address")</h5>
-                                                <p class="mb-1 fs-9">@Model.ShippingAddress.FullName</p>
-                                                <p class="mb-1 fs-9">@Model.ShippingAddress.FullAddress</p>
-                                                <p class="mb-1 fs-9">@Model.ShippingAddress.City, @Model.ShippingAddress.State @Model.ShippingAddress.PostalCode</p>
-                                                <p class="mb-1 fs-9">@Model.ShippingAddress.Phone</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                   
 
 
 
@@ -150,6 +192,41 @@
                                 </div>
                             </div>
                         </div>
+
+
+                        @*<div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="row justify-content-between">
+
+                                    
+                                    <div class="col-xl-6">
+                                        <div class="card mb-3" style="min-height: 165px;">
+                                            <div class="card-body">
+                                                <h5 class="card-title mb-2">@Html.SmartLocalize("Billing Address")</h5>
+                                                <p class="mb-1 fs-9">@Model.BillingAddress.FullName</p>
+                                                <p class="mb-1 fs-9">@Model.BillingAddress.FullAddress</p>
+                                                <p class="mb-1 fs-9">@Model.BillingAddress.City, @Model.BillingAddress.State @Model.BillingAddress.PostalCode</p>
+                                                <p class="mb-1 fs-9">@Model.BillingAddress.Phone</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="card mb-3" style="min-height: 165px;">
+                                            <div class="card-body">
+                                                <h5 class="card-title mb-2">@Html.SmartLocalize("Shipping Address")</h5>
+                                                <p class="mb-1 fs-9">@Model.ShippingAddress.FullName</p>
+                                                <p class="mb-1 fs-9">@Model.ShippingAddress.FullAddress</p>
+                                                <p class="mb-1 fs-9">@Model.ShippingAddress.City, @Model.ShippingAddress.State @Model.ShippingAddress.PostalCode</p>
+                                                <p class="mb-1 fs-9">@Model.ShippingAddress.Phone</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>*@
+
 
                         <!-- Items Table -->
                         <div class="col-xl-12 mt-3">

@@ -146,6 +146,7 @@ namespace GCTL_App.Controllers.POS.Purchase
                 WorkorderNo = purchaseOrder.WorkorderNo,
                 WorkOrderDate = purchaseOrder.WorkOrderDate,
                 SelectedSupplierId = purchaseOrder.SupplierID,
+                SelectedShippingAddressId = purchaseOrder.OBShipingAddressID,
                 Items = purchaseOrder.PurchasOrderItemVersions.Select(m => new PurchaseOrderItemDetails
                 {
                     SL = m.PurchasOrderVersionItemID,

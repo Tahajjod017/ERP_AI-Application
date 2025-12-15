@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace GCTL_App.Controllers.POS.Purchase
 {
@@ -17,6 +18,7 @@ namespace GCTL_App.Controllers.POS.Purchase
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<Suppliers> _supplierRepository;
         private readonly IGenericRepository<PurOrderBaseSAddresses> _addressRepository;
+        private readonly IGenericRepository<PurOrderBaseSAddresses> _shippingAddressRepository;
 
         private readonly IPurchaseOrder _purchaseOrderService;
 
@@ -26,13 +28,15 @@ namespace GCTL_App.Controllers.POS.Purchase
             IGenericRepository<Products> productRepository,
             IPurchaseOrder purchaseOrderService,
             IGenericRepository<Suppliers> supplierRepository,
-            IGenericRepository<PurOrderBaseSAddresses> addressRepository)
+            IGenericRepository<PurOrderBaseSAddresses> addressRepository,
+            IGenericRepository<PurOrderBaseSAddresses> shippingAddressRepository)
             : base(translateService, userProfileService)
         {
             _productRepository = productRepository;
             _purchaseOrderService = purchaseOrderService;
             _supplierRepository = supplierRepository;
             _addressRepository = addressRepository;
+            _shippingAddressRepository = shippingAddressRepository;
         }
 
         #region STATIC DATA
@@ -262,7 +266,7 @@ namespace GCTL_App.Controllers.POS.Purchase
         }
 
         [HttpPost]
-        public JsonResult AddAddress([FromBody] AddressDto dto)
+        public async Task<JsonResult> AddAddress([FromBody] AddressDto dto)
         {
             if (dto == null || string.IsNullOrWhiteSpace(dto.FullAddress))
                 return Json(new { error = "Invalid address data" });
@@ -281,11 +285,126 @@ namespace GCTL_App.Controllers.POS.Purchase
                 CreatedBy = 1 // Replace with actual user ID
             };
 
-            _addressRepository.AddAsync(address);
+            await _addressRepository.AddAsync(address);
+             
+            dto.Id = address.PurOrderBaseSAddressID;
+            return Json(dto);
+        }
+
+
+
+        // ==============================
+        // AJAX: Get Shipping Addresses
+        // ==============================
+        [HttpGet]
+        public JsonResult GetShippingAddresses()
+        {
+            var result = _shippingAddressRepository.AllActive()
+                .Select(a => new
+                {
+                    Id = a.PurOrderBaseSAddressID,
+                    FullName = a.FirstName + " " + a.LastName,
+                    FullAddress = a.FullAddress,
+                    City = a.City,
+                    State = a.State,
+                    PostalCode = a.PostalCode,
+                    Phone = a.Phone,
+                    Email = a.Email
+                }).ToList();
+
+            return Json(result);
+        }
+
+        // ==============================
+        // AJAX: Search Shipping Addresses
+        // ==============================
+        [HttpGet]
+        public JsonResult SearchShippingAddresses(string term)
+        {
+            var query = _shippingAddressRepository.AllActive();
+
+            var filtered = string.IsNullOrWhiteSpace(term)
+                ? query.ToList()
+                : query.Where(a =>
+                    (a.FirstName + " " + a.LastName).Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    a.FullAddress.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    a.City.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    (a.Email != null && a.Email.Contains(term, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            var result = filtered.Select(a => new
+            {
+                Id = a.PurOrderBaseSAddressID,
+                FullName = a.FirstName + " " + a.LastName,
+                FullAddress = a.FullAddress,
+                City = a.City,
+                State = a.State,
+                PostalCode = a.PostalCode,
+                Phone = a.Phone,
+                Email = a.Email
+            });
+
+            return Json(result);
+        }
+
+        // ==============================
+        // AJAX: Add New Shipping Address
+        // ==============================
+        [HttpPost]
+        public JsonResult AddShippingAddress([FromBody] ShippingAddressDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.FullAddress))
+                return Json(new { error = "Full Address is required" });
+
+            var address = new PurOrderBaseSAddresses
+            {
+                FirstName = dto.FullName?.Split(' ').FirstOrDefault(),
+                LastName = dto.FullName?.Split(' ').Skip(1).FirstOrDefault(),
+                FullAddress = dto.FullAddress,
+                City = dto.City,
+                State = dto.State,
+                PostalCode = dto.PostalCode,
+                Phone = dto.Phone,
+                Email = dto.Email,
+                CreatedAt = DateTime.Now,
+                //CreatedBy =, // Implement this method
+                
+            };
+
+            _shippingAddressRepository.AddAsync(address);
+            
 
             dto.Id = address.PurOrderBaseSAddressID;
             return Json(dto);
         }
+
+        // ==============================
+        // AJAX: Get Shipping Address by ID
+        // ==============================
+        [HttpGet]
+        public async Task<JsonResult> GetShippingAddress(int id)
+        {
+            var address = await _shippingAddressRepository.GetByIdAsync(id);
+
+            if (address == null)
+                return Json(new { error = "Address not found" });
+
+            var result = new
+            {
+                Id = address.PurOrderBaseSAddressID,
+                FullName = address.FirstName + " " + address.LastName,
+                FullAddress = address.FullAddress,
+                City = address.City,
+                State = address.State,
+                PostalCode = address.PostalCode,
+                Phone = address.Phone,
+                Email = address.Email
+            };
+
+            return Json(result);
+        }
+
+
 
     }
 }
