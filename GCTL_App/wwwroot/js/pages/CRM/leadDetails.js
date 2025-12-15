@@ -899,12 +899,10 @@ ${value.emailAddress
             method: 'POST',
             data: { id: leadID },
             success: function (response) {
+                console.log(response)
                 //updateEmployee();
                 $("#leadID").val(response.leadID);
                 $("#LeadName").val(response.leadName);
-                $("#LeadStatusID").val(response.leadStatusID);
-                $("#LeadSourceID").val(response.leadSourceID);
-                $("#PriorityID").val(response.priorityID);
                 $("#approximateDealValue").val(response.approximateDealValue);
                 $("#probabilityPercentage2").val(response.probability);
                 $("#completionValue2").text(response.probability + "%");
@@ -915,7 +913,10 @@ ${value.emailAddress
                 $('#serviceTypes').val(response.serviceIds).each(function () {
                     coreui.MultiSelect.getInstance(this)?.update();
                 });
-
+                setSelect2EditValue("#LeadSourceID", response.leadSourceID, response.leadSourceName)
+                setSelect2EditValue("#PriorityID", response.priorityID, response.priority)
+                setSelect2EditValue("#LeadStatusID", response.ldLeadSourceID, response.ldLeadSourceName)
+                setSelect2EditValue("#LeadOwnerID", response.leadOwnerId, response.leadOwnerName)
                 // employee add
                 const currentOwnerId = response.leadOwnerId;
                 const currentOwnerName = response.leadOwnerName;
@@ -933,6 +934,18 @@ ${value.emailAddress
             }
         });
     });
+
+
+    //#region select2 auto functon
+    function setSelect2EditValue(selector, id, text) {
+        if (!id) return;
+
+        let option = new Option(text, id, true, true);
+        $(selector).append(option).trigger('change');
+    }
+
+    //#endregion
+
 
     // ======================
     // employee
