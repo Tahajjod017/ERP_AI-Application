@@ -17,7 +17,7 @@ var ids = {
 
 
 $(function () {
-
+    alert("Hello");
     $('#CustomerID').select2({
         placeholder: 'Select Customer',
         width: '100%',

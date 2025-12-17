@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Web.Helpers;
 
 
 namespace GCTL.Service.FieldServices
@@ -118,7 +119,61 @@ namespace GCTL.Service.FieldServices
                 message = "Data loaded"
             };
         }
+        public async Task<ReturnDataView<SelectListItem>> GetJobAsync(string search, int page, int pageSize, int organizationID)
+        {
+            var query = _jobsRepository
+                .AllActive()
+                .Where(q => q.OrganizationID == organizationID);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.JobTitle, pattern)
+                    ));
+            }
+
+
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(c => c.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize).Select(t => new SelectListItem
+                {
+                    
+                    Value = t.JobID.ToString(),
+                    Text = t.JobTitle,
+                    
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<SelectListItem>
+            {
+                data = items,
+                totalItem = totalCount,
+                message = "Data loaded"
+            };
+        }
         #endregion
+
+        public CustomerInfoVM GetCustomerInfo(int jobId, int organizationID)
+        {
+            return _jobsRepository
+                .AllActive().Include(x => x.Customer)
+                .Where(q => q.JobID ==jobId && q.OrganizationID == organizationID).Select(t => new CustomerInfoVM
+                {
+                    LeadID = t.CustomerID ?? 0,
+                    Email = t.Customer.CustomerAddresses.Select(ca => ca.Address.Email).FirstOrDefault(),
+                    LeadName = t.Customer.FullName,
+                    Phone = t.Customer.CustomerAddresses.Select(ca => ca.Address.Phone).FirstOrDefault(),
+                }).FirstOrDefault()?? new CustomerInfoVM();
+        }
+
 
         #region get Customer List 
         public async Task<ReturnDataView<SelectListItem>> GetCountryList(string search, int page, int pageSize, int organizationID)

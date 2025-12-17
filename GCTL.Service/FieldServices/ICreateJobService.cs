@@ -19,9 +19,11 @@ namespace GCTL.Service.FieldServices
         Task<ReturnDataView<SelectListItem>> GetCountryList(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CustomerInfoVM>> GetIndividualEmployeesAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CustomerInfoVM>> GetTechnicianListAsync(string search, int page, int pageSize, int organizationID);
+        Task<ReturnDataView<SelectListItem>> GetJobAsync(string search, int page, int pageSize, int organizationID);
         Task<ReturnDataView<CreateJobVM>> GetAllAsync(int organizationID, int pageNumber = 1, int pageSize = 5,
             string searchTerm = "", string sortColumn = "CreateJobID", string sortOrder = "asc");
         Task<CommonReturnViewModel> GetCalenderData(int organizationID, DateTime start, DateTime end, string searchTerm = "");
+        CustomerInfoVM GetCustomerInfo(int jobId, int organizationID);
         #endregion
     }
 }
