@@ -55,8 +55,11 @@
                                         <input type="hidden" id="preSelectedSupplierId" value="@(Model.SelectedSupplierId?.ToString() ?? "")" />
                                         <div id="supplierInfo" class="card mb-3 mt-3" style="display:none;">
                                             <div class="card-body">
-                                                <h5 class="card-title mb-2">@Html.SmartLocalize("Supplier Information")</h5>
-                                                <button type="button" class="btn-close" id="closeSupplierAddressBtn"></button>
+                                                <div class="d-flex justify-content-between">
+                                                    <h5 class="card-title mb-2">@Html.SmartLocalize("Supplier Information")</h5>
+                                                    <button type="button" class="btn-close" id="closeSupplierAddressBtn"></button>
+                                                </div>
+                                                
                                                 <div class="d-flex">
                                                     <div class="me-auto">
                                                         <p class="mb-1 fs-9 info-company"></p>
@@ -106,23 +109,26 @@
                                         <!-- Shipping Address Information Card (initially hidden) -->
                                         <div id="shippingAddressInfo" class="card mb-3 mt-3" style="display:none;">
                                             <div class="card-body">
-                                                <h5 class="card-title mb-2">@Html.SmartLocalize("Shipping Address Information")</h5>
-                                                <button type="button" class="btn-close" id="closeShippingAddressBtn"></button>
-                                                <div class="d-flex">
-                                                    <div class="me-auto">
-                                                        <p class="mb-1 fs-9 shipping-info-fullName"></p>
-                                                        <p class="mb-1 fs-9 shipping-info-fullAddress"></p>
-                                                        <p class="mb-1 fs-9 shipping-info-city"></p>
-                                                    </div>
-                                                    <div class="mx-auto">
-                                                        <p class="mb-1 fs-9 shipping-info-state"></p>
-                                                        <p class="mb-1 fs-9 shipping-info-postalCode"></p>
-                                                        <p class="mb-1 fs-9 shipping-info-phone"></p>
-                                                        <p class="mb-1 fs-9 shipping-info-email"></p>
+                                                <div class="d-flex justify-content-between">
+                                                    <h5 class="card-title mb-2">@Html.SmartLocalize("Shipping Address Information")</h5>
+                                                    <button type="button" class="btn-close" id="closeShippingAddressBtn"></button>
+                                                </div>
+                                                   
+                                                    <div class="d-flex">
+                                                        <div class="me-auto">
+                                                            <p class="mb-1 fs-9 shipping-info-fullName"></p>
+                                                            <p class="mb-1 fs-9 shipping-info-fullAddress"></p>
+                                                            <p class="mb-1 fs-9 shipping-info-city"></p>
+                                                        </div>
+                                                        <div class="mx-auto">
+                                                            <p class="mb-1 fs-9 shipping-info-state"></p>
+                                                            <p class="mb-1 fs-9 shipping-info-postalCode"></p>
+                                                            <p class="mb-1 fs-9 shipping-info-phone"></p>
+                                                            <p class="mb-1 fs-9 shipping-info-email"></p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
 
                                         <!-- Same as Billing Checkbox -->
                                         @*<div class="form-check mt-2">

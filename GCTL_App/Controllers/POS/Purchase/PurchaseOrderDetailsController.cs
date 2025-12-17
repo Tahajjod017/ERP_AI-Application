@@ -13,6 +13,7 @@ using GCTL.Service.POS.Purchase.PurchaseOrder;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.POS.Purchase
@@ -57,6 +58,9 @@ namespace GCTL_App.Controllers.POS.Purchase
         #region READ-ONLY MODE - View Purchase Order
         public IActionResult Index(int id)
         {
+            ViewBag.Products = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
+
+
             ViewBag.IsEditMode = false;
             SetSmartPageCode(90259300);
 
@@ -197,6 +201,8 @@ namespace GCTL_App.Controllers.POS.Purchase
         #region EDIT MODE - Edit Purchase Order
         public IActionResult Edit(int id)
         {
+            ViewBag.Products = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
+
             ViewBag.IsEditMode = true;
 
             var purchaseOrder = _purchaseOrderVersionRepository.AllActive()
@@ -236,6 +242,7 @@ namespace GCTL_App.Controllers.POS.Purchase
                 WorkorderNo = purchaseOrder.WorkorderNo,
                 WorkOrderDate = purchaseOrder.WorkOrderDate,
                 SelectedSupplierId = purchaseOrder.SupplierID,
+                SelectedShippingAddressId = purchaseOrder.OBShipingAddressID,
                 Items = purchaseOrder.PurchasOrderItemVersions.Select(m => new PurchaseOrderItemDetails
                 {
                     SL = m.PurchasOrderVersionItemID,
