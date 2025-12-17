@@ -47,8 +47,26 @@ namespace GCTL_App.Controllers.FieldServices
 
         public async Task<IActionResult> Create(EmployeeAdvancedVM emp)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new
+                    {
+                        Field = x.Key,
+                        Message = x.Value.Errors.First().ErrorMessage
+                    });
+
+                return Json(new { success = false, errors });
+            }
+
             var result = await _mainservice.AddAsync(emp);
-            return Json(new { Success = result.Success, Message = result.Message}) ;
+
+            return Json(new
+            {
+                success = result.Success,
+                message = result.Message
+            });
         }
 
 
