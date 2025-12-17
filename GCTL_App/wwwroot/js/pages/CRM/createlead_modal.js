@@ -303,6 +303,67 @@
         });
     });
 
+    //#region leadEditData into Lead fields
+    window.loadEditData = function (leadId) {
+        $.ajax({
+            url: '/CRM/GetLeadInfo',
+            method: 'POST',
+            data: { id: leadId },
+            success: function (response) {
+                console.log(response)
+                //updateEmployee();
+                $("#leadID").val(response.leadID);
+                $("#LeadName").val(response.leadName);
+                $("#ApproximateDealValue").val(response.approximateDealValue);
+                $("#ProbabilityPercentage").val(response.probability);
+                $("#completionValue2").text(response.probability + "%");
+                $("#LeadDescription").val(response.leadDescription);
+                $("#queryText").val(response.leadOwnerName);
+                $("#selectedID").val(response.leadOwnerId);
+                // multiselect edit field read
+                if (response.services && response.services.length > 0) {
+                    response.services.forEach(item => {
+                        const option = new Option(item.text, item.value, true, true);
+                        $('#ServiceTypeIds').append(option);
+                    });
+
+                    $('#ServiceTypeIds').trigger('change');
+                }
+                setSelect2EditValue("#CustomerId", response.customerId, response.customerName);
+                setSelect2EditValue("#BranchId1", response.branchId, response.branchName);
+                setSelect2EditValue("#LeadSourceID", response.leadSourceID, response.leadSourceName);
+                setSelect2EditValue("#PriorityID", response.probability, response.priorityName);
+                setSelect2EditValue("#LeadStatusID", response.leadStatusID, response.leadStatusName);
+                setSelect2EditValue("#LeadOwnerID", response.leadOwnerId, response.leadOwnerName);
+                // employee add
+                const currentOwnerId = response.leadOwnerId;
+                const currentOwnerName = response.leadOwnerName;
+                if (currentOwnerId && currentOwnerName) {
+                    choices.setChoices(
+                        [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
+                        'value',
+                        'label',
+                        false // false = append (don?t clear)
+                    );
+                }
+            },
+            error: function (xhr) {
+                toastr.error("Error creating lead");
+            }
+        });
+    }
+    //#endregion
+
+    //#region select2 auto functon
+    function setSelect2EditValue(selector, id, text) {
+        if (!id) return;
+
+        let option = new Option(text, id, true, true);
+        $(selector).append(option).trigger('change');
+    }
+
+    //#endregion
+
     //#region branch edit modal option
     $('#BranchId1').on('change', function () {
         
@@ -318,7 +379,7 @@
     //#endregion
 
     //#region EditCustomer From modal 
-
+    // has to be store modal into current page
     $(document).on("click", "#editCustomerBtn", function (e) {
         e.preventDefault();
         $("#customerModalActionName").text("Edit")

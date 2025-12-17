@@ -11,7 +11,10 @@ namespace GCTL.Core.ViewModels.CRM
     {
         public int LeadID { get; set; }
         public int? CustomerId { get; set; }
+        public string? CustomerName { get; set; }
         public int? BranchId { get; set; }
+        public string? BranchName { get; set; }
+        public string? BrancBranchNamehId { get; set; }
         public string? LeadName { get; set; }
         public string? FullName { get; set; }
         public int LeadSourceID { get; set; }
@@ -41,7 +44,8 @@ namespace GCTL.Core.ViewModels.CRM
         public string? Email { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public List<SelectListItem?> ServiceIds { get; set; }
+        public List<int?> ServiceIds { get; set; }
+        public List<SelectListItem?> Services { get; set; }
         public string? ServiceNames { get; set; }
         public int? LeadOwnerId { get; set; }
         public string? LeadOwnerName { get; set; }

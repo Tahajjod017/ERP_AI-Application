@@ -83,17 +83,11 @@ namespace GCTL_App.Controllers.CRM
                                          Email = address.Email,
                                          LeadOwnerId = lead.LeadOwnerID,
                                          LeadOwnerName = lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName,
-                                         ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(x => new SelectListItem
+                                         Services = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(x => new SelectListItem
                                          {
                                              Value = x.ServiceID.ToString(),
                                              Text = x.Service.ServiceName,
                                          }).ToList(),
-                                         ServiceNames = string.Join(", ",
-                                                lead.LeadServices
-                                                    .Where(s => s.ServiceID.HasValue)
-                                                    .Select(s => s.Service.ServiceName)
-                                                    .ToList()
-                                            )
                                      }).FirstOrDefaultAsync();
             if (customerObj != null)
             {

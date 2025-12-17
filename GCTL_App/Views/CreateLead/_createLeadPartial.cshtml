@@ -87,12 +87,14 @@
 
                 <!-- Probability -->
                 <div class="col-md-6">
-                    <label class="form-label p-0">Probability (%)</label>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <label class="form-label fw-semibold mb-0">Probability</label>
+                        <span id="completionValue2" class="text-primary fw-bold fs-7">0%</span>
+                    </div>
                     <div class="d-flex align-items-center">
                         <input type="range" class="form-range" id="ProbabilityPercentage" name="ProbabilityPercentage"
                                min="0" max="100" step="1" value="0"
                                oninput="document.getElementById('completionValue').innerText = this.value + '%'">
-                        <span id="completionValue" class="text-primary fw-bold fs-8 ps-2" style="width: 55px;">0%</span>
                     </div>
                 </div>
 
