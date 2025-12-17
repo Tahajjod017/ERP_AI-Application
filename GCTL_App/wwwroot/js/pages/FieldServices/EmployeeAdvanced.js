@@ -37,12 +37,11 @@
     });
 
 
-    //Save Functionality
-
+    // Save Functionality
     $('#saveBtn').on('click', function (e) {
         e.preventDefault();
 
-        //Using form data
+        // Using form data
         var formData = new FormData();
         formData.append('CustomerID', $('#CustomerID').val());
         formData.append('JobID', $('#JobID').val());
@@ -51,7 +50,6 @@
         formData.append('StartDate', $('#StartDate').val());
         formData.append('EndDate', $('#EndDate').val());
         formData.append('ApprovedByUserID', $('#ApprovedByUserID').val());
-
 
         $.ajax({
             url: '/EmployeeAdvanced/Create/',
@@ -67,11 +65,17 @@
                 if (response.success) {
                     toastr.success("Saved Successfully");
                     clearForm();
-
+                } else {
+                    if (response.errors) {
+                        // Display validation errors
+                        response.errors.forEach(function (error) {
+                            toastr.error(error.message);
+                        });
+                    } else {
+                        toastr.error(response.Message || "Validation failed");
+                    }
                 }
-
                 // Handle success (e.g., show a success message, redirect, etc.)
-                
             },
             error: function (xhr, status, error) {
                 // Handle error (e.g., show an error message)
@@ -81,9 +85,7 @@
                 hideLoadingIndicator();
             }
         });
-
     });
-
 
 //// After successful job creation (in your modal's save handler)
 //$('#JobID').val(null).trigger('change'); // Clear current selection
