@@ -131,7 +131,7 @@ $('#JobID').select2({
         placeholder: 'Select Job',
         width: '100%',
         ajax: {
-            url: '/CreateJobs/GetJobs',
+            url: '/EmployeeAdvanced/GetJobsType',
             dataType: 'json',
             delay: 250,
             data: function (params) {
@@ -209,11 +209,11 @@ $('#JobID').select2({
 
 
     const checkbox = document.getElementById('toggleCheckbox');
-    const hiddenDiv1 = document.getElementById('hiddenDiv1');
+   
     const hiddenDiv2 = document.getElementById('hiddenDiv2');
 
     checkbox.addEventListener('change', function () {
-        hiddenDiv1.style.display = this.checked ? 'block' : 'none';
+     
         hiddenDiv2.style.display = this.checked ? 'block' : 'none';
     });
 

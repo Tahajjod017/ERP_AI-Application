@@ -51,8 +51,31 @@ namespace GCTL_App.Controllers.FieldServices
             return Json(new { Success = result.Success, Message = result.Message}) ;
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> GetJobsType(string search = "", int page = 1, int pageSize = 20)
+        {
+            var result = await _mainservice.GetJobTypeAsync (
+                search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
+            );
+
+            var more = (page * pageSize) < result.totalItem;
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.Value,
+                    text = c.Text
+                }),
+                pagination = new { more }
+            };
+
+            return Ok(formatted);
+        }
+
         //Nested Job by Customer
 
-       
+
     }
 }
