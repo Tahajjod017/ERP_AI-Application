@@ -41,6 +41,8 @@ public partial class DebitNote
 
     public int? DeletedBy { get; set; }
 
+    public int? JournalHeadID { get; set; }
+
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual ICollection<DebitNoteItems> DebitNoteItems { get; set; } = new List<DebitNoteItems>();
@@ -48,6 +50,8 @@ public partial class DebitNote
     public virtual Employees? DeletedByNavigation { get; set; }
 
     public virtual Invoices? Invoice { get; set; }
+
+    public virtual JournalHeads? JournalHead { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

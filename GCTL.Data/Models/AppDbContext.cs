@@ -215,6 +215,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<JournalDetails> JournalDetails { get; set; }
 
+    public virtual DbSet<JournalHeadTbls> JournalHeadTbls { get; set; }
+
+    public virtual DbSet<JournalHeads> JournalHeads { get; set; }
+
     public virtual DbSet<JournalTypes> JournalTypes { get; set; }
 
     public virtual DbSet<Journals> Journals { get; set; }
@@ -379,6 +383,14 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ReportContent> ReportContent { get; set; }
 
+    public virtual DbSet<ReqApprovalSettings> ReqApprovalSettings { get; set; }
+
+    public virtual DbSet<ReqItemApprovalHistory> ReqItemApprovalHistory { get; set; }
+
+    public virtual DbSet<RequisitionItems> RequisitionItems { get; set; }
+
+    public virtual DbSet<Requisitions> Requisitions { get; set; }
+
     public virtual DbSet<Resignations> Resignations { get; set; }
 
     public virtual DbSet<ResignationsApprovalHistory> ResignationsApprovalHistory { get; set; }
@@ -472,7 +484,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
 
         modelBuilder.Entity<ActionLogs>(entity =>
         {
@@ -1741,6 +1752,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.InvoiceID)
                 .HasConstraintName("FK__CreditNot__Invoi__7B3C2211");
 
+            entity.HasOne(d => d.JournalHead).WithMany(p => p.CreditNote)
+                .HasForeignKey(d => d.JournalHeadID)
+                .HasConstraintName("FK__CreditNot__Journ__52050254");
+
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.CreditNoteUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__CreditNot__Updat__7D246A83");
@@ -2006,6 +2021,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Invoice).WithMany(p => p.DebitNote)
                 .HasForeignKey(d => d.InvoiceID)
                 .HasConstraintName("FK__DebitNote__Invoi__0A7E65A1");
+
+            entity.HasOne(d => d.JournalHead).WithMany(p => p.DebitNote)
+                .HasForeignKey(d => d.JournalHeadID)
+                .HasConstraintName("FK__DebitNote__Journ__52F9268D");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.DebitNoteUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
@@ -4015,6 +4034,66 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.JournalDetailsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__JournalDe__Updat__2BD46C74");
+        });
+
+        modelBuilder.Entity<JournalHeadTbls>(entity =>
+        {
+            entity.HasKey(e => e.JournalHeadTblID).HasName("PK__JournalH__C70F944B982E15D3");
+
+            entity.ToTable("JournalHeadTbls", "COA");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.SchemaName).HasMaxLength(128);
+            entity.Property(e => e.TableName).HasMaxLength(128);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.JournalHeadTblsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__JournalHe__Creat__4F2895A9");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.JournalHeadTblsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__JournalHe__Delet__501CB9E2");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.JournalHeadTblsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__JournalHe__Updat__5110DE1B");
+        });
+
+        modelBuilder.Entity<JournalHeads>(entity =>
+        {
+            entity.HasKey(e => e.JournalHeadID).HasName("PK__JournalH__0BECF1DA4E586F93");
+
+            entity.ToTable("JournalHeads", "COA");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.JournalHeadsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__JournalHe__Creat__4B5804C5");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.JournalHeadsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__JournalHe__Delet__4C4C28FE");
+
+            entity.HasOne(d => d.JournalHeadTbl).WithMany(p => p.JournalHeads)
+                .HasForeignKey(d => d.JournalHeadTblID)
+                .HasConstraintName("FK__JournalHe__Journ__4D404D37");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.JournalHeadsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__JournalHe__Updat__4E347170");
         });
 
         modelBuilder.Entity<JournalTypes>(entity =>
@@ -6723,6 +6802,153 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ReportContentUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__ReportCon__Updat__2CDD9F46");
+        });
+
+        modelBuilder.Entity<ReqApprovalSettings>(entity =>
+        {
+            entity.HasKey(e => e.ReqApprovalSettingID);
+
+            entity.ToTable("ReqApprovalSettings", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.ApprovalType).WithMany(p => p.ReqApprovalSettings)
+                .HasForeignKey(d => d.ApprovalTypeID)
+                .HasConstraintName("FK_ReqApprovalSettings_ApprovalTypeID");
+
+            entity.HasOne(d => d.Approver).WithMany(p => p.ReqApprovalSettingsApprover)
+                .HasForeignKey(d => d.ApproverID)
+                .HasConstraintName("FK_ReqApprovalSettings_ApproverID");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ReqApprovalSettingsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_ReqApprovalSettings_CreatedBy");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ReqApprovalSettingsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_ReqApprovalSettings_DeletedBy");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ReqApprovalSettingsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_ReqApprovalSettings_UpdatedBy");
+        });
+
+        modelBuilder.Entity<ReqItemApprovalHistory>(entity =>
+        {
+            entity.HasKey(e => e.ReqItemApprovalHistoryID).HasName("PK__ReqItemA__D27A2A302394FFB0");
+
+            entity.ToTable("ReqItemApprovalHistory", "SC");
+
+            entity.Property(e => e.ApprovalPersonNote).HasMaxLength(200);
+            entity.Property(e => e.ApprovedAt).HasColumnType("datetime");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeclineAt).HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.ApprovalPerson).WithMany(p => p.ReqItemApprovalHistoryApprovalPerson)
+                .HasForeignKey(d => d.ApprovalPersonID)
+                .HasConstraintName("FK__ReqItemAp__Appro__2EBBC617");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ReqItemApprovalHistoryCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__ReqItemAp__Creat__30A40E89");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ReqItemApprovalHistoryDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__ReqItemAp__Delet__33807B34");
+
+            entity.HasOne(d => d.RequisitionItem).WithMany(p => p.ReqItemApprovalHistory)
+                .HasForeignKey(d => d.RequisitionItemID)
+                .HasConstraintName("FK__ReqItemAp__Requi__2DC7A1DE");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.ReqItemApprovalHistory)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK__ReqItemAp__Statu__2FAFEA50");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ReqItemApprovalHistoryUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__ReqItemAp__Updat__319832C2");
+        });
+
+        modelBuilder.Entity<RequisitionItems>(entity =>
+        {
+            entity.HasKey(e => e.RequisitionItemID).HasName("PK__Requisit__8E7AACF9E348E5E3");
+
+            entity.ToTable("RequisitionItems", "SC");
+
+            entity.Property(e => e.ApprovedQuantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.RequisitionQuantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.RequisitionItemsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Requisiti__Creat__280EC888");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.RequisitionItemsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Requisiti__Delet__2AEB3533");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.RequisitionItems)
+                .HasForeignKey(d => d.ProductID)
+                .HasConstraintName("FK__Requisiti__Produ__271AA44F");
+
+            entity.HasOne(d => d.Requisition).WithMany(p => p.RequisitionItems)
+                .HasForeignKey(d => d.RequisitionID)
+                .HasConstraintName("FK__Requisiti__Requi__26268016");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RequisitionItemsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Requisiti__Updat__2902ECC1");
+        });
+
+        modelBuilder.Entity<Requisitions>(entity =>
+        {
+            entity.HasKey(e => e.RequisitionID).HasName("PK__Requisit__C347820F313A78A4");
+
+            entity.ToTable("Requisitions", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.ApprovalType).WithMany(p => p.Requisitions)
+                .HasForeignKey(d => d.ApprovalTypeID)
+                .HasConstraintName("FK__Requisiti__Appro__43B6E2FD");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.RequisitionsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__Requisiti__Creat__206DA6C0");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.RequisitionsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__Requisiti__Delet__234A136B");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RequisitionsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__Requisiti__Updat__2161CAF9");
         });
 
         modelBuilder.Entity<Resignations>(entity =>

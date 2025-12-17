@@ -5,25 +5,25 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class CreditNote
+public partial class ReqItemApprovalHistory
 {
-    public int CreditNoteID { get; set; }
+    public int ReqItemApprovalHistoryID { get; set; }
 
-    public string? CreditNoteNo { get; set; }
+    public int? RequisitionItemID { get; set; }
 
-    public int? InvoiceID { get; set; }
+    public int? ApprovalPersonID { get; set; }
 
-    public DateOnly? CreditDate { get; set; }
+    public int? StatusID { get; set; }
 
-    public string? Reason { get; set; }
+    public string? ApprovalPersonNote { get; set; }
 
-    public decimal? VatPercentage { get; set; }
+    public DateTime? ApprovedAt { get; set; }
 
-    public decimal? VatAmount { get; set; }
+    public int? ApprovalStep { get; set; }
 
-    public decimal? SubTotal { get; set; }
+    public int? DeclineById { get; set; }
 
-    public decimal? GrandTotal { get; set; }
+    public DateTime? DeclineAt { get; set; }
 
     public string? LIP { get; set; }
 
@@ -41,17 +41,15 @@ public partial class CreditNote
 
     public int? DeletedBy { get; set; }
 
-    public int? JournalHeadID { get; set; }
+    public virtual Employees? ApprovalPerson { get; set; }
 
     public virtual Employees? CreatedByNavigation { get; set; }
 
-    public virtual ICollection<CreditNoteItems> CreditNoteItems { get; set; } = new List<CreditNoteItems>();
-
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual Invoices? Invoice { get; set; }
+    public virtual RequisitionItems? RequisitionItem { get; set; }
 
-    public virtual JournalHeads? JournalHead { get; set; }
+    public virtual Statuses? Status { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

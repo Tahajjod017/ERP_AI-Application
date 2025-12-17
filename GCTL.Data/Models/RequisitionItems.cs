@@ -5,25 +5,17 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class CreditNote
+public partial class RequisitionItems
 {
-    public int CreditNoteID { get; set; }
+    public int RequisitionItemID { get; set; }
 
-    public string? CreditNoteNo { get; set; }
+    public int? RequisitionID { get; set; }
 
-    public int? InvoiceID { get; set; }
+    public int? ProductID { get; set; }
 
-    public DateOnly? CreditDate { get; set; }
+    public decimal? RequisitionQuantity { get; set; }
 
-    public string? Reason { get; set; }
-
-    public decimal? VatPercentage { get; set; }
-
-    public decimal? VatAmount { get; set; }
-
-    public decimal? SubTotal { get; set; }
-
-    public decimal? GrandTotal { get; set; }
+    public decimal? ApprovedQuantity { get; set; }
 
     public string? LIP { get; set; }
 
@@ -41,17 +33,15 @@ public partial class CreditNote
 
     public int? DeletedBy { get; set; }
 
-    public int? JournalHeadID { get; set; }
-
     public virtual Employees? CreatedByNavigation { get; set; }
-
-    public virtual ICollection<CreditNoteItems> CreditNoteItems { get; set; } = new List<CreditNoteItems>();
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual Invoices? Invoice { get; set; }
+    public virtual Products? Product { get; set; }
 
-    public virtual JournalHeads? JournalHead { get; set; }
+    public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistory { get; set; } = new List<ReqItemApprovalHistory>();
+
+    public virtual Requisitions? Requisition { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

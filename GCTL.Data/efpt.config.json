@@ -87,6 +87,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[COA].[JournalHeads]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[JournalHeadTbls]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[COA].[Journals]",
          "ObjectType": 0
       },
@@ -844,6 +852,22 @@
       },
       {
          "Name": "[SC].[PurOrderBaseSAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ReqApprovalSettings]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ReqItemApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[RequisitionItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[Requisitions]",
          "ObjectType": 0
       },
       {

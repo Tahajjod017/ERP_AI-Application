@@ -41,5 +41,9 @@ public partial class ApprovalTypes
 
     public virtual OrganizationBranches? OrganizationBranch { get; set; }
 
+    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettings { get; set; } = new List<ReqApprovalSettings>();
+
+    public virtual ICollection<Requisitions> Requisitions { get; set; } = new List<Requisitions>();
+
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

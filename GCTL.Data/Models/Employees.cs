@@ -685,6 +685,18 @@ public partial class Employees
 
     public virtual ICollection<JournalDetails> JournalDetailsUpdatedByNavigation { get; set; } = new List<JournalDetails>();
 
+    public virtual ICollection<JournalHeadTbls> JournalHeadTblsCreatedByNavigation { get; set; } = new List<JournalHeadTbls>();
+
+    public virtual ICollection<JournalHeadTbls> JournalHeadTblsDeletedByNavigation { get; set; } = new List<JournalHeadTbls>();
+
+    public virtual ICollection<JournalHeadTbls> JournalHeadTblsUpdatedByNavigation { get; set; } = new List<JournalHeadTbls>();
+
+    public virtual ICollection<JournalHeads> JournalHeadsCreatedByNavigation { get; set; } = new List<JournalHeads>();
+
+    public virtual ICollection<JournalHeads> JournalHeadsDeletedByNavigation { get; set; } = new List<JournalHeads>();
+
+    public virtual ICollection<JournalHeads> JournalHeadsUpdatedByNavigation { get; set; } = new List<JournalHeads>();
+
     public virtual ICollection<JournalTypes> JournalTypesCreatedByNavigation { get; set; } = new List<JournalTypes>();
 
     public virtual ICollection<JournalTypes> JournalTypesDeletedByNavigation { get; set; } = new List<JournalTypes>();
@@ -1150,6 +1162,34 @@ public partial class Employees
     public virtual ICollection<ReportContent> ReportContentDeletedByNavigation { get; set; } = new List<ReportContent>();
 
     public virtual ICollection<ReportContent> ReportContentUpdatedByNavigation { get; set; } = new List<ReportContent>();
+
+    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsApprover { get; set; } = new List<ReqApprovalSettings>();
+
+    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsCreatedByNavigation { get; set; } = new List<ReqApprovalSettings>();
+
+    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsDeletedByNavigation { get; set; } = new List<ReqApprovalSettings>();
+
+    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsUpdatedByNavigation { get; set; } = new List<ReqApprovalSettings>();
+
+    public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistoryApprovalPerson { get; set; } = new List<ReqItemApprovalHistory>();
+
+    public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistoryCreatedByNavigation { get; set; } = new List<ReqItemApprovalHistory>();
+
+    public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistoryDeletedByNavigation { get; set; } = new List<ReqItemApprovalHistory>();
+
+    public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistoryUpdatedByNavigation { get; set; } = new List<ReqItemApprovalHistory>();
+
+    public virtual ICollection<RequisitionItems> RequisitionItemsCreatedByNavigation { get; set; } = new List<RequisitionItems>();
+
+    public virtual ICollection<RequisitionItems> RequisitionItemsDeletedByNavigation { get; set; } = new List<RequisitionItems>();
+
+    public virtual ICollection<RequisitionItems> RequisitionItemsUpdatedByNavigation { get; set; } = new List<RequisitionItems>();
+
+    public virtual ICollection<Requisitions> RequisitionsCreatedByNavigation { get; set; } = new List<Requisitions>();
+
+    public virtual ICollection<Requisitions> RequisitionsDeletedByNavigation { get; set; } = new List<Requisitions>();
+
+    public virtual ICollection<Requisitions> RequisitionsUpdatedByNavigation { get; set; } = new List<Requisitions>();
 
     public virtual ICollection<ResignationsApprovalHistory> ResignationsApprovalHistoryApprovalPerson { get; set; } = new List<ResignationsApprovalHistory>();
 

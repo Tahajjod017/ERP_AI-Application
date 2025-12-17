@@ -5,25 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class CreditNote
+public partial class JournalHeadTbls
 {
-    public int CreditNoteID { get; set; }
+    public int JournalHeadTblID { get; set; }
 
-    public string? CreditNoteNo { get; set; }
+    public string SchemaName { get; set; } = null!;
 
-    public int? InvoiceID { get; set; }
-
-    public DateOnly? CreditDate { get; set; }
-
-    public string? Reason { get; set; }
-
-    public decimal? VatPercentage { get; set; }
-
-    public decimal? VatAmount { get; set; }
-
-    public decimal? SubTotal { get; set; }
-
-    public decimal? GrandTotal { get; set; }
+    public string TableName { get; set; } = null!;
 
     public string? LIP { get; set; }
 
@@ -41,17 +29,11 @@ public partial class CreditNote
 
     public int? DeletedBy { get; set; }
 
-    public int? JournalHeadID { get; set; }
-
     public virtual Employees? CreatedByNavigation { get; set; }
-
-    public virtual ICollection<CreditNoteItems> CreditNoteItems { get; set; } = new List<CreditNoteItems>();
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual Invoices? Invoice { get; set; }
-
-    public virtual JournalHeads? JournalHead { get; set; }
+    public virtual ICollection<JournalHeads> JournalHeads { get; set; } = new List<JournalHeads>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }
