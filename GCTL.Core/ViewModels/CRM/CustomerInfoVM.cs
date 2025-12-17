@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,7 @@ namespace GCTL.Core.ViewModels.CRM
         public string? Email { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public List<int?> ServiceIds { get; set; }
+        public List<SelectListItem?> ServiceIds { get; set; }
         public string? ServiceNames { get; set; }
         public int? LeadOwnerId { get; set; }
         public string? LeadOwnerName { get; set; }

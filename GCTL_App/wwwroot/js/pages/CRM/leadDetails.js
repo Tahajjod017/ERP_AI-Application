@@ -903,19 +903,24 @@ ${value.emailAddress
                 //updateEmployee();
                 $("#leadID").val(response.leadID);
                 $("#LeadName").val(response.leadName);
-                $("#approximateDealValue").val(response.approximateDealValue);
-                $("#probabilityPercentage2").val(response.probability);
+                $("#ApproximateDealValue").val(response.approximateDealValue);
+                $("#ProbabilityPercentage").val(response.probability);
                 $("#completionValue2").text(response.probability + "%");
-                $("#descriptionText").val(response.leadDescription);
+                $("#LeadDescription").val(response.leadDescription);
                 $("#queryText").val(response.leadOwnerName);
                 $("#selectedID").val(response.leadOwnerId);
                 // multiselect edit field read
-                $('#serviceTypes').val(response.serviceIds).each(function () {
-                    coreui.MultiSelect.getInstance(this)?.update();
-                });
+                if (response.services && response.services.length > 0) {
+                    response.services.forEach(item => {
+                        const option = new Option(item.text, item.id, true, true);
+                        $('#ServiceTypeIds').append(option);
+                    });
+
+                    $('#ServiceTypeIds').trigger('change');
+                }
                 setSelect2EditValue("#LeadSourceID", response.leadSourceID, response.leadSourceName)
-                setSelect2EditValue("#PriorityID", response.priorityID, response.priority)
-                setSelect2EditValue("#LeadStatusID", response.ldLeadSourceID, response.ldLeadSourceName)
+                setSelect2EditValue("#PriorityID", response.probability, response.priorityName)
+                setSelect2EditValue("#LeadStatusID", response.leadStatusID, response.leadStatusName)
                 setSelect2EditValue("#LeadOwnerID", response.leadOwnerId, response.leadOwnerName)
                 // employee add
                 const currentOwnerId = response.leadOwnerId;

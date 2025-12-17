@@ -134,7 +134,7 @@ namespace GCTL_App.Controllers.CRM
                                          
                                          LeadOwnerId = lead.LeadOwnerID,
                                          LeadOwnerName = lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName,
-                                         ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
+                                         //ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
                                      }).FirstOrDefaultAsync();
             if (customerObj != null)
             {
