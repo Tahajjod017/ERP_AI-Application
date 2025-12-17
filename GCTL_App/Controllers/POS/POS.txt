@@ -1,0 +1,49 @@
+POS
+├── Product
+│   └── SingleProductController.cs
+│
+├── Purchase
+│   ├── PurchaseOrderController.cs
+│   ├── PurchaseOrderDetailsController.cs
+│   └── PurchaseOrderListController.cs
+│
+├── Sales
+│   ├── Invoice
+│   │   ├── InvoiceController.cs
+│   │   ├── InvoiceDetailsController.cs
+│   │   └── InvoiceListController.cs
+│   │
+│   ├── SalesOrder
+│   │   ├── SalesOrderController.cs
+│   │   ├── SalesOrderDetailsController.cs
+│   │   └── SalesOrderListController.cs
+│   │
+│   └── PriceQuotation
+│       ├── PriceQuotationController.cs
+│       ├── PriceQuotationDetailsController.cs
+│       └── PriceQuotationListController.cs
+│
+├── Inventory   (not yet built)
+│   ├── StockController.cs
+│   ├── StockAdjustmentController.cs
+│   └── WarehouseController.cs
+│
+├── Reports     (not yet built)
+│   ├── SalesReportController.cs
+│   ├── PurchaseReportController.cs
+│   └── InventoryReportController.cs
+│
+├── Requisition (optional, not yet built)
+│   └── RequisitionController.cs
+│
+├── Loyalty     (optional, not yet built)
+│   └── LoyaltyProgramController.cs
+│
+├── CRM         (optional, not yet built)
+│   └── CustomerController.cs
+│
+├── AccountingBridge (optional, not yet built)
+│   └── AccountingSyncController.cs
+│
+└── Localization (optional, not yet built)
+    └── LanguageController.cs

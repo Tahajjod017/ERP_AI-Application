@@ -16,28 +16,111 @@
 
 
     // ==============================================================
-    // CLOSE SHIPPING ADDRESS CARD
+    // SHIPPING ADDRESS DROPDOWN HANDLING
     // ==============================================================
-    $('#closeShippingAddressBtn').on('click', function () {
-        // Hide the address card
-        $('#shippingAddressInfo').hide();
 
-        // Clear the selected value
-        $('#shippingAddressDropdown').val('');
-        $('#selectedShippingAddressId').val('');
+    //#region Shipping Address Dropdown Handling
+    const $shippingCard = $('#shippingAddressInfo');
+    const $shippingDropdownContainer = $('#shippingAddressDropdownContainer');
+    const $shippingInfo = {
+        fullName: $('.shipping-info-fullName'),
+        fullAddress: $('.shipping-info-fullAddress'),
+        city: $('.shipping-info-city'),
+        state: $('.shipping-info-state'),
+        postalCode: $('.shipping-info-postalCode'),
+        phone: $('.shipping-info-phone'),
+        email: $('.shipping-info-email')
+    };
 
-        // Show the dropdown container and button again
-        $('#shippingAddressDropdownContainer').show();
-        $('#showShippingAddressDropdownBtn').show();
+    let shippingAddressesData = [];
 
-        // Uncheck the "Same as Billing" checkbox if checked
-        $('#sameAsBilling').prop('checked', false);
-    });
+    function loadShippingAddresses() {
+        // Check if data is embedded in the page
+        const embeddedData = $('#shippingAddressesData').html();
+        if (embeddedData && embeddedData.trim() !== '') {
+            try {
+                // Clean the JSON string - remove any HTML encoding
+                const cleanData = embeddedData
+                    .replace(/&quot;/g, '"')
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>');
+
+                shippingAddressesData = JSON.parse(cleanData);
+                populateShippingDropdown();
+
+                const preSelectedId = $('#preSelectedShippingAddressId').val();
+                if (preSelectedId) {
+                    $('#showShippingAddressDropdownBtn').hide();
+                    $('#shippingAddressDropdownContainer').show();
+                    $('#shippingAddressDropdown').val(preSelectedId);
+                    showShippingAddress(preSelectedId);
+                }
+            } catch (e) {
+                console.error('Failed to parse embedded shipping addresses:', e);
+                loadShippingAddressesFromServer();
+            }
+        } else {
+            loadShippingAddressesFromServer();
+        }
+    }
+
+    loadShippingAddressesFromServer();
+
+    function loadShippingAddressesFromServer() {
+        $.ajax({
+            url: '/PurchaseOrder/GetShippingAddresses', // Adjust endpoint as needed
+            method: 'GET',
+            success: function (data) {
+                showDev(data);
+                shippingAddressesData = data;
+                populateShippingDropdown();
+
+                const preSelectedId = $('#preSelectedShippingAddressId').val();
+                if (preSelectedId) {
+                    $('#showShippingAddressDropdownBtn').hide();
+                    $('#shippingAddressDropdownContainer').show();
+                    $('#shippingAddressDropdown').val(preSelectedId);
+                    showShippingAddress(preSelectedId);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Failed to load shipping addresses:', error);
+                toastr.error('Failed to load shipping addresses');
+            }
+        });
+    }
+
+    function populateShippingDropdown() {
+        const $dropdown = $('#shippingAddressDropdown');
+        $dropdown.find('option:not(:first)').remove();
+
+        shippingAddressesData.forEach(function (address) {
+            // Create display text
+            let displayText = address.fullName || '';
+            if (address.fullAddress) {
+                displayText += ' - ' + address.fullAddress.substring(0, 30);
+                if (address.fullAddress.length > 30) displayText += '...';
+            }
+
+            const $option = $('<option>')
+                .val(address.id)
+                .text(displayText)
+                .data({
+                    fullName: address.fullName || '',
+                    fullAddress: address.fullAddress || '',
+                    city: address.city || '',
+                    state: address.state || '',
+                    postalCode: address.postalCode || '',
+                    phone: address.phone || '',
+                    email: address.email || ''
+                });
+
+            $dropdown.append($option);
+        });
+    }
 
     function showShippingAddress(addressId) {
-        const $shippingCard = $('#shippingAddressInfo');
-        const $shippingDropdownContainer = $('#shippingAddressDropdownContainer');
-
         if (!addressId) {
             $shippingCard.hide();
             $('#selectedShippingAddressId').val('');
@@ -46,46 +129,150 @@
 
         const $option = $('#shippingAddressDropdown option[value="' + addressId + '"]');
         if ($option.length === 0) {
+            console.warn('Shipping address not found for ID:', addressId);
             $shippingCard.hide();
             return;
         }
 
-        // Get address data from option
-        const fullName = $option.data('fullname');
-        const fullAddress = $option.data('fulladdress');
+        // Access data with camelCase to match what we set
+        const fullName = $option.data('fullName');
+        const fullAddress = $option.data('fullAddress');
         const city = $option.data('city');
         const state = $option.data('state');
-        const postalCode = $option.data('postalcode');
+        const postalCode = $option.data('postalCode');
         const phone = $option.data('phone');
         const email = $option.data('email');
 
-        // Update the display elements
-        $('.shipping-info-fullName').text(fullName || '');
-        $('.shipping-info-fullAddress').text(fullAddress || '');
-        $('.shipping-info-city').text(city || '');
-        $('.shipping-info-state').text(state || '');
-        $('.shipping-info-postalCode').text(postalCode || '');
-        $('.shipping-info-phone').text(phone || '');
-        $('.shipping-info-email').text(email || '');
+        // Update display elements
+        $shippingInfo.fullName.text(fullName || '');
+        $shippingInfo.fullAddress.text(fullAddress || '');
+        $shippingInfo.city.text(city || '');
+        $shippingInfo.state.text(state || '');
+        $shippingInfo.postalCode.text(postalCode || '');
+        $shippingInfo.phone.text(phone || '');
+        $shippingInfo.email.text(email || '');
 
         // Update hidden field
         $('#selectedShippingAddressId').val(addressId);
 
-        // Hide dropdown, show card
+        // Show card, hide dropdown container
         $shippingDropdownContainer.hide();
         $shippingCard.show();
         $('#showShippingAddressDropdownBtn').hide();
     }
 
+    // ==============================================================
+    // EVENT HANDLERS
+    // ==============================================================
+
+    // Show dropdown when button is clicked
+    $('#showShippingAddressDropdownBtn').on('click', function () {
+        $(this).hide();
+        $('#shippingAddressDropdownContainer').show();
+        $('#shippingAddressDropdown').focus();
+    });
+
+    // Handle dropdown selection change
     $('#shippingAddressDropdown').on('change', function () {
         const selectedId = $(this).val();
         showShippingAddress(selectedId);
     });
 
+    // Close button handler
+    $('#closeShippingAddressBtn').on('click', function () {
+        // Hide the address card
+        $shippingCard.hide();
+
+        // Clear the selected value
+        $('#shippingAddressDropdown').val('');
+        $('#selectedShippingAddressId').val('');
+
+        // Show the dropdown container and button again
+        $shippingDropdownContainer.show();
+        $('#showShippingAddressDropdownBtn').show();
+    });
+
+    // ==============================================================
+    // ADD NEW SHIPPING ADDRESS
+    // ==============================================================
+    $('#saveNewShippingAddressBtn').on('click', function () {
+        const address = {
+            fullName: $('#newShippingFullName').val().trim(),
+            fullAddress: $('#newShippingFullAddress').val().trim(),
+            city: $('#newShippingCity').val().trim(),
+            state: $('#newShippingState').val().trim(),
+            postalCode: $('#newShippingPostalCode').val().trim(),
+            phone: $('#newShippingPhone').val().trim(),
+            email: $('#newShippingEmail').val().trim()
+        };
+
+        // Validation
+        if (!address.fullName) {
+            toastr.warning('Full Name is required');
+            $('#newShippingFullName').focus();
+            return;
+        }
+
+        if (!address.fullAddress) {
+            toastr.warning('Full Address is required');
+            $('#newShippingFullAddress').focus();
+            return;
+        }
+
+        $.ajax({
+            url: '/PurchaseOrder/AddShippingAddress',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(address)
+        })
+            .done(function (newAddress) {
+                // Add to local data array
+                shippingAddressesData.push(newAddress);
+
+                // Create display text for dropdown
+                let displayText = newAddress.fullName || '';
+                if (newAddress.fullAddress) {
+                    displayText += ' - ' + newAddress.fullAddress.substring(0, 30);
+                    if (newAddress.fullAddress.length > 30) displayText += '...';
+                }
+
+                // Add to dropdown
+                const $newOption = $('<option>')
+                    .val(newAddress.id)
+                    .text(displayText)
+                    .data({
+                        fullName: newAddress.fullName || '',
+                        fullAddress: newAddress.fullAddress || '',
+                        city: newAddress.city || '',
+                        state: newAddress.state || '',
+                        postalCode: newAddress.postalCode || '',
+                        phone: newAddress.phone || '',
+                        email: newAddress.email || ''
+                    });
+
+                $('#shippingAddressDropdown').append($newOption);
+                $('#shippingAddressDropdown').val(newAddress.id);
+                showShippingAddress(newAddress.id);
+
+                // Close modal and clear form
+                $('#addShippingAddressModal').modal('hide');
+                $('#addShippingAddressModal input, #addShippingAddressModal textarea').val('');
+
+                toastr.success('Shipping address added successfully!');
+            })
+            .fail(function (xhr, status, error) {
+                console.error('Failed to save shipping address:', error);
+                toastr.error('Failed to save shipping address: ' + (xhr.responseText || error));
+            });
+    });
+
+    loadShippingAddresses();
 
     // ==============================================================
     // SUPPLIER DROPDOWN HANDLING
     // ==============================================================
+
+    //#region Supplier Dropdown Handling
     const $card = $('#supplierInfo');
     const $dropdownContainer = $('#supplierDropdownContainer');
     const $info = {
@@ -264,6 +451,8 @@
             });
     });
 
+    //#endregion Supplier Dropdown Handling
+
     // ==============================================================
     // LINE ITEMS - ADD/REMOVE
     // ==============================================================
@@ -313,6 +502,7 @@
     });
 
     function loadProductOptions($select) {
+        
         $.ajax({
             url: '/PurchaseOrder/GetProducts',
             method: 'GET',

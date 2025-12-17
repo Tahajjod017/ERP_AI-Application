@@ -29,7 +29,7 @@
     // SUPPLIER DROPDOWN HANDLING
     // ==============================================================
 
-    //#region Supplier Dropdown Handling
+  
 
     const $card = $('#supplierInfo');
     const $dropdownContainer = $('#supplierDropdownContainer');
@@ -45,10 +45,12 @@
     let suppliersData = [];
 
 
+    //#region Supplier Address Dropdown Handling
 
     // ==============================================================
     // CLOSE SUPPLIER ADDRESS CARD
     // ==============================================================
+
     $('#closeSupplierAddressBtn').on('click', function () {
         // Hide the address card
         $card.hide();
