@@ -863,93 +863,43 @@ ${value.emailAddress
     // ====================
     // Edit Button work
     // ======================
-    $(document).on("click", "#editModalBtn", function (e) {
+    $(document).on("click", "#editModalBtn", function () {
 
         $("#leadModalTitle").text("Edit");
 
+        const leadId = $("#leadID").val(); // ? FIXED
+
         const firstModalEl = document.getElementById('createLeadModalToggle');
         const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
+        firstModal.hide();
 
         $.get('/CreateLead/IndexModal', function (html) {
 
             $('.create-lead-modal-body').html(html);
 
-            // Load script if needed
             $.getScript('/js/pages/crm/createlead_modal.js')
-                .done(() => {
+                .done(function () {
+
                     if (typeof initCreateLeadModal === "function") {
                         initCreateLeadModal();
                     }
+
+                    const modalEl = document.getElementById('createLeadModalToggle');
+                    modalEl.setAttribute("data-bs-backdrop", "static");
+                    modalEl.setAttribute("data-bs-keyboard", "false");
+
+                    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+
+                    // ? CALL AFTER modal + JS loaded
+                    if (typeof loadEditData === "function") {
+                        loadEditData(leadId);
+                    }
                 });
-
-            const modalEl = document.getElementById('createLeadModalToggle');
-            modalEl.setAttribute("data-bs-backdrop", "static");
-            modalEl.setAttribute("data-bs-keyboard", "false");
-
-            // Now open modal
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
-        });
-
-        // Hide first modal visually now
-        firstModal.hide();
-
-        let leadID = $(ids.leadID).val();
-        $.ajax({
-            url: '/CRM/GetLeadInfo',
-            method: 'POST',
-            data: { id: leadID },
-            success: function (response) {
-                console.log(response)
-                //updateEmployee();
-                $("#leadID").val(response.leadID);
-                $("#LeadName").val(response.leadName);
-                $("#ApproximateDealValue").val(response.approximateDealValue);
-                $("#ProbabilityPercentage").val(response.probability);
-                $("#completionValue2").text(response.probability + "%");
-                $("#LeadDescription").val(response.leadDescription);
-                $("#queryText").val(response.leadOwnerName);
-                $("#selectedID").val(response.leadOwnerId);
-                // multiselect edit field read
-                if (response.services && response.services.length > 0) {
-                    response.services.forEach(item => {
-                        const option = new Option(item.text, item.id, true, true);
-                        $('#ServiceTypeIds').append(option);
-                    });
-
-                    $('#ServiceTypeIds').trigger('change');
-                }
-                setSelect2EditValue("#LeadSourceID", response.leadSourceID, response.leadSourceName)
-                setSelect2EditValue("#PriorityID", response.probability, response.priorityName)
-                setSelect2EditValue("#LeadStatusID", response.leadStatusID, response.leadStatusName)
-                setSelect2EditValue("#LeadOwnerID", response.leadOwnerId, response.leadOwnerName)
-                // employee add
-                const currentOwnerId = response.leadOwnerId;
-                const currentOwnerName = response.leadOwnerName;
-                if (currentOwnerId && currentOwnerName) {
-                    choices.setChoices(
-                        [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
-                        'value',
-                        'label',
-                        false // false = append (don?t clear)
-                    );
-                }
-            },
-            error: function (xhr) {
-                toastr.error("Error creating lead");
-            }
         });
     });
 
 
-    //#region select2 auto functon
-    function setSelect2EditValue(selector, id, text) {
-        if (!id) return;
 
-        let option = new Option(text, id, true, true);
-        $(selector).append(option).trigger('change');
-    }
-
-    //#endregion
 
 
     // ======================
@@ -1280,6 +1230,43 @@ ${value.emailAddress
         // Hide first modal visually now
         firstModal.hide();
     });
+
+    //#region editCustomerBtn2
+    $(document).on("click", "#editCustomerBtn2", function (e) {
+        e.preventDefault();
+        $("#customerModalActionName").text("Edit")
+        // Load customer modal content
+        $.get('/Customers/IndexModal', function (html) {
+
+            $('.customer-modal-content').html(html);
+
+            // Load script if needed
+            if (typeof initCustomerModal !== 'function') {
+                $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
+                    .done(() => initCustomerModal && initCustomerModal());
+            } else {
+                initCustomerModal();
+            }
+            // show data
+            debugger
+            const id = $('#CustomerId2').val();
+            loadCustomerData(id);
+            //changeTab("#customer-tab", "#customer");
+            // Show second modal on top
+            const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
+                backdrop: 'static',
+                focus: true,
+                keyboard: false
+            });
+
+            secondModal.show();
+
+        });
+
+        // Hide first modal visually now
+        firstModal.hide();
+    });
+    //#endregion
 
 });
 
