@@ -9,7 +9,6 @@ $(function () {
         addActiveBtn: '#addLActivity',
         wonConfirmDiv: '#won-fonfirm-div',
         restoreBtn: '#restoreBtn2',
-
         wonBtn: '.special-btn:first',   // first .special-btn
         lostBtn: '.special-btn:last',   // last .special-btn
         cSpecialBtn: '.special-btn',
@@ -856,16 +855,43 @@ ${value.emailAddress
     // Initial load
     // ==============================
     updateActivate(1, "reset");
-    updateUpcomingActivate();
+    updateUpcomingActivate();   
+
+
+
 
     // ====================
     // Edit Button work
     // ======================
     $(document).on("click", "#editModalBtn", function (e) {
-        var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
-            keyboard: false
+
+        $("#leadModalTitle").text("Edit");
+
+        const firstModalEl = document.getElementById('createLeadModalToggle');
+        const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
+
+        $.get('/CreateLead/IndexModal', function (html) {
+
+            $('.create-lead-modal-body').html(html);
+
+            // Load script if needed
+            $.getScript('/js/pages/crm/createlead_modal.js')
+                .done(() => {
+                    if (typeof initCreateLeadModal === "function") {
+                        initCreateLeadModal();
+                    }
+                });
+
+            const modalEl = document.getElementById('createLeadModalToggle');
+            modalEl.setAttribute("data-bs-backdrop", "static");
+            modalEl.setAttribute("data-bs-keyboard", "false");
+
+            // Now open modal
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
         });
-        myModal.show();
+
+        // Hide first modal visually now
+        firstModal.hide();
 
         let leadID = $(ids.leadID).val();
         $.ajax({
@@ -873,23 +899,29 @@ ${value.emailAddress
             method: 'POST',
             data: { id: leadID },
             success: function (response) {
+                console.log(response)
                 //updateEmployee();
                 $("#leadID").val(response.leadID);
-                $("#leadName").val(response.leadName);
-                $("#leadStatusID").val(response.leadStatusID);
-                $("#leadSourceID").val(response.leadSourceID);
-                $("#leadPriorityID").val(response.priorityID);
-                $("#approximateDealValue").val(response.approximateDealValue);
-                $("#probabilityPercentage2").val(response.probability);
+                $("#LeadName").val(response.leadName);
+                $("#ApproximateDealValue").val(response.approximateDealValue);
+                $("#ProbabilityPercentage").val(response.probability);
                 $("#completionValue2").text(response.probability + "%");
-                $("#descriptionText").val(response.leadDescription);
+                $("#LeadDescription").val(response.leadDescription);
                 $("#queryText").val(response.leadOwnerName);
                 $("#selectedID").val(response.leadOwnerId);
                 // multiselect edit field read
-                $('#serviceTypes').val(response.serviceIds).each(function () {
-                    coreui.MultiSelect.getInstance(this)?.update();
-                });
+                if (response.services && response.services.length > 0) {
+                    response.services.forEach(item => {
+                        const option = new Option(item.text, item.id, true, true);
+                        $('#ServiceTypeIds').append(option);
+                    });
 
+                    $('#ServiceTypeIds').trigger('change');
+                }
+                setSelect2EditValue("#LeadSourceID", response.leadSourceID, response.leadSourceName)
+                setSelect2EditValue("#PriorityID", response.probability, response.priorityName)
+                setSelect2EditValue("#LeadStatusID", response.leadStatusID, response.leadStatusName)
+                setSelect2EditValue("#LeadOwnerID", response.leadOwnerId, response.leadOwnerName)
                 // employee add
                 const currentOwnerId = response.leadOwnerId;
                 const currentOwnerName = response.leadOwnerName;
@@ -908,6 +940,18 @@ ${value.emailAddress
         });
     });
 
+
+    //#region select2 auto functon
+    function setSelect2EditValue(selector, id, text) {
+        if (!id) return;
+
+        let option = new Option(text, id, true, true);
+        $(selector).append(option).trigger('change');
+    }
+
+    //#endregion
+
+
     // ======================
     // employee
     // ======================
@@ -919,23 +963,23 @@ ${value.emailAddress
     let lastSearch3 = '';
     let hasMore = true;
 
-    const choices = new Choices(selectEl, {
-        searchEnabled: true,
-        placeholder: true,
-        placeholderValue: 'Select Organization...',
-        searchPlaceholderValue: 'Type to search...',
-        noChoicesText: 'Type 3 or more characters...',
-        searchResultLimit: -1, // disable local limiting
-        shouldSort: false,
-        duplicateItemsAllowed: false,
-        itemSelectText: '',
-        removeItemButton: true,
+    //const choices = new Choices(selectEl, {
+    //    searchEnabled: true,
+    //    placeholder: true,
+    //    placeholderValue: 'Select Organization...',
+    //    searchPlaceholderValue: 'Type to search...',
+    //    noChoicesText: 'Type 3 or more characters...',
+    //    searchResultLimit: -1, // disable local limiting
+    //    shouldSort: false,
+    //    duplicateItemsAllowed: false,
+    //    itemSelectText: '',
+    //    removeItemButton: true,
 
-        // ?? disable client-side filtering (server handles search)
-        searchChoices: false,
-        fuseOptions: false,
-        searchFn: () => true
-    });
+    //    // ?? disable client-side filtering (server handles search)
+    //    searchChoices: false,
+    //    fuseOptions: false,
+    //    searchFn: () => true
+    //});
 
     // Fetch data from server
     async function fetchOptions(search, page = 1, pageSize = 50) {
@@ -954,27 +998,27 @@ ${value.emailAddress
     }
 
     // Handle debounce on search
-    selectEl.addEventListener('search', function (e) {
-        const searchTerm = e.detail.value;
-        clearTimeout(debounceTimer);
+    //selectEl.addEventListener('search', function (e) {
+    //    const searchTerm = e.detail.value;
+    //    clearTimeout(debounceTimer);
 
-        if (searchTerm.length < 1) {
-            choices.clearChoices();
-            return;
-        }
+    //    if (searchTerm.length < 1) {
+    //        choices.clearChoices();
+    //        return;
+    //    }
 
-        debounceTimer = setTimeout(async () => {
-            currentPage3 = 1;
-            lastSearch3 = searchTerm;
-            const data = await fetchOptions(searchTerm, currentPage3);
+    //    debounceTimer = setTimeout(async () => {
+    //        currentPage3 = 1;
+    //        lastSearch3 = searchTerm;
+    //        const data = await fetchOptions(searchTerm, currentPage3);
 
-            choices.clearChoices();
-            if (data.items.length > 0) {
-                // replace with new results
-                choices.setChoices(data.items, 'value', 'label', true);
-            }
-        }, 500); // debounce delay
-    });
+    //        choices.clearChoices();
+    //        if (data.items.length > 0) {
+    //            // replace with new results
+    //            choices.setChoices(data.items, 'value', 'label', true);
+    //        }
+    //    }, 500); // debounce delay
+    //});
 
     // Scroll handler
     async function handleScroll(e) {
@@ -990,14 +1034,14 @@ ${value.emailAddress
         }
     }
 
-    // Reattach scroll listener when dropdown opens
-    choices.passedElement.element.addEventListener('showDropdown', () => {
-        const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
-        if (dropdownList) {
-            dropdownList.removeEventListener('scroll', handleScroll);
-            dropdownList.addEventListener('scroll', handleScroll);
-        }
-    });
+    //// Reattach scroll listener when dropdown opens
+    //choices.passedElement.element.addEventListener('showDropdown', () => {
+    //    const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
+    //    if (dropdownList) {
+    //        dropdownList.removeEventListener('scroll', handleScroll);
+    //        dropdownList.addEventListener('scroll', handleScroll);
+    //    }
+    //});
     // #endregion
 
     // ==============================
@@ -1116,38 +1160,38 @@ ${value.emailAddress
         });
 
 
-    // When you load modal via AJAX
-    $(document).on("click", "#createCustomer", function () {
-        $.get('/Customers/IndexModal', function (html) {
-            $('#customerModalContent').html(html);
+    //// When you load modal via AJAX
+    //$(document).on("click", "#createCustomer", function () {
+    //    $.get('/Customers/IndexModal', function (html) {
+    //        $('#customerModalContent').html(html);
 
-            // Initialize newly added modal elements
-            $('#customerModalContent [data-init]').each(function () {
-                const el = this;
-                if (typeof showClose == "function") {
-                    showClose();
-                }
-                if (typeof loadCustomerData == "function") {
-                    const id = $("#CustomerId").val();
-                    loadCustomerData(id);
-                }
-                if (typeof loadCustomerData == "function") {
-                    const cid = $("#CustomerId").val();
-                    const bid = $("#BranchId").val();
-                    loadBranchData(bid, cid);
-                }
-                const key = el.dataset.init;
-                if (key && typeof window[key] === "function") {
-                    window[key](el);
-                    el.dataset.initialized = true; // optional flag
-                }
-            });
+    //        // Initialize newly added modal elements
+    //        $('#customerModalContent [data-init]').each(function () {
+    //            const el = this;
+    //            if (typeof showClose == "function") {
+    //                showClose();
+    //            }
+    //            if (typeof loadCustomerData == "function") {
+    //                const id = $("#CustomerId2").val();
+    //                loadCustomerData(id);
+    //            }
+    //            if (typeof loadCustomerData == "function") {
+    //                const cid = $("#CustomerId2").val();
+    //                const bid = $("#BranchId").val();
+    //                loadBranchData(bid, cid);
+    //            }
+    //            const key = el.dataset.init;
+    //            if (key && typeof window[key] === "function") {
+    //                window[key](el);
+    //                el.dataset.initialized = true; // optional flag
+    //            }
+    //        });
 
-            // Show modal
-            var modal = new bootstrap.Modal(document.getElementById('customerModal'));
-            modal.show();
-        });
-    });
+    //        // Show modal
+    //        var modal = new bootstrap.Modal(document.getElementById('customerModal'));
+    //        modal.show();
+    //    });
+    //});
 
 
     // keyboard shorcurt for note input field
@@ -1164,7 +1208,81 @@ ${value.emailAddress
             textarea.value = before + "Communication start from phone." + after;
         }
     });
+
+
+    // OPEN FIRST MODAL (Create Lead)
+    $(document).on("click", "#openCreateLeadModal", function () {
+        $("#leadModalTitle").text("Create");
+        $.get('/CreateLead/IndexModal', function (html) {
+
+            $('.create-lead-modal-body').html(html);
+
+            $.getScript('/js/pages/crm/createlead_modal.js')
+                .done(() => {
+                    if (typeof initCreateLeadModal === "function") {
+                        initCreateLeadModal();
+                    }
+                });
+
+            const modalEl = document.getElementById('createLeadModalToggle');
+
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl, {
+                backdrop: 'static',
+                keyboard: false
+            });
+
+            modalInstance.show();
+        });
+    });
+
+
+
+    // OPEN SECOND MODAL (Customer) from inside first modal
+    $(document).on("click", "#openCustomerModal", function (e) {
+        e.preventDefault();
+        $("#customerModalActionName").text("Create")
+        const firstModalEl = document.getElementById('createLeadModalToggle');
+        const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
+
+        // Load customer modal content
+        $.get('/Customers/IndexModal', function (html) {
+
+            $('.customer-modal-content').html(html);
+
+            // Load script if needed
+            if (typeof initCustomerModal !== 'function') {
+                $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
+                    .done(() => initCustomerModal && initCustomerModal());
+            } else {
+                initCustomerModal();
+            }
+
+            // Make first modal non-interactive but NOT aria-hidden
+            //firstModalEl.setAttribute("inert", "");
+
+            // Show second modal on top
+            const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
+                backdrop: 'static',
+                focus: true,
+                keyboard: false
+            });
+
+            secondModal.show();
+
+            // When second modal closes ? restore first modal
+            $('#openCustomerModalToggle').one('hidden.bs.modal', function () {
+                firstModalEl.removeAttribute("inert");
+                firstModal.show();
+            });
+
+        });
+
+        // Hide first modal visually now
+        firstModal.hide();
+    });
+
 });
+
 window.closeWindow = function () {
     debugger;
     const modalEl = document.getElementById('customerModal');

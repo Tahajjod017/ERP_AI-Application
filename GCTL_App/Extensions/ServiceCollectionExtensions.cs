@@ -126,13 +126,15 @@ using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.PayRollManagements.PayRollSettings;
 using GCTL.Service.POS.Product;
 using GCTL.Service.POS.Product.ServiceProduct;
+using GCTL.Service.POS.Purchase.PurchaseOrder;
+using GCTL.Service.POS.Purchase.PurchaseOrderList;
+using GCTL.Service.POS.Sales.InvoiceF;
+using GCTL.Service.POS.Sales.InvoiceListF;
+using GCTL.Service.POS.Sales.PriceQuotation;
+using GCTL.Service.POS.Sales.PriceQuotationList;
+using GCTL.Service.POS.Sales.SalesOrderF;
+using GCTL.Service.POS.Sales.SalesOrderList;
 using GCTL.Service.RolePermissions;
-using GCTL.Service.Sales.InvoiceF;
-using GCTL.Service.Sales.InvoiceListF;
-using GCTL.Service.Sales.PriceQuotation;
-using GCTL.Service.Sales.PriceQuotationList;
-using GCTL.Service.Sales.SalesOrderList;
-using GCTL.Service.Sales.SalesOrdersF;
 using GCTL.Service.UserProfile;
 using GCTL.Service.VisitingPath;
 using Microsoft.Data.SqlClient;
@@ -275,6 +277,29 @@ namespace GCTL_App.Extensions
             services.AddScoped<IAttributeProduct, AttributeProductService>();
             services.AddScoped<IServiceProduct, ServiceProductService>();
 
+            #region Sales
+
+            services.AddScoped<IPriceQuotation, PriceQuotationService>();
+            services.AddScoped<IPriceQuotationList, PriceQuotationListService>();
+
+            services.AddScoped<ISalesOrder, SalesOrderService>();
+            services.AddScoped<ISalesOrderList, SalesOrderListService>();
+
+            services.AddScoped<IInvoice, InvoiceService>();
+            services.AddScoped<IInvoiceList, InvoiceListService>();
+
+
+
+            #endregion
+
+            #region Purchase
+
+            // Purchase Order Services
+            services.AddScoped<IPurchaseOrder, PurchaseOrderService>();
+            services.AddScoped<IPurchaseOrderList, PurchaseOrderListService>();
+
+            #endregion
+
 
             #endregion
 
@@ -353,20 +378,7 @@ namespace GCTL_App.Extensions
             #endregion
 
 
-            #region Sales
-
-            services.AddScoped<IPriceQuotation, PriceQuotationService>();
-            services.AddScoped<IPriceQuotationList, PriceQuotationListService>();
-
-            services.AddScoped<ISalesOrder, SalesOrderService>();
-            services.AddScoped<ISalesOrderList, SalesOrderListService>();
-
-            services.AddScoped<IInvoice, InvoiceService>();
-            services.AddScoped<IInvoiceList, InvoiceListService>();
-
-
-
-            #endregion
+            
 
             services.AddHostedService<ScheduledTaskService>();
         }

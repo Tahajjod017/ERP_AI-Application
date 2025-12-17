@@ -17,5 +17,6 @@ namespace GCTL.Service.ElementPermission
         Task<PaginationService<RoleElementPermissions, ElementPermissionVM>.PaginationResult<ElementPermissionVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "",
         string sortColumn = "HolidayID", string sortOrder = "desc", int? organizationID = null);
         Task<ElementPermissionVM> SoftDeleteAsync(DeleteRequestVM requestVM);
+        Task<List<int?>> GetEmployeesForElementAsync(string elementKey);
     }
 }

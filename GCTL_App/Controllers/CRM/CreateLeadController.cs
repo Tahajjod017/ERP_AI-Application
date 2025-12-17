@@ -7,7 +7,6 @@ using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GCTL_App.Controllers.CRM
 {
@@ -29,6 +28,10 @@ namespace GCTL_App.Controllers.CRM
         {
             SetSmartPageCode(600100);
             return View();
+        }
+        public IActionResult IndexModal()
+        {
+            return PartialView("_createLeadPartial");
         }
         #endregion
 

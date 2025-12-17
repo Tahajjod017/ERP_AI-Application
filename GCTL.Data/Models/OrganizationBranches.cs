@@ -79,7 +79,9 @@ public partial class OrganizationBranches
 
     public virtual Organization? Organization { get; set; }
 
-    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
+    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersions { get; set; } = new List<PurchasOrderVersions>();
+
+    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettings { get; set; } = new List<ReqApprovalSettings>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 

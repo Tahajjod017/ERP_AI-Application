@@ -39,7 +39,7 @@ public partial class PurchaseReceives
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual PurchasOrders? PurchasOrder { get; set; }
+    public virtual PurchasOrderVersions? PurchasOrder { get; set; }
 
     public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
 

@@ -4,14 +4,18 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
+   "IrregularWords": null,
+   "MinimumProductVersion": "2.6.1244",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
+   "PluralRules": null,
    "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "GCTL.Data",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 2,
    "SelectedToBeGenerated": 0,
+   "SingularRules": null,
    "T4TemplatePath": null,
    "Tables": [
       {
@@ -52,6 +56,22 @@
       },
       {
          "Name": "[COA].[Classes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[CreditNote]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[CreditNoteItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[DebitNote]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[COA].[DebitNoteItems]",
          "ObjectType": 0
       },
       {
@@ -735,15 +755,15 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[InvoiceItems]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[Invoices]",
          "ObjectType": 0
       },
       {
-         "Name": "[SC].[InvoicesVersions]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[SC].[InvoiceVersionItems]",
+         "Name": "[SC].[Locations]",
          "ObjectType": 0
       },
       {
@@ -819,7 +839,11 @@
          "ObjectType": 0
       },
       {
+<<<<<<< HEAD
          "Name": "[SC].[PurchasOrderItems]",
+=======
+         "Name": "[SC].[PurchasOrderItemVersions]",
+>>>>>>> origin/dev
          "ObjectType": 0
       },
       {
@@ -827,10 +851,36 @@
          "ObjectType": 0
       },
       {
+<<<<<<< HEAD
+=======
+         "Name": "[SC].[PurchasOrderVersions]",
+         "ObjectType": 0
+      },
+      {
+>>>>>>> origin/dev
          "Name": "[SC].[PurOrderBaseSAddresses]",
          "ObjectType": 0
       },
       {
+<<<<<<< HEAD
+=======
+         "Name": "[SC].[ReqApprovalSettings]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ReqItemApprovalHistory]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[RequisitionItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[Requisitions]",
+         "ObjectType": 0
+      },
+      {
+>>>>>>> origin/dev
          "Name": "[SC].[SAddresses]",
          "ObjectType": 0
       },
@@ -967,6 +1017,7 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,

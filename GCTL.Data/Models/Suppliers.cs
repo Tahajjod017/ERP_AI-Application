@@ -33,7 +33,7 @@ public partial class Suppliers
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
+    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersions { get; set; } = new List<PurchasOrderVersions>();
 
     public virtual ICollection<SupplierAddresses> SupplierAddresses { get; set; } = new List<SupplierAddresses>();
 

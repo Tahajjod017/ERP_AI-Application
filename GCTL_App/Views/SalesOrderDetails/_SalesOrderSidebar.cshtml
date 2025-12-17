@@ -1,28 +1,28 @@
-﻿@model GCTL.Core.ViewModels.Sales.SalesOrders.SalesOrderSidebarDetailsViewModel
+﻿@using GCTL.Core.ViewModels.POS.Sales.SalesOrders
+@model SalesOrderSidebarDetailsViewModel
 
 <div class="col-md-3 mb-4">
     <div class="card mb-3" style="min-height: 1000px;">
         <div class="card-body">
             <div class="invoice-card">
                 <div class="accordion" id="accordionExample">
-
                     <!-- Create Section -->
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingCreate">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreate" aria-expanded="true" aria-controls="collapseCreate">
-                                Create
+                                @Html.SmartLocalize("Create")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseCreate" aria-labelledby="headingCreate" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 <p class="fs-9" id="createPerson">
-                                    <strong>Created By:</strong> @Model.CreatedByName <br />
-                                    <strong>Created At:</strong> @Model.CreatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    <strong>@Html.SmartLocalize("Created By:")</strong> @Model.CreatedByName <br />
+                                    <strong>@Html.SmartLocalize("Created At:")</strong> @Model.CreatedAt?.ToString("MMM dd, yyyy hh:mm tt")
                                     @if (!string.IsNullOrEmpty(Model.UpdatedByName))
                                     {
                                         <br />
-                                        <strong>Updated By:</strong> @Model.UpdatedByName <br />
-                                        <strong>Updated At:</strong> @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                        <strong>@Html.SmartLocalize("Updated By:")</strong> @Model.UpdatedByName <br />
+                                        <strong>@Html.SmartLocalize("Updated At:")</strong> @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")
                                     }
                                 </p>
                             </div>
@@ -33,30 +33,30 @@
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingEdit">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEdit" aria-expanded="true" aria-controls="collapseEdit">
-                                Edit
+                                @Html.SmartLocalize("Edit")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseEdit" aria-labelledby="headingEdit" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 <p class="fs-9">
-                                    Sales Order Number: @Model.SalesOrderNumber <br>
+                                    @Html.SmartLocalize("Sales Order Number:") @Model.SalesOrderNumber <br>
                                     @if (Model.CanEdit)
                                     {
                                         @foreach (var item in Model.SalesOrderIdList)
                                         {
                                             if (item.current == "current")
                                             {
-                                                <a href="#" style="color: black;text-decoration: none;">Version @item.version</a> @item.draftSign @item.finalSign <br>
+                                                <a href="#" style="color: black;text-decoration: none;">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
                                             }
                                             else
                                             {
-                                                <a href="@Url.Action("Edit", "SalesOrderDetails", new { id = item.id })">Version @item.version</a> @item.draftSign @item.finalSign <br>
+                                                <a href="@Url.Action("Edit", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
                                             }
                                         }
                                     }
                                     else
                                     {
-                                        <span class="text-muted">Cannot edit</span>
+                                        <span class="text-muted">@Html.SmartLocalize("Cannot edit")</span>
                                     }
                                 </p>
                             </div>
@@ -67,14 +67,14 @@
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingDuplicate">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuplicate" aria-expanded="true" aria-controls="collapseDuplicate">
-                                Duplicate
+                                @Html.SmartLocalize("Duplicate")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseDuplicate" aria-labelledby="headingDuplicate" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
                                 <p class="fs-9">
-                                    Sales Order Number: @Model.SalesOrderNumber <br>
-                                    <a href="javascript:void(0)" onclick="duplicateSalesOrder(@Model.SalesOrderId)">Create Duplicate</a>
+                                    @Html.SmartLocalize("Sales Order Number:") @Model.SalesOrderNumber <br>
+                                    <a href="javascript:void(0)" onclick="duplicateSalesOrder(@Model.SalesOrderId)">@Html.SmartLocalize("Create Duplicate")</a>
                                 </p>
                             </div>
                         </div>
@@ -86,13 +86,13 @@
                         <div class="accordion-item border-top">
                             <h2 class="accordion-header" id="headingQuotation">
                                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQuotation" aria-expanded="true" aria-controls="collapseQuotation">
-                                    Source Quotation
+                                    @Html.SmartLocalize("Source Quotation")
                                 </button>
                             </h2>
                             <div class="accordion-collapse collapse show" id="collapseQuotation" aria-labelledby="headingQuotation" data-bs-parent="#accordionExample">
                                 <div class="accordion-body pt-0">
                                     <p class="fs-9">
-                                        Quotation Number: @Model.QuotationNumber
+                                        @Html.SmartLocalize("Quotation Number:") @Model.QuotationNumber
                                     </p>
                                 </div>
                             </div>
@@ -103,7 +103,7 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingEmail">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEmail" aria-expanded="true" aria-controls="collapseEmail">
-                                Send Email
+                                @Html.SmartLocalize("Send Email")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseEmail" aria-labelledby="headingEmail" data-bs-parent="#accordionExample">
@@ -120,7 +120,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -132,30 +131,26 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Send Sales Order via Email</h5>
+                <h5 class="modal-title">@Html.SmartLocalize("Send Sales Order via Email")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Recipient Email</label>
-                    <input type="email" class="form-control" id="recipientEmail" placeholder="customer@example.com">
+                    <label class="form-label">@Html.SmartLocalize("Recipient Email")</label>
+                    <input type="email" class="form-control" id="recipientEmail" placeholder="@Html.SmartLocalize("customer@example.com")">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Subject</label>
-                    <input type="text" class="form-control" id="emailSubject" value="Sales Order - @Model.SalesOrderNumber">
+                    <label class="form-label">@Html.SmartLocalize("Subject")</label>
+                    <input type="text" class="form-control" id="emailSubject" value="@Html.SmartLocalize("Sales Order -") @Model.SalesOrderNumber">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Message</label>
-                    <textarea class="form-control" id="emailMessage" rows="5">Dear Customer,
-
-Please find attached the sales order for your review.
-
-Best regards</textarea>
+                    <label class="form-label">@Html.SmartLocalize("Message")</label>
+                    <textarea class="form-control" id="emailMessage" rows="5">@Html.SmartLocalize("Dear Customer,\nPlease find attached the sales order for your review.\nBest regards")</textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="sendEmailNow(@Model.SalesOrderId)">Send Email</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Html.SmartLocalize("Close")</button>
+                <button type="button" class="btn btn-primary" onclick="sendEmailNow(@Model.SalesOrderId)">@Html.SmartLocalize("Send Email")</button>
             </div>
         </div>
     </div>
@@ -163,21 +158,21 @@ Best regards</textarea>
 
 <script>
 function duplicateSalesOrder(salesOrderId) {
-    if (confirm('Are you sure you want to duplicate this sales order?')) {
+    if (confirm('@Html.SmartLocalize("Are you sure you want to duplicate this sales order?")')) {
         $.ajax({
             url: '/SalesOrderDetails/Duplicate',
             method: 'POST',
             data: { id: salesOrderId },
             success: function (response) {
                 if (response.success) {
-                    toastr.success('Sales Order duplicated successfully!');
+                    toastr.success('@Html.SmartLocalize("Sales Order duplicated successfully!")');
                     window.location.href = '/SalesOrderDetails/Index/' + response.newSalesOrderId;
                 } else {
-                    toastr.error('Failed to duplicate: ' + response.message);
+                    toastr.error('@Html.SmartLocalize("Failed to duplicate:") ' + response.message);
                 }
             },
             error: function () {
-                toastr.error('Failed to duplicate sales order.');
+                toastr.error('@Html.SmartLocalize("Failed to duplicate sales order.")');
             }
         });
     }
@@ -187,12 +182,10 @@ function sendEmailNow(salesOrderId) {
     const recipient = $('#recipientEmail').val();
     const subject = $('#emailSubject').val();
     const message = $('#emailMessage').val();
-
     if (!recipient) {
-        toastr.warning('Please enter recipient email address');
+        toastr.warning('@Html.SmartLocalize("Please enter recipient email address")');
         return;
     }
-
     $.ajax({
         url: '/SalesOrderDetails/SendEmail',
         method: 'POST',
@@ -204,14 +197,14 @@ function sendEmailNow(salesOrderId) {
         },
         success: function (response) {
             if (response.success) {
-                toastr.success('Email sent successfully!');
+                toastr.success('@Html.SmartLocalize("Email sent successfully!")');
                 $('#showSendModal').modal('hide');
             } else {
-                toastr.error('Failed to send email: ' + response.message);
+                toastr.error('@Html.SmartLocalize("Failed to send email:") ' + response.message);
             }
         },
         error: function () {
-            toastr.error('Failed to send email.');
+            toastr.error('@Html.SmartLocalize("Failed to send email.")');
         }
     });
 }

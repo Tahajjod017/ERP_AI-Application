@@ -51,6 +51,9 @@ namespace GCTL.Service.CommonService
         private readonly IGenericRepository<PostingRuleDetails> _postingRuleDetails;
         private readonly IGenericRepository<FinancialYears> _financialYears;
 
+        private readonly IGenericRepository<BankAccountInfo> _bankAccountInfo;
+        private readonly IGenericRepository<PaymentMethods> _paymentMethods;
+
         public CommonService(
             IGenericRepository<Organization> organization,
             IGenericRepository<OrganizationBranches> organizationBranches,
@@ -79,7 +82,9 @@ namespace GCTL.Service.CommonService
             IGenericRepository<JournalTypes> journalTypes,
             IGenericRepository<PostingRules> scenarioTypes,
             IGenericRepository<FinancialYears> financialYears,
-            IGenericRepository<PostingRuleDetails> postingRuleDetails)
+            IGenericRepository<PostingRuleDetails> postingRuleDetails,
+            IGenericRepository<BankAccountInfo> bankAccountInfo,
+            IGenericRepository<PaymentMethods> paymentMethods)
         {
             _organization = organization;
             _organizationBranches = organizationBranches;
@@ -109,6 +114,8 @@ namespace GCTL.Service.CommonService
             _scenarioTypes = scenarioTypes;
             _financialYears = financialYears;
             _postingRuleDetails = postingRuleDetails;
+            _bankAccountInfo = bankAccountInfo;
+            _paymentMethods = paymentMethods;
         }
         #endregion
 
@@ -1333,6 +1340,55 @@ namespace GCTL.Service.CommonService
             }
         }
         #endregion
+
+
+
+        #region GetBankAccounts
+        public async Task<List<CommonSelectVM>> GetBankAccounts()
+        {
+            try
+            {
+                var result = await _bankAccountInfo.AllActive()
+                    .Include(x => x.Bank)
+                    .AsNoTracking().Select(x => new CommonSelectVM
+                    {
+                        Id = x.BankAccountInfoID,
+                        Name = $"{x.AccountNumber} {x.AccountName}" ?? "",
+                        GroupName = x.Bank.BankName ?? ""
+                    }).ToListAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+
+        #region GetPaymentMethods
+        public async Task<List<CommonSelectVM>> GetPaymentMethods()
+        {
+            try
+            {
+                var result = await _paymentMethods.AllActive()
+                    .AsNoTracking().Select(x => new CommonSelectVM
+                    {
+                        Id = x.PaymentMethodID,
+                        Name = x.MethodName ?? ""
+                    }).ToListAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
 
 
         #region BodyTabs

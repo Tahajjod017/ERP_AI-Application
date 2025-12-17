@@ -79,6 +79,9 @@ namespace GCTL_App.Controllers.Employees
             ViewBagData();
             SetSmartPageCode(112000);
 
+
+           
+
             var loggedUser = await _userManagerRepository2.GetUserAsync(User);
 
             if (loggedUser != null)
@@ -233,6 +236,12 @@ namespace GCTL_App.Controllers.Employees
         [HttpPost]
         public async Task< IActionResult> Index(EmployeeOfficialPostViewModel model)
         {
+            if (model.DepartmentID != null)
+            {
+                var head = await _departmentRepository.AllActive().FirstOrDefaultAsync(d => d.DepartmentID == model.DepartmentID);
+                model.HeadOfDepartmentId = head?.DepartmentHeadEmpID;
+            }
+                
 
             if (!ModelState.IsValid)
             {
@@ -591,6 +600,31 @@ namespace GCTL_App.Controllers.Employees
 
         #endregion
 
+
+        #region Get Head By Department Id
+
+        [HttpGet]
+        public async Task<IActionResult> GetHeadById(int id)
+        {
+            // Example: fetch department head from database
+            var head = await _departmentRepository.AllActive().Include(e=>e.DepartmentHeadEmp)
+                .Where(d => d.DepartmentID == id)
+                .Select(d => new
+                {
+                    Id = d.DepartmentHeadEmpID,
+                    Name = d.DepartmentHeadEmp.FirstName + " " + d.DepartmentHeadEmp.LastName
+                })
+                .FirstOrDefaultAsync();
+
+            if (head == null)
+            {
+                return NotFound();
+            }
+
+            return Json(head);
+        }
+
+        #endregion
 
         private async Task<IQueryable<GCTL.Data.Models.Employees>> ApplyPermissionFilter(IQueryable<GCTL.Data.Models.Employees> query)
         {

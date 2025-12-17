@@ -87,13 +87,17 @@ public partial class Products
 
     public virtual Employees? CreatedByNavigation { get; set; }
 
+    public virtual ICollection<CreditNoteItems> CreditNoteItems { get; set; } = new List<CreditNoteItems>();
+
+    public virtual ICollection<DebitNoteItems> DebitNoteItems { get; set; } = new List<DebitNoteItems>();
+
     public virtual Employees? DeletedByNavigation { get; set; }
 
     public virtual ICollection<Inventory> Inventory { get; set; } = new List<Inventory>();
 
     public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistory { get; set; } = new List<InventoryTransactionHistory>();
 
-    public virtual ICollection<InvoiceVersionItems> InvoiceVersionItems { get; set; } = new List<InvoiceVersionItems>();
+    public virtual ICollection<InvoiceItems> InvoiceItems { get; set; } = new List<InvoiceItems>();
 
     public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();
 
@@ -113,11 +117,13 @@ public partial class Products
 
     public virtual ProductTypes? ProductType { get; set; }
 
-    public virtual ICollection<PurchasOrderItems> PurchasOrderItems { get; set; } = new List<PurchasOrderItems>();
+    public virtual ICollection<PurchasOrderItemVersions> PurchasOrderItemVersions { get; set; } = new List<PurchasOrderItemVersions>();
 
     public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDrafts { get; set; } = new List<PurchaseReceiveItemDrafts>();
 
     public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
+
+    public virtual ICollection<RequisitionItems> RequisitionItems { get; set; } = new List<RequisitionItems>();
 
     public virtual UnitTypes? UnitType { get; set; }
 

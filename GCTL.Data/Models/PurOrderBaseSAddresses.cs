@@ -59,9 +59,9 @@ public partial class PurOrderBaseSAddresses
 
     public virtual Employees? DeletedByNavigation { get; set; }
 
-    public virtual ICollection<PurchasOrders> PurchasOrdersOBBillingAddress { get; set; } = new List<PurchasOrders>();
+    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersionsOBBillingAddress { get; set; } = new List<PurchasOrderVersions>();
 
-    public virtual ICollection<PurchasOrders> PurchasOrdersOBShipingAddress { get; set; } = new List<PurchasOrders>();
+    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersionsOBShipingAddress { get; set; } = new List<PurchasOrderVersions>();
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

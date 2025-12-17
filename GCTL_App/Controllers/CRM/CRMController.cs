@@ -122,17 +122,19 @@ namespace GCTL_App.Controllers.CRM
                                          LeadID = lead.LeadID,
                                          LeadName = lead.LeadName,
                                          LeadSourceID = lead.LeadSourceID ?? 0,
+                                         LeadSourceName =  lead.LeadSource.LeadSourceName ?? string.Empty,
                                          LeadStatusID = lead.LeadStatusID ?? 0,
+                                         LeadStatusName = lead.LeadStatus.LeadStatusName ?? string.Empty,
                                          PriorityID = lead.PriorityID ?? 0,
+                                         PriorityName = lead.Priority.PriorityName ?? string.Empty,
                                          ApproximateDealValue = lead.ApproximateDealValue ?? 0m,
-                                         Priority = lead.Priority.PriorityName,
                                          Probability = (int)(lead.ProbabilityPercentage ?? 0),
                                          LeadDescription = lead.LeadDescription,
                                          AddressTypeName = cAddress.AddressType.AddressTypeName,
                                          
                                          LeadOwnerId = lead.LeadOwnerID,
                                          LeadOwnerName = lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName,
-                                         ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
+                                         //ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
                                      }).FirstOrDefaultAsync();
             if (customerObj != null)
             {

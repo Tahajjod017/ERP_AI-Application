@@ -94,7 +94,35 @@
                 }
             }
         }
+
+        loadHeaderData();
+
+
+
     });
+
+    function loadHeaderData() {
+        const $headOfDeptSS = $('#HeadOfDepartmentId');
+        const organizationId = $('#OrganizationID').val();
+        const departmentId = $('#DepartmentID').val();
+        showDev({ organizationId, departmentId }, 'Header Data Params');
+
+        $.ajax({
+            url: '/EmployeeOfficial/GetHeadById',   // <-- your backend endpoint
+            type: 'GET',
+            data: { id: departmentId },
+            success: function (response) {
+                // Assume response contains { id: 123, name: "John Doe" }
+                if (response) {
+                    const newOption = new Option(response.name, response.id, true, true);
+                    $headOfDeptSS.append(newOption).trigger('change');
+                }
+            },
+            error: function () {
+                console.error("Failed to fetch Head of Department.");
+            }
+        });
+    }
 
 
 
@@ -565,12 +593,14 @@
 
                     setSelectedSupervisor('ImmediateSupervisorId', response.immediateSupervisorId, immediateSupervisorName);
                 }
-                if (response.headOfDepartmentId) { // && response.headOfDepartmentName) {
 
-                    var headOfDepartmentName = GetEmpNameById(response.headOfDepartmentId);
+                loadHeaderData();
+                //if (response.headOfDepartmentId) { // && response.headOfDepartmentName) {
 
-                    setSelectedSupervisor('HeadOfDepartmentId', response.headOfDepartmentId, headOfDepartmentName);
-                }
+                //    var headOfDepartmentName = GetEmpNameById(response.headOfDepartmentId);
+
+                //    setSelectedSupervisor('HeadOfDepartmentId', response.headOfDepartmentId, headOfDepartmentName);
+                //}
 
 
             }, 1000);

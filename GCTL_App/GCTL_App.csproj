@@ -5,6 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<UserSecretsId>093c6bc6-2906-4900-be65-773f3eefd68c</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="wwwroot\images\**" />
@@ -31,7 +32,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.20" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.16" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.16" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.22" />
 		<PackageReference Include="RazorLight" Version="2.3.1" />
 		<PackageReference Include="Selenium.WebDriver" Version="4.32.0" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
