@@ -127,7 +127,7 @@ namespace GCTL_App.Controllers.POS.Settings
                         ApprovalTypeID = approvalType.ApprovalTypeID,
                         StartDate = viewModel.StartDate,
                         EndDate = viewModel.EndDate,
-                        Step = i,
+                       
                         ApproverID = item.ApproverEmployeeID
 
                     };
