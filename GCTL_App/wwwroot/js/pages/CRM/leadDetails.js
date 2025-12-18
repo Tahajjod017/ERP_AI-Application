@@ -3,8 +3,8 @@ $(function () {
         note: "#aNote",
         date: '#aDate',
         file: '#aFile',
-        contactNumber : "#ContectPersonId",
-        contactEmail : "#ContectPersonEmailId",
+        contactNumber: "#ContectPersonId",
+        contactEmail: "#ContectPersonEmailId",
         leadID: '#leadID',
         addActiveBtn: '#addLActivity',
         wonConfirmDiv: '#won-fonfirm-div',
@@ -21,7 +21,7 @@ $(function () {
     }
 
     //=============================
-    // gobal veriable
+    // global variable
     //==============================
     let isWon = null;
 
@@ -51,17 +51,7 @@ $(function () {
             $('#file-field').hide();
             $('#email-field').show();
         }
-        else if (btnText === "Email") {
-            $('#contact-field').hide();
-            $('#file-field').hide();
-            $('#email-field').show();
-        }
         else if (btnText === "Offline Meeting") {
-            $('#contact-field').show();
-            $('#file-field').hide();
-            $('#email-field').show();
-        }
-        else if (btnText === "Online Meeting") {
             $('#contact-field').show();
             $('#file-field').hide();
             $('#email-field').show();
@@ -108,7 +98,6 @@ $(function () {
             $('#note-Field').show();
             $('#contact-field').hide();
             $('#email-field').hide();
-            //$('#contact-field').hide();
             $(ids.addActiveBtn).removeClass('d-none');
             $(ids.addActiveBtn).removeAttr('disabled');
             $(ids.wonConfirmDiv).addClass('d-none');
@@ -122,7 +111,7 @@ $(function () {
             dataType: 'json',
             delay: 250,
             data: function (params) {
-                return { leadId: $(ids.leadID).val(),search: params.term || '', page: params.page || 1 };
+                return { leadId: $(ids.leadID).val(), search: params.term || '', page: params.page || 1 };
             },
             processResults: function (data, params) {
                 params.page = params.page || 1;
@@ -145,8 +134,9 @@ $(function () {
         },
         width: '100%',
         multiple: true,
-        
+
     });
+
     $("#ContectPersonEmailId").select2({
         placeholder: 'Select Contact Email',
         ajax: {
@@ -154,7 +144,7 @@ $(function () {
             dataType: 'json',
             delay: 250,
             data: function (params) {
-                return { leadId: $(ids.leadID).val(),search: params.term || '', page: params.page || 1 };
+                return { leadId: $(ids.leadID).val(), search: params.term || '', page: params.page || 1 };
             },
             processResults: function (data, params) {
                 params.page = params.page || 1;
@@ -206,7 +196,6 @@ $(function () {
 
     let lastSearch = "";
 
-
     let loading = false, noMoreDataDown = false;
     let loading2 = false, noMoreDataDown2 = false;
 
@@ -224,7 +213,6 @@ $(function () {
             ? userFor
             : $(".option-btn.active").text().trim();
 
-
         const buttonID = $(".option-btn.active").data('id');
         const leadID = $(ids.leadID).val();
         const note = $(ids.note).val();
@@ -236,14 +224,6 @@ $(function () {
 
         // run validation
         if (!validation(buttonName)) return;
-
-        //let isWonOrLost = $('.special-btn').hasClass('active2');
-        //let isWonOrLostText = $('.special-btn.active').text().trim();
-        // Show confirmation modal if Won/Lost
-        //if (isWon != null) {
-        //    const confirmed = await showConfirmationModal();
-        //    if (!confirmed) return; // User clicked No, stop execution
-        //}
 
         const formData = new FormData();
         formData.append("LeadID", parseInt(leadID));
@@ -259,7 +239,7 @@ $(function () {
             if (file) formData.append("File", file);
         }
         let isWonOrLostBtnSelected = $('.special-btn').hasClass('active');
-        console.log(formData);
+
         $.ajax({
             url: '/LeadDetails/SaveLeadActivity',
             method: 'POST',
@@ -282,7 +262,6 @@ $(function () {
                     $(ids.wonConfirmDiv).addClass("d-none");
                     $(ids.addActiveBtn).removeClass("d-none");
 
-                    
                     if (isWon === true && isWonOrLostBtnSelected) {
                         customToaster.success("Congratulations! Lead won successfully.");
                         makeDisabledState();
@@ -293,7 +272,7 @@ $(function () {
                 } else {
                     toastr.error(response.message);
                 }
-               
+
             },
             error: function (error) {
                 toastr.error(error.responseJSON?.message || "Error saving lead activity");
@@ -317,11 +296,9 @@ $(function () {
         secialButtonState = "won";
     });
 
-
     //============================
     // validation
     // ============================
-
     function validation(placeName) {
         clearAllValidationBorders();
 
@@ -359,7 +336,6 @@ $(function () {
 
         return isValid;
     }
-
 
     // ==============================
     // Infinite scroll inside activity-list
@@ -432,7 +408,6 @@ $(function () {
                 success: function (response) {
                     showLeadCreatorPercentage(response.successPercentage, response.lostPercentage, response.cancelPercentage)
 
-
                     if (response.closingDate != null) {
                         showClosedDate(response.closingDate);
                     } else {
@@ -447,7 +422,7 @@ $(function () {
                     }
                     $(ids.cSpecialBtn).removeClass('active2');
                     isWon = response.isWon;
-                    
+
                     if (response.isWon == true) {
                         $(ids.wonBtn).addClass('active2');
                         makeDisabledState();
@@ -473,7 +448,7 @@ $(function () {
                             if (item.leadActivityName === 'Attachment') {
                                 $(activityListDiv).append(renderAttachmentActivity(item, activityDate));
                             } else {
-                                renderActivity(item, activityDate, 'activity-list'); // For main activity list
+                                renderActivity(item, activityDate, 'activity-list');
                             }
                         }
                     });
@@ -484,7 +459,6 @@ $(function () {
                 }
             });
         });
-        
     }
 
     //==============================
@@ -500,23 +474,6 @@ $(function () {
     // show close Date Div
     //================================
     function showClosedDate(date) {
-        const d = new Date(date);
-        const pad = n => n.toString().padStart(2, '0');
-        const isoLocal = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-        $(ids.closingDateDiv).removeClass('d-none');
-        $(ids.closingDateResult).text(showClosedDate(isoLocal));
-    }
-    //==============================
-    // hide closed Date Div
-    //================================
-    function hideClosedDate(date) {
-        $(ids.closingDateDiv).addClass('d-none');
-        $(ids.closingDateResult).text("");
-    }
-    // =============================
-    // make disabled statue
-    //==========
-    function showClosedDate(date) {
         $(ids.closingDateDiv).removeClass('d-none');
         const d = new Date(date);
         const options = {
@@ -530,8 +487,17 @@ $(function () {
         };
         $(ids.closingDateResult).text(d.toLocaleString('en-US', options));
     }
+
+    //==============================
+    // hide closed Date Div
+    //================================
+    function hideClosedDate() {
+        $(ids.closingDateDiv).addClass('d-none');
+        $(ids.closingDateResult).text("");
+    }
+
     // =============================
-    // make disabled statue
+    // make disabled state
     //==============================
     function makeDisabledState() {
         $(ids.addActiveBtn).prop('disabled', true);
@@ -542,6 +508,7 @@ $(function () {
         $(ids.date).prop('disabled', true);
         $(ids.file).prop('disabled', true);
     }
+
     function makeEnableState() {
         $(ids.addActiveBtn).removeAttr('disabled');
         $("#optionBtnDiv .option-btn").removeAttr('disabled');
@@ -551,6 +518,7 @@ $(function () {
         $(ids.date).removeAttr('disabled');
         $(ids.file).removeAttr('disabled');
     }
+
     // ==============================
     // Fetch upcoming activity data
     // ==============================
@@ -567,18 +535,15 @@ $(function () {
                 if (!response || response.length === 0 && loadedIds2.size == 0) {
                     $("#upcomming-div").addClass("d-none");
                     return;
-
                 }
-                  
+
                 if (!response || response.length === 0) {
                     noMoreDataDown2 = true;
-                    //$("#upcomming-div").addClass("d-none");
                     return;
-
                 } else {
-                    //$("#myTab").css("display", "block");
                     $("#upcomming-div").removeClass("d-none");
                 }
+
                 response.forEach(item => {
                     if (!item.leadDetailID) return;
                     if (!loadedIds2.has(item.leadDetailID)) {
@@ -587,9 +552,8 @@ $(function () {
                         if (item.leadActivityName === 'Attachment') {
                             $('#upcoming-activity').append(renderAttachmentActivity(item, activityDate));
                         } else {
-                            renderActivity(item, activityDate, 'upcoming-activity'); // For upcoming activities
+                            renderActivity(item, activityDate, 'upcoming-activity');
                         }
-
                     }
                 });
             },
@@ -597,169 +561,237 @@ $(function () {
             error: function (jqXHR, textStatus) {
                 toastr.error("Error: " + textStatus);
             }
-
         });
     }
 
     // ==============================
-    // Render a single activity
+    // Render Activity - PHOENIX DESIGN
     // ==============================
-   function updateVerticalLine() {
-    const container = document.getElementById('upcoming-activity');
-    const line = container.querySelector('.vertical-line');
+    function renderActivity(value, activityDate, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
 
-    if (line) {
-        // Total scrollable height including items
-        line.style.height = container.scrollHeight + 'px';
+        const isUpcoming = containerId === 'upcoming-activity';
+        const activityType = value.leadActivityName || 'Note';
+        const iconClass = getTimelineIconClass(activityType);
+        const badgeClass = getTimelineBadgeClass(activityType);
+        const pulseClass = isUpcoming ? 'timeline-icon-pulse' : '';
+
+        // Build phone numbers HTML
+        let phoneHtml = '';
+        if (value.phoneNumber && value.phoneNumber.trim() !== "") {
+            const phones = value.phoneNumber.split(',').map(p => p.trim()).filter(Boolean);
+            if (phones.length > 0) {
+                phoneHtml = phones.map(phone =>
+                    `<span class="timeline-meta-item">
+                        <i class="fa fa-phone"></i>
+                        <span>${phone}</span>
+                    </span>`
+                ).join('');
+            }
+        }
+
+        // Build email HTML
+        let emailHtml = '';
+        if (value.emailAddress && value.emailAddress.trim() !== "") {
+            const emails = value.emailAddress.split(',').map(e => e.trim()).filter(Boolean);
+            if (emails.length > 0) {
+                emailHtml = emails.map(email =>
+                    `<span class="timeline-meta-item">
+                        <i class="fa fa-envelope"></i>
+                        <span>${email}</span>
+                    </span>`
+                ).join('');
+            }
+        }
+
+        // Build description with show more/less
+        let descriptionHtml = '';
+        if (value.activityNote && value.activityNote.trim() !== "") {
+            const noteLength = value.activityNote.length;
+            const shouldCollapse = noteLength > 150;
+
+            descriptionHtml = `
+                <div class="timeline-activity-description">
+                    <div class="timeline-description-text ${shouldCollapse ? 'collapsed' : ''}" 
+                         data-activity-id="${value.leadDetailID}">
+                        <p>${escapeHtml(value.activityNote)}</p>
+                    </div>
+                    ${shouldCollapse ? `
+                        <button class="timeline-show-more-btn" 
+                                onclick="toggleActivityDescription(${value.leadDetailID})">
+                            <span>Read More</span>
+                            <i class="fa fa-chevron-down"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        const activityHtml = `
+            <div class="timeline-activity-item" data-activity-id="${value.leadDetailID}">
+                <div class="timeline-activity-icon ${iconClass} ${pulseClass}">
+                    <i class="fa ${getActivityIcon(activityType)}"></i>
+                </div>
+                <div class="timeline-activity-content">
+                    <div class="timeline-activity-header">
+                        <h5 class="timeline-activity-title">${escapeHtml(activityType)}</h5>
+                        <span class="timeline-activity-badge ${badgeClass}">${activityType}</span>
+                    </div>
+                    <div class="timeline-activity-meta">
+                        <span class="timeline-meta-item">
+                            <i class="fa fa-calendar"></i>
+                            <span>${activityDate}</span>
+                        </span>
+                        <span class="timeline-meta-item">
+                            <i class="fa fa-user"></i>
+                            <span>${escapeHtml(value.createdByName || 'Unknown')}</span>
+                        </span>
+                        ${phoneHtml}
+                        ${emailHtml}
+                    </div>
+                    ${descriptionHtml}
+                    <div class="timeline-activity-footer">
+                        <span class="timeline-activity-status ${isUpcoming ? 'timeline-status-upcoming' : 'timeline-status-completed'}">
+                            <i class="fa ${isUpcoming ? 'fa-clock-o' : 'fa-check-circle'}"></i>
+                            ${isUpcoming ? 'Upcoming' : 'Completed'}
+                        </span>
+                        <div class="timeline-activity-actions">
+                            ${isUpcoming ? `
+                                <button class="timeline-action-btn" onclick="editActivity(${value.leadDetailID})">
+                                    <i class="fa fa-pencil"></i> Edit
+                                </button>
+                                <button class="timeline-action-btn" onclick="completeActivity(${value.leadDetailID})">
+                                    <i class="fa fa-check"></i> Complete
+                                </button>
+                            ` : `
+                                <button class="timeline-action-btn" onclick="viewActivity(${value.leadDetailID})">
+                                    <i class="fa fa-eye"></i> View
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', activityHtml);
     }
-}
 
-// Call this after rendering activities
-    //function renderActivity(value, activityDate) {
-    //    const container = document.getElementById('upcoming-activity');
+    // ==============================
+    // Helper Functions for Timeline
+    // ==============================
 
-    //    // ------------------------
-    //    // BUILD PHONE HTML FIRST
-    //    // ------------------------
-    //    debugger;
-    //    let phoneHtml = "";
-    //    if (value.phoneNumber && value.phoneNumber.trim() !== "") {
-    //        phoneHtml = value.phoneNumber
-    //            .split(',')
-    //            .map(e => `<p class="fs-9 mb-0">${e.trim()}</p>`)
-    //            .join("");
-    //    }
+    // Helper function for activity icons (FA 4.7)
+    function getActivityIcon(activityType) {
+        const iconMap = {
+            'Call': 'fa-phone',
+            'Meeting': 'fa-users',
+            'Offline Meeting': 'fa-users',
+            'Online Meeting': 'fa-video-camera',
+            'Email': 'fa-envelope',
+            'Task': 'fa-tasks',
+            'Note': 'fa-sticky-note',
+            'Attachment': 'fa-paperclip',
+            'Quatation': 'fa-file-text',
+            'Rev. Quatation': 'fa-file-text-o',
+            'Won': 'fa-trophy',
+            'Lost': 'fa-times-circle'
+        };
+        return iconMap[activityType] || 'fa-circle';
+    }
 
-    //    // ------------------------
-    //    // BUILD EMAIL HTML FIRST
-    //    // ------------------------
-    //    let emailHtml = "";
-    //    if (value.emailAddress && value.emailAddress.trim() !== "") {
-    //        emailHtml = value.emailAddress
-    //            .split(',')
-    //            .map(e => `<p class="fs-9 mb-0">${e.trim()}</p>`)
-    //            .join("");
-    //    }
+    // Helper function for icon color classes
+    function getTimelineIconClass(activityType) {
+        const iconClassMap = {
+            'Call': 'timeline-icon-call',
+            'Meeting': 'timeline-icon-meeting',
+            'Offline Meeting': 'timeline-icon-meeting',
+            'Online Meeting': 'timeline-icon-meeting',
+            'Email': 'timeline-icon-email',
+            'Task': 'timeline-icon-task',
+            'Note': 'timeline-icon-note',
+            'Attachment': 'timeline-icon-note',
+            'Quatation': 'timeline-icon-task',
+            'Rev. Quatation': 'timeline-icon-task',
+            'Won': 'timeline-icon-success',
+            'Lost': 'timeline-icon-lost',
+            'Cancel': 'timeline-icon-cancel'
+        };
+        return iconClassMap[activityType] || 'timeline-icon-default';
+    }
 
-    //    const div = document.createElement('div');
-    //    div.className = 'activity-item border-bottom border-translucent';
-    //    div.innerHTML = `
-    //    <div class="d-flex">
-    //        <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 mt-2">
-    //            <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
-    //        </div>
+    // Helper function for badge classes
+    function getTimelineBadgeClass(activityType) {
+        const badgeClassMap = {
+            'Call': 'timeline-badge-call',
+            'Meeting': 'timeline-badge-meeting',
+            'Offline Meeting': 'timeline-badge-meeting',
+            'Online Meeting': 'timeline-badge-meeting',
+            'Email': 'timeline-badge-email',
+            'Task': 'timeline-badge-task',
+            'Note': 'timeline-badge-note',
+            'Attachment': 'timeline-badge-note',
+            'Quatation': 'timeline-badge-task',
+            'Rev. Quatation': 'timeline-badge-task',
+            'Won': 'timeline-badge-success',
+            'Lost': 'timeline-badge-lost',
+            'Cancel': 'timeline-badge-cancel'
+        };
+        return badgeClassMap[activityType] || 'timeline-badge-default';
+    }
 
-    //        <div class="flex-1 card p-2">
-    //            <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-    //                <div class="flex-1 me-2">
-    //                    <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
-    //                    <p class="fs-9 mb-0">by <a class="ms-1" href="#!">${value.createdByName}</a></p>
-    //                </div>
-    //                <div class="fs-9">
-    //                    <span class="fa-regular fa-calendar-days text-primary me-2"></span>
-    //                    <span class="fw-semibold">${activityDate}</span>
-    //                </div>
-    //            </div>
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 
-    //            ${phoneHtml}
-    //            ${emailHtml}
-    //            ${value.activityNote ? `<p class="fs-9 mb-0">${value.activityNote}</p>` : ""}
-    //        </div>
-    //    </div>
-    //`;
+    // Toggle description expand/collapse
+    function toggleActivityDescription(activityId) {
+        const description = document.querySelector(`.timeline-description-text[data-activity-id="${activityId}"]`);
+        const button = description.parentElement.querySelector('.timeline-show-more-btn');
 
-    //    container.appendChild(div);
-    //    updateVerticalLine();
-    //}
+        if (description && button) {
+            description.classList.toggle('collapsed');
+            const isCollapsed = description.classList.contains('collapsed');
 
+            button.querySelector('span').textContent = isCollapsed ? 'Read More' : 'Read Less';
+            button.querySelector('i').className = isCollapsed ? 'fa fa-chevron-down' : 'fa fa-chevron-up';
+        }
+    }
 
-// Example: after rendering all activities
-// activities.forEach(act => renderActivity(act, act.activityDate));
+    // ==============================
+    // Render Attachment Activity (if needed)
+    // ==============================
+    function renderAttachmentActivity(value, activityDate) {
+        // Add your attachment rendering logic here if needed
+        return '';
+    }
 
-
-    // previewFile function
+    // ==============================
+    // Preview File Function
+    // ==============================
     function previewFile(fileUrl) {
         let ext = fileUrl.split('.').pop().toLowerCase();
         let container = document.getElementById("filePreviewContainer");
-        container.innerHTML = ""; // reset
+        container.innerHTML = "";
 
         if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
-            // Image preview
             container.innerHTML = `<img src="${fileUrl}" class="img-fluid" alt="preview">`;
         }
         else if (ext === "pdf") {
-            container.innerHTML = `<iframe src="${fileUrl}" 
-                           style="width:100%;height:500px" frameborder="0"></iframe>`;
+            container.innerHTML = `<iframe src="${fileUrl}" style="width:100%;height:500px" frameborder="0"></iframe>`;
         }
         else {
-            // Not supported ? force download
             window.open(fileUrl, "_blank");
             return;
         }
 
-        // Show modal
         let modal = new bootstrap.Modal(document.getElementById('filePreviewModal'));
         modal.show();
-    }
-    // Ensure global access
-    window.previewFile = previewFile;
-    function renderActivity(value, activityDate, containerId) {
-        const container = document.getElementById(containerId);
-
-        // Make sure vertical line exists for this container
-        if (!container.querySelector('.vertical-line')) {
-            const line = document.createElement('div');
-            line.className = 'vertical-line';
-            line.style.position = 'absolute';
-            line.style.left = '51px';
-            line.style.top = '0';
-            line.style.width = '3px';
-            line.style.backgroundColor = '#0d6efd';
-            line.style.zIndex = '0';
-            container.appendChild(line);
-        }
-
-        const div = document.createElement('div');
-        div.className = 'activity-item';
-        div.innerHTML = `
-        <div class="d-flex">
-            <div class="d-flex bg-primary-subtle rounded-circle flex-center me-3 mt-3">
-                <span class="fa-solid text-primary-dark fs-9 ${value.leadActivityIcon}"></span>
-            </div>
-            <div class="flex-1 card p-3">
-                <div class="d-flex justify-content-between flex-column flex-xl-row mb-2 mb-sm-0">
-                    <div class="flex-1 me-2">
-                        <h5 class="text-body-highlight lh-sm">${value.leadActivityName}</h5>
-                        <p class="fs-9 mb-0">by <a class="ms-1" href="#!">${value.createdByName}</a></p>
-                    </div>
-                    <div class="fs-9">
-                        <span class="fa-regular fa-calendar-days text-primary me-2"></span>
-                        <span class="fw-semibold">${activityDate}</span>
-                    </div>
-                </div>
-                ${value.phoneNumber
-                ? value.phoneNumber.split(',').map(e =>
-                    `<p class="fs-9 mb-0 position-relative" style="z-index:1;">${e.trim()}</p>`
-                ).join("")
-                : ''
-            }
-
-${value.emailAddress
-                ? value.emailAddress.split(',').map(e =>
-                    `<p class="fs-9 mb-0 position-relative" style="z-index:1;">${e.trim()}</p>`
-                ).join("")
-                : ''
-}
-                ${value.activityNote ? `<p class="fs-9 mb-0">${value.activityNote}</p>` : ''}
-            </div>
-        </div>
-    `;
-
-        container.appendChild(div);
-
-        // Update vertical line height dynamically
-        const line = container.querySelector('.vertical-line');
-        line.style.height = container.scrollHeight + 'px';
     }
 
     // ==============================
@@ -784,9 +816,7 @@ ${value.emailAddress
     // ==============================
     // update Lead Source value
     // ==============================
-
     $("#leadSource, #lead-status, #leadPriority, #probabilityPercentage").on("change", function () {
-
         let fieldValue = $(this).val();
         let fieldID = $(this).attr("id");
         let fieldName = fieldID === "leadSource" ? "source" : fieldID == "lead-status" ? "stage" : fieldID === 'leadPriority' ? "priority" : fieldID == 'probabilityPercentage' ? 'probability' : "";
@@ -801,15 +831,11 @@ ${value.emailAddress
                     toastr.success(`${fieldName} updated successfully`);
                 }
             },
-
             error: function (jqXHR, textStatus) {
                 toastr.error("Error: " + textStatus);
             }
-
         });
     })
-
-
 
     // ==============================
     // Reset state and reload page 1
@@ -821,6 +847,7 @@ ${value.emailAddress
         $(activityListDiv).empty();
         updateActivate(1, "reset");
     }
+
     function resetAndReloadUpcoming() {
         currentPage2 = 1;
         noMoreDataDown2 = false;
@@ -829,57 +856,38 @@ ${value.emailAddress
         updateUpcomingActivate(currentPage2);
     }
 
-
     // ==============================
     // validation load
     // ==============================
     function clearAllValidationBorders() {
-        // Clear option buttons and container
         $(".option-btn").css("border", "");
         $("#optionBtnDiv").css("border", "");
-
-        // Clear all input, textarea, select fields
         $("input, textarea, select").css("border", "");
-
-        // Clear file inputs
         $("input[type='file']").css("border", "");
-
-        // Clear error messages if you have spans
         $(".errorShow").text("");
     }
-
-
-
 
     // ==============================
     // Initial load
     // ==============================
     updateActivate(1, "reset");
-    updateUpcomingActivate();   
-
-
-
+    updateUpcomingActivate();
 
     // ====================
     // Edit Button work
     // ======================
     $(document).on("click", "#editModalBtn", function () {
-
         $("#leadModalTitle").text("Edit");
-
-        const leadId = $("#leadID").val(); // ? FIXED
-
+        const leadId = $("#leadID").val();
         const firstModalEl = document.getElementById('createLeadModalToggle');
         const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
         firstModal.hide();
 
         $.get('/CreateLead/IndexModal', function (html) {
-
             $('.create-lead-modal-body').html(html);
 
             $.getScript('/js/pages/crm/createlead_modal.js')
                 .done(function () {
-
                     if (typeof initCreateLeadModal === "function") {
                         initCreateLeadModal();
                     }
@@ -890,7 +898,6 @@ ${value.emailAddress
 
                     bootstrap.Modal.getOrCreateInstance(modalEl).show();
 
-                    // ? CALL AFTER modal + JS loaded
                     if (typeof loadEditData === "function") {
                         loadEditData(leadId);
                     }
@@ -898,14 +905,9 @@ ${value.emailAddress
         });
     });
 
-
-
-
-
     // ======================
     // employee
     // ======================
-    // #region Choice with Pagination + Infinite Scroll (server-side search only)
     const selectEl = document.getElementById('leadOwnerId');
     let debounceTimer;
     let loading3 = false;
@@ -913,25 +915,6 @@ ${value.emailAddress
     let lastSearch3 = '';
     let hasMore = true;
 
-    //const choices = new Choices(selectEl, {
-    //    searchEnabled: true,
-    //    placeholder: true,
-    //    placeholderValue: 'Select Organization...',
-    //    searchPlaceholderValue: 'Type to search...',
-    //    noChoicesText: 'Type 3 or more characters...',
-    //    searchResultLimit: -1, // disable local limiting
-    //    shouldSort: false,
-    //    duplicateItemsAllowed: false,
-    //    itemSelectText: '',
-    //    removeItemButton: true,
-
-    //    // ?? disable client-side filtering (server handles search)
-    //    searchChoices: false,
-    //    fuseOptions: false,
-    //    searchFn: () => true
-    //});
-
-    // Fetch data from server
     async function fetchOptions(search, page = 1, pageSize = 50) {
         loading3 = true;
         try {
@@ -947,30 +930,6 @@ ${value.emailAddress
         }
     }
 
-    // Handle debounce on search
-    //selectEl.addEventListener('search', function (e) {
-    //    const searchTerm = e.detail.value;
-    //    clearTimeout(debounceTimer);
-
-    //    if (searchTerm.length < 1) {
-    //        choices.clearChoices();
-    //        return;
-    //    }
-
-    //    debounceTimer = setTimeout(async () => {
-    //        currentPage3 = 1;
-    //        lastSearch3 = searchTerm;
-    //        const data = await fetchOptions(searchTerm, currentPage3);
-
-    //        choices.clearChoices();
-    //        if (data.items.length > 0) {
-    //            // replace with new results
-    //            choices.setChoices(data.items, 'value', 'label', true);
-    //        }
-    //    }, 500); // debounce delay
-    //});
-
-    // Scroll handler
     async function handleScroll(e) {
         const dropdownList = e.target;
         if (!loading3 && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
@@ -978,26 +937,14 @@ ${value.emailAddress
             const data = await fetchOptions(lastSearch3, currentPage3);
 
             if (data.items.length > 0) {
-                // append results, keep existing
                 choices.setChoices(data.items, 'value', 'label', false);
             }
         }
     }
 
-    //// Reattach scroll listener when dropdown opens
-    //choices.passedElement.element.addEventListener('showDropdown', () => {
-    //    const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
-    //    if (dropdownList) {
-    //        dropdownList.removeEventListener('scroll', handleScroll);
-    //        dropdownList.addEventListener('scroll', handleScroll);
-    //    }
-    //});
-    // #endregion
-
     // ==============================
     // update lead information
     // ==============================
-
     $("#editBtn").on("click", function (e) {
         e.preventDefault();
         const data = {
@@ -1018,12 +965,9 @@ ${value.emailAddress
                 method: 'POST',
                 data: JSON.stringify(data),
                 contentType: "application/json; charset=utf-8",
-
                 success: function (response) {
-
                     if (response.success) {
                         toastr.success(response.message);
-                        // HIDE modal
                         var myModalEl = document.getElementById('editModal');
                         var modal = bootstrap.Modal.getInstance(myModalEl);
                         modal.hide();
@@ -1038,11 +982,9 @@ ${value.emailAddress
         }
     })
 
-
     // ===============
     // lead validation2
     // =================
-
     function validation2() {
         let requiredField = [
             '#leadOwnerId',
@@ -1058,7 +1000,6 @@ ${value.emailAddress
             let value = el.val() ? el.val().trim() : '';
             let target = el;
 
-            // Special case for Choices.js (hidden select)
             if (el.closest('.choices').length > 0) {
                 target = el.closest('.choices').find('.choices__inner');
             }
@@ -1067,7 +1008,7 @@ ${value.emailAddress
                 target.css('border', '1px solid red');
                 isValid = false;
             } else {
-                target.css('border', '1px solid #ccc'); // reset valid field
+                target.css('border', '1px solid #ccc');
             }
         });
 
@@ -1081,90 +1022,50 @@ ${value.emailAddress
         clearAllValidationBorders();
     })
 
-    $(document).on("click", ids.restoreBtn,async function () {
- 
-            const confirmed = await customToaster.confirm("Do you want to restart this Lead?");
-            if (confirmed) {
-                let leadId = $(ids.leadID).val();
-                $.ajax({
-                    url: '/LeadDetails/RestoreLead',
-                    method: 'POST',
-                    data: { id: leadId },
-                    success: function (response) {
-                        if (response.success) {
-                            customToaster.success(response.message);
-                            resetAndReloadUpcoming();
-                            resetAndReload();
-                            makeEnableState();
-
-                        } else {
-                            toastr.error(response.message);
-                        }
-                    },
-                    error: function (xhr) {
-                        toastr.error("Error restoring lead");
+    // ==========================
+    // Restore Lead
+    // ===========================
+    $(document).on("click", ids.restoreBtn, async function () {
+        const confirmed = await customToaster.confirm("Do you want to restart this Lead?");
+        if (confirmed) {
+            let leadId = $(ids.leadID).val();
+            $.ajax({
+                url: '/LeadDetails/RestoreLead',
+                method: 'POST',
+                data: { id: leadId },
+                success: function (response) {
+                    if (response.success) {
+                        customToaster.success(response.message);
+                        resetAndReloadUpcoming();
+                        resetAndReload();
+                        makeEnableState();
+                    } else {
+                        toastr.error(response.message);
                     }
-                });
-            }
-            else customToaster.error("Cancelled!");
-        });
+                },
+                error: function (xhr) {
+                    toastr.error("Error restoring lead");
+                }
+            });
+        }
+        else customToaster.error("Cancelled!");
+    });
 
-
-    //// When you load modal via AJAX
-    //$(document).on("click", "#createCustomer", function () {
-    //    $.get('/Customers/IndexModal', function (html) {
-    //        $('#customerModalContent').html(html);
-
-    //        // Initialize newly added modal elements
-    //        $('#customerModalContent [data-init]').each(function () {
-    //            const el = this;
-    //            if (typeof showClose == "function") {
-    //                showClose();
-    //            }
-    //            if (typeof loadCustomerData == "function") {
-    //                const id = $("#CustomerId2").val();
-    //                loadCustomerData(id);
-    //            }
-    //            if (typeof loadCustomerData == "function") {
-    //                const cid = $("#CustomerId2").val();
-    //                const bid = $("#BranchId").val();
-    //                loadBranchData(bid, cid);
-    //            }
-    //            const key = el.dataset.init;
-    //            if (key && typeof window[key] === "function") {
-    //                window[key](el);
-    //                el.dataset.initialized = true; // optional flag
-    //            }
-    //        });
-
-    //        // Show modal
-    //        var modal = new bootstrap.Modal(document.getElementById('customerModal'));
-    //        modal.show();
-    //    });
-    //});
-
-
-    // keyboard shorcurt for note input field
+    // keyboard shortcut for note input field
     $("#aNote").on("keydown", function (e) {
-        // Check if Ctrl + V is pressed
         if (e.ctrlKey && e.key === "s") {
-            e.preventDefault(); // Stop normal paste
-
+            e.preventDefault();
             let textarea = this;
             let before = textarea.value.substring(0, textarea.selectionStart);
             let after = textarea.value.substring(textarea.selectionEnd);
-
-            // Insert text at cursor position
             textarea.value = before + "Communication start from phone." + after;
         }
     });
-
 
     // OPEN FIRST MODAL (Create Lead)
     $(document).on("click", "#openCreateLeadModal", function () {
         $("#leadModalTitle").text("Create");
         $.get('/CreateLead/IndexModal', function (html) {
-
             $('.create-lead-modal-body').html(html);
 
             $.getScript('/js/pages/crm/createlead_modal.js')
@@ -1175,17 +1076,13 @@ ${value.emailAddress
                 });
 
             const modalEl = document.getElementById('createLeadModalToggle');
-
             const modalInstance = bootstrap.Modal.getOrCreateInstance(modalEl, {
                 backdrop: 'static',
                 keyboard: false
             });
-
             modalInstance.show();
         });
     });
-
-
 
     // OPEN SECOND MODAL (Customer) from inside first modal
     $(document).on("click", "#openCustomerModal", function (e) {
@@ -1194,12 +1091,9 @@ ${value.emailAddress
         const firstModalEl = document.getElementById('createLeadModalToggle');
         const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
 
-        // Load customer modal content
         $.get('/Customers/IndexModal', function (html) {
-
             $('.customer-modal-content').html(html);
 
-            // Load script if needed
             if (typeof initCustomerModal !== 'function') {
                 $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
                     .done(() => initCustomerModal && initCustomerModal());
@@ -1207,10 +1101,6 @@ ${value.emailAddress
                 initCustomerModal();
             }
 
-            // Make first modal non-interactive but NOT aria-hidden
-            //firstModalEl.setAttribute("inert", "");
-
-            // Show second modal on top
             const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
                 backdrop: 'static',
                 focus: true,
@@ -1219,40 +1109,33 @@ ${value.emailAddress
 
             secondModal.show();
 
-            // When second modal closes ? restore first modal
             $('#openCustomerModalToggle').one('hidden.bs.modal', function () {
                 firstModalEl.removeAttribute("inert");
                 firstModal.show();
             });
-
         });
 
-        // Hide first modal visually now
         firstModal.hide();
     });
 
-    //#region editCustomerBtn2
+    // Edit Customer Button
     $(document).on("click", "#editCustomerBtn2", function (e) {
         e.preventDefault();
         $("#customerModalActionName").text("Edit")
-        // Load customer modal content
-        $.get('/Customers/IndexModal', function (html) {
 
+        $.get('/Customers/IndexModal', function (html) {
             $('.customer-modal-content').html(html);
 
-            // Load script if needed
             if (typeof initCustomerModal !== 'function') {
                 $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
                     .done(() => initCustomerModal && initCustomerModal());
             } else {
                 initCustomerModal();
             }
-            // show data
-            debugger
+
             const id = $('#CustomerId2').val();
             loadCustomerData(id);
-            //changeTab("#customer-tab", "#customer");
-            // Show second modal on top
+
             const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
                 backdrop: 'static',
                 focus: true,
@@ -1260,19 +1143,44 @@ ${value.emailAddress
             });
 
             secondModal.show();
-
         });
-
-        // Hide first modal visually now
-        firstModal.hide();
     });
-    //#endregion
+
+    // ==============================
+    // Make Functions Globally Accessible
+    // ==============================
+    window.toggleActivityDescription = toggleActivityDescription;
+    window.previewFile = previewFile;
+    window.editActivity = editActivity;
+    window.completeActivity = completeActivity;
+    window.viewActivity = viewActivity;
+
+    // ==============================
+    // Activity Action Functions (Add your logic)
+    // ==============================
+    function editActivity(activityId) {
+        console.log('Edit activity:', activityId);
+        // Add your edit logic here
+        toastr.info('Edit functionality - ID: ' + activityId);
+    }
+
+    function completeActivity(activityId) {
+        console.log('Complete activity:', activityId);
+        // Add your complete logic here
+        toastr.info('Complete functionality - ID: ' + activityId);
+    }
+
+    function viewActivity(activityId) {
+        console.log('View activity:', activityId);
+        // Add your view logic here
+        toastr.info('View functionality - ID: ' + activityId);
+    }
 
 });
 
+// Close Window Function
 window.closeWindow = function () {
-    debugger;
     const modalEl = document.getElementById('customerModal');
-    const modal = bootstrap.Modal.getInstance(modalEl); // get existing instance
+    const modal = bootstrap.Modal.getInstance(modalEl);
     if (modal) modal.hide();
 };
