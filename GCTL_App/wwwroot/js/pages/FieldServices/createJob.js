@@ -302,4 +302,43 @@ $("#resetBtn").on("click", resetForm);
         rebindScroll();
     });
     //#endregion
+
+
+    //#region initialize file field
+    // MUST be once globally
+Dropzone.autoDiscover = false;
+
+let jobDropzone = null;
+
+function initJobDropzone() {
+
+    const dzElement = document.getElementById('jobDropzone');
+    if (!dzElement) return;
+
+    // Destroy if already exists (modal reopened)
+    if (jobDropzone) {
+        jobDropzone.destroy();
+        jobDropzone = null;
+    }
+
+    const previewTemplate =
+        dzElement.querySelector('.dz-preview').innerHTML;
+
+    // Clear template from DOM to avoid duplication
+    dzElement.querySelector('.dz-preview').remove();
+
+    jobDropzone = new Dropzone(dzElement, {
+        url: '/CreateJobs/Upload', // 🔁 change to your API
+        paramName: 'Files',
+        maxFiles: 5,
+        maxFilesize: 10, // MB
+        acceptedFiles: '.jpg,.png,.pdf,.doc,.docx',
+        addRemoveLinks: false,
+        autoProcessQueue: false,
+        previewTemplate: previewTemplate
+    });
+}
+
+    //#endregion
+    initJobDropzone()
 });
