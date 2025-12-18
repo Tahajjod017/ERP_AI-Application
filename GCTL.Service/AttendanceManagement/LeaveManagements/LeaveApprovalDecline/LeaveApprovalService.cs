@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -1335,29 +1336,31 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
                     //
 
-                    var model = new EmailTemplateVM
-                    {
-                        LogoUrl = logourl,
-                        FormattedAddress = formattedAddress ?? "No address available",
-                        CountryName = orgainfo.CountryName ?? "No country",
-                        Email = orgainfo.EmailAddress ?? "No email",
-                        Phone = orgainfo.Phone ?? "No phone",
-                        RecipientName = applicantData.FirstName + " " + applicantData.LastName,
-                        StatusMessage = statusMessage,
-                        ApplicantName = applicantData.FirstName + " " + applicantData.LastName,
-                        Department = applicantData.DepartmentName,
-                        Designation = applicantData.DesignationName,
-                        LeaveName = leaveName,
-                        FromDate = entityVM.FromDateEdit,
-                        ToDate = entityVM.ToDateEdit,
-                        Reason = entityVM.ReasonEdit,
-                        AcceptUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={entityVM.LeaveApplicationID}&approverId={approvalPersonId}&isApproved=true&secrectCode={secrectCode}",
-                        DenyUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={entityVM.LeaveApplicationID}&approverId={approvalPersonId}&isApproved=false&secrectCode={secrectCode}",
-                        ModifyLink = $"{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{entityVM.LeaveApplicationID}",
-                        IsApplicant = isApplicant
-                    };
+                    string fromDateStr = string.Empty;
+                    string toDateStr = string.Empty;
 
-                    
+                    if (entityVM.IsFullDayEdit)
+                    {
+                        fromDateStr = entityVM.FromDateEdit?.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) ?? "";
+                        toDateStr = entityVM.ToDateEdit?.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) ?? "";
+                    }
+                    else
+                    {
+
+
+                        fromDateStr =
+                            entityVM.ToDateFromDateCombinedEdit != null
+                                ? $"{entityVM.ToDateFromDateCombinedEdit.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)} {entityVM.PartialFromTimeEdit}"
+                                : "";
+
+                        toDateStr =
+                            entityVM.ToDateFromDateCombinedEdit != null
+                                ? $"{entityVM.ToDateFromDateCombinedEdit.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)} {entityVM.PartialToTimeEdit}"
+                                : "";
+                    }
+
+
+
 
                     //
                     var supervisors = await empoffi.AllActive().Where(x => x.EmployeeID == entityVM.EmployeeIDEdit)
@@ -1722,11 +1725,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
                     </tr>
                     <tr>
                         <th>Start Date</th>
-                        <td>{entityVM.FromDateEdit:dd MMM yyyy}</td>
+                        <td>{fromDateStr}</td>
                     </tr>
                     <tr>
                         <th>End Date</th>
-                        <td>{entityVM.ToDateEdit:dd MMM yyyy}</td>
+                        <td>{toDateStr}</td>
                     </tr>
                     <tr>
                         <th>Reason</th>

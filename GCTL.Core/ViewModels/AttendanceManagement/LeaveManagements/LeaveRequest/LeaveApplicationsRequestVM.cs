@@ -8,34 +8,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveRequest
 {
-    //public class LeaveApplicationsRequestVM : BaseViewModel
-    //{
-    //    public int LeaveApplicationID { get; set; }
-
-    //    //[Required(ErrorMessage = "Select Employee")]
-    //    public int? EmployeeID { get; set; }
-
-    //    public bool IsFullDay { get; set; } = true;
-
-    //    //[Required(ErrorMessage = "Required FromDate ")]
-    //    public DateOnly? FromDate { get; set; }
-    //   // [Required(ErrorMessage = "Required ToDate ")]
-    //    public DateOnly? ToDate { get; set; }
-    //    //[Required(ErrorMessage = "Required from Time")]
-    //    public TimeOnly? PartialFromTime { get; set; }
-
-    //    //[Required(ErrorMessage = "Required To Time")]
-    //    public TimeOnly? PartialToTime { get; set; }
-
-    //    public int? StatusID { get; set; }
-    //    //[Required(ErrorMessage = "Select Leave Type")]
-
-    //    public int? LeaveTypeID { get; set; }
-
-    //    public string? Reason { get; set; }
-     // public decimal? LeaveDays { get; set; }
-    //}
-
+    
 
 
     public class LeaveApplicationsRequestVM : BaseViewModel

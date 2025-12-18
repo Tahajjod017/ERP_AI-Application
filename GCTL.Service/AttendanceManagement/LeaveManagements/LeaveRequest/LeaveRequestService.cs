@@ -25,6 +25,7 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Metadata;
@@ -913,6 +914,29 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         logourl = $"https://ui-avatars.com/api/?name={firstLetter}&background=0D8ABC&color=fff&size=128";
                     }
 
+                    string fromDateStr = string.Empty;
+                    string toDateStr = string.Empty;
+
+                    if (entityVM.IsFullDay)
+                    {
+                        fromDateStr = entityVM.FromDate?.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) ?? "";
+                        toDateStr = entityVM.ToDate?.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) ?? "";
+                    }
+                    else
+                    {
+                       
+
+                        fromDateStr =
+                            entityVM.ToDateFromDateCombined != null
+                                ? $"{entityVM.ToDateFromDateCombined.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)} {entityVM.PartialFromTime}"
+                                : "";
+
+                        toDateStr =
+                            entityVM.ToDateFromDateCombined != null
+                                ? $"{entityVM.ToDateFromDateCombined.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)} {entityVM.PartialToTime}"
+                                : "";
+                    }
+
 
                     if (orgainfo == null)
                     {
@@ -953,26 +977,26 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     var data = await GetLeaveRequestByIdAsync(leaveApplicationID);
                     Console.WriteLine(data);
 
-                    var model = new EmailTemplateVM
-                    {
-                        LogoUrl = logourl,
-                        FormattedAddress = formattedAddress ?? "No address available",
-                        CountryName = orgainfo.CountryName ?? "No country",
-                        Email = orgainfo.EmailAddress ?? "No email",
-                        Phone = orgainfo.Phone ?? "No phone",
-                        RecipientName = applicantData.FirstName + " " + applicantData.LastName,
-                        StatusMessage = "This is an automated leave request submitted by an employee.",
-                        ApplicantName = applicantData.FirstName + " " + applicantData.LastName,
-                        Department = applicantData.DepartmentName,
-                        Designation = applicantData.DesignationName,
-                        LeaveName = leaveName,
-                        FromDate = entityVM.FromDate,
-                        ToDate = entityVM.ToDate,
-                        Reason = entityVM.Reason,
-                        AcceptUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=true&secrectCode={secrectCode}",
-                        DenyUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=false&secrectCode={secrectCode}",
-                        ModifyLink = $"{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}"
-                    };
+                    //var model = new EmailTemplateVM
+                    //{
+                    //    LogoUrl = logourl,
+                    //    FormattedAddress = formattedAddress ?? "No address available",
+                    //    CountryName = orgainfo.CountryName ?? "No country",
+                    //    Email = orgainfo.EmailAddress ?? "No email",
+                    //    Phone = orgainfo.Phone ?? "No phone",
+                    //    RecipientName = applicantData.FirstName + " " + applicantData.LastName,
+                    //    StatusMessage = "This is an automated leave request submitted by an employee.",
+                    //    ApplicantName = applicantData.FirstName + " " + applicantData.LastName,
+                    //    Department = applicantData.DepartmentName,
+                    //    Designation = applicantData.DesignationName,
+                    //    LeaveName = leaveName,
+                    //    FromDate = entityVM.FromDate,
+                    //    ToDate = entityVM.ToDate,
+                    //    Reason = entityVM.Reason,
+                    //    AcceptUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=true&secrectCode={secrectCode}",
+                    //    DenyUrl = $"{url}/LeaveApprovalDeclineRoute/Action?leaveId={leaveApplicationID}&approverId={approvalPersonId}&isApproved=false&secrectCode={secrectCode}",
+                    //    ModifyLink = $"{url}/Account/Login?returnUrl=%2FLeaveApprovalDecline%2FIndex%3FleaveApplicationID%3D{leaveApplicationID}"
+                    //};
 
                     //var emailBody = await commonDroDownService.RenderViewToStringAsync("LeaveRequest/LeaveRequestEmail", model);
 
@@ -1295,11 +1319,11 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     </tr>
                     <tr>
                         <th>Start Date</th>
-                        <td>{entityVM.FromDate:dd MMM yyyy}</td>
+                        <td>{fromDateStr}</td>
                     </tr>
                     <tr>
                         <th>End Date</th>
-                        <td>{entityVM.ToDate:dd MMM yyyy}</td>
+                        <td>{toDateStr}</td>
                     </tr>
                     <tr>
                         <th>Reason</th>
