@@ -31,9 +31,13 @@ public partial class ReqApprovalSettings
 
     public int? DeletedBy { get; set; }
 
-    public virtual ApprovalTypes ApprovalType { get; set; }
+    public int? ApproverID { get; set; }
 
-    public virtual Employees CreatedByNavigation { get; set; }
+    public virtual ApprovalTypes? ApprovalType { get; set; }
+
+    public virtual Employees? Approver { get; set; }
+
+    public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 

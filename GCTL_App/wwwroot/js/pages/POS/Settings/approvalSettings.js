@@ -10,6 +10,11 @@
     let organizationId = "";
     let approvalTypeId = "";
 
+
+ 
+
+
+
     //#region Load approval settings
     function loadApprovalSettings() {
         $.ajax({
@@ -129,6 +134,33 @@
 
     //#endregion
 
+
+
+    // Utility: refresh Select2 options to prevent duplicates
+    function refreshSelectOptions(tableBodyId) {
+        // Collect all selected values
+        let selectedValues = [];
+        $(`#${tableBodyId} select`).each(function () {
+            let val = $(this).val();
+            if (val) selectedValues.push(val);
+        });
+
+        // Disable duplicates, allow current selection
+        $(`#${tableBodyId} select`).each(function () {
+            let currentVal = $(this).val();
+            $(this).find('option').each(function () {
+                let optionVal = $(this).attr('value');
+                if (selectedValues.includes(optionVal) && optionVal !== currentVal) {
+                    $(this).prop('disabled', true);
+                } else {
+                    $(this).prop('disabled', false);
+                }
+            });
+            // Refresh Select2 UI
+            $(this).trigger('change.select2');
+        });
+    }
+
     // Add new approval level row
     window.addNewLevelRow = function (tableBodyId = 'approvalLevelTableBody') {
         const index = $(`#${tableBodyId} tr`).length;
@@ -150,17 +182,18 @@
             $(this).find('input[name="ApprovalLevels.Index"]').val(i);
         });
 
-        // Initialize choiceDD if present
-        //if (typeof choiceManager !== 'undefined') {
-        //    $(`#${tableBodyId} select.choiceDD`).each(function () {
-        //        choiceManager.setChoiceValue($(this).attr('id'), '');
-        //    });
-        //}
+        // Initialize Select2 for new row
+        $(`#${tableBodyId} tr:last select`).select2({ width: '100%' , placeholder: 'Select an option', allowClear: true });
+
+        // Refresh options to ignore previous selections
+        refreshSelectOptions(tableBodyId);
     };
 
     // Remove approval level row
     window.removeLevelRow = function (button) {
         $(button).closest("tr").remove();
+
+        // Reindex rows
         $("#approvalLevelTableBody tr, #editApprovalLevelTableBody tr").each(function (index) {
             $(this).find('input, select').each(function () {
                 let name = $(this).attr('name');
@@ -171,7 +204,63 @@
             });
             $(this).find('input[name="ApprovalLevels.Index"]').val(index);
         });
+
+        // Refresh Select2 options so removed employee becomes available again
+        refreshSelectOptions("approvalLevelTableBody");
+        refreshSelectOptions("editApprovalLevelTableBody");
     };
+
+    // Refresh whenever a selection changes
+    $(document).on('change', '#approvalLevelTableBody select, #editApprovalLevelTableBody select', function () {
+        refreshSelectOptions('approvalLevelTableBody');
+        refreshSelectOptions('editApprovalLevelTableBody');
+    });
+
+
+    //// Add new approval level row
+    //window.addNewLevelRow = function (tableBodyId = 'approvalLevelTableBody') {
+    //    const index = $(`#${tableBodyId} tr`).length;
+    //    let template = $("#approvalLevelRowTemplate").prop("outerHTML");
+    //    template = template.replace(/INDEX/g, index);
+    //    template = template.replace('id="approvalLevelRowTemplate"', "");
+    //    template = template.replace('name="ApprovalLevels.Index" value=""', `name="ApprovalLevels.Index" value="${index}"`);
+    //    $(`#${tableBodyId}`).append(template);
+
+    //    // Reindex rows
+    //    $(`#${tableBodyId} tr`).each(function (i) {
+    //        $(this).find('input, select').each(function () {
+    //            let name = $(this).attr('name');
+    //            if (name) {
+    //                let newName = name.replace(/\[\d+\]/, `[${i}]`);
+    //                $(this).attr('name', newName);
+    //            }
+    //        });
+    //        $(this).find('input[name="ApprovalLevels.Index"]').val(i);
+    //    });
+
+    //    $(`#${tableBodyId} tr:last select`).select2({
+    //        width: '100%',   // optional: makes it fit nicely
+    //        placeholder: 'Select an option', // optional: adds placeholder
+    //        allowClear: true // optional: allows clearing the selection
+    //    });
+
+
+    //};
+
+    //// Remove approval level row
+    //window.removeLevelRow = function (button) {
+    //    $(button).closest("tr").remove();
+    //    $("#approvalLevelTableBody tr, #editApprovalLevelTableBody tr").each(function (index) {
+    //        $(this).find('input, select').each(function () {
+    //            let name = $(this).attr('name');
+    //            if (name) {
+    //                let newName = name.replace(/\[\d+\]/, `[${index}]`);
+    //                $(this).attr('name', newName);
+    //            }
+    //        });
+    //        $(this).find('input[name="ApprovalLevels.Index"]').val(index);
+    //    });
+    //};
 
     //#region Create form submission
     $("#createApprovalSettingForm").on("submit", function (e) {

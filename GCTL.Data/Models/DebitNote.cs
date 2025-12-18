@@ -51,7 +51,8 @@ public partial class DebitNote
 
     public virtual Invoices Invoice { get; set; }
 
-    public virtual JournalHeads JournalHead { get; set; }
 
-    public virtual Employees UpdatedByNavigation { get; set; }
+    public virtual JournalHeads? JournalHead { get; set; }
+
+    public virtual Employees? UpdatedByNavigation { get; set; }
 }
