@@ -1,6 +1,6 @@
 ﻿$(document).ready (function () {
 
-    $('#CustomerID').select2({
+    $('#CustomerID2').select2({
         placeholder: 'Select Customer',
         width: '100%',
         ajax: {
@@ -43,7 +43,7 @@
 
         // Using form data
         var formData = new FormData();
-        formData.append('CustomerID', $('#CustomerID').val());
+        formData.append('CustomerID2', $('#CustomerID2').val());
         formData.append('JobID', $('#JobID').val());
         formData.append('RequestedByUserID', $('#RequestedByUserID').val());
         formData.append('AmountRequested', $('#AmountRequested').val());
@@ -193,12 +193,12 @@ $('#JobID').select2({
         $.get('/CreateJobs/IndexModal', function (html) {
             $('.create-job-modal-body').html(html);
             // Load script if needed
-            $.getScript('/js/pages/FieldServices/createJob.js')
-                .done(() => {
-                    if (typeof initCreateLeadModal === "function") {
-                        initCreateLeadModal();
-                    }
-                });
+            $.getScript('/js/pages/FieldServices/CreateJob.js');
+                //.done(() => {
+                //    if (typeof initCreate === "function") {
+                //        initCreate();
+                //    }
+                //});
 
             const modalEl = document.getElementById('createJobModalToggle');
             modalEl.setAttribute("data-bs-backdrop", "static");
