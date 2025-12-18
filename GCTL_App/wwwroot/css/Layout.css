@@ -21,7 +21,7 @@ label.req::after {
 .caiCon {
     position: relative;
 /*    padding-right: 30px !important;*/
-    background-image: url('/img/icons/calender.svg');
+    background-image: url('/media/company/BgFolder/img/icons/calender.svg');
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 16px 16px;

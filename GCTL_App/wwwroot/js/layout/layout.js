@@ -472,4 +472,16 @@ function setContainerPosition(container, position) {
 //#endregion
 
 
+const initializeSelect = () => {
+    $('.initSelect2').select2({
+        width: '100%',
+        allowClear: true,
+        placeholder: 'Select an option',
+        language: { noResults: () => 'No results found' },
+        escapeMarkup: markup => markup
+    });
+};
+
+
+
 //
