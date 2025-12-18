@@ -12,7 +12,7 @@ namespace GCTL.Core.ViewModels.FieldServices
         public int EmployeeAdvanceID { get; set; }
 
         [Required(ErrorMessage = "Client Name is required")]
-        public int? CustomerID { get; set; }
+        public int? CustomerID2 { get; set; }
 
         [Required(ErrorMessage = "Job is required")]
         [Range(1, int.MaxValue, ErrorMessage = "Please select a valid job")]

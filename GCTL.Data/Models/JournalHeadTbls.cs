@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class LoanInstallmentPeriods
+public partial class JournalHeadTbls
 {
-    public int LoanInstallmentPeriodID { get; set; }
+    public int JournalHeadTblID { get; set; }
 
-    public int? PeriodValue { get; set; }
+    public string SchemaName { get; set; }
 
-    public string PeriodText { get; set; }
+    public string TableName { get; set; }
 
     public string LIP { get; set; }
 
@@ -33,7 +33,7 @@ public partial class LoanInstallmentPeriods
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Loan> Loan { get; set; } = new List<Loan>();
+    public virtual ICollection<JournalHeads> JournalHeads { get; set; } = new List<JournalHeads>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

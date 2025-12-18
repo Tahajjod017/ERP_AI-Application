@@ -69,18 +69,23 @@ namespace GCTL_App.Controllers.FieldServices
         {
             try
             {
-                if (createJobVM.CreateJobID == 0) {
-
-                    string fileLocation = createJobVM.FileLink is not null ? await StorePhoto(createJobVM.FileLink) : string.Empty;
-
-                    var result = await _createJobService.AddAsync(createJobVM, fileLocation);
-                    if (result)
+                if (ModelState.IsValid)
+                {
+                    if (createJobVM.CreateJobID == 0)
                     {
-                        return Ok(new { Success = true, Message = "Job Created" });
+
+                        string fileLocation = createJobVM.FileLink is not null ? await StorePhoto(createJobVM.FileLink) : string.Empty;
+
+                        var result = await _createJobService.AddAsync(createJobVM, fileLocation);
+                        if (result)
+                        {
+                            return Ok(new { Success = true, Message = "Job Created" });
+                        }
+                        return Ok(new { Success = false, Message = "Something goes to wrong" });
                     }
-                    return Ok(new { Success = false, Message = "Something goes to wrong" });
+                    return Ok(new { Success = false, Message = "Id is not valid" });
                 }
-                return Ok(new { Success = false, Message = "Id is not valid" });
+                return Ok(new { Success = false, Message = "Model state is not valid" });
             } catch(Exception ex)
             {
                 return Ok(new { Success = false, Message = ex });
