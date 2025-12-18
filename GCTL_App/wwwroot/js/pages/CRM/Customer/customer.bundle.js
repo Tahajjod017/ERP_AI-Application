@@ -502,6 +502,7 @@ function initCustomerModal() {
     //#endregion
 
     window.loadCustomerData = function (id) {
+        debugger
         $.ajax({
             url: '/Customers/GetCustomerInfo',
             method: 'POST',
@@ -514,6 +515,7 @@ function initCustomerModal() {
                 const form = document.querySelector("#customerForm");
                 select2ScrollingDataSet('#CountryID', response.countryID, response.countryName)
                 select2ScrollingDataSet('#OrganizationTypeID', response.organizationTypeID, response.organizationTypeName)
+
                 setFormValues(form, response);
                 if (response.contactInformations?.length > 0) {
                     loadExistingContacts(response.contactInformations);

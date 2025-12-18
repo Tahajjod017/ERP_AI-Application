@@ -1,6 +1,8 @@
-﻿using GCTL.Core.ViewModels;
+﻿using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.CRM.Customer;
+using GCTL.Data.Models;
 using GCTL.Service.CRM.Customer;
 using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
@@ -13,9 +15,12 @@ namespace GCTL_App.Controllers.CRM
     {
         #region service & repository
         private readonly ICustomerService _customerService;
-        public CustomersController(ITranslateService translateService, IUserProfileService userProfileService, ICustomerService customerService) : base(translateService, userProfileService)
+        private readonly IGenericRepository<CompanyBranches> _companyBranchesRepository;
+
+        public CustomersController(ITranslateService translateService, IUserProfileService userProfileService, ICustomerService customerService, IGenericRepository<CompanyBranches> companyBranchesRepository) : base(translateService, userProfileService)
         {
             _customerService = customerService;
+            _companyBranchesRepository = companyBranchesRepository;
         }
         [Permission("View", "Customers")]
         public IActionResult Index()
@@ -332,5 +337,25 @@ namespace GCTL_App.Controllers.CRM
             return Ok(formatted);
         }
         #endregion
+
+
+        [HttpGet]
+        public IActionResult GetBranchsInfo(int id)
+        {
+            var branches = _companyBranchesRepository.AllActive()
+                .Where(b => b.CustomerID == id)
+                .Select(b => new
+                {
+                    id = b.BranchID,
+                    name = b.BranchName
+                })
+                .ToList();
+
+            return Json(branches);
+        }
+
+
+
+
     }
 }

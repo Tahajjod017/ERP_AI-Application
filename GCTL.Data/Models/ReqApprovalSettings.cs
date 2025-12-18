@@ -15,6 +15,10 @@ public partial class ReqApprovalSettings
 
     public DateTime? EndDate { get; set; }
 
+    public bool? AllowSelfApproval { get; set; }
+
+    public int? SelfExceptionApprovalID { get; set; }
+
     public int? Step { get; set; }
 
     public string? LIP { get; set; }
@@ -42,6 +46,12 @@ public partial class ReqApprovalSettings
     public virtual Employees? CreatedByNavigation { get; set; }
 
     public virtual Employees? DeletedByNavigation { get; set; }
+
+    public virtual Organization? Organization { get; set; }
+
+    public virtual OrganizationBranches? OrganizationBranch { get; set; }
+
+    public virtual Employees? SelfExceptionApproval { get; set; }
 
     public virtual Employees? UpdatedByNavigation { get; set; }
 }

@@ -6,19 +6,32 @@
             <div class="row gy-3">
                 <!-- Customer -->
                 <div class="col-md-6">
-                    <label class="form-label">Customer Name <span class="text-danger">*</span></label>
+                    <div class="d-flex justify-content-between">
+                        <label class="form-label">Customer Name <span class="text-danger">*</span></label>
+                        <button class="border-0 bg-white text-primary d-none fs-9" id="editCustomerBtn"><i class="fa-solid fa-pen"></i> Edit Customer</button>
+                    </div>
+                    
                     <select id="CustomerId" name="CustomerId" class="form-select">
                         <option value="">Select Customer</option>
                     </select>
                 </div>
 
                 <!-- Branch - Hidden by default, NO space taken -->
-                <div class="col-md-6 d-none" id="branchContainer">
+                @* <div class="col-md-6 d-none" id="branchContainer">
                     <label class="form-label">Branch Name <span class="text-danger">*</span></label>
-                    <select id="BranchId" name="BranchId" class="form-select">
+                    <select id="BranchId" name="BranchId" class="form-select ">
                         <option value="">Select Branch</option>
                     </select>
-                </div>
+                </div> *@
+                 <div class="col-md-6 d-none" id="branchContainer">
+                    <div class="d-flex justify-content-between">
+                        <label class="form-label">Branch Name <span class="text-danger">*</span></label>
+                        <button class="border-0 bg-white text-primary d-none fs-9" id="editBranchBtn"><i class="fa-solid fa-pen"></i> Edit Branch</button>
+                    </div>
+                    <select id="BranchId1" name="BranchId1" class="form-select ">
+                        <option value="">Select Branch</option>
+                    </select>
+                </div> 
 
                 <!-- Lead Name -->
                 <div class="col-md-6">
@@ -74,12 +87,14 @@
 
                 <!-- Probability -->
                 <div class="col-md-6">
-                    <label class="form-label p-0">Probability (%)</label>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <label class="form-label fw-semibold mb-0">Probability</label>
+                        <span id="completionValue2" class="text-primary fw-bold fs-7">0%</span>
+                    </div>
                     <div class="d-flex align-items-center">
                         <input type="range" class="form-range" id="ProbabilityPercentage" name="ProbabilityPercentage"
                                min="0" max="100" step="1" value="0"
                                oninput="document.getElementById('completionValue').innerText = this.value + '%'">
-                        <span id="completionValue" class="text-primary fw-bold fs-8 ps-2" style="width: 55px;">0%</span>
                     </div>
                 </div>
 
@@ -92,7 +107,7 @@
         </div>
         <div class="modal-footer mt-4">
             <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" id="indexSaveBtn" class="btn btn-primary">
+            <button type="button" id="indexSaveBtn" class="btn btn-primary">
                 <i class="fa-solid fa-save me-2"></i>Save Lead
             </button>
         </div>

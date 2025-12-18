@@ -72,8 +72,8 @@ namespace GCTL_App.Controllers.CRM
                                          FullName = customer.FullName,
                                          LeadName = lead.LeadName,
                                          LeadID = lead.LeadID,
-                                         LDLeadSourceID = lead.LeadSourceID ?? 0,
-                                         LDLeadStatusID = lead.LeadStatusID ?? 0,
+                                         LeadSourceID = lead.LeadSourceID ?? 0,
+                                         LeadStatusID = lead.LeadStatusID ?? 0,
                                          PriorityID = lead.PriorityID ?? 0,
                                          Created = lead.CreatedAt,
                                          ApproximateDealValue = lead.ApproximateDealValue ?? 0m,
@@ -83,13 +83,11 @@ namespace GCTL_App.Controllers.CRM
                                          Email = address.Email,
                                          LeadOwnerId = lead.LeadOwnerID,
                                          LeadOwnerName = lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName,
-                                         ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
-                                         ServiceNames = string.Join(", ",
-                                                lead.LeadServices
-                                                    .Where(s => s.ServiceID.HasValue)
-                                                    .Select(s => s.Service.ServiceName)
-                                                    .ToList()
-                                            )
+                                         Services = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(x => new SelectListItem
+                                         {
+                                             Value = x.ServiceID.ToString(),
+                                             Text = x.Service.ServiceName,
+                                         }).ToList(),
                                      }).FirstOrDefaultAsync();
             if (customerObj != null)
             {

@@ -269,7 +269,8 @@ namespace GCTL.Service.CRM.LeadCreate
                         EF.Functions.Like(c.Employee.LastName, pattern) ||
                         EF.Functions.Like(c.Employee.LastName, pattern) ||
                         EF.Functions.Like(c.Employee.Email, pattern) ||
-                        EF.Functions.Like(c.Employee.MobileNumber, pattern)
+                        EF.Functions.Like(c.Employee.MobileNumber, pattern) ||
+                        EF.Functions.Like(c.Employee.EmployeeCode, pattern) 
                     ));
             }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,13 +11,19 @@ namespace GCTL.Core.ViewModels.CRM
     {
         public int LeadID { get; set; }
         public int? CustomerId { get; set; }
+        public string? CustomerName { get; set; }
         public int? BranchId { get; set; }
+        public string? BranchName { get; set; }
+        public string? BrancBranchNamehId { get; set; }
         public string? LeadName { get; set; }
         public string? FullName { get; set; }
-        public int LDLeadSourceID { get; set; }
-        public int LDLeadStatusID { get; set; }
+        public int LeadSourceID { get; set; }
+        public string? LeadSourceName { get; set; }
+        public int LeadStatusID { get; set; }
+        public string? LeadStatusName { get; set; }
         public decimal ApproximateDealValue { get; set; }
         public int PriorityID { get; set; }
+        public string? PriorityName { get; set; }
         public int? Probability { get; set; } = 0;
         public DateTime? Created { get; set; }
         public string? AddressTypeName { get; set; }
@@ -38,6 +45,7 @@ namespace GCTL.Core.ViewModels.CRM
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public List<int?> ServiceIds { get; set; }
+        public List<SelectListItem?> Services { get; set; }
         public string? ServiceNames { get; set; }
         public int? LeadOwnerId { get; set; }
         public string? LeadOwnerName { get; set; }

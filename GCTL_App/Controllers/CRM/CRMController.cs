@@ -110,30 +110,66 @@ namespace GCTL_App.Controllers.CRM
                 return BadRequest("Lead ID is required");
             }
 
-            var customerObj = await (from lead in _context.Leads
-                                     join cAddress in _context.CustomerAddresses
-                                     on lead.CustomerID equals cAddress.CustomerID
-                                     join customer in _context.Customers on cAddress.CustomerID equals customer.CustomerID
-                                     join address in _context.Addresses on cAddress.AddressID equals address.AddressID
+            var customerObj = await (
+    from lead in _context.Leads
 
-                                     where lead.LeadID == id
-                                     select new CustomerInfoVM
-                                     {
-                                         LeadID = lead.LeadID,
-                                         LeadName = lead.LeadName,
-                                         LDLeadSourceID = lead.LeadSourceID ?? 0,
-                                         LDLeadStatusID = lead.LeadStatusID ?? 0,
-                                         PriorityID = lead.PriorityID ?? 0,
-                                         ApproximateDealValue = lead.ApproximateDealValue ?? 0m,
-                                         Priority = lead.Priority.PriorityName,
-                                         Probability = (int)(lead.ProbabilityPercentage ?? 0),
-                                         LeadDescription = lead.LeadDescription,
-                                         AddressTypeName = cAddress.AddressType.AddressTypeName,
-                                         
-                                         LeadOwnerId = lead.LeadOwnerID,
-                                         LeadOwnerName = lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName,
-                                         ServiceIds = lead.LeadServices.Where(s => s.ServiceID.HasValue).Select(s => s.ServiceID).ToList(),
-                                     }).FirstOrDefaultAsync();
+    join cAddress in _context.CustomerAddresses
+        on lead.CustomerID equals cAddress.CustomerID
+
+    join customer in _context.Customers
+        on cAddress.CustomerID equals customer.CustomerID
+
+    join address in _context.Addresses
+        on cAddress.AddressID equals address.AddressID
+
+    join b in _context.CompanyBranches
+        on lead.CompanyBranchID equals b.BranchID into branchJoin
+    from b in branchJoin.DefaultIfEmpty()
+
+    where lead.LeadID == id
+
+    select new CustomerInfoVM
+    {
+        LeadID = lead.LeadID,
+        LeadName = lead.LeadName,
+
+        CustomerId = lead.CustomerID,
+        CustomerName =
+            customer.FullName + " " +
+            address.Phone + " " +
+            address.Email,
+
+        BranchId = lead.CompanyBranchID,
+        BranchName = b != null ? b.BranchName : string.Empty,
+
+        LeadSourceID = lead.LeadSourceID ?? 0,
+        LeadSourceName = lead.LeadSource.LeadSourceName ?? string.Empty,
+
+        LeadStatusID = lead.LeadStatusID ?? 0,
+        LeadStatusName = lead.LeadStatus.LeadStatusName ?? string.Empty,
+
+        PriorityID = lead.PriorityID ?? 0,
+        PriorityName = lead.Priority.PriorityName ?? string.Empty,
+
+        ApproximateDealValue = lead.ApproximateDealValue ?? 0m,
+        Probability = (int)(lead.ProbabilityPercentage ?? 0),
+
+        LeadDescription = lead.LeadDescription,
+        AddressTypeName = cAddress.AddressType.AddressTypeName,
+
+        Services = lead.LeadServices
+            .Where(s => s.ServiceID.HasValue)
+            .Select(x => new SelectListItem
+            {
+                Value = x.ServiceID.ToString(),
+                Text = x.Service.ServiceName
+            }).ToList(),
+
+        LeadOwnerId = lead.LeadOwnerID,
+        LeadOwnerName = lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName
+    }
+).FirstOrDefaultAsync();
+
             if (customerObj != null)
             {
                 return Ok(customerObj);

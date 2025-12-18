@@ -498,24 +498,19 @@
         color: var(--secondary-color);
     }
 
-    /* ====== PROFESSIONAL ACTIVITY TIMELINE STYLES - FIXED ====== */
-    .timeline-container {
-        position: relative;
-    }
-
+    /* UPDATED TIMELINE STRUCTURE */
     .timeline-wrapper {
         position: relative;
         max-height: 600px;
         overflow-y: auto;
         overflow-x: hidden;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-        padding-left: 70px;
+        padding-left: 50px;
         padding-right: 10px;
         padding-top: 10px;
         padding-bottom: 10px;
     }
 
+        /* Scrollbar styling */
         .timeline-wrapper::-webkit-scrollbar {
             width: 6px;
         }
@@ -534,88 +529,106 @@
                 background-color: rgba(0, 0, 0, 0.3);
             }
 
-    /* Vertical Timeline Line - FIXED */
+    /* FIXED: Vertical Timeline Line - Now extends with content */
     .vertical-timeline-line {
         position: absolute;
-        top: 0;
-        left: 24px;
-        width: 3px;
-        height: 100%;
-        min-height: 100%;
-        background: linear-gradient(to bottom, #0d6efd 0%, #3b82f6 50%, rgba(13, 110, 253, 0.3) 100%);
-        border-radius: 2px;
-        z-index: 1;
+        left: 22px;
+        top: 10px;
+        bottom: 10px; /* Changed from height: 100% */
+        width: 2px;
+        background: linear-gradient(to bottom, #667eea 0%, #764ba2 50%, #667eea 100%);
+        opacity: 0.3;
+        z-index: 0;
         pointer-events: none;
     }
 
-    /* Activity Timeline Item */
+    /* Alternative: If items are being added dynamically, use this instead */
+    .timeline-wrapper::before {
+        content: '';
+        position: absolute;
+        left: 22px;
+        top: 10px;
+        bottom: 10px;
+        width: 2px;
+        background: linear-gradient(to bottom, #667eea 0%, #764ba2 50%, #667eea 100%);
+        opacity: 0.3;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    /* FIXED: Timeline Activity Item */
     .timeline-activity-item {
         position: relative;
-        z-index: 2;
-        margin-bottom: 32px;
+        margin-bottom: 30px;
         padding-left: 0;
-        opacity: 0;
-        transform: translateX(-20px);
-        animation: slideInTimeline 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        z-index: 2;
     }
+
+        .timeline-activity-item:first-child {
+            margin-top: 0;
+        }
 
         .timeline-activity-item:last-child {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
-    @@keyframes slideInTimeline {
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    /* Stagger animation */
-    .timeline-activity-item:nth-child(2) { animation-delay: 0.05s; }
-    .timeline-activity-item:nth-child(3) { animation-delay: 0.1s; }
-    .timeline-activity-item:nth-child(4) { animation-delay: 0.15s; }
-    .timeline-activity-item:nth-child(5) { animation-delay: 0.2s; }
-    .timeline-activity-item:nth-child(6) { animation-delay: 0.25s; }
-    .timeline-activity-item:nth-child(n+7) { animation-delay: 0.3s; }
-
-    /* Activity Icon Circle - FIXED */
+    /* FIXED: Activity Icon Positioning */
     .timeline-activity-icon {
         position: absolute;
-        left: -46px;
+        left: -36px;
         top: 0;
-        z-index: 10;
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 0 0 5px #ffffff, 0 4px 12px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-size: 18px;
+        font-size: 16px;
         color: white;
-        cursor: pointer;
+        box-shadow: 0 0 0 4px #ffffff, 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Icon Background Colors - VIBRANT GRADIENTS */
+    .timeline-activity-item:hover .timeline-activity-icon {
+        transform: scale(1.15) rotate(8deg);
+        box-shadow: 0 0 0 5px #ffffff, 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Icon Pulse Animation */
+    .timeline-icon-pulse {
+        animation: timelinePulse 2s infinite;
+    }
+
+    @@keyframes timelinePulse {
+        0%, 100% {
+            box-shadow: 0 0 0 4px #ffffff, 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        50% {
+            box-shadow: 0 0 0 4px #ffffff, 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 12px rgba(102, 126, 234, 0.3);
+        }
+    }
+
+    /* Icon Color Variants */
     .timeline-icon-call {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     }
 
     .timeline-icon-meeting {
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     }
 
     .timeline-icon-email {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    }
-
-    .timeline-icon-note {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 
     .timeline-icon-task {
-        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+
+    .timeline-icon-note {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     }
 
     .timeline-icon-success {
@@ -634,35 +647,14 @@
         background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
     }
 
-    /* Icon Hover Effect */
-    .timeline-activity-item:hover .timeline-activity-icon {
-        transform: scale(1.15) rotate(8deg);
-        box-shadow: 0 0 0 6px #ffffff, 0 8px 20px rgba(0, 0, 0, 0.25);
-    }
-
-    /* Pulse Animation for Upcoming */
-    .timeline-icon-pulse {
-        animation: timelinePulse 2s infinite;
-    }
-
-    @@keyframes timelinePulse {
-        0%, 100% {
-            box-shadow: 0 0 0 5px #ffffff, 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        50% {
-            box-shadow: 0 0 0 8px #ffffff, 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 14px rgba(13, 110, 253, 0.3);
-        }
-    }
-
     /* Activity Content Card */
     .timeline-activity-content {
         background: #ffffff;
         border: 1px solid #e5e7eb;
         border-radius: 16px;
-        padding: 22px 26px;
+        padding: 18px 22px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
         position: relative;
         overflow: hidden;
     }
@@ -672,17 +664,17 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 5px;
+            width: 4px;
             height: 100%;
-            background: linear-gradient(to bottom, #0d6efd 0%, #3b82f6 100%);
+            background: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.3s ease;
         }
 
     .timeline-activity-item:hover .timeline-activity-content {
-        border-color: #0d6efd;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        transform: translateX(8px) translateY(-2px);
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateX(4px);
     }
 
         .timeline-activity-item:hover .timeline-activity-content::before {
@@ -694,118 +686,108 @@
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 16px;
-        gap: 14px;
+        margin-bottom: 12px;
+        gap: 12px;
         flex-wrap: wrap;
-        padding-bottom: 14px;
+        padding-bottom: 12px;
         border-bottom: 1px solid #f3f4f6;
     }
 
     .timeline-activity-title {
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 700;
         color: #111827;
         margin: 0;
         line-height: 1.4;
-        flex: 1;
-        min-width: 0;
-        letter-spacing: -0.025em;
     }
 
     .timeline-activity-badge {
         display: inline-flex;
         align-items: center;
-        padding: 7px 16px;
-        border-radius: 20px;
+        padding: 4px 12px;
+        border-radius: 12px;
         font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
-        white-space: nowrap;
-        flex-shrink: 0;
-        border: 1px solid transparent;
-        transition: all 0.3s ease;
+        letter-spacing: 0.5px;
     }
 
+    /* Badge Colors */
     .timeline-badge-call {
-        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-        color: #065f46;
-        border-color: #10b981;
+        background: rgba(56, 239, 125, 0.15);
+        color: #11998e;
     }
 
     .timeline-badge-meeting {
-        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-        color: #1e40af;
-        border-color: #3b82f6;
+        background: rgba(0, 242, 254, 0.15);
+        color: #4facfe;
     }
 
     .timeline-badge-email {
-        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-        color: #3730a3;
-        border-color: #6366f1;
-    }
-
-    .timeline-badge-note {
-        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        color: #92400e;
-        border-color: #f59e0b;
+        background: rgba(118, 75, 162, 0.15);
+        color: #764ba2;
     }
 
     .timeline-badge-task {
-        background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
-        color: #5b21b6;
-        border-color: #8b5cf6;
+        background: rgba(254, 225, 64, 0.15);
+        color: #f59e0b;
+    }
+
+    .timeline-badge-note {
+        background: rgba(245, 87, 108, 0.15);
+        color: #f5576c;
     }
 
     .timeline-badge-success {
-        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        background: rgba(16, 185, 129, 0.15);
         color: #065f46;
-        border-color: #10b981;
     }
 
     .timeline-badge-lost {
-        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        background: rgba(239, 68, 68, 0.15);
         color: #991b1b;
-        border-color: #ef4444;
     }
 
-    /* Activity Meta Info */
+    .timeline-badge-cancel {
+        background: rgba(107, 114, 128, 0.15);
+        color: #4b5563;
+    }
+
+    .timeline-badge-default {
+        background: rgba(99, 102, 241, 0.15);
+        color: #6366f1;
+    }
+
+    /* Activity Meta */
     .timeline-activity-meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 16px;
-        margin-bottom: 14px;
+        gap: 12px;
+        margin-bottom: 12px;
         font-size: 13px;
-        color: #6b7280;
     }
 
     .timeline-meta-item {
         display: flex;
         align-items: center;
-        gap: 7px;
+        gap: 6px;
+        color: #6b7280;
     }
 
         .timeline-meta-item i {
-            font-size: 14px;
-            color: #0d6efd;
-            flex-shrink: 0;
+            font-size: 12px;
+            color: #667eea;
         }
 
-    /* Activity Description with Show More */
+    /* Activity Description */
     .timeline-activity-description {
-        font-size: 14px;
-        color: #4b5563;
-        line-height: 1.7;
-        margin-bottom: 14px;
-        position: relative;
+        margin-bottom: 12px;
     }
 
-        .timeline-activity-description p {
-            margin: 0;
-        }
-
     .timeline-description-text {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 14px;
+        color: #4b5563;
+        line-height: 1.6;
     }
 
         .timeline-description-text.collapsed {
@@ -815,14 +797,14 @@
             overflow: hidden;
         }
 
-        .timeline-description-text.expanded {
-            display: block;
+        .timeline-description-text p {
+            margin: 0;
         }
 
     .timeline-show-more-btn {
         background: none;
         border: none;
-        color: #0d6efd;
+        color: #667eea;
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
@@ -831,21 +813,16 @@
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s ease;
     }
 
         .timeline-show-more-btn:hover {
-            color: #0a58ca;
-            text-decoration: underline;
+            color: #764ba2;
         }
 
         .timeline-show-more-btn i {
             font-size: 10px;
-            transition: transform 0.3s;
-        }
-
-        .timeline-show-more-btn.expanded i {
-            transform: rotate(180deg);
+            transition: transform 0.3s ease;
         }
 
     /* Activity Footer */
@@ -855,238 +832,80 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 12px;
-        padding-top: 14px;
+        padding-top: 12px;
         border-top: 1px solid #e5e7eb;
     }
 
     .timeline-activity-status {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 13px;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 12px;
         font-weight: 600;
-        border: 1px solid transparent;
-        transition: all 0.3s ease;
-    }
-
-        .timeline-activity-status i {
-            font-size: 12px;
-        }
-
-    .timeline-status-completed {
-        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-        color: #065f46;
-        border-color: #10b981;
-    }
-
-    .timeline-status-pending {
-        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        color: #92400e;
-        border-color: #f59e0b;
-    }
-
-    .timeline-status-overdue {
-        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-        color: #991b1b;
-        border-color: #ef4444;
     }
 
     .timeline-status-upcoming {
-        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-        color: #1e40af;
-        border-color: #3b82f6;
+        background: rgba(250, 204, 21, 0.15);
+        color: #92400e;
+    }
+
+    .timeline-status-completed {
+        background: rgba(16, 185, 129, 0.15);
+        color: #065f46;
     }
 
     .timeline-activity-actions {
         display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+        gap: 8px;
     }
 
     .timeline-action-btn {
-        padding: 8px 18px;
+        padding: 6px 14px;
         border: 1.5px solid #e5e7eb;
-        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        background: white;
         border-radius: 8px;
-        font-size: 13px;
+        font-size: 12px;
         color: #6b7280;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
-        gap: 7px;
+        gap: 6px;
         font-weight: 600;
     }
 
         .timeline-action-btn:hover {
-            background: linear-gradient(135deg, #0d6efd 0%, #3b82f6 100%);
-            border-color: #0d6efd;
-            color: #ffffff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.25);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.25);
         }
 
         .timeline-action-btn i {
-            font-size: 12px;
+            font-size: 11px;
         }
 
-    /* Activity Attachments */
-    .timeline-activity-attachments {
-        margin-top: 14px;
-        padding-top: 14px;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .timeline-attachment-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 14px;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 6px;
-        font-size: 13px;
-        color: #6b7280;
-        margin-right: 8px;
-        margin-bottom: 8px;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-        .timeline-attachment-item:hover {
-            background: white;
-            border-color: #0d6efd;
-            color: #0d6efd;
-            transform: translateY(-2px);
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        }
-
-        .timeline-attachment-item i {
-            font-size: 14px;
-        }
-
-    /* Empty State */
-    .timeline-empty-state {
-        text-align: center;
-        padding: 80px 20px;
-        color: #6b7280;
-    }
-
-        .timeline-empty-state i {
-            font-size: 72px;
-            color: #d1d5db;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .timeline-empty-state h4 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #374151;
-        }
-
-        .timeline-empty-state p {
-            font-size: 14px;
-            color: #6b7280;
-            margin: 0;
-        }
-
-    /* Loading State */
-    .timeline-loading {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 60px 20px;
-    }
-
-    .timeline-spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #e5e7eb;
-        border-top-color: #0d6efd;
-        border-radius: 50%;
-        animation: timelineSpin 1s linear infinite;
-    }
-
-    @@keyframes timelineSpin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* Responsive Design */
+    /* Responsive */
     @@media (max-width: 768px) {
         .timeline-wrapper {
-            padding-left: 60px;
+            padding-left: 45px;
         }
+
+            .vertical-timeline-line,
+            .timeline-wrapper::before {
+                left: 20px;
+            }
 
         .timeline-activity-icon {
-            left: -42px;
-            width: 44px;
-            height: 44px;
-            font-size: 16px;
-        }
-
-        .vertical-timeline-line {
-            left: 20px;
-        }
-
-        .timeline-activity-item:hover .timeline-activity-icon {
-            transform: scale(1.1) rotate(5deg);
-        }
-
-        .timeline-activity-content {
-            padding: 16px 18px;
-        }
-
-        .timeline-activity-title {
-            font-size: 16px;
-        }
-
-        .timeline-activity-meta {
-            font-size: 12px;
-            gap: 12px;
-        }
-
-        .timeline-activity-description {
-            font-size: 13px;
-        }
-    }
-
-    @@media (max-width: 576px) {
-        .timeline-wrapper {
-            padding-left: 55px;
-        }
-
-        .timeline-activity-icon {
-            left: -40px;
+            left: -34px;
             width: 40px;
             height: 40px;
-            font-size: 15px;
-        }
-
-        .vertical-timeline-line {
-            left: 18px;
-        }
-
-        .timeline-activity-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .timeline-activity-footer {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .timeline-wrapper {
-            max-height: 500px;
+            font-size: 14px;
         }
     }
-
     /* Utility Classes */
     .text-muted-light {
         color: #9ca3af;
@@ -1121,6 +940,11 @@
         border-top: 1px solid var(--border-color);
         padding: 1.25rem 1.5rem;
         background-color: var(--bg-subtle);
+    }
+
+    .create-lead-modal-body {
+        position: relative;
+        overflow: visible;
     }
 </style>
 
@@ -1204,7 +1028,8 @@
                 <!-- Customer Information Card -->
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="section-header">Customer Information</h4>
+                        <h4 class="section-header">Customer Information <button class="text-primary fs-9 border-0 bg-white" id="editCustomerBtn2"><i class="fa-solid fa-pen"></i></button></h4>
+                        
                         <table class="info-table">
                             <tr>
                                 <td>
@@ -1335,7 +1160,7 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">Lead Source</label>
-                            <select class="form-select" id="leadSource" asp-for="LDLeadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
+                            <select class="form-select" id="leadSource" asp-for="LeadSourceID" asp-items="@ViewBag.LeadSourceDD as SelectList" required>
                                 <option value="" disabled selected>Select Source</option>
                             </select>
                         </div>
@@ -1347,7 +1172,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Stage</label>
-                            <select class="form-select" id="lead-status" asp-for="LDLeadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
+                            <select class="form-select" id="lead-status" asp-for="LeadStatusID" asp-items="@ViewBag.LeadStatus as SelectList">
                                 <option value="" disabled selected>Select Status</option>
                             </select>
                         </div>
@@ -1381,7 +1206,7 @@
                     <!-- Date and Time Field -->
                     <div class="mb-3" id="dateField">
                         <div class="row g-3">
-                            @* <div class="col-md-6">
+                            <div class="col-md-6">
                                 <label class="form-label fw-semibold">Set Date and Time</label>
                                 <div class="input-group">
                                     <input class="form-control datetimepicker"
@@ -1394,7 +1219,7 @@
                                         <span class="fa-solid fa-calendar"></span>
                                     </span>
                                 </div>
-                            </div> *@
+                            </div>
 
                             <div class="col-md-6" id="contact-field" style="display:none;">
                                 <label class="form-label fw-semibold">Contact Person Phone</label>
@@ -1605,7 +1430,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create Lead</h5>
+                <h5 class="modal-title"><span id="leadModalTitle"></span> Lead</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="create-lead-modal-body"></div>
@@ -1618,7 +1443,7 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create Customer</h5>
+                <h5 class="modal-title"><span id="customerModalActionName"></span> Customer</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="customer-modal-content"></div>
@@ -1628,5 +1453,5 @@
 
 @section Scripts {
     <script src="~/js/pages/CRM/customeToaster.js"></script>
-    <script src="~/js/pages/CRM/leadDetails.js"></script>
+    <script src="~/js/pages/CRM/LeadDetails.js"></script>
 }

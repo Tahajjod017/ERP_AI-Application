@@ -4,14 +4,18 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
+   "IrregularWords": null,
+   "MinimumProductVersion": "2.6.1244",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
+   "PluralRules": null,
    "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "GCTL.Data",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 2,
    "SelectedToBeGenerated": 0,
+   "SingularRules": null,
    "T4TemplatePath": null,
    "Tables": [
       {
@@ -771,6 +775,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[Locations]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[PriceQuotations]",
          "ObjectType": 0
       },
@@ -839,7 +847,11 @@
          "ObjectType": 0
       },
       {
+<<<<<<< HEAD
+         "Name": "[SC].[PurchasOrderItems]",
+=======
          "Name": "[SC].[PurchasOrderItemVersions]",
+>>>>>>> origin/dev
          "ObjectType": 0
       },
       {
@@ -847,14 +859,22 @@
          "ObjectType": 0
       },
       {
+<<<<<<< HEAD
+=======
          "Name": "[SC].[PurchasOrderVersions]",
          "ObjectType": 0
       },
       {
+>>>>>>> origin/dev
          "Name": "[SC].[PurOrderBaseSAddresses]",
          "ObjectType": 0
       },
       {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 8ac096b3da4278a8575de92f6eadcf7be8c4a741
          "Name": "[SC].[ReqApprovalSettings]",
          "ObjectType": 0
       },
@@ -871,6 +891,10 @@
          "ObjectType": 0
       },
       {
+<<<<<<< HEAD
+=======
+>>>>>>> origin/dev
+>>>>>>> 8ac096b3da4278a8575de92f6eadcf7be8c4a741
          "Name": "[SC].[SAddresses]",
          "ObjectType": 0
       },
@@ -1000,7 +1024,6 @@
    "UseAsyncStoredProcedureCalls": true,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,
-   "UseDatabaseNamesForRoutines": true,
    "UseDateOnlyTimeOnly": true,
    "UseDbContextSplitting": false,
    "UseDecimalDataAnnotationForSprocResult": true,
@@ -1008,6 +1031,7 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
+   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,
@@ -1019,6 +1043,5 @@
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
    "UseSpatial": false,
-   "UseT4": false,
-   "UseT4Split": false
+   "UseT4": false
 }
