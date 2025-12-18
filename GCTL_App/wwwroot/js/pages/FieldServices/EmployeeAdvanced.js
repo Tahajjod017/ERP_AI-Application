@@ -50,6 +50,7 @@
         formData.append('StartDate', $('#StartDate').val());
         formData.append('EndDate', $('#EndDate').val());
         formData.append('ApprovedByUserID', $('#ApprovedByUserID').val());
+        
 
         $.ajax({
             url: '/EmployeeAdvanced/Create/',

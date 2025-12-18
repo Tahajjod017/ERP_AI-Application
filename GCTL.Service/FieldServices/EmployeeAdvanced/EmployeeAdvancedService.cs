@@ -20,6 +20,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         public readonly IGenericRepository<EmployeeAdvances> _genericRepository;
         public readonly IGenericRepository<GCTL.Data.Models.Employees> _employees;
         public readonly IGenericRepository<GCTL.Data.Models.JobTypes> _jobtyperepository;
+   
 
 
 
@@ -54,6 +55,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 empadvance.CreatedBy = emp.CreatedBy;
                 empadvance.UpdatedBy = emp.UpdatedBy;
                 empadvance.ApprovedByUserID = emp.ApprovedByUserID;
+                empadvance.ApprovalStatusID = 11; // Pending
+
+
 
                 //empadvance.JobID = emp.JobID;
                 await _genericRepository.AddAsync(empadvance);

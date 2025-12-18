@@ -21,6 +21,8 @@ namespace GCTL.Core.ViewModels.FieldServices
         [Required(ErrorMessage = "Requested By is required")]
         [Range(1, int.MaxValue, ErrorMessage = "Please select a valid employee")]
         public int? RequestedByUserID { get; set; }
+
+        [Required(ErrorMessage = "Ammount is required")]
         public decimal AmountRequested { get; set; }
 
         [Required(ErrorMessage = "Start Date is required")]
