@@ -1,5 +1,8 @@
 ﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
+using GCTL.Core.ViewModels.POS.Sales;
 using GCTL.Core.ViewModels.POS.Settings;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
@@ -8,6 +11,8 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using static Dapper.SqlMapper;
 
 namespace GCTL_App.Controllers.POS.Settings
 {
@@ -94,29 +99,56 @@ namespace GCTL_App.Controllers.POS.Settings
 
             var ApprovalTypeName = "product" + "_" + viewModel.OrganizationID + "_" + viewModel.OrganizationBranchID;
 
-            var exists = await _approvalTypeRepository.AllActive()
+            var approvalType = await _approvalTypeRepository.AllActive()
                 .FirstOrDefaultAsync(a => a.OrganizationID == viewModel.OrganizationID
                     && a.OrganizationBranchID == viewModel.OrganizationBranchID
                     && a.ApprovalTypeName == ApprovalTypeName);
-            if (exists != null)
-            {
-                return Json(new { success = false, message = "An approval setting with the same Organization, Branch, and Approval Type already exists." });
-            }
+           
 
 
             await _approvalSettingRepository.BeginTransactionAsync();
 
             try
             {
-
-                var approvalType = new ApprovalTypes
+                
+                if (approvalType == null)
                 {
-                    OrganizationID = viewModel.OrganizationID,
-                    OrganizationBranchID = viewModel.OrganizationBranchID,
-                    ApprovalTypeName = ApprovalTypeName
-                };
-                await _approvalTypeRepository.AddAsync(approvalType, viewModel);
-                await _userInfoService.ActionLogAsync("ApprovalTypes", ActionName.DataAdd, null, approvalType, approvalType.ApprovalTypeID, viewModel);
+                     approvalType = new ApprovalTypes
+                    {
+                        OrganizationID = viewModel.OrganizationID,
+                        OrganizationBranchID = viewModel.OrganizationBranchID,
+                        ApprovalTypeName = ApprovalTypeName
+                    };
+                    await _approvalTypeRepository.AddAsync(approvalType, viewModel);
+                    await _userInfoService.ActionLogAsync("ApprovalTypes", ActionName.DataAdd, null, approvalType, approvalType.ApprovalTypeID, viewModel);
+                }
+
+
+                var exists = await _reqApprovalSettingRepository.AllActive()
+                    .FirstOrDefaultAsync(e => e.ApprovalTypeID == approvalType.ApprovalTypeID
+                        && (viewModel.StartDate <= e.EndDate && viewModel.EndDate >= e.StartDate));
+
+                if (exists != null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "An approval setting with the same Organization, Branch, and Approval Type already exists within the given date range."
+                    });
+                }
+
+
+                //var exists = await _reqApprovalSettingRepository.AllActive().FirstOrDefaultAsync(e=>e.ApprovalTypeID == approvalType.ApprovalTypeID);
+
+                //var a = exists.StartDate;
+                //var b = exists.EndDate;
+                //var c = viewModel.StartDate;
+                //var d = viewModel.EndDate;
+
+                //if (exists != null)
+                //{
+                //    return Json(new { success = false, message = "An approval setting with the same Organization, Branch, and Approval Type already exists." });
+                //}
 
                 var model = new ReqApprovalSettings
                 {
@@ -170,70 +202,300 @@ namespace GCTL_App.Controllers.POS.Settings
         [HttpGet]
         public async Task<IActionResult> GetApprovalSettings(int page = 1, int pageSize = 10, string search = "", string sortColumn = "ApprovalSettingID", string sortDirection = "asc", int? organizationId = null, int? approvalTypeId = null)
         {
-            return Ok();
 
-            //var query = _reqApprovalSettingRepository.AllActive()
-            //    .Include(e=>e.ApprovalType).ThenInclude(a => a.Organization)
-            //    .Include(e=>e.ApprovalType).ThenInclude(a => a.Organization)
-            //    .Include(a => a.)
-            //    .Include(a => a.ApprovalType)
-            //    .Include(a => a.ApprovalLevelAssignments)
-            //    .ThenInclude(al => al.ApproverEmployee)
-            //    .Where(a => a.DeletedAt == null);
 
-            //if (!string.IsNullOrEmpty(search))
-            //{
-            //    query = query.Where(a => a.ApprovalType.ApprovalTypeName.Contains(search) || a.Organization.OrganizationName.Contains(search));
-            //}
+            var query = _reqApprovalSettingRepository.AllActive()
+                .Include(e => e.ApprovalType).ThenInclude(a => a.Organization)
+                .Include(e => e.ApprovalType).ThenInclude(a => a.Organization)
+               // .Include(a => a.ReqApprovalSettingID)
+                .Include(a => a.ApprovalType)
+                .Include(a => a.ReqApprovalStepApprovers)
+                .ThenInclude(al => al.Approver)
+                .AsNoTracking();
 
-            //if (organizationId.HasValue)
-            //{
-            //    query = query.Where(a => a.OrganizationID == organizationId);
-            //}
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(a => a.ApprovalType.ApprovalTypeName.Contains(search) || a.ApprovalType.Organization.OrganizationName.Contains(search));
+            }
 
-            //if (approvalTypeId.HasValue)
-            //{
-            //    query = query.Where(a => a.ApprovalTypeID == approvalTypeId);
-            //}
+            if (organizationId.HasValue)
+            {
+                query = query.Where(a => a.ApprovalType.OrganizationID == organizationId);
+            }
 
-            //query = sortColumn switch
-            //{
-            //    "ApprovalSettingID" => sortDirection == "asc" ? query.OrderBy(a => a.ApprovalSettingID) : query.OrderByDescending(a => a.ApprovalSettingID),
-            //    "ApprovalTypeName" => sortDirection == "asc" ? query.OrderBy(a => a.ApprovalType.ApprovalTypeName) : query.OrderByDescending(a => a.ApprovalType.ApprovalTypeName),
-            //    "OrganizationName" => sortDirection == "asc" ? query.OrderBy(a => a.Organization.OrganizationName) : query.OrderByDescending(a => a.Organization.OrganizationName),
-            //    _ => query.OrderBy(a => a.ApprovalSettingID)
-            //};
+            if (approvalTypeId.HasValue)
+            {
+                query = query.Where(a => a.ApprovalTypeID == approvalTypeId);
+            }
 
-            //var totalRecords = await query.CountAsync();
-            //var data = await query
-            //    .Skip((page - 1) * pageSize)
-            //    .Take(pageSize)
-            //    .Select(a => new
-            //    {
-            //        a.ApprovalSettingID,
-            //        a.OrganizationID,
-            //        OrganizationName = a.Organization.OrganizationName,
-            //        a.OrganizationBranchID,
-            //        BranchName = a.OrganizationBranch.OrganizationBranchName,
-            //        a.ApprovalTypeID,
-            //        ApprovalTypeName = a.ApprovalType.ApprovalTypeName,
-            //        a.StartDate,
-            //        a.EndDate,
-            //        a.AllowSelfApproval,
-            //        SelfExceptionApprovalName = a.SelfExceptionApproval != null ? a.SelfExceptionApproval.FirstName +" "+ a.SelfExceptionApproval.LastName : null,
-            //        ApprovalLevels = a.ApprovalLevelAssignments.Select(al => new
-            //        {
-            //            al.LevelNumber,
-            //            ApproverName = al.ApproverEmployee.FirstName +" "+ al.ApproverEmployee.LastName,
-            //            al.IsEnabled
-            //        }).ToList()
-            //    })
-            //    .ToListAsync();
+            query = sortColumn switch
+            {
+                "ApprovalSettingID" => sortDirection == "asc" ? query.OrderBy(a => a.ReqApprovalSettingID) : query.OrderByDescending(a => a.ReqApprovalSettingID),
+                "ApprovalTypeName" => sortDirection == "asc" ? query.OrderBy(a => a.ApprovalType.ApprovalTypeName) : query.OrderByDescending(a => a.ApprovalType.ApprovalTypeName),
+                "OrganizationName" => sortDirection == "asc" ? query.OrderBy(a => a.ApprovalType.Organization.OrganizationName) : query.OrderByDescending(a => a.ApprovalType.Organization.OrganizationName),
+                _ => query.OrderBy(a => a.ReqApprovalSettingID)
+            };
 
-            //return Json(new { data, totalRecords });
+            var totalRecords = await query.CountAsync();
+            var data = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => new
+                {
+                    a.ReqApprovalSettingID,
+                    a.ApprovalType.OrganizationID,
+                    OrganizationName = a.ApprovalType.Organization.OrganizationName,
+                    a.ApprovalType.OrganizationBranchID,
+                    BranchName = a.ApprovalType.OrganizationBranch.OrganizationBranchName,
+                    a.ApprovalTypeID,
+                    ApprovalTypeName = a.ApprovalType.ApprovalTypeName,
+                    StartDate = a.StartDate.Value.ToString("dd/MM/yyyy") ?? "",
+                    EndDate = a.EndDate.Value.ToString("dd/MM/yyyy") ?? "",
+                    a.ReqApprovalStepApprovers.Count,
+                    ApprovalLevels = a.ReqApprovalStepApprovers.Select(al => new
+                    {
+                        al.Step,
+                        ApproverName = al.Approver.FirstName + " " + al.Approver.LastName,
+                       
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            return Json(new { data, totalRecords });
         }
 
         #endregion
+
+
+
+
+        #region Get By Id
+
+        [HttpGet]
+        public async Task<IActionResult> GetApprovalSettingById(int id)
+        {
+            var setting = await _reqApprovalSettingRepository.AllActive()
+                .Include(e=>e.ApprovalType)
+                
+                .Include(a => a.ReqApprovalStepApprovers)
+               
+                .FirstOrDefaultAsync(a => a.ReqApprovalSettingID == id);
+
+            if (setting == null)
+            {
+                return Json(new { success = false, message = "Approval setting not found." });
+            }
+
+            var viewModel = new
+            {
+                setting.ReqApprovalSettingID,
+                setting.ApprovalType.OrganizationID,
+                setting.ApprovalType.OrganizationBranchID,
+                setting.ApprovalTypeID,
+                setting.StartDate,
+                setting.EndDate,
+               
+                ApprovalLevels = setting.ReqApprovalStepApprovers.Select(al => new
+                {
+                    al.Step,
+                    al.ApproverID,
+                   
+                }).ToList()
+            };
+
+            return Json(new { success = true, data = viewModel });
+        }
+
+        #endregion
+
+
+        #region Edit
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit([FromForm] ApprovalSettingViewModel viewModel)
+        {
+            await _reqApprovalSettingRepository.BeginTransactionAsync();
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState
+                            .Where(x => x.Value.Errors.Count > 0)
+                            .ToDictionary(
+                                kvp => kvp.Key,
+                                kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                            );
+
+                    var messages = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .SelectMany(x => x.Value.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    await _reqApprovalSettingRepository.RollbackTransactionAsync();
+                    return Json(new { success = false, errors = errors, message = messages });
+                }
+
+                //var alreadyExists = await _reqApprovalSettingRepository.AllActive()
+                //    .FirstOrDefaultAsync(a => a.ReqApprovalSettingID != viewModel.ApprovalSettingID
+                //       );
+
+
+                //var existing = await _reqApprovalSettingRepository.AllActive()
+                //    .Include(a => a.ReqApprovalStepApprovers)
+                //    .FirstOrDefaultAsync(a => a.ReqApprovalSettingID == viewModel.ApprovalSettingID);
+
+                //if (existing == null)
+                //{
+                //    return Json(new { success = false, message = "Approval setting not found." });
+                //}
+
+                
+
+
+                var alreadyExists = await _reqApprovalSettingRepository.AllActive()
+                        .FirstOrDefaultAsync(a =>
+                            a.ReqApprovalSettingID != viewModel.ApprovalSettingID
+                            && a.ApprovalTypeID == viewModel.ApprovalTypeID
+                            && (
+                                // overlap condition
+                                viewModel.StartDate <= a.EndDate && viewModel.EndDate >= a.StartDate
+                            ));
+
+                var existing = await _reqApprovalSettingRepository.AllActive()
+                    .Include(a => a.ReqApprovalStepApprovers)
+                    .FirstOrDefaultAsync(a => a.ReqApprovalSettingID == viewModel.ApprovalSettingID);
+
+                if (existing == null)
+                {
+                    return Json(new { success = false, message = "Approval setting not found." });
+                }
+
+                if (alreadyExists != null)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "An approval setting with the same Organization, Branch, and Approval Type already exists within the given date range."
+                    });
+                }
+
+
+                existing.StartDate = viewModel.StartDate;
+                existing.EndDate = viewModel.EndDate;
+        
+                existing.UpdatedBy = viewModel.CreatedBy; // Replace with actual user ID
+                existing.UpdatedAt = DateTime.Now;
+                existing.LIP = viewModel.LIP;
+                existing.LMAC = viewModel.LMAC; // Replace with actual MAC address logic if needed
+
+
+
+                //var beforeEntity = JsonConvert.DeserializeObject<ApprovalSettingViewModel>(JsonConvert.SerializeObject(existing, JsonSettings.IgnoreReferenceLoop));
+
+
+                //var afterEntity = JsonConvert.DeserializeObject<ApprovalSettingViewModel>(JsonConvert.SerializeObject(existing, JsonSettings.IgnoreReferenceLoop));
+                //await _userInfoService.ActionLogAsync("ReqApprovalSetting", ActionName.DataUpdated, beforeEntity, afterEntity, existing.ReqApprovalSettingID, viewModel);
+
+
+
+
+                var assignmentsToDelete = existing.ReqApprovalStepApprovers.ToList(); // shallow copy
+
+
+                await _reqApprovalStepApproversRepository.DeleteRangeAsync(assignmentsToDelete);
+
+                //foreach (var item in assignmentsToDelete)
+                //{
+                //    await _reqApprovalStepApproversRepository.DeleteAsync(item.ReqApprovalStepApproverID);
+                //}
+
+
+
+                existing.ReqApprovalStepApprovers = viewModel.ApprovalLevels
+                     .Select((al, index) => new ReqApprovalStepApprovers
+                     {
+                         ReqApprovalSettingID = viewModel.ApprovalSettingID,
+                         Step = index + 1,
+                         ApproverID = al.ApproverEmployeeID
+                     })
+                     .ToList();
+
+                
+
+
+                await _reqApprovalSettingRepository.UpdateAsync(existing);
+
+                await _reqApprovalSettingRepository.CommitTransactionAsync();
+                return Json(new { success = true, message = "Approval setting updated successfully." });
+            }
+            catch (Exception)
+            {
+                await _reqApprovalSettingRepository.RollbackTransactionAsync();
+                return Json(new { success = false, message = "Approval setting updated unsuccessfully." });
+           
+            }
+
+
+        }
+
+        #endregion
+
+        #region Delete
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id, BaseViewModel? model)
+        {
+
+            await _reqApprovalSettingRepository.BeginTransactionAsync();
+
+            try
+            {
+                var setting = await _reqApprovalSettingRepository.AllActive().Include(e => e.ReqApprovalStepApprovers).Include(e => e.ApprovalType)
+                .FirstOrDefaultAsync(a => a.ReqApprovalSettingID == id);
+
+                if (setting == null)
+                {
+                    return Json(new { success = false, message = "Approval setting not found." });
+                }
+
+                var beforeEntity = JsonConvert.DeserializeObject<ApprovalSettingViewModel>(JsonConvert.SerializeObject(setting, JsonSettings.IgnoreReferenceLoop));
+
+
+               
+                await _userInfoService.ActionLogAsync("ReqApprovalSetting", ActionName.DataDeleted, beforeEntity, null, setting.ReqApprovalSettingID, model);
+
+
+
+                await _reqApprovalStepApproversRepository.DeleteRangeAsync(setting.ReqApprovalStepApprovers);
+                await _reqApprovalSettingRepository.DeleteAsync(setting.ReqApprovalSettingID);
+
+
+                await _reqApprovalSettingRepository.CommitTransactionAsync();
+
+                //setting.DeletedAt = DateTime.Now;
+                //setting.DeletedBy = model.CreatedBy ?? null; // Replace with actual user ID
+                //setting.LIP = model.LIP;
+                //setting.LMAC = model.LMAC;
+
+                //await _reqApprovalSettingRepository.UpdateAsync(setting);
+
+
+                return Json(new { success = true, message = "Approval setting deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                await _reqApprovalSettingRepository.RollbackTransactionAsync();
+                return Json(new { success = false, message = "Failed to delete approval setting.", error = ex.Message });
+            }
+
+            
+        }
+
+        #endregion
+
 
 
     }

@@ -16,12 +16,14 @@ namespace GCTL.Core.ViewModels.POS.Settings
         public DateTime? EndDate { get; set; }
         
         public List<ApprovalLevelAssignmentViewModel> ApprovalLevels { get; set; } = new List<ApprovalLevelAssignmentViewModel>();
+        public int? ApprovalTypeID { get; set; }
     }
 
     public class ApprovalLevelAssignmentViewModel
     {
        // public int? LevelNumber { get; set; }
         public int ApproverEmployeeID { get; set; }
+        public int Step { get; set; }
         //public bool? IsEnabled { get; set; } = true;
     }
 }
