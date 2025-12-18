@@ -128,6 +128,7 @@ using GCTL.Service.POS.Product;
 using GCTL.Service.POS.Product.ServiceProduct;
 using GCTL.Service.POS.Purchase.PurchaseOrder;
 using GCTL.Service.POS.Purchase.PurchaseOrderList;
+using GCTL.Service.POS.Requsition;
 using GCTL.Service.POS.Sales.InvoiceF;
 using GCTL.Service.POS.Sales.InvoiceListF;
 using GCTL.Service.POS.Sales.PriceQuotation;
@@ -273,9 +274,11 @@ namespace GCTL_App.Extensions
 
             #region POS
 
+            #region Product
             services.AddScoped<ISingleProduct, SingleProductService>();
             services.AddScoped<IAttributeProduct, AttributeProductService>();
             services.AddScoped<IServiceProduct, ServiceProductService>();
+            #endregion
 
             #region Sales
 
@@ -300,6 +303,10 @@ namespace GCTL_App.Extensions
 
             #endregion
 
+            #region Requisition
+            services.AddScoped<INewRequisitionService, NewRequisitionService>();
+
+            #endregion
 
             #endregion
 

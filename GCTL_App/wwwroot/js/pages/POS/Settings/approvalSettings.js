@@ -29,29 +29,35 @@
                 approvalTypeId: approvalTypeId
             },
             success: function (res) {
+                showDev(res, 'Load approval settings response');
                 let rows = '';
                 $.each(res.data, function (i, item) {
                     rows += `
                         <tr class="position-static">
-                            <td class="align-middle white-space-nowrap ps-0">${item.approvalSettingID}</td>
+                            <td class="align-middle white-space-nowrap ps-0">${item.reqApprovalSettingID}</td>
                             <td class="align-middle white-space-nowrap ps-2">${item.approvalTypeName}</td>
                             <td class="align-middle white-space-nowrap ps-2">${item.organizationName}</td>
                             <td class="align-middle white-space-nowrap ps-2">${item.branchName}</td>
                             
-                            <td class="align-middle white-space-nowrap ps-2">${item.allowSelfApproval ? 'Yes' : 'No'}</td>
-                            <td class="align-middle white-space-nowrap ps-2">${item.selfExceptionApprovalName || ''}</td>
+                            <td class="align-middle white-space-nowrap ps-2">${item.startDate}</td>
+                            <td class="align-middle white-space-nowrap ps-2">${item.endDate}</td>
+                            <td class="align-middle white-space-nowrap ps-2">${item.count} Person</td>
                             <td class="align-middle text-end white-space-nowrap pe-2 action">
                                 <div class="d-flex g-3">
-                                    <button class="btn btn-phoenix-secondary btn-icon me-2 fs-10 text-body px-0" 
+                                    <a href="#" class="nav-item me-3" 
                                             type="button" data-bs-toggle="modal" 
                                             data-bs-target="#editApprovalSettingModal" 
-                                            data-id="${item.approvalSettingID}">
-                                        <span class="fas fa-edit"></span>
-                                    </button>
-                                    <button class="btn btn-phoenix-secondary btn-icon fs-10 text-danger px-0" 
-                                            data-id="${item.approvalSettingID}">
-                                        <span class="fas fa-trash"></span>
-                                    </button>
+                                            data-id="${item.reqApprovalSettingID}">
+                                       
+                                        <i class="fas fa-edit text-black "></i>
+
+                                     </a>
+                                   <a href="#" class="nav-item me-2 dltReq"
+                                            data-id="${item.reqApprovalSettingID}">
+                                       
+                                         <i class="far fa-trash-alt text-black "></i>
+
+                                     </a>
                                 </div>
                             </td>
                         </tr>`;
@@ -182,8 +188,20 @@
             $(this).find('input[name="ApprovalLevels.Index"]').val(i);
         });
 
+
+        if (tableBodyId === 'approvalLevelTableBody') {
+            $(`#${tableBodyId} tr:last select`).select2({ width: '100%', placeholder: 'Select an option', allowClear: true });
+        } else {
+            $(`#${tableBodyId} tr:last select`).select2({
+                width: '100%',
+                placeholder: 'Select an option',
+                allowClear: true,
+                dropdownParent: $('#editApprovalSettingModal') // 👈 attach to modal
+            });
+        }
+
         // Initialize Select2 for new row
-        $(`#${tableBodyId} tr:last select`).select2({ width: '100%' , placeholder: 'Select an option', allowClear: true });
+       
 
         // Refresh options to ignore previous selections
         refreshSelectOptions(tableBodyId);
@@ -217,50 +235,7 @@
     });
 
 
-    //// Add new approval level row
-    //window.addNewLevelRow = function (tableBodyId = 'approvalLevelTableBody') {
-    //    const index = $(`#${tableBodyId} tr`).length;
-    //    let template = $("#approvalLevelRowTemplate").prop("outerHTML");
-    //    template = template.replace(/INDEX/g, index);
-    //    template = template.replace('id="approvalLevelRowTemplate"', "");
-    //    template = template.replace('name="ApprovalLevels.Index" value=""', `name="ApprovalLevels.Index" value="${index}"`);
-    //    $(`#${tableBodyId}`).append(template);
-
-    //    // Reindex rows
-    //    $(`#${tableBodyId} tr`).each(function (i) {
-    //        $(this).find('input, select').each(function () {
-    //            let name = $(this).attr('name');
-    //            if (name) {
-    //                let newName = name.replace(/\[\d+\]/, `[${i}]`);
-    //                $(this).attr('name', newName);
-    //            }
-    //        });
-    //        $(this).find('input[name="ApprovalLevels.Index"]').val(i);
-    //    });
-
-    //    $(`#${tableBodyId} tr:last select`).select2({
-    //        width: '100%',   // optional: makes it fit nicely
-    //        placeholder: 'Select an option', // optional: adds placeholder
-    //        allowClear: true // optional: allows clearing the selection
-    //    });
-
-
-    //};
-
-    //// Remove approval level row
-    //window.removeLevelRow = function (button) {
-    //    $(button).closest("tr").remove();
-    //    $("#approvalLevelTableBody tr, #editApprovalLevelTableBody tr").each(function (index) {
-    //        $(this).find('input, select').each(function () {
-    //            let name = $(this).attr('name');
-    //            if (name) {
-    //                let newName = name.replace(/\[\d+\]/, `[${index}]`);
-    //                $(this).attr('name', newName);
-    //            }
-    //        });
-    //        $(this).find('input[name="ApprovalLevels.Index"]').val(index);
-    //    });
-    //};
+    
 
     //#region Create form submission
     $("#createApprovalSettingForm").on("submit", function (e) {
@@ -302,7 +277,7 @@
     //#endregion
 
     // Edit button click
-    $(document).on("click", "button[data-bs-target='#editApprovalSettingModal']", function () {
+    $(document).on("click", "a[data-bs-target='#editApprovalSettingModal']", function () {
         const id = $(this).data('id');
         showDev("Edit button clicked for ID: " + id);
         $.ajax({
@@ -318,16 +293,19 @@
 
 
                 let data = res.data;
-                choiceManager.setChoiceValue('edit_ApprovalSettingID', data.approvalSettingID);
+                choiceManager.setChoiceValue('edit_ApprovalSettingID', data.reqApprovalSettingID);
                 choiceManager.setChoiceValue('edit_OrganizationID', data.organizationID);
                 choiceManager.setChoiceValue('edit_OrganizationBranchID', data.organizationBranchID);
                 choiceManager.setChoiceValue('edit_ApprovalTypeID', data.approvalTypeID);
-                choiceManager.setChoiceValue('edit_SelfExceptionApprovalID', data.selfExceptionApprovalID);
+               
+
+                flatpickrHelper.setDate('edit_StartDate', data.startDate)
+                flatpickrHelper.setDate('edit_EndDate', data.endDate)
 
                 //$('#edit_StartDate').val(data.startDate.split('T')[0]);
                 //$('#edit_EndDate').val(data.endDate ? data.endDate.split('T')[0] : '');
 
-                $('#edit_AllowSelfApproval').prop('checked', data.allowSelfApproval);
+               
 
                 // Populate approval levels
                 $('#editApprovalLevelTableBody').empty();
@@ -336,11 +314,33 @@
                     template = template.replace(/INDEX/g, i);
                     template = template.replace('id="approvalLevelRowTemplate"', "");
                     template = template.replace('name="ApprovalLevels.Index" value=""', `name="ApprovalLevels.Index" value="${i}"`);
-                    template = template.replace('name="ApprovalLevels[INDEX].LevelNumber"', `name="ApprovalLevels[${i}].LevelNumber" value="${level.levelNumber}"`);
+                    template = template.replace('name="ApprovalLevels[INDEX].LevelNumber"', `name="ApprovalLevels[${i}].LevelNumber" value="${level.step}"`);
                     template = template.replace('name="ApprovalLevels[INDEX].ApproverEmployeeID"', `name="ApprovalLevels[${i}].ApproverEmployeeID"`);
                     template = template.replace('name="ApprovalLevels[INDEX].IsEnabled"', `name="ApprovalLevels[${i}].IsEnabled" ${level.isEnabled ? 'checked' : ''}`);
                     $('#editApprovalLevelTableBody').append(template);
-                    $(`#editApprovalLevelTableBody select[name="ApprovalLevels[${i}].ApproverEmployeeID"]`).val(level.approverEmployeeID);
+
+
+                    //$(`#editApprovalLevelTableBody select[name="ApprovalLevels[${i}].ApproverEmployeeID"]`).val(level.approverID);
+
+
+                    const $select = $(`#editApprovalLevelTableBody select[name="ApprovalLevels[${i}].ApproverEmployeeID"]`);
+                    $select.val(level.approverID);
+
+                    // ✅ Initialize select2 with modal parent
+                    $select.select2({
+                        width: '100%',
+                        placeholder: 'Select an option',
+                        allowClear: true,
+                        dropdownParent: $('#editApprovalSettingModal')
+                    });
+
+                    
+
+
+
+
+
+
                 });
 
 
@@ -398,7 +398,7 @@
     };
 
     // Delete button click
-    $(document).on("click", "button.btn-phoenix-secondary.btn-icon.text-danger", function (e) {
+    $(document).on("click", ".dltReq", function (e) {
         e.preventDefault();
         const id = $(this).data('id');
         showDev("Delete button clicked for ID: " + id);
