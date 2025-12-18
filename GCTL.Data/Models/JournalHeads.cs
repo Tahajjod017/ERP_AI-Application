@@ -11,14 +11,13 @@ public partial class JournalHeads
 
     public int? JournalHeadTblID { get; set; }
 
+    public string LIP { get; set; }
 
-    public string? LIP { get; set; }
-
-    public string? LMAC { get; set; }
+    public string LMAC { get; set; }
 
     public int? CreatedBy { get; set; }
-    public int? UpdatedBy { get; set; }
 
+    public int? UpdatedBy { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -34,10 +33,9 @@ public partial class JournalHeads
 
     public virtual ICollection<DebitNote> DebitNote { get; set; } = new List<DebitNote>();
 
+    public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Employees? DeletedByNavigation { get; set; }
+    public virtual JournalHeadTbls JournalHeadTbl { get; set; }
 
-    public virtual JournalHeadTbls? JournalHeadTbl { get; set; }
     public virtual Employees UpdatedByNavigation { get; set; }
-
 }

@@ -855,7 +855,6 @@
          "ObjectType": 0
       },
       {
-
          "Name": "[SC].[ReqApprovalSettings]",
          "ObjectType": 0
       },
@@ -876,7 +875,6 @@
          "ObjectType": 0
       },
       {
-
          "Name": "[SC].[SAddresses]",
          "ObjectType": 0
       },
