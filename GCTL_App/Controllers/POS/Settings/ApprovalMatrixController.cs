@@ -18,11 +18,12 @@ namespace GCTL_App.Controllers.POS.Settings
         private readonly IGenericRepository<ApprovalTypes> _approvalTypeRepository;
         private readonly IGenericRepository<ApprovalSettings> _approvalSettingRepository;
         private readonly IGenericRepository<ReqApprovalSettings> _reqApprovalSettingRepository;
+        private readonly IGenericRepository<ReqApprovalStepApprovers> _reqApprovalStepApproversRepository;
         private readonly IUserInfoService _userInfoService;
 
 
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
-        public ApprovalMatrixController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> organizationBranchRepository, IGenericRepository<ApprovalTypes> approvalTypeRepository, IGenericRepository<ApprovalSettings> approvalSettingRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<ReqApprovalSettings> reqApprovalSettingRepository, IUserInfoService userInfoService) : base(translateService, userProfileService)
+        public ApprovalMatrixController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> organizationBranchRepository, IGenericRepository<ApprovalTypes> approvalTypeRepository, IGenericRepository<ApprovalSettings> approvalSettingRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<ReqApprovalSettings> reqApprovalSettingRepository, IUserInfoService userInfoService, IGenericRepository<ReqApprovalStepApprovers> reqApprovalStepApproversRepository) : base(translateService, userProfileService)
         {
             _organizationRepository = organizationRepository;
             _organizationBranchRepository = organizationBranchRepository;
@@ -31,6 +32,7 @@ namespace GCTL_App.Controllers.POS.Settings
             _employeeRepository = employeeRepository;
             _reqApprovalSettingRepository = reqApprovalSettingRepository;
             _userInfoService = userInfoService;
+            _reqApprovalStepApproversRepository = reqApprovalStepApproversRepository;
         }
 
         public IActionResult Index()
@@ -116,24 +118,33 @@ namespace GCTL_App.Controllers.POS.Settings
                 await _approvalTypeRepository.AddAsync(approvalType, viewModel);
                 await _userInfoService.ActionLogAsync("ApprovalTypes", ActionName.DataAdd, null, approvalType, approvalType.ApprovalTypeID, viewModel);
 
+                var model = new ReqApprovalSettings
+                {
 
+                    ApprovalTypeID = approvalType.ApprovalTypeID,
+                    StartDate = viewModel.StartDate,
+                    EndDate = viewModel.EndDate,
+
+                };
+
+                await _reqApprovalSettingRepository.AddAsync(model, viewModel);
+                await _userInfoService.ActionLogAsync("ReqApprovalSettings", ActionName.DataAdd, null, model, model.ReqApprovalSettingID, viewModel);
+
+                int i = 1;
 
                 foreach (var item in viewModel.ApprovalLevels)
                 {
-                    var i = 1;
-                    var model = new ReqApprovalSettings
+                  
+                   var approvalLevelAssignment = new ReqApprovalStepApprovers
                     {
-
-                        ApprovalTypeID = approvalType.ApprovalTypeID,
-                        StartDate = viewModel.StartDate,
-                        EndDate = viewModel.EndDate,
-                       
-                        ApproverID = item.ApproverEmployeeID
-
+                        ReqApprovalSettingID = model.ReqApprovalSettingID,
+                        Step = i,
+                        ApproverID = item.ApproverEmployeeID,
+                        
                     };
                     i++;
-                    await _reqApprovalSettingRepository.AddAsync(model, viewModel);
-                    await _userInfoService.ActionLogAsync("ReqApprovalSettings", ActionName.DataAdd, null, model, model.ReqApprovalSettingID, viewModel);
+                    await _reqApprovalStepApproversRepository.AddAsync(approvalLevelAssignment, viewModel);
+                    await _userInfoService.ActionLogAsync("ReqApprovalStepApprovers", ActionName.DataAdd, null, approvalLevelAssignment, approvalLevelAssignment.ReqApprovalStepApproverID, viewModel);
 
                 }
 

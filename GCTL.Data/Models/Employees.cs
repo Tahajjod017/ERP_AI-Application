@@ -1163,10 +1163,6 @@ public partial class Employees
 
     public virtual ICollection<ReportContent> ReportContentUpdatedByNavigation { get; set; } = new List<ReportContent>();
 
-
-    public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsApprover { get; set; } = new List<ReqApprovalSettings>();
-
-
     public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsCreatedByNavigation { get; set; } = new List<ReqApprovalSettings>();
 
     public virtual ICollection<ReqApprovalSettings> ReqApprovalSettingsDeletedByNavigation { get; set; } = new List<ReqApprovalSettings>();

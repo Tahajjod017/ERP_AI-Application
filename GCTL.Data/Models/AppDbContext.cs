@@ -910,6 +910,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .IsRequired(false)
                 .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
 
+
+
         modelBuilder.Entity<Attendance>(entity =>
         {
             entity.HasKey(e => e.AttendanceID).HasName("PK__Attendan__8B69263C4937C444");

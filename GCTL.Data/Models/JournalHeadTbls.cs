@@ -29,16 +29,11 @@ public partial class JournalHeadTbls
 
     public int? DeletedBy { get; set; }
 
+    public virtual Employees CreatedByNavigation { get; set; }
 
-    public virtual Employees? CreatedByNavigation { get; set; }
-
-    public virtual Employees? DeletedByNavigation { get; set; }
+    public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<JournalHeads> JournalHeads { get; set; } = new List<JournalHeads>();
 
-    public virtual Employees? UpdatedByNavigation { get; set; }
-
-
-
-    
+    public virtual Employees UpdatedByNavigation { get; set; }
 }
