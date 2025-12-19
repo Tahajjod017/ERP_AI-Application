@@ -17,5 +17,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
         Task<ReturnDataView<SelectListItem>> GetJobTypeAsync(string search, int page, int pageSize, int organizationID);
 
+        Task<CommonReturnViewModel> ApproveAsync(int id, int approvedByUserId);
+
     }
 }

@@ -39,6 +39,7 @@ namespace GCTL.Core.ViewModels.FieldServices
 
         public DateTime? ApprovalDate { get; set; }
 
+        public int? ApprovalSettingID { get; set; }
 
     }
 }

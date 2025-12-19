@@ -18,25 +18,28 @@ namespace GCTL_App.Controllers.FieldServices
         private readonly IEmployeeAdvanced _mainservice;
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employees;
         private readonly ICommonService _commonService;
-      
+        private readonly IGenericRepository<ApprovalSettings> _approvalsettings;
 
 
-        public EmployeeAdvancedController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<JobTypes> jobTypeRepository, IEmployeeAdvanced service, IGenericRepository<GCTL.Data.Models.Employees> employees, ICommonService commonService, IGenericRepository<JobTypes> jobtype) : base(translateService, userProfileService)
+
+        public EmployeeAdvancedController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<JobTypes> jobTypeRepository, IEmployeeAdvanced service, IGenericRepository<GCTL.Data.Models.Employees> employees, ICommonService commonService, IGenericRepository<JobTypes> jobtype, IGenericRepository<ApprovalSettings> approvalsettings) : base(translateService, userProfileService)
         {
             _jobTypeRepository = jobTypeRepository;
             _mainservice = service;
             _employees = employees;
             _commonService = commonService;
-            
+            _approvalsettings = approvalsettings;
         }
 
         public async Task<IActionResult> Index()
         {
             ViewBag.JobTypesDD = new SelectList(_jobTypeRepository.AllActive().Select(t => new { t.JobTypeID, t.JobTypeName }), "JobTypeID", "JobTypeName");
 
-            ViewBag.EmployeeDD =  new SelectList(await _mainservice.EmployeeDD(), "Id", "Name");
+            ViewBag.EmployeeDD = new SelectList(await _mainservice.EmployeeDD(), "Id", "Name");
 
             ViewBag.JobTypesDDD = new SelectList(_jobTypeRepository.AllActive().Select(j => new { j.JobTypeID, j.JobTypeName }), "JobTypeID", "JobTypeName");
+
+            ViewBag.ApprovalStatus = new SelectList(_approvalsettings.AllActive().Select(a => new { a.ApprovalSettingID }), "ApprovalSettingsID");
 
 
 
@@ -92,7 +95,30 @@ namespace GCTL_App.Controllers.FieldServices
             return Ok(formatted);
         }
 
-        //Nested Job by Customer
+
+
+        // NEW: Approve Employee Advance
+        [HttpPost]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var approvedByUserId = await GetCurrentEmployeeIdAsync();
+
+            if (!approvedByUserId.HasValue)
+            {
+                return Json(new { success = false, message = "User not authenticated" });
+            }
+
+            var result = await _mainservice.ApproveAsync(id, approvedByUserId.Value);
+
+            return Json(new
+            {
+                success = result.Success,
+                message = result.Message
+            });
+        }
+
+
+
 
 
     }
