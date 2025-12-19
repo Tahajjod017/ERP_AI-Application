@@ -124,11 +124,9 @@
             </div>
 
             <div class="dropdown me-2">
-                <select class="form-select" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                    <option value="">Select Status</option>
-                    <option>New</option>
-                    <option>Approved</option>
-                    <option>Declain</option>
+                <select asp-for="ApprovalSettingID" class="form-select" data-choices="data-choices"
+                        asp-items="ViewBag.ApprovalStatus">
+                   
                 </select>
             </div>
 

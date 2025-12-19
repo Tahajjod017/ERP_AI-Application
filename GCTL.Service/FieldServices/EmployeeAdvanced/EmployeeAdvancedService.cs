@@ -20,7 +20,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         public readonly IGenericRepository<EmployeeAdvances> _genericRepository;
         public readonly IGenericRepository<GCTL.Data.Models.Employees> _employees;
         public readonly IGenericRepository<GCTL.Data.Models.JobTypes> _jobtyperepository;
-   
+
 
 
 
@@ -97,13 +97,13 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             return data;
         }
 
-        
+
 
         //Get Jobstype service
 
         public async Task<ReturnDataView<SelectListItem>> GetJobTypeAsync(string search, int page, int pageSize, int organizationID)
         {
-            var query = _jobtyperepository.AllActive() 
+            var query = _jobtyperepository.AllActive()
                 .Where(q => q.OrganizationID == organizationID);
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -140,6 +140,59 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 message = "Data loaded"
             };
         }
+
+        public async Task<CommonReturnViewModel> ApproveAsync(int id, int approvedByUserId)
+        {
+            try
+            {
+                await _genericRepository.BeginTransactionAsync();
+
+                var empAdvance = await _genericRepository.GetByIdAsync(id);
+
+                if (empAdvance == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Employee Advance not found"
+                    };
+                }
+
+                if (empAdvance.ApprovalStatusID == 12)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Employee Advance is already approved"
+                    };
+                }
+
+                empAdvance.ApprovalStatusID = 12; // Approved
+                empAdvance.ApprovedByUserID = approvedByUserId;
+                empAdvance.ApprovalDate = DateTime.UtcNow;
+                empAdvance.UpdatedBy = approvedByUserId;
+                empAdvance.UpdatedAt = DateTime.UtcNow;
+
+                await _genericRepository.UpdateAsync(empAdvance);
+                await _genericRepository.CommitTransactionAsync();
+
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Employee Advance approved successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
 
 
     }
