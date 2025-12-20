@@ -27,26 +27,27 @@
 
                         <div class="row">
                             <div class="col-md-6">
-                                <label asp-for="SupervisorId" class="form-label"></label>
-                                <select asp-for="SupervisorId" asp-items="ViewBag.Supervisors as SelectList" class="form-select choiceDD">
-                                    <option value="">Select Project Manager</option>
+                                <label asp-for="RequesterId" class="form-label"></label>
+                                <select asp-for="RequesterId" asp-items="ViewBag.Supervisors as SelectList" class="form-select choiceDD">
+                                    <option value="">Select Request by</option>
                                 </select>
-                                <span asp-validation-for="SupervisorId" class="text-danger"></span>
+                                <span asp-validation-for="RequesterId" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6">
-                                <label asp-for="ProjectId" class="form-label"></label>
-                                <select asp-for="ProjectId" asp-items="ViewBag.Projects" class="form-select choiceDD">
-                                    <option value="">Select Project</option>
+                                <label asp-for="LocationId" class="form-label"></label>
+                                <select asp-for="LocationId" asp-items="ViewBag.Projects" class="form-select choiceDD">
+                                    <option value="">Select Location</option>
                                 </select>
-                                <span asp-validation-for="ProjectId" class="text-danger"></span>
+                                <span asp-validation-for="LocationId" class="text-danger"></span>
                             </div>
                         </div>
 
-                        <div class="container mt-5">
-                            <h4 class="mb-4">Product Entry Table</h4>
+                        <div class="container mt-4">
+                            <h4 class="mb-3">Product Entry Table</h4>
+
                             <table class="table table-borderless">
-                                <thead class="">
+                                <thead>
                                     <tr>
                                         <th>Product Type</th>
                                         <th>Product Name</th>
@@ -55,12 +56,21 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="productTableBody">
-                                </tbody>
+
+                                <tbody id="productTableBody"></tbody>
                             </table>
 
-                            <button type="button" class="btn btn-primary" onclick="addNewRow()">Add New Item</button>
+                            @*<button type="button" class="btn btn-primary" onclick="addNewRow()">
+                                Add New Item
+                            </button>*@
+
+                            <button class="btn btn-phoenix-primary" type="button" onclick="addNewRow()">
+                                <i class="fas fa-plus text-black "></i>
+                                Add New Item
+                            </button>
+
                         </div>
+
 
                         <div class="row justify-content-end mt-3">
                             <div class="col-auto">
@@ -81,24 +91,19 @@
     </div>
 </div>
 
-<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content text-center p-4">
-            <div class="spinner-border text-primary mb-3" role="status"></div>
-            <div>Processing your requisition...</div>
-        </div>
-    </div>
-</div>
+
+
 
 
 <table style="display:none;">
     <tbody>
-        <tr id="productRowTemplate">
-            <td class="p-2">
 
+
+        <tr id="productRowTemplate">
+            <td>
                 <input type="hidden" name="Products.Index" value="" />
 
-                <select id="ProductType_INDEX" name="Products[INDEX].ProductTypeId" class="form-select ">
+                <select id="ProductType_INDEX" name="Products[INDEX].ProductTypeId" class="form-select product-type-dd">
                     <option value="">Select Product Type</option>
                     @foreach (var pt in (SelectList)ViewBag.ProductTypes)
                     {
@@ -107,27 +112,48 @@
                 </select>
             </td>
 
-            <td class="p-2">
-                <select id="Product_INDEX" name="Products[INDEX].ProductId" class="form-select ">
+            <td>
+                <select id="Product_INDEX" name="Products[INDEX].ProductId" class="form-select product-dd">
                     <option value="">Select Product</option>
                 </select>
             </td>
-            <td class="p-2">
+      
+
+           
+
+            <td>
                 <input type="text" id="UnitType_INDEX" class="form-control" readonly placeholder="Unit will auto-fill" />
             </td>
 
-            <td class="p-2">
-                <input type="number" name="Products[INDEX].Quantity" class="form-control" placeholder="e.g. 10" min="1" />
+            <td>
+                <input type="number" name="Products[INDEX].Quantity" class="form-control" min="1" />
             </td>
 
-            <td class="p-2">
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">Delete</button>
+            <td>
+                @*<button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">
+                    Delete
+                </button>*@
+
+                <a href="#" class="nav-item ms-4 me-2" type="button" onclick="removeRow(this)">
+                    <i class="far fa-trash-alt text-black "></i>
+                </a>
+
             </td>
+
         </tr>
     </tbody>
 </table>
 
 
+
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4">
+            <div class="spinner-border text-primary mb-3" role="status"></div>
+            <div>Processing your requisition...</div>
+        </div>
+    </div>
+</div>
 
 
 <div class="d-flex mb-5 mt-3 pt-3" id="scrollspyEcommerce">
@@ -385,58 +411,62 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    <script src="~/js/pages/RequisitionDistribtion/newRequisition.js"></script>
 
-    <script>
-        window.addNewRow = function () {
 
-            $("#productTableBody tr").each(function (index) {
-                $(this).find('input, select').each(function () {
-                    let name = $(this).attr('name');
-                    if (name) {
-                        // Replace any existing index with new index
-                        let newName = name.replace(/\[\d+\]/, `[${index}]`);
-                        $(this).attr('name', newName);
-                    }
-                });
+    <script src="~/js/pages/POS/Requisition/newRequisition.js"></script>
 
-                // Update hidden index field
-                $(this).find('input[name="Products.Index"]').val(index);
-            });
 
-            const index = $("#productTableBody tr").length;
-            let template = $("#productRowTemplate").prop("outerHTML");
 
-            template = template.replace(/INDEX/g, index);
-            template = template.replace('id="productRowTemplate"', "");
-            template = template.replace('name="Products.Index" value=""', `name="Products.Index" value="${index}"`);
+    @*<script>
+            window.addNewRow = function () {
 
-            $("#productTableBody").append(template);
-        };
-
-        window.removeRow = function (button) {
-            $(button).closest("tr").remove();
-
-            // Re-index all remaining rows
-            $("#productTableBody tr").each(function (index) {
-                $(this).find('input, select').each(function () {
-                    let name = $(this).attr('name');
-                    if (name) {
-                        let newName = name.replace(/\[\d+\]/, `[${index}]`);
-                        $(this).attr('name', newName);
-
-                        // Update IDs too for product type change functionality
-                        let id = $(this).attr('id');
-                        if (id) {
-                            let newId = id.replace(/_\d+/, `_${index}`);
-                            $(this).attr('id', newId);
+                $("#productTableBody tr").each(function (index) {
+                    $(this).find('input, select').each(function () {
+                        let name = $(this).attr('name');
+                        if (name) {
+                            // Replace any existing index with new index
+                            let newName = name.replace(/\[\d+\]/, `[${index}]`);
+                            $(this).attr('name', newName);
                         }
-                    }
+                    });
+
+                    // Update hidden index field
+                    $(this).find('input[name="Products.Index"]').val(index);
                 });
 
-                // Update hidden index field
-                $(this).find('input[name="Products.Index"]').val(index);
-            });
-        };
-    </script>
+                const index = $("#productTableBody tr").length;
+                let template = $("#productRowTemplate").prop("outerHTML");
+
+                template = template.replace(/INDEX/g, index);
+                template = template.replace('id="productRowTemplate"', "");
+                template = template.replace('name="Products.Index" value=""', `name="Products.Index" value="${index}"`);
+
+                $("#productTableBody").append(template);
+            };
+
+            window.removeRow = function (button) {
+                $(button).closest("tr").remove();
+
+                // Re-index all remaining rows
+                $("#productTableBody tr").each(function (index) {
+                    $(this).find('input, select').each(function () {
+                        let name = $(this).attr('name');
+                        if (name) {
+                            let newName = name.replace(/\[\d+\]/, `[${index}]`);
+                            $(this).attr('name', newName);
+
+                            // Update IDs too for product type change functionality
+                            let id = $(this).attr('id');
+                            if (id) {
+                                let newId = id.replace(/_\d+/, `_${index}`);
+                                $(this).attr('id', newId);
+                            }
+                        }
+                    });
+
+                    // Update hidden index field
+                    $(this).find('input[name="Products.Index"]').val(index);
+                });
+            };
+        </script>*@
 }

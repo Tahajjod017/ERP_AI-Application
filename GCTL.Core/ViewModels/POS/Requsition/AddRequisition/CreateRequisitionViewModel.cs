@@ -10,14 +10,14 @@ namespace GCTL.Core.ViewModels.POS.Requsition.AddRequisition
     public class CreateRequisitionViewModel : BaseViewModel
     {
         [Required]
-        [Display(Name = "Project Manager")]
-        public int SupervisorId { get; set; }
+        [Display(Name = "Request By")]
+        public int RequesterId { get; set; }
 
 
 
         [Required]
-        [Display(Name = "Project Name")]
-        public int ProjectId { get; set; }
+        [Display(Name = "Request Location")]
+        public int LocationId { get; set; }
 
         public List<RequisitionProductViewModel> Products { get; set; } = new List<RequisitionProductViewModel>
         {
