@@ -19,8 +19,7 @@ namespace GCTL.Core.ViewModels.FieldServices
         public int? JobID { get; set; }
 
         [Required(ErrorMessage = "Requested By is required")]
-        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid employee")]
-        public int? RequestedByUserID { get; set; }
+        public List <int>? RequestedByUserID { get; set; }
 
         [Required(ErrorMessage = "Ammount is required")]
         public decimal AmountRequested { get; set; }
@@ -40,6 +39,8 @@ namespace GCTL.Core.ViewModels.FieldServices
         public DateTime? ApprovalDate { get; set; }
 
         public int? ApprovalSettingID { get; set; }
+
+       
 
     }
 }

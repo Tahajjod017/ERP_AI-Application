@@ -43,11 +43,15 @@ $(document).ready(function () {
     $('#saveBtn').on('click', function (e) {
         e.preventDefault();
 
-        // Using form data
-        var formData = new FormData();
+         var formData = new FormData();
         formData.append('CustomerID2', $('#CustomerID2').val());
         formData.append('JobID', $('#JobID').val());
-        formData.append('RequestedByUserID', $('#RequestedByUserID').val());
+
+        var requestedUsers = $("#RequestedByUserID").val(); 
+        requestedUsers.forEach(function (id) {
+            formData.append('RequestedByUserID', id);
+        }); //Multiple Select
+
         formData.append('AmountRequested', $('#AmountRequested').val());
         formData.append('StartDate', $('#StartDate').val());
         formData.append('EndDate', $('#EndDate').val());
@@ -231,16 +235,16 @@ $('#JobID').select2({
                 type: "GET",
                 data: { id: jobId },
                 success: function (customer) {
-                    $("#CustomerID").empty();
+                    $("#CustomerID2").empty();
 
                     if (customer) {
-                        $("#CustomerID").append(
+                        $("#CustomerID2").append(
                             `<option value="${customer.id}" selected>
                             ${customer.text}
                          </option>`
                         );
                     } else {
-                        $("#CustomerID").append(
+                        $("#CustomerID2").append(
                             `<option value="">No Customer Found</option>`
                         );
                     }
@@ -251,38 +255,38 @@ $('#JobID').select2({
         }
     });
 
-    //Nested System Job by JobType
+    ////Nested System Job by JobType
 
-    $("#RequestedByUserID").on('change', function () {
-        const jobTypeIds = $(this).val(); //multiple select
+    //$("#RequestedByUserID").on('change', function () {
+    //    const jobTypeIds = $(this).val(); //multiple select
 
-        $("#JobID").empty().append(`<option value="">Select JobType</option>`);
+    //    $("#JobID").empty().append(`<option value="">Select JobType</option>`);
 
-        if (jobTypeIds && jobTypeIds.length > 0) {
-            $.ajax({
-                url: "/CreateJobs/GetJobsByJobType",
-                type: "GET",
-                traditional: true, // important for array parameters
-                data: { jobTypeIds: jobTypeIds },
-                success: function (jobs) {
-                    $("#JobID").empty().append(`<option value="">Slect Job</option>`);
+    //    if (jobTypeIds && jobTypeIds.length > 0) {
+    //        $.ajax({
+    //            url: "/CreateJobs/GetJobsByJobType",
+    //            type: "GET",
+    //            traditional: true, // important for array parameters
+    //            data: { jobTypeIds: jobTypeIds },
+    //            success: function (jobs) {
+    //                $("#JobID").empty().append(`<option value="">Slect Job</option>`);
 
-                    if (jobs && jobs.length > 0) {
-                        $.each(jobs, function (i, job) {
-                            $("#JobID").append(
-                                `<option value="${job.id}">${job.text}</option>`
-                            );
-                        });
-                    } else {
-                        $("#JobID").append(`<option value="">No Jobs Found</option>`);
-                    }
-                }
+    //                if (jobs && jobs.length > 0) {
+    //                    $.each(jobs, function (i, job) {
+    //                        $("#JobID").append(
+    //                            `<option value="${job.id}">${job.text}</option>`
+    //                        );
+    //                    });
+    //                } else {
+    //                    $("#JobID").append(`<option value="">No Jobs Found</option>`);
+    //                }
+    //            }
 
-            });
-        } else {
-            $("#JobID").empty().append(`<option value="">Select Job</option>`)
-        }
-    })
+    //        });
+    //    } else {
+    //        $("#JobID").empty().append(`<option value="">Select Job</option>`)
+    //    }
+    //})
 
 });
 
@@ -291,5 +295,9 @@ $('#JobID').select2({
 function clearForm() {
     $('#formClear')[0].reset();
     $('#EmployeeAdvanceID').val('0');
-    $('#saveBtn').text('Reset');
+    $('#CustomerID2').val(null).trigger('change');
+    $('#JobID').val(null).trigger('change');
+    $('#RequestedByUserID').val(null).trigger('change');
+    $('#ApprovedByUserID').val(null).trigger('change');
+    
 }
