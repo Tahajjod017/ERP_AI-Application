@@ -575,6 +575,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[FS].[EmployeeAdvanceFor]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[FS].[EmployeeAdvances]",
          "ObjectType": 0
       },

@@ -81,6 +81,8 @@ public partial class OrganizationBranches
 
     public virtual ICollection<PurchasOrderVersions> PurchasOrderVersions { get; set; } = new List<PurchasOrderVersions>();
 
+    public virtual ICollection<Requisitions> Requisitions { get; set; } = new List<Requisitions>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 
     public virtual ICollection<WeekendSettings> WeekendSettings { get; set; } = new List<WeekendSettings>();

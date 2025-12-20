@@ -403,6 +403,12 @@ public partial class Employees
 
     public virtual ICollection<EmployeeAdditionalInfo> EmployeeAdditionalInfoUpdatedByNavigation { get; set; } = new List<EmployeeAdditionalInfo>();
 
+    public virtual ICollection<EmployeeAdvanceFor> EmployeeAdvanceForCreatedByNavigation { get; set; } = new List<EmployeeAdvanceFor>();
+
+    public virtual ICollection<EmployeeAdvanceFor> EmployeeAdvanceForDeletedByNavigation { get; set; } = new List<EmployeeAdvanceFor>();
+
+    public virtual ICollection<EmployeeAdvanceFor> EmployeeAdvanceForUpdatedByNavigation { get; set; } = new List<EmployeeAdvanceFor>();
+
     public virtual ICollection<EmployeeAdvances> EmployeeAdvancesApprovedByUser { get; set; } = new List<EmployeeAdvances>();
 
     public virtual ICollection<EmployeeAdvances> EmployeeAdvancesCreatedByNavigation { get; set; } = new List<EmployeeAdvances>();
@@ -1188,6 +1194,8 @@ public partial class Employees
     public virtual ICollection<Requisitions> RequisitionsCreatedByNavigation { get; set; } = new List<Requisitions>();
 
     public virtual ICollection<Requisitions> RequisitionsDeletedByNavigation { get; set; } = new List<Requisitions>();
+
+    public virtual ICollection<Requisitions> RequisitionsRequisitionByNavigation { get; set; } = new List<Requisitions>();
 
     public virtual ICollection<Requisitions> RequisitionsUpdatedByNavigation { get; set; } = new List<Requisitions>();
 
