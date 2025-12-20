@@ -20,18 +20,14 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         public readonly IGenericRepository<EmployeeAdvances> _genericRepository;
         public readonly IGenericRepository<GCTL.Data.Models.Employees> _employees;
         public readonly IGenericRepository<GCTL.Data.Models.JobTypes> _jobtyperepository;
+        public readonly IGenericRepository<EmployeeAdvanceFor> _employeeAdvanceForRepository;
 
-
-
-
-
-
-
-        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository) : base(genericRepository)
+        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _employees = employees;
             _jobtyperepository = jobtyperepository;
+            _employeeAdvanceForRepository = employeeAdvanceForRepository;
         }
 
         #region Add
@@ -46,7 +42,6 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 empadvance.EmployeeAdvanceID = emp.EmployeeAdvanceID;
                 empadvance.JobID = emp.JobID;
                 empadvance.AmountRequested = emp.AmountRequested;
-                empadvance.RequestedByUserID = emp.RequestedByUserID;
                 empadvance.StartDate = emp.StartDate.HasValue ? DateOnly.FromDateTime(emp.StartDate.Value) : null;
                 empadvance.EndDate = emp.EndDate.HasValue ? DateOnly.FromDateTime(emp.EndDate.Value) : null;
                 empadvance.LIP = emp.LIP;
@@ -54,14 +49,30 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 empadvance.CreatedAt = DateTime.UtcNow;
                 empadvance.CreatedBy = emp.CreatedBy;
                 empadvance.UpdatedBy = emp.UpdatedBy;
-                empadvance.ApprovedByUserID = emp.ApprovedByUserID;
+                empadvance.RequestedByUserID = emp.ApprovedByUserID ;
                 empadvance.ApprovalStatusID = 11; // Pending
-                
-
-
-
+               
                 //empadvance.JobID = emp.JobID;
                 await _genericRepository.AddAsync(empadvance);
+
+                //(Multiple JobType Save to EmployeeAdvanceFor Table)
+                if(emp.RequestedByUserID != null)
+                {
+                    foreach (var item in emp.RequestedByUserID)
+                    {
+                        EmployeeAdvanceFor employeeAdvanceFor = new EmployeeAdvanceFor();
+                        employeeAdvanceFor.EmployeeAdvanceID = empadvance.EmployeeAdvanceID;
+                        employeeAdvanceFor.JobTypeID = item;
+                        employeeAdvanceFor.LIP = emp.LIP; 
+                        employeeAdvanceFor.LMAC = emp.LMAC;
+                        employeeAdvanceFor.CreatedAt = DateTime.Now;
+                        employeeAdvanceFor.CreatedBy = emp.CreatedBy;
+
+                        await _employeeAdvanceForRepository.AddAsync(employeeAdvanceFor);
+
+                    }
+                }
+                
                 await _genericRepository.CommitTransactionAsync();
                 return new CommonReturnViewModel
                 {

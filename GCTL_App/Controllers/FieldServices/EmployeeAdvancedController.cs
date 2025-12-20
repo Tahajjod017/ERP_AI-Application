@@ -20,16 +20,18 @@ namespace GCTL_App.Controllers.FieldServices
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employees;
         private readonly ICommonService _commonService;
         private readonly IGenericRepository<ApprovalSettings> _approvalsettings;
+        private readonly IGenericRepository<EmployeeAdvanceFor> _employeeAdvanceForRepository;
 
 
 
-        public EmployeeAdvancedController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<JobTypes> jobTypeRepository, IEmployeeAdvanced service, IGenericRepository<GCTL.Data.Models.Employees> employees, ICommonService commonService, IGenericRepository<JobTypes> jobtype, IGenericRepository<ApprovalSettings> approvalsettings) : base(translateService, userProfileService)
+        public EmployeeAdvancedController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<JobTypes> jobTypeRepository, IEmployeeAdvanced service, IGenericRepository<GCTL.Data.Models.Employees> employees, ICommonService commonService, IGenericRepository<JobTypes> jobtype, IGenericRepository<ApprovalSettings> approvalsettings, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository) : base(translateService, userProfileService)
         {
             _jobTypeRepository = jobTypeRepository;
             _mainservice = service;
             _employees = employees;
             _commonService = commonService;
             _approvalsettings = approvalsettings;
+            _employeeAdvanceForRepository = employeeAdvanceForRepository;
         }
 
         #region Index
