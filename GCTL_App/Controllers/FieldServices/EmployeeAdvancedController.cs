@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using GCTL.Service.FieldServices.EmployeeAdvanced;
 using GCTL.Service.CommonService;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.FieldServices
 {
@@ -31,6 +32,7 @@ namespace GCTL_App.Controllers.FieldServices
             _approvalsettings = approvalsettings;
         }
 
+        #region Index
         public async Task<IActionResult> Index()
         {
             ViewBag.JobTypesDD = new SelectList(_jobTypeRepository.AllActive().Select(t => new { t.JobTypeID, t.JobTypeName }), "JobTypeID", "JobTypeName");
@@ -46,8 +48,9 @@ namespace GCTL_App.Controllers.FieldServices
 
             return View();
         }
+        #endregion
 
-
+        #region Create
         public async Task<IActionResult> Create(EmployeeAdvancedVM emp)
         {
             if (!ModelState.IsValid)
@@ -71,8 +74,9 @@ namespace GCTL_App.Controllers.FieldServices
                 message = result.Message
             });
         }
+        #endregion
 
-
+        #region GetJobsDropdown
         [HttpGet]
         public async Task<IActionResult> GetJobsType(string search = "", int page = 1, int pageSize = 20)
         {
@@ -94,7 +98,26 @@ namespace GCTL_App.Controllers.FieldServices
 
             return Ok(formatted);
         }
+        #endregion
 
+
+        #region GetJobsByJobType
+
+        [HttpGet]
+        public async Task<IActionResult> GetJobsByJobType(List<int> jobTypeIds)
+        {
+            var jobs = await _jobTypeRepository.AllActive()
+                .Where(j => jobTypeIds.Contains(j.JobTypeID))
+                .Select(j => new
+                {
+                    id = j.JobTypeID,
+                    text = j.JobTypeName
+                })
+                .ToListAsync();
+
+            return Ok(jobs);
+        }
+        #endregion
 
 
         // NEW: Approve Employee Advance
@@ -122,4 +145,5 @@ namespace GCTL_App.Controllers.FieldServices
 
 
     }
+
 }

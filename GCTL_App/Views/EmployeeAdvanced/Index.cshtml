@@ -27,8 +27,6 @@
 
                                 <label class="form-label req" for="exampleFormControlInput">Job Name</label>
                                 <select asp-for="JobID">
-
-           
                                 </select>
                                 <span asp-validation-for="JobID" class="text-danger"></span>
                             </div>
@@ -44,9 +42,9 @@
 
                         <div class="col-md-3">
                             <div class="mb-3">
-                                <label class="form-label" for="organizerMultiple">Job Type</label>
-                                <select asp-for="RequestedByUserID" asp-items="ViewBag.JobTypesDDD"></select>
-                                <span asp-validation-for="RequestedByUserID" class="text-danger"></span>
+                                <label class="form-label" for="organizerMultiple">Employee Advanced</label>
+                                <select asp-for="RequestedByUserID" class="form-select" data-choice="data-choices" multiple="multiple" asp-items="ViewBag.JobTypesDDD"></select>
+                                <span asp-validation-for="RequestedByUserID" class="text-danger" ></span>
                             </div>
                         </div>
 
@@ -123,12 +121,12 @@
                 </select>
             </div>
 
-            <div class="dropdown me-2">
+            @* <div class="dropdown me-2">
                 <select asp-for="ApprovalSettingID" class="form-select" data-choices="data-choices"
                         asp-items="ViewBag.ApprovalStatus">
                    
                 </select>
-            </div>
+            </div> *@
 
             <div class="dropdown me-2">
                 <select class="form-select" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
