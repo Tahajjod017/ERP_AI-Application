@@ -2,24 +2,37 @@
 $(document).ready(function () {
     initSelect2();
 
+
+    choiceManager.setChoiceValue('priority', 1)
+
+
     showDev("new.js: document ready");
 
 
     //#region On change
 
-    $('#SupervisorId').on('change', function () {
-        var supervisorId = $(this).val();
-        if (supervisorId) {
+   
+
+    $('#OrganizationId').change(function () {
+
+        var orgId = $(this).val();
+        var branchDropdown = $('#OrganizationBranchId');
+
+        branchDropdown.empty();
+        branchDropdown.append('<option value="">Select Branch</option>');
+
+        if (orgId !== "") {
             $.ajax({
-                url: '/Requisition/GetProjectsBySupervisor',
+                url: '/Requisition/GetBranchesByOrganization',
                 type: 'GET',
-                data: { supervisorId: supervisorId },
+                data: { organizationId: orgId },
                 success: function (data) {
-                    choiceManager.populateDropdown('ProjectId', data);
+                    choiceManager.populateDropdown('OrganizationBranchId', data)
                 }
             });
         }
     });
+    
     //#endregion 
 
 
@@ -167,7 +180,7 @@ $(document).ready(function () {
         loadRequisitions();
     });
 
-    //#endregion
+    
 
 
     $('#fromDate').on('change', function () {
@@ -181,6 +194,8 @@ $(document).ready(function () {
         page = 1;
         loadRequisitions();
     });
+
+    //#endregion
 
     //#region create and related
 
@@ -569,6 +584,8 @@ function initSelect2(context) {
 
 
 
+
+
 window.addNewRow = function () {
 
     // Destroy select2 from template if ever initialized
@@ -587,11 +604,16 @@ window.addNewRow = function () {
     template = template.replace('id="productRowTemplate"', '');
 
     let $newRow = $(template);
+
+    // ✅ THIS LINE WAS MISSING (CRITICAL)
+    $newRow.find('input[name="Products.Index"]').val(index);
+
     $("#productTableBody").append($newRow);
 
-    // ✅ Init Select2 ONLY AFTER append
+    // Init Select2 AFTER append
     initSelect2($newRow);
 };
+
 
 
 window.removeRow = function (btn) {

@@ -9,8 +9,6 @@
 </div>
 
 
-
-
 <input type="hidden" id="empinit" value="@ViewBag.empIDInti" />
 
 <div class="row mt-2">
@@ -25,26 +23,70 @@
                     <form asp-action="Create" method="post" id="createRequisitionForm">
                         @Html.AntiForgeryToken()
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label asp-for="RequesterId" class="form-label"></label>
-                                <select asp-for="RequesterId" asp-items="ViewBag.Supervisors as SelectList" class="form-select choiceDD">
-                                    <option value="">Select Request by</option>
-                                </select>
-                                <span asp-validation-for="RequesterId" class="text-danger"></span>
+
+                        <div class="row g-3">
+                            <!-- Left Side -->
+                            <div class="col-md-8">
+                                <div class="row g-3">
+
+
+                                    <div class="col-md-6">
+                                        <label asp-for="OrganizationId" class="form-label"></label>
+                                        <select asp-for="OrganizationId"
+                                                asp-items="ViewBag.Company as SelectList"
+                                                class="form-select choiceDD">
+                                            <option value="">Select Organization</option>
+                                        </select>
+                                        <span asp-validation-for="OrganizationId" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="OrganizationBranchId" class="form-label"></label>
+                                        <select asp-for="OrganizationBranchId"
+                                                asp-items="ViewBag.OrganizationBranches as SelectList"
+                                                class="form-select choiceDD">
+                                            <option value="">Select Branch</option>
+                                        </select>
+                                        <span asp-validation-for="OrganizationBranchId" class="text-danger"></span>
+                                    </div>
+
+
+                                    <div class="col-md-6">
+                                        <label asp-for="RequesterId" class="form-label"></label>
+                                        <select asp-for="RequesterId"
+                                                asp-items="ViewBag.Supervisors as SelectList"
+                                                class="form-select choiceDD">
+                                            <option value="">Select Requester</option>
+                                        </select>
+                                        <span asp-validation-for="RequesterId" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Priority" class="form-label"></label>
+                                        <select asp-for="Priority" asp-items="ViewBag.Priorities as SelectList" class="form-select choiceDD" id="priority">
+                                            
+                                        </select>
+                                        <span asp-validation-for="Priority" class="text-danger"></span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="col-md-6">
-                                <label asp-for="LocationId" class="form-label"></label>
-                                <select asp-for="LocationId" asp-items="ViewBag.Projects" class="form-select choiceDD">
-                                    <option value="">Select Location</option>
-                                </select>
-                                <span asp-validation-for="LocationId" class="text-danger"></span>
+                            <!-- Right Side -->
+                            <div class="col-md-4">
+                                <label asp-for="RequisitionNote" class="form-label"></label>
+                                <textarea asp-for="RequisitionNote"
+                                          class="form-control"
+                                          rows="5"
+                                          placeholder="Write requisition note (max 100 word)..."></textarea>
+                                <span asp-validation-for="RequisitionNote" class="text-danger"></span>
                             </div>
                         </div>
 
+
+
+
                         <div class="container mt-4">
-                            <h4 class="mb-3">Product Entry Table</h4>
+
 
                             <table class="table table-borderless">
                                 <thead>
@@ -60,9 +102,7 @@
                                 <tbody id="productTableBody"></tbody>
                             </table>
 
-                            @*<button type="button" class="btn btn-primary" onclick="addNewRow()">
-                                Add New Item
-                            </button>*@
+                  
 
                             <button class="btn btn-phoenix-primary" type="button" onclick="addNewRow()">
                                 <i class="fas fa-plus text-black "></i>
@@ -384,7 +424,7 @@
 </div>
 
 
-<!-- Delete Confirmation Modal -->
+
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -411,62 +451,7 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-
-
     <script src="~/js/pages/POS/Requisition/newRequisition.js"></script>
 
 
-
-    @*<script>
-            window.addNewRow = function () {
-
-                $("#productTableBody tr").each(function (index) {
-                    $(this).find('input, select').each(function () {
-                        let name = $(this).attr('name');
-                        if (name) {
-                            // Replace any existing index with new index
-                            let newName = name.replace(/\[\d+\]/, `[${index}]`);
-                            $(this).attr('name', newName);
-                        }
-                    });
-
-                    // Update hidden index field
-                    $(this).find('input[name="Products.Index"]').val(index);
-                });
-
-                const index = $("#productTableBody tr").length;
-                let template = $("#productRowTemplate").prop("outerHTML");
-
-                template = template.replace(/INDEX/g, index);
-                template = template.replace('id="productRowTemplate"', "");
-                template = template.replace('name="Products.Index" value=""', `name="Products.Index" value="${index}"`);
-
-                $("#productTableBody").append(template);
-            };
-
-            window.removeRow = function (button) {
-                $(button).closest("tr").remove();
-
-                // Re-index all remaining rows
-                $("#productTableBody tr").each(function (index) {
-                    $(this).find('input, select').each(function () {
-                        let name = $(this).attr('name');
-                        if (name) {
-                            let newName = name.replace(/\[\d+\]/, `[${index}]`);
-                            $(this).attr('name', newName);
-
-                            // Update IDs too for product type change functionality
-                            let id = $(this).attr('id');
-                            if (id) {
-                                let newId = id.replace(/_\d+/, `_${index}`);
-                                $(this).attr('id', newId);
-                            }
-                        }
-                    });
-
-                    // Update hidden index field
-                    $(this).find('input[name="Products.Index"]').val(index);
-                });
-            };
-        </script>*@
-}
+ }
