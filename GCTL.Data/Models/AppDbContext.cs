@@ -137,6 +137,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<EmployeeAdditionalInfo> EmployeeAdditionalInfo { get; set; }
 
+    public virtual DbSet<EmployeeAdvanceFor> EmployeeAdvanceFor { get; set; }
+
     public virtual DbSet<EmployeeAdvances> EmployeeAdvances { get; set; }
 
     public virtual DbSet<EmployeeAllowanceSetup> EmployeeAllowanceSetup { get; set; }
@@ -909,8 +911,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(r => r.TenantInfoId)
                 .IsRequired(false)
                 .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
-
-
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -2442,6 +2442,41 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeAdditionalInfoUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__EmployeeA__Updat__695C9DA1");
+        });
+
+        modelBuilder.Entity<EmployeeAdvanceFor>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeAdvanceForID).HasName("PK__Employee__669E89346EF6372F");
+
+            entity.ToTable("EmployeeAdvanceFor", "FS");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.EmployeeAdvanceForCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__EmployeeA__Creat__00BFF13D");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.EmployeeAdvanceForDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__EmployeeA__Delet__039C5DE8");
+
+            entity.HasOne(d => d.EmployeeAdvance).WithMany(p => p.EmployeeAdvanceFor)
+                .HasForeignKey(d => d.EmployeeAdvanceID)
+                .HasConstraintName("FK__EmployeeA__Emplo__7ED7A8CB");
+
+            entity.HasOne(d => d.JobType).WithMany(p => p.EmployeeAdvanceFor)
+                .HasForeignKey(d => d.JobTypeID)
+                .HasConstraintName("FK__EmployeeA__JobTy__7FCBCD04");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.EmployeeAdvanceForUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__EmployeeA__Updat__01B41576");
         });
 
         modelBuilder.Entity<EmployeeAdvances>(entity =>
@@ -7067,8 +7102,11 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsDeclined).HasDefaultValue(false);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Priority).HasDefaultValue(1);
+            entity.Property(e => e.RequisitionNote).HasMaxLength(500);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.ApprovalType).WithMany(p => p.Requisitions)
@@ -7082,6 +7120,18 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.RequisitionsDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Requisiti__Delet__234A136B");
+
+            entity.HasOne(d => d.OrganizationBranch).WithMany(p => p.Requisitions)
+                .HasForeignKey(d => d.OrganizationBranchID)
+                .HasConstraintName("FK_Requisitions_OrganizationBranch");
+
+            entity.HasOne(d => d.Organization).WithMany(p => p.Requisitions)
+                .HasForeignKey(d => d.OrganizationID)
+                .HasConstraintName("FK_Requisitions_Organization");
+
+            entity.HasOne(d => d.RequisitionByNavigation).WithMany(p => p.RequisitionsRequisitionByNavigation)
+                .HasForeignKey(d => d.RequisitionBy)
+                .HasConstraintName("FK_Requisitions_RequisitionBy");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.RequisitionsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)

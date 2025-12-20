@@ -33,11 +33,29 @@ public partial class Requisitions
 
     public bool? IsFinalApproved { get; set; }
 
+    public bool? IsDeclined { get; set; }
+
+    public int? RequisitionBy { get; set; }
+
+    public int? OrganizationID { get; set; }
+
+    public int? OrganizationBranchID { get; set; }
+
+    public string RequisitionNote { get; set; }
+
+    public int? Priority { get; set; }
+
     public virtual ApprovalTypes ApprovalType { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Organization Organization { get; set; }
+
+    public virtual OrganizationBranches OrganizationBranch { get; set; }
+
+    public virtual Employees RequisitionByNavigation { get; set; }
 
     public virtual ICollection<RequisitionItems> RequisitionItems { get; set; } = new List<RequisitionItems>();
 
