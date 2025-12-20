@@ -34,7 +34,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             _jobtyperepository = jobtyperepository;
         }
 
-
+        #region Add
         public async Task<CommonReturnViewModel> AddAsync(EmployeeAdvancedVM emp)
         {
             try
@@ -56,6 +56,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 empadvance.UpdatedBy = emp.UpdatedBy;
                 empadvance.ApprovedByUserID = emp.ApprovedByUserID;
                 empadvance.ApprovalStatusID = 11; // Pending
+                
 
 
 
@@ -83,6 +84,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             }
 
         }
+        #endregion
+
+        #region EmployeeDD
 
         //Modern Dropdown for Employees
         public async Task<IEnumerable<CommonSelectVM>> EmployeeDD()
@@ -96,11 +100,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 }).ToListAsync();
             return data;
         }
+        #endregion
 
-
-
-        //Get Jobstype service
-
+        #region GetJob Service
         public async Task<ReturnDataView<SelectListItem>> GetJobTypeAsync(string search, int page, int pageSize, int organizationID)
         {
             var query = _jobtyperepository.AllActive()
@@ -116,9 +118,6 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         EF.Functions.Like(c.JobTypeID, pattern)
                     ));
             }
-
-
-
             var totalCount = await query.CountAsync();
 
             var items = await query
@@ -140,7 +139,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 message = "Data loaded"
             };
         }
+        #endregion
 
+        #region Approve Service
         public async Task<CommonReturnViewModel> ApproveAsync(int id, int approvedByUserId)
         {
             try
@@ -192,6 +193,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 };
             }
         }
+        #endregion
 
 
 

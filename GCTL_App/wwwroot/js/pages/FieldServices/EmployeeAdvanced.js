@@ -1,4 +1,6 @@
-﻿$(document).ready (function () {
+﻿
+//Customer Dropdown
+$(document).ready(function () {
 
     $('#CustomerID2').select2({
         placeholder: 'Select Customer',
@@ -92,7 +94,7 @@
 //$('#JobID').val(null).trigger('change'); // Clear current selection
 //$('#JobID').select2('destroy'); // Destroy the current instance
 
-// Reinitialize Select2
+// Job Dropdown Reinitialize Select2
 $('#JobID').select2({
     placeholder: 'Select Job',
     width: '100%',
@@ -163,9 +165,6 @@ $('#JobID').select2({
         },
         width: '100%'
     });
-
-// Optionally, set the newly created job as selected
-// $('#JobID').val(newJobId).trigger('change');
 
 
     //Modal
@@ -252,6 +251,38 @@ $('#JobID').select2({
         }
     });
 
+    //Nested System Job by JobType
+
+    $("#RequestedByUserID").on('change', function () {
+        const jobTypeIds = $(this).val(); //multiple select
+
+        $("#JobID").empty().append(`<option value="">Select JobType</option>`);
+
+        if (jobTypeIds && jobTypeIds.length > 0) {
+            $.ajax({
+                url: "/CreateJobs/GetJobsByJobType",
+                type: "GET",
+                traditional: true, // important for array parameters
+                data: { jobTypeIds: jobTypeIds },
+                success: function (jobs) {
+                    $("#JobID").empty().append(`<option value="">Slect Job</option>`);
+
+                    if (jobs && jobs.length > 0) {
+                        $.each(jobs, function (i, job) {
+                            $("#JobID").append(
+                                `<option value="${job.id}">${job.text}</option>`
+                            );
+                        });
+                    } else {
+                        $("#JobID").append(`<option value="">No Jobs Found</option>`);
+                    }
+                }
+
+            });
+        } else {
+            $("#JobID").empty().append(`<option value="">Select Job</option>`)
+        }
+    })
 
 });
 
