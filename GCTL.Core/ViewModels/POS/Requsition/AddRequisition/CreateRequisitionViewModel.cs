@@ -15,9 +15,24 @@ namespace GCTL.Core.ViewModels.POS.Requsition.AddRequisition
 
 
 
+    
+
         [Required]
-        [Display(Name = "Request Location")]
-        public int LocationId { get; set; }
+        [Display(Name = "Organization")]
+        public int OrganizationId { get; set; }
+
+        [Required]
+        [Display(Name = "Branch")]
+        public int OrganizationBranchId { get; set; }
+
+        [Required]
+        [Display(Name = "Priority")]
+        public int Priority { get; set; }
+
+
+        [StringLength(100)]
+        [Display(Name = "Requisition Note")]
+        public string? RequisitionNote { get; set; }
 
         public List<RequisitionProductViewModel> Products { get; set; } = new List<RequisitionProductViewModel>
         {

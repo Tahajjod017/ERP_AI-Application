@@ -8,6 +8,7 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 
 namespace GCTL_App.Controllers.POS.Requisition
 {
@@ -28,9 +29,10 @@ namespace GCTL_App.Controllers.POS.Requisition
         private readonly IGenericRepository<GCTL.Data.Models.Employees> _employeeRepository;
         private readonly IGenericRepository<Statuses> _statusRepository;
         private readonly IGenericRepository<Organization> _organizationRepository;
+        private readonly IGenericRepository<OrganizationBranches> _organizationBrancRepository;
 
 
-        public RequisitionController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Requisitions> requisitionRepository, IGenericRepository<ReqItemApprovalHistory> reqItemHistoryRepository, IGenericRepository<ProductTypes> productTypesRepository, IGenericRepository<Products> productRepository, IGenericRepository<UnitTypes> unitRepository, INewRequisitionService newRequisitionService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Statuses> statusRepository, IGenericRepository<Organization> organizationRepository) : base(translateService, userProfileService)
+        public RequisitionController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<Requisitions> requisitionRepository, IGenericRepository<ReqItemApprovalHistory> reqItemHistoryRepository, IGenericRepository<ProductTypes> productTypesRepository, IGenericRepository<Products> productRepository, IGenericRepository<UnitTypes> unitRepository, INewRequisitionService newRequisitionService, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Statuses> statusRepository, IGenericRepository<Organization> organizationRepository, IGenericRepository<OrganizationBranches> organizationBrancRepository) : base(translateService, userProfileService)
         {
             _requisitionRepository = requisitionRepository;
             _reqItemHistoryRepository = reqItemHistoryRepository;
@@ -41,6 +43,7 @@ namespace GCTL_App.Controllers.POS.Requisition
             _employeeRepository = employeeRepository;
             _statusRepository = statusRepository;
             _organizationRepository = organizationRepository;
+            _organizationBrancRepository = organizationBrancRepository;
         }
         #endregion
 
@@ -55,7 +58,18 @@ namespace GCTL_App.Controllers.POS.Requisition
            
             ViewBag.SubCategories = new SelectList(_statusRepository.AllActive().Select(e => new { Id = e.StatusID, Name = e.StatusName }).ToList(), "Id", "Name");
 
-           
+            ViewBag.Company = new SelectList(_organizationRepository.AllActive().Select(e => new { Id = e.OrganizationID, Name = e.OrganizationName }).ToList(), "Id", "Name");
+
+            var parotiy = new List<object>
+                    {
+                        new { Id = 1, Name = "Normal" },
+                        new { Id = 2, Name = "Advance" },
+                        new { Id = 3, Name = "Urgent" }
+                    };
+
+            ViewBag.Priorities = new SelectList(parotiy, "Id", "Name");
+
+
 
             int? empID = GetCurrentEmployeeIdAsync().Result;
 
@@ -128,6 +142,25 @@ namespace GCTL_App.Controllers.POS.Requisition
 
 
         }
+
+
+        [HttpGet]
+        public IActionResult GetBranchesByOrganization(int organizationId)
+        {
+            var branches = _organizationBrancRepository.AllActive()
+                .Where(b => b.OrganizationID == organizationId)
+                .Select(b => new
+                {
+                    b.OrganizationBranchID,
+                    b.OrganizationBranchName
+                })
+                .ToList();
+
+            return Json(branches);
+        }
+
+
+
         #endregion
 
 
