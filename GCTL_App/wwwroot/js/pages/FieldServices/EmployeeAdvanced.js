@@ -1,5 +1,5 @@
 ﻿
-//Customer Dropdown
+//Customer Dropdown with Select2 and AJAX
 $(document).ready(function () {
 
     $('#CustomerID2').select2({
@@ -98,43 +98,43 @@ $(document).ready(function () {
 //$('#JobID').val(null).trigger('change'); // Clear current selection
 //$('#JobID').select2('destroy'); // Destroy the current instance
 
-// Job Dropdown Reinitialize Select2
-$('#JobID').select2({
-    placeholder: 'Select Job',
-    width: '100%',
-    ajax: {
-        url: '/CreateJobs/GetJobs',
-        dataType: 'json',
-        delay: 250,
-        data: function (params) {
-            return {
-                search: params.term || '',
-                page: params.page || 1
-            };
-        },
-        processResults: function (data, params) {
-            params.page = params.page || 1;
-            return {
-                results: data.results,
-                pagination: {
-                    more: data.pagination.more
-                }
-            };
-        },
-        cache: true
-    },
-    language: {
-        noResults: function () {
-            return $(
-                `<span>Data not found. Create a <a id="createJob" href="#">Job</a></span>`
-            );
-        }
-    },
-    width: '100%'
-});
+    //job dropdown reinitialize select2
 
 
-    //Modal Job Type
+    $('#JobID').select2({
+        placeholder: 'select job',
+        width: '100%',
+        ajax: {
+            url: '/createjobs/getjobs',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || '',
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.results,
+                    pagination: {
+                        more: data.pagination.more
+                    }
+                };
+            },
+            cache: true
+        },
+        language: {
+            noResults: function () {
+                return 'Data not found. Create a <a href="#" id="createJob">job</a>';
+            }
+        },
+        escapeMarkup: function (markup) { return markup; } // allow HTML in noResults
+    });
+
+
+    //Modal Job Type Dropdown
 
     $('#RequestedByUserID').select2({
         placeholder: 'Select Job',
@@ -224,74 +224,64 @@ $('#JobID').select2({
     });
 
 
-    //Nested Dropdown for Job By Customer
-
+    // Cascading Job by Customer with Select2
     $("#CustomerID2").on('change', function () {
         const customerId = $(this).val();
 
         if (customerId) {
             $.ajax({
-                url: '/EmployeeAdvanced/GetJobByCusId', // set this in Razor
+                url: '/EmployeeAdvanced/GetJobByCusId',
                 type: "GET",
                 data: { customerId: customerId },
                 success: function (result) {
                     if (result.success) {
                         var data = result.data;
+                        // clear select2 options
                         $("#JobID").empty();
 
-                        if (data) {
-                            $("#JobID").append(
-                                `<option value="${data.jobID}" selected>
-                            ${data.jobTitle}
-                         </option>`
-                            );
+                        if (data && data.length > 0) {
+                            // build array for select2
+                            let jobs = data.map(job => ({
+                                id: job.jobID,
+                                text: job.jobTitle
+                            }));
+
+                            // re-init select2 with new data
+                            $("#JobID").select2({
+                                data: jobs,
+                                placeholder: 'select job',
+                                width: '100%'
+                            });
                         } else {
-                            $("#JobID").append(
-                                `<option value="">No data found</option>`
-                            );
+                            $("#JobID").select2({
+                                data: [{ id: '', text: 'No jobs found' }],
+                                width: '100%'
+                            });
                         }
                     } else {
                         toastr.error("Something went wrong!");
                     }
+                },
+                error: function () {
+                    toastr.error("Something went wrong!");
                 }
             });
         } else {
-            $("#JobID").empty().append(`<option value="">Select Client</option>`);
+            $("#JobID").select2({
+                data: [{ id: '', text: 'Select Client' }],
+                width: '100%'
+            });
         }
     });
 
-    ////Nested System Job by JobType
+    // propagate CustomerID2 value into modal after modal is shown
+    $('#createJobModalToggle').on('shown.bs.modal', function () {
+        const selectedCustomerId = $("#CustomerID2").val();
+        $(this).find('#CustomerID2').val(selectedCustomerId).trigger('change');
+    });
 
-    //$("#RequestedByUserID").on('change', function () {
-    //    const jobTypeIds = $(this).val(); //multiple select
 
-    //    $("#JobID").empty().append(`<option value="">Select JobType</option>`);
-
-    //    if (jobTypeIds && jobTypeIds.length > 0) {
-    //        $.ajax({
-    //            url: "/CreateJobs/GetJobsByJobType",
-    //            type: "GET",
-    //            traditional: true, // important for array parameters
-    //            data: { jobTypeIds: jobTypeIds },
-    //            success: function (jobs) {
-    //                $("#JobID").empty().append(`<option value="">Slect Job</option>`);
-
-    //                if (jobs && jobs.length > 0) {
-    //                    $.each(jobs, function (i, job) {
-    //                        $("#JobID").append(
-    //                            `<option value="${job.id}">${job.text}</option>`
-    //                        );
-    //                    });
-    //                } else {
-    //                    $("#JobID").append(`<option value="">No Jobs Found</option>`);
-    //                }
-    //            }
-
-    //        });
-    //    } else {
-    //        $("#JobID").empty().append(`<option value="">Select Job</option>`)
-    //    }
-    //})
+   
 
 });
 
