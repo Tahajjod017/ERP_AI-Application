@@ -21,13 +21,17 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         public readonly IGenericRepository<GCTL.Data.Models.Employees> _employees;
         public readonly IGenericRepository<GCTL.Data.Models.JobTypes> _jobtyperepository;
         public readonly IGenericRepository<EmployeeAdvanceFor> _employeeAdvanceForRepository;
+        public readonly IGenericRepository<Customers> _customer;
+        public readonly IGenericRepository<Jobs> _job;
 
-        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository) : base(genericRepository)
+        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, IGenericRepository<Customers> customer, IGenericRepository<Jobs> job) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _employees = employees;
             _jobtyperepository = jobtyperepository;
             _employeeAdvanceForRepository = employeeAdvanceForRepository;
+            _customer = customer;
+            _job = job;
         }
 
         #region Add
@@ -206,7 +210,27 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         }
         #endregion
 
+        #region GetJobsByCusId(Nestesd)
+        public async Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId)
+        {
+            try
+            {
+                var data = await (from j in _job.AllActive()
+                                  join c in _customer.AllActive() on j.CustomerID equals c.CustomerID
+                                  where j.CustomerID == customerId
+                                  select new EmployeeAdvancedVM
+                                  {
+                                      JobID = j.JobID,
+                                      JobTitle = j.JobTitle
+                                  }).ToListAsync();
 
-
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
     }
 }

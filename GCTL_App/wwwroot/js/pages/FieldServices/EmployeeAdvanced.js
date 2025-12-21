@@ -226,32 +226,37 @@ $('#JobID').select2({
 
     //Nested Dropdown for Job By Customer
 
-    $("#JobID").on('change', function () {
-        const jobId = $(this).val();
+    $("#CustomerID2").on('change', function () {
+        const customerId = $(this).val();
 
-        if (jobId) {
+        if (customerId) {
             $.ajax({
-                url: '/CreateJobs/GetCustomerInfo', // set this in Razor
+                url: '/EmployeeAdvanced/GetJobByCusId', // set this in Razor
                 type: "GET",
-                data: { id: jobId },
-                success: function (customer) {
-                    $("#CustomerID2").empty();
+                data: { customerId: customerId },
+                success: function (result) {
+                    if (result.success) {
+                        var data = result.data;
+                        $("#JobID").empty();
 
-                    if (customer) {
-                        $("#CustomerID2").append(
-                            `<option value="${customer.id}" selected>
-                            ${customer.text}
+                        if (data) {
+                            $("#JobID").append(
+                                `<option value="${data.jobID}" selected>
+                            ${data.jobTitle}
                          </option>`
-                        );
+                            );
+                        } else {
+                            $("#JobID").append(
+                                `<option value="">No data found</option>`
+                            );
+                        }
                     } else {
-                        $("#CustomerID2").append(
-                            `<option value="">No Customer Found</option>`
-                        );
+                        toastr.error("Something went wrong!");
                     }
                 }
             });
         } else {
-            $("#CustomerID").empty().append(`<option value="">Select Client</option>`);
+            $("#JobID").empty().append(`<option value="">Select Client</option>`);
         }
     });
 

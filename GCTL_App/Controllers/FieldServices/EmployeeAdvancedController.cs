@@ -10,6 +10,7 @@ using GCTL.Service.FieldServices.EmployeeAdvanced;
 using GCTL.Service.CommonService;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using GCTL.Service.FieldServices;
 
 namespace GCTL_App.Controllers.FieldServices
 {
@@ -21,10 +22,10 @@ namespace GCTL_App.Controllers.FieldServices
         private readonly ICommonService _commonService;
         private readonly IGenericRepository<ApprovalSettings> _approvalsettings;
         private readonly IGenericRepository<EmployeeAdvanceFor> _employeeAdvanceForRepository;
+        private readonly ICreateJobService _createJobService;
 
 
-
-        public EmployeeAdvancedController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<JobTypes> jobTypeRepository, IEmployeeAdvanced service, IGenericRepository<GCTL.Data.Models.Employees> employees, ICommonService commonService, IGenericRepository<JobTypes> jobtype, IGenericRepository<ApprovalSettings> approvalsettings, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository) : base(translateService, userProfileService)
+        public EmployeeAdvancedController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<JobTypes> jobTypeRepository, IEmployeeAdvanced service, IGenericRepository<GCTL.Data.Models.Employees> employees, ICommonService commonService, IGenericRepository<JobTypes> jobtype, IGenericRepository<ApprovalSettings> approvalsettings, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, ICreateJobService createJobService) : base(translateService, userProfileService)
         {
             _jobTypeRepository = jobTypeRepository;
             _mainservice = service;
@@ -32,6 +33,7 @@ namespace GCTL_App.Controllers.FieldServices
             _commonService = commonService;
             _approvalsettings = approvalsettings;
             _employeeAdvanceForRepository = employeeAdvanceForRepository;
+            _createJobService = createJobService;
         }
 
         #region Index
@@ -121,6 +123,28 @@ namespace GCTL_App.Controllers.FieldServices
         }
         #endregion
 
+        #region GetJobByCustomer(Nested)
+        public async Task<IActionResult> GetJobByCusId(int customerId) 
+        {
+            try
+            {
+                var result = await _mainservice.GetJobByCusId(customerId);
+                return Json(new
+                {
+                    success = true,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
 
         // NEW: Approve Employee Advance
         [HttpPost]
@@ -141,11 +165,6 @@ namespace GCTL_App.Controllers.FieldServices
                 message = result.Message
             });
         }
-
-
-
-
-
+        #endregion
     }
-
 }

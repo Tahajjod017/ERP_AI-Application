@@ -18,6 +18,8 @@ namespace GCTL.Core.ViewModels.FieldServices
         [Range(1, int.MaxValue, ErrorMessage = "Please select a valid job")]
         public int? JobID { get; set; }
 
+        public string? JobTitle { get; set; }
+
         [Required(ErrorMessage = "Requested By is required")]
         public List <int>? RequestedByUserID { get; set; }
 
