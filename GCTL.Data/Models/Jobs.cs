@@ -49,11 +49,15 @@ public partial class Jobs
 
     public int? OrganizationID { get; set; }
 
+    public int? DivisionID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Customers Customer { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Divisions Division { get; set; }
 
     public virtual ICollection<EmployeeAdvances> EmployeeAdvances { get; set; } = new List<EmployeeAdvances>();
 

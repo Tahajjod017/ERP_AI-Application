@@ -24,6 +24,9 @@ namespace GCTL.Service.FieldServices
             string searchTerm = "", string sortColumn = "CreateJobID", string sortOrder = "asc");
         Task<CommonReturnViewModel> GetCalenderData(int organizationID, DateTime start, DateTime end, string searchTerm = "");
         CustomerInfoVM GetCustomerInfo(int jobId, int organizationID);
+        Task<ReturnDataView<SelectListItem>> GetDivisionsAsync(string search);
+        Task<ReturnDataView<SelectListItem>> GetStatusesAsync(string search);
+        Task<ReturnDataView<SelectListItem>> GetJobTypesAsync(string search);
         #endregion
     }
 }

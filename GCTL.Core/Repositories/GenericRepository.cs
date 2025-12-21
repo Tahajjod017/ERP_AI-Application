@@ -1,8 +1,6 @@
 ﻿using EFCore.BulkExtensions;
-using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
 using System.Web.Mvc;
 
@@ -258,35 +256,26 @@ namespace GCTL.Core.Repository
 
         public async Task BeginTransactionAsync()
         {
-            if (_context.Database.CurrentTransaction == null)
-            {
-                await _context.Database.BeginTransactionAsync();
-                _ownsTransaction = true;
-            }
+            await _context.Database.BeginTransactionAsync();
         }
-       
 
         public async Task CommitTransactionAsync()
         {
             var transaction = _context.Database.CurrentTransaction;
-            if (transaction == null || !_ownsTransaction) return;
+            if (transaction == null) return;
 
             await transaction.CommitAsync();
-            _ownsTransaction = false;
             await transaction.DisposeAsync();
         }
-       
 
         public async Task RollbackTransactionAsync()
         {
             var transaction = _context.Database.CurrentTransaction;
-            if (transaction == null || !_ownsTransaction) return;
+            if (transaction == null) return;
 
             await transaction.RollbackAsync();
-            _ownsTransaction = false;
             await transaction.DisposeAsync();
         }
-
 
         public async Task OpenTransactionAsync()
         {
@@ -322,7 +311,6 @@ namespace GCTL.Core.Repository
             _context.Dispose();
         }
         #endregion
-
 
 
         #region Select

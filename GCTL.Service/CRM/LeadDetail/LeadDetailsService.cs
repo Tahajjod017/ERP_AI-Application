@@ -2,9 +2,7 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SkiaSharp;
 
 
 namespace GCTL.Service.CRM.LeadDetail

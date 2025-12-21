@@ -45,6 +45,8 @@ public partial class Requisitions
 
     public int? Priority { get; set; }
 
+    public string RequisitionCode { get; set; }
+
     public virtual ApprovalTypes ApprovalType { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
