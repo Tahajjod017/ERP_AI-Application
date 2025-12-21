@@ -72,31 +72,31 @@ $(document).ready(function () {
                     rows += `
                         <tr class="position-static">
                             <td class="align-middle white-space-nowrap ps-0 reqId">#${item.requisitionId}</td>
-                            <td class="align-middle white-space-nowrap ps-2 productName">${item.productName}</td>
-                            <td class="align-middle white-space-nowrap ps-2 reqFor">${item.productType}</td>
+                            <td class="align-middle white-space-nowrap ps-2 productName">${item.requitionCode}</td>
+                        
                             <td class="align-middle white-space-nowrap ps-2 reqDate">${formatDate(item.requisitionDate)}</td>
-                            <td class="align-middle white-space-nowrap ps-2 productUnits">${item.unit}</td>
-                            <!--<td class="align-middle white-space-nowrap ps-2 reqBy">${item.stockInWarehouse}</td>
-                            <td class="align-middle white-space-nowrap ps-2 productCatagory">${item.unusedQuantity}</td> -->
-                            <td class="align-middle white-space-nowrap ps-2 productSubCatagory">${item.requisitionQuantity}</td>
-                            <td class="align-middle white-space-nowrap ps-2 approveQuantity">${item.approveQuantity}</td>
+                     
+                            
+                            <td class="align-middle white-space-nowrap ps-2 productSubCatagory">${item.requisitionBy}</td>
+                         
+                            <td class="align-middle white-space-nowrap ps-2 approveQuantity">${item.requisitionItems}</td>
                             <td class="align-middle white-space-nowrap ps-2 approvalStatus">
                                 <span class="badge badge-phoenix ${getStatusBadge(item.status)}">${item.status}</span>
                             </td>
                             <td class="align-middle text-end white-space-nowrap pe-2 action">
                                 <div class="d-flex g-3">
-                                    <button class="btn btn-phoenix-secondary btn-icon me-2 fs-10 text-body px-0"
-                                            type="button" data-bs-toggle="modal" 
-                                            data-bs-target="#modelForEditRequisition" 
-                                            data-id="${item.id}">
-                                        <span class="fas fa-edit"></span>
-                                    </button>
-                                    <button class="btn btn-phoenix-secondary btn-icon fs-10 text-danger delBTN px-0" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#deleteConfirmModal" 
-                                            data-id="${item.id}">
-                                        <span class="fas fa-trash"></span>
-                                    </button>
+                                    
+
+                                   
+                                    <a href="#" class="nav-item me-2" type="button" data-bs-toggle="modal" data-bs-target="#modelForEditRequisition" data-id="${item.requisitionId}">
+                                        <i class="fas fa-edit text-black tblEditBtn"></i>
+                                    </a>
+                                    <a href="#" class="nav-item me-2 tblDelBtn" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" data-id="${item.requisitionId}">
+                                        <i class="far fa-trash-alt text-black "></i>
+                                    </a>
+
+
+
                                 </div>
                             </td>
                         </tr>`;
@@ -332,51 +332,149 @@ $(document).ready(function () {
             }
         });
     });
+
+
+
+   
+
+
+
+
     //#endregion
 
 
     //#region Edit and related
 
+    // === ONLY FOR EDIT MODAL: Cascading Dropdowns (Product Type → Product → Unit) ===
+
+    // When Product Type changes in Edit modal
+    $(document).on("change", "#editProductTableBody select.product-type-dd", function () {
+        const $typeSelect = $(this);
+        const productTypeId = $typeSelect.val();
+        const $row = $typeSelect.closest("tr");
+        const $productSelect = $row.find("select.product-dd");
+        const $unitInput = $row.find("input[readonly][placeholder='Unit will auto-fill']");
+
+        // Reset dependents
+        $productSelect.html('<option value="">Select Product</option>');
+        $unitInput.val('');
+
+        if (!productTypeId) return;
+
+        $.ajax({
+            url: '/Requisition/GetProductsByType',
+            type: 'GET',
+            data: { productTypeId: productTypeId },
+            success: function (data) {
+                let options = '<option value="">Select Product</option>';
+                $.each(data, function (i, p) {
+                    options += `<option value="${p.id}">${p.productName}</option>`;
+                });
+                $productSelect.html(options);
+            },
+            error: function () {
+                $productSelect.html('<option value="">Failed to load</option>');
+            }
+        });
+    });
+
+    // When Product changes in Edit modal
+    $(document).on("change", "#editProductTableBody select.product-dd", function () {
+        const productId = $(this).val();
+        const $row = $(this).closest("tr");
+        const $unitInput = $row.find("input[readonly][placeholder='Unit will auto-fill']");
+
+        $unitInput.val('');
+
+        if (!productId) return;
+
+        $.ajax({
+            url: '/Requisition/GetUnitByProduct',
+            type: 'GET',
+            data: { productId: productId },
+            success: function (data) {
+                $unitInput.val(data.unitName || 'N/A');
+            },
+            error: function () {
+                $unitInput.val('Error');
+            }
+        });
+    });
+
+
     // Edit button click - load data into modal
-    $(document).on("click", "button[data-bs-target='#modelForEditRequisition']", function () {
+    $(document).on("click", "a[data-bs-target='#modelForEditRequisition']", function () {
         const id = $(this).data('id');
 
         $.ajax({
             url: '/Requisition/GetRequisitionById',
+            type: "GET",              // or "POST" depending on your backend
+            dataType: "json",         // expect JSON response
             data: { id: id },
+            headers: { "RequestVerificationToken": $("input[name='__RequestVerificationToken']").val() },
             success: function (data) {
+                console.log("Server returned:", data);
+
                 showDev(data, 'ddd')
-                const isApproved = data.status.toLowerCase() === 'approved';
-
-                $('#edit_Id').val(data.id);
-
-                $('#edit_Brand').val(data.brand).prop('disabled', isApproved);
-                $('#edit_UnitId').val(data.unit).prop('disabled', isApproved);
-                $('#edit_Quantity').val(data.quantity).prop('disabled', isApproved);
-
-
-                choiceManager.setChoiceValue('edit_RequisitionFor', data.requisitionFor);
-                choiceManager.setChoiceValue('edit_RequisitionBy', data.requisitionBy);
-                choiceManager.setChoiceValue('edit_ProductTypeId', data.productTypeId);
-                choiceManager.setChoiceValue('edit_ProductId', data.productId);
-
-
-
-                // Disable save button if approved
-                $('button[onclick="saveEditRequisition()"]').prop('disabled', isApproved);
-
-                if (isApproved) {
-                    $('.modal-title').text('View Product Requisition (Approved by Responsible Person)');
-                    choiceManager.disableChoice('edit_ProductTypeId');
-                    choiceManager.disableChoice('edit_ProductId');
-                } else {
-                    $('.modal-title').text('Edit Product Requisition');
-                    choiceManager.enableChoice('edit_ProductTypeId');
-                    choiceManager.enableChoice('edit_ProductId');
+                openEditRequisition(data.data)
+            },
+            error: function (xhr, status, error) {
+                let message = "Failed to load requisition.";
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                } else if (error) {
+                    message = error;
                 }
+                console.error("Error fetching requisition:", status, error);
+                alert(message);
             }
+
+
         });
     });
+
+    // Function to populate edit modal (call this when opening modal)
+    function openEditRequisition(requisition) {
+        // Set main fields
+        $('#edit_RequisitionId').val(requisition.reqId);
+       
+        choiceManager.setChoiceValue('edit_OrganizationId', requisition.organizationId);
+        choiceManager.setChoiceValue('edit_OrganizationBranchId', requisition.organizationBranchId);
+        choiceManager.setChoiceValue('edit_RequesterId', requisition.requesterId);
+        choiceManager.setChoiceValue('edit_Priority', requisition.priority);
+       
+        $('#edit_RequisitionNote').val(requisition.requisitionNote);
+
+        // Clear and repopulate product rows
+        $('#editProductTableBody').empty();
+
+        if (requisition.products && requisition.products.length > 0) {
+            requisition.products.forEach((product, idx) => {
+                addNewRowToEditModal();
+                let $row = $('#editProductTableBody tr').last();
+
+                $row.find('select[name*="ProductTypeId"]').val(product.productTypeId).trigger('change');
+
+                // Wait until products are loaded
+                setTimeout(() => {
+                    $row.find('select[name*="ProductId"]').val(product.productId).trigger('change');
+                    $row.find('input[name*="Quantity"]').val(product.quantity);
+                    $row.find('input[name*="Id"]').val(product.id || 0);
+                }, 300); // adjust delay if needed
+
+               
+
+
+
+            });
+        } else {
+            // Add one empty row if none exist
+            addNewRowToEditModal();
+        }
+
+       
+    }
+
 
     // Save edit
     window.saveEditRequisition = function () {
@@ -405,8 +503,10 @@ $(document).ready(function () {
     //#region Delete
 
     // Delete button click
-    $(document).on("click", ".delBTN", function () {
-        const id = $(this).closest('button').data('id');
+    $(document).on("click", ".tblDelBtn", function () {
+        //const id = $(this).closest('button').data('id');
+        const id = $(this).data('id');
+
         $('#deleteRequisitionId').val(id);
 
         showDev(id, 'sss')
@@ -576,6 +676,32 @@ function initSelect2(context) {
         }
     });
 }
+function initSelect2Modal(context) {
+
+    $(context).find('.product-type-dd').each(function () {
+        if (!$(this).hasClass('select2-hidden-accessible')) {
+            $(this).select2({
+                width: '100%',
+                placeholder: 'Select Product Type',
+                allowClear: true,
+                dropdownParent: $('#modelForEditRequisition')
+
+            });
+        }
+    });
+
+    $(context).find('.product-dd').each(function () {
+        if (!$(this).hasClass('select2-hidden-accessible')) {
+            $(this).select2({
+                width: '100%',
+                placeholder: 'Select Product',
+                allowClear: true,
+                dropdownParent: $('#modelForEditRequisition')
+
+            });
+        }
+    });
+}
 
 //#endregion
 
@@ -584,6 +710,8 @@ function initSelect2(context) {
 
 
 
+
+//#region Create 
 
 
 window.addNewRow = function () {
@@ -642,5 +770,54 @@ window.removeRow = function (btn) {
         initSelect2(this);
     });
 };
+
+
+
+//#endregion
+
+//#region edit
+
+// Add new row in Edit Modal
+window.addNewRowToEditModal = function () {
+    const index = $("#editProductTableBody tr").length;
+    let template = $("#editProductRowTemplate").prop("outerHTML");
+    template = template.replace(/INDEX/g, index);
+    template = template.replace('id="editProductRowTemplate"', '');
+    let $newRow = $(template);
+
+    // Set hidden index for model binding
+    $newRow.find('input[name="Products.Index"]').val(index);
+
+    $("#editProductTableBody").append($newRow);
+    initSelect2Modal($newRow); // Reuse your existing initSelect2 function
+};
+
+// Remove row in Edit Modal + reindex
+window.removeEditRow = function (btn) {
+    $(btn).closest("tr").remove();
+
+    $("#editProductTableBody tr").each(function (index) {
+        $(this).find('.product-type-dd, .product-dd').select2('destroy');
+
+        $(this).find('input, select').each(function () {
+            let name = $(this).attr('name');
+            if (name) {
+                $(this).attr('name', name.replace(/\[\d+\]/, `[${index}]`));
+            }
+            let id = $(this).attr('id');
+            if (id) {
+                $(this).attr('id', id.replace(/_\d+/, `_${index}`));
+            }
+        });
+
+        $(this).find('input[name="Products.Index"]').val(index);
+        initSelect2Modal(this);
+    });
+};
+
+
+
+//#endregion
+
 
 //#endregion

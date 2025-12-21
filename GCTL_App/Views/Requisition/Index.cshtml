@@ -24,6 +24,9 @@
                         @Html.AntiForgeryToken()
 
 
+
+
+
                         <div class="row g-3">
                             <!-- Left Side -->
                             <div class="col-md-8">
@@ -64,7 +67,6 @@
                                     <div class="col-md-6">
                                         <label asp-for="Priority" class="form-label"></label>
                                         <select asp-for="Priority" asp-items="ViewBag.Priorities as SelectList" class="form-select choiceDD" id="priority">
-                                            
                                         </select>
                                         <span asp-validation-for="Priority" class="text-danger"></span>
                                     </div>
@@ -81,9 +83,6 @@
                                 <span asp-validation-for="RequisitionNote" class="text-danger"></span>
                             </div>
                         </div>
-
-
-
 
                         <div class="container mt-4">
 
@@ -102,7 +101,7 @@
                                 <tbody id="productTableBody"></tbody>
                             </table>
 
-                  
+
 
                             <button class="btn btn-phoenix-primary" type="button" onclick="addNewRow()">
                                 <i class="fas fa-plus text-black "></i>
@@ -110,6 +109,7 @@
                             </button>
 
                         </div>
+
 
 
                         <div class="row justify-content-end mt-3">
@@ -157,9 +157,9 @@
                     <option value="">Select Product</option>
                 </select>
             </td>
-      
 
-           
+
+
 
             <td>
                 <input type="text" id="UnitType_INDEX" class="form-control" readonly placeholder="Unit will auto-fill" />
@@ -171,8 +171,8 @@
 
             <td>
                 @*<button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">
-                    Delete
-                </button>*@
+                        Delete
+                    </button>*@
 
                 <a href="#" class="nav-item ms-4 me-2" type="button" onclick="removeRow(this)">
                     <i class="far fa-trash-alt text-black "></i>
@@ -298,15 +298,15 @@
                     <thead>
                         <tr>
                             <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="reqId">ID</th>
-                            <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="productName">Product Name</th>
-                            <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="reqFor">Type</th>
-                            <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="reqBy">Date</th>
-                            <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="productCatagory">Unit</th>
+                            <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="requitionCode">Requisition </br> Code</th>
+                            
+                            <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="requisitionDate">Date</th>
+                            <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="requitionby">Requisition </br> By</th>
 
-                            <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="productReqQuantity">Requisition</br>Quantity</th>
-                            <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="approveQuantity">Approve</br>Quantity</th>
+                            <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="requisitionItems">Total</br>Items</th>
+                       
                             <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="approvalStatus">Requisition</br>Status</th>
-                            <th class="sort align-middle text-end" scope="col" style="width:100px;"></th>
+                            <th class="sort align-middle text-end" scope="col" style="width:100px;">Action</th>
                         </tr>
                     </thead>
                     <tbody class="list" id="product-Requisition-history-table">
@@ -333,96 +333,131 @@
 </div>
 
 
+
+
+
 <div class="modal fade" id="modelForEditRequisition" tabindex="-1" aria-labelledby="modelForEditRequisitionLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modelForEditRequisitionLabel">Edit Product Requisition</h5>
+                <h5 class="modal-title" id="modelForEditRequisitionLabel">Edit Requisition</h5>
                 <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="editRequisitionForm">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" id="edit_Id" name="Id" />
-                    <div class="col-12 col-xl-12 col-xxl-12">
-                        <div class="col-12 row flex gy-3">
-                            <div class="col-12 col-sm-12 col-md-6">
-                                <div class="form-floating form-floating-advance-select">
-                                    <select class="form-select choiceDD" id="edit_RequisitionFor" name="RequisitionFor" required asp-items="@ViewBag.Projects as SelectList" disabled>
-                                        <option value="">Select Project</option>
+                    <input type="hidden" id="edit_RequisitionId" name="ReqId" />
 
+                    <div class="row g-3 mb-4">
+                        <!-- Left Side - Main Fields (same as create) -->
+                        <div class="col-md-8">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Organization</label>
+                                    <select id="edit_OrganizationId" name="OrganizationId"
+                                            class="form-select choiceDD"
+                                            asp-items="ViewBag.Company as SelectList">
+                                        <option value="">Select Organization</option>
                                     </select>
-                                    <label for="edit_RequisitionFor">Requisition For</label>
                                 </div>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-6">
-                                <div class="form-floating form-floating-advance-select">
-
-                                    <select class="form-select choiceDD" id="edit_RequisitionBy" name="RequisitionBy" required asp-items="@ViewBag.Supervisors as SelectList" disabled>
-                                        <option value="">Select Requisition</option>
-
+                                <div class="col-md-6">
+                                    <label class="form-label">Branch</label>
+                                    <select id="edit_OrganizationBranchId" name="OrganizationBranchId"
+                                            class="form-select choiceDD"
+                                            asp-items="ViewBag.OrganizationBranches as SelectList">
+                                        <option value="">Select Branch</option>
                                     </select>
-                                    <label for="edit_RequisitionBy">Requisition By</label>
                                 </div>
-                            </div>
-
-                            <div class="col-12 col-sm-12 col-md-6">
-                                <div class="form-floating form-floating-advance-select">
-                                    <select class="form-select choiceDD" id="edit_ProductTypeId" name="ProductTypeId" required asp-items="@ViewBag.ProductTypes as SelectList">
-                                        <option value="">Select Product Type</option>
-
+                                <div class="col-md-6">
+                                    <label class="form-label">Requester</label>
+                                    <select id="edit_RequesterId" name="RequesterId"
+                                            class="form-select choiceDD"
+                                            asp-items="ViewBag.Supervisors as SelectList">
+                                        <option value="">Select Requester</option>
                                     </select>
-                                    <label for="edit_ProductTypeId">Product Type</label>
                                 </div>
-                            </div>
-                            <div class="col-12 col-sm-12 col-md-6">
-                                <div class="form-floating form-floating-advance-select">
-                                    <select class="form-select choiceDD" id="edit_ProductId" name="ProductId" required asp-items="@ViewBag.Products as SelectList">
-                                        <option value="">Select Product</option>
-
+                                <div class="col-md-6">
+                                    <label class="form-label">Priority</label>
+                                    <select id="edit_Priority" name="Priority"
+                                            class="form-select choiceDD"
+                                            asp-items="ViewBag.Priorities as SelectList">
                                     </select>
-                                    <label for="edit_ProductId">Product Name</label>
                                 </div>
                             </div>
-                            <div class="col-12 col-sm-12 col-md-6">
-                                <div class="form-floating">
-
-                                    <input class="form-control" id="edit_Brand" name="Brand" type="text" readonly />
-
-
-                                    <label for="edit_Brand">Brand</label>
-                                </div>
-                            </div>
-
-
-                            <div class="col-12 col-sm-12 col-md-6">
-                                <div class="form-floating">
-
-                                    <input class="form-control" id="edit_UnitId" name="UnitId" type="text" readonly />
-
-                                    <label for="edit_UnitId">Unit</label>
-                                </div>
-                            </div>
-
-                            <div class="col-12 col-sm-12 col-md-12">
-                                <div class="form-floating">
-                                    <input class="form-control" id="edit_Quantity" name="Quantity" type="number" required min="1" />
-                                    <label for="edit_Quantity">Product Quantity</label>
-                                </div>
-                            </div>
-
                         </div>
+                        <!-- Right Side - Note -->
+                        <div class="col-md-4">
+                            <label class="form-label">Requisition Note</label>
+                            <textarea id="edit_RequisitionNote" name="RequisitionNote"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="Write requisition note (max 100 words)..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Product Table -->
+                    <div class="container mt-4">
+                        <h6 class="mb-3">Products</h6>
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th>Product Type</th>
+                                    <th>Product Name</th>
+                                    <th>Unit</th>
+                                    <th>Quantity</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="editProductTableBody"></tbody>
+                        </table>
+                        <button class="btn btn-phoenix-primary" type="button" onclick="addNewRowToEditModal()">
+                            <i class="fas fa-plus text-black"></i> Add New Item
+                        </button>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" type="button" onclick="saveEditRequisition()">Okay</button>
+                <button class="btn btn-primary" type="button" onclick="saveEditRequisition()">Save Changes</button>
                 <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Hidden Template for Edit Modal Rows (same as create, but inside modal) -->
+<table style="display:none;">
+    <tbody>
+        <tr id="editProductRowTemplate">
+            <td>
+                <input type="hidden" name="Products.Index" value="" />
+                <input type="hidden" name="Products[INDEX].Id" value="0" /> <!-- For existing items if needed -->
+                <select name="Products[INDEX].ProductTypeId" class="form-select product-type-dd">
+                    <option value="">Select Product Type</option>
+                    @foreach (var pt in (SelectList)ViewBag.ProductTypes)
+                    {
+                        <option value="@pt.Value">@pt.Text</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <select name="Products[INDEX].ProductId" class="form-select product-dd">
+                    <option value="">Select Product</option>
+                </select>
+            </td>
+            <td>
+                <input type="text" class="form-control" readonly placeholder="Unit will auto-fill" />
+            </td>
+            <td>
+                <input type="number" name="Products[INDEX].Quantity" class="form-control" min="1" value="1" />
+            </td>
+            <td>
+                <a href="#" class="nav-item ms-4 me-2" type="button" onclick="removeEditRow(this)">
+                    <i class="far fa-trash-alt text-black"></i>
+                </a>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
@@ -454,4 +489,4 @@
     <script src="~/js/pages/POS/Requisition/newRequisition.js"></script>
 
 
- }
+}
