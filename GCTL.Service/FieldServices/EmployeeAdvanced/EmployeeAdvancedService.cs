@@ -59,8 +59,8 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 //empadvance.JobID = emp.JobID;
                 await _genericRepository.AddAsync(empadvance);
 
-                //(Multiple JobType Save to EmployeeAdvanceFor Table)
-                if(emp.RequestedByUserID != null)
+                //(Multiple JobType Save to EmployeeAdvanceFor Table When save to another table like "EmployeeAdvanceFor")
+                if (emp.RequestedByUserID != null)
                 {
                     foreach (var item in emp.RequestedByUserID)
                     {
@@ -75,6 +75,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         await _employeeAdvanceForRepository.AddAsync(employeeAdvanceFor);
 
                     }
+                    
                 }
                 
                 await _genericRepository.CommitTransactionAsync();
@@ -221,7 +222,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                                   select new EmployeeAdvancedVM
                                   {
                                       JobID = j.JobID,
-                                      JobTitle = j.JobTitle
+                                      JobTitle = j.JobTitle + " " + (j.StartDateTime.HasValue ? j.StartDateTime.Value.ToString("dd/MM/yyyy") : string.Empty) + " - " + (j.EndDateTime.HasValue ? j.EndDateTime.Value.ToString("dd/MM/yyyy") : string.Empty)
                                   }).ToListAsync();
 
                 return data;

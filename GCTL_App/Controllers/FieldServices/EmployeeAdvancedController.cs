@@ -144,6 +144,7 @@ namespace GCTL_App.Controllers.FieldServices
                 });
             }
         }
+        #endregion
 
 
         // NEW: Approve Employee Advance
@@ -165,6 +166,6 @@ namespace GCTL_App.Controllers.FieldServices
                 message = result.Message
             });
         }
-        #endregion
+       
     }
 }

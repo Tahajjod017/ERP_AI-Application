@@ -13,13 +13,12 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
     public interface IEmployeeAdvanced
     {
         Task<CommonReturnViewModel>AddAsync(EmployeeAdvancedVM emp);
-        Task<IEnumerable<CommonSelectVM>>EmployeeDD();
+        Task<IEnumerable<CommonSelectVM>>EmployeeDD(); //Modern Dropdown for Employees
 
-        Task<ReturnDataView<SelectListItem>> GetJobTypeAsync(string search, int page, int pageSize, int organizationID);
+        Task<ReturnDataView<SelectListItem>> GetJobTypeAsync(string search, int page, int pageSize, int organizationID);//Modern Dropdown for Job Types
 
         Task<CommonReturnViewModel> ApproveAsync(int id, int approvedByUserId);
 
-        Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId); //to get customer info based on job id
-
+        Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId); //Cascading
     }
 }
