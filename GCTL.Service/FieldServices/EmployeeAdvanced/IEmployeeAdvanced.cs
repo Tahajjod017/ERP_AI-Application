@@ -19,5 +19,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
         Task<CommonReturnViewModel> ApproveAsync(int id, int approvedByUserId);
 
+        Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId); //to get customer info based on job id
+
     }
 }
