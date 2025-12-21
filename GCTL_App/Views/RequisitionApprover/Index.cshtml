@@ -1,0 +1,344 @@
+﻿<div class="d-flex mb-3 pb-3 mb-3">
+    <span class="fa-stack me-2 ms-n1">
+        <i class="fas fa-circle fa-stack-2x text-primary"></i>
+        <i class="fa-inverse fa-stack-1x text-primary-subtle fas fa-check-circle" data-fa-transform="shrink-4"></i>
+    </span>
+    <div class="col">
+        <h3 class="mb-0 text-primary position-relative fw-bold">
+            <span class="bg-body pe-2">Requisition Approvals</span>
+            <span class="border border-primary position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+        </h3>
+    </div>
+</div>
+
+<!-- Pending Approvals Section -->
+<div class="px-4 px-lg-6 bg-body-emphasis rounded mb-5">
+    <div class="mb-4">
+        <div class="d-flex mb-3 mt-3 pt-3">
+            <span class="fa-stack me-2 ms-n1">
+                <i class="fas fa-circle fa-stack-2x text-warning"></i>
+                <i class="fa-inverse fa-stack-1x text-warning-subtle fas fa-clock" data-fa-transform="shrink-4"></i>
+            </span>
+            <div class="col">
+                <h4 class="mb-0 text-warning position-relative fw-bold">
+                    <span class="bg-body pe-2">Pending Approvals</span>
+                    <span class="border border-warning position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+                </h4>
+            </div>
+        </div>
+
+        <div class="row g-3 justify-content-between align-items-end mb-4">
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <div class="columnDrag PendingApprovals"></div>
+                    </div>
+                    <div class="dropdown me-3">
+                        <select class="form-select choiceDD" id="pendingProductTypeFilter" asp-items="@ViewBag.ProductTypes as SelectList">
+                            <option value="">@Html.SmartLocalize("Select Product Type")</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="dropdown me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control datetimepicker flatpickr-input caiCon" id="pendingFromDate" type="text"
+                                   placeholder="@Html.SmartLocalize("From")" data-options='{"dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="dropdown me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control datetimepicker flatpickr-input caiCon" id="pendingToDate" type="text"
+                                   placeholder="@Html.SmartLocalize("To")" data-options='{"dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <input class="form-control" id="pendingSearchInput" type="text" placeholder="@Html.SmartLocalize("Search")">
+                    </div>
+                    <div class="dropdown me-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
+                            </div>
+                            <select class="form-select" id="pendingPageSizeSelect">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive ms-n1 ps-1 scrollbar">
+            <table class="table fs-9 mb-0 border-top border-translucent dyn-tableDrag PendingApprovals" id="PendingApprovals">
+                <thead>
+                    <tr>
+                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="RequisitionId">ID</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="RequisitionCode">Requisition Code</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="RequisitionDate">Date</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="RequisitionBy">Requested By</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="TotalItems">Total Items</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="Priority">Priority</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="CurrentStep">Step</th>
+                        <th class="sort align-middle text-end" scope="col" style="width:100px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="list" id="pending-approvals-table"></tbody>
+            </table>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+            <div class="d-flex">
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="pending-list-info"></p>
+            </div>
+            <div class="d-flex">
+                <button class="page-link" id="pendingPrevBtn"><span class="fas fa-chevron-left"></span></button>
+                <ul class="mb-0 pagination" id="pendingPagination"></ul>
+                <button class="page-link pe-0" id="pendingNextBtn"><span class="fas fa-chevron-right"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approved History Section -->
+<div class="px-4 px-lg-6 bg-body-emphasis rounded">
+    <div class="mb-4">
+        <div class="d-flex mb-3 mt-3 pt-3">
+            <span class="fa-stack me-2 ms-n1">
+                <i class="fas fa-circle fa-stack-2x text-success"></i>
+                <i class="fa-inverse fa-stack-1x text-success-subtle fas fa-check-double" data-fa-transform="shrink-4"></i>
+            </span>
+            <div class="col">
+                <h4 class="mb-0 text-success position-relative fw-bold">
+                    <span class="bg-body pe-2">Approved History</span>
+                    <span class="border border-success position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+                </h4>
+            </div>
+        </div>
+
+        <div class="row g-3 justify-content-between align-items-end mb-4">
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <div class="columnDrag ApprovedHistory"></div>
+                    </div>
+                    <div class="dropdown me-3">
+                        <select class="form-select choiceDD" id="approvedProductTypeFilter" asp-items="@ViewBag.ProductTypes as SelectList">
+                            <option value="">@Html.SmartLocalize("Select Product Type")</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="dropdown me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control datetimepicker flatpickr-input caiCon" id="approvedFromDate" type="text"
+                                   placeholder="@Html.SmartLocalize("From")" data-options='{"dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="dropdown me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control datetimepicker flatpickr-input caiCon" id="approvedToDate" type="text"
+                                   placeholder="@Html.SmartLocalize("To")" data-options='{"dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <input class="form-control" id="approvedSearchInput" type="text" placeholder="@Html.SmartLocalize("Search")">
+                    </div>
+                    <div class="dropdown me-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
+                            </div>
+                            <select class="form-select" id="approvedPageSizeSelect">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-phoenix-secondary dropdown-toggle me-3" data-bs-toggle="dropdown">
+                            Export <i class="fa-solid fa-file-export"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" id="btnExportApprovedPDF"><span data-feather="download"></span>PDF</a></li>
+                            <li><a class="dropdown-item" id="btnExportApprovedXL"><span data-feather="download"></span>Excel</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive ms-n1 ps-1 scrollbar">
+            <table class="table fs-9 mb-0 border-top border-translucent dyn-tableDrag ApprovedHistory" id="ApprovedHistory">
+                <thead>
+                    <tr>
+                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="RequisitionId">ID</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="RequisitionCode">Requisition Code</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="RequisitionDate">Date</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="RequisitionBy">Requested By</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="TotalItems">Total Items</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="Priority">Priority</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="Status">Status</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="ApprovedAt">Approved At</th>
+                        <th class="sort align-middle text-end" scope="col" style="width:100px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="list" id="approved-history-table"></tbody>
+            </table>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+            <div class="d-flex">
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="approved-list-info"></p>
+            </div>
+            <div class="d-flex">
+                <button class="page-link" id="approvedPrevBtn"><span class="fas fa-chevron-left"></span></button>
+                <ul class="mb-0 pagination" id="approvedPagination"></ul>
+                <button class="page-link pe-0" id="approvedNextBtn"><span class="fas fa-chevron-right"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approval Modal -->
+<div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approvalModalLabel">Requisition Details</h5>
+                <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="approvalForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="modal_RequisitionId" name="RequisitionId" />
+                    <input type="hidden" id="modal_IsFirstApprover" />
+                    <input type="hidden" id="modal_CanEdit" />
+
+                    <!-- Requisition Info -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Requisition Code:</label>
+                            <p id="modal_RequisitionCode" class="mb-0 ms-3"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Date:</label>
+                            <p id="modal_RequisitionDate" class="mb-0 ms-3"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Requested By:</label>
+                            <p id="modal_RequisitionBy" class="mb-0 ms-3"></p>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Priority:</label>
+                            <p id="modal_Priority" class="mb-0 ms-3"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Organization:</label>
+                            <p id="modal_Organization" class="mb-0 ms-3"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Branch:</label>
+                            <p id="modal_Branch" class="mb-0 ms-3"></p>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Note:</label>
+                            <p id="modal_RequisitionNote" class="mb-0 ms-3"></p>
+                        </div>
+                    </div>
+
+                    <!-- Products Table -->
+                    <h6 class="mb-3">Products</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-borderless">
+                            <thead>
+                                <tr>
+                                    <th>Product Type</th>
+                                    <th>Product Name</th>
+                                    <th>Brand</th>
+                                    <th>Unit</th>
+                                    <th>Requested Qty</th>
+                                    <th>Approved Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal_ProductsTable"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Approval History -->
+                    <h6 class="mb-3">Approval History</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-borderless">
+                            <thead>
+                                <tr>
+                                    <th>Step</th>
+                                    <th>Approver</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal_ApprovalHistory"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Approver Note -->
+                    <div class="mb-3" id="approverNoteSection">
+                        <label for="modal_ApproverNote" class="form-label">Your Note (Optional)</label>
+                        <textarea id="modal_ApproverNote" name="ApproverNote" class="form-control" rows="3"
+                                  placeholder="Add your comments..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" id="modalFooterButtons">
+                <!-- Buttons will be dynamically added based on permissions -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Decline Modal -->
+<div class="modal fade" id="declineModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Decline Requisition</h5>
+                <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="declineForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="decline_RequisitionId" name="RequisitionId" />
+                    <div class="mb-3">
+                        <label for="decline_Note" class="form-label">Reason for Declining <span class="text-danger">*</span></label>
+                        <textarea id="decline_Note" name="DeclineNote" class="form-control" rows="4"
+                                  placeholder="Please provide a reason..." required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" type="button" onclick="confirmDecline()">Decline Requisition</button>
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/POS/Requisition/requisitionApprover.js"></script>
+}

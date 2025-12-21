@@ -4,15 +4,17 @@
     {
         public int Id { get; set; }
         public int? RequisitionId { get; set; }
-        public string ProductName { get; set; }
-        public string ProductType { get; set; }
+       
         public DateTime? RequisitionDate { get; set; }
-        public string Unit { get; set; }
-        public int StockInWarehouse { get; set; }
-        public int UnusedQuantity { get; set; }
-        public decimal? RequisitionQuantity { get; set; }
+        
         public string Status { get; set; }
-        public decimal? ApproveQuantity { get; set; }
+       
+        public string RequitionCode { get; set; }
+        public string Note { get; set; }
+        public int RequisitionItems { get; set; }
+        public string? Priority { get; set; }
+        public int? ApprovalStep { get; set; }
+        public string RequisitionBy { get; set; }
     }
 
     public class PaginatedResultCommon<T>

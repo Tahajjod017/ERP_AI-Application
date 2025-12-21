@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.Enums;
 using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
@@ -11,6 +13,8 @@ using GCTL.Core.ViewModels.POS.Requsition.AddRequisition;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
+using static Dapper.SqlMapper;
 
 namespace GCTL.Service.POS.Requsition
 {
@@ -51,9 +55,74 @@ namespace GCTL.Service.POS.Requsition
             _requisitionApprovalStepRepository = requisitionApprovalStepRepository;
         }
 
-        public Task<CommonReturnViewModel> DeleteRequisitionAsync(int id, BaseViewModel? baseView, int? empID)
+        public async Task<CommonReturnViewModel> DeleteRequisitionAsync(int id, BaseViewModel? baseView, int? empID)
         {
-            throw new NotImplementedException();
+            var response = new CommonReturnViewModel();
+            await _requisitionItemRepository.BeginTransactionAsync();
+
+            try
+            {
+                var requisition = await _requisitionRepository.AllActive()
+                    .Include(r => r.RequisitionItems)
+                    .FirstOrDefaultAsync(r => r.RequisitionID == id);
+
+                if (requisition == null)
+                {
+                    await _requisitionItemRepository.RollbackTransactionAsync();
+                    response.Success = false;
+                    response.Message = "Requisition not found.";
+                    return response;
+                }
+
+                if (requisition.IsFinalApproved == true || requisition.IsDeclined == true || (requisition.ApprovalStep > 0))
+                {
+                    await _requisitionItemRepository.RollbackTransactionAsync();
+                    response.Success = false;
+                    response.Message = "Cannot modify approved requisition.";
+                    return response;
+                }
+
+                var requisitionItem = await _requisitionItemRepository.AllActive()
+                    .Include(r => r.Requisition)
+                    .Where(r => r.RequisitionItemID == requisition.RequisitionID).ToListAsync();
+
+                if (requisitionItem == null)
+                {
+                    response.Success = false;
+                    response.Message = "Requisition not found.";
+                    return response;
+                }
+
+                requisition.DeletedAt = DateTime.UtcNow;
+                requisition.DeletedBy = baseView?.CreatedBy ?? null; // Implement this method
+
+                await _requisitionRepository.UpdateAsync(requisition);
+
+                requisitionItem.ForEach(item =>
+                {
+                    item.DeletedAt = DateTime.UtcNow;
+                    item.DeletedBy = baseView?.CreatedBy;
+                });
+
+                await _requisitionItemRepository.UpdateRangeAsync(requisitionItem);
+
+                
+               
+
+
+                await _requisitionItemRepository.CommitTransactionAsync();
+
+                response.Success = true;
+                response.Message = "Requisition deleted successfully.";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                await _requisitionItemRepository.RollbackTransactionAsync();
+                response.Success = false;
+                response.Message = "Error deleting requisition: " + ex.Message;
+                return response;
+            }
         }
 
         public Task<byte[]> GeneratePDF(int orgid, int id, string? FromDate, string? ToDate)
@@ -66,19 +135,78 @@ namespace GCTL.Service.POS.Requsition
             throw new NotImplementedException();
         }
 
-        public Task<EditRequisitionViewModel> GetRequisitionByIdAsync(int id, int? empID)
+        public async Task<EditRequisitionViewModel> GetRequisitionByIdAsync(int id, int? empID)
         {
-            throw new NotImplementedException();
+            try
+            {
+                // Load the full Requisition with all related data
+                var requisition = await _requisitionRepository.AllActive()
+                    .Include(r => r.Organization)
+                    .Include(r => r.OrganizationBranch)
+                    .Include(r => r.RequisitionByNavigation) // Assuming this is the employee/supervisor
+                    .Include(r => r.RequisitionItems)
+                        .ThenInclude(ri => ri.Product)
+                            .ThenInclude(p => p.ProductType)
+                    .Include(r => r.RequisitionItems)
+                        .ThenInclude(ri => ri.Product)
+                            .ThenInclude(p => p.UnitType)
+                    .Include(r => r.RequisitionItems)
+                        .ThenInclude(ri => ri.Product)
+                            .ThenInclude(p => p.ProductBrand)
+                    .FirstOrDefaultAsync(r => r.RequisitionID == id);
+
+                if (requisition == null)
+                    return null;
+
+                // Optional: Check if there are approval histories for any item (to determine overall status)
+                var hasAnyApproval = await _reqItemHistoryRepository.AllActive()
+                    .AnyAsync(h => h.RequisitionItem.RequisitionID == id && h.ApprovalPersonID != empID);
+
+                var status = hasAnyApproval ? "partially_approved" : "pending";
+                // Or you can make it more granular: "approved" only if ALL items are approved
+
+                return new EditRequisitionViewModel
+                {
+                    ReqId = requisition.RequisitionID,
+                    OrganizationId = requisition.OrganizationBranch.OrganizationID,
+                    OrganizationBranchId = requisition.OrganizationBranchID ?? 0,
+                    RequesterId = requisition.RequisitionBy ?? requisition.RequisitionBy ?? 0, // Adjust based on your model
+                    Priority = requisition.Priority , // or whatever default
+                    RequisitionNote = requisition.RequisitionNote ?? "",
+
+                    // Map all product items
+                    Products = requisition.RequisitionItems.Select((item, index) => new EditRequisitionProductViewModel
+                    {
+                        Index = index, // Optional, for frontend use
+                        Id = item.RequisitionItemID, // Important: to update existing items
+                        ProductTypeId = item.Product?.ProductTypeID ?? 0,
+                        ProductId = item.ProductID,
+                        Quantity = item.RequisitionQuantity,
+                        Unit = item.Product?.UnitType?.UnitTypeName ?? "N/A",
+                        Brand = item.Product?.ProductBrand?.ProductBrandName ?? "N/A"
+                        // You can add more fields if needed
+                    }).ToList(),
+
+                    Status = status
+                };
+
+
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public async Task<PaginatedResultCommon<RequisitionItemViewModel>> GetRequisitionListAsync(int page, int pageSize, string search, string sortColumn, string sortDirection, int? projectId, int? productTypeId, int? empID, string? FromDate, string? ToDate)
         {
             try
             {
-                var query = _requisitionItemRepository.AllActive()
-                .Include(e => e.Requisition)
-                .Include(t => t.Product).ThenInclude(pt => pt.ProductType)
-                .Include(u => u.Product).ThenInclude(ut => ut.UnitType)
+                var query = _requisitionRepository.AllActive()
+                .Include(e => e.RequisitionItems).ThenInclude(t => t.Product).ThenInclude(pt => pt.ProductType)
+                .Include(e => e.RequisitionItems).ThenInclude(t => t.Product).ThenInclude(pt => pt.UnitType)
+                .Include(e=>e.RequisitionByNavigation)
+               
                 .Where(e => e.CreatedBy == empID)
                 .AsQueryable();
 
@@ -86,12 +214,12 @@ namespace GCTL.Service.POS.Requsition
                 //if (projectId.HasValue)
                 //    query = query.Where(r => r.Requisition.Project.ProjectID == projectId.Value);
 
-                if (productTypeId.HasValue)
-                    query = query.Where(r => r.Product.ProductTypeID == productTypeId.Value);
+                //if (productTypeId.HasValue)
+                //    query = query.Where(r => r.Product.ProductTypeID == productTypeId.Value);
 
                 // Searching
                 if (!string.IsNullOrEmpty(search))
-                    query = query.Where(r => r.Product.ProductName.Contains(search) || r.Requisition.RequisitionByNavigation.FirstName.Contains(search));
+                    query = query.Where(r => r.RequisitionItems.First().Product.ProductName.Contains(search) || r.RequisitionByNavigation.FirstName.Contains(search));
 
                 // 🔍 Date Filter
                 if (!string.IsNullOrWhiteSpace(FromDate) || !string.IsNullOrWhiteSpace(ToDate))
@@ -130,16 +258,16 @@ namespace GCTL.Service.POS.Requsition
                             : query.OrderBy(r => r.RequisitionID);
                         break;
 
-                    case "productName":
+                    case "requitionby":
                         query = sortDirection == "desc"
-                            ? query.OrderByDescending(r => r.Product.ProductName)
-                            : query.OrderBy(r => r.Product.ProductName);
+                            ? query.OrderByDescending(r => r.RequisitionBy)
+                            : query.OrderBy(r => r.RequisitionBy);
                         break;
 
-                    case "ProductType":
+                    case "requisitionItems":
                         query = sortDirection == "desc"
-                            ? query.OrderByDescending(r => r.Product.ProductType.ProductTypeName)
-                            : query.OrderBy(r => r.Product.ProductType.ProductTypeName);
+                            ? query.OrderByDescending(r => r.RequisitionItems.Count)
+                            : query.OrderBy(r => r.RequisitionItems.Count);
                         break;
 
                     case "RequisitionDate":
@@ -149,7 +277,7 @@ namespace GCTL.Service.POS.Requsition
                         break;
 
                     default:
-                        query = query.OrderBy(r => r.RequisitionItemID); // fallback
+                        query = query.OrderBy(r => r.RequisitionID); // fallback
                         break;
                 }
 
@@ -157,24 +285,47 @@ namespace GCTL.Service.POS.Requsition
                 // Total count
                 var totalRecords = await query.CountAsync();
 
-                // Paging
-                var items = await query
+
+             
+
+
+                // Step 1: project raw values
+                var itemsRaw = await query
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
-                    .Select(r => new RequisitionItemViewModel
+                    .Select(r => new
                     {
-                        Id = r.RequisitionItemID,
+                        Id = r.RequisitionID,
                         RequisitionId = r.RequisitionID,
-                        ProductName = r.Product.ProductName,
-                        ProductType = r.Product.ProductType.ProductTypeName,
+                        RequitionCode = r.RequisitionCode,
                         RequisitionDate = r.CreatedAt,
-                        Unit = r.Product.UnitType.UnitTypeName,
-
-                        RequisitionQuantity = r.RequisitionQuantity,
-                        ApproveQuantity = r.ApprovedQuantity,
-                        Status = r.Requisition.IsFinalApproved == true ? "Approve" : r.Requisition.IsDeclined == true ? "Decline" : "Pending"
+                        Note = r.RequisitionNote,
+                        RequisitionItems = r.RequisitionItems.Count(),
+                        Priority = r.Priority,   // keep as enum/int here
+                        ApprovalStep = r.ApprovalStep,
+                        RequisitionBy = r.RequisitionByNavigation.FirstName + " " + r.RequisitionByNavigation.LastName,
+                        Status = r.IsFinalApproved == true ? "Approve"
+                                 : r.IsDeclined == true ? "Decline"
+                                 : (r.ApprovalStep > 0 ? "OnProgress" : "Pending")
                     })
                     .ToListAsync();
+
+                // Step 2: convert to your ViewModel with string Priority
+                var items = itemsRaw.Select(r => new RequisitionItemViewModel
+                {
+                    Id = r.Id,
+                    RequisitionId = r.RequisitionId,
+                    RequitionCode = r.RequitionCode,
+                    RequisitionDate = r.RequisitionDate,
+                    Note = r.Note,
+                    RequisitionItems = r.RequisitionItems,
+                    RequisitionBy = r.RequisitionBy,
+                    Priority = ((Priority)(r.Priority ?? (int)Priority.Normal)).ToString(),
+                    ApprovalStep = r.ApprovalStep,
+                    Status = r.Status
+                }).ToList();
+
+
 
                 return new PaginatedResultCommon<RequisitionItemViewModel>(items, totalRecords);
             }
@@ -245,7 +396,7 @@ namespace GCTL.Service.POS.Requsition
                          && e.Step == 1)
                          .Select(e => e.ApproverID).FirstOrDefaultAsync();
 
-            if (emp == null)
+            if (emp == null || emp == 0)
             {
                 response.Success = false;
                 response.Message = "Approver not found";
@@ -259,7 +410,7 @@ namespace GCTL.Service.POS.Requsition
 
                 var requisition = new Requisitions
                 {
-                    
+
                     RequisitionBy = model.RequesterId,
                     RequisitionDate = DateOnly.FromDateTime(DateTime.UtcNow),
                     ApprovalTypeID = type.ApprovalTypeID,
@@ -270,12 +421,13 @@ namespace GCTL.Service.POS.Requsition
                     OrganizationBranchID = model.OrganizationBranchId,
                     Priority = model.Priority,
                     RequisitionNote = model.RequisitionNote,
+                    RequisitionCode = await GetNextRequisitionCodeAsync(),
 
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = model.CreatedBy,
                     LIP = model.LIP,
                     LMAC = model.LMAC,
-                    
+
 
 
                 };
@@ -361,9 +513,116 @@ namespace GCTL.Service.POS.Requsition
             }
         }
 
-        public Task<CommonReturnViewModel> UpdateRequisitionAsync(EditRequisitionViewModel model, int? empID)
+        public async Task<CommonReturnViewModel> UpdateRequisitionAsync(EditRequisitionViewModel model, int? empID, BaseViewModel? baseView)
         {
-            throw new NotImplementedException();
+            var response = new CommonReturnViewModel();
+            await _requisitionItemRepository.BeginTransactionAsync();
+
+            try
+            {
+                var requisition = await _requisitionRepository.AllActive()
+                    .Include(r => r.RequisitionItems)
+                    .FirstOrDefaultAsync(r => r.RequisitionID == model.ReqId);
+
+                if (requisition == null)
+                {
+                    await _requisitionItemRepository.RollbackTransactionAsync();
+                    response.Success = false;
+                    response.Message = "Requisition not found.";
+                    return response;
+                }
+
+              
+
+                if (requisition.IsFinalApproved == true || requisition.IsDeclined == true || (requisition.ApprovalStep > 0))
+                {
+                    await _requisitionItemRepository.RollbackTransactionAsync();
+                    response.Success = false;
+                    response.Message = "Cannot modify approved requisition.";
+                    return response;
+                }
+
+                requisition.RequisitionNote = model.RequisitionNote;
+
+                requisition.Priority  = model.Priority;
+              
+                requisition.UpdatedAt = DateTime.UtcNow;
+                requisition.UpdatedBy = baseView?.UpdatedBy ?? 0;
+                requisition.LMAC = baseView?.LMAC;
+                requisition.LIP = baseView?.LIP;
+
+                //await _requisitionItemRepository.UpdateAsync(requisitionItem);
+                await _requisitionRepository.UpdateAsync(requisition);
+
+
+                var items = await _requisitionItemRepository.AllActive().Where(e=>e.RequisitionID == requisition.RequisitionID).ToListAsync();
+                await _requisitionItemRepository.DeleteRangeAsync(items);
+
+                
+                var newItems = model.Products.Select(item => new RequisitionItems
+                {
+                    RequisitionID = requisition.RequisitionID,
+                    ProductID = item.ProductId,
+                    RequisitionQuantity = item.Quantity,
+                    ApprovedQuantity = 0,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = baseView?.CreatedBy ?? 0,
+                    LIP = baseView?.LIP,
+                    LMAC = baseView?.LMAC,
+                    
+                }).ToList();
+
+                // Add them all at once
+                await _requisitionItemRepository.AddRangeAsync(newItems);
+
+
+
+
+                await _requisitionItemRepository.CommitTransactionAsync();
+
+                response.Success = true;
+                response.Message = "Requisition updated successfully.";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                await _requisitionItemRepository.RollbackTransactionAsync();
+                response.Success = false;
+                response.Message = "Error updating requisition: " + ex.Message;
+                return response;
+            }
         }
+
+
+        public async Task<string> GetNextRequisitionCodeAsync()
+        {
+            // Get the latest requisition code from DB
+            var lastCode = await _requisitionRepository.AllActive()
+                .OrderByDescending(r => r.RequisitionID)
+                .Select(r => r.RequisitionCode)
+                .FirstOrDefaultAsync();
+
+            string yearPart = DateTime.Now.ToString("yy"); // e.g. "25"
+            int nextNumber = 1;
+
+            if (!string.IsNullOrEmpty(lastCode))
+            {
+                // Example format: REQ-25-000001
+                var parts = lastCode.Split('-');
+                if (parts.Length == 3 && parts[1] == yearPart)
+                {
+                    // Parse the numeric part
+                    if (int.TryParse(parts[2], out int lastNumber))
+                    {
+                        nextNumber = lastNumber + 1;
+                    }
+                }
+            }
+
+            // Format: REQ-YY-###### (6 digits padded)
+            string newCode = $"REQ-{yearPart}-{nextNumber.ToString("D6")}";
+            return newCode;
+        }
+
     }
 }

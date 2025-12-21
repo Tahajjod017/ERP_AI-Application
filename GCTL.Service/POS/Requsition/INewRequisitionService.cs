@@ -16,7 +16,7 @@ namespace GCTL.Service.POS.Requsition
 
         Task<CommonReturnViewModel> DeleteRequisitionAsync(int id, BaseViewModel? baseView, int? empID);
         Task<EditRequisitionViewModel> GetRequisitionByIdAsync(int id, int? empID);
-        Task<CommonReturnViewModel> UpdateRequisitionAsync(EditRequisitionViewModel model, int? empID);
+        Task<CommonReturnViewModel> UpdateRequisitionAsync(EditRequisitionViewModel model, int? empID, BaseViewModel? baseView);
         Task<byte[]> GeneratePDF(int orgid, int id, string? FromDate, string? ToDate);
         Task<byte[]> GenerateXL(int orgid, int id, string? FromDate, string? ToDate);
     }

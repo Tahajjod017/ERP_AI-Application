@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Repository;
+﻿using GCTL.Core.Enums;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.POS.Requsition.AddRequisition;
 using GCTL.Data.Models;
@@ -60,6 +61,8 @@ namespace GCTL_App.Controllers.POS.Requisition
 
             ViewBag.Company = new SelectList(_organizationRepository.AllActive().Select(e => new { Id = e.OrganizationID, Name = e.OrganizationName }).ToList(), "Id", "Name");
 
+            ViewBag.OrganizationBranches = new SelectList(_organizationBrancRepository.AllActive().Select(e => new { Id = e.OrganizationBranchID, Name = e.OrganizationBranchName }).ToList(), "Id", "Name");
+
             var parotiy = new List<object>
                     {
                         new { Id = 1, Name = "Normal" },
@@ -67,7 +70,17 @@ namespace GCTL_App.Controllers.POS.Requisition
                         new { Id = 3, Name = "Urgent" }
                     };
 
-            ViewBag.Priorities = new SelectList(parotiy, "Id", "Name");
+            var priorities = Enum.GetValues(typeof(Priority))
+                    .Cast<Priority>()
+                    .Select(p => new
+                    {
+                        Id = (int)p,
+                        Name = p.ToString()
+                    });
+
+
+
+            ViewBag.Priorities = new SelectList(priorities, "Id", "Name");
 
 
 
@@ -201,19 +214,29 @@ namespace GCTL_App.Controllers.POS.Requisition
         [HttpGet]
         public async Task<IActionResult> GetRequisitionById(int id)
         {
-            var empID = await GetCurrentEmployeeIdAsync();
+            try
+            {
+                //return Ok(new { success = true }); 
+                var empID = await GetCurrentEmployeeIdAsync();
+                var requisition = await _newRequisitionService.GetRequisitionByIdAsync(id, empID);
 
+                if (requisition == null)
+                    return NotFound(new { message = "Requisition not found" });
 
-            var requisition = await _newRequisitionService.GetRequisitionByIdAsync(id, empID);
-            if (requisition == null)
-                return NotFound();
+                return Ok(new { success = true , data = requisition, message = "data get." });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                // _logger.LogError(ex, "Error fetching requisition {Id}", id);
 
-            return Json(requisition);
+                return StatusCode(500, new { message = "An unexpected error occurred.", detail = ex.Message });
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(EditRequisitionViewModel model)
+        public async Task<IActionResult> Edit(EditRequisitionViewModel model, BaseViewModel? baseView)
         {
             var empID = await GetCurrentEmployeeIdAsync();
 
@@ -229,9 +252,13 @@ namespace GCTL_App.Controllers.POS.Requisition
                 return Json(new { success = false, errors = errors });
             }
 
-            var result = await _newRequisitionService.UpdateRequisitionAsync(model, empID);
+            var result = await _newRequisitionService.UpdateRequisitionAsync(model, empID, baseView);
             return Json(result);
         }
+
+        #endregion
+
+        #region Delete
 
         [HttpPost]
         [ValidateAntiForgeryToken]

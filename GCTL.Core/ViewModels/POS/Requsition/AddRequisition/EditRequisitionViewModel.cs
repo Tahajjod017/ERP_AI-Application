@@ -7,45 +7,30 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.POS.Requsition.AddRequisition
 {
-    public class EditRequisitionViewModel : BaseViewModel
+    public class EditRequisitionViewModel 
     {
-        public int Id { get; set; }
+        public int ReqId { get; set; }
 
-        [Display(Name = "Project Name")]
-        public int? RequisitionFor { get; set; }
+        public int? OrganizationId { get; set; }
+        public int OrganizationBranchId { get; set; }
+        public int RequesterId { get; set; }
+        public int? Priority { get; set; }
+        public string? RequisitionNote { get; set; }
 
-        [Display(Name = "Project Supervisor")]
-        public int? RequisitionBy { get; set; }
+        // List of products (multiple)
+        public List<EditRequisitionProductViewModel> Products { get; set; } = new List<EditRequisitionProductViewModel>();
 
-        [Display(Name = "Category")]
-        public int? CategoryId { get; set; }
+        public string? Status { get; set; } // Optional: pending, partially_approved, approved
+    }
 
-        [Display(Name = "Sub Category")]
-        public int? SubCategoryId { get; set; }
-
-        [Display(Name = "Product Type")]
-        public int? ProductTypeId { get; set; }
-
-        [Required]
-        [Display(Name = "Product Name")]
+    public class EditRequisitionProductViewModel
+    {
+        public int Index { get; set; } // For frontend binding (optional but helpful)
+        public int Id { get; set; } // RequisitionItemID — crucial for updates/deletes
+        public int ProductTypeId { get; set; }
         public int? ProductId { get; set; }
-
-        [Display(Name = "Brand")]
-        public string? Brand { get; set; }
-
-        [Display(Name = "Model")]
-        public string? Model { get; set; }
-
-        [Required]
-        [Range(0.1, double.MaxValue, ErrorMessage = "Quantity must be greater than 0")]
-        [Display(Name = "Product Quantity")]
         public decimal? Quantity { get; set; }
-
-        [Display(Name = "Unit")]
-        public string? UnitId { get; set; }
-
-        public string? Unit { get; set; }
-
-        public string? Status { get; set; }
+        public string? Unit { get; set; } // Read-only
+        public string? Brand { get; set; } // Read-only
     }
 }
