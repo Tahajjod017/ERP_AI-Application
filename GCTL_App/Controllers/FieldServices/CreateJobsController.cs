@@ -15,22 +15,22 @@ namespace GCTL_App.Controllers.FieldServices
 {
     public class CreateJobsController : BaseController
     {
+        #region property and constractor
         private readonly ICreateJobService _createJobService;
-        public readonly IGenericRepository<Statuses> _statusRepository;
-        public readonly IGenericRepository<JobTypes> _jobTypeRepository;
         public readonly IWebHostEnvironment _webHostEnvironment;
         public CreateJobsController(ITranslateService translateService, IUserProfileService userProfileService, ICreateJobService createJobService, IGenericRepository<Statuses> statusRepository, IGenericRepository<JobTypes> jobTypeRepository, IWebHostEnvironment webHostEnvironment) : base(translateService, userProfileService)
         {
             _createJobService = createJobService;
-            _statusRepository = statusRepository;
-            _jobTypeRepository = jobTypeRepository;
             _webHostEnvironment = webHostEnvironment;
         }
+        #endregion
+
+        #region Index & Partial Index
         public IActionResult Index()
         {
-            ViewBag.JobTypesDD = new SelectList(_jobTypeRepository.AllActive().Select(t => new {t.JobTypeID, t.JobTypeName}), "JobTypeID", "JobTypeName");
+            //ViewBag.JobTypesDD = new SelectList(_jobTypeRepository.AllActive().Select(t => new {t.JobTypeID, t.JobTypeName}), "JobTypeID", "JobTypeName");
 
-            ViewBag.StatusDD = new SelectList(_statusRepository.AllActive().Select(t => new {t.StatusID, t.StatusName}), "StatusID", "StatusName");
+            //ViewBag.StatusDD = new SelectList(_statusRepository.AllActive().Select(t => new {t.StatusID, t.StatusName}), "StatusID", "StatusName");
 
             return View();
         }
@@ -38,7 +38,9 @@ namespace GCTL_App.Controllers.FieldServices
         {
             return PartialView("_PartialModal");
         }
+        #endregion
 
+        #region StorePhoto
         public async Task<string> StorePhoto(IFormFile? file)
         {
             if (file == null || file.Length == 0) return null;
@@ -61,22 +63,24 @@ namespace GCTL_App.Controllers.FieldServices
 
             return $"/media/leads/{uniqueFileName}";
         }
+        #endregion
 
         #region Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Upsert([FromForm] CreateJobVM createJobVM)
+        public async Task<IActionResult> Upsert([FromForm] CreateJobVM model)
         {
+            model.JobID ??= 0;
             try
             {
                 if (ModelState.IsValid)
                 {
-                    if (createJobVM.CreateJobID == 0)
+                    if (model.JobID == 0)
                     {
 
-                        string fileLocation = createJobVM.FileLink is not null ? await StorePhoto(createJobVM.FileLink) : string.Empty;
+                        string fileLocation = model.FileLink is not null ? await StorePhoto(model.FileLink) : string.Empty;
 
-                        var result = await _createJobService.AddAsync(createJobVM, fileLocation);
+                        var result = await _createJobService.AddAsync(model, fileLocation);
                         if (result)
                         {
                             return Ok(new { Success = true, Message = "Job Created" });
@@ -93,7 +97,7 @@ namespace GCTL_App.Controllers.FieldServices
         }
         #endregion
 
-        #region get Customer
+        #region get GetCustomer List
         [HttpGet]
         public async Task<IActionResult> GetCustomers(string search = "", int page = 1, int pageSize = 20)
         {
@@ -115,7 +119,65 @@ namespace GCTL_App.Controllers.FieldServices
 
             return Ok(formatted);
         }
-        
+        #endregion
+
+        #region get Division List
+        [HttpGet]
+        public async Task<IActionResult> GetDivisions(string search = "")
+        {
+            var result = await _createJobService.GetDivisionsAsync( search );
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.Value,                          
+                    text = c.Text 
+                }),
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
+
+        #region Get Statuse List
+        [HttpGet]
+        public async Task<IActionResult> GetStatuses(string search = "")
+        {
+            var result = await _createJobService.GetStatusesAsync( search );
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.Value,                          
+                    text = c.Text 
+                }),
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
+        #region Get JobType List
+        [HttpGet]
+        public async Task<IActionResult> GetJobTypes(string search = "")
+        {
+            var result = await _createJobService.GetJobTypesAsync( search );
+
+            var formatted = new
+            {
+                results = result.data.Select(c => new
+                {
+                    id = c.Value,                          
+                    text = c.Text 
+                }),
+            };
+
+            return Ok(formatted);
+        }
+        #endregion
+
+        #region Get Job List
         [HttpGet]
         public async Task<IActionResult> GetJobs(string search = "", int page = 1, int pageSize = 20)
         {
@@ -174,7 +236,6 @@ namespace GCTL_App.Controllers.FieldServices
             });
         }
         #endregion
-
 
         #region get Company Customer
         [HttpGet]

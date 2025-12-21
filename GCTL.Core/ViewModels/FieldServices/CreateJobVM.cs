@@ -10,17 +10,18 @@ namespace GCTL.Core.ViewModels.FieldServices
 {
     public class CreateJobVM
     {
-        public int CreateJobID { get; set; }
+        public int? JobID { get; set; }
         [Display(Name = "Customer Name")]
         public int? CustomerID { get; set; }
+        public int? DivisionId { get; set; }
         public string? CustomerName { get; set; }
         [Display(Name = "Job Title")]
         public string JobTitle { get; set; }
         [Display(Name = "Job Type")]
-        public int? JobID { get; set; }
+        public int? JobTypeID { get; set; }
         [Display(Name = "Team Members")]
         public List<int>? TeamMembers { get; set; }
-        [Display(Name = "Start Date Timee")]
+        [Display(Name = "Start Date Time")]
         public string? StartDate { get; set; }
         [Display(Name = "End Date Time")]
         public string? EndDate { get; set; }

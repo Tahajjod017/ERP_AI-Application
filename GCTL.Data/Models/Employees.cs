@@ -373,6 +373,12 @@ public partial class Employees
 
     public virtual ICollection<Designations> DesignationsUpdatedByNavigation { get; set; } = new List<Designations>();
 
+    public virtual ICollection<Divisions> DivisionsCreatedByNavigation { get; set; } = new List<Divisions>();
+
+    public virtual ICollection<Divisions> DivisionsDeletedByNavigation { get; set; } = new List<Divisions>();
+
+    public virtual ICollection<Divisions> DivisionsUpdatedByNavigation { get; set; } = new List<Divisions>();
+
     public virtual ICollection<EducationBoard> EducationBoardDeletedByNavigation { get; set; } = new List<EducationBoard>();
 
     public virtual ICollection<EducationBoard> EducationBoardUpdatedByNavigation { get; set; } = new List<EducationBoard>();
@@ -596,6 +602,14 @@ public partial class Employees
     public virtual ICollection<Grade> GradeDeletedByNavigation { get; set; } = new List<Grade>();
 
     public virtual ICollection<Grade> GradeUpdatedByNavigation { get; set; } = new List<Grade>();
+
+    public virtual ICollection<GroupEmployee> GroupEmployeeCreatedByNavigation { get; set; } = new List<GroupEmployee>();
+
+    public virtual ICollection<GroupEmployee> GroupEmployeeDeletedByNavigation { get; set; } = new List<GroupEmployee>();
+
+    public virtual ICollection<GroupEmployee> GroupEmployeeEmployee { get; set; } = new List<GroupEmployee>();
+
+    public virtual ICollection<GroupEmployee> GroupEmployeeUpdatedByNavigation { get; set; } = new List<GroupEmployee>();
 
     public virtual Heads Head { get; set; }
 

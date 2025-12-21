@@ -1,5 +1,7 @@
-﻿ @await Html.PartialAsync("_PartialModal")
-
+﻿<div class="card">
+    <h5 class="card-header mb-3">Create A New Job</h5>
+ @await Html.PartialAsync("_PartialModal")
+ </div>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

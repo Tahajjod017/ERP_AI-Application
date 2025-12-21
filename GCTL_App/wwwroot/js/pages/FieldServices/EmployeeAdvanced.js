@@ -179,7 +179,7 @@ $('#JobID').select2({
             $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
                 .done(() => {
                     if (typeof initCreateLeadModal === "function") {
-                        initCreateLeadModal();
+                        initCreateJobModal();
                     }
                 });
 

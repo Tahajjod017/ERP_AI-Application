@@ -53,6 +53,8 @@ public partial class EmployeeAdvances
 
     public virtual ICollection<EmployeeAdvanceFor> EmployeeAdvanceFor { get; set; } = new List<EmployeeAdvanceFor>();
 
+    public virtual ICollection<GroupEmployee> GroupEmployee { get; set; } = new List<GroupEmployee>();
+
     public virtual Jobs Job { get; set; }
 
     public virtual Employees RequestedByUser { get; set; }

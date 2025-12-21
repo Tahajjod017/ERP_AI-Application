@@ -19,16 +19,23 @@ namespace GCTL.Service.FieldServices
         private readonly IGenericRepository<Jobs> _jobsRepository;
         private readonly IGenericRepository<Customers> _customersRepository;
         private readonly IGenericRepository<Country> _countryRepository;
+        private readonly IGenericRepository<Divisions> _divisionsRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfoRepository;
+        public readonly IGenericRepository<Statuses> _statusRepository;
+        public readonly IGenericRepository<JobTypes> _jobTypeRepository;
         private readonly AppDbContext _context;
-        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, AppDbContext context, IGenericRepository<Country> countryRepository) : base(genericRepository)
+
+        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, AppDbContext context, IGenericRepository<Country> countryRepository, IGenericRepository<Divisions> divisionsRepository, IGenericRepository<Statuses> statusRepository, IGenericRepository<JobTypes> jobTypeRepository) : base(genericRepository)
         {
             _jobsRepository = jobsRepository;
             _customersRepository = customersRepository;
             _employeeOfficeInfoRepository = employeeOfficeInfoRepository;
             _context = context;
             _countryRepository = countryRepository;
-        } 
+            _divisionsRepository = divisionsRepository;
+            _statusRepository = statusRepository;
+            _jobTypeRepository = jobTypeRepository;
+        }
         #endregion
 
         #region AddAsync
@@ -36,14 +43,15 @@ namespace GCTL.Service.FieldServices
         {
             try
             {
-                DateTime startDate = DateTime.ParseExact(model.StartDate?? "", "dd/MM/yy HH:mm", CultureInfo.InvariantCulture);
-                DateTime endDate = DateTime.ParseExact(model.EndDate?? "", "dd/MM/yy HH:mm", CultureInfo.InvariantCulture);
+
+                DateTime startDate = DateTime.ParseExact(model.StartDate?? "", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime endDate = DateTime.ParseExact(model.EndDate?? "", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
                 Jobs job = new Jobs
                 {
                     JobTitle = model.JobTitle,
                     CustomerID = model.CustomerID,
-                    JobTypeID = model.JobID,
+                    JobTypeID = model.JobTypeID,
                     JobStatusID = model.StatusID,
                     StartDateTime = startDate,
                     EndDateTime = endDate,
@@ -119,6 +127,9 @@ namespace GCTL.Service.FieldServices
                 message = "Data loaded"
             };
         }
+        #endregion
+
+        #region Get Job Async
         public async Task<ReturnDataView<SelectListItem>> GetJobAsync(string search, int page, int pageSize, int organizationID)
         {
             var query = _jobsRepository
@@ -161,6 +172,7 @@ namespace GCTL.Service.FieldServices
         }
         #endregion
 
+        #region Get Customer Info
         public CustomerInfoVM GetCustomerInfo(int jobId, int organizationID)
         {
             return _jobsRepository
@@ -173,7 +185,106 @@ namespace GCTL.Service.FieldServices
                     Phone = t.Customer.CustomerAddresses.Select(ca => ca.Address.Phone).FirstOrDefault(),
                 }).FirstOrDefault()?? new CustomerInfoVM();
         }
+        #endregion
 
+        #region GetDivisionsAsync 
+        public async Task<ReturnDataView<SelectListItem>> GetDivisionsAsync(string search)
+        {
+            var query = _divisionsRepository
+                .AllActive();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.DivisionName, pattern)
+                    ));
+            }
+
+            var items = await query
+                .OrderBy(c => c.CreatedAt).Select(t => new SelectListItem
+                {
+                    Text = t.DivisionName,
+                    Value = t.DivisionID.ToString()
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<SelectListItem>
+            {
+                data = items,
+                message = "Data loaded"
+            };
+        }
+        #endregion
+
+        #region Get JobTypes Async 
+        public async Task<ReturnDataView<SelectListItem>> GetJobTypesAsync(string search)
+        {
+            var query = _jobTypeRepository
+                .AllActive();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.JobTypeName, pattern)
+                    ));
+            }
+
+            var items = await query
+                .OrderBy(c => c.CreatedAt).Select(t => new SelectListItem
+                {
+                    Text = t.JobTypeName,
+                    Value = t.JobTypeID.ToString()
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<SelectListItem>
+            {
+                data = items,
+                message = "Data loaded"
+            };
+        }
+        #endregion
+
+        #region Get Statuses Async 
+        public async Task<ReturnDataView<SelectListItem>> GetStatusesAsync(string search)
+        {
+            var query = _statusRepository
+                .AllActive();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string pattern = $"%{search}%";
+
+                query = query.Where(c =>
+                    c != null &&
+                    (
+                        EF.Functions.Like(c.StatusName, pattern)
+                    ));
+            }
+
+            var items = await query
+                .OrderBy(c => c.CreatedAt).Select(t => new SelectListItem
+                {
+                    Text = t.StatusName,
+                    Value = t.StatusID.ToString()
+                })
+                .ToListAsync();
+
+            return new ReturnDataView<SelectListItem>
+            {
+                data = items,
+                message = "Data loaded"
+            };
+        }
+        #endregion
 
         #region get Customer List 
         public async Task<ReturnDataView<SelectListItem>> GetCountryList(string search, int page, int pageSize, int organizationID)
@@ -265,7 +376,8 @@ namespace GCTL.Service.FieldServices
         }
 
         #endregion
-        #region get Compnay Customer List 
+
+        #region get Individual Customer List 
         public async Task<ReturnDataView<CustomerInfoVM>> GetIndividualEmployeesAsync(string search, int page, int pageSize, int organizationID)
         {
             var query = _customersRepository
@@ -391,7 +503,7 @@ namespace GCTL.Service.FieldServices
                 .Take(pageSize)
                 .Select(t => new CreateJobVM
                 {
-                    JobID = t.JobID,
+                    JobTypeID = t.JobID,
                     CustomerName = t.Customer != null ? t.Customer.FullName : "",
                     JobTitle = t.JobTitle!= null ? t.JobTitle : "",
                     StartDate = t.StartDateTime.ToString(),
@@ -418,7 +530,7 @@ namespace GCTL.Service.FieldServices
                  .AsNoTracking()
                  .Where(t => t.Customer != null && t.Customer.OrganizationID == organizationID && t.JobID == jobId).Select(t => new CreateJobVM
                  {
-                     JobID = t.JobID,
+                     JobTypeID = t.JobID,
                      CustomerName = t.Customer != null ? t.Customer.FullName : "",
                      JobTitle = t.JobTitle != null ? t.JobTitle : "",
                      StartDate = t.StartDateTime.ToString(),
@@ -442,8 +554,6 @@ namespace GCTL.Service.FieldServices
             throw new NotImplementedException();
         }
         #endregion
-
-
 
         #region GetCalenderData
         public async Task<CommonReturnViewModel> GetCalenderData(int organizationID, DateTime start, DateTime end, string searchTerm = "")
