@@ -56,7 +56,7 @@ namespace GCTL.Service.FieldServices
                     StartDateTime = startDate,
                     EndDateTime = endDate,
                     Note = model.Note,
-                    FileLink = null
+                    FileLink = FileLink
                 };
 
                 if (model.TeamMembers != null)
@@ -68,6 +68,41 @@ namespace GCTL.Service.FieldServices
                 }
 
                await _jobsRepository.AddAsync(job);
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+        #endregion
+
+        #region EditAsync
+        public async Task<bool> EditAsync(CreateJobVM model, string FileLink)
+        {
+            try
+            {
+                var items = await _jobsRepository.AllActive().AsNoTracking().FirstOrDefaultAsync(x => x.JobID == model.JobID);
+
+                if (items == null)
+                    return false;
+
+                DateTime startDate = DateTime.ParseExact(model.StartDate?? "", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+                DateTime endDate = DateTime.ParseExact(model.EndDate?? "", "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+
+                items.JobTitle = model.JobTitle;
+                items.CustomerID = model.CustomerID;
+                items.JobTypeID = model.JobTypeID;
+                items.JobStatusID = model.StatusID;
+                items.StartDateTime = startDate;
+                items.EndDateTime = endDate;
+                items.Note = model.Note;
+                items.FileLink = null;
+
+               await _jobsRepository.UpdateAsync(items);
 
                 return true;
 
