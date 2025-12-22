@@ -256,26 +256,5 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         }
         #endregion
 
-        #region GetAllAsync
-        public Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
-        {
-            try
-            {
-                var query = _genericRepository.AllActive()
-                    .Include(e => e.EmployeeAdvanceFor)
-                    .Include(e => e.Job)
-                    .Include(e => e.GroupEmployee);
-                
-
-
-            }
-            
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-        #endregion
     }
 }

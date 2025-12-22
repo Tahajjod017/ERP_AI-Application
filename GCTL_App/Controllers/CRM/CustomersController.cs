@@ -8,6 +8,7 @@ using GCTL.Service.Language;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace GCTL_App.Controllers.CRM
 {
@@ -355,7 +356,20 @@ namespace GCTL_App.Controllers.CRM
         }
 
 
-
+        #region Get Customer By Id
+        public async Task<IActionResult> GetCustomerById(int id)
+        {
+            try
+            {
+                var result = await _customerService.GetCustomerById(id, await GetCurrentOrganizationIdAsync() ?? 0);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
 
     }
 }

@@ -207,9 +207,7 @@ $(document).ready(function () {
             // Load script if needed
             $.getScript('/js/pages/FieldServices/CreateJob.js');
                 //.done(() => {
-                //    if (typeof initCreate === "function") {
-                //        initCreate();
-                //    }
+                    
                 //});
 
             const modalEl = document.getElementById('createJobModalToggle');
@@ -217,6 +215,10 @@ $(document).ready(function () {
             modalEl.setAttribute("data-bs-keyboard", "false");
             // Now open modal
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
+
+            if (typeof window.workFromModal === "function") {
+                window.workFromModal(customerId);
+            }
         });
     });
 

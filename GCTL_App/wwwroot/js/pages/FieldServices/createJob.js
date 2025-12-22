@@ -422,6 +422,30 @@ function initCreateJobModal() {
             });
         }
 
+        window.workFromModal = function (customerId) {
+            alert(`I got response ${customerId}`);
+            $.ajax({
+                url: "/Customers/GetCustomerById",  
+                type: 'GET',                   
+                data: { id: customerId },
+                dataType: 'json',              
+                success: function (data) {
+                    console.log(data);
+                    setSelect2EditValue("#CustomerId", data.value, data.text);
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX GET failed:", status, error);
+                    alert("Failed to load modal content.");
+                }
+            });
+        };
+
+        function setSelect2EditValue(selector, id, text) {
+            if (!id) return;
+
+            let option = new Option(text, id, true, true);
+            $(selector).append(option).trigger('change');
+        }
         //#endregion
         initJobDropzone()
     });

@@ -30,5 +30,6 @@ namespace GCTL.Service.CRM.Customer
         Task<ReturnDataView<SelectListItem>> GetOrganizationTypesList(string search, int page, int pageSize, int organizationID, string userFor = "Branch");
         Task<PaginationService<CompanyWarehouses, WarehouseVM>.PaginationResult<WarehouseVM>> GetAllWarehouseAsync(int customerID, int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CreateAt", string sortOrder = "desc");
         Task<PaginationService<CustomerAddresses, ShippingVM>.PaginationResult<ShippingVM>> GetAllShippingAsync(int customerID, int organizationID, int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "CreatedAt", string sortOrder = "desc");
+        Task<SelectListItem> GetCustomerById(int id, int organizationID);
     }
 }
