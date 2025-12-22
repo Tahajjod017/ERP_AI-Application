@@ -264,17 +264,95 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 var query = _genericRepository.AllActive()
                     .Include(e => e.EmployeeAdvanceFor)
                     .Include(e => e.Job)
-                    .Include(e => e.GroupEmployee);
-                
+                    .Include(e => e.GroupEmployee)
+                    .AsNoTracking()
+                    .Where(x => x.DeletedAt == null && x.DeletedBy == null);
+
+                if (mainempId != null)
+                {
+                    query = query.Where(x => x.EmployeeAdvanceID == mainempId);
+                }
+
+                if (!string.IsNullOrEmpty(sortColumn))
+                {
+                    query = sortColumn switch
+                    {
+                        "EmployeeAdvancedID" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.EmployeeAdvanceID)
+                            : query.OrderBy(x => x.EmployeeAdvanceID),
+
+                        //"" => sortOrder == "desc"
+                        //    ? query.OrderByDescending(x => x.MainAccount.Class.ClassName)
+                        //    : query.OrderBy(x => x.MainAccount.Class.ClassName),
+
+                        "JobID" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.Job.JobID)
+                            : query.OrderBy(x => x.Job.JobID),
+
+                        "GroupEmployee" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.GroupEmployee)
+                            : query.OrderBy(x => x.GroupEmployee),
+
+                        "Status" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.ApprovalStatus)
+                            : query.OrderBy(x => x.ApprovalStatusID),
+
+                        "Description" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.RequestedByUser)
+                            : query.OrderBy(x => x.RequestedByUserID),
+
+                        _ => query.OrderBy(x => x.EmployeeAdvanceID)
+                    };
+                }
+
+                return PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.GetPaginatedData(
+                    query,
+                    pageNumber,
+                    pageSize,
+                    searchTerm,
+                    sortColumn,
+                    sortOrder,
+                    searchPredicate: (term) => x =>
+                        x.Job.JobTitle.ToLower().Contains(term) ||
+                        x.AmountRequested.ToString().ToLower().Contains(term),
+                    selector: x => new EmployeeAdvancedVM
+                    
+                    {
+                        EmployeeAdvanceID = x.EmployeeAdvanceID,
+                        CustomerID2 = x.Job.CustomerID,
+                        JobID = x.JobID,
+                        JobTitle = x.Job.JobTitle,
+                        AmountRequested = x.AmountRequested,
+                        // Fix for CS0029: Convert nullable int to non-nullable int using `.Value` and filter out nulls using `.Where`.
+                        GroupEmployeeID = x.GroupEmployee
+                            .Select(ge => ge.EmployeeID)
+                            .Where(id => id.HasValue) // Filter out null values
+                            .Select(id => id.Value)  // Convert nullable int to non-nullable int
+                            .ToList(),
+                        ApprovalStatusID = x.ApprovalStatusID,
+                        StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
 
 
+                        //JobID = x.JobID,
+                        //JobTitle = x.Job.JobTitle,
+                        //AmountRequested = x.AmountRequested,
+                        //StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+                        //EndDate = x.EndDate.HasValue ? x.EndDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+                        //ApprovalStatusID = x.ApprovalStatusID,
+
+
+                        //ApprovalStatusName = x.ApprovalStatusID == 11 ? "Pending" :
+                        //                     x.ApprovalStatusID == 12 ? "Approved" : "Unknown",
+                        //RequestedByUserID = x.EmployeeAdvanceFor.Select(eaf => eaf.JobTypeID).ToList(),
+                        //GroupEmployeeID = x.GroupEmployee.Select(ge => ge.EmployeeID).ToList(),
+                    }
+                );
             }
-            
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                throw new Exception("An error occurred while retrieving Add EmployeeAdvanced.", ex);
             }
+
         }
         #endregion
     }
