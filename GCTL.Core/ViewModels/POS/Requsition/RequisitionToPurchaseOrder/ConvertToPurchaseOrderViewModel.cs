@@ -15,7 +15,13 @@ namespace GCTL.Core.ViewModels.POS.Requsition.RequisitionToPurchaseOrder
         [Required(ErrorMessage = "Please select a supplier")]
         public int SupplierId { get; set; }
 
+        public int? BillingAddressId { get; set; }
+
         public int? ShippingAddressId { get; set; }
+
+        public int? OrganizationId { get; set; }
+
+        public int? OrganizationBranchId { get; set; }
 
         [Required]
         public string POCode { get; set; }
@@ -30,6 +36,8 @@ namespace GCTL.Core.ViewModels.POS.Requsition.RequisitionToPurchaseOrder
 
         public string WorkorderNo { get; set; }
 
+        public DateTime? WorkOrderDate { get; set; }
+
         [Range(0, 100)]
         public decimal TaxPercent { get; set; }
 
@@ -37,7 +45,9 @@ namespace GCTL.Core.ViewModels.POS.Requsition.RequisitionToPurchaseOrder
 
         public string TermsAndConditions { get; set; }
 
-        public bool IsDraft { get; set; }
+        public string IsDraft { get; set; }
+
+        public int? StatusId { get; set; }
 
         [Required]
         public List<POItemViewModel> Items { get; set; }

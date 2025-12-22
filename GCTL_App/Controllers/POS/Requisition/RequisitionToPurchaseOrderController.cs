@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels.POS.Purchase.PurchaseOrder;
 using GCTL.Core.ViewModels.POS.Requsition.RequisitionToPurchaseOrder;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
+using GCTL.Service.POS.Purchase.PurchaseOrder;
 using GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,8 @@ namespace GCTL_App.Controllers.POS.Requisition
     public class RequisitionToPurchaseOrderController : BaseController
     {
         private readonly IRequisitionToPurchaseOrderService _requisitionToPOService;
+        private readonly IPurchaseOrder _poService;
+
         private readonly IGenericRepository<ProductTypes> _productTypesRepository;
         private readonly IGenericRepository<Suppliers> _supplierRepository;
         private readonly IGenericRepository<PurOrderBaseSAddresses> _addressRepository;
@@ -26,7 +29,8 @@ namespace GCTL_App.Controllers.POS.Requisition
             IGenericRepository<ProductTypes> productTypesRepository,
             IGenericRepository<Suppliers> supplierRepository,
             IGenericRepository<PurOrderBaseSAddresses> addressRepository,
-            IGenericRepository<Statuses> statusRepository)
+            IGenericRepository<Statuses> statusRepository,
+            IPurchaseOrder poService)
             : base(translateService, userProfileService)
         {
             _requisitionToPOService = requisitionToPOService;
@@ -34,6 +38,7 @@ namespace GCTL_App.Controllers.POS.Requisition
             _supplierRepository = supplierRepository;
             _addressRepository = addressRepository;
             _statusRepository = statusRepository;
+            _poService = poService;
         }
 
         #region Index
@@ -57,22 +62,12 @@ namespace GCTL_App.Controllers.POS.Requisition
 
         #region Get Approved Requisitions
         [HttpGet]
-        public async Task<IActionResult> GetApprovedRequisitions(
-            int page = 1,
-            int pageSize = 10,
-            string search = "",
-            string sortColumn = "RequisitionId",
-            string sortDirection = "asc",
-            int? productTypeId = null,
-            string? fromDate = null,
-            string? toDate = null)
+        public async Task<IActionResult> GetApprovedRequisitions(int page = 1, int pageSize = 10, string search = "", string sortColumn = "RequisitionId", string sortDirection = "asc", int? productTypeId = null, string? fromDate = null, string? toDate = null)
         {
             int? empID = await GetCurrentEmployeeIdAsync();
             int? orgID = await GetCurrentOrganizationIdAsync();
 
-            var result = await _requisitionToPOService.GetApprovedRequisitionsAsync(
-                orgID, page, pageSize, search, sortColumn, sortDirection,
-                productTypeId, fromDate, toDate);
+            var result = await _requisitionToPOService.GetApprovedRequisitionsAsync( orgID, page, pageSize, search, sortColumn, sortDirection, productTypeId, fromDate, toDate);
 
             return Json(new
             {
@@ -149,9 +144,7 @@ namespace GCTL_App.Controllers.POS.Requisition
         #region Convert to Purchase Order
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConvertToPurchaseOrder(
-            ConvertToPurchaseOrderViewModel model,
-            BaseViewModel? baseView)
+        public async Task<IActionResult> ConvertToPurchaseOrder(ConvertToPurchaseOrderViewModel model, BaseViewModel? baseView)
         {
             if (!ModelState.IsValid)
             {
@@ -161,12 +154,19 @@ namespace GCTL_App.Controllers.POS.Requisition
                         kvp => kvp.Key,
                         kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
                     );
-                return Json(new { success = false, errors = errors });
+                var messages = ModelState
+                   .Where(x => x.Value.Errors.Count > 0)
+                   .SelectMany(x => x.Value.Errors)
+                   .Select(e => e.ErrorMessage)
+                   .ToList();
+
+
+                return Json(new { success = false, errors = errors, message = messages });
+
             }
 
             int? empID = await GetCurrentEmployeeIdAsync();
-            var result = await _requisitionToPOService.ConvertToPurchaseOrderAsync(
-                model, empID, baseView);
+            var result = await _requisitionToPOService.ConvertToPurchaseOrderAsync(model, empID, baseView);
 
             return Json(result);
         }
@@ -176,7 +176,7 @@ namespace GCTL_App.Controllers.POS.Requisition
         [HttpGet]
         public async Task<IActionResult> GetNextPOCode()
         {
-            var code = await _requisitionToPOService.GetNextPOCodeAsync();
+            var code = await _poService.GetNextPOCode();
             return Ok(code);
         }
         #endregion

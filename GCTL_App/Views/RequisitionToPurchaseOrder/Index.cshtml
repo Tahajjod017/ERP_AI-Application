@@ -1,0 +1,451 @@
+﻿<div class="d-flex mb-3 pb-3 mb-3">
+    <span class="fa-stack me-2 ms-n1">
+        <i class="fas fa-circle fa-stack-2x text-primary"></i>
+        <i class="fa-inverse fa-stack-1x text-primary-subtle fas fa-file-invoice" data-fa-transform="shrink-4"></i>
+    </span>
+    <div class="col">
+        <h3 class="mb-0 text-primary position-relative fw-bold">
+            <span class="bg-body pe-2">Approve Requisition List</span>
+            <span class="border border-primary position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+        </h3>
+    </div>
+</div>
+
+<!-- Approved Requisitions Table -->
+<div class="px-4 px-lg-6 bg-body-emphasis rounded">
+    <div class="mb-4">
+        <div class="row g-3 justify-content-between align-items-end mb-4 mt-3">
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <div class="columnDrag ApprovedRequisitions"></div>
+                    </div>
+                    <div class="dropdown me-3">
+                        <select class="form-select choiceDD" id="productTypeFilter" asp-items="@ViewBag.ProductTypes as SelectList">
+                            <option value="">@Html.SmartLocalize("Select Product Type")</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="dropdown me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control datetimepicker flatpickr-input caiCon" id="fromDate" type="text"
+                                   placeholder="@Html.SmartLocalize("From")" data-options='{"dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="dropdown me-3">
+                        <div class="input-icon-end position-relative">
+                            <input class="form-control datetimepicker flatpickr-input caiCon" id="toDate" type="text"
+                                   placeholder="@Html.SmartLocalize("To")" data-options='{"dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="me-3">
+                        <input class="form-control" id="searchInput" type="text" placeholder="@Html.SmartLocalize("Search")">
+                    </div>
+                    <div class="dropdown me-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">@Html.SmartLocalize("Showing")</span>
+                            </div>
+                            <select class="form-select" id="pageSizeSelect">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-phoenix-secondary dropdown-toggle me-3" data-bs-toggle="dropdown">
+                            Export <i class="fa-solid fa-file-export"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" id="btnExportPDF"><span data-feather="download"></span>PDF</a></li>
+                            <li><a class="dropdown-item" id="btnExportXL"><span data-feather="download"></span>Excel</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive ms-n1 ps-1 scrollbar">
+            <table class="table fs-9 mb-0 border-top border-translucent dyn-tableDrag ApprovedRequisitions" id="ApprovedRequisitions">
+                <thead>
+                    <tr>
+                        <th class="sort white-space-nowrap align-middle ps-0" scope="col" data-sort="RequisitionId">ID</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="RequisitionCode">Requisition Code</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="RequisitionDate">Date</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="RequisitionBy">Requested By</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="TotalItems">Total Items</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="Priority">Priority</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" scope="col" data-sort="Status">Status</th>
+                        <th class="sort align-middle text-end" scope="col" style="width:150px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="list" id="approved-requisitions-table"></tbody>
+            </table>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9 border-bottom border-translucent">
+            <div class="d-flex">
+                <p class="mb-0 d-none d-sm-block me-3 fw-semibold text-body" data-list-info="list-info"></p>
+            </div>
+            <div class="d-flex">
+                <button class="page-link" id="prevBtn"><span class="fas fa-chevron-left"></span></button>
+                <ul class="mb-0 pagination" id="pagination"></ul>
+                <button class="page-link pe-0" id="nextBtn"><span class="fas fa-chevron-right"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Details Modal -->
+<div class="modal fade" id="viewDetailsModal" tabindex="-1" aria-labelledby="viewDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="viewDetailsModalLabel">Requisition Details</h5>
+                <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Requisition Info -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Requisition Code:</label>
+                        <p id="view_RequisitionCode" class="mb-0 ms-3"></p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Date:</label>
+                        <p id="view_RequisitionDate" class="mb-0 ms-3"></p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Requested By:</label>
+                        <p id="view_RequisitionBy" class="mb-0 ms-3"></p>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Priority:</label>
+                        <p id="view_Priority" class="mb-0 ms-3"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Organization:</label>
+                        <p id="view_Organization" class="mb-0 ms-3"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Branch:</label>
+                        <p id="view_Branch" class="mb-0 ms-3"></p>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Note:</label>
+                        <p id="view_RequisitionNote" class="mb-0 ms-3"></p>
+                    </div>
+                    @*<div class="col-md-12" id="view_POSection" style="display:none;">
+            <div class="shadow-sm p-3 mb-5 bg-body-highlight rounded">
+                <strong>Purchase Order Created:</strong> <span id="view_POCode"></span>
+
+            </div>
+        </div>*@
+                    <div class="col-md-12" id="view_POSection" style="display:none;">
+                        <div class="shadow-sm p-3 mb-5 bg-body-highlight rounded d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Purchase Order Created:</strong>
+                                <span id="view_POCode"></span>
+                            </div>
+                            <div>
+                                <a href="your-link-here" class="btn btn-primary btn-sm">
+                                    View PO
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <h6 class="mb-3">Products</h6>
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Product Type</th>
+                                <th>Product Name</th>
+                                <th>Brand</th>
+                                <th>Unit</th>
+                                <th>Requested Qty</th>
+                                <th>Approved Qty</th>
+                                <th>Unit Price</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="view_ProductsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Convert to PO Modal -->
+<div class="modal fade" id="convertToPOModal" tabindex="-1" aria-labelledby="convertToPOModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="convertToPOModalLabel">Convert to Purchase Order</h5>
+                <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="convertToPOForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="po_RequisitionId" name="RequisitionId" />
+
+                    <!-- Requisition Summary -->
+                    <div class="shadow-sm p-3 mb-5 bg-body-highlight rounded mb-4">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Requisition:</strong> <span id="po_RequisitionCode"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>PO:</strong> <span id="po_POCode2"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Total Items:</strong> <span id="po_TotalItems"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PO Details -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Supplier <span class="text-danger">*</span></label>
+                            <div class="">
+                                <select id="po_SupplierId" name="SupplierId" class="form-select choiceDD" required>
+                                    <option value="">-- Select Supplier --</option>
+                                </select>
+                                @*<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+                    <i class="fas fa-plus"></i>
+                </button>*@
+                            </div>
+                        </div>
+                        @*<div class="col-md-4">
+                            <label class="form-label">Billing Address</label>
+                            <div class="">
+                                <select id="po_BillingAddressId" name="BillingAddressId" class="form-select choiceDD">
+                                    <option value="">-- Select Billing Address --</option>
+                                </select>
+                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                    <i class="fas fa-plus"></i>
+                </button>
+                            </div>
+                        </div>*@
+                        <div class="col-md-6">
+                            <label class="form-label">Shipping Address</label>
+                            <div class="">
+                                <select id="po_ShippingAddressId" name="ShippingAddressId" class="form-select choiceDD">
+                                    <option value="">-- Select Shipping Address --</option>
+                                </select>
+                                @*<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                    <i class="fas fa-plus"></i>
+                </button>*@
+                            </div>
+                        </div>
+                        @*<div class="col-md-6">
+            <label class="form-label">Status</label>
+            <select id="po_StatusId" name="StatusId" class="form-select choiceDD" asp-items="@ViewBag.Statuses as SelectList">
+                <option value="">-- Select Status --</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">PO Number <span class="text-danger">*</span></label>
+            <input type="hidden" id="po_POCode" name="POCode" class="form-control" readonly required />
+        </div>*@
+
+                        <input type="hidden" id="po_POCode" name="POCode" class="form-control" readonly required />
+
+                        <div class="col-md-4">
+                            <label class="form-label">Purchase Date <span class="text-danger">*</span></label>
+                            <input type="date" id="po_PurchaseDate" name="PurchaseDate" class="form-control datetimepicker caiCon" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Due Date <span class="text-danger">*</span></label>
+                            <input type="date" id="po_DueDate" name="DueDate" class="form-control datetimepicker caiCon" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Other Reference</label>
+                            <input type="text" id="po_OtherReference" name="OtherReference" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Work Order No</label>
+                            <input type="text" id="po_WorkorderNo" name="WorkorderNo" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Work Order Date</label>
+                            <input type="date" id="po_WorkOrderDate" name="WorkOrderDate" class="form-control datetimepicker caiCon" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tax (%)</label>
+                            <input type="number" id="po_TaxPercent" name="TaxPercent" class="form-control" value="0" min="0" max="100" step="0.01" />
+                        </div>
+                    </div>
+
+                    <!-- Products Table -->
+                    <h6 class="mb-3">Products</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-borderless" id="po_ItemsTable">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Brand</th>
+                                    <th>Approved Qty</th>
+                                    <th>Quantity <span class="text-danger">*</span></th>
+                                    <th>Unit Price <span class="text-danger">*</span></th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="po_ProductsTable"></tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" class="text-end fw-bold">Sub Total:</td>
+                                    <td class="fw-bold" id="po_SubTotal">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" class="text-end">Tax Amount:</td>
+                                    <td id="po_TaxAmount">0.00</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5" class="text-end fw-bold h6">Grand Total:</td>
+                                    <td class="fw-bold h6" id="po_GrandTotal">0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Note and Terms -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Note</label>
+                            <textarea id="po_Note" name="Note" class="form-control" rows="3" placeholder="Add any additional notes..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Terms and Conditions</label>
+                            <textarea id="po_TermsAndConditions" name="TermsAndConditions" class="form-control" rows="3" placeholder="Add terms and conditions..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Save as Draft -->
+                    <div class="form-check mb-3">
+                        <input type="checkbox" id="po_IsDraft" name="IsDraft" class="form-check-input" />
+                        <label class="form-check-label" for="po_IsDraft">Save as Draft</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-primary" type="button" onclick="savePurchaseOrder()">Create Purchase Order</button>
+                <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Supplier Modal -->
+<div class="modal fade" id="addSupplierModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">@Html.SmartLocalize("Add New Supplier")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Company Name *</label>
+                    <input type="text" class="form-control" id="newCompanyName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Contact Name</label>
+                    <input type="text" class="form-control" id="newContactName">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="newEmail">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" class="form-control" id="newPhone">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Address</label>
+                    <input type="text" class="form-control" id="newAddress1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tax Number</label>
+                    <input type="text" class="form-control" id="newTaxNumber">
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveNewSupplierBtn">Save Supplier</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">Add New Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" class="form-control" id="newFullName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Full Address *</label>
+                    <textarea class="form-control" id="newFullAddress" rows="2" required></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">City</label>
+                        <input type="text" class="form-control" id="newCity">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">State</label>
+                        <input type="text" class="form-control" id="newState">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Postal Code</label>
+                        <input type="text" class="form-control" id="newPostalCode">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="newAddressPhone">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="newAddressEmail">
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveNewAddressBtn">Save Address</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/pages/POS/Requisition/requisitionToPurchaseOrder.js"></script>
+}

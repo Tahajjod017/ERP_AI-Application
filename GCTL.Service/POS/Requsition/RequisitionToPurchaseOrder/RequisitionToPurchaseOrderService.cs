@@ -22,7 +22,8 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
         private readonly IGenericRepository<Requisitions> _requisitionRepository;
         private readonly IGenericRepository<RequisitionItems> _requisitionItemRepository;
         private readonly IGenericRepository<PurchasOrders> _purchaseOrderRepository;
-        private readonly IGenericRepository<PurchaseOrderItem> _purchaseOrderItemRepository;
+        private readonly IGenericRepository<PurchasOrderVersions> _purchaseOrderVersionRepository;
+        private readonly IGenericRepository<PurchasOrderItemVersions> _purchaseOrderItemVersionRepository;
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IUserInfoService _userInfoService;
 
@@ -30,29 +31,30 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
             IGenericRepository<Requisitions> requisitionRepository,
             IGenericRepository<RequisitionItems> requisitionItemRepository,
             IGenericRepository<PurchasOrders> purchaseOrderRepository,
-            IGenericRepository<PurchaseOrderItem> purchaseOrderItemRepository,
+            IGenericRepository<PurchasOrderVersions> purchaseOrderVersionRepository,
+            IGenericRepository<PurchasOrderItemVersions> purchaseOrderItemVersionRepository,
             IGenericRepository<Products> productRepository,
             IUserInfoService userInfoService)
         {
             _requisitionRepository = requisitionRepository;
             _requisitionItemRepository = requisitionItemRepository;
             _purchaseOrderRepository = purchaseOrderRepository;
-            _purchaseOrderItemRepository = purchaseOrderItemRepository;
+            _purchaseOrderVersionRepository = purchaseOrderVersionRepository;
+            _purchaseOrderItemVersionRepository = purchaseOrderItemVersionRepository;
             _productRepository = productRepository;
             _userInfoService = userInfoService;
         }
 
-        public async Task<PaginatedResultCommon<ApprovedRequisitionItemViewModel>> GetApprovedRequisitionsAsync(
-            int? orgId, int page, int pageSize, string search, string sortColumn,
-            string sortDirection, int? productTypeId, string? fromDate, string? toDate)
+        public async Task<PaginatedResultCommon<ApprovedRequisitionItemViewModel>> GetApprovedRequisitionsAsync(int? orgId, int page, int pageSize, string search, string sortColumn, string sortDirection, int? productTypeId, string? fromDate, string? toDate)
         {
             var query = _requisitionRepository.AllActive()
                 .Include(r => r.RequisitionByNavigation)
                 .Include(r => r.RequisitionItems)
                     .ThenInclude(ri => ri.Product)
                         .ThenInclude(p => p.ProductType)
+                .Include(r => r.PurchasOrders) // Check if linked to PurchasOrders
                 .Where(r => r.IsFinalApproved == true)
-                .Where(r => r.OrganizationID == orgId)
+                //.Where(r => r.OrganizationID == orgId)
                 .AsQueryable();
 
             // Search
@@ -119,8 +121,8 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
                     TotalItems = r.RequisitionItems.Count,
                     Priority = ((Priority)(r.Priority ?? (int)Priority.Normal)).ToString(),
                     ApprovedAt = r.UpdatedAt,
-                   // HasPurchaseOrder = r.RequisitionItems.Any(ri => ri.PurchaseOrderItemID != null),
-                   // PurchaseOrderId = r.RequisitionItems.Where(ri => ri.PurchaseOrderItemID != null).Select(ri => ri.PurchaseOrderItem.PurchaseOrderID).FirstOrDefault()
+                    HasPurchaseOrder = r.PurchasOrders.Any(),
+                    PurchaseOrderId = r.PurchasOrders.FirstOrDefault().PurchasOrderID
                 })
                 .ToListAsync();
 
@@ -145,24 +147,16 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
                 .Include(r => r.RequisitionItems)
                     .ThenInclude(ri => ri.Product)
                         .ThenInclude(p => p.ProductPricing)
-                .Include(r => r.RequisitionItems)
-                    //.ThenInclude(ri => ri.PurchaseOrderItem)
-                    //    .ThenInclude(poi => poi.PurchaseOrder)
+                .Include(r => r.PurchasOrders)
+                    .ThenInclude(po => po.PurchasOrderVersions).ThenInclude(e=>e.PurchasOrderItemVersions)
                 .FirstOrDefaultAsync(r => r.RequisitionID == requisitionId);
 
             if (requisition == null)
                 return null;
 
-            //var hasPO = requisition.RequisitionItems.Any(ri => ri.PurchaseOrderItemID != null);
-            //var poId = requisition.RequisitionItems
-            //    .Where(ri => ri.PurchaseOrderItemID != null)
-            //    .Select(ri => ri.PurchaseOrderItem?.PurchaseOrderID)
-            //    .FirstOrDefault();
-
-            //var poCode = requisition.RequisitionItems
-            //    .Where(ri => ri.PurchaseOrderItemID != null)
-            //    .Select(ri => ri.PurchaseOrderItem?.PurchaseOrder?.PurchaseOrderCode)
-            //    .FirstOrDefault();
+            var hasPO = requisition.PurchasOrders.Any();
+            var poId = requisition.PurchasOrders.FirstOrDefault()?.PurchasOrderID;
+            var poCode = requisition.PurchasOrders.FirstOrDefault()?.POID;
 
             return new RequisitionDetailsForPOViewModel
             {
@@ -175,9 +169,9 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
                 Branch = requisition.OrganizationBranch?.OrganizationBranchName ?? "N/A",
                 Priority = ((Priority)(requisition.Priority ?? (int)Priority.Normal)).ToString(),
                 RequisitionNote = requisition.RequisitionNote ?? "",
-                //HasPurchaseOrder = hasPO,
-                //PurchaseOrderId = poId,
-                //PurchaseOrderCode = poCode,
+                HasPurchaseOrder = hasPO,
+                PurchaseOrderId = poId,
+                PurchaseOrderCode = poCode,
                 Items = requisition.RequisitionItems.Select(ri => new RequisitionItemForPOViewModel
                 {
                     ItemId = ri.RequisitionItemID,
@@ -188,155 +182,176 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
                     Brand = ri.Product?.ProductBrand?.ProductBrandName ?? "N/A",
                     RequestedQuantity = ri.RequisitionQuantity ?? 0,
                     ApprovedQuantity = ri.ApprovedQuantity ?? 0,
-                    UnitPrice = ri.Product?.ProductPricing?.FirstOrDefault()?.SellingPriceExclVAT ?? 0
+
+                    //UnitPrice = ri.Requisition?.PurchasOrders?.FirstOrDefault()?.PurchasOrderVersions?.FirstOrDefault()?.PurchasOrderItemVersions?.FirstOrDefault()?.UnitPrice ?? 0
+                    UnitPrice = ri.Requisition?.PurchasOrders?
+                            .SelectMany(po => po.PurchasOrderVersions)
+                            .SelectMany(pov => pov.PurchasOrderItemVersions)
+                            .Where(poi => poi.ProductID == ri.ProductID)
+                            .OrderByDescending(poi => poi.CreatedAt)
+                            .Select(poi => poi.UnitPrice ?? 0m)   // coalesce to 0m
+                            .FirstOrDefault() ?? 0
                 }).ToList()
             };
         }
 
-        //public async Task<CommonReturnViewModel> ConvertToPurchaseOrderAsync(
-        //    ConvertToPurchaseOrderViewModel model, int? empId, BaseViewModel? baseView)
-        //{
-        //    var response = new CommonReturnViewModel();
-        //    await _purchaseOrderRepository.BeginTransactionAsync();
+        public async Task<CommonReturnViewModel> ConvertToPurchaseOrderAsync(
+            ConvertToPurchaseOrderViewModel model, int? empId, BaseViewModel? baseView)
+        {
+            var response = new CommonReturnViewModel();
+            await _purchaseOrderRepository.BeginTransactionAsync();
 
-        //    try
-        //    {
-        //        var requisition = await _requisitionRepository.AllActive()
-        //            .Include(r => r.RequisitionItems)
-        //            .FirstOrDefaultAsync(r => r.RequisitionID == model.RequisitionId);
+            try
+            {
+                var requisition = await _requisitionRepository.AllActive()
+                    .Include(r => r.RequisitionItems)
+                    .Include(r => r.PurchasOrders)
+                    .FirstOrDefaultAsync(r => r.RequisitionID == model.RequisitionId);
 
-        //        if (requisition == null)
-        //        {
-        //            await _purchaseOrderRepository.RollbackTransactionAsync();
-        //            response.Success = false;
-        //            response.Message = "Requisition not found.";
-        //            return response;
-        //        }
+                if (requisition == null)
+                {
+                    await _purchaseOrderRepository.RollbackTransactionAsync();
+                    response.Success = false;
+                    response.Message = "Requisition not found.";
+                    return response;
+                }
 
-        //        if (requisition.IsFinalApproved != true)
-        //        {
-        //            await _purchaseOrderRepository.RollbackTransactionAsync();
-        //            response.Success = false;
-        //            response.Message = "Only fully approved requisitions can be converted to purchase orders.";
-        //            return response;
-        //        }
+                if (requisition.IsFinalApproved != true)
+                {
+                    await _purchaseOrderRepository.RollbackTransactionAsync();
+                    response.Success = false;
+                    response.Message = "Only fully approved requisitions can be converted to purchase orders.";
+                    return response;
+                }
 
-        //        // Check if already converted
-        //        if (requisition.RequisitionItems.Any(ri => ri.PurchaseOrderItemID != null))
-        //        {
-        //            await _purchaseOrderRepository.RollbackTransactionAsync();
-        //            response.Success = false;
-        //            response.Message = "This requisition has already been converted to a purchase order.";
-        //            return response;
-        //        }
+                // Check if already converted
+                if (requisition.PurchasOrders.Any())
+                {
+                    await _purchaseOrderRepository.RollbackTransactionAsync();
+                    response.Success = false;
+                    response.Message = "This requisition has already been converted to a purchase order.";
+                    return response;
+                }
 
-        //        // Calculate totals
-        //        decimal subTotal = model.Items.Sum(i => i.Quantity * i.UnitPrice);
-        //        decimal taxAmount = (subTotal * model.TaxPercent) / 100;
-        //        decimal grandTotal = subTotal + taxAmount;
+                // Calculate totals
+                decimal subTotal = model.Items.Sum(i => i.Quantity * i.UnitPrice);
+                decimal taxAmount = (subTotal * model.TaxPercent) / 100;
+                decimal grandTotal = subTotal + taxAmount;
 
-        //        // Create Purchase Order
-        //        var purchaseOrder = new PurchaseOrders
-        //        {
-        //            PurchaseOrderCode = model.POCode,
-        //            SupplierID = model.SupplierId,
-        //            PurchaseDate = DateOnly.FromDateTime(model.PurchaseDate),
-        //            DueDate = DateOnly.FromDateTime(model.DueDate),
-        //            OtherReference = model.OtherReference,
-        //            WorkorderNo = model.WorkorderNo,
-        //            SubTotal = subTotal,
-        //            TaxPercent = model.TaxPercent,
-        //            TaxAmount = taxAmount,
-        //            GrandTotal = grandTotal,
-        //            Note = model.Note,
-        //            TermsAndConditions = model.TermsAndConditions,
-        //            IsDraft = model.IsDraft,
-        //            ShippingAddressID = model.ShippingAddressId,
-        //            RequisitionID = model.RequisitionId,
-        //            CreatedAt = DateTime.UtcNow,
-        //            CreatedBy = baseView?.CreatedBy,
-        //            LIP = baseView?.LIP,
-        //            LMAC = baseView?.LMAC
-        //        };
+                // Create Purchase Order (main record)
+                var purchaseOrder = new PurchasOrders
+                {
+                    POID = model.POCode,
+                    RequisitionID = model.RequisitionId,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = baseView?.CreatedBy,
+                    LIP = baseView?.LIP,
+                    LMAC = baseView?.LMAC
+                };
 
-        //        await _purchaseOrderRepository.AddAsync(purchaseOrder);
-        //        await _userInfoService.ActionLogAsync("purchase order", ActionName.DataAdd,
-        //            null, purchaseOrder, purchaseOrder.PurchaseOrderID, baseView);
+                await _purchaseOrderRepository.AddAsync(purchaseOrder);
+                await _userInfoService.ActionLogAsync("purchase order", ActionName.DataAdd,
+                    null, purchaseOrder, purchaseOrder.PurchasOrderID, baseView);
 
-        //        // Create Purchase Order Items and link to requisition items
-        //        foreach (var item in model.Items)
-        //        {
-        //            var poItem = new PurchaseOrderItem
-        //            {
-        //                PurchaseOrderID = purchaseOrder.PurchaseOrderID,
-        //                ProductID = item.ProductId,
-        //                Quantity = item.Quantity,
-        //                UnitPrice = item.UnitPrice,
-        //                Amount = item.Quantity * item.UnitPrice,
-        //                CreatedAt = DateTime.UtcNow,
-        //                CreatedBy = baseView?.CreatedBy,
-        //                LIP = baseView?.LIP,
-        //                LMAC = baseView?.LMAC
-        //            };
+                bool dft = model.IsDraft == "on" ? true : false;
 
-        //            await _purchaseOrderItemRepository.AddAsync(poItem);
+                // Create Purchase Order Version (actual data)
+                var purchaseOrderVersion = new PurchasOrderVersions
+                {
+                    PurchasOrderID = purchaseOrder.PurchasOrderID,
+                    SupplierID = model.SupplierId,
+                    PurchaseDate = model.PurchaseDate,
+                    DueDate = model.DueDate,
+                    OtherReference = model.OtherReference,
+                    WorkorderNo = model.WorkorderNo,
+                    WorkOrderDate = model.WorkOrderDate,
+                    OBBillingAddressID = model.BillingAddressId,
+                    OBShipingAddressID = model.ShippingAddressId,
+                    OrganizationID = model.OrganizationId,
+                    OrganizationBranchID = model.OrganizationBranchId,
+                    TotalAmount = subTotal,
+                    TaxPercent = model.TaxPercent,
+                    TaxAmount = taxAmount,
+                    GrandTotalAmount = grandTotal,
+                    PaidAmount = 0,
+                    DueAmount = grandTotal,
+                    Note = model.Note,
+                    TermsAndConditions = model.TermsAndConditions,
+                    IsDraft = dft,
+                    IsFinal = !dft, // Mark as final/active version
+                    StatusID = model.StatusId,
+                    CreatedByID = baseView?.CreatedBy,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = baseView?.CreatedBy,
+                    LIP = baseView?.LIP,
+                    LMAC = baseView?.LMAC
+                };
 
-        //            // Link requisition item to PO item
-        //            var reqItem = requisition.RequisitionItems
-        //                .FirstOrDefault(ri => ri.RequisitionItemID == item.RequisitionItemId);
+                await _purchaseOrderVersionRepository.AddAsync(purchaseOrderVersion);
+                await _userInfoService.ActionLogAsync("purchase order version", ActionName.DataAdd,
+                    null, purchaseOrderVersion, purchaseOrderVersion.PurchasOrderVersionID, baseView);
 
-        //            if (reqItem != null)
-        //            {
-        //                reqItem.PurchaseOrderItemID = poItem.PurchaseOrderItemID;
-        //                reqItem.UpdatedAt = DateTime.UtcNow;
-        //                reqItem.UpdatedBy = baseView?.UpdatedBy;
-        //                await _requisitionItemRepository.UpdateAsync(reqItem);
-        //            }
+                // Create Purchase Order Item Versions
+                foreach (var item in model.Items)
+                {
+                    var poItemVersion = new PurchasOrderItemVersions
+                    {
+                        PurchasOrderVersionID = purchaseOrderVersion.PurchasOrderVersionID,
+                        ProductID = item.ProductId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = baseView?.CreatedBy,
+                        LIP = baseView?.LIP,
+                        LMAC = baseView?.LMAC
+                    };
 
-        //            await _userInfoService.ActionLogAsync("purchase order item", ActionName.DataAdd,
-        //                null, poItem, poItem.PurchaseOrderItemID, baseView);
-        //        }
+                    await _purchaseOrderItemVersionRepository.AddAsync(poItemVersion);
 
-        //        await _purchaseOrderRepository.CommitTransactionAsync();
+                    await _userInfoService.ActionLogAsync("purchase order item version", ActionName.DataAdd,
+                        null, poItemVersion, poItemVersion.PurchasOrderVersionItemID, baseView);
+                }
 
-        //        response.Success = true;
-        //        response.Message = "Purchase order created successfully.";
-        //        response.Data = purchaseOrder.PurchaseOrderID;
-        //        return response;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await _purchaseOrderRepository.RollbackTransactionAsync();
-        //        response.Success = false;
-        //        response.Message = "Error creating purchase order: " + ex.Message;
-        //        return response;
-        //    }
-        //}
+                await _purchaseOrderRepository.CommitTransactionAsync();
 
-        //public async Task<string> GetNextPOCodeAsync()
-        //{
-        //    var lastCode = await _purchaseOrderRepository.AllActive()
-        //        .OrderByDescending(po => po.PurchaseOrderID)
-        //        .Select(po => po.PurchaseOrderCode)
-        //        .FirstOrDefaultAsync();
+                response.Success = true;
+                response.Message = "Purchase order created successfully.";
+                response.Data = purchaseOrder.PurchasOrderID;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                await _purchaseOrderRepository.RollbackTransactionAsync();
+                response.Success = false;
+                response.Message = "Error creating purchase order: " + ex.Message;
+                return response;
+            }
+        }
 
-        //    string yearPart = DateTime.Now.ToString("yy");
-        //    int nextNumber = 1;
+        public async Task<string> GetNextPOCodeAsync()
+        {
+            var lastCode = await _purchaseOrderRepository.AllActive()
+                .OrderByDescending(po => po.PurchasOrderID)
+                .Select(po => po.POID)
+                .FirstOrDefaultAsync();
 
-        //    if (!string.IsNullOrEmpty(lastCode))
-        //    {
-        //        var parts = lastCode.Split('-');
-        //        if (parts.Length == 3 && parts[1] == yearPart)
-        //        {
-        //            if (int.TryParse(parts[2], out int lastNumber))
-        //            {
-        //                nextNumber = lastNumber + 1;
-        //            }
-        //        }
-        //    }
+            string yearPart = DateTime.Now.ToString("yy");
+            int nextNumber = 1;
 
-        //    return $"PO-{yearPart}-{nextNumber.ToString("D6")}";
-        //}
+            if (!string.IsNullOrEmpty(lastCode))
+            {
+                var parts = lastCode.Split('-');
+                if (parts.Length == 3 && parts[1] == yearPart)
+                {
+                    if (int.TryParse(parts[2], out int lastNumber))
+                    {
+                        nextNumber = lastNumber + 1;
+                    }
+                }
+            }
+
+            return $"PO-{yearPart}-{nextNumber.ToString("D6")}";
+        }
 
         public Task<byte[]> GeneratePDF(int orgId, string? fromDate, string? toDate)
         {
@@ -347,17 +362,8 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
         {
             throw new NotImplementedException("Excel generation not yet implemented");
         }
-
-        public Task<CommonReturnViewModel> ConvertToPurchaseOrderAsync(ConvertToPurchaseOrderViewModel model, int? empId, BaseViewModel? baseView)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> GetNextPOCodeAsync()
-        {
-            throw new NotImplementedException();
-        }
     }
+
 
 
 }
