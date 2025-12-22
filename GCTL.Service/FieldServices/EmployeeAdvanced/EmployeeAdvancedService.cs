@@ -8,6 +8,7 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
+using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
@@ -23,8 +24,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         public readonly IGenericRepository<EmployeeAdvanceFor> _employeeAdvanceForRepository;
         public readonly IGenericRepository<Customers> _customer;
         public readonly IGenericRepository<Jobs> _job;
+        public readonly IGenericRepository<GroupEmployee> _groupEmployeeRepository;
 
-        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, IGenericRepository<Customers> customer, IGenericRepository<Jobs> job) : base(genericRepository)
+        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, IGenericRepository<Customers> customer, IGenericRepository<Jobs> job, IGenericRepository<GroupEmployee> groupEmployeeRepository) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _employees = employees;
@@ -32,6 +34,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             _employeeAdvanceForRepository = employeeAdvanceForRepository;
             _customer = customer;
             _job = job;
+            _groupEmployeeRepository = groupEmployeeRepository;
         }
 
         #region Add
@@ -55,11 +58,12 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 empadvance.UpdatedBy = emp.UpdatedBy;
                 empadvance.RequestedByUserID = emp.ApprovedByUserID ;
                 empadvance.ApprovalStatusID = 11; // Pending
+                
                
                 //empadvance.JobID = emp.JobID;
                 await _genericRepository.AddAsync(empadvance);
 
-                //(Multiple JobType Save to EmployeeAdvanceFor Table When save to another table like "EmployeeAdvanceFor")
+                //(Multiple JobType Save to EmployeeAdvanceFor Table 
                 if (emp.RequestedByUserID != null)
                 {
                     foreach (var item in emp.RequestedByUserID)
@@ -74,6 +78,24 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
                         await _employeeAdvanceForRepository.AddAsync(employeeAdvanceFor);
 
+                    }
+                    // Multiple Grop Employee Save to GroupEmployee Table
+                    if (emp.GroupEmployeeID != null)
+                    {
+                        foreach (var item in emp.GroupEmployeeID) 
+                        {
+                            GroupEmployee groupEmployee = new GroupEmployee();
+                            groupEmployee.EmployeeAdvanceID = empadvance.EmployeeAdvanceID;
+                            groupEmployee.EmployeeID = item;
+                            groupEmployee.LIP = emp.LIP;
+                            groupEmployee.LMAC = emp.LMAC;
+                            groupEmployee.CreatedAt = DateTime.Now;
+                            groupEmployee.CreatedBy = emp.CreatedBy;
+
+                            await _groupEmployeeRepository.AddAsync(groupEmployee);
+
+
+                        }
                     }
                     
                 }
@@ -229,6 +251,28 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             }
             catch (Exception ex)
             {
+                throw;
+            }
+        }
+        #endregion
+
+        #region GetAllAsync
+        public Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
+        {
+            try
+            {
+                var query = _genericRepository.AllActive()
+                    .Include(e => e.EmployeeAdvanceFor)
+                    .Include(e => e.Job)
+                    .Include(e => e.GroupEmployee);
+                
+
+
+            }
+            
+            catch (Exception)
+            {
+
                 throw;
             }
         }

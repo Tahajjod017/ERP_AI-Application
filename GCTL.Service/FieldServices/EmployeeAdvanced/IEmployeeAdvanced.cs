@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
+using GCTL.Core.ViewModels.Finance.AddSubAccountVM;
+using GCTL.Data.Models;
+using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL.Service.FieldServices.EmployeeAdvanced
@@ -20,5 +23,8 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         Task<CommonReturnViewModel> ApproveAsync(int id, int approvedByUserId);
 
         Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId); //Cascading
+
+        Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5,
+            string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null);
     }
 }
