@@ -319,7 +319,7 @@
             } else {
 
                 approvedQtyInput = `
-                    <input type="number"
+                    <input type="hidden"
                            class="form-control form-control-sm approved-qty-input"
                            name="Items[${i}].ApprovedQuantity" 
                            data-item-id="${item.itemId}"
@@ -328,7 +328,8 @@
                            max="${item.requestedQuantity}" 
                            step="0.01" 
                            required />
-                    <input type="hidden" name="Items[${i}].ItemId" value="${item.itemId}" />`;
+                    <input type="hidden" name="Items[${i}].ItemId" value="${item.itemId}" />
+                    <span class="fw-bold">${item.approvedQuantity || 'Not set'}</span>`;
                 // Other approvers just see the quantity
                //  approvedQtyInput = `<span class="fw-bold">${item.approvedQuantity || 'Not set'}</span>`;
             }
