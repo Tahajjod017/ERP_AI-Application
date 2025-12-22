@@ -1,6 +1,8 @@
 ﻿
 //Customer Dropdown with Select2 and AJAX
 $(document).ready(function () {
+    // local veriable
+    let customerId = null;
 
     $('#CustomerID2').select2({
         placeholder: 'Select Customer',
@@ -38,6 +40,12 @@ $(document).ready(function () {
         width: '100%'
     });
 
+    $("#CustomerID2").on("change", function () {
+        $("#JobID").val(null).trigger("change");
+        document.getElementById("JobID").disabled = false;
+        customerId = $(this).val();
+
+    });
 
     // Save Functionality
     $('#saveBtn').on('click', function (e) {
@@ -51,6 +59,12 @@ $(document).ready(function () {
         requestedUsers.forEach(function (id) {
             formData.append('RequestedByUserID', id);
         }); //Multiple Select
+
+        //Save Multiple Employee
+        var groupemp = $("#GroupEmployeeID").val();
+        groupemp.forEach(function (id) {
+            formData.append('GroupEmployeeID', id);
+        });
 
         formData.append('AmountRequested', $('#AmountRequested').val());
         formData.append('StartDate', $('#StartDate').val());
@@ -94,23 +108,17 @@ $(document).ready(function () {
         });
     });
 
-//// After successful job creation (in your modal's save handler)
-//$('#JobID').val(null).trigger('change'); // Clear current selection
-//$('#JobID').select2('destroy'); // Destroy the current instance
-
-    //job dropdown reinitialize select2
-
 
     $('#JobID').select2({
-        placeholder: 'select job',
+        placeholder: 'Select Job',
         width: '100%',
         ajax: {
-            url: '/createjobs/getjobs',
+            url: `/createjobs/getjobs`,
             dataType: 'json',
             delay: 250,
             data: function (params) {
                 return {
-                    search: params.term || '',
+                    customerId: customerId, search: params.term || '',
                     page: params.page || 1
                 };
             },
@@ -224,55 +232,55 @@ $(document).ready(function () {
     });
 
 
-    // Cascading Job by Customer with Select2
-    $("#CustomerID2").on('change', function () {
-        const customerId = $(this).val();
+    //// Cascading Job by Customer with Select2
+    //$("#CustomerID2").on('change', function () {
+    //    const customerId = $(this).val();
 
-        if (customerId) {
-            $.ajax({
-                url: '/EmployeeAdvanced/GetJobByCusId',
-                type: "GET",
-                data: { customerId: customerId },
-                success: function (result) {
-                    if (result.success) {
-                        var data = result.data;
-                        // clear select2 options
-                        $("#JobID").empty();
+    //    if (customerId) {
+    //        $.ajax({
+    //            url: '/EmployeeAdvanced/GetJobByCusId',
+    //            type: "GET",
+    //            data: { customerId: customerId },
+    //            success: function (result) {
+    //                if (result.success) {
+    //                    var data = result.data;
+    //                    // clear select2 options
+    //                    $("#JobID").empty();
 
-                        if (data && data.length > 0) {
-                            // build array for select2
-                            let jobs = data.map(job => ({
-                                id: job.jobID,
-                                text: job.jobTitle
-                            }));
+    //                    if (data && data.length > 0) {
+    //                        // build array for select2
+    //                        let jobs = data.map(job => ({
+    //                            id: job.jobID,
+    //                            text: job.jobTitle
+    //                        }));
 
-                            // re-init select2 with new data
-                            $("#JobID").select2({
-                                data: jobs,
-                                placeholder: 'select job',
-                                width: '100%'
-                            });
-                        } else {
-                            $("#JobID").select2({
-                                data: [{ id: '', text: 'No jobs found' }],
-                                width: '100%'
-                            });
-                        }
-                    } else {
-                        toastr.error("Something went wrong!");
-                    }
-                },
-                error: function () {
-                    toastr.error("Something went wrong!");
-                }
-            });
-        } else {
-            $("#JobID").select2({
-                data: [{ id: '', text: 'Select Client' }],
-                width: '100%'
-            });
-        }
-    });
+    //                        // re-init select2 with new data
+    //                        $("#JobID").select2({
+    //                            data: jobs,
+    //                            placeholder: 'select job',
+    //                            width: '100%'
+    //                        });
+    //                    } else {
+    //                        $("#JobID").select2({
+    //                            data: [{ id: '', text: 'No jobs found' }],
+    //                            width: '100%'
+    //                        });
+    //                    }
+    //                } else {
+    //                    toastr.error("Something went wrong!");
+    //                }
+    //            },
+    //            error: function () {
+    //                toastr.error("Something went wrong!");
+    //            }
+    //        });
+    //    } else {
+    //        $("#JobID").select2({
+    //            data: [{ id: '', text: 'Select Client' }],
+    //            width: '100%'
+    //        });
+    //    }
+    //});
 
     // propagate CustomerID2 value into modal after modal is shown
     $('#createJobModalToggle').on('shown.bs.modal', function () {

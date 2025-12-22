@@ -32,6 +32,10 @@ namespace GCTL.Core.ViewModels.FieldServices
         [Required(ErrorMessage = "Start Date is required")]
         public DateTime? EndDate { get; set; }
 
+        public List<int>? GroupEmployeeID { get; set; }
+
+        public int? EmployeeID { get; set; }
+
         public bool? IsGroupAdvance { get; set; }
 
         public int? ApprovalStatusID { get; set; }

@@ -4,15 +4,6 @@
 	ViewData["Title"] = "Employee Advanced";
 }
 
-
-<nav class="mb-3" aria-label="breadcrumb">
-	<ol class="breadcrumb mb-0">
-		<li class="breadcrumb-item"><a href="#!">Page 1</a></li>
-		<li class="breadcrumb-item"><a href="#!">Page 2</a></li>
-		<li class="breadcrumb-item active">Default</li>
-	</ol>
-</nav>
-
 <div class="card">
 	<div class="card-header">
 		<h3>Employee  Advanced</h3>
@@ -31,10 +22,10 @@
 							</div>
 						</div>
 
-						<div class="col-md-3">
+						<div class="col-md-3 ">
 							<div class="mb-3">
 								<label class="form-label req" asp-for="JobID">Job Name</label>
-								<select asp-for="JobID" class="form-select" asp-items="ViewBag.JobTypesDD">
+								<select asp-for="JobID" class="form-select" disabled>
 								</select>
 								<span asp-validation-for="JobID" class="text-danger"></span>
 							</div>
@@ -68,7 +59,7 @@
 						<div class="col-md-6" id="hiddenDiv2">
 							<div class="mb-3">
 								<label class="form-label" for="exampleFormControlInput">Other Employees Name</label>
-								<select asp-for="ApprovedByUserID" class="form-select" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}' asp-items="ViewBag.EmployeeDD">
+								<select asp-for="GroupEmployeeID" class="form-select" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}' asp-items="ViewBag.EmployeeDD">
 								</select>
 							</div>
 						</div>
@@ -117,8 +108,7 @@
 			<div class="dropdown me-2">
 				<select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
 					<option value="">Select Company...</option>
-					<option>CSL</option>
-					<option>GCTL</option>
+					
 				</select>
 			</div>
 
@@ -132,9 +122,7 @@
 			<div class="dropdown me-2">
 				<select class="form-select" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
 					<option value="">Select Project</option>
-					<option>Project 1</option>
-					<option>Project 2</option>
-					<option>Project 3</option>
+					
 				</select>
 			</div>
 		</div>

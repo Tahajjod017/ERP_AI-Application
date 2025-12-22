@@ -179,9 +179,9 @@ namespace GCTL_App.Controllers.FieldServices
 
         #region Get Job List
         [HttpGet]
-        public async Task<IActionResult> GetJobs(string search = "", int page = 1, int pageSize = 20)
+        public async Task<IActionResult> GetJobs(int customerId, string search = "", int page = 1, int pageSize = 20)
         {
-            var result = await _createJobService.GetJobAsync(
+            var result = await _createJobService.GetJobAsync(customerId,
                 search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
             );
 

@@ -130,11 +130,11 @@ namespace GCTL.Service.FieldServices
         #endregion
 
         #region Get Job Async
-        public async Task<ReturnDataView<SelectListItem>> GetJobAsync(string search, int page, int pageSize, int organizationID)
+        public async Task<ReturnDataView<SelectListItem>> GetJobAsync(int customerId, string search, int page, int pageSize, int organizationID)
         {
             var query = _jobsRepository
                 .AllActive()
-                .Where(q => q.OrganizationID == organizationID);
+                .Where(q => q.OrganizationID == organizationID && q.CustomerID == customerId);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
