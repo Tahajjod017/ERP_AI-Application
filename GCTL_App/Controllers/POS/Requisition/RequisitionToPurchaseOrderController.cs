@@ -17,6 +17,7 @@ namespace GCTL_App.Controllers.POS.Requisition
         private readonly IGenericRepository<ProductTypes> _productTypesRepository;
         private readonly IGenericRepository<Suppliers> _supplierRepository;
         private readonly IGenericRepository<PurOrderBaseSAddresses> _addressRepository;
+        private readonly IGenericRepository<Statuses> _statusRepository;
 
         public RequisitionToPurchaseOrderController(
             ITranslateService translateService,
@@ -24,13 +25,15 @@ namespace GCTL_App.Controllers.POS.Requisition
             IRequisitionToPurchaseOrderService requisitionToPOService,
             IGenericRepository<ProductTypes> productTypesRepository,
             IGenericRepository<Suppliers> supplierRepository,
-            IGenericRepository<PurOrderBaseSAddresses> addressRepository)
+            IGenericRepository<PurOrderBaseSAddresses> addressRepository,
+            IGenericRepository<Statuses> statusRepository)
             : base(translateService, userProfileService)
         {
             _requisitionToPOService = requisitionToPOService;
             _productTypesRepository = productTypesRepository;
             _supplierRepository = supplierRepository;
             _addressRepository = addressRepository;
+            _statusRepository = statusRepository;
         }
 
         #region Index
@@ -42,6 +45,10 @@ namespace GCTL_App.Controllers.POS.Requisition
 
             ViewBag.Suppliers = new SelectList(_supplierRepository.AllActive()
                 .Select(s => new { Id = s.SupplierID, Name = s.FullName }).ToList(),
+                "Id", "Name");
+
+            ViewBag.Statuses = new SelectList(_statusRepository.AllActive()
+                .Select(s => new { Id = s.StatusID, Name = s.StatusName }).ToList(),
                 "Id", "Name");
 
             return View();
@@ -107,11 +114,11 @@ namespace GCTL_App.Controllers.POS.Requisition
                     Id = s.SupplierID,
                     CompanyName = s.FullName,
                     ContactName = "TODO", // s.ContactName ?? "",
-                    Email = "TODO", // s.Email ?? "",
-                    Phone = "TODO", // s.Phone ?? "",
-                    AddressLine1 = "TODO", // s.Address ?? "",
+                    Email = "TODO", //  s.Email ?? "",
+                    Phone = "TODO", //  s.Phone ?? "",
+                    AddressLine1 = "TODO", //  s.Address ?? "",
                     AddressLine2 = "",
-                    TaxNumber = "TODO", // s.TaxNumber ?? ""
+                    TaxNumber = "TODO", //  s.TaxNumber ?? ""
                 }).ToList();
 
             return Json(suppliers);
@@ -142,7 +149,9 @@ namespace GCTL_App.Controllers.POS.Requisition
         #region Convert to Purchase Order
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConvertToPurchaseOrder( ConvertToPurchaseOrderViewModel model, BaseViewModel? baseView)
+        public async Task<IActionResult> ConvertToPurchaseOrder(
+            ConvertToPurchaseOrderViewModel model,
+            BaseViewModel? baseView)
         {
             if (!ModelState.IsValid)
             {
@@ -187,7 +196,7 @@ namespace GCTL_App.Controllers.POS.Requisition
                 //Phone = dto.Phone,
                 //Address = dto.AddressLine1,
                 //TaxNumber = dto.TaxNumber,
-                CreatedAt = DateTime.UtcNow,
+                //CreatedAt = DateTime.UtcNow,
                 CreatedBy = await GetCurrentEmployeeIdAsync()
             };
 
