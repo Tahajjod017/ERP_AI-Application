@@ -130,6 +130,7 @@ using GCTL.Service.POS.Purchase.PurchaseOrder;
 using GCTL.Service.POS.Purchase.PurchaseOrderList;
 using GCTL.Service.POS.Requsition;
 using GCTL.Service.POS.Requsition.RequisitionApprover;
+using GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder;
 using GCTL.Service.POS.Sales.InvoiceF;
 using GCTL.Service.POS.Sales.InvoiceListF;
 using GCTL.Service.POS.Sales.PriceQuotation;
@@ -307,6 +308,7 @@ namespace GCTL_App.Extensions
             #region Requisition
             services.AddScoped<INewRequisitionService, NewRequisitionService>();
             services.AddScoped<IRequisitionApproverService, RequisitionApproverService>();
+            services.AddScoped<IRequisitionToPurchaseOrderService, RequisitionToPurchaseOrderService>();
 
             #endregion
 
