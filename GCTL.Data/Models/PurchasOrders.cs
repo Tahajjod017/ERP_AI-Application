@@ -29,9 +29,13 @@ public partial class PurchasOrders
 
     public int? RequisitionID { get; set; }
 
+    public int? POStatusID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Statuses POStatus { get; set; }
 
     public virtual ICollection<PurchasOrderVersions> PurchasOrderVersions { get; set; } = new List<PurchasOrderVersions>();
 

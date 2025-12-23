@@ -67,7 +67,9 @@ public partial class Statuses
 
     public virtual ICollection<LoanBaseApprovalHistory> LoanBaseApprovalHistory { get; set; } = new List<LoanBaseApprovalHistory>();
 
-    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersions { get; set; } = new List<PurchasOrderVersions>();
+    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
+
+    public virtual ICollection<PurchaseReceives> PurchaseReceives { get; set; } = new List<PurchaseReceives>();
 
     public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistory { get; set; } = new List<ReqItemApprovalHistory>();
 

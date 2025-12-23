@@ -375,7 +375,7 @@ namespace GCTL_App.Controllers.POS.Purchase
                     return Json(new { success = false, message = "Purchase Order not found" });
                 }
 
-                purchaseOrder.StatusID = status;
+                //purchaseOrder.StatusID = status;
                 await _purchaseOrderVersionRepository.UpdateAsync(purchaseOrder);
 
                 return Json(new { success = true });

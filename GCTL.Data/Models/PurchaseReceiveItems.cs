@@ -13,29 +13,7 @@ public partial class PurchaseReceiveItems
 
     public int? ProductID { get; set; }
 
-    public string ProductName { get; set; }
-
-    public string BrandName { get; set; }
-
-    public string Length { get; set; }
-
-    public string Width { get; set; }
-
-    public string ProductTypeName { get; set; }
-
-    public string UnitTypeName { get; set; }
-
-    public string Weight { get; set; }
-
-    public string WeightUnitTypeName { get; set; }
-
-    public string SizeUnitTypeName { get; set; }
-
-    public string SquareFeet { get; set; }
-
-    public string SKU { get; set; }
-
-    public string Description { get; set; }
+    public string Note { get; set; }
 
     public decimal? POQuantity { get; set; }
 

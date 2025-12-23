@@ -45,7 +45,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrderList
                     .Include(q => q.Supplier)
                     .Include(q => q.PurchasOrderItemVersions)
                     .Include(q => q.CreatedByNavigation)
-                    .Include(q => q.Status)
+                   // .Include(q => q.Status)
                     .Where(e=>e.IsDraft == true || e.IsFinal == true);
 
                 // Apply search filter
@@ -90,7 +90,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrderList
                         CreatedBy = q.CreatedByNavigation != null
                             ? q.CreatedByNavigation.FirstName + " " + q.CreatedByNavigation.LastName
                             : "",
-                        Status = q.Status != null ? q.Status.StatusName : "Draft",
+                       // Status = q.Status != null ? q.Status.StatusName : "Draft",
                         Note = q.Note ?? ""
                     })
                     .ToListAsync();

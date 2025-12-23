@@ -9,8 +9,6 @@ public partial class PurchasOrderVersions
 {
     public int PurchasOrderVersionID { get; set; }
 
-    public int? StatusID { get; set; }
-
     public int? CreatedByID { get; set; }
 
     public int? SupplierID { get; set; }
@@ -99,11 +97,7 @@ public partial class PurchasOrderVersions
 
     public virtual ICollection<PurchasOrderItemVersions> PurchasOrderItemVersions { get; set; } = new List<PurchasOrderItemVersions>();
 
-    public virtual ICollection<PurchaseReceiveDrafts> PurchaseReceiveDrafts { get; set; } = new List<PurchaseReceiveDrafts>();
-
     public virtual ICollection<PurchaseReceives> PurchaseReceives { get; set; } = new List<PurchaseReceives>();
-
-    public virtual Statuses Status { get; set; }
 
     public virtual Suppliers Supplier { get; set; }
 

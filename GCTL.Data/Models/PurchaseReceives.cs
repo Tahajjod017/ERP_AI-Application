@@ -35,13 +35,21 @@ public partial class PurchaseReceives
 
     public int? DeletedBy { get; set; }
 
+    public string PRNote { get; set; }
+
+    public int? StatusID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual PurchasOrderVersions PurchasOrder { get; set; }
 
+    public virtual ICollection<PurchaseReceiveItemHistory> PurchaseReceiveItemHistory { get; set; } = new List<PurchaseReceiveItemHistory>();
+
     public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
+
+    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
