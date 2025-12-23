@@ -20,6 +20,7 @@ namespace GCTL.Core.ViewModels.POS.Requsition.RequisitionToPurchaseOrder
         public bool HasPurchaseOrder { get; set; }
         public int? PurchaseOrderId { get; set; }
         public string PurchaseOrderCode { get; set; }
+        public int? PurchaseOrderVerId { get; set; }
     }
 
    

@@ -181,6 +181,7 @@
 
         if (data.hasPurchaseOrder) {
             $("#view_POCode").text(data.purchaseOrderCode);
+            $('#view_POCodeLink').attr('href', '/PurchaseOrderDetails/index/' + data.purchaseOrderVerId);
             $("#view_POSection").show();
         } else {
             $("#view_POSection").hide();

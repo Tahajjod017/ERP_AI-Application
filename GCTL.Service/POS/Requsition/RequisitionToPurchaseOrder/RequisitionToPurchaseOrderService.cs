@@ -156,6 +156,7 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
 
             var hasPO = requisition.PurchasOrders.Any();
             var poId = requisition.PurchasOrders.FirstOrDefault()?.PurchasOrderID;
+            var poVerId = requisition.PurchasOrders.FirstOrDefault()?.PurchasOrderVersions.Where(e=>e.IsDraft == true || e.IsFinal == true ).FirstOrDefault()?.PurchasOrderVersionID;
             var poCode = requisition.PurchasOrders.FirstOrDefault()?.POID;
 
             return new RequisitionDetailsForPOViewModel
@@ -171,6 +172,7 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
                 RequisitionNote = requisition.RequisitionNote ?? "",
                 HasPurchaseOrder = hasPO,
                 PurchaseOrderId = poId,
+                PurchaseOrderVerId = poVerId,
                 PurchaseOrderCode = poCode,
                 Items = requisition.RequisitionItems.Select(ri => new RequisitionItemForPOViewModel
                 {
