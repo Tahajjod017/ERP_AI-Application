@@ -119,8 +119,6 @@ public partial class Products
 
     public virtual ICollection<PurchasOrderItemVersions> PurchasOrderItemVersions { get; set; } = new List<PurchasOrderItemVersions>();
 
-    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDrafts { get; set; } = new List<PurchaseReceiveItemDrafts>();
-
     public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
 
     public virtual ICollection<RequisitionItems> RequisitionItems { get; set; } = new List<RequisitionItems>();

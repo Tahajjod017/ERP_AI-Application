@@ -281,7 +281,7 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
                     TermsAndConditions = model.TermsAndConditions,
                     IsDraft = dft,
                     IsFinal = !dft, // Mark as final/active version
-                    StatusID = model.StatusId,
+                    //StatusID = model.StatusId,
                     CreatedByID = baseView?.CreatedBy,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = baseView?.CreatedBy,

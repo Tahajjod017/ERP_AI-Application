@@ -835,11 +835,7 @@
          "ObjectType": 0
       },
       {
-         "Name": "[SC].[PurchaseReceiveDrafts]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[SC].[PurchaseReceiveItemDrafts]",
+         "Name": "[SC].[PurchaseReceiveItemHistory]",
          "ObjectType": 0
       },
       {

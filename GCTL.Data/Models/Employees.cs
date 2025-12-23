@@ -1145,17 +1145,11 @@ public partial class Employees
 
     public virtual ICollection<PurchasOrders> PurchasOrdersUpdatedByNavigation { get; set; } = new List<PurchasOrders>();
 
-    public virtual ICollection<PurchaseReceiveDrafts> PurchaseReceiveDraftsCreatedByNavigation { get; set; } = new List<PurchaseReceiveDrafts>();
+    public virtual ICollection<PurchaseReceiveItemHistory> PurchaseReceiveItemHistoryCreatedByNavigation { get; set; } = new List<PurchaseReceiveItemHistory>();
 
-    public virtual ICollection<PurchaseReceiveDrafts> PurchaseReceiveDraftsDeletedByNavigation { get; set; } = new List<PurchaseReceiveDrafts>();
+    public virtual ICollection<PurchaseReceiveItemHistory> PurchaseReceiveItemHistoryDeletedByNavigation { get; set; } = new List<PurchaseReceiveItemHistory>();
 
-    public virtual ICollection<PurchaseReceiveDrafts> PurchaseReceiveDraftsUpdatedByNavigation { get; set; } = new List<PurchaseReceiveDrafts>();
-
-    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDraftsCreatedByNavigation { get; set; } = new List<PurchaseReceiveItemDrafts>();
-
-    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDraftsDeletedByNavigation { get; set; } = new List<PurchaseReceiveItemDrafts>();
-
-    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDraftsUpdatedByNavigation { get; set; } = new List<PurchaseReceiveItemDrafts>();
+    public virtual ICollection<PurchaseReceiveItemHistory> PurchaseReceiveItemHistoryUpdatedByNavigation { get; set; } = new List<PurchaseReceiveItemHistory>();
 
     public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItemsCreatedByNavigation { get; set; } = new List<PurchaseReceiveItems>();
 

@@ -377,9 +377,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<PurchasOrders> PurchasOrders { get; set; }
 
-    public virtual DbSet<PurchaseReceiveDrafts> PurchaseReceiveDrafts { get; set; }
-
-    public virtual DbSet<PurchaseReceiveItemDrafts> PurchaseReceiveItemDrafts { get; set; }
+    public virtual DbSet<PurchaseReceiveItemHistory> PurchaseReceiveItemHistory { get; set; }
 
     public virtual DbSet<PurchaseReceiveItems> PurchaseReceiveItems { get; set; }
 
@@ -492,7 +490,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
 
         modelBuilder.Entity<ActionLogs>(entity =>
         {
@@ -6767,10 +6764,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.PurchasOrderID)
                 .HasConstraintName("FK_PurchasOrders_PurchasOrderID_PurchasOrderVersions");
 
-            entity.HasOne(d => d.Status).WithMany(p => p.PurchasOrderVersions)
-                .HasForeignKey(d => d.StatusID)
-                .HasConstraintName("FK__PurchasOr__Statu__648DC6E3");
-
             entity.HasOne(d => d.Supplier).WithMany(p => p.PurchasOrderVersions)
                 .HasForeignKey(d => d.SupplierID)
                 .HasConstraintName("FK__PurchasOr__Suppl__66760F55");
@@ -6803,6 +6796,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__PurchasOr__Delet__691D71D6");
 
+            entity.HasOne(d => d.POStatus).WithMany(p => p.PurchasOrders)
+                .HasForeignKey(d => d.POStatusID)
+                .HasConstraintName("FK__PurchasOr__POSta__371C01EE");
+
             entity.HasOne(d => d.Requisition).WithMany(p => p.PurchasOrders)
                 .HasForeignKey(d => d.RequisitionID)
                 .HasConstraintName("FK_PurchasOrders_Requisition");
@@ -6812,46 +6809,11 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__PurchasOr__Updat__67352964");
         });
 
-        modelBuilder.Entity<PurchaseReceiveDrafts>(entity =>
+        modelBuilder.Entity<PurchaseReceiveItemHistory>(entity =>
         {
-            entity.HasKey(e => e.PurchaseReceiveDraftID).HasName("PK__Purchase__D6BC7F689381689A");
+            entity.HasKey(e => e.PurRecItemHistoryID).HasName("PK__Purchase__FCF839D706B9C1CB");
 
-            entity.ToTable("PurchaseReceiveDrafts", "SC");
-
-            entity.Property(e => e.BillDate).HasColumnType("datetime");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.LIP).HasMaxLength(20);
-            entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.PRDate).HasColumnType("datetime");
-            entity.Property(e => e.PRNumber).HasMaxLength(30);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-            entity.Property(e => e.VendorBill_Chalan).HasMaxLength(50);
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PurchaseReceiveDraftsCreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__PurchaseR__Creat__07D70320");
-
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PurchaseReceiveDraftsDeletedByNavigation)
-                .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__PurchaseR__Delet__0AB36FCB");
-
-            entity.HasOne(d => d.PurchasOrder).WithMany(p => p.PurchaseReceiveDrafts)
-                .HasForeignKey(d => d.PurchasOrderID)
-                .HasConstraintName("FK__PurchaseR__Purch__06E2DEE7");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PurchaseReceiveDraftsUpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__PurchaseR__Updat__08CB2759");
-        });
-
-        modelBuilder.Entity<PurchaseReceiveItemDrafts>(entity =>
-        {
-            entity.HasKey(e => e.PurchaseReceiveItemDraftID).HasName("PK__Purchase__6645E66C7CF196D6");
-
-            entity.ToTable("PurchaseReceiveItemDrafts", "SC");
+            entity.ToTable("PurchaseReceiveItemHistory", "SC");
 
             entity.Property(e => e.BrandName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
@@ -6874,25 +6836,21 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.WeightUnitTypeName).HasMaxLength(100);
             entity.Property(e => e.Width).HasMaxLength(100);
 
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PurchaseReceiveItemDraftsCreatedByNavigation)
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PurchaseReceiveItemHistoryCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK__PurchaseR__Creat__0F7824E8");
+                .HasConstraintName("FK__PurchaseR__Creat__3AEC92D2");
 
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PurchaseReceiveItemDraftsDeletedByNavigation)
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PurchaseReceiveItemHistoryDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK__PurchaseR__Delet__12549193");
+                .HasConstraintName("FK__PurchaseR__Delet__3DC8FF7D");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.PurchaseReceiveItemDrafts)
-                .HasForeignKey(d => d.ProductID)
-                .HasConstraintName("FK__PurchaseR__Produ__0E8400AF");
+            entity.HasOne(d => d.PurchaseReceive).WithMany(p => p.PurchaseReceiveItemHistory)
+                .HasForeignKey(d => d.PurchaseReceiveID)
+                .HasConstraintName("FK__PurchaseR__Purch__39F86E99");
 
-            entity.HasOne(d => d.PurchaseReceiveDraft).WithMany(p => p.PurchaseReceiveItemDrafts)
-                .HasForeignKey(d => d.PurchaseReceiveDraftID)
-                .HasConstraintName("FK__PurchaseR__Purch__0D8FDC76");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PurchaseReceiveItemDraftsUpdatedByNavigation)
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PurchaseReceiveItemHistoryUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK__PurchaseR__Updat__106C4921");
+                .HasConstraintName("FK__PurchaseR__Updat__3BE0B70B");
         });
 
         modelBuilder.Entity<PurchaseReceiveItems>(entity =>
@@ -6901,26 +6859,15 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("PurchaseReceiveItems", "SC");
 
-            entity.Property(e => e.BrandName).HasMaxLength(100);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.Length).HasMaxLength(100);
             entity.Property(e => e.POQuantity).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.ProductName).HasMaxLength(255);
-            entity.Property(e => e.ProductTypeName).HasMaxLength(100);
             entity.Property(e => e.ReceiveQuantity).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.SKU).HasMaxLength(30);
-            entity.Property(e => e.SizeUnitTypeName).HasMaxLength(100);
-            entity.Property(e => e.SquareFeet).HasMaxLength(100);
-            entity.Property(e => e.UnitTypeName).HasMaxLength(100);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Weight).HasMaxLength(100);
-            entity.Property(e => e.WeightUnitTypeName).HasMaxLength(100);
-            entity.Property(e => e.Width).HasMaxLength(100);
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PurchaseReceiveItemsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
@@ -6972,6 +6919,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.PurchasOrder).WithMany(p => p.PurchaseReceives)
                 .HasForeignKey(d => d.PurchasOrderID)
                 .HasConstraintName("FK__PurchaseR__Purch__7894BF90");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.PurchaseReceives)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK__PurchaseR__Statu__3627DDB5");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PurchaseReceivesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
