@@ -35,11 +35,21 @@ public partial class PurchaseReceiveItems
 
     public int? DeletedBy { get; set; }
 
+    public int? PurchasOrderVersionItemID { get; set; }
+
+    public decimal? AcceptedQuantity { get; set; }
+
+    public decimal? RejectedQuantity { get; set; }
+
+    public string RejectionReason { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Products Product { get; set; }
+
+    public virtual PurchasOrderItemVersions PurchasOrderVersionItem { get; set; }
 
     public virtual PurchaseReceives PurchaseReceive { get; set; }
 

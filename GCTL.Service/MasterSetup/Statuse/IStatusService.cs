@@ -26,5 +26,8 @@ namespace GCTL.Service.MasterSetup.Statuse
         #region Others
         Task<bool> IsNameUniqueAsync(string name);
         #endregion
+
+        Task<int> GetStatusIDAsync(string name , string type = "default");
+        int GetStatusID(string name , string type = "default");
     }
 }

@@ -21,6 +21,26 @@ function duplicateQuotation(quotationId) {
     }
 }
 
+function convertToSalesOrder(quotationId) {
+    if (confirm('Are you sure you want to convert this quotation to a Work Order? This action cannot be undone.')) {
+        $.ajax({
+            url: '/PriceQuotationDetails/ConvertToSalesOrder',
+            method: 'POST',
+            data: { id: quotationId },
+            success: function (response) {
+                if (response.success) {
+                    toastr.success('Quotation converted to Work Order successfully!');
+                    window.location.href = '/SalesOrder/Index/' + response.workOrderId;
+                } else {
+                    toastr.warning('Failed to convert to Work Order: ' + response.message);
+                }
+            },
+            error: function () {
+                toastr.warning('Failed to convert to Work Order. Please try again.');
+            }
+        });
+    }
+}
 function convertToWorkOrder(quotationId) {
     if (confirm('Are you sure you want to convert this quotation to a Work Order? This action cannot be undone.')) {
         $.ajax({

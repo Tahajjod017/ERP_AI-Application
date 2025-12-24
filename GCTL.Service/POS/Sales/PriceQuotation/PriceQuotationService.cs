@@ -7,6 +7,7 @@ using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.POS.Sales.PriceQuotation;
+using GCTL.Core.ViewModels.POS.Sales.SalesOrders;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,8 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
             _userInfoService = userInfoService;
             _priceQuotationVersionsRepository = priceQuotationVersionsRepository;
         }
+
+        
 
         public async Task<string> GetNextPQcode()
         {
@@ -207,6 +210,51 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
                     Message = ex.Message
                 };
             }
+        }
+
+        public async Task<CommonReturnViewModel> ConvertToSalesOrder(int id)
+        {
+            var quotation = _priceQuotationVersionsRepository.AllActive()
+                    .Include(e => e.PriceQuotationVersionItems)
+                    .Include(e => e.PriceQuotation)
+                    .FirstOrDefault(e => e.PriceQuotationID == id);
+
+            if (quotation == null)
+            {
+                return new CommonReturnViewModel() { Success = false, Message = "not found" };
+            }
+
+            if (quotation.IsFinalVersion == true)
+            {
+                return new CommonReturnViewModel() { Success = false, Message = "the version is not final" };
+            }
+
+            var model = new SalesOrderViewModel()
+            {
+                Id = id,
+                OrderDate = DateTime.Now,
+                IsDraft = true,
+                SelectedCustomerId = quotation.CustomerID,
+                SelectedQuotationId = quotation.PriceQuotationID,
+                VatPercent = quotation.VatPercentage ?? 0m,
+                Note = quotation.Note + " Auto Converted",
+
+                Items = quotation.PriceQuotationVersionItems.Select(x => new SalesOrderItem()
+                {
+
+                    Description = x.Description,
+                    Rate = x.Rate,
+                    Quantity = x.Area,
+                    //Unit = x.UnitTypeID ?? ""
+
+                }).ToList()
+
+            };
+
+
+            return new CommonReturnViewModel() { Success = false, Message = "not found" };
+
+
         }
 
 

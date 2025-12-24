@@ -223,6 +223,50 @@ namespace GCTL.Service.MasterSetup.Statuse
                     StatusName = x.StatusName ?? "-",
                 });
         }
+
+
+        #endregion
+
+        #region Get StatusId
+
+        public async Task<int> GetStatusIDAsync(string name, string type = "default")
+        {
+            var OpenStatus = await _genericRepository.AllActive().FirstOrDefaultAsync(e => e.StatusName.ToLower() == name.ToLower());
+
+            if (OpenStatus == null)
+            {
+                OpenStatus = new Statuses()
+                {
+                    StatusName = name,
+                    StatusType = type,
+                     CreatedAt = DateTime.Now,
+                };
+                await _genericRepository.AddAsync(OpenStatus);
+            }
+
+            return OpenStatus.StatusID;
+        }
+
+        public int GetStatusID(string name, string type = "default")
+        {
+            var OpenStatus =  _genericRepository.AllActive().FirstOrDefault(e => e.StatusName.ToLower() == name.ToLower());
+
+            if (OpenStatus == null)
+            {
+                OpenStatus = new Statuses()
+                {
+                    StatusName = name,
+                    StatusType = type,
+                    CreatedAt = DateTime.Now,
+                    
+
+                };
+                 _genericRepository.AddAsync(OpenStatus);
+            }
+
+            return OpenStatus.StatusID;
+        }
+
         #endregion
     }
 }

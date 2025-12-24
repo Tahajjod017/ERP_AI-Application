@@ -1,0 +1,285 @@
+﻿<div class="d-flex mb-3 pb-3">
+    <span class="fa-stack me-2 ms-n1">
+        <i class="fas fa-circle fa-stack-2x text-primary"></i>
+        <i class="fa-inverse fa-stack-1x text-primary-subtle fas fa-dolly" data-fa-transform="shrink-4"></i>
+    </span>
+    <div class="col">
+        <h3 class="mb-0 text-primary position-relative fw-bold">
+            <span class="bg-body pe-2">Purchase Receive</span>
+            <span class="border border-primary position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+        </h3>
+    </div>
+</div>
+
+<!-- Create Purchase Receive Form -->
+<div class="px-4 px-lg-6 bg-body-emphasis rounded mb-4">
+    <div class="mb-4 mt-3">
+        <form id="purchaseReceiveForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="pr_PurchaseReceiveID" />
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label class="form-label">Purchase Order <span class="text-danger">*</span></label>
+                    <select id="pr_PurchaseOrderVersionID" name="PurchaseOrderVersionID" class="form-select searchableSelect" required>
+                        <option value="">-- Select Purchase Order --</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">PR Number <span class="text-danger">*</span></label>
+                    <input type="text" id="pr_PRNumber" name="PRNumber" class="form-control" readonly required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">PR Date <span class="text-danger">*</span></label>
+                    <input type="date" id="pr_PRDate" name="PRDate" class="form-control datetimepicker flatpickr-input caiCon" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Vendor Bill/Chalan</label>
+                    <input type="text" id="pr_VendorBillChalan" name="VendorBillChalan" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Bill Date</label>
+                    <input type="date" id="pr_BillDate" name="BillDate" class="form-control datetimepicker flatpickr-input caiCon" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Status <span class="text-danger">*</span></label>
+                    <select id="pr_StatusID" name="StatusID" class="form-select searchableSelect" asp-items="@ViewBag.Statuses as SelectList" required>
+                        <option value="">-- Select Status --</option>
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Note</label>
+                    <textarea id="pr_PRNote" name="PRNote" class="form-control" rows="2" placeholder="Add notes..."></textarea>
+                </div>
+            </div>
+
+            <!-- PO Info Display -->
+            <div id="poInfoSection" class="alert alert-info mb-4" style="display:none;">
+                <div class="row">
+                    <div class="col-md-3"><strong>PO Number:</strong> <span id="po_Number"></span></div>
+                    <div class="col-md-3"><strong>Supplier:</strong> <span id="po_Supplier"></span></div>
+                    <div class="col-md-3"><strong>PO Date:</strong> <span id="po_Date"></span></div>
+                    <div class="col-md-3"><strong>Total Items:</strong> <span id="po_TotalItems"></span></div>
+                </div>
+            </div>
+
+            <!-- Products Table -->
+            <div id="productsSection" style="display:none;">
+                <h6 class="mb-3">Products to Receive</h6>
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm table-bordered" id="receiveItemsTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:30px;"><input type="checkbox" id="selectAll" /></th>
+                                <th>Product</th>
+                                <th>Brand</th>
+                                <th>Unit</th>
+                                <th style="width:100px;">Ordered</th>
+                                <th style="width:100px;">Received</th>
+                                <th style="width:100px;">Remaining</th>
+                                <th style="width:120px;">Receive Qty <span class="text-danger">*</span></th>
+                                <th style="width:120px;">Accepted <span class="text-danger">*</span></th>
+                                <th style="width:120px;">Rejected</th>
+                            </tr>
+                        </thead>
+                        <tbody id="receiveItemsBody"></tbody>
+                        <tfoot>
+                            <tr class="table-secondary fw-bold">
+                                <td colspan="7" class="text-end">Totals:</td>
+                                <td id="total_Receive">0.00</td>
+                                <td id="total_Accepted">0.00</td>
+                                <td id="total_Rejected">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row justify-content-end mb-3">
+                <div class="col-auto">
+                    <button type="button" class="btn btn-secondary" id="clearFormBtn">Clear</button>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary" id="saveBtn">Save Purchase Receive</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Purchase Receives List -->
+<div class="px-4 px-lg-6 bg-body-emphasis rounded">
+    <div class="mb-4">
+        <div class="d-flex mb-3 mt-3 pt-3">
+            <span class="fa-stack me-2 ms-n1">
+                <i class="fas fa-circle fa-stack-2x text-success"></i>
+                <i class="fa-inverse fa-stack-1x text-success-subtle fas fa-list" data-fa-transform="shrink-4"></i>
+            </span>
+            <div class="col">
+                <h4 class="mb-0 text-success position-relative fw-bold">
+                    <span class="bg-body pe-2">Purchase Receives History</span>
+                    <span class="border border-success position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+                </h4>
+            </div>
+        </div>
+
+        <div class="row g-3 justify-content-between align-items-end mb-4">
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <div class="columnDrag PurchaseReceives"></div>
+                    </div>
+                    <div class="dropdown me-3">
+                        <select class="form-select searchableSelect" id="statusFilter" asp-items="@ViewBag.Statuses as SelectList">
+                            <option value="">Select Status</option>
+                        </select>
+                    </div>
+                    <div class="dropdown me-3">
+                        <select class="form-select searchableSelect" id="supplierFilter" asp-items="@ViewBag.Suppliers as SelectList">
+                            <option value="">Select Supplier</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-auto">
+                <div class="d-flex align-items-center">
+                    <div class="dropdown me-3">
+                        <input class="form-control datetimepicker flatpickr-input caiCon" id="fromDate" type="text"
+                               placeholder="From" data-options='{"dateFormat":"d/m/y","disableMobile":true}' readonly>
+                    </div>
+                    <div class="dropdown me-3">
+                        <input class="form-control datetimepicker flatpickr-input caiCon" id="toDate" type="text"
+                               placeholder="To" data-options='{"dateFormat":"d/m/y","disableMobile":true}' readonly>
+                    </div>
+                    <div class="me-3">
+                        <input class="form-control" id="searchInput" type="text" placeholder="Search">
+                    </div>
+                    <div class="dropdown me-3">
+                        <div class="input-group">
+                            <span class="input-group-text">Showing</span>
+                            <select class="form-select" id="pageSizeSelect">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-phoenix-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            Export <i class="fa-solid fa-file-export"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" id="btnExportPDF">PDF</a></li>
+                            <li><a class="dropdown-item" id="btnExportXL">Excel</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive ms-n1 ps-1 scrollbar">
+            <table class="table fs-9 mb-0 border-top border-translucent dyn-tableDrag PurchaseReceives" id="PurchaseReceives">
+                <thead>
+                    <tr>
+                        <th class="sort white-space-nowrap align-middle ps-0" data-sort="PurchaseReceiveID">ID</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" data-sort="PRNumber">PR Number</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" data-sort="PRDate">PR Date</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" data-sort="PONumber">PO Number</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" data-sort="SupplierName">Supplier</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" data-sort="TotalItems">Items</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" data-sort="TotalReceivedQty">Received Qty</th>
+                        <th class="sort white-space-nowrap align-middle ps-2" data-sort="Status">Status</th>
+                        <th class="sort align-middle text-end" style="width:150px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="list" id="purchase-receives-table"></tbody>
+            </table>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between py-3 pe-0 fs-9">
+            <p class="mb-0" data-list-info="list-info"></p>
+            <div class="d-flex">
+                <button class="page-link" id="prevBtn"><span class="fas fa-chevron-left"></span></button>
+                <ul class="mb-0 pagination" id="pagination"></ul>
+                <button class="page-link pe-0" id="nextBtn"><span class="fas fa-chevron-right"></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Details Modal -->
+<div class="modal fade" id="viewDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Purchase Receive Details</h5>
+                <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3"><strong>PR Number:</strong> <span id="view_PRNumber"></span></div>
+                    <div class="col-md-3"><strong>PR Date:</strong> <span id="view_PRDate"></span></div>
+                    <div class="col-md-3"><strong>PO Number:</strong> <span id="view_PONumber"></span></div>
+                    <div class="col-md-3"><strong>Supplier:</strong> <span id="view_Supplier"></span></div>
+                    <div class="col-md-4"><strong>Vendor Bill:</strong> <span id="view_VendorBill"></span></div>
+                    <div class="col-md-4"><strong>Received By:</strong> <span id="view_ReceivedBy"></span></div>
+                    <div class="col-md-4"><strong>Status:</strong> <span id="view_Status"></span></div>
+                    <div class="col-md-12"><strong>Note:</strong> <p id="view_Note"></p></div>
+                </div>
+
+                <h6 class="mb-3">Received Items</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Brand</th>
+                                <th>Unit</th>
+                                <th>PO Qty</th>
+                                <th>Received</th>
+                                <th>Accepted</th>
+                                <th>Rejected</th>
+                            </tr>
+                        </thead>
+                        <tbody id="view_ItemsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this purchase receive? This will reverse all received quantities.</p>
+                <input type="hidden" id="deleteReceiveId" />
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" type="button" onclick="confirmDelete()">Delete</button>
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script src="~/js/pages/Purchase/purchaseReceive.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+}

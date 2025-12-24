@@ -203,6 +203,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<InventoryTransactionHistory> InventoryTransactionHistory { get; set; }
 
+    public virtual DbSet<InventoryTransferItems> InventoryTransferItems { get; set; }
+
     public virtual DbSet<InventoryTransfers> InventoryTransfers { get; set; }
 
     public virtual DbSet<InvoiceBaseCAddresses> InvoiceBaseCAddresses { get; set; }
@@ -3778,14 +3780,21 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("Inventory", "SC");
 
+            entity.Property(e => e.AverageCost).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LastTransactionDate).HasColumnType("datetime");
+            entity.Property(e => e.MaximumQuantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.MinimumQuantity).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Quantity).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ReservedQuantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TotalValue)
+                .HasComputedColumnSql("([Quantity]*[AverageCost])", false)
+                .HasColumnType("decimal(37, 4)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InventoryCreatedByNavigation)
@@ -3815,13 +3824,17 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("InventoryTransactionHistory", "SC");
 
+            entity.Property(e => e.BalanceAfter).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Note).HasMaxLength(500);
             entity.Property(e => e.Quantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ReferenceType).HasMaxLength(50);
+            entity.Property(e => e.TransactionDate).HasColumnType("datetime");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
@@ -3833,6 +3846,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__Inventory__Delet__554B8353");
 
+            entity.HasOne(d => d.FromLocation).WithMany(p => p.InventoryTransactionHistoryFromLocation)
+                .HasForeignKey(d => d.FromLocationID)
+                .HasConstraintName("FK_InventoryTransactionHistory_FromLocation");
+
             entity.HasOne(d => d.Inventory).WithMany(p => p.InventoryTransactionHistory)
                 .HasForeignKey(d => d.InventoryID)
                 .HasConstraintName("FK_Inventory_InventoryID_InventoryTransactionHistory");
@@ -3840,6 +3857,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Product).WithMany(p => p.InventoryTransactionHistory)
                 .HasForeignKey(d => d.ProductID)
                 .HasConstraintName("FK__Inventory__Produ__4E9E85C4");
+
+            entity.HasOne(d => d.ToLocation).WithMany(p => p.InventoryTransactionHistoryToLocation)
+                .HasForeignKey(d => d.ToLocationID)
+                .HasConstraintName("FK_InventoryTransactionHistory_ToLocation");
 
             entity.HasOne(d => d.TransactionTypeNavigation).WithMany(p => p.InventoryTransactionHistory)
                 .HasForeignKey(d => d.TransactionType)
@@ -3850,21 +3871,67 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__Inventory__Updat__53633AE1");
         });
 
+        modelBuilder.Entity<InventoryTransferItems>(entity =>
+        {
+            entity.HasKey(e => e.InventoryTransferItemID);
+
+            entity.ToTable("InventoryTransferItems", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.Note).HasMaxLength(500);
+            entity.Property(e => e.ReceivedQuantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TransferQuantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InventoryTransferItemsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_InventoryTransferItems_CreatedBy");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.InventoryTransferItemsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_InventoryTransferItems_DeletedBy");
+
+            entity.HasOne(d => d.InventoryTransfer).WithMany(p => p.InventoryTransferItems)
+                .HasForeignKey(d => d.InventoryTransferID)
+                .HasConstraintName("FK_InventoryTransferItems_InventoryTransfers");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.InventoryTransferItems)
+                .HasForeignKey(d => d.ProductID)
+                .HasConstraintName("FK_InventoryTransferItems_Products");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InventoryTransferItemsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_InventoryTransferItems_UpdatedBy");
+        });
+
         modelBuilder.Entity<InventoryTransfers>(entity =>
         {
             entity.HasKey(e => e.InventoryTransferID).HasName("PK__Inventor__3E82BDBFF17A4811");
 
             entity.ToTable("InventoryTransfers", "SC");
 
+            entity.HasIndex(e => e.TransferNumber, "UQ_InventoryTransfers_TransferNumber").IsUnique();
+
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.FromDate).HasColumnType("datetime");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
-            entity.Property(e => e.ToDate).HasColumnType("datetime");
+            entity.Property(e => e.Note).HasMaxLength(500);
+            entity.Property(e => e.TotalQuantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TransferDate).HasColumnType("datetime");
+            entity.Property(e => e.TransferNumber).HasMaxLength(50);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.ApprovedByNavigation).WithMany(p => p.InventoryTransfersApprovedByNavigation)
+                .HasForeignKey(d => d.ApprovedBy)
+                .HasConstraintName("FK_InventoryTransfers_ApprovedBy");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InventoryTransfersCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
@@ -3877,6 +3944,18 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.FromLocation).WithMany(p => p.InventoryTransfersFromLocation)
                 .HasForeignKey(d => d.FromLocationID)
                 .HasConstraintName("FK_Locations_FromLocationID_InventoryTransfers");
+
+            entity.HasOne(d => d.ReceivedByNavigation).WithMany(p => p.InventoryTransfersReceivedByNavigation)
+                .HasForeignKey(d => d.ReceivedBy)
+                .HasConstraintName("FK_InventoryTransfers_ReceivedBy");
+
+            entity.HasOne(d => d.RequestedByNavigation).WithMany(p => p.InventoryTransfersRequestedByNavigation)
+                .HasForeignKey(d => d.RequestedBy)
+                .HasConstraintName("FK_InventoryTransfers_RequestedBy");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.InventoryTransfers)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK_InventoryTransfers_Status");
 
             entity.HasOne(d => d.ToLocation).WithMany(p => p.InventoryTransfersToLocation)
                 .HasForeignKey(d => d.ToLocationID)
@@ -5150,12 +5229,21 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("Locations", "SC");
 
+            entity.HasIndex(e => e.LocationCode, "UQ_Locations_LocationCode").IsUnique();
+
+            entity.Property(e => e.Address).HasMaxLength(500);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LocationCode).HasMaxLength(50);
+            entity.Property(e => e.LocationName)
+                .IsRequired()
+                .HasMaxLength(200);
+            entity.Property(e => e.LocationType).HasMaxLength(50);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LocationsCreatedByNavigation)
@@ -6674,6 +6762,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("PurchasOrderItemVersions", "SC");
 
+            entity.Property(e => e.AcceptedQuantity)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -6681,6 +6772,15 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.Quantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ReceivedQuantity)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.RejectedQuantity)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.RemainingQuantity)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
@@ -6719,9 +6819,11 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.DueAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.DueDate).HasColumnType("datetime");
+            entity.Property(e => e.FirstReceiveDate).HasColumnType("datetime");
             entity.Property(e => e.GrandTotalAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.LIP).HasMaxLength(20);
             entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.LastReceiveDate).HasColumnType("datetime");
             entity.Property(e => e.OtherReference).HasMaxLength(20);
             entity.Property(e => e.PaidAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.PurchaseDate).HasColumnType("datetime");
@@ -6859,6 +6961,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("PurchaseReceiveItems", "SC");
 
+            entity.Property(e => e.AcceptedQuantity)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -6867,6 +6972,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.POQuantity).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.ReceiveQuantity).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.RejectedQuantity)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.RejectionReason).HasMaxLength(500);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.PurchaseReceiveItemsCreatedByNavigation)
@@ -6880,6 +6989,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.Product).WithMany(p => p.PurchaseReceiveItems)
                 .HasForeignKey(d => d.ProductID)
                 .HasConstraintName("FK__PurchaseR__Produ__0035E158");
+
+            entity.HasOne(d => d.PurchasOrderVersionItem).WithMany(p => p.PurchaseReceiveItems)
+                .HasForeignKey(d => d.PurchasOrderVersionItemID)
+                .HasConstraintName("FK__PurchaseR__Purch__597119F2");
 
             entity.HasOne(d => d.PurchaseReceive).WithMany(p => p.PurchaseReceiveItems)
                 .HasForeignKey(d => d.PurchaseReceiveID)
@@ -6896,6 +7009,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("PurchaseReceives", "SC");
 
+            entity.Property(e => e.AttachmentPath).HasMaxLength(200);
             entity.Property(e => e.BillDate).HasColumnType("datetime");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
@@ -6905,6 +7019,15 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.LMAC).HasMaxLength(30);
             entity.Property(e => e.PRDate).HasColumnType("datetime");
             entity.Property(e => e.PRNumber).HasMaxLength(30);
+            entity.Property(e => e.TotalAcceptedQty)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TotalReceivedQty)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TotalRejectedQty)
+                .HasDefaultValue(0m)
+                .HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
             entity.Property(e => e.VendorBill_Chalan).HasMaxLength(50);
 
@@ -6916,9 +7039,13 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__PurchaseR__Delet__7C655074");
 
-            entity.HasOne(d => d.PurchasOrder).WithMany(p => p.PurchaseReceives)
-                .HasForeignKey(d => d.PurchasOrderID)
-                .HasConstraintName("FK__PurchaseR__Purch__7894BF90");
+            entity.HasOne(d => d.PurchasOrderVersion).WithMany(p => p.PurchaseReceives)
+                .HasForeignKey(d => d.PurchasOrderVersionID)
+                .HasConstraintName("FK__PurchaseR__Purch__587CF5B9");
+
+            entity.HasOne(d => d.ReceivedByEmployee).WithMany(p => p.PurchaseReceivesReceivedByEmployee)
+                .HasForeignKey(d => d.ReceivedByEmployeeID)
+                .HasConstraintName("FK__PurchaseR__Recei__4D0B430D");
 
             entity.HasOne(d => d.Status).WithMany(p => p.PurchaseReceives)
                 .HasForeignKey(d => d.StatusID)

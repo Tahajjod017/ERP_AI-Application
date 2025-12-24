@@ -29,11 +29,27 @@ public partial class Locations
 
     public int? DeletedBy { get; set; }
 
+    public string LocationName { get; set; }
+
+    public string LocationCode { get; set; }
+
+    public string LocationType { get; set; }
+
+    public string Address { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public bool IsDefaultLocation { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<Inventory> Inventory { get; set; } = new List<Inventory>();
+
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistoryFromLocation { get; set; } = new List<InventoryTransactionHistory>();
+
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistoryToLocation { get; set; } = new List<InventoryTransactionHistory>();
 
     public virtual ICollection<InventoryTransfers> InventoryTransfersFromLocation { get; set; } = new List<InventoryTransfers>();
 

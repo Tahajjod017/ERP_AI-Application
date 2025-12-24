@@ -57,6 +57,8 @@ public partial class Statuses
 
     public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistory { get; set; } = new List<InventoryTransactionHistory>();
 
+    public virtual ICollection<InventoryTransfers> InventoryTransfers { get; set; } = new List<InventoryTransfers>();
+
     public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
 
     public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();

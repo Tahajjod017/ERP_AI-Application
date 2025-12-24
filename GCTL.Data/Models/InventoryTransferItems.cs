@@ -5,15 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class PurchasOrderItemVersions
+public partial class InventoryTransferItems
 {
-    public int PurchasOrderVersionItemID { get; set; }
+    public int InventoryTransferItemID { get; set; }
+
+    public int? InventoryTransferID { get; set; }
 
     public int? ProductID { get; set; }
 
-    public decimal? Quantity { get; set; }
+    public decimal TransferQuantity { get; set; }
 
-    public decimal? UnitPrice { get; set; }
+    public decimal? ReceivedQuantity { get; set; }
+
+    public string Note { get; set; }
 
     public string LIP { get; set; }
 
@@ -31,27 +35,13 @@ public partial class PurchasOrderItemVersions
 
     public int? DeletedBy { get; set; }
 
-    public int? PurchasOrderVersionID { get; set; }
-
-    public decimal? ReceivedQuantity { get; set; }
-
-    public decimal? AcceptedQuantity { get; set; }
-
-    public decimal? RejectedQuantity { get; set; }
-
-    public decimal? RemainingQuantity { get; set; }
-
-    public bool IsFullyReceived { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual InventoryTransfers InventoryTransfer { get; set; }
+
     public virtual Products Product { get; set; }
-
-    public virtual PurchasOrderVersions PurchasOrderVersion { get; set; }
-
-    public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

@@ -23,13 +23,16 @@ namespace GCTL_App.Controllers.POS.Sales
         private readonly IGenericRepository<PriceQuotations> _priceQuotationRepository;
         private readonly IGenericRepository<PriceQuotationVersionItems> _priceQuotationItemRepository;
         private readonly IGenericRepository<PriceQuotationVersions> _priceQuotationVersionRepository;
+        private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
+        private readonly IGenericRepository<SalesOrdersVersions> _salesVersionRepository;
+
         private readonly IPriceQuotation _priceQuotationService;
         private readonly IGenericRepository<UnitTypes> _unitTypeRepository;
         private readonly IGenericRepository<Customers> _customerRepository;
         private readonly IGenericRepository<CustomerAddresses> _customerAddressRepository;
         private readonly IGenericRepository<Addresses> _addressRepository;
         private readonly IUserInfoService _userInfoService;
-        
+
 
         // Add this for Work Orders when you create the table
         // private readonly IGenericRepository<WorkOrders> _workOrderRepository;
@@ -45,7 +48,9 @@ namespace GCTL_App.Controllers.POS.Sales
             IGenericRepository<CustomerAddresses> customerAddressRepository,
             IGenericRepository<Addresses> addressRepository,
             IUserInfoService userInfoService,
-            IGenericRepository<PriceQuotationVersions> priceQuotationVersionRepository)
+            IGenericRepository<PriceQuotationVersions> priceQuotationVersionRepository,
+            IGenericRepository<SalesOrders> salesOrderRepository,
+            IGenericRepository<SalesOrdersVersions> salesVersionRepository)
             : base(translateService, userProfileService)
         {
             _priceQuotationRepository = priceQuotationRepository;
@@ -57,6 +62,8 @@ namespace GCTL_App.Controllers.POS.Sales
             _addressRepository = addressRepository;
             _userInfoService = userInfoService;
             _priceQuotationVersionRepository = priceQuotationVersionRepository;
+            _salesOrderRepository = salesOrderRepository;
+            _salesVersionRepository = salesVersionRepository;
         }
 
         #endregion
@@ -77,11 +84,16 @@ namespace GCTL_App.Controllers.POS.Sales
                 .Include(e => e.UpdatedByNavigation)
                 .FirstOrDefault(e => e.PriceQuotationVersionID == id);
 
+            
+
 
             if (quotation == null)
             {
                 return NotFound();
             }
+
+            var salesOrder = _salesVersionRepository.AllActive().Include(e => e.SalesOrders)
+                .Where(e => e.SalesOrders.PriceQuotationID == quotation.PriceQuotationID && (e.IsFinal == true || e.IsDraft == true)).FirstOrDefault();
 
             var versions = _priceQuotationVersionRepository.AllActive().Where(e => e.PriceQuotationID == quotation.PriceQuotationID).Select(e=>new PriceQuotationVersionViewModel
             {
@@ -135,7 +147,7 @@ namespace GCTL_App.Controllers.POS.Sales
                 Note = quotation.Note,
 
                 // Sidebar data
-                Status = QuotationStatus.Draft, // TODO: Get from database when you add Status column
+                Status = QuotationStatus.Draft, // quotation.IsDraft == true ? QuotationStatus.Draft : QuotationStatus.Sent, // TODO: Get from database when you add Status column
                 CreatedByName = quotation.CreatedByNavigation != null ? quotation.CreatedByNavigation.FirstName + " " + quotation.CreatedByNavigation.LastName  : "Unknown",
                 CreatedAt = quotation.CreatedAt,
                 //UpdatedByName = quotation.UpdatedByNavigation?.FirstName,
@@ -174,8 +186,18 @@ namespace GCTL_App.Controllers.POS.Sales
                 UpdatedByName = vm.UpdatedByName,
                 UpdatedAt = vm.UpdatedAt,
                 WorkOrderId = vm.ConvertedToWorkOrderId,
-                WorkOrderNumber = vm.WorkOrderNumber
+                WorkOrderNumber = vm.WorkOrderNumber,
+
+                
+                HasSalesOrder = salesOrder != null ? true : false,
+                SalesOrderNumber = salesOrder != null ? salesOrder.SalesOrders.SalesOrderNumber : "",
+                SalesOrderId = salesOrder != null ? salesOrder.SalesOrdersVersionID : 0,
             };
+
+            if (quotation.IsFinalVersion == true)
+            {
+                sidebarVm.CanCovertSalesOrder = salesOrder != null ? false : true ;
+            }
 
             ViewBag.SidebarData = sidebarVm;
 
@@ -619,6 +641,28 @@ namespace GCTL_App.Controllers.POS.Sales
                 */
 
                 return Json(new { success = false, message = "Work Order conversion not yet implemented. Please create WorkOrders table first." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
+        [HttpPost]
+        public IActionResult ConvertToSalesOrder(int id)
+        {
+            try
+            {
+
+                var result = _priceQuotationService.ConvertToSalesOrder(id);
+
+                
+
+                return Json(result);
+              
+
+               
             }
             catch (Exception ex)
             {
