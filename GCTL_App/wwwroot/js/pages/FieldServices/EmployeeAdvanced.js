@@ -178,6 +178,7 @@ $(document).ready(function () {
         width: '100%'
     });
 
+    let customerScriptLoaded = false
 
     //Modal
     $(document).on("click", "#createCustomer", function () {
@@ -185,10 +186,9 @@ $(document).ready(function () {
             $('.create-lead-modal-body').html(html);
             // Load script if needed
             $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
-                .done(() => {
-                    if (typeof initCreateLeadModal === "function") {
-                        initCreateJobModal();
-                    }
+                .done(function () {
+
+                    initCreateJobModal();
                 });
 
             const modalEl = document.getElementById('createCustomerModalToggle');
@@ -202,23 +202,29 @@ $(document).ready(function () {
 
     //Modal
     $(document).on("click", "#createJob", function () {
+        debugger
         $.get('/CreateJobs/IndexModal', function (html) {
             $('.create-job-modal-body').html(html);
             // Load script if needed
-            $.getScript('/js/pages/FieldServices/CreateJob.js');
-                //.done(() => {
-                    
-                //});
+            $.getScript('/js/pages/FieldServices/CreateJob.js')
+                .done(() => {
+                    debugger;
+                    if (typeof initCreateJobModal === "function") {
+                        initCreateJobModal();
+                    }
 
-            const modalEl = document.getElementById('createJobModalToggle');
-            modalEl.setAttribute("data-bs-backdrop", "static");
-            modalEl.setAttribute("data-bs-keyboard", "false");
-            // Now open modal
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                const modalEl = document.getElementById('createJobModalToggle');
+                modalEl.setAttribute("data-bs-backdrop", "static");
+                modalEl.setAttribute("data-bs-keyboard", "false");
+                // Now open modal
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
 
-            if (typeof window.workFromModal === "function") {
-                window.workFromModal(customerId);
-            }
+                    if (typeof LoadMainPageData === "function") {
+                    LoadMainPageData(customerId);
+                }
+            });
+
+           
         });
     });
 
@@ -234,56 +240,6 @@ $(document).ready(function () {
     });
 
 
-    //// Cascading Job by Customer with Select2
-    //$("#CustomerID2").on('change', function () {
-    //    const customerId = $(this).val();
-
-    //    if (customerId) {
-    //        $.ajax({
-    //            url: '/EmployeeAdvanced/GetJobByCusId',
-    //            type: "GET",
-    //            data: { customerId: customerId },
-    //            success: function (result) {
-    //                if (result.success) {
-    //                    var data = result.data;
-    //                    // clear select2 options
-    //                    $("#JobID").empty();
-
-    //                    if (data && data.length > 0) {
-    //                        // build array for select2
-    //                        let jobs = data.map(job => ({
-    //                            id: job.jobID,
-    //                            text: job.jobTitle
-    //                        }));
-
-    //                        // re-init select2 with new data
-    //                        $("#JobID").select2({
-    //                            data: jobs,
-    //                            placeholder: 'select job',
-    //                            width: '100%'
-    //                        });
-    //                    } else {
-    //                        $("#JobID").select2({
-    //                            data: [{ id: '', text: 'No jobs found' }],
-    //                            width: '100%'
-    //                        });
-    //                    }
-    //                } else {
-    //                    toastr.error("Something went wrong!");
-    //                }
-    //            },
-    //            error: function () {
-    //                toastr.error("Something went wrong!");
-    //            }
-    //        });
-    //    } else {
-    //        $("#JobID").select2({
-    //            data: [{ id: '', text: 'Select Client' }],
-    //            width: '100%'
-    //        });
-    //    }
-    //});
-
     // propagate CustomerID2 value into modal after modal is shown
     $('#createJobModalToggle').on('shown.bs.modal', function () {
         const selectedCustomerId = $("#CustomerID2").val();
@@ -291,7 +247,13 @@ $(document).ready(function () {
     });
 
 
-   
+    window.finishModalProcess = function (value, text) {
+        debugger;
+        alert("I Got response");
+        const modalEl = document.getElementById('createCustomerModalToggle');
+        // Now open modal
+        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+    }
 
 });
 

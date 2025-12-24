@@ -52,6 +52,7 @@ namespace GCTL.Service.FieldServices
                     JobTitle = model.JobTitle,
                     CustomerID = model.CustomerID,
                     JobTypeID = model.JobTypeID,
+                    DivisionID = model.DivisionId,
                     JobStatusID = model.StatusID,
                     StartDateTime = startDate,
                     EndDateTime = endDate,

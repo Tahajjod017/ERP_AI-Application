@@ -1942,8 +1942,8 @@ GetAllShippingAsync(
             {
                 Value = result?.CustomerID.ToString(),
                 Text = $"{result?.FullName} " +
-                   $"{string.Join(", ", result?.CustomerAddresses.Select(x => x.Address.Email) ?? Enumerable.Empty<string>())} " +
-                   $"{string.Join(", ", result?.CustomerAddresses.Select(x => x.Address.Phone) ?? Enumerable.Empty<string>())}"
+                   $"{string.Join(", ", result?.CustomerAddresses.Select(x => x.Address.Email).FirstOrDefault())} " +
+                   $"{string.Join(", ", result?.CustomerAddresses.Select(x => x.Address.Phone).FirstOrDefault())}"
 
             };
         }
