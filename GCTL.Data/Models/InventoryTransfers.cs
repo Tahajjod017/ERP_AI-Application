@@ -9,11 +9,7 @@ public partial class InventoryTransfers
 {
     public int InventoryTransferID { get; set; }
 
-    public int? ToOrganizationID { get; set; }
-
-    public DateTime? FromDate { get; set; }
-
-    public DateTime? ToDate { get; set; }
+    public DateTime TransferDate { get; set; }
 
     public string LIP { get; set; }
 
@@ -35,11 +31,37 @@ public partial class InventoryTransfers
 
     public int? ToLocationID { get; set; }
 
+    public string TransferNumber { get; set; }
+
+    public int? StatusID { get; set; }
+
+    public int? RequestedBy { get; set; }
+
+    public int? ApprovedBy { get; set; }
+
+    public int? ReceivedBy { get; set; }
+
+    public string Note { get; set; }
+
+    public int? TotalItems { get; set; }
+
+    public decimal? TotalQuantity { get; set; }
+
+    public virtual Employees ApprovedByNavigation { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Locations FromLocation { get; set; }
+
+    public virtual ICollection<InventoryTransferItems> InventoryTransferItems { get; set; } = new List<InventoryTransferItems>();
+
+    public virtual Employees ReceivedByNavigation { get; set; }
+
+    public virtual Employees RequestedByNavigation { get; set; }
+
+    public virtual Statuses Status { get; set; }
 
     public virtual Locations ToLocation { get; set; }
 

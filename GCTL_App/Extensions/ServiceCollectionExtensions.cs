@@ -124,10 +124,12 @@ using GCTL.Service.PayRollManagements.PayRollLoanManagement;
 using GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.PayRollManagements.PayRollSettings;
+using GCTL.Service.POS.Inventory;
 using GCTL.Service.POS.Product;
 using GCTL.Service.POS.Product.ServiceProduct;
 using GCTL.Service.POS.Purchase.PurchaseOrder;
 using GCTL.Service.POS.Purchase.PurchaseOrderList;
+using GCTL.Service.POS.Purchase.PurchaseReceive;
 using GCTL.Service.POS.Requsition;
 using GCTL.Service.POS.Requsition.RequisitionApprover;
 using GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder;
@@ -302,6 +304,7 @@ namespace GCTL_App.Extensions
             // Purchase Order Services
             services.AddScoped<IPurchaseOrder, PurchaseOrderService>();
             services.AddScoped<IPurchaseOrderList, PurchaseOrderListService>();
+            services.AddScoped<IPurchaseReceiveService, PurchaseReceiveService>();
 
             #endregion
 
@@ -309,6 +312,12 @@ namespace GCTL_App.Extensions
             services.AddScoped<INewRequisitionService, NewRequisitionService>();
             services.AddScoped<IRequisitionApproverService, RequisitionApproverService>();
             services.AddScoped<IRequisitionToPurchaseOrderService, RequisitionToPurchaseOrderService>();
+
+            #endregion
+
+            services.AddScoped<IInventoryService, InventoryService>();
+
+            #region Inventory
 
             #endregion
 

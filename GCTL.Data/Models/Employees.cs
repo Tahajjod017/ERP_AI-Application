@@ -641,9 +641,21 @@ public partial class Employees
 
     public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistoryUpdatedByNavigation { get; set; } = new List<InventoryTransactionHistory>();
 
+    public virtual ICollection<InventoryTransferItems> InventoryTransferItemsCreatedByNavigation { get; set; } = new List<InventoryTransferItems>();
+
+    public virtual ICollection<InventoryTransferItems> InventoryTransferItemsDeletedByNavigation { get; set; } = new List<InventoryTransferItems>();
+
+    public virtual ICollection<InventoryTransferItems> InventoryTransferItemsUpdatedByNavigation { get; set; } = new List<InventoryTransferItems>();
+
+    public virtual ICollection<InventoryTransfers> InventoryTransfersApprovedByNavigation { get; set; } = new List<InventoryTransfers>();
+
     public virtual ICollection<InventoryTransfers> InventoryTransfersCreatedByNavigation { get; set; } = new List<InventoryTransfers>();
 
     public virtual ICollection<InventoryTransfers> InventoryTransfersDeletedByNavigation { get; set; } = new List<InventoryTransfers>();
+
+    public virtual ICollection<InventoryTransfers> InventoryTransfersReceivedByNavigation { get; set; } = new List<InventoryTransfers>();
+
+    public virtual ICollection<InventoryTransfers> InventoryTransfersRequestedByNavigation { get; set; } = new List<InventoryTransfers>();
 
     public virtual ICollection<InventoryTransfers> InventoryTransfersUpdatedByNavigation { get; set; } = new List<InventoryTransfers>();
 
@@ -1160,6 +1172,8 @@ public partial class Employees
     public virtual ICollection<PurchaseReceives> PurchaseReceivesCreatedByNavigation { get; set; } = new List<PurchaseReceives>();
 
     public virtual ICollection<PurchaseReceives> PurchaseReceivesDeletedByNavigation { get; set; } = new List<PurchaseReceives>();
+
+    public virtual ICollection<PurchaseReceives> PurchaseReceivesReceivedByEmployee { get; set; } = new List<PurchaseReceives>();
 
     public virtual ICollection<PurchaseReceives> PurchaseReceivesUpdatedByNavigation { get; set; } = new List<PurchaseReceives>();
 

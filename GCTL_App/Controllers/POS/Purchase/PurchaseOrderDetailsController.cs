@@ -9,6 +9,7 @@ using GCTL.Core.ViewModels.POS.Purchase.PurchaseOrderDetails;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Language;
+using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.POS.Purchase.PurchaseOrder;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +29,8 @@ namespace GCTL_App.Controllers.POS.Purchase
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<Suppliers> _supplierRepository;
         private readonly IGenericRepository<PurOrderBaseSAddresses> _addressRepository;
+        private readonly IStatusService _statusService;
+
 
         private readonly IUserInfoService _userInfoService;
 
@@ -41,7 +44,8 @@ namespace GCTL_App.Controllers.POS.Purchase
             IGenericRepository<Suppliers> supplierRepository,
             IUserInfoService userInfoService,
             IGenericRepository<PurchasOrderVersions> purchaseOrderVersionRepository,
-            IGenericRepository<PurOrderBaseSAddresses> addressRepository)
+            IGenericRepository<PurOrderBaseSAddresses> addressRepository,
+            IStatusService statusService)
             : base(translateService, userProfileService)
         {
             _purchaseOrderRepository = purchaseOrderRepository;
@@ -52,6 +56,7 @@ namespace GCTL_App.Controllers.POS.Purchase
             _userInfoService = userInfoService;
             _purchaseOrderVersionRepository = purchaseOrderVersionRepository;
             _addressRepository = addressRepository;
+            _statusService = statusService;
         }
         #endregion
 
@@ -296,6 +301,11 @@ namespace GCTL_App.Controllers.POS.Purchase
 
             try
             {
+
+                var OpenStatus = await _statusService.GetStatusIDAsync("Open");
+                var DraftStatus = await _statusService.GetStatusIDAsync("Draft");
+
+
                 var version = _purchaseOrderVersionRepository.AllActive()
                     .Include(q => q.PurchasOrder)
                     .Include(q => q.PurchasOrderItemVersions)
@@ -310,6 +320,9 @@ namespace GCTL_App.Controllers.POS.Purchase
                 var duplicate = new PurchasOrders
                 {
                     POID = await _purchaseOrderService.GetNextPOCode(),
+
+                    POStatusID = version.IsDraft ? DraftStatus : OpenStatus,
+
                     CreatedBy = vm.CreatedBy,
                     CreatedAt = DateTime.Now
                 };
@@ -369,6 +382,7 @@ namespace GCTL_App.Controllers.POS.Purchase
         {
             try
             {
+
                 var purchaseOrder = await _purchaseOrderVersionRepository.All().FirstOrDefaultAsync(e => e.PurchasOrderVersionID == id);
                 if (purchaseOrder == null)
                 {

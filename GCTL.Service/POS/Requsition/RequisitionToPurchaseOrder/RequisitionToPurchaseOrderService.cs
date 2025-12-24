@@ -13,6 +13,7 @@ using GCTL.Core.ViewModels.POS.Requsition.AddRequisition;
 using GCTL.Core.ViewModels.POS.Requsition.RequisitionToPurchaseOrder;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.MasterSetup.Statuse;
 using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
@@ -26,6 +27,8 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
         private readonly IGenericRepository<PurchasOrderItemVersions> _purchaseOrderItemVersionRepository;
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IUserInfoService _userInfoService;
+        private readonly IStatusService _statusService;
+
 
         public RequisitionToPurchaseOrderService(
             IGenericRepository<Requisitions> requisitionRepository,
@@ -34,7 +37,8 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
             IGenericRepository<PurchasOrderVersions> purchaseOrderVersionRepository,
             IGenericRepository<PurchasOrderItemVersions> purchaseOrderItemVersionRepository,
             IGenericRepository<Products> productRepository,
-            IUserInfoService userInfoService)
+            IUserInfoService userInfoService,
+            IStatusService statusService)
         {
             _requisitionRepository = requisitionRepository;
             _requisitionItemRepository = requisitionItemRepository;
@@ -43,6 +47,7 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
             _purchaseOrderItemVersionRepository = purchaseOrderItemVersionRepository;
             _productRepository = productRepository;
             _userInfoService = userInfoService;
+            _statusService = statusService;
         }
 
         public async Task<PaginatedResultCommon<ApprovedRequisitionItemViewModel>> GetApprovedRequisitionsAsync(int? orgId, int page, int pageSize, string search, string sortColumn, string sortDirection, int? productTypeId, string? fromDate, string? toDate)
@@ -205,6 +210,10 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
 
             try
             {
+                var OpenStatus = await _statusService.GetStatusIDAsync("Open", "po");
+                var DraftStatus = await _statusService.GetStatusIDAsync("Draft", "po");
+
+
                 var requisition = await _requisitionRepository.AllActive()
                     .Include(r => r.RequisitionItems)
                     .Include(r => r.PurchasOrders)
@@ -235,6 +244,8 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
                     return response;
                 }
 
+                bool dft = model.IsDraft == "on" ? true : false;
+
                 // Calculate totals
                 decimal subTotal = model.Items.Sum(i => i.Quantity * i.UnitPrice);
                 decimal taxAmount = (subTotal * model.TaxPercent) / 100;
@@ -245,6 +256,7 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
                 {
                     POID = model.POCode,
                     RequisitionID = model.RequisitionId,
+                    POStatusID = dft ? DraftStatus : OpenStatus, 
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = baseView?.CreatedBy,
                     LIP = baseView?.LIP,
@@ -255,7 +267,7 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
                 await _userInfoService.ActionLogAsync("purchase order", ActionName.DataAdd,
                     null, purchaseOrder, purchaseOrder.PurchasOrderID, baseView);
 
-                bool dft = model.IsDraft == "on" ? true : false;
+                
 
                 // Create Purchase Order Version (actual data)
                 var purchaseOrderVersion = new PurchasOrderVersions

@@ -763,6 +763,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[InventoryTransferItems]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[InventoryTransfers]",
          "ObjectType": 0
       },

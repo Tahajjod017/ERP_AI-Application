@@ -79,6 +79,16 @@ public partial class PurchasOrderVersions
 
     public bool? IsFinal { get; set; }
 
+    public int TotalReceiveCount { get; set; }
+
+    public DateTime? FirstReceiveDate { get; set; }
+
+    public DateTime? LastReceiveDate { get; set; }
+
+    public bool IsFullyReceived { get; set; }
+
+    public bool IsPartiallyReceived { get; set; }
+
     public virtual Employees CreatedBy1 { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }

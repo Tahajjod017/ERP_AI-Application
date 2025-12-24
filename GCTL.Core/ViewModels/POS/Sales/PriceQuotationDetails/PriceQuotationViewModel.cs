@@ -88,6 +88,12 @@ namespace GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails
         public string WorkOrderNumber { get; set; }
         public bool HasWorkOrder => WorkOrderId.HasValue;
 
+        //Sales Order
+        public int? SalesOrderId { get; set; }
+        public string SalesOrderNumber { get; set; }
+        public bool CanCovertSalesOrder { get; set; }
+        public bool HasSalesOrder { get; set; }
+
         public List<PriceQuotationVersionViewModel> QuotationIdList { get; set; }
     }
 

@@ -97,6 +97,8 @@ public partial class Products
 
     public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistory { get; set; } = new List<InventoryTransactionHistory>();
 
+    public virtual ICollection<InventoryTransferItems> InventoryTransferItems { get; set; } = new List<InventoryTransferItems>();
+
     public virtual ICollection<InvoiceItems> InvoiceItems { get; set; } = new List<InvoiceItems>();
 
     public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();

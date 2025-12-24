@@ -1,0 +1,102 @@
+﻿<div class="d-flex mb-3 pb-3">
+    <span class="fa-stack me-2 ms-n1">
+        <i class="fas fa-circle fa-stack-2x text-primary"></i>
+        <i class="fa-inverse fa-stack-1x text-primary-subtle fas fa-balance-scale" data-fa-transform="shrink-4"></i>
+    </span>
+    <div class="col">
+        <h3 class="mb-0 text-primary position-relative fw-bold">
+            <span class="bg-body pe-2">Stock Adjustment</span>
+            <span class="border border-primary position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+        </h3>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">New Adjustment</h5>
+            </div>
+            <div class="card-body">
+                <form id="adjustmentForm">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Product</label>
+                            <select class="form-select choiceDD" id="productId" asp-items="@ViewBag.Products as SelectList" required>
+                                <option value="">Select Product</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Location</label>
+                            <select class="form-select choiceDD" id="locationId" asp-items="@ViewBag.Locations as SelectList" required>
+                                <option value="">Select Location</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Adjustment Type</label>
+                            <select class="form-select" id="adjustmentType" required>
+                                <option value="">Select Type</option>
+                                <option value="Add">Add Stock</option>
+                                <option value="Remove">Remove Stock</option>
+                                <option value="Set">Set Exact Quantity</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" step="0.01" min="0.01" class="form-control" id="quantity" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Reason</label>
+                            <select class="form-select" id="reason" required>
+                                <option value="">Select Reason</option>
+                                <option value="Damage">Damage</option>
+                                <option value="Loss">Loss/Theft</option>
+                                <option value="Found">Found Extra</option>
+                                <option value="Count Correction">Physical Count Correction</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Note (optional)</label>
+                            <textarea class="form-control" id="note" rows="3"></textarea>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-primary">Save Adjustment</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Adjustment History</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                    <table class="table table-sm table-hover table-borderless">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Location</th>
+                                <th>Type</th>
+                                <th>Qty</th>
+                                <th>Reason</th>
+                                <th>By</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adjustmentHistoryBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    <script src="~/js/pages/POS/Inventory/inventoryAdjustment.js"></script>
+}
