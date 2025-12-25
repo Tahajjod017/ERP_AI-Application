@@ -83,6 +83,8 @@ public partial class Statuses
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
 
+    public virtual ICollection<Shipments> Shipments { get; set; } = new List<Shipments>();
+
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistory { get; set; } = new List<TerminationApprovalHistory>();
 
     public virtual ICollection<Terminations> Terminations { get; set; } = new List<Terminations>();

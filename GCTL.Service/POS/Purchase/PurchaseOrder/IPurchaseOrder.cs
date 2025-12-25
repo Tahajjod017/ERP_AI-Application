@@ -11,6 +11,6 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
     public interface IPurchaseOrder
     {
         Task<string> GetNextPOCode();
-        Task<CommonReturnViewModel> SaveAsync(PurchaseOrderViewModel vm);
+        Task<CommonReturnViewModel> SaveAsync(PurchaseOrderViewModel vm, int? org);
     }
 }

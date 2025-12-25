@@ -203,7 +203,7 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
         }
 
         public async Task<CommonReturnViewModel> ConvertToPurchaseOrderAsync(
-            ConvertToPurchaseOrderViewModel model, int? empId, BaseViewModel? baseView)
+            ConvertToPurchaseOrderViewModel model, int? empId, int? org, BaseViewModel? baseView)
         {
             var response = new CommonReturnViewModel();
             await _purchaseOrderRepository.BeginTransactionAsync();
@@ -281,7 +281,7 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
                     WorkOrderDate = model.WorkOrderDate,
                     OBBillingAddressID = model.BillingAddressId,
                     OBShipingAddressID = model.ShippingAddressId,
-                    OrganizationID = model.OrganizationId,
+                    OrganizationID = org,
                     OrganizationBranchID = model.OrganizationBranchId,
                     TotalAmount = subTotal,
                     TaxPercent = model.TaxPercent,
@@ -330,7 +330,7 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
 
                 response.Success = true;
                 response.Message = "Purchase order created successfully.";
-                response.Data = purchaseOrder.PurchasOrderID;
+                response.Data = purchaseOrderVersion.PurchasOrderVersionID;
                 return response;
             }
             catch (Exception ex)

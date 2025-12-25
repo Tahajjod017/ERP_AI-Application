@@ -38,9 +38,9 @@ namespace GCTL.Service.POS.Inventory
         }
 
         #region Core Operations (FOR TODO INTEGRATION)
-        public async Task ReceiveStockAsync(ReceiveStockViewModel model)
+        public async Task<bool> ReceiveStockAsync(ReceiveStockViewModel model)
         {
-            await _inventoryRepository.BeginTransactionAsync();
+            //await _inventoryRepository.BeginTransactionAsync();
 
             try
             {
@@ -104,12 +104,13 @@ namespace GCTL.Service.POS.Inventory
                 };
 
                 await _transactionRepository.AddAsync(transaction);
-                await _inventoryRepository.CommitTransactionAsync();
+                //await _inventoryRepository.CommitTransactionAsync();
+
+                return true;
             }
             catch
             {
-                await _inventoryRepository.RollbackTransactionAsync();
-                throw;
+                return false;
             }
         }
 

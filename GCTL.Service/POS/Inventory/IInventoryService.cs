@@ -32,7 +32,7 @@ namespace GCTL.Service.POS.Inventory
             int? orgId, int page, int pageSize, string search, string? fromDate, string? toDate);
 
         // Core Operations (for TODO integration)
-        Task ReceiveStockAsync(ReceiveStockViewModel model);
+        Task<bool> ReceiveStockAsync(ReceiveStockViewModel model);
         Task ReverseStockAsync(ReverseStockViewModel model);
 
         // Reports

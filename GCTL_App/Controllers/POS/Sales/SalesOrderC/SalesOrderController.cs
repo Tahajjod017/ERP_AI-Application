@@ -18,6 +18,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         private readonly IGenericRepository<Addresses> _addressRepository;
         private readonly IGenericRepository<PriceQuotations> _priceQuotationRepository;
         private readonly ISalesOrder _salesOrderService;
+        private readonly IGenericRepository<Products> _productRepository;
+
 
         public SalesOrderController(
             ITranslateService translateService,
@@ -27,7 +29,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             IGenericRepository<Customers> customerRepository,
             IGenericRepository<CustomerAddresses> customerAddressRepository,
             IGenericRepository<Addresses> addressRepository,
-            IGenericRepository<PriceQuotations> priceQuotationRepository)
+            IGenericRepository<PriceQuotations> priceQuotationRepository,
+            IGenericRepository<Products> productRepository)
             : base(translateService, userProfileService)
         {
             _unitTypeRepository = unitTypeRepository;
@@ -36,6 +39,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             _customerAddressRepository = customerAddressRepository;
             _addressRepository = addressRepository;
             _priceQuotationRepository = priceQuotationRepository;
+            _productRepository = productRepository;
         }
 
         // ==============================
@@ -44,6 +48,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         public IActionResult Index()
         {
             ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
+            ViewBag.product = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
 
             SetSmartPageCode(9029000);
 
@@ -73,7 +78,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                     {
                         SL = 1,
                         Description = "",
-                        Unit = 0,
+                        Product = 0,
                         Area = null,
                         Rate = null,
                         Quantity = null
@@ -103,7 +108,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                     {
                         SL = index + 1,
                         //Description = item.Description,
-                        //Unit = item.UnitTypeID ?? 0,
+                        //Product = item.UnitTypeID ?? 0,
                         //Area = item.Area ?? 0,
                         //Rate = item.Rate ?? 0,
                         Quantity = 0
@@ -185,6 +190,16 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         {
             var result = _unitTypeRepository.AllActive()
                 .Select(r => new { id = r.UnitTypeID, name = r.UnitTypeName })
+                .ToList();
+
+            return Json(result);
+        }
+
+        [HttpGet]
+        public JsonResult GetProduct()
+        {
+            var result = _productRepository.AllActive()
+                .Select(r => new { id = r.ProductID, name = r.ProductName })
                 .ToList();
 
             return Json(result);

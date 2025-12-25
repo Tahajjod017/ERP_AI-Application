@@ -30,6 +30,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         private readonly IGenericRepository<Addresses> _addressRepository;
         private readonly IGenericRepository<PriceQuotations> _priceQuotationRepository;
         private readonly IUserInfoService _userInfoService;
+        private readonly IGenericRepository<Products> _productRepository;
+
 
         public SalesOrderDetailsController(
             ITranslateService translateService,
@@ -44,7 +46,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             IGenericRepository<PriceQuotations> priceQuotationRepository,
             IUserInfoService userInfoService,
             //IGenericRepository<InvoicesVersions> invoiceVersionRepository,
-            IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository)
+            IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
+            IGenericRepository<Products> productRepository)
             : base(translateService, userProfileService)
         {
             _salesOrderRepository = salesOrderRepository;
@@ -56,8 +59,9 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             _addressRepository = addressRepository;
             _priceQuotationRepository = priceQuotationRepository;
             _userInfoService = userInfoService;
-           // _invoiceVersionRepository = invoiceVersionRepository;
+            // _invoiceVersionRepository = invoiceVersionRepository;
             _salesOrderVersionRepository = salesOrderVersionRepository;
+            _productRepository = productRepository;
         }
 
         #endregion
@@ -72,9 +76,11 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             ViewBag.IsEditMode = false; // Read-only mode
 
             var salesOrder = _salesOrderVersionRepository.AllActive()
-                .Include(e => e.SalesOrderVersionItems).ThenInclude(e => e.UnitType)
+                .Include(e => e.SalesOrderVersionItems).ThenInclude(e => e.Product)
                 .Include(e => e.Customer)
                 .Include(e => e.SalesOrders).ThenInclude(e => e.PriceQuotation)
+                 .Include(e => e.SalesOrders).ThenInclude(e => e.Shipments) // ADD THIS for shipments
+                 .ThenInclude(s => s.Status) // ADD THIS for shipment status
                 .Include(e => e.CreatedByNavigation)
                 .Include(e => e.UpdatedByNavigation)
                 .FirstOrDefault(e => e.SalesOrdersVersionID == id);
@@ -113,6 +119,17 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                                TaxNumber = address.OtherPhone
                            }).FirstOrDefault();
 
+
+            var shipments = salesOrder.SalesOrders?.Shipments?
+                   .Where(s => s.DeletedAt == null)
+                   .Select(s => new ShipmentInfo
+                   {
+                       ShipmentId = s.ShipmentID,
+                       ShipmentNumber = s.ShipmentNumber,
+                       Status = s.Status != null ? s.Status.StatusName : "Pending",
+                       StatusClass = GetShipmentStatusClass(s.StatusID)
+                   }).ToList() ?? new List<ShipmentInfo>();
+
             var vm = new SalesOrderDetailsViewModel
             {
                 Id = salesOrder.SalesOrdersVersionID,
@@ -125,7 +142,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 {
                     SL = m.SalesOrderVersionItemID,
                     Description = m.Description,
-                  //  UnitName = m.UnitType != null ? m.UnitType.UnitTypeName : "",
+                    UnitName = m.Product != null ? m.Product.ProductName : "",
                     Area = m.Area ?? 0m,
                     Rate = m.Rate ?? 0m,
                     Quantity = m.Quantity ?? 0m,
@@ -166,8 +183,17 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 CreatedByName = vm.CreatedByName,
                 CreatedAt = vm.CreatedAt,
                 UpdatedByName = vm.UpdatedByName,
-                UpdatedAt = vm.UpdatedAt
+                UpdatedAt = vm.UpdatedAt,
+                Shipments = shipments, // ADD THIS
+                //Status = salesOrder.IsDraft == true ? SalesOrderStatus.Draft : SalesOrderStatus.Confirmed // ADD THIS (adjust based on your status logic)
+
             };
+
+            if (salesOrder.IsFinal == true)
+            {
+                sidebarVm.CanCreateShipment = (shipments.Count != 0 || shipments != null) ? true : false;
+            }
+
 
             ViewBag.SidebarData = sidebarVm;
 
@@ -178,6 +204,9 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         #region EDIT MODE - Edit Sales Order
         public IActionResult Edit(int id)
         {
+
+            ViewBag.product = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
+
             ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
             ViewBag.IsEditMode = true; // Edit mode
 
@@ -187,6 +216,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 .Include(e => e.UpdatedByNavigation)
                 .Include(e => e.SalesOrders)
                 .ThenInclude(e => e.PriceQuotation)
+                .Include(e => e.SalesOrders).ThenInclude(e => e.Shipments) // ADD THIS
+                .ThenInclude(s => s.Status) // ADD THIS
                 .FirstOrDefault(e => e.SalesOrdersVersionID == id);
 
             if (salesOrder == null)
@@ -206,6 +237,16 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 current = e.SalesOrdersVersionID == id ? "current" : ""
             }).ToList();
 
+            var shipments = salesOrder.SalesOrders?.Shipments?
+                .Where(s => s.DeletedAt == null)
+                .Select(s => new ShipmentInfo
+                {
+                    ShipmentId = s.ShipmentID,
+                    ShipmentNumber = s.ShipmentNumber,
+                    Status = s.Status != null ? s.Status.StatusName : "Pending",
+                    StatusClass = GetShipmentStatusClass(s.StatusID)
+                }).ToList() ?? new List<ShipmentInfo>();
+
 
             var vm = new SalesOrderDetailsViewModel
             {
@@ -219,7 +260,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 {
                     SL = m.SalesOrderVersionItemID,
                     Description = m.Description,
-                    Unit = m.UnitTypeID ?? 0,
+                    Product = m.ProductID ?? 0,
                     Area = m.Area ?? 0m,
                     Rate = m.Rate ?? 0m,
                     Quantity = m.Quantity ?? 0m,
@@ -251,8 +292,16 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 CreatedByName = vm.CreatedByName,
                 CreatedAt = vm.CreatedAt,
                 UpdatedByName = vm.UpdatedByName,
-                UpdatedAt = vm.UpdatedAt
+                UpdatedAt = vm.UpdatedAt,
+                Shipments = shipments,
             };
+
+
+            if (salesOrder.IsFinal == true)
+            {
+                sidebarVm.CanCreateShipment = salesOrder != null ? false : true;
+            }
+
 
             ViewBag.SidebarData = sidebarVm;
 
@@ -260,6 +309,22 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             return View("Index", vm);
         }
         #endregion
+
+
+        private string GetShipmentStatusClass(int? statusId)
+        {
+            return statusId switch
+            {
+                1 => "warning",  // Pending
+                2 => "info",     // Packed
+                3 => "primary",  // Shipped
+                4 => "primary",  // In Transit
+                5 => "success",  // Delivered
+                6 => "danger",   // Cancelled
+                _ => "secondary"
+            };
+        }
+
 
         #region Sidebar Actions
 
@@ -319,6 +384,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                         SalesOrdersVersionID = duplicateVersion.SalesOrdersVersionID,
                         Description = item.Description,
                         UnitTypeID = item.UnitTypeID,
+                        ProductID = item.ProductID,
                         Area = item.Area,
                         Rate = item.Rate,
                         Quantity = item.Quantity,

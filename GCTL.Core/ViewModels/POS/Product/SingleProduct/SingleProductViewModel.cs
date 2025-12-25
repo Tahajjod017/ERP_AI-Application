@@ -71,7 +71,7 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         public string Weight { get; set; }
 
         [Required]
-        [Display(Name = "Unit")]
+        [Display(Name = "Product")]
         public string Unit { get; set; }
 
         [Required]

@@ -12,11 +12,12 @@ namespace GCTL_App.Controllers.POS.Sales
     public class PriceQuotationController : BaseController
     {
         private readonly IGenericRepository<UnitTypes> _unitTypeRepository;
+        private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<Customers> _customerRepository;
         private readonly IGenericRepository<CustomerAddresses> _customerAddressRepository;
         private readonly IGenericRepository<Addresses> _addressRepository;
         private readonly IPriceQuotation _priceQuotationService;
-        public PriceQuotationController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<UnitTypes> unitTypeRepository, IPriceQuotation priceQuotationService, IGenericRepository<Customers> customerRepository, IGenericRepository<CustomerAddresses> customerAddressRepository, IGenericRepository<Addresses> addressRepository)
+        public PriceQuotationController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<UnitTypes> unitTypeRepository, IPriceQuotation priceQuotationService, IGenericRepository<Customers> customerRepository, IGenericRepository<CustomerAddresses> customerAddressRepository, IGenericRepository<Addresses> addressRepository, IGenericRepository<Products> productRepository)
             : base(translateService, userProfileService)
         {
             _unitTypeRepository = unitTypeRepository;
@@ -24,6 +25,7 @@ namespace GCTL_App.Controllers.POS.Sales
             _customerRepository = customerRepository;
             _customerAddressRepository = customerAddressRepository;
             _addressRepository = addressRepository;
+            _productRepository = productRepository;
         }
 
         #region STATIC DATA
@@ -67,7 +69,7 @@ namespace GCTL_App.Controllers.POS.Sales
         // ==============================
         public IActionResult Index()
         {
-            ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
+            ViewBag.product = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
             SetSmartPageCode(90259100);
 
             var data = new PriceQuotationViewModel();
@@ -96,7 +98,7 @@ namespace GCTL_App.Controllers.POS.Sales
                     {
                         SL = 1,
                         Description = "",
-                        Unit = 0,
+                        Product = 0,
                         Area = null,
                         Rate = null,
                         PercentInBill = 100
@@ -191,6 +193,13 @@ namespace GCTL_App.Controllers.POS.Sales
         public JsonResult GetUnits()
         {
             var result = _unitTypeRepository.AllActive().Select(r=> new {id = r.UnitTypeID , name = r.UnitTypeName}).ToList();
+
+            return Json(result);
+        }
+        [HttpGet]
+        public JsonResult GetProduct()
+        {
+            var result = _productRepository.AllActive().Select(r=> new {id = r.ProductID , name = r.ProductName}).ToList();
 
             return Json(result);
         }

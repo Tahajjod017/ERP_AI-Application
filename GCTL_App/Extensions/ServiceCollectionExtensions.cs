@@ -139,6 +139,8 @@ using GCTL.Service.POS.Sales.PriceQuotation;
 using GCTL.Service.POS.Sales.PriceQuotationList;
 using GCTL.Service.POS.Sales.SalesOrderF;
 using GCTL.Service.POS.Sales.SalesOrderList;
+using GCTL.Service.POS.Sales.Shipment;
+using GCTL.Service.POS.Sales.ShipmentList;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL.Service.VisitingPath;
@@ -295,6 +297,9 @@ namespace GCTL_App.Extensions
             services.AddScoped<IInvoice, InvoiceService>();
             services.AddScoped<IInvoiceList, InvoiceListService>();
 
+            // Shipment Services
+            services.AddScoped<IShipment, ShipmentService>();
+            services.AddScoped<IShipmentList, ShipmentListService>();
 
 
             #endregion
