@@ -35,11 +35,15 @@ public partial class PriceQuotationVersionItems
 
     public int? DeletedBy { get; set; }
 
+    public int? ProductID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual PriceQuotationVersions PriceQuotationVersion { get; set; }
+
+    public virtual Products Product { get; set; }
 
     public virtual UnitTypes UnitType { get; set; }
 

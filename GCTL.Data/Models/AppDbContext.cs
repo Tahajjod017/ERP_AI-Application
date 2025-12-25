@@ -493,6 +493,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(modelBuilder);
 
+
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A216155AEE");
@@ -882,6 +883,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         //            });
         //});
 
+
         modelBuilder.Entity<ApplicationUser>()
            .HasDiscriminator<string>("Discriminator")
            .HasValue<ApplicationUser>("ApplicationUser");
@@ -914,6 +916,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(r => r.TenantInfoId)
                 .IsRequired(false)
                 .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+
+
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -6167,6 +6171,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.PriceQuotationVersionID)
                 .HasConstraintName("FK_PriceQuotations_PriceQuotationID_PriceQuotationItems");
 
+            entity.HasOne(d => d.Product).WithMany(p => p.PriceQuotationVersionItems)
+                .HasForeignKey(d => d.ProductID)
+                .HasConstraintName("FK_PriceQuotationVersionItems_ProductID");
+
             entity.HasOne(d => d.UnitType).WithMany(p => p.PriceQuotationVersionItems)
                 .HasForeignKey(d => d.UnitTypeID)
                 .HasConstraintName("FK_PriceQuotationVersionItems_UnitTypeID");
@@ -7705,6 +7713,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.SalesOrderVersionItemsDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__SalesOrde__Delet__6AB0B48D");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.SalesOrderVersionItems)
+                .HasForeignKey(d => d.ProductID)
+                .HasConstraintName("FK_SalesOrderVersionItems_ProductID");
 
             entity.HasOne(d => d.SalesOrdersVersion).WithMany(p => p.SalesOrderVersionItems)
                 .HasForeignKey(d => d.SalesOrdersVersionID)
