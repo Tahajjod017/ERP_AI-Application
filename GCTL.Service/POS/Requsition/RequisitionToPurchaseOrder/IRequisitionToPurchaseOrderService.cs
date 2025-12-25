@@ -13,7 +13,7 @@ namespace GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder
         Task<RequisitionDetailsForPOViewModel> GetRequisitionDetailsForPOAsync(int requisitionId);
 
         Task<CommonReturnViewModel> ConvertToPurchaseOrderAsync(
-            ConvertToPurchaseOrderViewModel model, int? empId, BaseViewModel? baseView);
+            ConvertToPurchaseOrderViewModel model, int? empId, int? org, BaseViewModel? baseView);
 
         Task<string> GetNextPOCodeAsync();
 

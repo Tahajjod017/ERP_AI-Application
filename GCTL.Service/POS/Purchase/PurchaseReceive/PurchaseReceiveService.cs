@@ -67,7 +67,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                     .ThenInclude(pov => pov.PurchasOrder)
                 .Include(r => r.PurchaseReceiveItems)
                 .Include(r => r.Status)
-                .Where(r => r.PurchasOrderVersion.OrganizationID == orgId)
+               // .Where(r => r.PurchasOrderVersion.OrganizationID == orgId)
                 .AsQueryable();
 
             // Search
@@ -158,7 +158,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                
                 .Where(po => po.PurchasOrderVersions.Any(v =>
                     v.IsFinal == true &&
-                    //v.OrganizationID == orgId &&
+                    v.OrganizationID == orgId &&
                     (v.IsFullyReceived == false || v.IsFullyReceived == null)))
                 .Select(po => new
                 {
@@ -210,7 +210,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                 DueDate = poVersion.DueDate,
                 Note = poVersion.Note,
                 Items = poVersion.PurchasOrderItemVersions
-                    .Where(i => i.RemainingQuantity > 0 || i.RemainingQuantity == null)
+                    .Where(i => i.Quantity > (i.ReceivedQuantity) || i.RemainingQuantity == null)
                     .Select(i => new POItemForReceiveViewModel
                     {
                         POItemVersionID = i.PurchasOrderVersionItemID,
@@ -609,7 +609,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
 
                         if (defaultLocation != null)
                         {
-                            await _inventoryService.ReceiveStockAsync(new ReceiveStockViewModel
+                            var res = await _inventoryService.ReceiveStockAsync(new ReceiveStockViewModel
                             {
                                 ProductID = item.ProductID,
                                 LocationID = defaultLocation.LocationID,
@@ -623,6 +623,14 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                                 LIP = baseView?.LIP,
                                 LMAC = baseView?.LMAC
                             });
+
+                            if (!res)
+                            {
+                                await _receiveRepository.RollbackTransactionAsync();
+                                response.Success = false;
+                                response.Message = "Error updating purchase receive: ";
+                                return response;
+                            }
                         }
                     }
                 }

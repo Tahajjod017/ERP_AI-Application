@@ -41,7 +41,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
     {
         public int SL { get; set; }
         public string Description { get; set; }
-        public int Unit { get; set; }
+        public int Product { get; set; }
         public string UnitName { get; set; }
         public decimal Area { get; set; }
         public decimal Rate { get; set; }
@@ -49,7 +49,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public string LIP { get; set; }
         public string LMAC { get; set; }
 
-        public decimal Amount => Area * Rate;
+        public decimal Amount => Quantity * Rate;
     }
 
     //public class CustomerDetailsViewModel
@@ -89,5 +89,10 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public bool CanSendEmail => true; // Add your logic here
 
         public List<PriceQuotationVersionViewModel> SalesOrderIdList { get; set; }
+
+        public bool CanCreateShipment { get; set; }
+        public bool HasShipments => Shipments != null && Shipments.Any();
+        public List<ShipmentInfo> Shipments { get; set; } = new List<ShipmentInfo>();
+
     }
 }

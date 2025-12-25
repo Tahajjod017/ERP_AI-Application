@@ -207,11 +207,11 @@
                                 <td class="fs-8 text-center align-middle">${index + 1}</td>
                                 <td><input name="Items[${index}].Description" class="form-control" value="${item.description}" /></td>
                                 <td>
-                                    <select name="Items[${index}].Unit" class="form-select searchableSelect unitDD">
-                                        <option value="">-- Select Unit --</option>
+                                    <select name="Items[${index}].Product" class="form-select searchableSelect unitDD">
+                                        <option value="">-- Select Product --</option>
                                     </select>
                                 </td>
-                                <td><input name="Items[${index}].Area" class="form-control calc" type="number" step="any" value="${item.area}" /></td>
+                               <!-- <td><input name="Items[${index}].Area" class="form-control calc" type="number" step="any" value="${item.area}" /></td> -->
                                 <td><input name="Items[${index}].Rate" class="form-control calc" type="number" step="any" value="${item.rate}" /></td>
                                 <td><input name="Items[${index}].Quantity" class="form-control calc-qty" type="number" step="any" value="0" /></td>
                              
@@ -256,8 +256,8 @@
                 <td class="fs-8 text-center align-middle">${newIndex + 1}</td>
                 <td><input name="Items[${newIndex}].Description" class="form-control" /></td>
                 <td>
-                    <select name="Items[${newIndex}].Unit" class="form-select searchableSelect unitDD">
-                        <option value="">-- Select Unit --</option>
+                    <select name="Items[${newIndex}].Product" class="form-select searchableSelect unitDD">
+                        <option value="">-- Select Product --</option>
                     </select>
                 </td>
                 <td><input name="Items[${newIndex}].Area" class="form-control calc" type="number" step="any" /></td>
@@ -299,11 +299,11 @@
 
     function loadUnitOptions($select, selectedValue) {
         $.ajax({
-            url: '/SalesOrder/GetUnits',
+            url: '/SalesOrder/GetProduct',
             method: 'GET',
             success: function (units) {
                 initializeSelect();
-                $select.empty().append('<option value="">-- Select Unit --</option>');
+                $select.empty().append('<option value="">-- Select Product --</option>');
                 $.each(units, function (i, unit) {
                     $select.append(`<option value="${unit.id}">${unit.name}</option>`);
                 });

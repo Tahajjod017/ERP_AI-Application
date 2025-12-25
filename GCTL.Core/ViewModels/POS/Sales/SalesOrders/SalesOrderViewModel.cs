@@ -31,14 +31,14 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
     {
         public int SL { get; set; }
         public string Description { get; set; }
-        public int Unit { get; set; }
+        public int? Product { get; set; }
         public decimal? Area { get; set; }
         public decimal? Rate { get; set; }
         public decimal? Quantity { get; set; }
         public string? LIP { get; set; }
         public string? LMAC { get; set; }
 
-        public decimal Amount => (Area ?? 0) * (Rate ?? 0);
+        public decimal Amount => (Quantity ?? 0) * (Rate ?? 0);
     }
 
     public class CustomerDto

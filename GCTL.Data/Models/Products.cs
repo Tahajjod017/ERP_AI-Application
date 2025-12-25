@@ -129,6 +129,8 @@ public partial class Products
 
     public virtual ICollection<SalesOrderVersionItems> SalesOrderVersionItems { get; set; } = new List<SalesOrderVersionItems>();
 
+    public virtual ICollection<ShipmentItems> ShipmentItems { get; set; } = new List<ShipmentItems>();
+
     public virtual UnitTypes UnitType { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }

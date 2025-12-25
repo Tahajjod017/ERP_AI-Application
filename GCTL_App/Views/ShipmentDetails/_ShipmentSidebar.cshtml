@@ -1,0 +1,216 @@
+﻿@using GCTL.Core.ViewModels.POS.Sales.ShipmentDetails
+@model ShipmentSidebarDetailsViewModel
+
+<div class="col-md-3 mb-4">
+    <div class="card mb-3" style="min-height: 1000px;">
+        <div class="card-body">
+            <div class="invoice-card">
+                <div>
+                    @if (Model.Status == GCTL.Core.Enums.ShipmentStatus.Pending)
+                    {
+                        <div class="alert alert-subtle-warning" role="alert">
+                            @Html.SmartLocalize("Shipment pending. Ready to pack.")
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.ShipmentStatus.Packed)
+                    {
+                        <div class="alert alert-subtle-info" role="alert">
+                            @Html.SmartLocalize("Shipment packed. Ready to ship.")
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.ShipmentStatus.Shipped)
+                    {
+                        <div class="alert alert-subtle-primary" role="alert">
+                            @Html.SmartLocalize("Shipment shipped. In transit.")
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.ShipmentStatus.InTransit)
+                    {
+                        <div class="alert alert-subtle-primary" role="alert">
+                            @Html.SmartLocalize("Shipment in transit.")
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.ShipmentStatus.Delivered)
+                    {
+                        <div class="alert alert-subtle-success" role="alert">
+                            @Html.SmartLocalize("Shipment delivered successfully.")
+                        </div>
+                    }
+                    else if (Model.Status == GCTL.Core.Enums.ShipmentStatus.Cancelled)
+                    {
+                        <div class="alert alert-subtle-danger" role="alert">
+                            @Html.SmartLocalize("Shipment cancelled.")
+                        </div>
+                    }
+                </div>
+
+                <div class="accordion" id="accordionExample">
+                    <!-- Create Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingCreate">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreate" aria-expanded="true" aria-controls="collapseCreate">
+                                @Html.SmartLocalize("Create")
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseCreate" aria-labelledby="headingCreate" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9" id="createPerson">
+                                    <strong>@Html.SmartLocalize("Created By:"):</strong> @Model.CreatedByName <br />
+                                    <strong>@Html.SmartLocalize("Created At:"):</strong> @Model.CreatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    @if (!string.IsNullOrEmpty(Model.UpdatedByName))
+                                    {
+                                        <br />
+                                        <strong>@Html.SmartLocalize("Updated By:"):</strong> @Model.UpdatedByName <br />
+                                        <strong>@Html.SmartLocalize("Updated At:"):</strong> @Model.UpdatedAt?.ToString("MMM dd, yyyy hh:mm tt")
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Source Document -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingSource">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSource" aria-expanded="true" aria-controls="collapseSource">
+                                @Html.SmartLocalize("Source Document")
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseSource" aria-labelledby="headingSource" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                <p class="fs-9">
+                                    <strong>@Html.SmartLocalize("Type:"):</strong> @Model.SourceType <br>
+                                    <strong>@Html.SmartLocalize("Number:"):</strong>
+                                    @if (Model.SourceType == "Sales Order")
+                                    {
+                                        <a href="@Url.Action("Index", "SalesOrderDetails", new { id = Model.SourceId })">@Model.SourceNumber</a>
+                                    }
+                                    else if (Model.SourceType == "Invoice")
+                                    {
+                                        <a href="@Url.Action("Index", "InvoiceDetails", new { id = Model.SourceId })">@Model.SourceNumber</a>
+                                    }
+                                    else
+                                    {
+                                        @Model.SourceNumber
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tracking -->
+                    @if (!string.IsNullOrEmpty(Model.TrackingNumber))
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingTracking">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTracking" aria-expanded="true" aria-controls="collapseTracking">
+                                    @Html.SmartLocalize("Tracking")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseTracking" aria-labelledby="headingTracking" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <strong>@Html.SmartLocalize("Tracking Number:"):</strong><br>
+                                        <span class="badge badge-phoenix-primary">@Model.TrackingNumber</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Status Actions -->
+                    @if (Model.CanPack)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingPack">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePack" aria-expanded="true" aria-controls="collapsePack">
+                                    @Html.SmartLocalize("Pack Shipment")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapsePack" aria-labelledby="headingPack" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" onclick="markAsPacked(@Model.ShipmentId)">@Html.SmartLocalize("Mark as Packed")</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.CanShip)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingShip">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShip" aria-expanded="true" aria-controls="collapseShip">
+                                    @Html.SmartLocalize("Ship Order")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseShip" aria-labelledby="headingShip" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" onclick="markAsShipped(@Model.ShipmentId)">@Html.SmartLocalize("Mark as Shipped")</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.CanDeliver)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingDeliver">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDeliver" aria-expanded="true" aria-controls="collapseDeliver">
+                                    @Html.SmartLocalize("Deliver Order")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseDeliver" aria-labelledby="headingDeliver" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" onclick="markAsDelivered(@Model.ShipmentId)">@Html.SmartLocalize("Mark as Delivered")</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Print Section -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingPrint">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrint" aria-expanded="true" aria-controls="collapsePrint">
+                                @Html.SmartLocalize("Print")
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapsePrint" aria-labelledby="headingPrint" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                @if (Model.CanPrint)
+                                {
+                                    <a class="btn btn-subtle-primary me-1 mb-1" type="button" onclick="printShipment(@Model.ShipmentId)">
+                                        <i class="fa fa-print" aria-hidden="true"></i>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cancel -->
+                    @if (Model.CanCancel)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingCancel">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCancel" aria-expanded="true" aria-controls="collapseCancel">
+                                    @Html.SmartLocalize("Cancel")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseCancel" aria-labelledby="headingCancel" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" class="text-danger" onclick="cancelShipment(@Model.ShipmentId)">@Html.SmartLocalize("Cancel Shipment")</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

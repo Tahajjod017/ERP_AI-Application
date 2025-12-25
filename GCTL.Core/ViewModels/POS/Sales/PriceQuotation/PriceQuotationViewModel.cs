@@ -50,7 +50,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.PriceQuotation
     {
         public int SL { get; set; }                     // auto-filled on UI
         public string? Description { get; set; } = string.Empty;
-        public int? Unit { get; set; } 
+        public int? Product { get; set; } 
         public decimal? Area { get; set; }
         public decimal? Rate { get; set; }
         public decimal Amount => (Area ?? 0) * (Rate ?? 0);

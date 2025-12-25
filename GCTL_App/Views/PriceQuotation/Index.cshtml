@@ -140,8 +140,8 @@
                         <tr>
                             <th style="width: 50px;">@Html.SmartLocalize("SL")</th>
                             <th class="text-center">@Html.SmartLocalize("Description")</th>
-                            <th class="text-center">@Html.SmartLocalize("Unit")</th>
-                            <th class="text-center">@Html.SmartLocalize("Area")</th>
+                            <th class="text-center">@Html.SmartLocalize("Product")</th>
+                            <th class="text-center">@Html.SmartLocalize("Quantity")</th>
                             <th class="text-center">@Html.SmartLocalize("Rate (BDT)")</th>
                             <th class="text-end">@Html.SmartLocalize("Amount (BDT)")</th>
                             <th style="width: 50px;"></th>
@@ -154,8 +154,8 @@
                                 <td class="fs-8 text-center align-middle">@(i + 1)</td>
                                 <td><input asp-for="Items[i].Description" class="form-control" /></td>
                                 <td>
-                                    <select asp-for="Items[i].Unit" class="form-select unitDD searchableSelect" asp-items="ViewBag.Unit">
-                                        <option value="">@Html.SmartLocalize("-- Select Unit --")</option>
+                                    <select asp-for="Items[i].Product" class="form-select unitDD searchableSelect" asp-items="ViewBag.product">
+                                        <option value="">@Html.SmartLocalize("-- Select Product --")</option>
                                     </select>
                                 </td>
                                 <td><input asp-for="Items[i].Area" class="form-control calc" type="number" step="any" /></td>

@@ -907,6 +907,18 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[ShipmentItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[Shipments]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ShippingMethods]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[SupplierAddresses]",
          "ObjectType": 0
       },

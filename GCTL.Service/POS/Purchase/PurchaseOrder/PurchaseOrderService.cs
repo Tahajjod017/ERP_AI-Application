@@ -60,7 +60,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
             return nextPO;
         }
 
-        public async Task<CommonReturnViewModel> SaveAsync(PurchaseOrderViewModel vm)
+        public async Task<CommonReturnViewModel> SaveAsync(PurchaseOrderViewModel vm, int? org)
         {
             await _purchaseOrderItemRepository.OpenTransactionAsync();
 
@@ -186,7 +186,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
                         WorkOrderDate = vm.WorkOrderDate,
                         OBBillingAddressID = vm.BillingAddressId,
                         OBShipingAddressID = vm.SelectedShippingAddressId,
-                        OrganizationID = vm.OrganizationId,
+                        OrganizationID = org,
                         OrganizationBranchID = vm.OrganizationBranchId,
                         PaymentMethodID = vm.PaymentMethodId,
                         BankAccountInfoID = vm.BankAccountInfoId,
@@ -205,7 +205,8 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
                         IsDraft = vm.IsDraft,
                         IsFinal = !vm.IsDraft,
                         CreatedAt = DateTime.Now,
-                        CreatedBy = vm.CreatedBy
+                        CreatedBy = vm.CreatedBy,
+                        
                     };
 
                     await _purchaseOrderVersionsRepository.AddAsync(newVersion);

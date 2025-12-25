@@ -218,8 +218,8 @@
                 <td class="fs-8 text-center align-middle">${newIndex + 1}</td>
                 <td><input name="Items[${newIndex}].Description" class="form-control" /></td>
                 <td>
-                    <select name="Items[${newIndex}].Unit" class="form-select searchableSelect unitDD" >
-                        <option value="">-- Select Unit --</option>
+                    <select name="Items[${newIndex}].Product" class="form-select searchableSelect unitDD" >
+                        <option value="">-- Select Product --</option>
                     </select>
                    
                 </td>
@@ -269,11 +269,11 @@
 
     function loadUnitOptions($select) {
         $.ajax({
-            url: '/PriceQuotation/GetUnits', // Replace with your actual endpoint
+            url: '/PriceQuotation/GetProduct', // Replace with your actual endpoint
             method: 'GET',
             success: function (units) {
                 initializeSelect();
-                $select.empty().append('<option value="">-- Select Unit --</option>');
+                $select.empty().append('<option value="">-- Select Product --</option>');
                 $.each(units, function (i, unit) {
                     $select.append(`<option value="${unit.id}">${unit.name}</option>`);
                 });
@@ -359,7 +359,7 @@
         <tr data-index="0">
             <td class="fs-8 text-center align-middle">1</td>
             <td><input name="Items[0].Description" class="form-control" /></td>
-            <td><input name="Items[0].Unit" class="form-control" value="Sft" /></td>
+            <td><input name="Items[0].Product" class="form-control" value="Sft" /></td>
             <td><input name="Items[0].Area" class="form-control calc" type="number" step="any" /></td>
             <td><input name="Items[0].Rate" class="form-control calc" type="number" step="any" /></td>
             <td class="amount text-end align-middle">0.00</td>

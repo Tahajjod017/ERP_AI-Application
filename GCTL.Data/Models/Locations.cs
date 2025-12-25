@@ -59,5 +59,7 @@ public partial class Locations
 
     public virtual OrganizationBranches OrganizationBranch { get; set; }
 
+    public virtual ICollection<ShipmentItems> ShipmentItems { get; set; } = new List<ShipmentItems>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

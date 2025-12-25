@@ -44,7 +44,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails
     {
         public int SL { get; set; }
         public string? Description { get; set; }
-        public int? Unit { get; set; }
+        public int? Product { get; set; }
         public string? UnitName { get; set; }
         public decimal Area { get; set; }
         public decimal Rate { get; set; }
