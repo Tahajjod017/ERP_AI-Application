@@ -37,9 +37,13 @@ public partial class SalesOrderVersionItems
 
     public int? DeletedBy { get; set; }
 
+    public int? ProductID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Products Product { get; set; }
 
     public virtual SalesOrdersVersions SalesOrdersVersion { get; set; }
 

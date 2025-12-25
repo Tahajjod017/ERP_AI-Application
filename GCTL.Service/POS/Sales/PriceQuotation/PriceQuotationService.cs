@@ -212,7 +212,7 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
             }
         }
 
-        public async Task<CommonReturnViewModel> ConvertToSalesOrder(int id)
+        public async Task<CommonReturnViewModel> ConvertToSalesOrder(int id, BaseViewModel? baseView)
         {
             var quotation = _priceQuotationVersionsRepository.AllActive()
                     .Include(e => e.PriceQuotationVersionItems)
@@ -246,6 +246,10 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
                     Rate = x.Rate,
                     Quantity = x.Area,
                     //Unit = x.UnitTypeID ?? ""
+                    LIP = baseView?.LIP ?? "",
+                    LMAC = baseView?.LMAC ?? "",
+                    //ProductId = x.pr
+
 
                 }).ToList()
 

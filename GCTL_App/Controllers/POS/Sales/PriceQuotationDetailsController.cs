@@ -650,19 +650,14 @@ namespace GCTL_App.Controllers.POS.Sales
 
 
         [HttpPost]
-        public IActionResult ConvertToSalesOrder(int id)
+        public IActionResult ConvertToSalesOrder(int id , BaseViewModel? baseView)
         {
             try
             {
 
-                var result = _priceQuotationService.ConvertToSalesOrder(id);
-
-                
-
+                var result = _priceQuotationService.ConvertToSalesOrder(id, baseView);                
                 return Json(result);
-              
-
-               
+                             
             }
             catch (Exception ex)
             {
