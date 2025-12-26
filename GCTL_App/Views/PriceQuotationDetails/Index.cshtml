@@ -80,7 +80,7 @@
                                     <!-- Quotation Details -->
                                     <div class="col-xl-7">
                                         <div class="row mt-3">
-                                            <div class="col-xl-12">
+                                            <div class="col-xl-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">@Html.SmartLocalize("Quotation Number")</label>
                                                     <input asp-for="InvoiceNumber" id="quotationNumber" class="form-control" readonly />
@@ -98,6 +98,17 @@
                                                     <input asp-for="OtherNumber" class="form-control" />
                                                 </div>
                                             </div>
+
+                                            <div class="col-xl-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">@Html.SmartLocalize("From Location")</label>
+                                                    <select asp-for="LocationId" class="form-select locationDD searchableSelect" asp-items="ViewBag.location">
+                                                        <option value="">@Html.SmartLocalize("-- Select Location --")</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -112,6 +123,8 @@
                                         <th style="width: 50px;">@Html.SmartLocalize("SL")</th>
                                         <th class="text-center">@Html.SmartLocalize("Description")</th>
                                         <th class="text-center">@Html.SmartLocalize("Product")</th>
+                                        <th class="text-center">@Html.SmartLocalize("In-Stock")</th>
+                                       
                                         <th class="text-center">@Html.SmartLocalize("Quantity")</th>
                                         <th class="text-center">@Html.SmartLocalize("Rate (BDT)")</th>
                                         <th class="text-end">@Html.SmartLocalize("Amount (BDT)")</th>
@@ -129,6 +142,9 @@
                                                     <option value="">@Html.SmartLocalize("-- Select Product --")</option>
                                                 </select>
                                             </td>
+                                           @*   <td class="stock text-center align-middle"></td> *@
+
+                                            <td><input asp-for="Items[i].Stock" class="form-control stock" type="number" step="any" /></td>
                                             <td><input asp-for="Items[i].Area" class="form-control calc" type="number" step="any" /></td>
                                             <td><input asp-for="Items[i].Rate" class="form-control calc" type="number" step="any" /></td>
                                             <td class="amount text-end align-middle">@Model.Items[i].AmountPerPercent.ToString("N2")</td>
@@ -147,11 +163,11 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="5" class="text-end fs-9 fw-bold">@Html.SmartLocalize("Sub Total Taka")</td>
+                                        <td colspan="6" class="text-end fs-9 fw-bold">@Html.SmartLocalize("Sub Total Taka")</td>
                                         <td colspan="2" class="text-center fs-9 fw-bold" id="subTotal">@Model.SubTotal.ToString("N2")</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="5" class="text-end fs-9 py-2">
+                                        <td colspan="6" class="text-end fs-9 py-2">
                                             <div class="d-flex justify-content-end">
                                                 <div class="mx-2 mt-2">@Html.SmartLocalize("Deduction of Retention Money (VAT)")</div>
                                                 <div><input asp-for="RetentionPercent" id="retentionPercent" class="form-control vatPercent" type="number" step="any" /></div>
@@ -160,7 +176,7 @@
                                         <td colspan="2" class="text-center fs-9" id="retention">@((Model.RetentionAmount ?? 0).ToString("N2"))</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="5" class="text-end h5">@Html.SmartLocalize("Grand Total Taka")</td>
+                                        <td colspan="6" class="text-end h5">@Html.SmartLocalize("Grand Total Taka")</td>
                                         <td colspan="2" class="text-center h5" id="grandTotal">@((Model.GrandTotal ?? 0).ToString("N2"))</td>
                                     </tr>
                                 </tbody>
@@ -241,6 +257,10 @@
                                             <div class="col-6">
                                                 <label class="form-label fw-bold">@Html.SmartLocalize("Quotation Date")</label>
                                                 <p class="fs-8 ms-3">@Model.InvoiceDate?.ToString("MMM dd, yyyy")</p>
+                                            </div> 
+                                            <div class="col-6">
+                                                <label class="form-label fw-bold">@Html.SmartLocalize("Location")</label>
+                                                <p class="fs-8 ms-3">@Model.LocationName</p>
                                             </div>
                                         </div>
                                     </div>
@@ -257,6 +277,8 @@
                                     <th style="width: 50px;">@Html.SmartLocalize("SL")</th>
                                     <th>@Html.SmartLocalize("Description")</th>
                                     <th class="text-center">@Html.SmartLocalize("Product")</th>
+                                  
+                                    <th class="text-center">@Html.SmartLocalize("In-Stock")</th>
                                     <th class="text-center">@Html.SmartLocalize("Quantity")</th>
                                     <th class="text-center">@Html.SmartLocalize("Rate (BDT)")</th>
                                     <th class="text-center">@Html.SmartLocalize("Amount (BDT)")</th>
@@ -269,21 +291,22 @@
                                         <td class="fs-8 text-center align-middle">@(i + 1)</td>
                                         <td>@Model.Items[i].Description</td>
                                         <td class="text-center">@Model.Items[i].UnitName?.ToString()</td>
+                                        <td class="text-center">@Model.Items[i].Stock?.ToString()</td>
                                         <td class="text-center">@Model.Items[i].Area.ToString("N2")</td>
                                         <td class="text-center">@Model.Items[i].Rate.ToString("N2")</td>
                                         <td class="text-end">@Model.Items[i].AmountPerPercent.ToString("N2")</td>
                                     </tr>
                                 }
                                 <tr>
-                                    <td colspan="5" class="text-end fs-9 fw-bold">@Html.SmartLocalize("Sub Total Taka")</td>
+                                    <td colspan="6" class="text-end fs-9 fw-bold">@Html.SmartLocalize("Sub Total Taka")</td>
                                     <td class="text-end fs-9 fw-bold">@Model.SubTotal.ToString("N2")</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="text-end fs-9">@Html.SmartLocalize("Deduction of Retention Money (VAT)") - @Model.RetentionPercent%</td>
+                                    <td colspan="6" class="text-end fs-9">@Html.SmartLocalize("Deduction of Retention Money (VAT)") - @Model.RetentionPercent%</td>
                                     <td class="text-end fs-9">@((Model.RetentionAmount ?? 0).ToString("N2"))</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="5" class="text-end h5">@Html.SmartLocalize("Grand Total Taka")</td>
+                                    <td colspan="6" class="text-end h5">@Html.SmartLocalize("Grand Total Taka")</td>
                                     <td class="text-end h5">@((Model.GrandTotal ?? 0).ToString("N2"))</td>
                                 </tr>
                             </tbody>
@@ -302,7 +325,7 @@
                     }
 
                     <div class="d-flex justify-content-end gap-2 align-items-center">
-                        @if (!isEditMode && sidebarData != null && sidebarData.CanEdit)
+                        @if (!isEditMode && sidebarData != null && sidebarData.CanEdit && !sidebarData.HasSalesOrder)
                         {
                             <a href="@Url.Action("Edit", "PriceQuotationDetails", new { id = Model.Id })" class="btn btn-primary">
                                 <i class="fa fa-edit me-1"></i> @Html.SmartLocalize("Edit Quotation")

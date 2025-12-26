@@ -53,6 +53,11 @@ public partial class PurOrderBaseSAddresses
 
     public int? DeletedBy { get; set; }
 
+    public int? LocationID { get; set; }   // nullable foreign key
+
+    public Locations Location { get; set; } // navigation property
+
+
     public virtual Country Country { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }

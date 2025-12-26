@@ -51,6 +51,10 @@ public partial class PurchaseReceives
 
     public string AttachmentPath { get; set; }
 
+    public int? LocationID { get; set; }   // new FK column
+    public Locations Location { get; set; } // navigation property
+
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

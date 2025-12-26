@@ -20,6 +20,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
 {
     public class PurchaseReceiveService : IPurchaseReceiveService
     {
+        #region CTOR
         private readonly IGenericRepository<PurchaseReceives> _receiveRepository;
         private readonly IGenericRepository<PurchaseReceiveItems> _receiveItemRepository;
         private readonly IGenericRepository<PurchaseReceiveItemHistory> _receiveHistoryRepository;
@@ -55,7 +56,9 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
             _locationRepository = locationRepository;
             _inventoryService = inventoryService;
         }
+        #endregion
 
+        #region Get ALL / Get Open / Get Details
         public async Task<PaginatedResultCommon<PurchaseReceiveListViewModel>> GetPurchaseReceivesAsync(
             int? orgId, int page, int pageSize, string search, string sortColumn,
             string sortDirection, int? statusId, int? supplierId, string? fromDate, string? toDate)
@@ -286,6 +289,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                 }).ToList()
             };
         }
+        #endregion
 
         public async Task<CommonReturnViewModel> CreatePurchaseReceiveAsync(
             CreatePurchaseReceiveViewModel model, int? empId, BaseViewModel? baseView)
@@ -300,6 +304,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                     .Include(v => v.PurchasOrder)
                         .ThenInclude(po => po.POStatus)
                     .Include(v => v.PurchasOrderItemVersions)
+                    .Include(v => v.OBShipingAddress)
                     .FirstOrDefaultAsync(v => v.PurchasOrderVersionID == model.PurchaseOrderVersionID);
 
                 if (poVersion == null)
@@ -317,6 +322,8 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                     response.Message = "Cannot receive against a closed or cancelled PO.";
                     return response;
                 }
+
+                var locationId = poVersion.OBShipingAddress.LocationID;//await _purchaseOrderAddressRepository.AllActive().FirstOrDefaultAsync(e => e.PurOrderBaseSAddressID == vm.SelectedShippingAddressId);
 
                 // Validate items
                 foreach (var item in model.Items)
@@ -372,7 +379,9 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = baseView?.CreatedBy,
                     LIP = baseView?.LIP,
-                    LMAC = baseView?.LMAC
+                    LMAC = baseView?.LMAC,
+                    LocationID = locationId
+                    
                 };
 
                 await _receiveRepository.AddAsync(receive);
@@ -420,8 +429,9 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                     // TODO: INVENTORY - Add received items to inventory
                     // Get default receiving location
                     var defaultLocation = await _locationRepository.AllActive()
-                        .FirstOrDefaultAsync(l => l.IsDefaultLocation == true &&
-                                                 l.OrganizationID == poVersion.OrganizationID);
+                        .FirstOrDefaultAsync(l => l.LocationID == locationId);
+                        //.FirstOrDefaultAsync(l => l.IsDefaultLocation == true && l.OrganizationID == poVersion.OrganizationID);
+                        //.FirstOrDefaultAsync(l => l.OrganizationBranchID == poVersion.OrganizationBranchID && l.OrganizationID == poVersion.OrganizationID);
 
                     if (defaultLocation != null)
                     {
@@ -439,6 +449,13 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                             LIP = baseView?.LIP,
                             LMAC = baseView?.LMAC
                         });
+                    }
+                    else
+                    {
+                        await _receiveRepository.RollbackTransactionAsync();
+                        response.Success = false;
+                        response.Message = "Location is not found , please insert Location Master Setup first";
+                        return response;
                     }
 
                     await _userInfoService.ActionLogAsync("purchase receive item", ActionName.DataAdd,
@@ -530,7 +547,8 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
 
                         // TODO: INVENTORY - Reverse old stock entries if needed
 
-                        var defaultLocation = await _locationRepository.AllActive().FirstOrDefaultAsync(l => l.IsDefaultLocation == true);
+                        var defaultLocation = await _locationRepository.AllActive()
+                            .FirstOrDefaultAsync(l => l.LocationID == receive.LocationID);
 
                         if (defaultLocation != null)
                         {
@@ -547,6 +565,13 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                                 LIP = baseView?.LIP,
                                 LMAC = baseView?.LMAC
                             });
+                        }
+                        else
+                        {
+                            await _receiveRepository.RollbackTransactionAsync();
+                            response.Success = false;
+                            response.Message = "Location is not found , please insert Location Master Setup first";
+                            return response;
                         }
                     }
                 }
@@ -605,7 +630,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
 
                         // TODO: INVENTORY - Update stock with new quantities
 
-                        var defaultLocation = await _locationRepository.AllActive().FirstOrDefaultAsync(l => l.IsDefaultLocation == true);
+                        var defaultLocation = await _locationRepository.AllActive().FirstOrDefaultAsync(l => l.LocationID == receive.LocationID);
 
                         if (defaultLocation != null)
                         {
@@ -631,6 +656,13 @@ namespace GCTL.Service.POS.Purchase.PurchaseReceive
                                 response.Message = "Error updating purchase receive: ";
                                 return response;
                             }
+                        }
+                        else
+                        {
+                            await _receiveRepository.RollbackTransactionAsync();
+                            response.Success = false;
+                            response.Message = "Location is not found , please insert Location Master Setup first";
+                            return response;
                         }
                     }
                 }

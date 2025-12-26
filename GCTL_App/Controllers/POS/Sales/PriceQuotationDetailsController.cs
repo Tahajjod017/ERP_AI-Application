@@ -14,6 +14,7 @@ using GCTL.Service.POS.Sales.SalesOrderF;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.POS.Sales
@@ -28,12 +29,13 @@ namespace GCTL_App.Controllers.POS.Sales
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesVersionRepository;
         private readonly IGenericRepository<Products> _productRepository;
-
+        private readonly IGenericRepository<Locations> _locationRepository;
         private readonly IPriceQuotation _priceQuotationService;
         private readonly IGenericRepository<UnitTypes> _unitTypeRepository;
         private readonly IGenericRepository<Customers> _customerRepository;
         private readonly IGenericRepository<CustomerAddresses> _customerAddressRepository;
         private readonly IGenericRepository<Addresses> _addressRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.Inventory> _inventoryRepository;
         private readonly IUserInfoService _userInfoService;
 
         private readonly IGenericRepository<PriceQuotationVersions> _priceQuotationVersionsRepository;
@@ -60,7 +62,9 @@ namespace GCTL_App.Controllers.POS.Sales
             IGenericRepository<SalesOrdersVersions> salesVersionRepository,
             IGenericRepository<Products> productRepository,
             IGenericRepository<PriceQuotationVersions> priceQuotationVersionsRepository,
-            ISalesOrder salesOrderService)
+            ISalesOrder salesOrderService,
+            IGenericRepository<Locations> locationRepository,
+            IGenericRepository<GCTL.Data.Models.Inventory> inventoryRepository)
             : base(translateService, userProfileService)
         {
             _priceQuotationRepository = priceQuotationRepository;
@@ -77,6 +81,8 @@ namespace GCTL_App.Controllers.POS.Sales
             _productRepository = productRepository;
             _priceQuotationVersionsRepository = priceQuotationVersionsRepository;
             _salesOrderService = salesOrderService;
+            _locationRepository = locationRepository;
+            _inventoryRepository = inventoryRepository;
         }
 
         #endregion
@@ -84,6 +90,8 @@ namespace GCTL_App.Controllers.POS.Sales
         #region READ-ONLY MODE - View Quotation
         public IActionResult Index(int id)
         {
+            ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
+
             ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
             ViewBag.IsEditMode = false; // Read-only mode
 
@@ -95,6 +103,7 @@ namespace GCTL_App.Controllers.POS.Sales
                 .Include(e=>e.PriceQuotationVersionItems).ThenInclude(e=>e.Product)
                 .Include(e => e.CreatedByNavigation)
                 .Include(e => e.UpdatedByNavigation)
+                .Include(e => e.Location)
                 .FirstOrDefault(e => e.PriceQuotationVersionID == id);
 
             
@@ -155,8 +164,9 @@ namespace GCTL_App.Controllers.POS.Sales
                     Area = m.Area ?? 0m,
                     Rate = m.Rate ?? 0m,
                     PercentInBill = 100,
-                    Product = m.ProductID
-                    
+                    Product = m.ProductID,
+                    Stock = _inventoryRepository.AllActive().Where(e => e.ProductID == m.ProductID && e.LocationID == quotation.LocationID).Sum(e => e.Quantity - e.ReservedQuantity)
+
                 }).ToList(),
                 RetentionPercent = quotation.VatPercentage ?? 0m,
                 Note = quotation.Note,
@@ -177,7 +187,9 @@ namespace GCTL_App.Controllers.POS.Sales
                     ContactName = company != null ? company.ContactName : "",
                     Email = company != null ? company.Email : "",
                      
-                }
+                },
+
+                LocationName = quotation.Location.LocationName + " (" + quotation.Location.LocationCode + ")" ,
 
                 // TODO: Load from WorkOrders table when you create it
                 // ConvertedToWorkOrderId = quotation.WorkOrderID,
@@ -226,9 +238,10 @@ namespace GCTL_App.Controllers.POS.Sales
             ViewBag.product = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
             ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
             ViewBag.IsEditMode = true; // Edit mode
+            ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
 
-         
-          
+
+
 
             var quotation = _priceQuotationVersionRepository.AllActive()
               .Include(e => e.PriceQuotation)
@@ -269,10 +282,14 @@ namespace GCTL_App.Controllers.POS.Sales
                     UnitName = m.UnitType != null ? m.UnitType.UnitTypeName : "",
                     Area = m.Area ?? 0m,
                     Rate = m.Rate ?? 0m,
-                    PercentInBill = 100
+                    PercentInBill = 100,
+                    Stock = _inventoryRepository.AllActive().Where(e => e.ProductID == m.ProductID && e.LocationID == quotation.LocationID).Sum(e => e.Quantity - e.ReservedQuantity)
+
+
                 }).ToList(),
                  RetentionPercent = quotation.VatPercentage ?? 0m,
                  Note = quotation.Note,
+                 LocationId = quotation.LocationID,
 
                 // Sidebar data
                 Status = QuotationStatus.Draft, // TODO: Get from database when you add Status column
@@ -484,7 +501,8 @@ namespace GCTL_App.Controllers.POS.Sales
                     IsFinalVersion = true,
                     IsDraft = version.IsDraft,
                     CreatedBy = vm.CreatedBy,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    LocationID = version.LocationID
                 };
 
                 await _priceQuotationVersionRepository.AddAsync(duplicateVersion, vm);
@@ -636,6 +654,7 @@ namespace GCTL_App.Controllers.POS.Sales
                     SelectedQuotationId = quotation.PriceQuotationID,
                     VatPercent = quotation.VatPercentage ?? 0m,
                     Note = quotation.Note + " (Auto Converted)",
+                    
 
                     Items = quotation.PriceQuotationVersionItems.Select(x => new SalesOrderItem()
                     {

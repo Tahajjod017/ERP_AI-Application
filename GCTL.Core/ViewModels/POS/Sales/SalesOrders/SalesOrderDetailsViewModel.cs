@@ -12,6 +12,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public int? Id { get; set; }
         public DateTime OrderDate { get; set; }
         public string OrderNumber { get; set; }
+        public int? LocationId { get; set; }
         public int? SelectedCustomerId { get; set; }
         public int? SelectedQuotationId { get; set; }
         public string QuotationNumber { get; set; }
@@ -26,6 +27,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
 
         // Sidebar data
         public string CreatedByName { get; set; }
+        public string? LocationName { get; set; }
         public DateTime? CreatedAt { get; set; }
         public string UpdatedByName { get; set; }
         public DateTime? UpdatedAt { get; set; }
@@ -93,6 +95,6 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public bool CanCreateShipment { get; set; }
         public bool HasShipments => Shipments != null && Shipments.Any();
         public List<ShipmentInfo> Shipments { get; set; } = new List<ShipmentInfo>();
-
+        public bool CanMakeFinal { get; set; }
     }
 }

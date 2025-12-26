@@ -43,6 +43,14 @@ public partial class PriceQuotationVersions
 
     public int? PriceQuotationID { get; set; }
 
+    
+    public int? LocationID { get; set; }
+
+   
+    public Locations Location { get; set; }
+
+
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Customers Customer { get; set; }

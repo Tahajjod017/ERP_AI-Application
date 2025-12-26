@@ -31,6 +31,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         private readonly IGenericRepository<PriceQuotations> _priceQuotationRepository;
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<Products> _productRepository;
+        private readonly IGenericRepository<Locations> _locationRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.Inventory> _inventoryRepository;
 
 
         public SalesOrderDetailsController(
@@ -47,7 +49,9 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             IUserInfoService userInfoService,
             //IGenericRepository<InvoicesVersions> invoiceVersionRepository,
             IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
-            IGenericRepository<Products> productRepository)
+            IGenericRepository<Products> productRepository,
+            IGenericRepository<GCTL.Data.Models.Inventory> inventoryRepository,
+            IGenericRepository<Locations> locationRepository)
             : base(translateService, userProfileService)
         {
             _salesOrderRepository = salesOrderRepository;
@@ -62,6 +66,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             // _invoiceVersionRepository = invoiceVersionRepository;
             _salesOrderVersionRepository = salesOrderVersionRepository;
             _productRepository = productRepository;
+            _inventoryRepository = inventoryRepository;
+            _locationRepository = locationRepository;
         }
 
         #endregion
@@ -71,6 +77,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         {
             SetSmartPageCode(9025000);
 
+            ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
 
             ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
             ViewBag.IsEditMode = false; // Read-only mode
@@ -83,6 +90,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                  .ThenInclude(s => s.Status) // ADD THIS for shipment status
                 .Include(e => e.CreatedByNavigation)
                 .Include(e => e.UpdatedByNavigation)
+                .Include(e => e.Location)
                 .FirstOrDefault(e => e.SalesOrdersVersionID == id);
 
             if (salesOrder == null)
@@ -98,7 +106,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 draft = e.IsDraft,
                 draftSign = e.IsDraft != true ? "" : "(Draft)",
                 finalSign = e.IsFinal == true && e.IsDraft != true ? "(Final)" : "",
-                current = e.SalesOrdersVersionID == id ? "current" : ""
+                current = e.SalesOrdersVersionID == id ? "current" : "",
+                isFinal = e.IsFinal == true && e.IsDraft != true ? true : false,
             }).ToList();
 
             var company = (from customer in _customerRepository.AllActive()
@@ -151,6 +160,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 }).ToList(),
                 VatPercent = salesOrder.VatPercentage ?? 0m,
                 Note = salesOrder.Note ?? "",
+                LocationName = salesOrder.Location.LocationName,
 
                 // Sidebar data
                 CreatedByName = salesOrder.CreatedByNavigation != null ? salesOrder.CreatedByNavigation.FirstName + " " + salesOrder.CreatedByNavigation.LastName : "Unknown",
@@ -186,6 +196,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 UpdatedAt = vm.UpdatedAt,
                 Shipments = shipments, // ADD THIS
                 //Status = salesOrder.IsDraft == true ? SalesOrderStatus.Draft : SalesOrderStatus.Confirmed // ADD THIS (adjust based on your status logic)
+                CanMakeFinal = !versions.Where(e => e.id == vm.Id).Select(e => e.isFinal).FirstOrDefault() // ✅ true if not current
+
 
             };
 
@@ -204,6 +216,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         #region EDIT MODE - Edit Sales Order
         public IActionResult Edit(int id)
         {
+            ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
 
             ViewBag.product = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
 
@@ -269,6 +282,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 }).ToList(),
                 VatPercent = salesOrder.VatPercentage ?? 0m,
                 Note = salesOrder.Note,
+                LocationId = salesOrder.LocationID,
 
                 // Sidebar data
                 CreatedByName = salesOrder.CreatedByNavigation != null ? salesOrder.CreatedByNavigation.FirstName + " " + salesOrder.CreatedByNavigation.LastName : "Unknown",
@@ -410,6 +424,72 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             }
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(int id, int status, BaseViewModel baseView)
+        {
+            try
+            {
+                var salesOrder = await _salesOrderVersionRepository.All().FirstOrDefaultAsync(e => e.SalesOrdersVersionID == id);
+                if (salesOrder == null)
+                {
+                    return Json(new { success = false, message = "Quotation not found" });
+                }
+
+                
+
+                var prevFinal = await _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersID == salesOrder.SalesOrdersID && e.IsFinal == true).FirstOrDefaultAsync();
+
+                if (prevFinal != null)
+                {
+                    foreach (var item in prevFinal.SalesOrderVersionItems)
+                    {
+                        var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == item.ProductID);
+
+                        if (inv != null)
+                        {
+                            inv.ReservedQuantity -= item.Quantity ?? 0;
+                            await _inventoryRepository.UpdateAsync(inv);
+
+                        }
+                    }
+                }
+
+
+                var quora = await _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersID == salesOrder.SalesOrdersID).ToListAsync();
+                quora.ForEach(e => e.IsFinal = false);
+                quora.ForEach(e => e.IsDraft = false);
+                await _salesOrderVersionRepository.UpdateRangeAsync(quora);
+
+                salesOrder.IsFinal = true;
+
+                foreach (var item in salesOrder.SalesOrderVersionItems)
+                {
+                    var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == item.ProductID);
+
+                    if (inv != null)
+                    {
+                        inv.ReservedQuantity += item.Quantity ?? 0;
+                        await _inventoryRepository.UpdateAsync(inv);
+
+                    }
+                }
+
+                await _salesOrderVersionRepository.UpdateAsync(salesOrder);
+
+
+
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+
+
         //[HttpPost]
         //public async Task<IActionResult> Duplicate(int id, BaseViewModel vm)
         //{
@@ -519,6 +599,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
 
         #endregion
 

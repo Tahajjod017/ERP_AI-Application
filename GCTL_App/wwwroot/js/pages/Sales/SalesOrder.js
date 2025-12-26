@@ -191,6 +191,7 @@
             data: { quotationId: quotationId },
             success: function (response) {
                 if (response.success) {
+                    showDev(response , 'Get Quatation Details')
                     // Update VAT percentage
                     $('#vatPercent').val(response.vatPercent);
 
@@ -213,7 +214,7 @@
                                 </td>
                                <!-- <td><input name="Items[${index}].Area" class="form-control calc" type="number" step="any" value="${item.area}" /></td> -->
                                 <td><input name="Items[${index}].Rate" class="form-control calc" type="number" step="any" value="${item.rate}" /></td>
-                                <td><input name="Items[${index}].Quantity" class="form-control calc-qty" type="number" step="any" value="0" /></td>
+                                <td><input name="Items[${index}].Quantity" class="form-control calc-qty" type="number" step="any" value="${item.area}" /></td>
                              
                                 <td class="amount text-end align-middle">${(item.area * item.rate).toFixed(2)}</td>
                                 <td class="text-center align-middle">
@@ -260,7 +261,7 @@
                         <option value="">-- Select Product --</option>
                     </select>
                 </td>
-                <td><input name="Items[${newIndex}].Area" class="form-control calc" type="number" step="any" /></td>
+               <!-- <td><input name="Items[${newIndex}].Area" class="form-control calc" type="number" step="any" /></td>-->
                 <td><input name="Items[${newIndex}].Rate" class="form-control calc" type="number" step="any" /></td>
                 <td><input name="Items[${newIndex}].Quantity" class="form-control calc-qty" type="number" step="any" /></td>
              
@@ -346,7 +347,7 @@
     function recalcTotals() {
         let sub = 0;
         $('#itemsTable tbody tr[data-index]').each(function () {
-            const area = parseFloat($(this).find('input[name$=".Area"]').val()) || 0;
+            const area = parseFloat($(this).find('input[name$=".Quantity"]').val()) || 0;
             const rate = parseFloat($(this).find('input[name$=".Rate"]').val()) || 0;
 
             const amount = area * rate;
@@ -382,7 +383,7 @@
 
         let hasValidItem = false;
         $('#itemsTable tbody tr[data-index]').each(function () {
-            const area = parseFloat($(this).find('input[name$=".Area"]').val()) || 0;
+            const area = parseFloat($(this).find('input[name$=".Quantity"]').val()) || 0;
             const rate = parseFloat($(this).find('input[name$=".Rate"]').val()) || 0;
             if (area > 0 && rate > 0) {
                 hasValidItem = true;

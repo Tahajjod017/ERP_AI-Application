@@ -12,12 +12,14 @@ namespace GCTL_App.Controllers.POS.Sales
     public class PriceQuotationController : BaseController
     {
         private readonly IGenericRepository<UnitTypes> _unitTypeRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.Inventory> _inventoryRepository;
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<Customers> _customerRepository;
         private readonly IGenericRepository<CustomerAddresses> _customerAddressRepository;
         private readonly IGenericRepository<Addresses> _addressRepository;
+        private readonly IGenericRepository<Locations> _locationRepository;
         private readonly IPriceQuotation _priceQuotationService;
-        public PriceQuotationController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<UnitTypes> unitTypeRepository, IPriceQuotation priceQuotationService, IGenericRepository<Customers> customerRepository, IGenericRepository<CustomerAddresses> customerAddressRepository, IGenericRepository<Addresses> addressRepository, IGenericRepository<Products> productRepository)
+        public PriceQuotationController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<UnitTypes> unitTypeRepository, IPriceQuotation priceQuotationService, IGenericRepository<Customers> customerRepository, IGenericRepository<CustomerAddresses> customerAddressRepository, IGenericRepository<Addresses> addressRepository, IGenericRepository<Products> productRepository, IGenericRepository<GCTL.Data.Models.Inventory> inventoryRepository, IGenericRepository<Locations> locationRepository)
             : base(translateService, userProfileService)
         {
             _unitTypeRepository = unitTypeRepository;
@@ -26,6 +28,8 @@ namespace GCTL_App.Controllers.POS.Sales
             _customerAddressRepository = customerAddressRepository;
             _addressRepository = addressRepository;
             _productRepository = productRepository;
+            _inventoryRepository = inventoryRepository;
+            _locationRepository = locationRepository;
         }
 
         #region STATIC DATA
@@ -70,6 +74,9 @@ namespace GCTL_App.Controllers.POS.Sales
         public IActionResult Index()
         {
             ViewBag.product = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
+            ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
+
+
             SetSmartPageCode(90259100);
 
             var data = new PriceQuotationViewModel();
@@ -202,6 +209,25 @@ namespace GCTL_App.Controllers.POS.Sales
             var result = _productRepository.AllActive().Select(r=> new {id = r.ProductID , name = r.ProductName}).ToList();
 
             return Json(result);
+        }
+
+        [HttpGet]
+        public IActionResult GetStockQuantity(int productId, int? locationId)
+        {
+            decimal? available = 0m;
+            if (locationId == null || locationId == 0)
+            {
+                 available = _inventoryRepository.AllActive().Where(e => e.ProductID == productId).Sum(e => e.Quantity - e.ReservedQuantity);
+
+            }
+            else
+            {
+                 available = _inventoryRepository.AllActive().Where(e => e.ProductID == productId && e.LocationID == locationId).Sum(e => e.Quantity - e.ReservedQuantity);
+
+            }
+
+
+            return Json(new { available });
         }
 
         // ==============================

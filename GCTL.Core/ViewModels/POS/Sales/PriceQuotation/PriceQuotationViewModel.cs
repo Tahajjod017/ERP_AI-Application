@@ -15,6 +15,9 @@ namespace GCTL.Core.ViewModels.POS.Sales.PriceQuotation
         public DateTime DueDate { get; set; } = DateTime.Today.AddDays(30);
         public string? OtherNumber { get; set; } = string.Empty;
 
+        public int? LocationId { get; set; }
+
+
         // ----- Customer ------------------------------------------------
         public int? SelectedCustomerId { get; set; }
         public List<CustomerDto> Customers { get; set; } = new();
@@ -51,6 +54,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.PriceQuotation
         public int SL { get; set; }                     // auto-filled on UI
         public string? Description { get; set; } = string.Empty;
         public int? Product { get; set; } 
+        public decimal? Stock { get; set; }
         public decimal? Area { get; set; }
         public decimal? Rate { get; set; }
         public decimal Amount => (Area ?? 0) * (Rate ?? 0);

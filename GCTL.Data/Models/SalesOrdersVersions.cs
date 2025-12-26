@@ -41,6 +41,12 @@ public partial class SalesOrdersVersions
 
     public bool IsFinal { get; set; }
 
+    public int? LocationID { get; set; }
+
+    // Navigation property
+    public Locations Location { get; set; }
+
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Customers Customer { get; set; }

@@ -82,6 +82,7 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
                     prevVersion.IsDraft = vm.IsDraft;
                     prevVersion.UpdatedAt = DateTime.Now;
                     prevVersion.UpdatedBy = vm.CreatedBy;
+                    prevVersion.LocationID = vm.LocationId;
 
                     // 🔹 Remove old items
                     var existingItems = await _priceQuotationItemRepository.All()
@@ -169,7 +170,8 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
                         IsFinalVersion = true , // latest,
                         IsDraft = vm.IsDraft,
                         CreatedAt = DateTime.Now,
-                        CreatedBy = vm.CreatedBy
+                        CreatedBy = vm.CreatedBy,
+                        LocationID = vm.LocationId
                     };
 
                     var updatedQuotationVer = await _priceQuotationVersionsRepository.AllActive().Where(q => q.PriceQuotationID == previousQuotation.PriceQuotationID).ToListAsync();
