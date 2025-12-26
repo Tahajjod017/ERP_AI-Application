@@ -160,7 +160,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 }).ToList(),
                 VatPercent = salesOrder.VatPercentage ?? 0m,
                 Note = salesOrder.Note ?? "",
-                LocationName = salesOrder.Location.LocationName,
+                LocationName = salesOrder.Location?.LocationName ?? "",
 
                 // Sidebar data
                 CreatedByName = salesOrder.CreatedByNavigation != null ? salesOrder.CreatedByNavigation.FirstName + " " + salesOrder.CreatedByNavigation.LastName : "Unknown",

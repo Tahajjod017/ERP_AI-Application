@@ -20,6 +20,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
         private readonly IGenericRepository<SalesOrderVersionItems> _salesOrderItemRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
+        private readonly IGenericRepository<PriceQuotationVersions> _priceQuotationVersionRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Inventory> _inventoryRepository;
         private readonly IUserInfoService _userInfoService;
 
@@ -29,7 +30,8 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
             IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
             IUserInfoService userInfoService,
             IGenericRepository<BloodGroup> bloodRepository,
-            IGenericRepository<Data.Models.Inventory> inventoryRepository)
+            IGenericRepository<Data.Models.Inventory> inventoryRepository,
+            IGenericRepository<PriceQuotationVersions> priceQuotationVersionRepository)
         {
             _salesOrderRepository = salesOrderRepository;
             _salesOrderItemRepository = salesOrderItemRepository;
@@ -37,6 +39,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
             _userInfoService = userInfoService;
             _bloodRepository = bloodRepository;
             _inventoryRepository = inventoryRepository;
+            _priceQuotationVersionRepository = priceQuotationVersionRepository;
         }
 
         public async Task<string> GetNextSOcode()
@@ -67,7 +70,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
             var result = await _salesOrderVersionRepository.AllActive().FirstOrDefaultAsync(e => e.SalesOrdersVersionID == vm.Id);
 
-           
+            var quotation = await _priceQuotationVersionRepository.AllActive().FirstOrDefaultAsync(e => e.PriceQuotationVersionID == vm.SelectedQuotationId);
 
             try
             {
@@ -178,7 +181,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
                          salesOrderExists = new SalesOrders
                         {
-                            PriceQuotationID = vm.SelectedQuotationId,
+                            PriceQuotationID = quotation?.PriceQuotationID ?? null,
                             SalesOrderNumber = vm.OrderNumber,
 
                         };

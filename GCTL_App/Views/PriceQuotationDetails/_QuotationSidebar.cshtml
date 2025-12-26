@@ -229,7 +229,8 @@
                     </div>
 
                     <!-- Status Actions -->
-                    @if (Model.Status == GCTL.Core.Enums.QuotationStatus.Draft)
+                   @*  @if (Model.Status == GCTL.Core.Enums.QuotationStatus.Draft) *@
+                    @if (Model.CanMakeFinal == true && !Model.HasSalesOrder)
                     {
                         <div class="accordion-item border-top">
                             <h2 class="accordion-header" id="headingStatus">

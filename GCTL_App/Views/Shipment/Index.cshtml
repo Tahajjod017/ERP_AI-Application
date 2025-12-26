@@ -134,7 +134,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select asp-for="Items[i].FromLocationId" class="form-select searchableSelect locationDD">
+                                    <select asp-for="Items[i].FromLocationId" class="form-select searchableSelect locationDD" asp-items="ViewBag.location">
                                         <option value="">@Html.SmartLocalize("-- Select Location --")</option>
                                     </select>
                                 </td>

@@ -98,6 +98,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails
         public bool HasSalesOrder { get; set; }
 
         public List<PriceQuotationVersionViewModel> QuotationIdList { get; set; }
+        public bool CanMakeFinal { get; set; }
     }
 
     public class PriceQuotationVersionViewModel

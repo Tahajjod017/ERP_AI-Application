@@ -244,7 +244,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 .Include(e=>e.PriceQuotation)
                 .Include(q => q.PriceQuotationVersionItems)
                 .ThenInclude(i => i.UnitType)
-                .FirstOrDefault(q => q.PriceQuotationID == quotationId);
+                .FirstOrDefault(q => q.PriceQuotationVersionID == quotationId);
 
             if (quotation == null)
             {
