@@ -125,7 +125,8 @@ namespace GCTL_App.Controllers.POS.Sales
                 draft = e.IsDraft,
                 draftSign = e.IsDraft != true ? "" : "(Draft)",
                 finalSign = e.IsFinalVersion == true && e.IsDraft != true ? "(Final)" : "" ,
-                current = e.PriceQuotationVersionID == id ? "current" : ""
+                current = e.PriceQuotationVersionID == id ? "current" : "",
+                isFinal = e.IsFinalVersion == true && e.IsDraft != true ? true : false,
             }).ToList();
 
 
@@ -219,6 +220,8 @@ namespace GCTL_App.Controllers.POS.Sales
                 HasSalesOrder = salesOrder != null ? true : false,
                 SalesOrderNumber = salesOrder != null ? salesOrder.SalesOrders.SalesOrderNumber : "",
                 SalesOrderId = salesOrder != null ? salesOrder.SalesOrdersVersionID : 0,
+
+                CanMakeFinal = !versions.Where(e => e.id == vm.Id).Select(e => e.isFinal).FirstOrDefault() // ✅ true if not current
             };
 
             if (quotation.IsFinalVersion == true)

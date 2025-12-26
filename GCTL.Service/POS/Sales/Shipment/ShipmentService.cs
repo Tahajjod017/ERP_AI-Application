@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bogus.DataSets;
+using GCTL.Core.Enums;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.POS.Sales.Shipment;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.MasterSetup.Statuse;
 using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.POS.Sales.Shipment
@@ -21,6 +24,7 @@ namespace GCTL.Service.POS.Sales.Shipment
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
 
         private readonly IUserInfoService _userInfoService;
+        private readonly IStatusService _StatusService;
 
         public ShipmentService(
             IGenericRepository<Shipments> shipmentRepository,
@@ -28,7 +32,8 @@ namespace GCTL.Service.POS.Sales.Shipment
             IGenericRepository<GCTL.Data.Models.Inventory> inventoryRepository,
             IGenericRepository<InventoryTransactionHistory> inventoryTransactionRepository,
             IUserInfoService userInfoService,
-            IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository)
+            IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
+            IStatusService statusService)
         {
             _shipmentRepository = shipmentRepository;
             _shipmentItemRepository = shipmentItemRepository;
@@ -36,6 +41,7 @@ namespace GCTL.Service.POS.Sales.Shipment
             _inventoryTransactionRepository = inventoryTransactionRepository;
             _userInfoService = userInfoService;
             _salesOrderVersionRepository = salesOrderVersionRepository;
+            _StatusService = statusService;
         }
 
         public async Task<string> GetNextShipmentNumber()
@@ -128,6 +134,8 @@ namespace GCTL.Service.POS.Sales.Shipment
                     // ============================================================
                     vm.ShipmentNumber = await GetNextShipmentNumber();
 
+                    var statys = _StatusService.GetStatusID("Pending");
+
                     var salesOrder = await _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersVersionID == vm.SalesOrderId).Select(e => e.SalesOrdersID).FirstOrDefaultAsync();
 
                     var newShipment = new Shipments
@@ -143,7 +151,7 @@ namespace GCTL.Service.POS.Sales.Shipment
                         ShippingAddressID = vm.ShippingAddressId,
                         ShippingCost = vm.ShippingCost,
                         Note = vm.Note,
-                        StatusID = vm.StatusId ?? 1, // Default: Pending
+                        StatusID = statys, //vm.StatusId ?? 1, // Default: Pending
                         CreatedAt = DateTime.Now,
                         CreatedBy = vm.CreatedBy
                     };
@@ -191,6 +199,13 @@ namespace GCTL.Service.POS.Sales.Shipment
 
         public async Task<CommonReturnViewModel> UpdateStatusAsync(int shipmentId, int statusId, int userId)
         {
+
+
+            string name = Enum.GetName(typeof(ShipmentStatus), statusId);
+
+            var statys = await _StatusService.GetStatusIDAsync(name);
+
+
             try
             {
                 var shipment = await _shipmentRepository.AllActive()
@@ -206,12 +221,13 @@ namespace GCTL.Service.POS.Sales.Shipment
                     };
                 }
 
-                shipment.StatusID = statusId;
+                shipment.StatusID = statys;
                 shipment.UpdatedBy = userId;
                 shipment.UpdatedAt = DateTime.Now;
 
                 // If status is Shipped or Delivered, deduct inventory
-                if (statusId == 3 || statusId == 5) // Shipped or Delivered
+                //if (statusId == 3 || statusId == 5) // Shipped or Delivered
+                if (name == "Shipped" ||name == "Delivered") // Shipped or Delivered
                 {
                     foreach (var item in shipment.ShipmentItems)
                     {
@@ -243,9 +259,13 @@ namespace GCTL.Service.POS.Sales.Shipment
             var inventory = await _inventoryRepository.AllActive()
                 .FirstOrDefaultAsync(i => i.ProductID == productId && i.LocationID == locationId);
 
+            var statys = await _StatusService.GetStatusIDAsync("Outbound");
+
+
             if (inventory != null)
             {
                 inventory.Quantity -= quantity;
+                inventory.ReservedQuantity -= quantity;
                 inventory.LastTransactionDate = DateTime.Now;
                 inventory.UpdatedBy = userId;
                 inventory.UpdatedAt = DateTime.Now;
@@ -257,7 +277,7 @@ namespace GCTL.Service.POS.Sales.Shipment
                 {
                     ProductID = productId,
                     Quantity = -quantity,
-                    TransactionType = 2, // Outbound
+                    TransactionType = statys, // Outbound
                     TransactionDate = DateTime.Now,
                     ReferenceType = "Shipment",
                     ReferenceID = shipmentId,

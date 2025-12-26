@@ -18,6 +18,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
         private readonly IGenericRepository<Invoices> _invoiceRepository;
+
         private readonly IShipment _shipmentService;
 
         public ShipmentController(
@@ -46,6 +47,10 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
         // ==============================
         public IActionResult Index(int? salesOrderId = null, int? invoiceId = null)
         {
+
+            ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
+
+
             ViewBag.product = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
 
             SetSmartPageCode(90260100);
@@ -64,7 +69,8 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                         SL = 1,
                         ProductId = null,
                         OrderedQuantity = null,
-                        ShippedQuantity = null
+                        ShippedQuantity = null,
+                        
                     }
                 }
             };
@@ -95,7 +101,8 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                         SL = 1,
                         ProductId = e.ProductID,
                         OrderedQuantity = e.Quantity,
-                        ShippedQuantity = null
+                        ShippedQuantity = null,
+                        FromLocationId = salesOrder.LocationID
                     }).ToList();
                 }
             }

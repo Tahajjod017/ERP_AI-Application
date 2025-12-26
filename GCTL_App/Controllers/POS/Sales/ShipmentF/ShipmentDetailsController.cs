@@ -111,7 +111,8 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                 }).ToList(),
                 Note = shipment.Note,
                 ShippingAddress = address,
-                Status = (ShipmentStatus)(shipment.StatusID ?? 1),
+                //Status = (ShipmentStatus)(shipment.Status.StatusName),
+                Status = (ShipmentStatus)Enum.Parse(typeof(ShipmentStatus), shipment.Status.StatusName),
                 CreatedByName = shipment.CreatedByNavigation != null
                     ? shipment.CreatedByNavigation.FirstName + " " + shipment.CreatedByNavigation.LastName
                     : "Unknown",
