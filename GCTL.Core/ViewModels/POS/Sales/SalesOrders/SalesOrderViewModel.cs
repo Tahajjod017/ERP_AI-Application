@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,9 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public DateTime OrderDate { get; set; }
         public bool IsDraft { get; set; }
         public string OrderNumber { get; set; }
+
+        [Required]
+        public int? LocationId { get; set; }
         public int? SelectedCustomerId { get; set; }
         public int? SelectedQuotationId { get; set; }
         public decimal VatPercent { get; set; }

@@ -74,6 +74,17 @@
                                         <input asp-for="OrderNumber" id="orderNumber" class="form-control" readonly />
                                     </div>
                                 </div>
+
+                                <div class="col-xl-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">@Html.SmartLocalize("From Location")</label>
+                                        <select asp-for="LocationId" class="form-select locationDD searchableSelect" asp-items="ViewBag.location">
+                                            <option value="">@Html.SmartLocalize("-- Select Location --")</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+
                                 <div class="col-xl-6">
                                     <div class="mb-3">
                                         <!-- QUOTATION DROPDOWN -->
@@ -152,11 +163,11 @@
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="8" class="text-end fs-9 fw-bold">@Html.SmartLocalize("Sub Total Taka")</td>
+                            <td colspan="5" class="text-end fs-9 fw-bold">@Html.SmartLocalize("Sub Total Taka")</td>
                             <td colspan="2" class="text-center fs-9 fw-bold" id="subTotal">@Model.SubTotal.ToString("N2")</td>
                         </tr>
                         <tr>
-                            <td colspan="8" class="text-end fs-9 py-2">
+                            <td colspan="5" class="text-end fs-9 py-2">
                                 <div class="d-flex justify-content-end">
                                     <div class="mx-2 mt-2">@Html.SmartLocalize("VAT/Deduction (%)")</div>
                                     <div><input asp-for="VatPercent" id="vatPercent" class="form-control" type="number" step="any" /></div>
@@ -165,7 +176,7 @@
                             <td colspan="2" class="text-center fs-9" id="vatAmount">@Model.VatAmount.ToString("N2")</td>
                         </tr>
                         <tr>
-                            <td colspan="8" class="text-end h5">@Html.SmartLocalize("Grand Total Taka")</td>
+                            <td colspan="5" class="text-end h5">@Html.SmartLocalize("Grand Total Taka")</td>
                             <td colspan="2" class="text-center h5" id="grandTotal">@Model.GrandTotal.ToString("N2")</td>
                         </tr>
                     </tbody>

@@ -17,6 +17,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         private readonly IGenericRepository<CustomerAddresses> _customerAddressRepository;
         private readonly IGenericRepository<Addresses> _addressRepository;
         private readonly IGenericRepository<PriceQuotations> _priceQuotationRepository;
+        private readonly IGenericRepository<Locations> _locationRepository;
+        private readonly IGenericRepository<PriceQuotationVersions> _priceQuotationVersionRepository;
         private readonly ISalesOrder _salesOrderService;
         private readonly IGenericRepository<Products> _productRepository;
 
@@ -30,7 +32,10 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             IGenericRepository<CustomerAddresses> customerAddressRepository,
             IGenericRepository<Addresses> addressRepository,
             IGenericRepository<PriceQuotations> priceQuotationRepository,
-            IGenericRepository<Products> productRepository)
+            IGenericRepository<Products> productRepository,
+
+            IGenericRepository<PriceQuotationVersions> priceQuotationVersionRepository,
+            IGenericRepository<Locations> locationRepository)
             : base(translateService, userProfileService)
         {
             _unitTypeRepository = unitTypeRepository;
@@ -40,6 +45,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             _addressRepository = addressRepository;
             _priceQuotationRepository = priceQuotationRepository;
             _productRepository = productRepository;
+            _priceQuotationVersionRepository = priceQuotationVersionRepository;
+            _locationRepository = locationRepository;
         }
 
         // ==============================
@@ -47,6 +54,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         // ==============================
         public IActionResult Index()
         {
+            ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
+
             ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
             ViewBag.product = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
 
@@ -92,25 +101,25 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             // If quotation is selected, load its data
             if (quotationId.HasValue)
             {
-                var quotation = _priceQuotationRepository.AllActive()
-                    .Include(q => q.PriceQuotationVersions)
-                    //.Include(q => q.Customer)
-                    .FirstOrDefault(q => q.PriceQuotationID == quotationId.Value);
+                var quotation = _priceQuotationVersionRepository.AllActive()
+                    .Include(q => q.PriceQuotation)
+                    .Include(q => q.Customer)
+                    .FirstOrDefault(q => q.PriceQuotationVersionID == quotationId.Value);
 
                 if (quotation != null)
                 {
-                   // vm.SelectedCustomerId = quotation.CustomerID;
+                    vm.SelectedCustomerId = quotation.CustomerID;
                     vm.SelectedQuotationId = quotation.PriceQuotationID;
-                   // vm.VatPercent = quotation.VatPercentage ?? 5m;
-                   // vm.Note = quotation.Note;
+                    vm.VatPercent = quotation.VatPercentage ?? 5m;
+                    vm.Note = quotation.Note;
 
-                    vm.Items = quotation.PriceQuotationVersions.Select((item, index) => new SalesOrderItem
+                    vm.Items = quotation.PriceQuotationVersionItems.Select((item, index) => new SalesOrderItem
                     {
                         SL = index + 1,
-                        //Description = item.Description,
-                        //Product = item.UnitTypeID ?? 0,
-                        //Area = item.Area ?? 0,
-                        //Rate = item.Rate ?? 0,
+                        Description = item.Description,
+                        Product = item.UnitTypeID ?? 0,
+                        Area = item.Area ?? 0,
+                        Rate = item.Rate ?? 0,
                         Quantity = 0
                     }).ToList();
                 }
@@ -211,15 +220,15 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         [HttpGet]
         public JsonResult GetQuotationsByCustomer(int customerId)
         {
-            var result = _priceQuotationRepository.AllActive()
-               // .Where(q => q.CustomerID == customerId && q.IsFinalVersion == true)
+            var result = _priceQuotationVersionRepository.AllActive().Include(e=>e.PriceQuotation)
+                .Where(q => q.CustomerID == customerId && q.IsFinalVersion == true)
                 .Select(q => new
                 {
-                    id = q.PriceQuotationID,
-                    number = q.QuotationNumber,
-                   // date = q.QuotationDate
+                    id = q.PriceQuotationVersionID,
+                    number = q.PriceQuotation.QuotationNumber,
+                     date = q.QuotationDate
                 })
-               // .OrderByDescending(q => q.date)
+                .OrderByDescending(q => q.date)
                 .ToList();
 
             return Json(result);
@@ -231,9 +240,10 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         [HttpGet]
         public JsonResult GetQuotationDetails(int quotationId)
         {
-            var quotation = _priceQuotationRepository.AllActive()
-               // .Include(q => q.PriceQuotationItems)
-              //  .ThenInclude(i => i.UnitType)
+            var quotation = _priceQuotationVersionRepository.AllActive()
+                .Include(e=>e.PriceQuotation)
+                .Include(q => q.PriceQuotationVersionItems)
+                .ThenInclude(i => i.UnitType)
                 .FirstOrDefault(q => q.PriceQuotationID == quotationId);
 
             if (quotation == null)
@@ -244,15 +254,15 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             var result = new
             {
                 success = true,
-               // vatPercent = quotation.VatPercentage ?? 0,
-               // note = quotation.Note,
-                items = quotation.PriceQuotationVersions.Select(item => new
+                vatPercent = quotation.VatPercentage ?? 0,
+                note = quotation.Note,
+                items = quotation.PriceQuotationVersionItems.Select(item => new
                 {
-                    //description = item.Description,
-                    //unitId = item.UnitTypeID,
-                    //unitName = item.UnitType?.UnitTypeName,
-                    //area = item.Area ?? 0,
-                    //rate = item.Rate ?? 0
+                    description = item.Description,
+                    unitId = item.ProductID,
+                    unitName = item.UnitType?.UnitTypeName,
+                    area = item.Area ?? 0,
+                    rate = item.Rate ?? 0
                 }).ToList()
             };
 

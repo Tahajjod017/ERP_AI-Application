@@ -41,6 +41,14 @@ public partial class Locations
 
     public bool IsDefaultLocation { get; set; }
 
+    public ICollection<PurOrderBaseSAddresses> PurOrderBaseSAddresses { get; set; }
+
+    public ICollection<PurchaseReceives> PurchaseReceives { get; set; }
+
+    public ICollection<PriceQuotationVersions> PriceQuotationVersions { get; set; }
+
+    public ICollection<SalesOrdersVersions> SalesOrdersVersions { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

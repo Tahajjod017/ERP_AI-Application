@@ -28,37 +28,67 @@
         });
     }
 
+    //$('#adjustmentForm').on('submit', function (e) {
+    //    e.preventDefault();
+
+    //    const model = {
+    //        productID: $('#productId').val(),
+    //        locationID: $('#locationId').val(),
+    //        adjustmentType: $('#adjustmentType').val(),
+    //        quantity: parseFloat($('#quantity').val()),
+    //        reason: $('#reason').val(),
+    //        note: $('#note').val()
+    //    };
+
+    //    $.ajax({
+    //        url: '/Inventory/CreateAdjustment',
+    //        method: 'POST',
+    //        data: { model: model },
+    //        success: function (res) {
+
     $('#adjustmentForm').on('submit', function (e) {
         e.preventDefault();
 
-        const model = {
-            productID: $('#productId').val(),
-            locationID: $('#locationId').val(),
-            adjustmentType: $('#adjustmentType').val(),
-            quantity: parseFloat($('#quantity').val()),
-            reason: $('#reason').val(),
-            note: $('#note').val()
-        };
+        const formData = new FormData();
+
+        formData.append("ProductID", choiceManager.getChoiceValue('productId'));
+        formData.append("LocationID", choiceManager.getChoiceValue('locationId') );
+        formData.append("AdjustmentType", choiceManager.getChoiceValue('adjustmentType'));
+        formData.append("Quantity", $('#quantity').val());
+        formData.append("Reason", choiceManager.getChoiceValue('reason'));
+        formData.append("Note", $('#note').val());
+
+        // If you want to send NewAverageCost when available:
+        const newAverageCost = $('#newAverageCost').val();
+        if (newAverageCost) {
+            formData.append("NewAverageCost", newAverageCost);
+        }
+        formData.append("__RequestVerificationToken", $('input[name="__RequestVerificationToken"]').val());
 
         $.ajax({
             url: '/Inventory/CreateAdjustment',
-            method: 'POST',
-            data: { model: model },
+            type: 'POST',
+            data: formData,
+            processData: false,   // prevent jQuery from processing data
+            contentType: false,   // prevent jQuery from setting content type
             success: function (res) {
+
+
                 if (res.success) {
-                    alert('Adjustment saved successfully!');
+                    toastr.success(res.message || 'Adjustment saved successfully!');
                     $('#adjustmentForm')[0].reset();
+                    choiceManager.resetAllChoices();
                     loadAdjustmentHistory();
                 } else {
                     let errors = '';
                     $.each(res.errors, function (key, msgs) {
                         errors += msgs.join('\n') + '\n';
                     });
-                    alert('Error:\n' + errors);
+                    toastr.warning('Error:\n' + errors);
                 }
             },
             error: function () {
-                alert('Failed to save adjustment.');
+                toastr.error('Failed to save adjustment.');
             }
         });
     });

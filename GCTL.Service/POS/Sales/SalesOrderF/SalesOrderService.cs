@@ -93,6 +93,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
                     result.Note = vm.Note;
                     result.IsDraft = vm.IsDraft;
                     result.IsFinal = !vm.IsDraft;
+                    result.LocationID = vm.LocationId;
 
                     await _salesOrderVersionRepository.UpdateAsync(result, vm);
                     await _userInfoService.ActionLogAsync("SalesOrderVersion", ActionName.DataUpdated, null, result, result.SalesOrdersVersionID, vm);
@@ -126,7 +127,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
                         if (result.IsFinal == true)
                         {
-                            var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == modelItem.ProductID);
+                            var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == modelItem.ProductID && e.LocationID == vm.LocationId);
 
                             if (inv != null && inv.Quantity >= modelItem.Quantity)
                             {
@@ -202,6 +203,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
                         Note = vm.Note,
                         IsDraft = vm.IsDraft,
                         IsFinal = vm.IsDraft ? false : true,
+                        LocationID = vm.LocationId
                     };
 
                     await _salesOrderVersionRepository.AddAsync(version, vm);
@@ -214,7 +216,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
                             .Where(so => so.SalesOrdersID == salesOrderExists.SalesOrdersID 
                         && so.SalesOrdersVersionID != version.SalesOrdersVersionID).ToListAsync();
 
-                        var prevFinal = await _salesOrderVersionRepository.AllActive()
+                        var prevFinal = await _salesOrderVersionRepository.AllActive().Include(e=>e.SalesOrderVersionItems)
                             .Where(so => so.SalesOrdersID == salesOrderExists.SalesOrdersID
                             && so.SalesOrdersVersionID != version.SalesOrdersVersionID && so.IsFinal == true).FirstOrDefaultAsync();
 
@@ -222,7 +224,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
                         {
                             foreach (var item in prevFinal.SalesOrderVersionItems)
                             {
-                                var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == item.ProductID);
+                                var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == item.ProductID && e.LocationID == vm.LocationId);
 
                                 if (inv != null)// && inv.Quantity <= item.Quantity)
                                 {
@@ -276,7 +278,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
                         if (version.IsFinal == true)
                         {
-                            var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == modelItem.ProductID);
+                            var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == modelItem.ProductID && e.LocationID == vm.LocationId);
 
                             if (inv != null && inv.Quantity >= modelItem.Quantity)
                             {
