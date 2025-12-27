@@ -1323,6 +1323,24 @@ public partial class Employees
 
     public virtual ICollection<Shifts> ShiftsUpdatedByNavigation { get; set; } = new List<Shifts>();
 
+    public virtual ICollection<ShipmentItems> ShipmentItemsCreatedByNavigation { get; set; } = new List<ShipmentItems>();
+
+    public virtual ICollection<ShipmentItems> ShipmentItemsDeletedByNavigation { get; set; } = new List<ShipmentItems>();
+
+    public virtual ICollection<ShipmentItems> ShipmentItemsUpdatedByNavigation { get; set; } = new List<ShipmentItems>();
+
+    public virtual ICollection<Shipments> ShipmentsCreatedByNavigation { get; set; } = new List<Shipments>();
+
+    public virtual ICollection<Shipments> ShipmentsDeletedByNavigation { get; set; } = new List<Shipments>();
+
+    public virtual ICollection<Shipments> ShipmentsUpdatedByNavigation { get; set; } = new List<Shipments>();
+
+    public virtual ICollection<ShippingMethods> ShippingMethodsCreatedByNavigation { get; set; } = new List<ShippingMethods>();
+
+    public virtual ICollection<ShippingMethods> ShippingMethodsDeletedByNavigation { get; set; } = new List<ShippingMethods>();
+
+    public virtual ICollection<ShippingMethods> ShippingMethodsUpdatedByNavigation { get; set; } = new List<ShippingMethods>();
+
     public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPatternCreatedByNavigation { get; set; } = new List<SpiralBioWeeklyPattern>();
 
     public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPatternDeletedByNavigation { get; set; } = new List<SpiralBioWeeklyPattern>();

@@ -15,7 +15,7 @@ namespace GCTL.Core.ViewModels.POS.Requsition.RequisitionToPurchaseOrder
         public decimal Quantity { get; set; }
 
         [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Unit price must be greater than 0")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Product price must be greater than 0")]
         public decimal UnitPrice { get; set; }
     }
 }

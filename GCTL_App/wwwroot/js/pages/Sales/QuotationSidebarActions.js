@@ -29,8 +29,8 @@ function convertToSalesOrder(quotationId) {
             data: { id: quotationId },
             success: function (response) {
                 if (response.success) {
-                    toastr.success('Quotation converted to Work Order successfully!');
-                    window.location.href = '/SalesOrder/Index/' + response.workOrderId;
+                    toastr.success(response.message || 'Quotation converted to Work Order successfully!');
+                    window.location.href = '/SalesOrderDetails/Index/' + response.data;
                 } else {
                     toastr.warning('Failed to convert to Work Order: ' + response.message);
                 }

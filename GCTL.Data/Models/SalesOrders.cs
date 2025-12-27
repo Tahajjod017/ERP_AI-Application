@@ -39,5 +39,7 @@ public partial class SalesOrders
 
     public virtual ICollection<SalesOrdersVersions> SalesOrdersVersions { get; set; } = new List<SalesOrdersVersions>();
 
+    public virtual ICollection<Shipments> Shipments { get; set; } = new List<Shipments>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

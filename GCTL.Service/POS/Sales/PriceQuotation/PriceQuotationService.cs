@@ -10,6 +10,7 @@ using GCTL.Core.ViewModels.POS.Sales.PriceQuotation;
 using GCTL.Core.ViewModels.POS.Sales.SalesOrders;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.POS.Sales.SalesOrderF;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,16 +22,19 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
         private readonly IGenericRepository<PriceQuotationVersionItems> _priceQuotationItemRepository;
         private readonly IGenericRepository<PriceQuotationVersions> _priceQuotationVersionsRepository;
         private readonly IUserInfoService _userInfoService;
+        private readonly ISalesOrder _salesOrderService;
 
-        public PriceQuotationService(IGenericRepository<PriceQuotations> priceQuotationRepository, IGenericRepository<PriceQuotationVersionItems> priceQuotationItemRepository, IUserInfoService userInfoService, IGenericRepository<PriceQuotationVersions> priceQuotationVersionsRepository)
+
+        public PriceQuotationService(IGenericRepository<PriceQuotations> priceQuotationRepository, IGenericRepository<PriceQuotationVersionItems> priceQuotationItemRepository, IUserInfoService userInfoService, IGenericRepository<PriceQuotationVersions> priceQuotationVersionsRepository, ISalesOrder salesOrderService)
         {
             _priceQuotationRepository = priceQuotationRepository;
             _priceQuotationItemRepository = priceQuotationItemRepository;
             _userInfoService = userInfoService;
             _priceQuotationVersionsRepository = priceQuotationVersionsRepository;
+            _salesOrderService = salesOrderService;
         }
 
-        
+
 
         public async Task<string> GetNextPQcode()
         {
@@ -78,6 +82,7 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
                     prevVersion.IsDraft = vm.IsDraft;
                     prevVersion.UpdatedAt = DateTime.Now;
                     prevVersion.UpdatedBy = vm.CreatedBy;
+                    prevVersion.LocationID = vm.LocationId;
 
                     // 🔹 Remove old items
                     var existingItems = await _priceQuotationItemRepository.All()
@@ -93,7 +98,7 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
                         {
                             PriceQuotationVersionID = prevVersion.PriceQuotationVersionID,
                             Description = itemVm.Description,
-                            UnitTypeID = Convert.ToInt32(itemVm.Unit),
+                            ProductID = Convert.ToInt32(itemVm.Product),
                             Area = itemVm.Area,
                             Rate = itemVm.Rate,
                             CreatedAt = DateTime.Now,
@@ -165,7 +170,8 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
                         IsFinalVersion = true , // latest,
                         IsDraft = vm.IsDraft,
                         CreatedAt = DateTime.Now,
-                        CreatedBy = vm.CreatedBy
+                        CreatedBy = vm.CreatedBy,
+                        LocationID = vm.LocationId
                     };
 
                     var updatedQuotationVer = await _priceQuotationVersionsRepository.AllActive().Where(q => q.PriceQuotationID == previousQuotation.PriceQuotationID).ToListAsync();
@@ -181,7 +187,7 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
                         {
                             PriceQuotationVersionID = newVersion.PriceQuotationVersionID,
                             Description = itemVm.Description,
-                            UnitTypeID = Convert.ToInt32(itemVm.Unit),
+                            ProductID = Convert.ToInt32(itemVm.Product),
                             Area = itemVm.Area,
                             Rate = itemVm.Rate,
                             CreatedAt = DateTime.Now,
@@ -212,47 +218,69 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
             }
         }
 
-        public async Task<CommonReturnViewModel> ConvertToSalesOrder(int id)
+        public async Task<CommonReturnViewModel> ConvertToSalesOrder(int id, BaseViewModel? baseView)
         {
-            var quotation = _priceQuotationVersionsRepository.AllActive()
-                    .Include(e => e.PriceQuotationVersionItems)
-                    .Include(e => e.PriceQuotation)
-                    .FirstOrDefault(e => e.PriceQuotationID == id);
-
-            if (quotation == null)
+            try
             {
-                return new CommonReturnViewModel() { Success = false, Message = "not found" };
-            }
+                var quotation = await _priceQuotationVersionsRepository.AllActive()
+                   .Include(e => e.PriceQuotationVersionItems)
+                   .Include(e => e.PriceQuotation)
+                   .FirstOrDefaultAsync(e => e.PriceQuotationVersionID == id);
 
-            if (quotation.IsFinalVersion == true)
-            {
-                return new CommonReturnViewModel() { Success = false, Message = "the version is not final" };
-            }
-
-            var model = new SalesOrderViewModel()
-            {
-                Id = id,
-                OrderDate = DateTime.Now,
-                IsDraft = true,
-                SelectedCustomerId = quotation.CustomerID,
-                SelectedQuotationId = quotation.PriceQuotationID,
-                VatPercent = quotation.VatPercentage ?? 0m,
-                Note = quotation.Note + " Auto Converted",
-
-                Items = quotation.PriceQuotationVersionItems.Select(x => new SalesOrderItem()
+                if (quotation == null)
                 {
+                    return new CommonReturnViewModel() { Success = false, Message = "not found" };
+                }
 
-                    Description = x.Description,
-                    Rate = x.Rate,
-                    Quantity = x.Area,
-                    //Unit = x.UnitTypeID ?? ""
+                if (quotation.IsFinalVersion != true)
+                {
+                    return new CommonReturnViewModel() { Success = false, Message = "the version is not final" };
+                }
 
-                }).ToList()
+                var model = new SalesOrderViewModel()
+                {
+                    Id = id,
+                    OrderDate = DateTime.Now,
+                    IsDraft = true,
+                    SelectedCustomerId = quotation.CustomerID,
+                    SelectedQuotationId = quotation.PriceQuotationID,
+                    VatPercent = quotation.VatPercentage ?? 0m,
+                    Note = quotation.Note + " (Auto Converted)",
 
-            };
+                    Items = quotation.PriceQuotationVersionItems.Select(x => new SalesOrderItem()
+                    {
+
+                        Description = x.Description,
+                        Rate = x.Rate,
+                        Quantity = x.Area,
+                        //Product = x.UnitTypeID ?? ""
+                        LIP = baseView?.LIP ?? "",
+                        LMAC = baseView?.LMAC ?? "",
+
+                        Product = (x.ProductID == null || x.ProductID == 0) ? null : x.ProductID
 
 
-            return new CommonReturnViewModel() { Success = false, Message = "not found" };
+                    }).ToList()
+
+                };
+
+                var result = await _salesOrderService.SaveAsync(model);
+
+
+                return new CommonReturnViewModel()
+                {
+                    Success = result.Success,
+                    Data = result.Data,
+                    Message = result.Success ? "Quotation converted to Work Order successfully!" : "Convertion failed"
+                };
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+           
 
 
         }
@@ -295,7 +323,7 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
         //                {
         //                    PriceQuotationVersionID = prev.PriceQuotationID,
         //                    Description = itemVm.Description,
-        //                    UnitTypeID = Convert.ToInt32(itemVm.Unit),
+        //                    UnitTypeID = Convert.ToInt32(itemVm.Product),
         //                    Area = itemVm.Area,
         //                    Rate = itemVm.Rate,
         //                    CreatedAt = DateTime.Now,
@@ -310,7 +338,7 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
         //            //{
 
         //            //    Description = e.Description,
-        //            //    UnitTypeID = Convert.ToInt32(e.Unit),
+        //            //    UnitTypeID = Convert.ToInt32(e.Product),
         //            //    Area = e.Area,
         //            //    Rate = e.Rate,
         //            //    UpdatedAt = DateTime.Now,
@@ -405,7 +433,7 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
         //                {
         //                    PriceQuotationVersionID = quotation.PriceQuotationID,
         //                    Description = item.Description,
-        //                    UnitTypeID = Convert.ToInt32(item.Unit),
+        //                    UnitTypeID = Convert.ToInt32(item.Product),
         //                    Area = item.Area,
         //                    Rate = item.Rate,
         //                    CreatedAt = DateTime.Now,

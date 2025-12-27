@@ -79,5 +79,7 @@ public partial class Invoices
 
     public virtual SalesOrders SalesOrders { get; set; }
 
+    public virtual ICollection<Shipments> Shipments { get; set; } = new List<Shipments>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

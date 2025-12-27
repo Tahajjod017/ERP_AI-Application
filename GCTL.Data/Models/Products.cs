@@ -101,6 +101,8 @@ public partial class Products
 
     public virtual ICollection<InvoiceItems> InvoiceItems { get; set; } = new List<InvoiceItems>();
 
+    public virtual ICollection<PriceQuotationVersionItems> PriceQuotationVersionItems { get; set; } = new List<PriceQuotationVersionItems>();
+
     public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();
 
     public virtual ICollection<ProductAttributes> ProductAttributes { get; set; } = new List<ProductAttributes>();
@@ -124,6 +126,10 @@ public partial class Products
     public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
 
     public virtual ICollection<RequisitionItems> RequisitionItems { get; set; } = new List<RequisitionItems>();
+
+    public virtual ICollection<SalesOrderVersionItems> SalesOrderVersionItems { get; set; } = new List<SalesOrderVersionItems>();
+
+    public virtual ICollection<ShipmentItems> ShipmentItems { get; set; } = new List<ShipmentItems>();
 
     public virtual UnitTypes UnitType { get; set; }
 

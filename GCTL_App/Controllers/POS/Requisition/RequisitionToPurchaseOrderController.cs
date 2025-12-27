@@ -166,7 +166,8 @@ namespace GCTL_App.Controllers.POS.Requisition
             }
 
             int? empID = await GetCurrentEmployeeIdAsync();
-            var result = await _requisitionToPOService.ConvertToPurchaseOrderAsync(model, empID, baseView);
+            int? org = await GetCurrentOrganizationIdAsync();
+            var result = await _requisitionToPOService.ConvertToPurchaseOrderAsync(model, empID, org, baseView);
 
             return Json(result);
         }

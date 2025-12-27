@@ -50,7 +50,7 @@
                                             }
                                             else
                                             {
-                                                <a href="@Url.Action("Edit", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
+                                                <a href="@Url.Action("Index", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
                                             }
                                         }
                                     }
@@ -99,6 +99,53 @@
                         </div>
                     }
 
+
+
+                    <!-- ADD THIS SECTION HERE -->
+                    <!-- Create Shipment Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingShipment">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipment" aria-expanded="true" aria-controls="collapseShipment">
+                                @Html.SmartLocalize("Shipment")
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseShipment" aria-labelledby="headingShipment" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                @if (Model.CanCreateShipment)
+                                {
+                                    <p class="fs-9">
+                                        <a href="/Shipment/Index?salesOrderId=@Model.SalesOrderId" class="btn btn-sm btn-phoenix-primary w-100">
+                                            <i class="fas fa-shipping-fast me-2"></i>
+                                            @Html.SmartLocalize("Create Shipment")
+                                        </a>
+                                    </p>
+                                }
+
+                                @if (Model.HasShipments && Model.Shipments != null && Model.Shipments.Any())
+                                {
+                                    <hr class="my-2" />
+                                    <p class="fs-9 fw-bold mb-2">@Html.SmartLocalize("Existing Shipments:")</p>
+                                    @foreach (var shipment in Model.Shipments)
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <a href="/ShipmentDetails/Index/@shipment.ShipmentId" class="fs-9 text-decoration-none">
+                                                @shipment.ShipmentNumber
+                                            </a>
+                                            <span class="badge badge-phoenix-@shipment.StatusClass fs-10">
+                                                @shipment.Status
+                                            </span>
+                                        </div>
+                                    }
+                                }
+                                else if (!Model.CanCreateShipment)
+                                {
+                                    <p class="fs-9 text-muted">@Html.SmartLocalize("No shipments available")</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Send Email Section starts here (existing code) -->
                     <!-- Send Email Section -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingEmail">
@@ -120,6 +167,28 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <!-- Status Actions -->
+                    @if (Model.CanMakeFinal == true && !Model.HasShipments)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingStatus">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStatus" aria-expanded="true" aria-controls="collapseStatus">
+                                    @Html.SmartLocalize("Status Actions")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseStatus" aria-labelledby="headingStatus" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" onclick="markAsApproved(@Model.SalesOrderId)">@Html.SmartLocalize("Mark as Approved")</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+
                 </div>
             </div>
         </div>
@@ -177,6 +246,32 @@ function duplicateSalesOrder(salesOrderId) {
         });
     }
 }
+
+
+    function markAsApproved(salesOrderId) {
+        if (confirm('Mark this Sales Order as Approved?')) {
+            $.ajax({
+                url: '/SalesOrderDetails/UpdateStatus',
+                method: 'POST',
+                data: {
+                    id: salesOrderId,
+                    status: 3 // QuotationStatus.Approved
+                },
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success('Quotation marked as Approved!');
+                        location.reload();
+                    } else {
+                        toastr.warning('Failed to update status: ' + response.message);
+                    }
+                },
+                error: function () {
+                    toastr.error('Failed to update status. Please try again.');
+                }
+            });
+        }
+    }
+
 
 function sendEmailNow(salesOrderId) {
     const recipient = $('#recipientEmail').val();

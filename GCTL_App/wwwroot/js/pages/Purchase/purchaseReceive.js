@@ -51,9 +51,9 @@
                     $dropdown.append(`<option value="${po.purchaseOrderVersionID}">${po.poNumber} - ${po.supplierName}</option>`);
                 });
 
-                if (typeof choiceManager !== 'undefined') {
-                    choiceManager.refreshChoice('pr_PurchaseOrderVersionID');
-                }
+                //if (typeof choiceManager !== 'undefined') {
+                //    choiceManager.refreshChoice('pr_PurchaseOrderVersionID');
+                //}
             }
         });
     }

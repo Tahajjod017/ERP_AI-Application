@@ -1,5 +1,7 @@
 ﻿$(function () {
 
+    //#region Select 2
+
     const initializeSelect = () => {
         $('.searchableSelect').select2({
             width: '100%',
@@ -11,6 +13,10 @@
     };
 
     initializeSelect();
+
+    //#endregion
+
+    //#region GetNextCode
 
     GetNextCode();
 
@@ -31,8 +37,9 @@
     }
 
 
-    // ==============================================================
-    // CUSTOMER DROPDOWN HANDLING
+    //#endregion ==============================================================
+
+    //#region CUSTOMER DROPDOWN HANDLING
     // ==============================================================
     const $card = $('#userInfo');
     const $dropdownContainer = $('#userDropdownContainer');
@@ -149,8 +156,9 @@
         showCustomer(selectedId);
     });
 
-    // ==============================================================
-    // ADD NEW CUSTOMER
+    //#endregion  ==============================================================
+
+    //#region ADD NEW CUSTOMER
     // ==============================================================
     $('#saveNewCustomerBtn').on('click', function () {
         const cust = {
@@ -205,8 +213,9 @@
             });
     });
 
-    // ==============================================================
-    // LINE ITEMS - ADD/REMOVE
+    //#endregion ==============================================================
+
+    //#region LINE ITEMS - ADD/REMOVE
     // ==============================================================
     $('#add-item-btn').on('click', function () {
         const $table = $('#itemsTable tbody');
@@ -218,11 +227,15 @@
                 <td class="fs-8 text-center align-middle">${newIndex + 1}</td>
                 <td><input name="Items[${newIndex}].Description" class="form-control" /></td>
                 <td>
-                    <select name="Items[${newIndex}].Unit" class="form-select searchableSelect unitDD" >
-                        <option value="">-- Select Unit --</option>
+                    <select name="Items[${newIndex}].Product" class="form-select searchableSelect unitDD" >
+                        <option value="">-- Select Product --</option>
                     </select>
                    
                 </td>
+                
+                <td><input asp-for="Items[${newIndex}].Stock" class="form-control stock" type="text" /></td>
+
+
                 <td><input name="Items[${newIndex}].Area" class="form-control calc" type="number" step="any" /></td>
                 <td><input name="Items[${newIndex}].Rate" class="form-control calc" type="number" step="any" /></td>
                 <td class="amount text-end align-middle">0.00</td>
@@ -269,11 +282,11 @@
 
     function loadUnitOptions($select) {
         $.ajax({
-            url: '/PriceQuotation/GetUnits', // Replace with your actual endpoint
+            url: '/PriceQuotation/GetProduct', // Replace with your actual endpoint
             method: 'GET',
             success: function (units) {
                 initializeSelect();
-                $select.empty().append('<option value="">-- Select Unit --</option>');
+                $select.empty().append('<option value="">-- Select Product --</option>');
                 $.each(units, function (i, unit) {
                     $select.append(`<option value="${unit.id}">${unit.name}</option>`);
                 });
@@ -285,8 +298,9 @@
         });
     }
 
-    // ==============================================================
-    // CALCULATION LOGIC
+    //#endregion ==============================================================
+
+    //#region CALCULATION LOGIC
     // ==============================================================
     function attachCalcEvents() {
         $('.calc, .calc-percent').off('input').on('input', recalcTotals);
@@ -339,8 +353,9 @@
     attachCalcEvents();
     recalcTotals();
 
-    // ==============================================================
-    // CLEAR FORM FUNCTION
+    //#endregion ==============================================================
+
+    //#region CLEAR FORM FUNCTION
     // ==============================================================
     function clearForm() {
         // Reset form fields
@@ -359,7 +374,9 @@
         <tr data-index="0">
             <td class="fs-8 text-center align-middle">1</td>
             <td><input name="Items[0].Description" class="form-control" /></td>
-            <td><input name="Items[0].Unit" class="form-control" value="Sft" /></td>
+            <td><input name="Items[0].Product" class="form-control" value="Sft" /></td>
+            <td><input name="Items[0].Stock" class="form-control stock" type="text" /></td>
+
             <td><input name="Items[0].Area" class="form-control calc" type="number" step="any" /></td>
             <td><input name="Items[0].Rate" class="form-control calc" type="number" step="any" /></td>
             <td class="amount text-end align-middle">0.00</td>
@@ -381,8 +398,9 @@
         $('input[name="InvoiceNumber"]').val(newInvoiceNo);
     }
 
-    // ==============================================================
-    // AJAX FORM SUBMISSION
+    //#endregion ==============================================================
+
+    //#region AJAX FORM SUBMISSION
     // ==============================================================
     $('#quotationForm').on('submit', function (e) {
         e.preventDefault(); // Prevent default form submission
@@ -390,7 +408,7 @@
         const customerId = $('#selectedCustomerId').val();
 
         if (!customerId) {
-            alert('Please select a customer before saving the quotation');
+            toastr.warning('Please select a customer before saving the quotation');
             return false;
         }
 
@@ -406,7 +424,7 @@
         });
 
         if (!hasValidItem) {
-            alert('Please add at least one item with Area and Rate');
+            toastr.warning('Please add at least one item with Area and Rate');
             return false;
         }
 
@@ -419,19 +437,27 @@
             method: 'POST',
             data: formData,
             success: function (response) {
+                showDev(response, 'save Data')
                 debugger
-                toastr.success(response.message || 'Quotation saved successfully!');
-                clearForm(); // Clear form after successful save
-                window.location.href = '/PriceQuotationDetails/index/' + response.quotationId
+                if (response.success) {
+                    toastr.success(response.message || 'Quotation saved successfully!');
+                    clearForm(); // Clear form after successful save
+                    //window.location.href = '/PriceQuotationDetails/index/' + response.quotationId
+                } else {
+                    toastr.warning(response.message || 'Quotation not saved!');
+
+                } 
+                
             },
             error: function () {
-                alert('Failed to save quotation. Please try again.');
+                toastr.error('Failed to save quotation. Please try again.');
             }
         });
     });
 
-    // ==============================================================
-    // CLEAR BUTTON (Add this if you want a clear button)
+    //#endregion ==============================================================
+
+    //#region CLEAR BUTTON (Add this if you want a clear button)
     // ==============================================================
     $('#clearFormBtn').on('click', function () {
         if (confirm('Are you sure you want to clear the form?')) {
@@ -439,13 +465,69 @@
         }
     });
 
-    // ==============================================================
-    // SEND TO BUTTON (Optional)
+    //#endregion ==============================================================
+
+    //#region SEND TO BUTTON (Optional)
     // ==============================================================
     $('#sendToBtn').on('click', function () {
         alert('Send To functionality - to be implemented');
         // You can implement email sending or other actions here
     });
+    //#endregion
+
+    //#region On change of product Stock
+
+    $(document).on("change", ".unitDD", function () {
+        var productId = $(this).val();
+        var locationId = $('#LocationId').val();
+        var row = $(this).closest("tr");
+
+        if (productId) {
+            $.ajax({
+                url: '/PriceQuotation/GetStockQuantity',
+                type: 'GET',
+                data: { productId: productId, locationId : locationId },
+                success: function (response) {
+                    row.find(".stock").val(response.available ?? "0.00");
+                },
+                error: function () {
+                    row.find(".stock").val("Error");
+                }
+            });
+        } else {
+            row.find(".stock").val("");
+        }
+    });
+
+    // যখন Location dropdown পরিবর্তন হবে
+    $(document).on("change", "#LocationId", function () {
+        var locationId = $(this).val();
+
+        // প্রতিটি row ঘুরে productId নিয়ে stock আপডেট করুন
+        $("tr[data-index]").each(function () {
+            var row = $(this);
+            var productId = row.find(".unitDD").val();
+
+            if (productId) {
+                $.ajax({
+                    url: '/PriceQuotation/GetStockQuantity',
+                    type: 'GET',
+                    data: { productId: productId, locationId: locationId },
+                    success: function (response) {
+                        row.find(".stock").val(response.available ?? "0.00");
+                    },
+                    error: function () {
+                        row.find(".stock").val("Error");
+                    }
+                });
+            } else {
+                row.find(".stock").val("");
+            }
+        });
+    });
+
+
+    //#endregion 
 });
 
 

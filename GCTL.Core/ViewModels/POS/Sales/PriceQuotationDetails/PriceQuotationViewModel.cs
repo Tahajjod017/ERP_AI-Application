@@ -14,6 +14,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails
         public DateTime? DueDate { get; set; }
         public string? InvoiceNumber { get; set; }
         public string? OtherNumber { get; set; }
+        public int? LocationId { get; set; }
         public int? SelectedCustomerId { get; set; }
         public List<QuotationItemDetails> Items { get; set; } = new List<QuotationItemDetails>();
         public List<CustomerDetailsViewModel> Customers { get; set; } = new List<CustomerDetailsViewModel>();
@@ -38,14 +39,16 @@ namespace GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails
 
         // For future use when you add Version column
         public string? Version { get; set; }
+        public string LocationName { get; set; }
     }
 
     public class QuotationItemDetails
     {
         public int SL { get; set; }
         public string? Description { get; set; }
-        public int? Unit { get; set; }
+        public int? Product { get; set; }
         public string? UnitName { get; set; }
+        public decimal? Stock { get; set; }
         public decimal Area { get; set; }
         public decimal Rate { get; set; }
         public decimal PercentInBill { get; set; }
@@ -95,6 +98,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails
         public bool HasSalesOrder { get; set; }
 
         public List<PriceQuotationVersionViewModel> QuotationIdList { get; set; }
+        public bool CanMakeFinal { get; set; }
     }
 
     public class PriceQuotationVersionViewModel
@@ -107,5 +111,6 @@ namespace GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails
         public int id { get; set; }
         public string? number { get; set; }
         public int version { get; set; }
+        public bool isFinal { get; set; }
     }
 }
