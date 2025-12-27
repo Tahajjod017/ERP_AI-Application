@@ -2,6 +2,7 @@
 using GCTL.Core.ViewModels.POS.Sales.Shipment;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
+using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.POS.Sales.Shipment;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
         private readonly IGenericRepository<Invoices> _invoiceRepository;
 
         private readonly IShipment _shipmentService;
+        private readonly IStatusService _statusService;
 
         public ShipmentController(
             ITranslateService translateService,
@@ -30,7 +32,8 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
             IGenericRepository<SalesOrders> salesOrderRepository,
             IGenericRepository<Invoices> invoiceRepository,
             IShipment shipmentService,
-            IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository)
+            IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
+            IStatusService statusService)
             : base(translateService, userProfileService)
         {
             _productRepository = productRepository;
@@ -40,6 +43,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
             _invoiceRepository = invoiceRepository;
             _shipmentService = shipmentService;
             _salesOrderVersionRepository = salesOrderVersionRepository;
+            _statusService = statusService;
         }
 
         // ==============================
@@ -88,21 +92,37 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
             //}
             if (salesOrderId.HasValue)
             {
+                var stsus = _statusService.GetStatusID("Cancelled");
+
                 var salesOrder = _salesOrderVersionRepository.AllActive()
                     .Include(e=>e.SalesOrders)
                     .Include(e=>e.SalesOrderVersionItems)
+                    .Include(e=>e.Shipments).ThenInclude(e=>e.ShipmentItems)
                     .FirstOrDefault(so => so.SalesOrdersVersionID == salesOrderId);
                 if (salesOrder != null)
                 {
                     vm.SourceType = "SalesOrder";
                     vm.SourceNumber = salesOrder.SalesOrders.SalesOrderNumber;
-                    vm.Items = salesOrder.SalesOrderVersionItems.Select(e => new ShipmentItem
+                    vm.Items = salesOrder.SalesOrderVersionItems.Select(e =>
                     {
-                        SL = 1,
-                        ProductId = e.ProductID,
-                        OrderedQuantity = e.Quantity,
-                        ShippedQuantity = null,
-                        FromLocationId = salesOrder.LocationID
+                        var alreadyShipped = salesOrder.Shipments
+                            .Where(s => s.StatusID != stsus) // Cancel বাদ
+                            .SelectMany(s => s.ShipmentItems)
+                            .Where(si => si.ProductID == e.ProductID && si.DeletedAt == null)
+                            .Sum(si => si.ShippedQuantity) ?? 0;
+
+                        var orderedQty = e.Quantity ?? 0;
+
+                        return new ShipmentItem
+                        {
+                            SL = 1,
+                            ProductId = e.ProductID,
+                            OrderedQuantity = orderedQty,
+                            AlreadyShipped = alreadyShipped,
+                            //RemainingQuantity = orderedQty - alreadyShipped,
+                            ShippedQuantity = orderedQty - alreadyShipped,
+                            FromLocationId = salesOrder.LocationID
+                        };
                     }).ToList();
                 }
             }

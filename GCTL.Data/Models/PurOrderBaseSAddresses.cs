@@ -53,16 +53,15 @@ public partial class PurOrderBaseSAddresses
 
     public int? DeletedBy { get; set; }
 
-    public int? LocationID { get; set; }   // nullable foreign key
-
-    public Locations Location { get; set; } // navigation property
-
+    public int? LocationID { get; set; }
 
     public virtual Country Country { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual Locations Location { get; set; }
 
     public virtual ICollection<PurchasOrderVersions> PurchasOrderVersionsOBBillingAddress { get; set; } = new List<PurchasOrderVersions>();
 

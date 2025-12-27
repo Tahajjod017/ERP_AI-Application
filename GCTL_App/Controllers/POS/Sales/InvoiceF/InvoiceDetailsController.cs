@@ -79,7 +79,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 var invoice = _invoiceRepository.AllActive()
                     .Include(e => e.InvoiceItems).ThenInclude(e => e.Product)
                     .Include(e => e.Customer)
-                    .Include(e => e.SalesOrders)
+                    .Include(e=>e.SalesOrderVersion)
+                    .ThenInclude(e => e.SalesOrders)
                     .Include(e => e.IBaseBillingAddress)
                     .Include(e => e.IBaseShippingAddress)
                     .Include(e => e.CreatedByNavigation)
@@ -209,8 +210,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     InvoiceDate = invoice.InvoiceDate,
                     InvoiceNumber = invoice?.InvoiceNumber ?? "N/A",
                     SelectedCustomerId = invoice.CustomerID,
-                    SelectedSalesOrderId = invoice?.SalesOrdersID,
-                    SalesOrderNumber = invoice?.SalesOrders?.SalesOrderNumber, // safe chaining
+                    SelectedSalesOrderId = invoice?.SalesOrderVersionID,
+                    SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber, // safe chaining
                     IsDraft = invoice.IsDraft ?? false,
 
                     Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
@@ -320,7 +321,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 .Include(e => e.InvoiceItems)
                 .Include(e => e.CreatedByNavigation)
                 .Include(e => e.UpdatedByNavigation)
-                .Include(e => e.SalesOrders)
+                .Include(e => e.SalesOrderVersion)
+                .ThenInclude(e => e.SalesOrders)
                 .Include(e => e.IBaseBillingAddress)
                 .Include(e => e.IBaseShippingAddress)
                 .Include(e => e.PaymentTransactions)
@@ -416,8 +418,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 InvoiceDate = invoice.InvoiceDate,
                 InvoiceNumber = invoice?.InvoiceNumber ?? "N/A",
                 SelectedCustomerId = invoice.CustomerID,
-                SelectedSalesOrderId = invoice?.SalesOrdersID,
-                SalesOrderNumber = invoice?.SalesOrders?.SalesOrderNumber, // safe chaining
+                SelectedSalesOrderId = invoice?.SalesOrderVersionID,
+                SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber, // safe chaining
                 IsDraft = invoice.IsDraft ?? false,
 
                 Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails

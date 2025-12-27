@@ -11,8 +11,6 @@ public partial class Shipments
 
     public string ShipmentNumber { get; set; }
 
-    public int? SalesOrdersID { get; set; }
-
     public int? InvoiceID { get; set; }
 
     public DateTime? ShipmentDate { get; set; }
@@ -45,13 +43,15 @@ public partial class Shipments
 
     public int? DeletedBy { get; set; }
 
+    public int? SalesOrdersVersionID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Invoices Invoice { get; set; }
 
-    public virtual SalesOrders SalesOrders { get; set; }
+    public virtual SalesOrdersVersions SalesOrdersVersion { get; set; }
 
     public virtual ICollection<ShipmentItems> ShipmentItems { get; set; } = new List<ShipmentItems>();
 

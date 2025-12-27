@@ -37,6 +37,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
 
         // Customer list for dropdown
         public List<CustomerDto> Customers { get; set; } = new List<CustomerDto>();
+        public bool CanEdit { get; set; }
     }
 
     public class SalesOrderItemDetails
@@ -96,5 +97,39 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public bool HasShipments => Shipments != null && Shipments.Any();
         public List<ShipmentInfo> Shipments { get; set; } = new List<ShipmentInfo>();
         public bool CanMakeFinal { get; set; }
+
+        public bool IsFullyShipped { get; set; }
+        public bool HasShipmentsStarted { get; set; }
+        public bool CanCreateInvoice { get; set; }
+
+
+    
+        public bool CanCreatePartialInvoice { get; set; }
+       
+        public List<InvoiceInfo> Invoices { get; set; } = new List<InvoiceInfo>();
+        public bool HasInvoices => Invoices != null && Invoices.Any();
+        public bool HasPartialInvoices => Invoices?.Any(i => i.IsPartial) ?? false;
+        public bool HasFinalInvoice => Invoices?.Any(i => i.IsFinal && !i.IsPartial) ?? false;
     }
+
+
+
+    public class InvoiceInfo
+    {
+        public int InvoiceId { get; set; }
+        public string InvoiceNumber { get; set; }
+        public DateTime? InvoiceDate { get; set; }
+        public decimal GrandTotal { get; set; }
+        public decimal PaidAmount { get; set; }
+        public bool IsDraft { get; set; }
+        public bool IsFinal { get; set; }
+        public bool IsPartial { get; set; }
+        public int? InvoiceStatusID { get; set; }
+        public string StatusName { get; set; }
+        public string StatusClass { get; set; }
+        public int? PartialForInvoiceID { get; set; }
+        public string PartialForInvoiceNumber { get; set; }
+    }
+
+
 }

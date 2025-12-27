@@ -136,12 +136,12 @@ namespace GCTL.Service.POS.Sales.Shipment
 
                     var statys = _StatusService.GetStatusID("Pending");
 
-                    var salesOrder = await _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersVersionID == vm.SalesOrderId).Select(e => e.SalesOrdersID).FirstOrDefaultAsync();
+                    var salesOrder = await _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersVersionID == vm.SalesOrderId).Select(e => e.SalesOrdersVersionID).FirstOrDefaultAsync();
 
                     var newShipment = new Shipments
                     {
                         ShipmentNumber = vm.ShipmentNumber,
-                        SalesOrdersID = salesOrder,
+                        SalesOrdersVersionID = salesOrder,
                         InvoiceID = vm.InvoiceId,
                         ShipmentDate = vm.ShipmentDate.Value,
                         ExpectedDeliveryDate = vm.ExpectedDeliveryDate,
@@ -199,7 +199,7 @@ namespace GCTL.Service.POS.Sales.Shipment
 
         public async Task<CommonReturnViewModel> UpdateStatusAsync(int shipmentId, int statusId, int userId)
         {
-
+            await _inventoryRepository.OpenTransactionAsync();
 
             string name = Enum.GetName(typeof(ShipmentStatus), statusId);
 
@@ -221,22 +221,49 @@ namespace GCTL.Service.POS.Sales.Shipment
                     };
                 }
 
+               
+
+                // If status is Shipped or Delivered, deduct inventory
+                //if (statusId == 3 || statusId == 5) // Shipped or Delivered
+                if (name == "Shipped") // ||name == "Delivered") // Shipped or Delivered
+                {
+                    foreach (var item in shipment.ShipmentItems)
+                    {
+                       var res =  await DeductInventory(item.ProductID.Value, item.ShippedQuantity.Value, item.FromLocationID.Value, shipmentId, userId);
+
+                        if (!res)
+                        {
+                            await _inventoryRepository.AbortTransactionAsync();
+                            return new CommonReturnViewModel
+                            {
+                                Success = false,
+                                Message = "Product short in storage"
+                            };
+                        }
+                    }
+                }
+
+                var shipped = await _StatusService.GetStatusIDAsync("Shipped");
+
+                if (name == "Cancelled" && shipment.StatusID == shipped) // Shipped or Delivered
+                {
+                    foreach (var item in shipment.ShipmentItems)
+                    {
+                       var res =  await ReverseInventory(item.ProductID.Value, item.ShippedQuantity.Value, item.FromLocationID.Value, shipmentId, userId);
+
+                        
+                    }
+                }
+
                 shipment.StatusID = statys;
                 shipment.UpdatedBy = userId;
                 shipment.UpdatedAt = DateTime.Now;
 
-                // If status is Shipped or Delivered, deduct inventory
-                //if (statusId == 3 || statusId == 5) // Shipped or Delivered
-                if (name == "Shipped" ||name == "Delivered") // Shipped or Delivered
-                {
-                    foreach (var item in shipment.ShipmentItems)
-                    {
-                        await DeductInventory(item.ProductID.Value, item.ShippedQuantity.Value,
-                            item.FromLocationID.Value, shipmentId, userId);
-                    }
-                }
 
                 await _shipmentRepository.UpdateAsync(shipment);
+
+                await _inventoryRepository.CompleteTransactionAsync();
+
 
                 return new CommonReturnViewModel
                 {
@@ -246,6 +273,8 @@ namespace GCTL.Service.POS.Sales.Shipment
             }
             catch (Exception ex)
             {
+                await _inventoryRepository.AbortTransactionAsync();
+
                 return new CommonReturnViewModel
                 {
                     Success = false,
@@ -254,41 +283,111 @@ namespace GCTL.Service.POS.Sales.Shipment
             }
         }
 
-        private async Task DeductInventory(int productId, decimal quantity, int locationId, int shipmentId, int userId)
+        private async Task<bool> ReverseInventory(int productId, decimal quantity, int locationId, int shipmentId, int userId)
         {
-            var inventory = await _inventoryRepository.AllActive()
+            try
+            {
+
+                var inventory = await _inventoryRepository.AllActive().FirstOrDefaultAsync(i => i.ProductID == productId && i.LocationID == locationId);
+
+                var statys = await _StatusService.GetStatusIDAsync("Inbound");
+
+
+                if (inventory != null)
+                {
+                    inventory.Quantity += quantity;
+                    inventory.ReservedQuantity += quantity;
+                    inventory.LastTransactionDate = DateTime.Now;
+                    inventory.UpdatedBy = userId;
+                    inventory.UpdatedAt = DateTime.Now;
+
+                    await _inventoryRepository.UpdateAsync(inventory);
+
+                    // Log transaction
+                    var transaction = new InventoryTransactionHistory
+                    {
+                        ProductID = productId,
+                        Quantity = -quantity,
+                        TransactionType = statys, // Outbound
+                        TransactionDate = DateTime.Now,
+                        ReferenceType = "Shipment Return",
+                        ReferenceID = shipmentId,
+                        FromLocationID = locationId,
+                        BalanceAfter = inventory.Quantity,
+                        CreatedBy = userId,
+                        CreatedAt = DateTime.Now
+                    };
+
+                    await _inventoryTransactionRepository.AddAsync(transaction);
+                }
+                else
+                {
+                    return false;
+                }
+
+                return true;
+
+            }
+            catch (Exception)
+            {
+                return false;
+
+            }
+        }
+
+        private async Task<bool> DeductInventory(int productId, decimal quantity, int locationId, int shipmentId, int userId)
+        {
+            try
+            {
+                
+                var inventory = await _inventoryRepository.AllActive()
                 .FirstOrDefaultAsync(i => i.ProductID == productId && i.LocationID == locationId);
 
-            var statys = await _StatusService.GetStatusIDAsync("Outbound");
+                var statys = await _StatusService.GetStatusIDAsync("Outbound");
 
 
-            if (inventory != null)
-            {
-                inventory.Quantity -= quantity;
-                inventory.ReservedQuantity -= quantity;
-                inventory.LastTransactionDate = DateTime.Now;
-                inventory.UpdatedBy = userId;
-                inventory.UpdatedAt = DateTime.Now;
-
-                await _inventoryRepository.UpdateAsync(inventory);
-
-                // Log transaction
-                var transaction = new InventoryTransactionHistory
+                if (inventory != null && inventory.Quantity >= quantity)
                 {
-                    ProductID = productId,
-                    Quantity = -quantity,
-                    TransactionType = statys, // Outbound
-                    TransactionDate = DateTime.Now,
-                    ReferenceType = "Shipment",
-                    ReferenceID = shipmentId,
-                    FromLocationID = locationId,
-                    BalanceAfter = inventory.Quantity,
-                    CreatedBy = userId,
-                    CreatedAt = DateTime.Now
-                };
+                    inventory.Quantity -= quantity;
+                    inventory.ReservedQuantity -= quantity;
+                    inventory.LastTransactionDate = DateTime.Now;
+                    inventory.UpdatedBy = userId;
+                    inventory.UpdatedAt = DateTime.Now;
 
-                await _inventoryTransactionRepository.AddAsync(transaction);
+                    await _inventoryRepository.UpdateAsync(inventory);
+
+                    // Log transaction
+                    var transaction = new InventoryTransactionHistory
+                    {
+                        ProductID = productId,
+                        Quantity = -quantity,
+                        TransactionType = statys, // Outbound
+                        TransactionDate = DateTime.Now,
+                        ReferenceType = "Shipment",
+                        ReferenceID = shipmentId,
+                        FromLocationID = locationId,
+                        BalanceAfter = inventory.Quantity,
+                        CreatedBy = userId,
+                        CreatedAt = DateTime.Now
+                    };
+
+                    await _inventoryTransactionRepository.AddAsync(transaction);
+                }
+                else
+                {
+                    return false;
+                }
+
+                return true;
+
             }
+            catch (Exception)
+            {
+                return false;
+                
+            }
+
+            
         }
     }
 }
