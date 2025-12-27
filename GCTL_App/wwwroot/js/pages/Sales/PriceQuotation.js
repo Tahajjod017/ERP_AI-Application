@@ -442,7 +442,7 @@
                 if (response.success) {
                     toastr.success(response.message || 'Quotation saved successfully!');
                     clearForm(); // Clear form after successful save
-                    //window.location.href = '/PriceQuotationDetails/index/' + response.quotationId
+                    window.location.href = '/PriceQuotationDetails/index/' + response.quotationId
                 } else {
                     toastr.warning(response.message || 'Quotation not saved!');
 

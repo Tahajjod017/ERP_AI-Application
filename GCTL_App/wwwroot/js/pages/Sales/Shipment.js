@@ -1,4 +1,7 @@
 ﻿$(function () {
+
+    //#region Select 2
+
     const initializeSelect = () => {
         $('.searchableSelect').select2({
             width: '100%',
@@ -10,6 +13,11 @@
     };
 
     initializeSelect();
+
+
+    //#endregion
+
+    //#region  Get Code
     GetNextCode();
 
     function GetNextCode() {
@@ -24,9 +32,9 @@
             }
         });
     }
+    //#endregion
 
-    // ==============================================================
-    // LOAD DROPDOWN DATA
+    //#region  LOAD DROPDOWN DATA
     // ==============================================================
     let productsData = [];
     let locationsData = [];
@@ -139,8 +147,9 @@
         }
     });
 
-    // ==============================================================
-    // LINE ITEMS - ADD/REMOVE
+    //#endregion
+
+    //#region  LINE ITEMS - ADD/REMOVE
     // ==============================================================
     $('#add-item-btn').on('click', function () {
         const $table = $('#itemsTable tbody');
@@ -151,16 +160,17 @@
             <tr data-index="${newIndex}">
                 <td class="fs-8 text-center align-middle">${newIndex + 1}</td>
                 <td>
-                    <select name="Items[${newIndex}].ProductId" class="form-select searchableSelect productDD">
+                    <select name="Items[${newIndex}].ProductId" class="form-select searchableSelect productDD" readonly>
                         <option value="">-- Select Product --</option>
                     </select>
                 </td>
                 <td>
-                    <select name="Items[${newIndex}].FromLocationId" class="form-select searchableSelect locationDD">
+                    <select name="Items[${newIndex}].FromLocationId" class="form-select searchableSelect locationDD" readonly>
                         <option value="">-- Select Location --</option>
                     </select>
                 </td>
-                <td><input name="Items[${newIndex}].OrderedQuantity" class="form-control" type="number" step="any" /></td>
+                <td><input name="Items[${newIndex}].OrderedQuantity" class="form-control" type="number" step="any" readonly /></td>
+                <td><input name="Items[${newIndex}].AlreadyShipped" class="form-control" type="number" step="any" readonly /></td>
                 <td><input name="Items[${newIndex}].ShippedQuantity" class="form-control" type="number" step="any" /></td>
                 <td><input name="Items[${newIndex}].Note" class="form-control" /></td>
                 <td class="text-center align-middle">
@@ -213,8 +223,9 @@
         });
     }
 
-    // ==============================================================
-    // FORM SUBMISSION
+    //#endregion ==============================================================
+
+    //#region  FORM SUBMISSION
     // ==============================================================
     $('#shipmentForm').on('submit', function (e) {
         e.preventDefault();
@@ -263,6 +274,10 @@
         });
     });
 
+    //#endregion
+
+    //#region Clear ordered que
+
     $('#clearFormBtn').on('click', function () {
         if (confirm('Are you sure you want to clear the form?')) {
             $('#shipmentForm')[0].reset();
@@ -281,4 +296,6 @@
             $shippedQtyInput.val(orderedQty);
         }
     });
+
+    //#endregion
 });

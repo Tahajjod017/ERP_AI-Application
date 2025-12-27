@@ -35,7 +35,7 @@ namespace GCTL.Service.POS.Sales.ShipmentList
                 var query = _shipmentRepository.AllActive()
                     .Include(s => s.ShipmentItems)
                     .Include(s => s.Status)
-                    .Include(s => s.SalesOrders)
+                    .Include(s => s.SalesOrdersVersion).ThenInclude(e=>e.SalesOrders)
                     .Include(s => s.Invoice)
                     .Include(s => s.ShippingAddress)
                     .Include(s => s.CreatedByNavigation).AsQueryable();
@@ -84,9 +84,9 @@ namespace GCTL.Service.POS.Sales.ShipmentList
                     {
                         ShipmentID = s.ShipmentID,
                         ShipmentNumber = s.ShipmentNumber ?? "",
-                        SourceType = s.SalesOrdersID.HasValue ? "Sales Order" : "Invoice",
-                        SourceNumber = s.SalesOrdersID.HasValue
-                            ? (s.SalesOrders != null ? s.SalesOrders.SalesOrderNumber : "")
+                        SourceType = s.SalesOrdersVersionID.HasValue ? "Sales Order" : "Invoice",
+                        SourceNumber = s.SalesOrdersVersionID.HasValue
+                            ? (s.SalesOrdersVersion != null ? s.SalesOrdersVersion.SalesOrders.SalesOrderNumber : "")
                             : (s.Invoice != null ? s.Invoice.InvoiceNumber : ""),
                         ShipmentDate = s.ShipmentDate,
                         ExpectedDeliveryDate = s.ExpectedDeliveryDate,

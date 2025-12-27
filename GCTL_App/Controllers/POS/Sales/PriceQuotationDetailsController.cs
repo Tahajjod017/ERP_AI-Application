@@ -654,10 +654,10 @@ namespace GCTL_App.Controllers.POS.Sales
                     OrderDate = DateTime.Now,
                     IsDraft = true,
                     SelectedCustomerId = quotation.CustomerID,
-                    SelectedQuotationId = quotation.PriceQuotationID,
+                    SelectedQuotationId = quotation.PriceQuotationVersionID,
                     VatPercent = quotation.VatPercentage ?? 0m,
                     Note = quotation.Note + " (Auto Converted)",
-                    
+                    LocationId = quotation.LocationID,
 
                     Items = quotation.PriceQuotationVersionItems.Select(x => new SalesOrderItem()
                     {

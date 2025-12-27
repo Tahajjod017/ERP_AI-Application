@@ -43,19 +43,21 @@ public partial class SalesOrdersVersions
 
     public int? LocationID { get; set; }
 
-    // Navigation property
-    public Locations Location { get; set; }
-
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Customers Customer { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<Invoices> Invoices { get; set; } = new List<Invoices>();
+
+    public virtual Locations Location { get; set; }
+
     public virtual ICollection<SalesOrderVersionItems> SalesOrderVersionItems { get; set; } = new List<SalesOrderVersionItems>();
 
     public virtual SalesOrders SalesOrders { get; set; }
+
+    public virtual ICollection<Shipments> Shipments { get; set; } = new List<Shipments>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

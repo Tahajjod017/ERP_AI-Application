@@ -4098,9 +4098,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.IBaseShippingAddressID)
                 .HasConstraintName("FK__InvoicesV__IBase__494FC0C2");
 
-            entity.HasOne(d => d.SalesOrders).WithMany(p => p.Invoices)
-                .HasForeignKey(d => d.SalesOrdersID)
-                .HasConstraintName("FK_SalesOrders_SalesOrdersID_Invoices");
+            entity.HasOne(d => d.SalesOrderVersion).WithMany(p => p.Invoices)
+                .HasForeignKey(d => d.SalesOrderVersionID)
+                .HasConstraintName("FK_SalesOrdersVersions_SalesOrderVersionID_Invoices");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.InvoicesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
@@ -6217,6 +6217,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__PriceQuot__Delet__5C629536");
 
+            entity.HasOne(d => d.Location).WithMany(p => p.PriceQuotationVersions)
+                .HasForeignKey(d => d.LocationID)
+                .HasConstraintName("FK_PriceQuotationVersions_LocationID");
+
             entity.HasOne(d => d.PriceQuotation).WithMany(p => p.PriceQuotationVersions)
                 .HasForeignKey(d => d.PriceQuotationID)
                 .HasConstraintName("FK_Product_PriceQuotationID_PriceQuotationVersions");
@@ -6761,6 +6765,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__PurOrderB__Delet__61B15A38");
 
+            entity.HasOne(d => d.Location).WithMany(p => p.PurOrderBaseSAddresses)
+                .HasForeignKey(d => d.LocationID)
+                .HasConstraintName("FK_PurOrderBaseSAddresses_Location");
+
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.PurOrderBaseSAddressesUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__PurOrderB__Updat__5FC911C6");
@@ -7048,6 +7056,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.PurchaseReceivesDeletedByNavigation)
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__PurchaseR__Delet__7C655074");
+
+            entity.HasOne(d => d.Location).WithMany(p => p.PurchaseReceives)
+                .HasForeignKey(d => d.LocationID)
+                .HasConstraintName("FK_PurchaseReceives_Location");
 
             entity.HasOne(d => d.PurchasOrderVersion).WithMany(p => p.PurchaseReceives)
                 .HasForeignKey(d => d.PurchasOrderVersionID)
@@ -7798,6 +7810,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__SalesOrde__Delet__66E023A9");
 
+            entity.HasOne(d => d.Location).WithMany(p => p.SalesOrdersVersions)
+                .HasForeignKey(d => d.LocationID)
+                .HasConstraintName("FK_SalesOrdersVersions_LocationID");
+
             entity.HasOne(d => d.SalesOrders).WithMany(p => p.SalesOrdersVersions)
                 .HasForeignKey(d => d.SalesOrdersID)
                 .HasConstraintName("FK_SalesOrders_SalesOrdersID_SalesOrdersVersions");
@@ -7973,8 +7989,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasIndex(e => e.InvoiceID, "IX_Shipments_InvoiceID");
 
-            entity.HasIndex(e => e.SalesOrdersID, "IX_Shipments_SalesOrdersID");
-
             entity.HasIndex(e => e.ShipmentDate, "IX_Shipments_ShipmentDate");
 
             entity.HasIndex(e => e.StatusID, "IX_Shipments_StatusID");
@@ -8007,9 +8021,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.InvoiceID)
                 .HasConstraintName("FK_Shipments_Invoices");
 
-            entity.HasOne(d => d.SalesOrders).WithMany(p => p.Shipments)
-                .HasForeignKey(d => d.SalesOrdersID)
-                .HasConstraintName("FK_Shipments_SalesOrders");
+            entity.HasOne(d => d.SalesOrdersVersion).WithMany(p => p.Shipments)
+                .HasForeignKey(d => d.SalesOrdersVersionID)
+                .HasConstraintName("FK_Shipments_SalesOrdersVersions");
 
             entity.HasOne(d => d.ShippingAddress).WithMany(p => p.Shipments)
                 .HasForeignKey(d => d.ShippingAddressID)

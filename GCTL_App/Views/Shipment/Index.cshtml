@@ -118,6 +118,7 @@
                             <th class="text-center">@Html.SmartLocalize("Product")</th>
                             <th class="text-center">@Html.SmartLocalize("From Location")</th>
                             <th class="text-center">@Html.SmartLocalize("Ordered Qty")</th>
+                            <th class="text-center">@Html.SmartLocalize("Already Shipped")</th>
                             <th class="text-center">@Html.SmartLocalize("Shipped Qty")</th>
                             <th class="text-center">@Html.SmartLocalize("Note")</th>
                             <th style="width: 50px;"></th>
@@ -126,19 +127,89 @@
                     <tbody>
                         @for (int i = 0; i < Model.Items.Count; i++)
                         {
+                            <!--<tr data-index="@i">
+                                <td class="fs-8 text-center align-middle">@(i + 1)</td>-->
+
+                                <!-- Product dropdown (disabled but value submitted via hidden input) -->
+                                <!--<td>
+                                    <select class="form-select searchableSelect productDD" disabled>
+                                        @foreach (var p in (SelectList)ViewBag.product)
+                                        {
+                                            if (p.Value == Model.Items[i].ProductId.ToString())
+                                            {
+                                                <option value="@p.Value" selected>@p.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@p.Value">@p.Text</option>
+                                            }
+                                        }
+                                    </select>
+                                    <input type="hidden" asp-for="Items[i].ProductId" />
+                                </td>-->
+
+                                <!-- Location dropdown (disabled but value submitted via hidden input) -->
+                                <!--<td>
+                                    <select class="form-select searchableSelect locationDD" disabled>
+                                        <option value="">@Html.SmartLocalize("-- Select Location --")</option>
+                                        @foreach (var l in (SelectList)ViewBag.location)
+                                        {
+                                            if (l.Value == Model.Items[i].FromLocationId.ToString())
+                                            {
+                                                <option value="@l.Value" selected>@l.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@l.Value">@l.Text</option>
+                                            }
+                                        }
+                                    </select>
+                                    <input type="hidden" asp-for="Items[i].FromLocationId" />
+                                </td>-->
+
+                                <!-- OrderedQuantity (readonly input, still posts value) -->
+                                <!--<td>
+                                    <input asp-for="Items[i].OrderedQuantity" class="form-control" type="number" step="any" readonly />
+                                </td>-->
+
+                                <!-- AlreadyShipped (readonly input, still posts value) -->
+                                <!--<td>
+                                    <input asp-for="Items[i].AlreadyShipped" class="form-control" type="number" step="any" readonly />
+                                </td>-->
+
+                                <!-- ShippedQuantity (editable) -->
+                                <!--<td>
+                                    <input asp-for="Items[i].ShippedQuantity" class="form-control" type="number" step="any" />
+                                </td>-->
+
+                                <!-- Note (editable) -->
+                                <!--<td>
+                                    <input asp-for="Items[i].Note" class="form-control" />
+                                </td>-->
+
+                                <!-- Remove button -->
+                                <!--<td class="text-center align-middle">
+                                    <button type="button" class="btn btn-sm btn-outline-danger mx-2 remove-item">
+                                        <i class="far fa-trash-alt text-black"></i>
+                                    </button>
+                                </td>
+                            </tr>-->
+
+
                             <tr data-index="@i">
                                 <td class="fs-8 text-center align-middle">@(i + 1)</td>
                                 <td>
-                                    <select asp-for="Items[i].ProductId" class="form-select searchableSelect productDD" asp-items="@ViewBag.product as SelectList">
+                                    <select asp-for="Items[i].ProductId" class="form-select searchableSelect productDD" asp-items="@ViewBag.product as SelectList" readonly>
                                         <option value="">@Html.SmartLocalize("-- Select Product --")</option>
                                     </select>
                                 </td>
                                 <td>
-                                    <select asp-for="Items[i].FromLocationId" class="form-select searchableSelect locationDD" asp-items="ViewBag.location">
+                                    <select asp-for="Items[i].FromLocationId" class="form-select searchableSelect locationDD" asp-items="ViewBag.location" readonly>
                                         <option value="">@Html.SmartLocalize("-- Select Location --")</option>
                                     </select>
                                 </td>
-                                <td><input asp-for="Items[i].OrderedQuantity" class="form-control" type="number" step="any" /></td>
+                                <td><input asp-for="Items[i].OrderedQuantity" class="form-control" type="number" step="any" readonly /></td>
+                                <td><input asp-for="Items[i].AlreadyShipped" class="form-control" type="number" step="any" readonly/></td>
                                 <td><input asp-for="Items[i].ShippedQuantity" class="form-control" type="number" step="any" /></td>
                                 <td><input asp-for="Items[i].Note" class="form-control" /></td>
                                 <td class="text-center align-middle">

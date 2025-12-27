@@ -88,6 +88,7 @@ public partial class Statuses
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistory { get; set; } = new List<TerminationApprovalHistory>();
 
     public virtual ICollection<Terminations> Terminations { get; set; } = new List<Terminations>();
+    public ICollection<Invoices> Invoices { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

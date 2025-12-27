@@ -57,7 +57,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                 .Include(s => s.ShipmentItems)
                     .ThenInclude(i => i.FromLocation)
                 .Include(s => s.ShippingAddress)
-                .Include(s => s.SalesOrders)
+                .Include(s => s.SalesOrdersVersion).ThenInclude(e=>e.SalesOrders)
                 .Include(s => s.Invoice)
                 .Include(s => s.Status)
                 .Include(s => s.CreatedByNavigation)
@@ -90,11 +90,11 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                 ShipmentDate = shipment.ShipmentDate,
                 ExpectedDeliveryDate = shipment.ExpectedDeliveryDate,
                 ActualDeliveryDate = shipment.ActualDeliveryDate,
-                SalesOrderId = shipment.SalesOrdersID,
+                SalesOrderId = shipment.SalesOrdersVersionID,
                 InvoiceId = shipment.InvoiceID,
-                SourceType = shipment.SalesOrdersID.HasValue ? "Sales Order" : "Invoice",
-                SourceNumber = shipment.SalesOrdersID.HasValue
-                    ? shipment.SalesOrders?.SalesOrderNumber
+                SourceType = shipment.SalesOrdersVersionID.HasValue ? "Sales Order" : "Invoice",
+                SourceNumber = shipment.SalesOrdersVersionID.HasValue
+                    ? shipment.SalesOrdersVersion?.SalesOrders?.SalesOrderNumber
                     : shipment.Invoice?.InvoiceNumber,
                 TrackingNumber = shipment.TrackingNumber,
                 ShippingCost = shipment.ShippingCost,
@@ -155,7 +155,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                 .Include(s => s.ShipmentItems)
                     .ThenInclude(i => i.FromLocation)
                 .Include(s => s.ShippingAddress)
-                .Include(s => s.SalesOrders)
+                .Include(s => s.SalesOrdersVersion).ThenInclude(e => e.SalesOrders)
                 .Include(s => s.Invoice)
                 .Include(s => s.Status)
                 .Include(s => s.CreatedByNavigation)
@@ -174,11 +174,11 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                 ShipmentDate = shipment.ShipmentDate,
                 ExpectedDeliveryDate = shipment.ExpectedDeliveryDate,
                 ActualDeliveryDate = shipment.ActualDeliveryDate,
-                SalesOrderId = shipment.SalesOrdersID,
+                SalesOrderId = shipment.SalesOrdersVersionID,
                 InvoiceId = shipment.InvoiceID,
-                SourceType = shipment.SalesOrdersID.HasValue ? "Sales Order" : "Invoice",
-                SourceNumber = shipment.SalesOrdersID.HasValue
-                    ? shipment.SalesOrders?.SalesOrderNumber
+                SourceType = shipment.SalesOrdersVersionID.HasValue ? "Sales Order" : "Invoice",
+                SourceNumber = shipment.SalesOrdersVersionID.HasValue
+                    ? shipment.SalesOrdersVersion?.SalesOrders.SalesOrderNumber
                     : shipment.Invoice?.InvoiceNumber,
                 ShippingAddressId = shipment.ShippingAddressID,
                 TrackingNumber = shipment.TrackingNumber,

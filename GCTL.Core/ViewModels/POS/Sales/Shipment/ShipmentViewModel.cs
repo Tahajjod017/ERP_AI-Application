@@ -47,9 +47,11 @@ namespace GCTL.Core.ViewModels.POS.Sales.Shipment
         public string? ProductName { get; set; } = string.Empty;
         public decimal? OrderedQuantity { get; set; }
         public decimal? ShippedQuantity { get; set; }
+        public decimal? AlreadyShipped { get; set; }
         public int? FromLocationId { get; set; }
         public string? FromLocationName { get; set; } = string.Empty;
         public string? Note { get; set; } = string.Empty;
+        //public decimal RemainingQuantity { get; set; }
     }
 
     public class ShippingMethodDto

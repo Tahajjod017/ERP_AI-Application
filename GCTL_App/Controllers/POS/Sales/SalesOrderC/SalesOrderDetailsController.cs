@@ -7,6 +7,7 @@ using GCTL.Core.ViewModels.POS.Sales.SalesOrders;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Language;
+using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.POS.Sales.SalesOrderF;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -30,8 +31,10 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         private readonly IGenericRepository<Addresses> _addressRepository;
         private readonly IGenericRepository<PriceQuotations> _priceQuotationRepository;
         private readonly IUserInfoService _userInfoService;
+        private readonly IStatusService _statusService;
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<Locations> _locationRepository;
+        private readonly IGenericRepository<Invoices> _invoiceRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Inventory> _inventoryRepository;
 
 
@@ -51,7 +54,9 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
             IGenericRepository<Products> productRepository,
             IGenericRepository<GCTL.Data.Models.Inventory> inventoryRepository,
-            IGenericRepository<Locations> locationRepository)
+            IGenericRepository<Locations> locationRepository,
+            IStatusService statusService,
+            IGenericRepository<Invoices> invoiceRepository)
             : base(translateService, userProfileService)
         {
             _salesOrderRepository = salesOrderRepository;
@@ -68,6 +73,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             _productRepository = productRepository;
             _inventoryRepository = inventoryRepository;
             _locationRepository = locationRepository;
+            _statusService = statusService;
+            _invoiceRepository = invoiceRepository;
         }
 
         #endregion
@@ -86,8 +93,10 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 .Include(e => e.SalesOrderVersionItems).ThenInclude(e => e.Product)
                 .Include(e => e.Customer)
                 .Include(e => e.SalesOrders).ThenInclude(e => e.PriceQuotation)
-                 .Include(e => e.SalesOrders).ThenInclude(e => e.Shipments) // ADD THIS for shipments
-                 .ThenInclude(s => s.Status) // ADD THIS for shipment status
+                 .Include(e => e.SalesOrders)
+                 .Include(e => e.Shipments).ThenInclude(e=>e.ShipmentItems) // ADD THIS for shipments
+                 .Include(e => e.Shipments).ThenInclude(e=>e.Status) // ADD THIS for shipments
+                 
                 .Include(e => e.CreatedByNavigation)
                 .Include(e => e.UpdatedByNavigation)
                 .Include(e => e.Location)
@@ -129,7 +138,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                            }).FirstOrDefault();
 
 
-            var shipments = salesOrder.SalesOrders?.Shipments?
+            var shipments = salesOrder.Shipments?
                    .Where(s => s.DeletedAt == null)
                    .Select(s => new ShipmentInfo
                    {
@@ -138,6 +147,68 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                        Status = s.Status != null ? s.Status.StatusName : "Pending",
                        StatusClass = GetShipmentStatusClass(s.StatusID)
                    }).ToList() ?? new List<ShipmentInfo>();
+
+            
+            bool isFullyShipped = false;
+            bool hasShipmentsStarted = false;
+
+            if (salesOrder.Shipments != null && salesOrder.Shipments.Any(s => s.DeletedAt == null))
+            {
+                hasShipmentsStarted = true;
+
+                var cancelledStatusId = _statusService.GetStatusID("Cancelled");
+
+                isFullyShipped = salesOrder.SalesOrderVersionItems.All(soi =>
+                {
+                    decimal orderedQty = soi.Quantity ?? 0;
+
+                    decimal shippedQty = salesOrder.Shipments
+                        .Where(s => s.StatusID != cancelledStatusId && s.DeletedAt == null)
+                        .SelectMany(s => s.ShipmentItems)
+                        .Where(si => si.ProductID == soi.ProductID && si.DeletedAt == null)
+                        .Sum(si => si.ShippedQuantity ?? 0);
+
+                    return orderedQty <= shippedQty;
+                });
+
+
+            }
+
+            
+
+            // Populate invoices with status
+            var invoices = _invoiceRepository.AllActive()
+                .Include(i => i.InvoiceStatus) // Include status
+                .Include(i => i.PartialForInvoice) // Include parent invoice for partials
+                .Where(i => i.SalesOrderVersionID == id) // || i.SalesOrdersID == salesOrder.SalesOrdersID)
+                .Select(i => new InvoiceInfo
+                {
+                    InvoiceId = i.InvoiceID,
+                    InvoiceNumber = i.InvoiceNumber,
+                    InvoiceDate = i.InvoiceDate,
+                    GrandTotal = i.GrandTotal ?? 0,
+                    PaidAmount = i.PaidAmount ?? 0,
+                    IsDraft = i.IsDraft ?? false,
+                    IsFinal = i.IsFinal != null ? i.IsFinal : false,
+                    IsPartial = i.IsPartial != null ? i.IsPartial : false,
+                    InvoiceStatusID = i.InvoiceStatusID,
+                    StatusName = i.InvoiceStatus != null ? i.InvoiceStatus.StatusName : "Draft",
+                    //StatusClass = GetInvoiceStatusClass(i.InvoiceStatusID),
+                    PartialForInvoiceID = i.PartialForInvoiceID,
+                    PartialForInvoiceNumber = i.PartialForInvoice != null ? i.PartialForInvoice.InvoiceNumber : null
+                })
+                .OrderByDescending(i => i.InvoiceDate)
+                .ToList();
+
+            // Calculate invoice creation permissions
+            bool canCreateInvoice = hasShipmentsStarted &&
+                                   salesOrder.IsFinal == true &&
+                                   !invoices.Any(i => i.IsFinal && !i.IsPartial); // No final invoice exists
+
+            bool canCreatePartialInvoice = hasShipmentsStarted &&
+                                          salesOrder.IsFinal == true &&
+                                          !isFullyShipped &&
+                                          !invoices.Any(i => i.IsPartial && i.IsFinal); // No partial final invoice
 
             var vm = new SalesOrderDetailsViewModel
             {
@@ -196,16 +267,25 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 UpdatedAt = vm.UpdatedAt,
                 Shipments = shipments, // ADD THIS
                 //Status = salesOrder.IsDraft == true ? SalesOrderStatus.Draft : SalesOrderStatus.Confirmed // ADD THIS (adjust based on your status logic)
-                CanMakeFinal = !versions.Where(e => e.id == vm.Id).Select(e => e.isFinal).FirstOrDefault() // ✅ true if not current
+                CanMakeFinal = !versions.Where(e => e.id == vm.Id).Select(e => e.isFinal).FirstOrDefault(), // ✅ true if not current
 
+                HasShipmentsStarted = hasShipmentsStarted,
+                IsFullyShipped = isFullyShipped,
+               CanCreateInvoice = canCreateInvoice,
+
+                Invoices = invoices,
+                
+                CanCreatePartialInvoice = canCreatePartialInvoice,
+                
 
             };
 
             if (salesOrder.IsFinal == true)
             {
                 sidebarVm.CanCreateShipment = (shipments.Count != 0 || shipments != null) ? true : false;
+                
             }
-
+            vm.CanEdit = !sidebarVm.HasShipments;
 
             ViewBag.SidebarData = sidebarVm;
 
@@ -227,9 +307,9 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 .Include(e => e.SalesOrderVersionItems)
                 .Include(e => e.CreatedByNavigation)
                 .Include(e => e.UpdatedByNavigation)
+                .Include(e => e.SalesOrders).ThenInclude(e => e.PriceQuotation)
                 .Include(e => e.SalesOrders)
-                .ThenInclude(e => e.PriceQuotation)
-                .Include(e => e.SalesOrders).ThenInclude(e => e.Shipments) // ADD THIS
+                .Include(e => e.Shipments) // ADD THIS
                 .ThenInclude(s => s.Status) // ADD THIS
                 .FirstOrDefault(e => e.SalesOrdersVersionID == id);
 
@@ -250,7 +330,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 current = e.SalesOrdersVersionID == id ? "current" : ""
             }).ToList();
 
-            var shipments = salesOrder.SalesOrders?.Shipments?
+            var shipments = salesOrder.Shipments?
                 .Where(s => s.DeletedAt == null)
                 .Select(s => new ShipmentInfo
                 {
@@ -430,7 +510,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         {
             try
             {
-                var salesOrder = await _salesOrderVersionRepository.All().FirstOrDefaultAsync(e => e.SalesOrdersVersionID == id);
+                var salesOrder = await _salesOrderVersionRepository.All().Include(e=>e.SalesOrderVersionItems).FirstOrDefaultAsync(e => e.SalesOrdersVersionID == id);
                 if (salesOrder == null)
                 {
                     return Json(new { success = false, message = "Quotation not found" });
@@ -438,7 +518,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
 
                 
 
-                var prevFinal = await _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersID == salesOrder.SalesOrdersID && e.IsFinal == true).FirstOrDefaultAsync();
+                var prevFinal = await _salesOrderVersionRepository.AllActive().Include(w=>w.SalesOrderVersionItems).Where(e => e.SalesOrdersID == salesOrder.SalesOrdersID && e.IsFinal == true).FirstOrDefaultAsync();
 
                 if (prevFinal != null)
                 {
