@@ -46,6 +46,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
 
+
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
@@ -78,6 +79,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<BloodGroup> BloodGroup { get; set; }
 
     public virtual DbSet<CalculationTypes> CalculationTypes { get; set; }
+
+    public virtual DbSet<ChallanItems> ChallanItems { get; set; }
+
+    public virtual DbSet<Challans> Challans { get; set; }
 
     public virtual DbSet<ChequeDetails> ChequeDetails { get; set; }
 
@@ -120,6 +125,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<DefaultShifts> DefaultShifts { get; set; }
 
     public virtual DbSet<Degree> Degree { get; set; }
+
+    public virtual DbSet<DeliveryMethods> DeliveryMethods { get; set; }
 
     public virtual DbSet<Departments> Departments { get; set; }
 
@@ -435,12 +442,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<Shifts> Shifts { get; set; }
 
-    public virtual DbSet<ShipmentItems> ShipmentItems { get; set; }
-
-    public virtual DbSet<Shipments> Shipments { get; set; }
-
-    public virtual DbSet<ShippingMethods> ShippingMethods { get; set; }
-
     public virtual DbSet<SpiralBioWeeklyPattern> SpiralBioWeeklyPattern { get; set; }
 
     public virtual DbSet<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetails { get; set; }
@@ -498,6 +499,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
 
         modelBuilder.Entity<ActionLogs>(entity =>
         {
@@ -1435,6 +1437,108 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__Calculati__Updat__4EFDAD20");
         });
 
+        modelBuilder.Entity<ChallanItems>(entity =>
+        {
+            entity.HasKey(e => e.ChallanItemID).HasName("PK__ChallanI__108A6F381B920CCD");
+
+            entity.ToTable("ChallanItems", "SC");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeliveredQuantity).HasColumnType("decimal(18, 4)");
+            entity.Property(e => e.OrderedQuantity).HasColumnType("decimal(18, 4)");
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Challan).WithMany(p => p.ChallanItems)
+                .HasForeignKey(d => d.ChallanID)
+                .HasConstraintName("FK_ChallanItems_Challans");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ChallanItemsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_ChallanItems_CreatedBy_Employees");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ChallanItemsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_ChallanItems_DeletedBy_Employees");
+
+            entity.HasOne(d => d.FromLocation).WithMany(p => p.ChallanItems)
+                .HasForeignKey(d => d.FromLocationID)
+                .HasConstraintName("FK_ChallanItems_Locations");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ChallanItems)
+                .HasForeignKey(d => d.ProductID)
+                .HasConstraintName("FK_ChallanItems_Products");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ChallanItemsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_ChallanItems_UpdatedBy_Employees");
+        });
+
+        modelBuilder.Entity<Challans>(entity =>
+        {
+            entity.HasKey(e => e.ChallanID).HasName("PK__Shipment__5CAD378DEF45F8C3");
+
+            entity.ToTable("Challans", "SC");
+
+            entity.HasIndex(e => e.CreatedBy, "IX_Shipments_CreatedBy");
+
+            entity.HasIndex(e => e.InvoiceID, "IX_Shipments_InvoiceID");
+
+            entity.HasIndex(e => e.ChallanDate, "IX_Shipments_ShipmentDate");
+
+            entity.HasIndex(e => e.StatusID, "IX_Shipments_StatusID");
+
+            entity.HasIndex(e => e.TrackingNumber, "IX_Shipments_TrackingNumber");
+
+            entity.HasIndex(e => e.ChallanNumber, "UQ_ChallanNumber_SC").IsUnique();
+
+            entity.Property(e => e.ActualDeliveryDate).HasColumnType("datetime");
+            entity.Property(e => e.ChallanDate).HasColumnType("datetime");
+            entity.Property(e => e.ChallanNumber).HasMaxLength(50);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.DeliveryCost).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ExpectedDeliveryDate).HasColumnType("datetime");
+            entity.Property(e => e.TrackingNumber).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ChallansCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Challans_CreatedBy_Employees");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ChallansDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Challans_DeletedBy_Employees");
+
+            entity.HasOne(d => d.DeliveryAddress).WithMany(p => p.Challans)
+                .HasForeignKey(d => d.DeliveryAddressID)
+                .HasConstraintName("FK_Challans_Addresses_Customer");
+
+            entity.HasOne(d => d.DeliveryMethod).WithMany(p => p.Challans)
+                .HasForeignKey(d => d.DeliveryMethodID)
+                .HasConstraintName("FK_Challans_DeliveryMethods");
+
+            entity.HasOne(d => d.Invoice).WithMany(p => p.Challans)
+                .HasForeignKey(d => d.InvoiceID)
+                .HasConstraintName("FK_Challans_Invoices");
+
+            entity.HasOne(d => d.SalesOrdersVersion).WithMany(p => p.Challans)
+                .HasForeignKey(d => d.SalesOrdersVersionID)
+                .HasConstraintName("FK_Challans_SalesOrdersVersions");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.Challans)
+                .HasForeignKey(d => d.StatusID)
+                .HasConstraintName("FK_Challans_Statuses");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ChallansUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_Challans_UpdatedBy_Employees");
+        });
+
         modelBuilder.Entity<ChequeDetails>(entity =>
         {
             entity.HasKey(e => e.ChequeDetailID).HasName("PK__ChequeDe__AF57C25E5BC98010");
@@ -2177,6 +2281,34 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.DegreeUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK_Employees_EmployeeIDUpdatedByDegree");
+        });
+
+        modelBuilder.Entity<DeliveryMethods>(entity =>
+        {
+            entity.HasKey(e => e.DeliveryMethodID);
+
+            entity.ToTable("DeliveryMethods", "SC");
+
+            entity.Property(e => e.BaseCost).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.MethodName).HasMaxLength(100);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.DeliveryMethodsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_DeliveryMethods_CreatedBy_Employees");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.DeliveryMethodsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_DeliveryMethods_DeletedBy_Employees");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.DeliveryMethodsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK_DeliveryMethods_UpdatedBy_Employees");
         });
 
         modelBuilder.Entity<Departments>(entity =>
@@ -4097,6 +4229,14 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.IBaseShippingAddress).WithMany(p => p.InvoicesIBaseShippingAddress)
                 .HasForeignKey(d => d.IBaseShippingAddressID)
                 .HasConstraintName("FK__InvoicesV__IBase__494FC0C2");
+
+            entity.HasOne(d => d.InvoiceStatus).WithMany(p => p.Invoices)
+                .HasForeignKey(d => d.InvoiceStatusID)
+                .HasConstraintName("FK_Invoices_Statuses");
+
+            entity.HasOne(d => d.PartialForInvoice).WithMany(p => p.InversePartialForInvoice)
+                .HasForeignKey(d => d.PartialForInvoiceID)
+                .HasConstraintName("FK_Invoice_PartialFor");
 
             entity.HasOne(d => d.SalesOrderVersion).WithMany(p => p.Invoices)
                 .HasForeignKey(d => d.SalesOrderVersionID)
@@ -7930,144 +8070,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ShiftsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__Shifts__UpdatedB__4E3E9311");
-        });
-
-        modelBuilder.Entity<ShipmentItems>(entity =>
-        {
-            entity.HasKey(e => e.ShipmentItemID).HasName("PK__Shipment__E46A9F4E4A9E4AE3");
-
-            entity.ToTable("ShipmentItems", "SC");
-
-            entity.HasIndex(e => e.CreatedBy, "IX_ShipmentItems_CreatedBy");
-
-            entity.HasIndex(e => e.FromLocationID, "IX_ShipmentItems_FromLocationID");
-
-            entity.HasIndex(e => e.ProductID, "IX_ShipmentItems_ProductID");
-
-            entity.HasIndex(e => e.ShipmentID, "IX_ShipmentItems_ShipmentID");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.OrderedQuantity).HasColumnType("decimal(18, 4)");
-            entity.Property(e => e.ShippedQuantity).HasColumnType("decimal(18, 4)");
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ShipmentItemsCreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK_ShipmentItems_CreatedBy_Employees");
-
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ShipmentItemsDeletedByNavigation)
-                .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK_ShipmentItems_DeletedBy_Employees");
-
-            entity.HasOne(d => d.FromLocation).WithMany(p => p.ShipmentItems)
-                .HasForeignKey(d => d.FromLocationID)
-                .HasConstraintName("FK_ShipmentItems_Locations");
-
-            entity.HasOne(d => d.Product).WithMany(p => p.ShipmentItems)
-                .HasForeignKey(d => d.ProductID)
-                .HasConstraintName("FK_ShipmentItems_Products");
-
-            entity.HasOne(d => d.Shipment).WithMany(p => p.ShipmentItems)
-                .HasForeignKey(d => d.ShipmentID)
-                .HasConstraintName("FK_ShipmentItems_Shipments");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ShipmentItemsUpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_ShipmentItems_UpdatedBy_Employees");
-        });
-
-        modelBuilder.Entity<Shipments>(entity =>
-        {
-            entity.HasKey(e => e.ShipmentID).HasName("PK__Shipment__5CAD378DEF45F8C3");
-
-            entity.ToTable("Shipments", "SC");
-
-            entity.HasIndex(e => e.CreatedBy, "IX_Shipments_CreatedBy");
-
-            entity.HasIndex(e => e.InvoiceID, "IX_Shipments_InvoiceID");
-
-            entity.HasIndex(e => e.ShipmentDate, "IX_Shipments_ShipmentDate");
-
-            entity.HasIndex(e => e.StatusID, "IX_Shipments_StatusID");
-
-            entity.HasIndex(e => e.TrackingNumber, "IX_Shipments_TrackingNumber");
-
-            entity.HasIndex(e => e.ShipmentNumber, "UQ_ShipmentNumber_SC").IsUnique();
-
-            entity.Property(e => e.ActualDeliveryDate).HasColumnType("datetime");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.ExpectedDeliveryDate).HasColumnType("datetime");
-            entity.Property(e => e.ShipmentDate).HasColumnType("datetime");
-            entity.Property(e => e.ShipmentNumber).HasMaxLength(50);
-            entity.Property(e => e.ShippingCost).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.TrackingNumber).HasMaxLength(100);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ShipmentsCreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK_Shipments_CreatedBy_Employees");
-
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ShipmentsDeletedByNavigation)
-                .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK_Shipments_DeletedBy_Employees");
-
-            entity.HasOne(d => d.Invoice).WithMany(p => p.Shipments)
-                .HasForeignKey(d => d.InvoiceID)
-                .HasConstraintName("FK_Shipments_Invoices");
-
-            entity.HasOne(d => d.SalesOrdersVersion).WithMany(p => p.Shipments)
-                .HasForeignKey(d => d.SalesOrdersVersionID)
-                .HasConstraintName("FK_Shipments_SalesOrdersVersions");
-
-            entity.HasOne(d => d.ShippingAddress).WithMany(p => p.Shipments)
-                .HasForeignKey(d => d.ShippingAddressID)
-                .HasConstraintName("FK_Shipments_Addresses");
-
-            entity.HasOne(d => d.ShippingMethod).WithMany(p => p.Shipments)
-                .HasForeignKey(d => d.ShippingMethodID)
-                .HasConstraintName("FK_Shipments_ShippingMethods");
-
-            entity.HasOne(d => d.Status).WithMany(p => p.Shipments)
-                .HasForeignKey(d => d.StatusID)
-                .HasConstraintName("FK_Shipments_Statuses");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ShipmentsUpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_Shipments_UpdatedBy_Employees");
-        });
-
-        modelBuilder.Entity<ShippingMethods>(entity =>
-        {
-            entity.HasKey(e => e.ShippingMethodID).HasName("PK__Shipping__0C783384F106F87A");
-
-            entity.ToTable("ShippingMethods", "SC");
-
-            entity.Property(e => e.BaseCost).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.MethodName).HasMaxLength(100);
-            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.ShippingMethodsCreatedByNavigation)
-                .HasForeignKey(d => d.CreatedBy)
-                .HasConstraintName("FK_ShippingMethods_CreatedBy_Employees");
-
-            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.ShippingMethodsDeletedByNavigation)
-                .HasForeignKey(d => d.DeletedBy)
-                .HasConstraintName("FK_ShippingMethods_DeletedBy_Employees");
-
-            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ShippingMethodsUpdatedByNavigation)
-                .HasForeignKey(d => d.UpdatedBy)
-                .HasConstraintName("FK_ShippingMethods_UpdatedBy_Employees");
         });
 
         modelBuilder.Entity<SpiralBioWeeklyPattern>(entity =>

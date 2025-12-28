@@ -12,32 +12,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.POS.Sales.ShipmentF
 {
-    public class ShipmentDetailsController : BaseController
+    public class ChallanDetailsController : BaseController
     {
         #region CTOR
-        private readonly IGenericRepository<Shipments> _shipmentRepository;
-        private readonly IGenericRepository<ShipmentItems> _shipmentItemRepository;
-        private readonly IShipment _shipmentService;
+        private readonly IGenericRepository<Challans> _challanRepository;
+        private readonly IGenericRepository<ChallanItems> _challanItemRepository;
+        private readonly IChallan _challanService;
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<Locations> _locationRepository;
         private readonly IGenericRepository<InvoiceBaseCAddresses> _addressRepository;
         private readonly IUserInfoService _userInfoService;
 
-        public ShipmentDetailsController(
+        public ChallanDetailsController(
             ITranslateService translateService,
             IUserProfileService userProfileService,
-            IGenericRepository<Shipments> shipmentRepository,
-            IGenericRepository<ShipmentItems> shipmentItemRepository,
-            IShipment shipmentService,
+            IGenericRepository<Challans> shipmentRepository,
+            IGenericRepository<ChallanItems> shipmentItemRepository,
+            IChallan shipmentService,
             IGenericRepository<Products> productRepository,
             IGenericRepository<Locations> locationRepository,
             IGenericRepository<InvoiceBaseCAddresses> addressRepository,
             IUserInfoService userInfoService)
             : base(translateService, userProfileService)
         {
-            _shipmentRepository = shipmentRepository;
-            _shipmentItemRepository = shipmentItemRepository;
-            _shipmentService = shipmentService;
+            _challanRepository = shipmentRepository;
+            _challanItemRepository = shipmentItemRepository;
+            _challanService = shipmentService;
             _productRepository = productRepository;
             _locationRepository = locationRepository;
             _addressRepository = addressRepository;
@@ -51,43 +51,43 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
             ViewBag.IsEditMode = false;
             SetSmartPageCode(90260200);
 
-            var shipment = _shipmentRepository.AllActive()
-                .Include(s => s.ShipmentItems)
+            var shipment = _challanRepository.AllActive()
+                .Include(s => s.ChallanItems)
                     .ThenInclude(i => i.Product)
-                .Include(s => s.ShipmentItems)
+                .Include(s => s.ChallanItems)
                     .ThenInclude(i => i.FromLocation)
-                .Include(s => s.ShippingAddress)
+                .Include(s => s.DeliveryAddress)
                 .Include(s => s.SalesOrdersVersion).ThenInclude(e=>e.SalesOrders)
                 .Include(s => s.Invoice)
                 .Include(s => s.Status)
                 .Include(s => s.CreatedByNavigation)
                 .Include(s => s.UpdatedByNavigation)
-                .FirstOrDefault(s => s.ShipmentID == id);
+                .FirstOrDefault(s => s.ChallanID == id);
 
             if (shipment == null)
             {
                 return NotFound();
             }
 
-            var address = shipment.ShippingAddress != null
+            var address = shipment.DeliveryAddress != null
                 ? new AddressDetailsViewModel
                 {
-                    Id = shipment.ShippingAddress.InvoiceBaseCAddressID,
-                    FullName = shipment.ShippingAddress.FirstName + " " + shipment.ShippingAddress.LastName,
-                    FullAddress = shipment.ShippingAddress.FullAddress,
-                    City = shipment.ShippingAddress.City,
-                    State = shipment.ShippingAddress.State,
-                    PostalCode = shipment.ShippingAddress.PostalCode,
-                    Phone = shipment.ShippingAddress.Phone,
-                    Email = shipment.ShippingAddress.Email
+                    Id = shipment.DeliveryAddress.AddressID,
+                    FullName = shipment.DeliveryAddress.FirstName + " " + shipment.DeliveryAddress.LastName,
+                    FullAddress = shipment.DeliveryAddress.FullAddress,
+                    City = shipment.DeliveryAddress.City,
+                    State = shipment.DeliveryAddress.State,
+                    PostalCode = shipment.DeliveryAddress.PostalCode,
+                    Phone = shipment.DeliveryAddress.Phone,
+                    Email = shipment.DeliveryAddress.Email
                 }
                 : new AddressDetailsViewModel();
 
-            var vm = new ShipmentDetailsViewModel
+            var vm = new ChallanDetailsViewModel
             {
-                Id = shipment.ShipmentID,
-                ShipmentNumber = shipment.ShipmentNumber,
-                ShipmentDate = shipment.ShipmentDate,
+                Id = shipment.ChallanID,
+                ShipmentNumber = shipment.ChallanNumber,
+                ShipmentDate = shipment.ChallanDate,
                 ExpectedDeliveryDate = shipment.ExpectedDeliveryDate,
                 ActualDeliveryDate = shipment.ActualDeliveryDate,
                 SalesOrderId = shipment.SalesOrdersVersionID,
@@ -97,14 +97,14 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                     ? shipment.SalesOrdersVersion?.SalesOrders?.SalesOrderNumber
                     : shipment.Invoice?.InvoiceNumber,
                 TrackingNumber = shipment.TrackingNumber,
-                ShippingCost = shipment.ShippingCost,
-                Items = shipment.ShipmentItems.Select(i => new ShipmentItemDetails
+                ShippingCost = shipment.DeliveryCost,
+                Items = shipment.ChallanItems.Select(i => new ShipmentItemDetails
                 {
-                    SL = i.ShipmentItemID,
+                    SL = i.ChallanItemID,
                     ProductId = i.ProductID,
                     ProductName = i.Product?.ProductName ?? "",
                     OrderedQuantity = i.OrderedQuantity ?? 0m,
-                    ShippedQuantity = i.ShippedQuantity ?? 0m,
+                    ShippedQuantity = i.DeliveredQuantity ?? 0m,
                     FromLocationId = i.FromLocationID,
                     FromLocationName = i.FromLocation?.LocationName ?? "",
                     Note = i.Note
@@ -123,7 +123,8 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                 UpdatedAt = shipment.UpdatedAt
             };
 
-            var sidebarVm = new ShipmentSidebarDetailsViewModel
+            var sidebarVm = new ChallanSidebarDetailsViewModel
+
             {
                 ShipmentId = vm.Id,
                 ShipmentNumber = vm.ShipmentNumber,
@@ -149,29 +150,29 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
         {
             ViewBag.IsEditMode = true;
 
-            var shipment = _shipmentRepository.AllActive()
-                .Include(s => s.ShipmentItems)
+            var shipment = _challanRepository.AllActive()
+                .Include(s => s.ChallanItems)
                     .ThenInclude(i => i.Product)
-                .Include(s => s.ShipmentItems)
+                .Include(s => s.ChallanItems)
                     .ThenInclude(i => i.FromLocation)
-                .Include(s => s.ShippingAddress)
+                .Include(s => s.DeliveryAddress)
                 .Include(s => s.SalesOrdersVersion).ThenInclude(e => e.SalesOrders)
                 .Include(s => s.Invoice)
                 .Include(s => s.Status)
                 .Include(s => s.CreatedByNavigation)
                 .Include(s => s.UpdatedByNavigation)
-                .FirstOrDefault(s => s.ShipmentID == id);
+                .FirstOrDefault(s => s.ChallanID == id);
 
             if (shipment == null)
             {
                 return NotFound();
             }
 
-            var vm = new ShipmentDetailsViewModel
+            var vm = new ChallanDetailsViewModel
             {
-                Id = shipment.ShipmentID,
-                ShipmentNumber = shipment.ShipmentNumber,
-                ShipmentDate = shipment.ShipmentDate,
+                Id = shipment.ChallanID,
+                ShipmentNumber = shipment.ChallanNumber,
+                ShipmentDate = shipment.ChallanDate,
                 ExpectedDeliveryDate = shipment.ExpectedDeliveryDate,
                 ActualDeliveryDate = shipment.ActualDeliveryDate,
                 SalesOrderId = shipment.SalesOrdersVersionID,
@@ -180,16 +181,16 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                 SourceNumber = shipment.SalesOrdersVersionID.HasValue
                     ? shipment.SalesOrdersVersion?.SalesOrders.SalesOrderNumber
                     : shipment.Invoice?.InvoiceNumber,
-                ShippingAddressId = shipment.ShippingAddressID,
+                ShippingAddressId = shipment.DeliveryAddressID,
                 TrackingNumber = shipment.TrackingNumber,
-                ShippingCost = shipment.ShippingCost,
-                Items = shipment.ShipmentItems.Select(i => new ShipmentItemDetails
+                ShippingCost = shipment.DeliveryCost,
+                Items = shipment.ChallanItems.Select(i => new ShipmentItemDetails
                 {
-                    SL = i.ShipmentItemID,
+                    SL = i.ChallanItemID,
                     ProductId = i.ProductID,
                     ProductName = i.Product?.ProductName ?? "",
                     OrderedQuantity = i.OrderedQuantity ?? 0m,
-                    ShippedQuantity = i.ShippedQuantity ?? 0m,
+                    ShippedQuantity = i.DeliveredQuantity ?? 0m,
                     FromLocationId = i.FromLocationID,
                     FromLocationName = i.FromLocation?.LocationName ?? "",
                     Note = i.Note
@@ -206,7 +207,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                 UpdatedAt = shipment.UpdatedAt
             };
 
-            var sidebarVm = new ShipmentSidebarDetailsViewModel
+            var sidebarVm = new ChallanSidebarDetailsViewModel
             {
                 ShipmentId = vm.Id,
                 ShipmentNumber = vm.ShipmentNumber,
@@ -234,7 +235,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
         {
             try
             {
-                var result = await _shipmentService.UpdateStatusAsync(id, status, baseView.CreatedBy ?? 1);
+                var result = await _challanService.UpdateStatusAsync(id, status, baseView.CreatedBy ?? 1);
 
                 return Json(new { success = result.Success, message = result.Message });
             }
@@ -279,7 +280,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
         {
             try
             {
-                var shipment = _shipmentRepository.All().FirstOrDefault(s => s.ShipmentID == id);
+                var shipment = _challanRepository.All().FirstOrDefault(s => s.ChallanID == id);
                 if (shipment == null)
                 {
                     return Json(new { success = false, message = "Shipment not found" });

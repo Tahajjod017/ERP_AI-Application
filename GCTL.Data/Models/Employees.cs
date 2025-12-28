@@ -231,6 +231,18 @@ public partial class Employees
 
     public virtual ICollection<CalculationTypes> CalculationTypesUpdatedByNavigation { get; set; } = new List<CalculationTypes>();
 
+    public virtual ICollection<ChallanItems> ChallanItemsCreatedByNavigation { get; set; } = new List<ChallanItems>();
+
+    public virtual ICollection<ChallanItems> ChallanItemsDeletedByNavigation { get; set; } = new List<ChallanItems>();
+
+    public virtual ICollection<ChallanItems> ChallanItemsUpdatedByNavigation { get; set; } = new List<ChallanItems>();
+
+    public virtual ICollection<Challans> ChallansCreatedByNavigation { get; set; } = new List<Challans>();
+
+    public virtual ICollection<Challans> ChallansDeletedByNavigation { get; set; } = new List<Challans>();
+
+    public virtual ICollection<Challans> ChallansUpdatedByNavigation { get; set; } = new List<Challans>();
+
     public virtual ICollection<ChequeDetails> ChequeDetailsCreatedByNavigation { get; set; } = new List<ChequeDetails>();
 
     public virtual ICollection<ChequeDetails> ChequeDetailsDeletedByNavigation { get; set; } = new List<ChequeDetails>();
@@ -358,6 +370,12 @@ public partial class Employees
     public virtual ICollection<Degree> DegreeUpdatedByNavigation { get; set; } = new List<Degree>();
 
     public virtual Employees DeletedByNavigation { get; set; }
+
+    public virtual ICollection<DeliveryMethods> DeliveryMethodsCreatedByNavigation { get; set; } = new List<DeliveryMethods>();
+
+    public virtual ICollection<DeliveryMethods> DeliveryMethodsDeletedByNavigation { get; set; } = new List<DeliveryMethods>();
+
+    public virtual ICollection<DeliveryMethods> DeliveryMethodsUpdatedByNavigation { get; set; } = new List<DeliveryMethods>();
 
     public virtual ICollection<Departments> DepartmentsCreatedByNavigation { get; set; } = new List<Departments>();
 
@@ -1322,24 +1340,6 @@ public partial class Employees
     public virtual ICollection<Shifts> ShiftsDeletedByNavigation { get; set; } = new List<Shifts>();
 
     public virtual ICollection<Shifts> ShiftsUpdatedByNavigation { get; set; } = new List<Shifts>();
-
-    public virtual ICollection<ShipmentItems> ShipmentItemsCreatedByNavigation { get; set; } = new List<ShipmentItems>();
-
-    public virtual ICollection<ShipmentItems> ShipmentItemsDeletedByNavigation { get; set; } = new List<ShipmentItems>();
-
-    public virtual ICollection<ShipmentItems> ShipmentItemsUpdatedByNavigation { get; set; } = new List<ShipmentItems>();
-
-    public virtual ICollection<Shipments> ShipmentsCreatedByNavigation { get; set; } = new List<Shipments>();
-
-    public virtual ICollection<Shipments> ShipmentsDeletedByNavigation { get; set; } = new List<Shipments>();
-
-    public virtual ICollection<Shipments> ShipmentsUpdatedByNavigation { get; set; } = new List<Shipments>();
-
-    public virtual ICollection<ShippingMethods> ShippingMethodsCreatedByNavigation { get; set; } = new List<ShippingMethods>();
-
-    public virtual ICollection<ShippingMethods> ShippingMethodsDeletedByNavigation { get; set; } = new List<ShippingMethods>();
-
-    public virtual ICollection<ShippingMethods> ShippingMethodsUpdatedByNavigation { get; set; } = new List<ShippingMethods>();
 
     public virtual ICollection<SpiralBioWeeklyPattern> SpiralBioWeeklyPatternCreatedByNavigation { get; set; } = new List<SpiralBioWeeklyPattern>();
 

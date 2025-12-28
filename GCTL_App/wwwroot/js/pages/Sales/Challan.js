@@ -22,7 +22,7 @@
 
     function GetNextCode() {
         $.ajax({
-            url: '/Shipment/GetNextShipmentNumber',
+            url: '/Challan/GetNextShipmentNumber',
             method: 'GET',
             success: function (data) {
                 $('#shipmentNumber').val(data);
@@ -34,6 +34,123 @@
     }
     //#endregion
 
+    //#region Get Delivery Address
+
+    const $card = $('#userInfo');
+    const $dropdownContainer = $('#userDropdownContainer');
+    const $info = {
+        company: $('.info-company'),
+        addr1: $('.info-addr1'),
+        addr2: $('.info-addr2'),
+        tax: $('.info-tax'),
+        phone: $('.info-phone'),
+        email: $('.info-email')
+    };
+
+    let customersData = [];
+
+    // Load customers via AJAX
+    function loadCustomers(saleOrderId, invoiceId) {
+        $.ajax({
+            url: '/Challan/GetAllAddresss',
+            method: 'GET',
+            data: { saleOrderId : saleOrderId, invoiceId : invoiceId },
+            success: function (data) {
+                customersData = data;
+                populateDropdown();
+
+                const preSelectedId = $('#preSelectedDeliveryId').val();
+                if (preSelectedId) {
+                    $('#showUserDropdownBtn').hide();
+                    $('#userDropdownContainer').show();
+                    $('#shippingAddressDropdown').val(preSelectedId);
+                    showCustomer(preSelectedId);
+                    loadQuotations(preSelectedId);
+                }
+            },
+            error: function () {
+                console.error('Failed to load customers');
+                toastr.error('Failed to load customers. Please refresh the page.');
+            }
+        });
+    }
+
+    function populateDropdown() {
+        const $dropdown = $('#shippingAddressDropdown');
+        $dropdown.find('option:not(:first)').remove();
+
+        customersData.forEach(function (customer) {
+            const $option = $('<option>')
+                .val(customer.id)
+                .text(customer.companyName + ' (' + customer.contactName + ')')
+                .data({
+                    company: customer.companyName,
+                    contact: customer.contactName,
+                    email: customer.email,
+                    phone: customer.phone,
+                    addr1: customer.addressLine1,
+                    addr2: customer.addressLine2,
+                    tax: customer.taxNumber
+                });
+
+            $dropdown.append($option);
+        });
+    }
+
+    const saleOrderId  = $('#saleOrderId').val();
+    const invoiceId = $('#invoiceId').val();
+
+
+    loadCustomers(saleOrderId, invoiceId);
+
+    function showCustomer(customerId) {
+        if (!customerId) {
+            $card.hide();
+            $('#selectedDeliveryId').val('');
+            $('#quotationDropdownContainer').hide();
+            return;
+        }
+
+        const $option = $('#shippingAddressDropdown option[value="' + customerId + '"]');
+        if ($option.length === 0) {
+            $card.hide();
+            return;
+        }
+
+        const company = $option.data('company');
+        const contact = $option.data('contact');
+        const email = $option.data('email');
+        const phone = $option.data('phone');
+        const addr1 = $option.data('addr1');
+        const addr2 = $option.data('addr2');
+        const tax = $option.data('tax');
+
+        $info.company.text(company || '');
+        $info.addr1.text(addr1 || '');
+        $info.addr2.text(addr2 || '');
+        $info.tax.text('Tax Number: ' + (tax || ''));
+        $info.phone.text(phone || '');
+        $info.email.text(email || '');
+
+        $('#selectedCustomerId').val(customerId);
+        $dropdownContainer.hide();
+        $card.show();
+
+    }
+
+    $('#showUserDropdownBtn').on('click', function () {
+        $(this).hide();
+        $('#userDropdownContainer').show();
+        $('#shippingAddressDropdown').focus();
+    });
+
+    $('#shippingAddressDropdown').on('change', function () {
+        const selectedId = $(this).val();
+        showCustomer(selectedId);
+    });
+
+    //#endregion
+
     //#region  LOAD DROPDOWN DATA
     // ==============================================================
     let productsData = [];
@@ -42,7 +159,7 @@
 
     function loadProducts() {
         $.ajax({
-            url: '/Shipment/GetProducts',
+            url: '/Challan/GetProducts',
             method: 'GET',
             success: function (data) {
                 productsData = data;
@@ -56,7 +173,7 @@
 
     function loadLocations() {
         $.ajax({
-            url: '/Shipment/GetLocations',
+            url: '/Challan/GetLocations',
             method: 'GET',
             success: function (data) {
                 locationsData = data;
@@ -70,7 +187,7 @@
 
     function loadAddresses() {
         $.ajax({
-            url: '/Shipment/GetAddresses',
+            url: '/Challan/GetAddresses',
             method: 'GET',
             success: function (data) {
                 addressesData = data;
@@ -257,13 +374,13 @@
         const formData = $(this).serialize();
 
         $.ajax({
-            url: '/Shipment/Save',
+            url: '/Challan/Save',
             method: 'POST',
             data: formData,
             success: function (response) {
                 if (response.success) {
                     toastr.success(response.message || 'Shipment saved successfully!');
-                    window.location.href = '/ShipmentDetails/index/' + response.shipmentId;
+                    window.location.href = '/ChallanDetails/index/' + response.shipmentId;
                 } else {
                     toastr.error(response.message || 'Failed to save shipment');
                 }

@@ -33,6 +33,8 @@ public partial class Statuses
 
     public virtual ICollection<Attendance> Attendance { get; set; } = new List<Attendance>();
 
+    public virtual ICollection<Challans> Challans { get; set; } = new List<Challans>();
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual ICollection<DailyAttendanceStatus> DailyAttendanceStatus { get; set; } = new List<DailyAttendanceStatus>();
@@ -59,6 +61,8 @@ public partial class Statuses
 
     public virtual ICollection<InventoryTransfers> InventoryTransfers { get; set; } = new List<InventoryTransfers>();
 
+    public virtual ICollection<Invoices> Invoices { get; set; } = new List<Invoices>();
+
     public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
 
     public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
@@ -83,12 +87,9 @@ public partial class Statuses
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
 
-    public virtual ICollection<Shipments> Shipments { get; set; } = new List<Shipments>();
-
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistory { get; set; } = new List<TerminationApprovalHistory>();
 
     public virtual ICollection<Terminations> Terminations { get; set; } = new List<Terminations>();
-    public ICollection<Invoices> Invoices { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

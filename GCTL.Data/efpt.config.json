@@ -755,6 +755,18 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[ChallanItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[Challans]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[DeliveryMethods]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[Inventory]",
          "ObjectType": 0
       },
@@ -904,18 +916,6 @@
       },
       {
          "Name": "[SC].[SalesOrderVersionItems]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[SC].[ShipmentItems]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[SC].[Shipments]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[SC].[ShippingMethods]",
          "ObjectType": 0
       },
       {

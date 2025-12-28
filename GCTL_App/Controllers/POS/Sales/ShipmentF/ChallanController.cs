@@ -1,4 +1,7 @@
-﻿using GCTL.Core.Repository;
+﻿using Bogus.DataSets;
+using GCTL.Core.Repository;
+using GCTL.Core.ViewModels.CRM.Customer;
+using GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails;
 using GCTL.Core.ViewModels.POS.Sales.Shipment;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
@@ -11,19 +14,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GCTL_App.Controllers.POS.Sales.ShipmentF
 {
-    public class ShipmentController : BaseController
+    public class ChallanController : BaseController
     {
         private readonly IGenericRepository<Products> _productRepository;
         private readonly IGenericRepository<Locations> _locationRepository;
-        private readonly IGenericRepository<InvoiceBaseCAddresses> _addressRepository;
+        private readonly IGenericRepository<InvoiceBaseCAddresses> _invAddressRepository;
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
         private readonly IGenericRepository<Invoices> _invoiceRepository;
 
-        private readonly IShipment _shipmentService;
+        private readonly IGenericRepository<Customers> _customerRepository;
+        private readonly IGenericRepository<CustomerAddresses> _customerAddressRepository;
+        private readonly IGenericRepository<Addresses> _cusaddressRepository;
+
+        private readonly IChallan _challanService;
         private readonly IStatusService _statusService;
 
-        public ShipmentController(
+        public ChallanController(
             ITranslateService translateService,
             IUserProfileService userProfileService,
             IGenericRepository<Products> productRepository,
@@ -31,19 +38,25 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
             IGenericRepository<InvoiceBaseCAddresses> addressRepository,
             IGenericRepository<SalesOrders> salesOrderRepository,
             IGenericRepository<Invoices> invoiceRepository,
-            IShipment shipmentService,
+            IChallan shipmentService,
             IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
-            IStatusService statusService)
+            IStatusService statusService,
+            IGenericRepository<Customers> customerRepository,
+            IGenericRepository<CustomerAddresses> customerAddressRepository,
+            IGenericRepository<Addresses> cusaddressRepository)
             : base(translateService, userProfileService)
         {
             _productRepository = productRepository;
             _locationRepository = locationRepository;
-            _addressRepository = addressRepository;
+            _invAddressRepository = addressRepository;
             _salesOrderRepository = salesOrderRepository;
             _invoiceRepository = invoiceRepository;
-            _shipmentService = shipmentService;
+            _challanService = shipmentService;
             _salesOrderVersionRepository = salesOrderVersionRepository;
             _statusService = statusService;
+            _customerRepository = customerRepository;
+            _customerAddressRepository = customerAddressRepository;
+            _cusaddressRepository = cusaddressRepository;
         }
 
         // ==============================
@@ -59,7 +72,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
 
             SetSmartPageCode(90260100);
 
-            var vm = new ShipmentViewModel
+            var vm = new ChallanViewModel
             {
                 Id = null,
                 ShipmentDate = DateTime.Today,
@@ -97,19 +110,31 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                 var salesOrder = _salesOrderVersionRepository.AllActive()
                     .Include(e=>e.SalesOrders)
                     .Include(e=>e.SalesOrderVersionItems)
-                    .Include(e=>e.Shipments).ThenInclude(e=>e.ShipmentItems)
-                    .FirstOrDefault(so => so.SalesOrdersVersionID == salesOrderId);
+                    .Include(e=>e.Challans).ThenInclude(e=>e.ChallanItems)
+                    .Include(e=>e.Customer).ThenInclude(e=>e.CustomerAddresses).ThenInclude(e=>e.Address)
+                    .Where(so => so.SalesOrdersVersionID == salesOrderId)
+                    .Select(salesOrder => new
+                    {
+                        SourceNumber = salesOrder.SalesOrders.SalesOrderNumber,
+                        Items = salesOrder.SalesOrderVersionItems,
+                        CustomerData = salesOrder.Customer,
+                        cusAddress = salesOrder.Customer.CustomerAddresses.FirstOrDefault().Address,
+                        Challans = salesOrder.Challans,
+                        LocationID = salesOrder.LocationID
+                    })
+
+                    .FirstOrDefault();
                 if (salesOrder != null)
                 {
                     vm.SourceType = "SalesOrder";
-                    vm.SourceNumber = salesOrder.SalesOrders.SalesOrderNumber;
-                    vm.Items = salesOrder.SalesOrderVersionItems.Select(e =>
+                    vm.SourceNumber = salesOrder.SourceNumber;
+                    vm.Items = salesOrder.Items.Select(e =>
                     {
-                        var alreadyShipped = salesOrder.Shipments
+                        var alreadyShipped = salesOrder.Challans
                             .Where(s => s.StatusID != stsus) // Cancel বাদ
-                            .SelectMany(s => s.ShipmentItems)
+                            .SelectMany(s => s.ChallanItems)
                             .Where(si => si.ProductID == e.ProductID && si.DeletedAt == null)
-                            .Sum(si => si.ShippedQuantity) ?? 0;
+                            .Sum(si => si.DeliveredQuantity) ?? 0;
 
                         var orderedQty = e.Quantity ?? 0;
 
@@ -124,6 +149,15 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                             FromLocationId = salesOrder.LocationID
                         };
                     }).ToList();
+
+                    vm.CustomerData = new CustomerDetailsViewModel()
+                    {
+                        CompanyName = salesOrder.CustomerData != null ? salesOrder.CustomerData.FullName : "",
+                        AddressLine1 = salesOrder.cusAddress != null ? salesOrder.cusAddress.FullAddress : "",
+                        ContactName = salesOrder.cusAddress != null ? salesOrder.cusAddress.FirstName + " " + salesOrder.cusAddress.FirstName : "",
+                        Email = salesOrder.cusAddress != null ? salesOrder.cusAddress.Email : "",
+                        Phone = salesOrder.cusAddress != null ? salesOrder.cusAddress.Phone : "",
+                    };
                 }
             }
             else if (invoiceId.HasValue)
@@ -145,7 +179,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
         // ==============================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public JsonResult Save(ShipmentViewModel vm)
+        public JsonResult Save(ChallanViewModel vm)
         {
             if (!ModelState.IsValid)
             {
@@ -165,7 +199,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                 return Json(new { success = false, errors, message = messages });
             }
 
-            var result = _shipmentService.SaveAsync(vm).Result;
+            var result = _challanService.SaveAsync(vm).Result;
 
             return Json(new
             {
@@ -213,7 +247,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
         [HttpGet]
         public JsonResult GetAddresses()
         {
-            var result = _addressRepository.AllActive()
+            var result = _invAddressRepository.AllActive()
                 .Select(a => new
                 {
                     id = a.InvoiceBaseCAddressID,
@@ -235,7 +269,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
         [HttpGet]
         public IActionResult GetNextShipmentNumber()
         {
-            var result = _shipmentService.GetNextShipmentNumber().Result;
+            var result = _challanService.GetNextShipmentNumber().Result;
             return Ok(result);
         }
 
@@ -266,6 +300,43 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
 
             // TODO: Implement when InvoiceItems relationship is properly set
             return Json(new List<object>());
+        }
+
+
+        [HttpGet]
+        public JsonResult GetAllAddresss(int? saleOrderId, int? invoiceId)
+        {
+            int? inv = 0;
+            int? sal = 0;
+
+            if (saleOrderId != null && saleOrderId != 0)
+            {
+                sal = _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersVersionID == saleOrderId).Select(e => e.CustomerID).FirstOrDefaultAsync().Result;
+            }
+
+            if (invoiceId != null && invoiceId != 0)
+            {
+                inv = _invoiceRepository.AllActive().Where(e => e.InvoiceID == invoiceId).Select(e => e.CustomerID).FirstOrDefaultAsync().Result;
+            }
+
+
+            var result = _customerAddressRepository.AllActive()
+                .Include(e=>e.Address)
+                .Include(e=>e.Customer)
+                .Where(e=>e.CustomerID == inv || e.CustomerID == sal)
+                .Select(address => new
+                {
+                    Id = address.AddressID,
+                    CompanyName = address.Customer.FullName,
+                    ContactName = address.Address.FirstName + " " + address.Address.LastName,
+                    address.Address.Email,
+                    address.Address.Phone,
+                    AddressLine1 = address.Address.FullAddress,
+                    AddressLine2 = address.Address.Additionaladdress,
+                    TaxNumber = address.Address.OtherPhone
+                }).ToList();
+
+            return Json(result);
         }
     }
 }

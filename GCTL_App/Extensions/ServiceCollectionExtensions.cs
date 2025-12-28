@@ -298,8 +298,8 @@ namespace GCTL_App.Extensions
             services.AddScoped<IInvoiceList, InvoiceListService>();
 
             // Shipment Services
-            services.AddScoped<IShipment, ShipmentService>();
-            services.AddScoped<IShipmentList, ShipmentListService>();
+            services.AddScoped<IChallan, ChallanService>();
+            services.AddScoped<IChallanList, ChallanListService>();
 
 
             #endregion

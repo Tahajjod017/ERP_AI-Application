@@ -15,10 +15,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.POS.Sales.Shipment
 {
-    public class ShipmentService : IShipment
+    public class ChallanService : IChallan
     {
-        private readonly IGenericRepository<Shipments> _shipmentRepository;
-        private readonly IGenericRepository<ShipmentItems> _shipmentItemRepository;
+        private readonly IGenericRepository<Challans> _challanRepository;
+        private readonly IGenericRepository<ChallanItems> _challanItemRepository;
         private readonly IGenericRepository<GCTL.Data.Models.Inventory> _inventoryRepository;
         private readonly IGenericRepository<InventoryTransactionHistory> _inventoryTransactionRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
@@ -26,17 +26,17 @@ namespace GCTL.Service.POS.Sales.Shipment
         private readonly IUserInfoService _userInfoService;
         private readonly IStatusService _StatusService;
 
-        public ShipmentService(
-            IGenericRepository<Shipments> shipmentRepository,
-            IGenericRepository<ShipmentItems> shipmentItemRepository,
+        public ChallanService(
+            IGenericRepository<Challans> shipmentRepository,
+            IGenericRepository<ChallanItems> shipmentItemRepository,
             IGenericRepository<GCTL.Data.Models.Inventory> inventoryRepository,
             IGenericRepository<InventoryTransactionHistory> inventoryTransactionRepository,
             IUserInfoService userInfoService,
             IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
             IStatusService statusService)
         {
-            _shipmentRepository = shipmentRepository;
-            _shipmentItemRepository = shipmentItemRepository;
+            _challanRepository = shipmentRepository;
+            _challanItemRepository = shipmentItemRepository;
             _inventoryRepository = inventoryRepository;
             _inventoryTransactionRepository = inventoryTransactionRepository;
             _userInfoService = userInfoService;
@@ -46,14 +46,14 @@ namespace GCTL.Service.POS.Sales.Shipment
 
         public async Task<string> GetNextShipmentNumber()
         {
-            var lastShipment = await _shipmentRepository.AllActive()
-                .OrderByDescending(i => i.ShipmentNumber)
-                .Select(i => i.ShipmentNumber)
+            var lastShipment = await _challanRepository.AllActive()
+                .OrderByDescending(i => i.ChallanNumber)
+                .Select(i => i.ChallanNumber)
                 .FirstOrDefaultAsync();
 
             int nextNumber = 1;
 
-            if (!string.IsNullOrEmpty(lastShipment) && lastShipment.StartsWith("SHP"))
+            if (!string.IsNullOrEmpty(lastShipment) && lastShipment.StartsWith("CLN"))
             {
                 string numericPart = lastShipment.Substring(3);
                 if (int.TryParse(numericPart, out int parsed))
@@ -62,69 +62,69 @@ namespace GCTL.Service.POS.Sales.Shipment
                 }
             }
 
-            string nextShipment = $"SHP{nextNumber.ToString("D5")}";
+            string nextShipment = $"CLN{nextNumber.ToString("D5")}";
             return nextShipment;
         }
 
-        public async Task<CommonReturnViewModel> SaveAsync(ShipmentViewModel vm)
+        public async Task<CommonReturnViewModel> SaveAsync(ChallanViewModel vm)
         {
-            await _shipmentItemRepository.BeginTransactionAsync();
+            await _challanItemRepository.BeginTransactionAsync();
 
             try
             {
                 // ============================================================
                 // 1️⃣ CHECK IF EXISTING SHIPMENT (Update scenario)
                 // ============================================================
-                var prevShipment = await _shipmentRepository.AllActive()
-                    .FirstOrDefaultAsync(e => e.ShipmentID == vm.Id);
+                var prevShipment = await _challanRepository.AllActive()
+                    .FirstOrDefaultAsync(e => e.ChallanID == vm.Id);
 
                 if (prevShipment != null)
                 {
                     // 🔹 Update header fields
-                    prevShipment.ShipmentDate = vm.ShipmentDate.Value;
+                    prevShipment.ChallanDate = vm.ShipmentDate.Value;
                     prevShipment.ExpectedDeliveryDate = vm.ExpectedDeliveryDate;
                     prevShipment.ActualDeliveryDate = vm.ActualDeliveryDate;
-                    prevShipment.ShippingMethodID = vm.ShippingMethodId;
+                    prevShipment.DeliveryMethodID = vm.ShippingMethodId;
                     prevShipment.TrackingNumber = vm.TrackingNumber;
-                    prevShipment.ShippingAddressID = vm.ShippingAddressId;
-                    prevShipment.ShippingCost = vm.ShippingCost;
+                    prevShipment.DeliveryAddressID = vm.ShippingAddressId;
+                    prevShipment.DeliveryCost = vm.ShippingCost;
                     prevShipment.Note = vm.Note;
                     prevShipment.UpdatedAt = DateTime.Now;
                     prevShipment.UpdatedBy = vm.CreatedBy;
 
                     // 🔹 Remove old items
-                    var existingItems = await _shipmentItemRepository.All()
-                        .Where(i => i.ShipmentID == prevShipment.ShipmentID)
+                    var existingItems = await _challanItemRepository.All()
+                        .Where(i => i.ChallanID == prevShipment.ChallanID)
                         .ToListAsync();
 
-                    await _shipmentItemRepository.DeleteRangeAsync(existingItems);
+                    await _challanItemRepository.DeleteRangeAsync(existingItems);
 
                     // 🔹 Add new items
                     foreach (var itemVm in vm.Items)
                     {
-                        var newItem = new ShipmentItems
+                        var newItem = new ChallanItems
                         {
-                            ShipmentID = prevShipment.ShipmentID,
+                            ChallanID = prevShipment.ChallanID,
                             ProductID = itemVm.ProductId,
                             OrderedQuantity = itemVm.OrderedQuantity,
-                            ShippedQuantity = itemVm.ShippedQuantity,
+                            DeliveredQuantity = itemVm.ShippedQuantity,
                             FromLocationID = itemVm.FromLocationId,
                             Note = itemVm.Note,
                             CreatedAt = DateTime.Now,
                             CreatedBy = vm.CreatedBy
                         };
 
-                        await _shipmentItemRepository.AddAsync(newItem);
+                        await _challanItemRepository.AddAsync(newItem);
                     }
 
-                    await _shipmentRepository.UpdateAsync(prevShipment);
-                    await _shipmentItemRepository.CommitTransactionAsync();
+                    await _challanRepository.UpdateAsync(prevShipment);
+                    await _challanItemRepository.CommitTransactionAsync();
 
                     return new CommonReturnViewModel
                     {
                         Success = true,
                         Message = "Shipment Updated Successfully",
-                        Data = prevShipment.ShipmentID
+                        Data = prevShipment.ChallanID
                     };
                 }
                 else
@@ -138,57 +138,57 @@ namespace GCTL.Service.POS.Sales.Shipment
 
                     var salesOrder = await _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersVersionID == vm.SalesOrderId).Select(e => e.SalesOrdersVersionID).FirstOrDefaultAsync();
 
-                    var newShipment = new Shipments
+                    var newShipment = new Challans
                     {
-                        ShipmentNumber = vm.ShipmentNumber,
+                        ChallanNumber = vm.ShipmentNumber,
                         SalesOrdersVersionID = salesOrder,
                         InvoiceID = vm.InvoiceId,
-                        ShipmentDate = vm.ShipmentDate.Value,
+                        ChallanDate = vm.ShipmentDate.Value,
                         ExpectedDeliveryDate = vm.ExpectedDeliveryDate,
                         ActualDeliveryDate = vm.ActualDeliveryDate,
-                        ShippingMethodID = vm.ShippingMethodId,
+                        DeliveryMethodID = vm.ShippingMethodId,
                         TrackingNumber = vm.TrackingNumber,
-                        ShippingAddressID = vm.ShippingAddressId,
-                        ShippingCost = vm.ShippingCost,
+                        DeliveryAddressID = vm.ShippingAddressId,
+                        DeliveryCost = vm.ShippingCost,
                         Note = vm.Note,
                         StatusID = statys, //vm.StatusId ?? 1, // Default: Pending
                         CreatedAt = DateTime.Now,
                         CreatedBy = vm.CreatedBy
                     };
 
-                    await _shipmentRepository.AddAsync(newShipment);
+                    await _challanRepository.AddAsync(newShipment);
 
                     // 🔹 Add items
                     foreach (var itemVm in vm.Items)
                     {
-                        var modelItem = new ShipmentItems
+                        var modelItem = new ChallanItems
                         {
-                            ShipmentID = newShipment.ShipmentID,
+                            ChallanID = newShipment.ChallanID,
                             ProductID = itemVm.ProductId,
                             OrderedQuantity = itemVm.OrderedQuantity,
-                            ShippedQuantity = itemVm.ShippedQuantity,
+                            DeliveredQuantity = itemVm.ShippedQuantity,
                             FromLocationID = itemVm.FromLocationId,
                             Note = itemVm.Note,
                             CreatedAt = DateTime.Now,
                             CreatedBy = vm.CreatedBy
                         };
 
-                        await _shipmentItemRepository.AddAsync(modelItem);
+                        await _challanItemRepository.AddAsync(modelItem);
                     }
 
-                    await _shipmentItemRepository.CommitTransactionAsync();
+                    await _challanItemRepository.CommitTransactionAsync();
 
                     return new CommonReturnViewModel
                     {
                         Success = true,
                         Message = "Shipment Created Successfully",
-                        Data = newShipment.ShipmentID
+                        Data = newShipment.ChallanID
                     };
                 }
             }
             catch (Exception ex)
             {
-                await _shipmentItemRepository.RollbackTransactionAsync();
+                await _challanItemRepository.RollbackTransactionAsync();
                 return new CommonReturnViewModel
                 {
                     Success = false,
@@ -197,7 +197,7 @@ namespace GCTL.Service.POS.Sales.Shipment
             }
         }
 
-        public async Task<CommonReturnViewModel> UpdateStatusAsync(int shipmentId, int statusId, int userId)
+        public async Task<CommonReturnViewModel> UpdateStatusAsync(int challanId, int statusId, int userId)
         {
             await _inventoryRepository.OpenTransactionAsync();
 
@@ -208,16 +208,16 @@ namespace GCTL.Service.POS.Sales.Shipment
 
             try
             {
-                var shipment = await _shipmentRepository.AllActive()
-                    .Include(s => s.ShipmentItems)
-                    .FirstOrDefaultAsync(s => s.ShipmentID == shipmentId);
+                var shipment = await _challanRepository.AllActive()
+                    .Include(s => s.ChallanItems)
+                    .FirstOrDefaultAsync(s => s.ChallanID == challanId);
 
                 if (shipment == null)
                 {
                     return new CommonReturnViewModel
                     {
                         Success = false,
-                        Message = "Shipment not found"
+                        Message = "Challan not found"
                     };
                 }
 
@@ -227,9 +227,9 @@ namespace GCTL.Service.POS.Sales.Shipment
                 //if (statusId == 3 || statusId == 5) // Shipped or Delivered
                 if (name == "Shipped") // ||name == "Delivered") // Shipped or Delivered
                 {
-                    foreach (var item in shipment.ShipmentItems)
+                    foreach (var item in shipment.ChallanItems)
                     {
-                       var res =  await DeductInventory(item.ProductID.Value, item.ShippedQuantity.Value, item.FromLocationID.Value, shipmentId, userId);
+                       var res =  await DeductInventory(item.ProductID.Value, item.DeliveredQuantity.Value, item.FromLocationID.Value, challanId, userId);
 
                         if (!res)
                         {
@@ -247,9 +247,9 @@ namespace GCTL.Service.POS.Sales.Shipment
 
                 if (name == "Cancelled" && shipment.StatusID == shipped) // Shipped or Delivered
                 {
-                    foreach (var item in shipment.ShipmentItems)
+                    foreach (var item in shipment.ChallanItems)
                     {
-                       var res =  await ReverseInventory(item.ProductID.Value, item.ShippedQuantity.Value, item.FromLocationID.Value, shipmentId, userId);
+                       var res =  await ReverseInventory(item.ProductID.Value, item.DeliveredQuantity.Value, item.FromLocationID.Value, challanId, userId);
 
                         
                     }
@@ -260,7 +260,7 @@ namespace GCTL.Service.POS.Sales.Shipment
                 shipment.UpdatedAt = DateTime.Now;
 
 
-                await _shipmentRepository.UpdateAsync(shipment);
+                await _challanRepository.UpdateAsync(shipment);
 
                 await _inventoryRepository.CompleteTransactionAsync();
 
@@ -283,7 +283,7 @@ namespace GCTL.Service.POS.Sales.Shipment
             }
         }
 
-        private async Task<bool> ReverseInventory(int productId, decimal quantity, int locationId, int shipmentId, int userId)
+        private async Task<bool> ReverseInventory(int productId, decimal quantity, int locationId, int challanId, int userId)
         {
             try
             {
@@ -311,7 +311,7 @@ namespace GCTL.Service.POS.Sales.Shipment
                         TransactionType = statys, // Outbound
                         TransactionDate = DateTime.Now,
                         ReferenceType = "Shipment Return",
-                        ReferenceID = shipmentId,
+                        ReferenceID = challanId,
                         FromLocationID = locationId,
                         BalanceAfter = inventory.Quantity,
                         CreatedBy = userId,
@@ -335,7 +335,7 @@ namespace GCTL.Service.POS.Sales.Shipment
             }
         }
 
-        private async Task<bool> DeductInventory(int productId, decimal quantity, int locationId, int shipmentId, int userId)
+        private async Task<bool> DeductInventory(int productId, decimal quantity, int locationId, int challanId, int userId)
         {
             try
             {
@@ -364,7 +364,7 @@ namespace GCTL.Service.POS.Sales.Shipment
                         TransactionType = statys, // Outbound
                         TransactionDate = DateTime.Now,
                         ReferenceType = "Shipment",
-                        ReferenceID = shipmentId,
+                        ReferenceID = challanId,
                         FromLocationID = locationId,
                         BalanceAfter = inventory.Quantity,
                         CreatedBy = userId,

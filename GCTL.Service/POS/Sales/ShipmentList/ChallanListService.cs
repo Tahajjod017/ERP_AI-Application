@@ -10,34 +10,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GCTL.Service.POS.Sales.ShipmentList
 {
-    public class ShipmentListService : IShipmentList
+    public class ChallanListService : IChallanList
     {
-        private readonly IGenericRepository<Shipments> _shipmentRepository;
-        private readonly IGenericRepository<ShipmentItems> _shipmentItemRepository;
+        private readonly IGenericRepository<Challans> _challanRepository;
+        private readonly IGenericRepository<ChallanItems> _challanItemRepository;
 
-        public ShipmentListService(
-            IGenericRepository<Shipments> shipmentRepository,
-            IGenericRepository<ShipmentItems> shipmentItemRepository)
+        public ChallanListService(IGenericRepository<Challans> shipmentRepository, IGenericRepository<ChallanItems> shipmentItemRepository)
         {
-            _shipmentRepository = shipmentRepository;
-            _shipmentItemRepository = shipmentItemRepository;
+            _challanRepository = shipmentRepository;
+            _challanItemRepository = shipmentItemRepository;
         }
 
-        public async Task<ShiPaginatedResultData<ShipmentListDto>> GetShipmentsWithPagination(
-            int page,
-            int pageSize,
-            string searchTerm,
-            string sortColumn,
-            string sortDirection)
+        public async Task<ShiPaginatedResultData<ShipmentListDto>> GetChallanWithPagination(int page, int pageSize, string searchTerm, string sortColumn, string sortDirection)
         {
             try
             {
-                var query = _shipmentRepository.AllActive()
-                    .Include(s => s.ShipmentItems)
+                var query = _challanRepository.AllActive()
+                    .Include(s => s.ChallanItems)
                     .Include(s => s.Status)
                     .Include(s => s.SalesOrdersVersion).ThenInclude(e=>e.SalesOrders)
                     .Include(s => s.Invoice)
-                    .Include(s => s.ShippingAddress)
+                    .Include(s => s.DeliveryAddress)
                     .Include(s => s.CreatedByNavigation).AsQueryable();
 
                 // Apply search filter
@@ -45,7 +38,7 @@ namespace GCTL.Service.POS.Sales.ShipmentList
                 {
                     searchTerm = searchTerm.ToLower();
                     query = query.Where(s =>
-                        s.ShipmentNumber.ToLower().Contains(searchTerm) ||
+                        s.ChallanNumber.ToLower().Contains(searchTerm) ||
                         (s.TrackingNumber != null && s.TrackingNumber.ToLower().Contains(searchTerm)) ||
                         (s.CreatedByNavigation != null && s.CreatedByNavigation.FirstName.ToLower().Contains(searchTerm))
                     );
@@ -55,20 +48,20 @@ namespace GCTL.Service.POS.Sales.ShipmentList
                 query = sortColumn switch
                 {
                     "ShipmentID" => sortDirection == "asc"
-                        ? query.OrderBy(s => s.ShipmentID)
-                        : query.OrderByDescending(s => s.ShipmentID),
+                        ? query.OrderBy(s => s.ChallanID)
+                        : query.OrderByDescending(s => s.ChallanID),
                     "ShipmentNumber" => sortDirection == "asc"
-                        ? query.OrderBy(s => s.ShipmentNumber)
-                        : query.OrderByDescending(s => s.ShipmentNumber),
+                        ? query.OrderBy(s => s.ChallanNumber)
+                        : query.OrderByDescending(s => s.ChallanNumber),
                     "ShipmentDate" => sortDirection == "asc"
-                        ? query.OrderBy(s => s.ShipmentDate)
-                        : query.OrderByDescending(s => s.ShipmentDate),
+                        ? query.OrderBy(s => s.ChallanDate)
+                        : query.OrderByDescending(s => s.ChallanDate),
                     "ExpectedDeliveryDate" => sortDirection == "asc"
                         ? query.OrderBy(s => s.ExpectedDeliveryDate)
                         : query.OrderByDescending(s => s.ExpectedDeliveryDate),
                     "ShippingCost" => sortDirection == "asc"
-                        ? query.OrderBy(s => s.ShippingCost)
-                        : query.OrderByDescending(s => s.ShippingCost),
+                        ? query.OrderBy(s => s.DeliveryCost)
+                        : query.OrderByDescending(s => s.DeliveryCost),
                     _ => sortDirection == "asc"
                         ? query.OrderBy(s => s.CreatedAt)
                         : query.OrderByDescending(s => s.CreatedAt)
@@ -82,25 +75,25 @@ namespace GCTL.Service.POS.Sales.ShipmentList
                     .Take(pageSize)
                     .Select(s => new ShipmentListDto
                     {
-                        ShipmentID = s.ShipmentID,
-                        ShipmentNumber = s.ShipmentNumber ?? "",
+                        ShipmentID = s.ChallanID,
+                        ShipmentNumber = s.ChallanNumber ?? "",
                         SourceType = s.SalesOrdersVersionID.HasValue ? "Sales Order" : "Invoice",
                         SourceNumber = s.SalesOrdersVersionID.HasValue
                             ? (s.SalesOrdersVersion != null ? s.SalesOrdersVersion.SalesOrders.SalesOrderNumber : "")
                             : (s.Invoice != null ? s.Invoice.InvoiceNumber : ""),
-                        ShipmentDate = s.ShipmentDate,
+                        ShipmentDate = s.ChallanDate,
                         ExpectedDeliveryDate = s.ExpectedDeliveryDate,
                         ActualDeliveryDate = s.ActualDeliveryDate,
                         ShippingMethod = "", // TODO: Add when ShippingMethods table is available
                         TrackingNumber = s.TrackingNumber ?? "",
-                        ShippingCost = s.ShippingCost,
-                        TotalItems = s.ShipmentItems.Count,
+                        ShippingCost = s.DeliveryCost,
+                        TotalItems = s.ChallanItems.Count,
                         Status = s.Status != null ? s.Status.StatusName : "Pending",
                         CreatedBy = s.CreatedByNavigation != null
                             ? s.CreatedByNavigation.FirstName + " " + s.CreatedByNavigation.LastName
                             : "",
-                        ShippingAddress = s.ShippingAddress != null
-                            ? s.ShippingAddress.FullAddress
+                        ShippingAddress = s.DeliveryAddress != null
+                            ? s.DeliveryAddress.FullAddress
                             : ""
                     })
                     .ToListAsync();

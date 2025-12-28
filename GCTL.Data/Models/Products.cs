@@ -85,6 +85,8 @@ public partial class Products
 
     public virtual BarcodeGenerateFrom BarcodeGenerateFrom { get; set; }
 
+    public virtual ICollection<ChallanItems> ChallanItems { get; set; } = new List<ChallanItems>();
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual ICollection<CreditNoteItems> CreditNoteItems { get; set; } = new List<CreditNoteItems>();
@@ -128,8 +130,6 @@ public partial class Products
     public virtual ICollection<RequisitionItems> RequisitionItems { get; set; } = new List<RequisitionItems>();
 
     public virtual ICollection<SalesOrderVersionItems> SalesOrderVersionItems { get; set; } = new List<SalesOrderVersionItems>();
-
-    public virtual ICollection<ShipmentItems> ShipmentItems { get; set; } = new List<ShipmentItems>();
 
     public virtual UnitTypes UnitType { get; set; }
 

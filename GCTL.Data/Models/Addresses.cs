@@ -53,6 +53,8 @@ public partial class Addresses
 
     public string LastName { get; set; }
 
+    public virtual ICollection<Challans> Challans { get; set; } = new List<Challans>();
+
     public virtual ICollection<CompanyBranchAddresses> CompanyBranchAddresses { get; set; } = new List<CompanyBranchAddresses>();
 
     public virtual ICollection<CompanyWarehouseAddresses> CompanyWarehouseAddresses { get; set; } = new List<CompanyWarehouseAddresses>();

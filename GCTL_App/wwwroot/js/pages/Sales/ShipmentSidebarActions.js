@@ -44,7 +44,7 @@ function cancelShipment(id) {
 
 function updateShipmentStatus(id, status, successMessage) {
     $.ajax({
-        url: '/ShipmentDetails/UpdateStatus',
+        url: '/ChallanDetails/UpdateStatus',
         method: 'POST',
         data: {
             id: id,
@@ -68,7 +68,7 @@ function updateShipmentStatus(id, status, successMessage) {
 function printShipment(id) {
     window.print();
     // Or open in new window for PDF generation
-    // window.open('/ShipmentDetails/PrintPDF/' + id, '_blank');
+    // window.open('/ChallanDetails/PrintPDF/' + id, '_blank');
 }
 
 function deleteShipment(id) {
@@ -77,7 +77,7 @@ function deleteShipment(id) {
     }
 
     $.ajax({
-        url: '/ShipmentDetails/Delete',
+        url: '/ChallanDetails/Delete',
         method: 'POST',
         data: {
             id: id,
@@ -86,7 +86,7 @@ function deleteShipment(id) {
         success: function (response) {
             if (response.success) {
                 toastr.success('Shipment deleted successfully!');
-                window.location.href = '/ShipmentList/Index';
+                window.location.href = '/ChallanList/Index';
             } else {
                 toastr.error(response.message || 'Failed to delete shipment');
             }
@@ -121,7 +121,7 @@ function generateShippingLabel(id) {
     toastr.info('Shipping label generation - to be implemented');
 
     // TODO: Implement shipping label generation
-    // window.open('/ShipmentDetails/GenerateLabel/' + id, '_blank');
+    // window.open('/ChallanDetails/GenerateLabel/' + id, '_blank');
 }
 
 // Send shipment notification
@@ -131,7 +131,7 @@ function sendShipmentNotification(id) {
     }
 
     $.ajax({
-        url: '/ShipmentDetails/SendNotification',
+        url: '/ChallanDetails/SendNotification',
         method: 'POST',
         data: {
             id: id,
