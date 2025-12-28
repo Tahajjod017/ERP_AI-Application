@@ -1,4 +1,4 @@
-﻿
+
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
@@ -20,6 +20,8 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
         Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId); //Cascading
 
-       
+        Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5,
+             string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainAccId = null);
+
     }
 }

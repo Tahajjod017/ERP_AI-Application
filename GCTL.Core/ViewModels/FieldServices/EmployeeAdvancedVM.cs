@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.FieldServices
 {
-    public class EmployeeAdvancedVM:BaseViewModel
+    public class EmployeeAdvancedVM : BaseViewModel
     {
         public int EmployeeAdvanceID { get; set; }
 
@@ -21,7 +21,7 @@ namespace GCTL.Core.ViewModels.FieldServices
         public string? JobTitle { get; set; }
 
         [Required(ErrorMessage = "Requested By is required")]
-        public List <int>? RequestedByUserID { get; set; }
+        public List<int>? RequestedByUserID { get; set; }
 
         [Required(ErrorMessage = "Ammount is required")]
         public decimal AmountRequested { get; set; }
@@ -33,6 +33,8 @@ namespace GCTL.Core.ViewModels.FieldServices
         public DateTime? EndDate { get; set; }
 
         public List<int>? GroupEmployeeID { get; set; }
+
+        public List<string>? GroupEmployeeName { get; set; }
 
         public int? EmployeeID { get; set; }
 
@@ -46,7 +48,18 @@ namespace GCTL.Core.ViewModels.FieldServices
 
         public int? ApprovalSettingID { get; set; }
 
-       
+        public string? StatusName { get; set; } //nEW added
+
+        public string? CustomerName { get; set; } //New Added
+
+        public string? JobTypeName { get; set; } //New Added
+
+        public string? RequestedByUser { get; set; }
+
+
+
+
+
 
     }
 }

@@ -1,4 +1,4 @@
-﻿@using GCTL.Core.ViewModels.POS.Sales.SalesOrders
+@using GCTL.Core.ViewModels.POS.Sales.SalesOrders
 @model SalesOrderSidebarDetailsViewModel
 
 <div class="col-md-3 mb-4">
@@ -258,6 +258,7 @@
 
                                         @if (!Model.IsFullyShipped && Model.CanCreateInvoice && !Model.HasFinalInvoice)
                                         {
+
                                             @*<div class="mb-2">
                                                 <a href="/Invoice/CreateDraft?salesOrderId=@Model.SalesOrderId"
                                                    class="btn btn-sm btn-info w-100">
@@ -267,6 +268,8 @@
                                                 <small class="text-muted d-block mt-1 text-center">
                                                     Draft invoice for current shipped items
                                                 </small>
+                                            </div>
+
                                             </div>*@
                                         }
                                     </div>
@@ -496,7 +499,11 @@
     // Create final invoice
     function createFinalInvoice(salesOrderId) {
         if (confirm('Create final invoice for all items? This can only be done once.')) {
+<<<<<<< GCTL_App/Views/SalesOrderDetails/_SalesOrderSidebar.cshtml
+            window.location.href = '/Invoice/CreateFinal?salesOrderId=' + salesOrderId;
+=======
             window.location.href = '/Invoice/Create?salesOrderId=' + salesOrderId;
+>>>>>>> GCTL_App/Views/SalesOrderDetails/_SalesOrderSidebar.cshtml
         }
     }
 
