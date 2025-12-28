@@ -312,7 +312,8 @@
             success: function (response) {
                 console.log(response)
                 //updateEmployee();
-                $("#leadID").val(response.leadID);
+                debugger;
+                $("#LeadID").val(response.leadID);
                 $("#LeadName").val(response.leadName);
                 $("#ApproximateDealValue").val(response.approximateDealValue);
                 $("#ProbabilityPercentage").val(response.probability);
@@ -332,7 +333,7 @@
                 setSelect2EditValue("#CustomerId", response.customerId, response.customerName);
                 setSelect2EditValue("#BranchId1", response.branchId, response.branchName);
                 setSelect2EditValue("#LeadSourceID", response.leadSourceID, response.leadSourceName);
-                setSelect2EditValue("#PriorityID", response.probability, response.priorityName);
+                setSelect2EditValue("#PriorityID", response.priorityID, response.priorityName);
                 setSelect2EditValue("#LeadStatusID", response.leadStatusID, response.leadStatusName);
                 setSelect2EditValue("#LeadOwnerID", response.leadOwnerId, response.leadOwnerName);
                 // employee add
@@ -497,9 +498,9 @@
         let isValid = true;
         let fields = ['CustomerId', 'LeadName', 'LeadSourceID', 'LeadStatusID', 'PriorityID', 'LeadOwnerID'];
 
-        if ($('#branchContainer').is(':visible')) {
-            fields.push('BranchId1');
-        }
+        //if ($('#branchContainer').is(':visible')) {
+        //    fields.push('BranchId1');
+        //}
 
         fields.forEach(id => {
             const $field = $('#' + id);
@@ -538,16 +539,16 @@
     $(document).off('click', '#indexSaveBtn').on('click', '#indexSaveBtn', function (e) {
         e.preventDefault();
         if (!validateForm()) return;
-
+        debugger;
+        let leadId = $("#LeadID").val();
         const form = document.getElementById('leadForm');
         const token = $("input[name='__RequestVerificationToken']").val();
         const formData = new FormData(form);
         const jsonData = {};
-        console.log(formData);
         formData.forEach((value, key) => {
             if (key === "__RequestVerificationToken") return;
 
-            if (["CustomerId", "LeadStatusID", "LeadSourceID", "LeadOwnerID", "PriorityID"].includes(key)) {
+            if (["LeadID", "CustomerId", "LeadStatusID", "LeadSourceID", "LeadOwnerID", "PriorityID"].includes(key)) {
                 jsonData[key] = parseInt(value) || 0;
             } else if (["ApproximateDealValue", "ProbabilityPercentage"].includes(key)) {
                 jsonData[key] = parseFloat(value) || 0;
@@ -562,9 +563,11 @@
         if ($('#branchContainer').is(':hidden')) {
             jsonData.BranchId = 0;
         }
+        console.log(jsonData);
+        const actionUrl = Number(leadId) === 0 ? '/CreateLead/CreateLeadData' : '/CreateLead/Edit';
 
         $.ajax({
-            url: '/CreateLead/CreateLeadData',
+            url: actionUrl,
             method: 'POST',
             contentType: 'application/json',
             headers: { "RequestVerificationToken": token },

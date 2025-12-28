@@ -10,6 +10,7 @@ using GCTL.Service.Finance.TransactionAccount;
 using GCTL.Service.Pagination;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 
 namespace GCTL.Service.CRM.Customer
 {
@@ -26,6 +27,7 @@ namespace GCTL.Service.CRM.Customer
         private readonly IGenericRepository<CompanyBranchAddresses> _companyBranchAddressesRepository;
         private readonly IGenericRepository<OrganizationTypes> _organizationTypesRepository;
         private readonly IGenericRepository<OtherContacts> _otherContactsRepository;
+        private readonly AppDbContext _context;
         private readonly IUserInfoService _userInfoService;
         #region Added by Md. Rakib Hasan
         private readonly IGenericRepository<Heads> _heads;
@@ -34,7 +36,7 @@ namespace GCTL.Service.CRM.Customer
         private readonly IGenericRepository<SubAccounts> _subAccounts;
         private readonly ITransactionAccountService _transactionAccountService;
         #endregion
-        public CustomerService(IGenericRepository<Country> countryRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, ITransactionAccountService transactionAccountService, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<OrganizationTypes> organizationTypesRepository, IGenericRepository<OtherContacts> otherContactsRepository,IUserInfoService userInfoService)
+        public CustomerService(IGenericRepository<Country> countryRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, ITransactionAccountService transactionAccountService, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<CompanyWarehouseAddresses> companyWarehouseAddressesRepository, IGenericRepository<CompanyBranches> companyBranchesRepository, IGenericRepository<CompanyBranchAddresses> companyBranchAddressesRepository, IGenericRepository<OrganizationTypes> organizationTypesRepository, IGenericRepository<OtherContacts> otherContactsRepository, IUserInfoService userInfoService, AppDbContext context)
         {
             _customersRepository = customersRepository;
             _addressesRepository = addressesRepository;
@@ -52,6 +54,7 @@ namespace GCTL.Service.CRM.Customer
             _organizationTypesRepository = organizationTypesRepository;
             _otherContactsRepository = otherContactsRepository;
             _userInfoService = userInfoService;
+            _context = context;
         }
         #endregion
 
@@ -239,7 +242,7 @@ namespace GCTL.Service.CRM.Customer
                 };
                 await _customerAddressesRepository.AddAsync(customerAddress);
                 returnID = addresses.AddressID;
-
+                await _customersRepository.CommitTransactionAsync();
                 var contactSaveresult = await CreateOrUpdateContactInfo(model.ContactInformations ?? [], returnID);
                 string message = "Customer created successfully with contact information!";
                 if (contactSaveresult.Success == false)
@@ -247,7 +250,7 @@ namespace GCTL.Service.CRM.Customer
                     message = "Customer Saved but contact info not saved";
                 }
                 // Commit transaction
-                await _customersRepository.CommitTransactionAsync();
+ 
 
                 return new CommonReturnViewModel
                 {
@@ -437,13 +440,12 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
         #region update customer
         public async Task<CommonReturnViewModel> UpdateCustomer(CustomerVM model)
         {
-            await _customersRepository.BeginTransactionAsync();
-
+            using var transaction = await _context.Database.BeginTransactionAsync(); // DbContext transaction
             try
             {
                 var nameToMatch = model.CompnayName ?? $"{model.FirstName}{model.LastName}";
 
-                // Check for duplicate name
+                // Check for duplicate customer
                 var duplicate = await _customersRepository.AllActive()
                     .Where(q => q.FullName == nameToMatch &&
                                 q.OrganizationID == model.OrganizationID &&
@@ -468,7 +470,7 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
                 // Find existing customer
                 var customerObj = await _customersRepository.AllActive()
                     .Include(x => x.CustomerAddresses)
-                    .ThenInclude(x => x.Address)
+                        .ThenInclude(x => x.Address)
                     .FirstOrDefaultAsync(q => q.CustomerID == model.Id && q.OrganizationID == model.OrganizationID);
 
                 if (customerObj == null)
@@ -492,7 +494,7 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
                 customerObj.LIP = model.LIP;
                 customerObj.LMAC = model.LMAC;
 
-                // Find existing address link (if any)
+                // Find existing address link
                 var existingCustomerAddress = customerObj.CustomerAddresses
                     .FirstOrDefault(x => x.AddressTypeID == addressTypeObj.AddressTypeID);
 
@@ -521,11 +523,11 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
                     address.LIP = model.LIP;
                     address.LMAC = model.LMAC;
 
-                    await _addressesRepository.UpdateAsync(address);
+                    await _addressesRepository.UpdateAsync(address); // SaveChangesAsync internally
                 }
                 else
                 {
-                    // Create new address if missing
+                    // Create new address
                     address = new Addresses
                     {
                         FullAddress = model.FullAddress,
@@ -545,7 +547,7 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = model.CreatedBy,
                         LIP = model.LIP,
-                        LMAC = model.LMAC,
+                        LMAC = model.LMAC
                     };
                     await _addressesRepository.AddAsync(address);
 
@@ -562,15 +564,18 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
                     await _customerAddressesRepository.AddAsync(newLink);
                 }
 
+                // Update customer
                 await _customersRepository.UpdateAsync(customerObj);
-
+                await transaction.CommitAsync(); // Commit transaction
+                // Update contact info
                 var contactSaveresult = await CreateOrUpdateContactInfo(model.ContactInformations ?? [], address.AddressID);
-                string message = "Customer updated successfully with contact information!";
-                if (contactSaveresult.Success == false)
-                {
-                    message = "Customer Saved but contact info not saved";
-                }
-                await _customersRepository.CommitTransactionAsync();
+                bool isContactSaved = contactSaveresult?.Success ?? false;
+
+                string message = isContactSaved
+                    ? "Customer updated successfully with contact information!"
+                    : "Customer saved but contact info not saved";
+
+                
 
                 return new CommonReturnViewModel
                 {
@@ -581,8 +586,7 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
             }
             catch (Exception ex)
             {
-                await _customersRepository.RollbackTransactionAsync();
-
+                await transaction.RollbackAsync();
                 return new CommonReturnViewModel
                 {
                     Success = false,
@@ -590,6 +594,9 @@ public async Task<ReturnView> CreateOrUpdateContactInfo(List<ClintContact> model
                 };
             }
         }
+
+
+
 
         #endregion
 

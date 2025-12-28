@@ -128,7 +128,7 @@
     </div>
 </div>
 
-
+@* 
 <!--- edit modal -----><!-- Button trigger modal -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
@@ -203,6 +203,33 @@
             <div class="modal-footer">
                 <button type="submit" id="editBtn" class="btn btn-primary">Save</button>
             </div>
+        </div>
+    </div>
+</div> *@
+
+
+<!-- FIRST MODAL -->
+<div class="modal fade" id="createLeadModalToggle" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span id="leadModalTitle"></span> Lead</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="create-lead-modal-body"></div>
+        </div>
+    </div>
+</div>
+
+<!-- SECOND MODAL -->
+<div class="modal fade" id="openCustomerModalToggle" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><span id="customerModalActionName"></span> Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="customer-modal-content"></div>
         </div>
     </div>
 </div>

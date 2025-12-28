@@ -2,6 +2,7 @@
 <div class="row col-md-12 m-0">
     <form class="bg-body-heighlight form-control p-0 shadow-sm" id="leadForm">
         @Html.AntiForgeryToken()
+        <input type="hidden" value="0" asp-for="LeadID" />
         <div class="modal-body pb-2">
             <div class="row gy-3">
                 <!-- Customer -->
