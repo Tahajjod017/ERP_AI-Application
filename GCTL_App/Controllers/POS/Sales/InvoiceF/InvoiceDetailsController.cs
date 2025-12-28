@@ -645,7 +645,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         // Helper methods
         private int GetCurrentUserId()
         {
-            return 1; // Replace with actual implementation
+            return GetCurrentEmployeeIdAsync().Result ?? 1;
         }
     }
 }

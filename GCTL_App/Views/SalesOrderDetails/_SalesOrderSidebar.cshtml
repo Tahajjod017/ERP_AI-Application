@@ -258,7 +258,7 @@
 
                                         @if (!Model.IsFullyShipped && Model.CanCreateInvoice && !Model.HasFinalInvoice)
                                         {
-                                            <div class="mb-2">
+                                            @*<div class="mb-2">
                                                 <a href="/Invoice/CreateDraft?salesOrderId=@Model.SalesOrderId"
                                                    class="btn btn-sm btn-info w-100">
                                                     <i class="fas fa-file-edit me-2"></i>
@@ -267,7 +267,7 @@
                                                 <small class="text-muted d-block mt-1 text-center">
                                                     Draft invoice for current shipped items
                                                 </small>
-                                            </div>
+                                            </div>*@
                                         }
                                     </div>
 
@@ -496,7 +496,7 @@
     // Create final invoice
     function createFinalInvoice(salesOrderId) {
         if (confirm('Create final invoice for all items? This can only be done once.')) {
-            window.location.href = '/Invoice/CreateFinal?salesOrderId=' + salesOrderId;
+            window.location.href = '/Invoice/Create?salesOrderId=' + salesOrderId;
         }
     }
 
