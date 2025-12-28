@@ -63,7 +63,5 @@ public partial class InvoiceBaseCAddresses
 
     public virtual ICollection<Invoices> InvoicesIBaseShippingAddress { get; set; } = new List<Invoices>();
 
-    public virtual ICollection<Shipments> Shipments { get; set; } = new List<Shipments>();
-
     public virtual Employees UpdatedByNavigation { get; set; }
 }

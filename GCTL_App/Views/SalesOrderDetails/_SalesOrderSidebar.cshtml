@@ -106,7 +106,7 @@
                     <div class="accordion-item border-top">
                         <h2 class="accordion-header" id="headingShipment">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipment" aria-expanded="true" aria-controls="collapseShipment">
-                                @Html.SmartLocalize("Shipment")
+                                @Html.SmartLocalize("Challan")
                             </button>
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapseShipment" aria-labelledby="headingShipment" data-bs-parent="#accordionExample">
@@ -114,9 +114,9 @@
                                 @if (Model.CanCreateShipment)
                                 {
                                     <p class="fs-9">
-                                        <a href="/Shipment/Index?salesOrderId=@Model.SalesOrderId" class="btn btn-sm btn-phoenix-primary w-100">
+                                        <a href="/Challan/Index?salesOrderId=@Model.SalesOrderId" class="btn btn-sm btn-phoenix-primary w-100">
                                             <i class="fas fa-shipping-fast me-2"></i>
-                                            @Html.SmartLocalize("Create Shipment")
+                                            @Html.SmartLocalize("Create Challan")
                                         </a>
                                     </p>
                                 }
@@ -133,7 +133,7 @@
                                 {
                                     <div class="alert alert-info fs-9 py-2 mb-2">
                                         <i class="fas fa-shipping-fast me-2"></i>
-                                        @Html.SmartLocalize("Partially Shipped")
+                                        @Html.SmartLocalize("Partial Challan")
                                     </div>
                                 }
 
@@ -145,7 +145,7 @@
                                     @foreach (var shipment in Model.Shipments)
                                     {
                                         <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <a href="/ShipmentDetails/Index/@shipment.ShipmentId" class="fs-9 text-decoration-none">
+                                            <a href="/ChallanDetails/Index/@shipment.ShipmentId" class="fs-9 text-decoration-none">
                                                 @shipment.ShipmentNumber
                                             </a>
                                             <span class="badge badge-phoenix-@shipment.StatusClass fs-10">
@@ -156,7 +156,7 @@
                                 }
                                 else if (!Model.CanCreateShipment)
                                 {
-                                    <p class="fs-9 text-muted">@Html.SmartLocalize("No shipments available")</p>
+                                    <p class="fs-9 text-muted">@Html.SmartLocalize("No Challan available")</p>
                                 }
                             </div>
                         </div>

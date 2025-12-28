@@ -5,17 +5,21 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class ShippingMethods
+public partial class ChallanItems
 {
-    public int ShippingMethodID { get; set; }
+    public int ChallanItemID { get; set; }
 
-    public string MethodName { get; set; }
+    public int? ChallanID { get; set; }
 
-    public string Description { get; set; }
+    public int? ProductID { get; set; }
 
-    public decimal? BaseCost { get; set; }
+    public decimal? OrderedQuantity { get; set; }
 
-    public bool? IsActive { get; set; }
+    public decimal? DeliveredQuantity { get; set; }
+
+    public int? FromLocationID { get; set; }
+
+    public string Note { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -29,11 +33,15 @@ public partial class ShippingMethods
 
     public int? DeletedBy { get; set; }
 
+    public virtual Challans Challan { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Shipments> Shipments { get; set; } = new List<Shipments>();
+    public virtual Locations FromLocation { get; set; }
+
+    public virtual Products Product { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

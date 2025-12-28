@@ -61,20 +61,11 @@ public partial class Invoices
 
     public int? InvoiceStatusID { get; set; }
 
-    public bool IsPartial { get; set; } = false; // Default value
+    public bool IsPartial { get; set; }
 
     public int? PartialForInvoiceID { get; set; }
 
-    // Self-reference navigation
-    public Invoices PartialForInvoice { get; set; }
-    public ICollection<Invoices> PartialInvoices { get; set; }
-
-
-
-    // Navigation property
-    public Statuses InvoiceStatus { get; set; }
-
-
+    public virtual ICollection<Challans> Challans { get; set; } = new List<Challans>();
 
     public virtual Employees CreatedByNavigation { get; set; }
 
@@ -90,13 +81,17 @@ public partial class Invoices
 
     public virtual InvoiceBaseCAddresses IBaseShippingAddress { get; set; }
 
+    public virtual ICollection<Invoices> InversePartialForInvoice { get; set; } = new List<Invoices>();
+
     public virtual ICollection<InvoiceItems> InvoiceItems { get; set; } = new List<InvoiceItems>();
+
+    public virtual Statuses InvoiceStatus { get; set; }
+
+    public virtual Invoices PartialForInvoice { get; set; }
 
     public virtual ICollection<PaymentTransactions> PaymentTransactions { get; set; } = new List<PaymentTransactions>();
 
     public virtual SalesOrdersVersions SalesOrderVersion { get; set; }
-
-    public virtual ICollection<Shipments> Shipments { get; set; } = new List<Shipments>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

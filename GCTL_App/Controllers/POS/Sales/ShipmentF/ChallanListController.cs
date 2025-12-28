@@ -5,15 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GCTL_App.Controllers.POS.Sales.ShipmentF
 {
-    public class ShipmentListController : BaseController
+    public class ChallanListController : BaseController
     {
-        private readonly IShipmentList _shipmentListService;
+        private readonly IChallanList _shipmentListService;
 
-        public ShipmentListController(
-            ITranslateService translateService,
-            IUserProfileService userProfileService,
-            IShipmentList shipmentListService)
-            : base(translateService, userProfileService)
+        public ChallanListController(ITranslateService translateService, IUserProfileService userProfileService, IChallanList shipmentListService) : base(translateService, userProfileService)
         {
             _shipmentListService = shipmentListService;
         }
@@ -25,17 +21,11 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetShipmentList(
-            int page = 1,
-            int pageSize = 10,
-            string searchTerm = "",
-            string sortColumn = "CreatedAt",
-            string sortDirection = "desc")
+        public async Task<IActionResult> GetShipmentList(int page = 1, int pageSize = 10, string searchTerm = "", string sortColumn = "CreatedAt", string sortDirection = "desc")
         {
             try
             {
-                var result = await _shipmentListService.GetShipmentsWithPagination(
-                    page, pageSize, searchTerm, sortColumn, sortDirection);
+                var result = await _shipmentListService.GetChallanWithPagination(page, pageSize, searchTerm, sortColumn, sortDirection);
 
                 return Json(new
                 {

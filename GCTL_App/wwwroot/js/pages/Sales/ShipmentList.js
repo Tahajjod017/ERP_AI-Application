@@ -44,7 +44,7 @@ $(document).ready(function () {
 
 function loadShipments() {
     $.ajax({
-        url: '/ShipmentList/GetShipmentList',
+        url: '/ChallanList/GetShipmentList',
         type: 'GET',
         data: {
             page: currentPage,
@@ -258,9 +258,9 @@ function showError(message) {
 }
 
 function viewDetails(id) {
-    window.location.href = `/ShipmentDetails/index/${id}`;
+    window.location.href = `/ChallanDetails/index/${id}`;
 }
 
 function editShipment(id) {
-    window.location.href = `/ShipmentDetails/Edit/${id}`;
+    window.location.href = `/ChallanDetails/Edit/${id}`;
 }

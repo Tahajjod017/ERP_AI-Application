@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails;
 
 namespace GCTL.Core.ViewModels.POS.Sales.Shipment
 {
-    public class ShipmentViewModel : BaseViewModel
+    public class ChallanViewModel : BaseViewModel
     {
         // ----- Header -------------------------------------------------
         public int? Id { get; set; }
@@ -38,6 +39,11 @@ namespace GCTL.Core.ViewModels.POS.Sales.Shipment
         // ----- Dropdown Data -------------------------------------------
         public List<ShippingMethodDto> ShippingMethods { get; set; } = new();
         public List<AddressDto> Addresses { get; set; } = new();
+
+        public CustomerDetailsViewModel? CustomerData { get; set; }
+
+        public int? SelectedDeliveryId { get; set; }
+
     }
 
     public class ShipmentItem

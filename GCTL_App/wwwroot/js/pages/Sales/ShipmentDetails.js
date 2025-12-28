@@ -20,7 +20,7 @@
 
     function loadProducts() {
         $.ajax({
-            url: '/Shipment/GetProducts',
+            url: '/Challan/GetProducts',
             method: 'GET',
             success: function (data) {
                 productsData = data;
@@ -34,7 +34,7 @@
 
     function loadLocations() {
         $.ajax({
-            url: '/Shipment/GetLocations',
+            url: '/Challan/GetLocations',
             method: 'GET',
             success: function (data) {
                 locationsData = data;
@@ -181,13 +181,13 @@
         const formData = $(this).serialize();
 
         $.ajax({
-            url: '/Shipment/Save',
+            url: '/Challan/Save',
             method: 'POST',
             data: formData,
             success: function (response) {
                 if (response.success) {
                     toastr.success(response.message || 'Shipment updated successfully!');
-                    window.location.href = '/ShipmentDetails/Index/' + response.shipmentId;
+                    window.location.href = '/ChallanDetails/Index/' + response.shipmentId;
                 } else {
                     toastr.error(response.message || 'Failed to update shipment');
                 }

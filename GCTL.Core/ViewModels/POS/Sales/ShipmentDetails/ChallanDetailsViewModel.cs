@@ -7,7 +7,7 @@ using GCTL.Core.Enums;
 
 namespace GCTL.Core.ViewModels.POS.Sales.ShipmentDetails
 {
-    public class ShipmentDetailsViewModel
+    public class ChallanDetailsViewModel
     {
         public int Id { get; set; }
         public string? ShipmentNumber { get; set; }
@@ -64,7 +64,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.ShipmentDetails
     }
 
     // Sidebar specific view model
-    public class ShipmentSidebarDetailsViewModel
+    public class ChallanSidebarDetailsViewModel
     {
         public int ShipmentId { get; set; }
         public string ShipmentNumber { get; set; }

@@ -41,6 +41,8 @@ public partial class Locations
 
     public bool IsDefaultLocation { get; set; }
 
+    public virtual ICollection<ChallanItems> ChallanItems { get; set; } = new List<ChallanItems>();
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
@@ -66,8 +68,6 @@ public partial class Locations
     public virtual ICollection<PurchaseReceives> PurchaseReceives { get; set; } = new List<PurchaseReceives>();
 
     public virtual ICollection<SalesOrdersVersions> SalesOrdersVersions { get; set; } = new List<SalesOrdersVersions>();
-
-    public virtual ICollection<ShipmentItems> ShipmentItems { get; set; } = new List<ShipmentItems>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

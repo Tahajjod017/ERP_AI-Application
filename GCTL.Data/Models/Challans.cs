@@ -5,15 +5,15 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class Shipments
+public partial class Challans
 {
-    public int ShipmentID { get; set; }
+    public int ChallanID { get; set; }
 
-    public string ShipmentNumber { get; set; }
+    public string ChallanNumber { get; set; }
 
     public int? InvoiceID { get; set; }
 
-    public DateTime? ShipmentDate { get; set; }
+    public DateTime? ChallanDate { get; set; }
 
     public DateTime? ExpectedDeliveryDate { get; set; }
 
@@ -21,15 +21,15 @@ public partial class Shipments
 
     public int? StatusID { get; set; }
 
-    public int? ShippingMethodID { get; set; }
+    public int? DeliveryMethodID { get; set; }
 
     public string TrackingNumber { get; set; }
 
-    public int? ShippingAddressID { get; set; }
+    public int? DeliveryAddressID { get; set; }
 
     public string Note { get; set; }
 
-    public decimal? ShippingCost { get; set; }
+    public decimal? DeliveryCost { get; set; }
 
     public int? CreatedBy { get; set; }
 
@@ -45,19 +45,19 @@ public partial class Shipments
 
     public int? SalesOrdersVersionID { get; set; }
 
+    public virtual ICollection<ChallanItems> ChallanItems { get; set; } = new List<ChallanItems>();
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual Addresses DeliveryAddress { get; set; }
+
+    public virtual DeliveryMethods DeliveryMethod { get; set; }
+
     public virtual Invoices Invoice { get; set; }
 
     public virtual SalesOrdersVersions SalesOrdersVersion { get; set; }
-
-    public virtual ICollection<ShipmentItems> ShipmentItems { get; set; } = new List<ShipmentItems>();
-
-    public virtual InvoiceBaseCAddresses ShippingAddress { get; set; }
-
-    public virtual ShippingMethods ShippingMethod { get; set; }
 
     public virtual Statuses Status { get; set; }
 

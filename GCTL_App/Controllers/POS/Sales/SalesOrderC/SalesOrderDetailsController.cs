@@ -94,8 +94,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 .Include(e => e.Customer)
                 .Include(e => e.SalesOrders).ThenInclude(e => e.PriceQuotation)
                  .Include(e => e.SalesOrders)
-                 .Include(e => e.Shipments).ThenInclude(e=>e.ShipmentItems) // ADD THIS for shipments
-                 .Include(e => e.Shipments).ThenInclude(e=>e.Status) // ADD THIS for shipments
+                 .Include(e => e.Challans).ThenInclude(e=>e.ChallanItems) // ADD THIS for shipments
+                 .Include(e => e.Challans).ThenInclude(e=>e.Status) // ADD THIS for shipments
                  
                 .Include(e => e.CreatedByNavigation)
                 .Include(e => e.UpdatedByNavigation)
@@ -138,12 +138,12 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                            }).FirstOrDefault();
 
 
-            var shipments = salesOrder.Shipments?
+            var shipments = salesOrder.Challans?
                    .Where(s => s.DeletedAt == null)
                    .Select(s => new ShipmentInfo
                    {
-                       ShipmentId = s.ShipmentID,
-                       ShipmentNumber = s.ShipmentNumber,
+                       ShipmentId = s.ChallanID,
+                       ShipmentNumber = s.ChallanNumber,
                        Status = s.Status != null ? s.Status.StatusName : "Pending",
                        StatusClass = GetShipmentStatusClass(s.StatusID)
                    }).ToList() ?? new List<ShipmentInfo>();
@@ -152,7 +152,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             bool isFullyShipped = false;
             bool hasShipmentsStarted = false;
 
-            if (salesOrder.Shipments != null && salesOrder.Shipments.Any(s => s.DeletedAt == null))
+            if (salesOrder.Challans != null && salesOrder.Challans.Any(s => s.DeletedAt == null))
             {
                 hasShipmentsStarted = true;
 
@@ -162,11 +162,11 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 {
                     decimal orderedQty = soi.Quantity ?? 0;
 
-                    decimal shippedQty = salesOrder.Shipments
+                    decimal shippedQty = salesOrder.Challans
                         .Where(s => s.StatusID != cancelledStatusId && s.DeletedAt == null)
-                        .SelectMany(s => s.ShipmentItems)
+                        .SelectMany(s => s.ChallanItems)
                         .Where(si => si.ProductID == soi.ProductID && si.DeletedAt == null)
-                        .Sum(si => si.ShippedQuantity ?? 0);
+                        .Sum(si => si.DeliveredQuantity ?? 0);
 
                     return orderedQty <= shippedQty;
                 });
@@ -309,7 +309,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 .Include(e => e.UpdatedByNavigation)
                 .Include(e => e.SalesOrders).ThenInclude(e => e.PriceQuotation)
                 .Include(e => e.SalesOrders)
-                .Include(e => e.Shipments) // ADD THIS
+                .Include(e => e.Challans) // ADD THIS
                 .ThenInclude(s => s.Status) // ADD THIS
                 .FirstOrDefault(e => e.SalesOrdersVersionID == id);
 
@@ -330,12 +330,12 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 current = e.SalesOrdersVersionID == id ? "current" : ""
             }).ToList();
 
-            var shipments = salesOrder.Shipments?
+            var shipments = salesOrder.Challans?
                 .Where(s => s.DeletedAt == null)
                 .Select(s => new ShipmentInfo
                 {
-                    ShipmentId = s.ShipmentID,
-                    ShipmentNumber = s.ShipmentNumber,
+                    ShipmentId = s.ChallanID,
+                    ShipmentNumber = s.ChallanNumber,
                     Status = s.Status != null ? s.Status.StatusName : "Pending",
                     StatusClass = GetShipmentStatusClass(s.StatusID)
                 }).ToList() ?? new List<ShipmentInfo>();
