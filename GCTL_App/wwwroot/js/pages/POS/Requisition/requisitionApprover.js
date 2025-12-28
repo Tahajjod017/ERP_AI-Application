@@ -31,7 +31,15 @@
                     rows += `
                         <tr class="position-static">
                             <td class="align-middle white-space-nowrap ps-0">#${item.requisitionId}</td>
-                            <td class="align-middle white-space-nowrap ps-2">${item.requisitionCode}</td>
+                            <td class="align-middle white-space-nowrap ps-2">
+                            <a href="#" class="nav-item me-2 viewApprovalBtn"
+                                   data-id="${item.requisitionId}" 
+                                   data-bs-toggle="modal" 
+                                   data-bs-target="#approvalModal">
+                                   ${item.requisitionCode}
+                                    
+                                </a>
+                            </td>
                             <td class="align-middle white-space-nowrap ps-2">${formatDate(item.requisitionDate)}</td>
                             <td class="align-middle white-space-nowrap ps-2">${item.requisitionBy}</td>
                             <td class="align-middle white-space-nowrap ps-2">${item.totalItems}</td>
@@ -162,7 +170,16 @@
                     rows += `
                         <tr class="position-static">
                             <td class="align-middle white-space-nowrap ps-0">#${item.requisitionId}</td>
-                            <td class="align-middle white-space-nowrap ps-2">${item.requisitionCode}</td>
+                            <td class="align-middle white-space-nowrap ps-2">
+                            <a href="#" class="nav-item me-2 viewApprovalBtn"
+                                       data-id="${item.requisitionId}" 
+                                       data-bs-toggle="modal" 
+                                       data-bs-target="#approvalModal">
+                                       ${item.requisitionCode}
+                                        
+                                    </a>
+                            
+                            </td>
                             <td class="align-middle white-space-nowrap ps-2">${formatDate(item.requisitionDate)}</td>
                             <td class="align-middle white-space-nowrap ps-2">${item.requisitionBy}</td>
                             <td class="align-middle white-space-nowrap ps-2">${item.totalItems}</td>
@@ -319,7 +336,7 @@
             } else {
 
                 approvedQtyInput = `
-                    <input type="number"
+                    <input type="hidden"
                            class="form-control form-control-sm approved-qty-input"
                            name="Items[${i}].ApprovedQuantity" 
                            data-item-id="${item.itemId}"
@@ -328,7 +345,8 @@
                            max="${item.requestedQuantity}" 
                            step="0.01" 
                            required />
-                    <input type="hidden" name="Items[${i}].ItemId" value="${item.itemId}" />`;
+                    <input type="hidden" name="Items[${i}].ItemId" value="${item.itemId}" />
+                    <span class="fw-bold">${item.approvedQuantity || 'Not set'}</span>`;
                 // Other approvers just see the quantity
                //  approvedQtyInput = `<span class="fw-bold">${item.approvedQuantity || 'Not set'}</span>`;
             }

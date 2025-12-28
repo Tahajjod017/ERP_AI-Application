@@ -9,7 +9,7 @@ public partial class PurchaseReceives
 {
     public int PurchaseReceiveID { get; set; }
 
-    public int? PurchasOrderID { get; set; }
+    public int? PurchasOrderVersionID { get; set; }
 
     public string PRNumber { get; set; }
 
@@ -35,13 +35,39 @@ public partial class PurchaseReceives
 
     public int? DeletedBy { get; set; }
 
+    public string PRNote { get; set; }
+
+    public int? StatusID { get; set; }
+
+    public int? ReceivedByEmployeeID { get; set; }
+
+    public bool? IsPartialReceive { get; set; }
+
+    public decimal? TotalReceivedQty { get; set; }
+
+    public decimal? TotalAcceptedQty { get; set; }
+
+    public decimal? TotalRejectedQty { get; set; }
+
+    public string AttachmentPath { get; set; }
+
+    public int? LocationID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual PurchasOrderVersions PurchasOrder { get; set; }
+    public virtual Locations Location { get; set; }
+
+    public virtual PurchasOrderVersions PurchasOrderVersion { get; set; }
+
+    public virtual ICollection<PurchaseReceiveItemHistory> PurchaseReceiveItemHistory { get; set; } = new List<PurchaseReceiveItemHistory>();
 
     public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
+
+    public virtual Employees ReceivedByEmployee { get; set; }
+
+    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

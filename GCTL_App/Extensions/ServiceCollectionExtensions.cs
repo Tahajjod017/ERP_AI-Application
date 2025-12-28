@@ -124,18 +124,23 @@ using GCTL.Service.PayRollManagements.PayRollLoanManagement;
 using GCTL.Service.PayRollManagements.PayRollOrgaBenefitsType;
 using GCTL.Service.PayRollManagements.PayRollPolicy;
 using GCTL.Service.PayRollManagements.PayRollSettings;
+using GCTL.Service.POS.Inventory;
 using GCTL.Service.POS.Product;
 using GCTL.Service.POS.Product.ServiceProduct;
 using GCTL.Service.POS.Purchase.PurchaseOrder;
 using GCTL.Service.POS.Purchase.PurchaseOrderList;
+using GCTL.Service.POS.Purchase.PurchaseReceive;
 using GCTL.Service.POS.Requsition;
 using GCTL.Service.POS.Requsition.RequisitionApprover;
+using GCTL.Service.POS.Requsition.RequisitionToPurchaseOrder;
 using GCTL.Service.POS.Sales.InvoiceF;
 using GCTL.Service.POS.Sales.InvoiceListF;
 using GCTL.Service.POS.Sales.PriceQuotation;
 using GCTL.Service.POS.Sales.PriceQuotationList;
 using GCTL.Service.POS.Sales.SalesOrderF;
 using GCTL.Service.POS.Sales.SalesOrderList;
+using GCTL.Service.POS.Sales.Shipment;
+using GCTL.Service.POS.Sales.ShipmentList;
 using GCTL.Service.RolePermissions;
 using GCTL.Service.UserProfile;
 using GCTL.Service.VisitingPath;
@@ -292,6 +297,9 @@ namespace GCTL_App.Extensions
             services.AddScoped<IInvoice, InvoiceService>();
             services.AddScoped<IInvoiceList, InvoiceListService>();
 
+            // Shipment Services
+            services.AddScoped<IShipment, ShipmentService>();
+            services.AddScoped<IShipmentList, ShipmentListService>();
 
 
             #endregion
@@ -301,12 +309,20 @@ namespace GCTL_App.Extensions
             // Purchase Order Services
             services.AddScoped<IPurchaseOrder, PurchaseOrderService>();
             services.AddScoped<IPurchaseOrderList, PurchaseOrderListService>();
+            services.AddScoped<IPurchaseReceiveService, PurchaseReceiveService>();
 
             #endregion
 
             #region Requisition
             services.AddScoped<INewRequisitionService, NewRequisitionService>();
             services.AddScoped<IRequisitionApproverService, RequisitionApproverService>();
+            services.AddScoped<IRequisitionToPurchaseOrderService, RequisitionToPurchaseOrderService>();
+
+            #endregion
+
+            services.AddScoped<IInventoryService, InventoryService>();
+
+            #region Inventory
 
             #endregion
 

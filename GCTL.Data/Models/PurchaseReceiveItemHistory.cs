@@ -5,13 +5,11 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class PurchaseReceiveItemDrafts
+public partial class PurchaseReceiveItemHistory
 {
-    public int PurchaseReceiveItemDraftID { get; set; }
+    public int PurRecItemHistoryID { get; set; }
 
-    public int? PurchaseReceiveDraftID { get; set; }
-
-    public int? ProductID { get; set; }
+    public int? PurchaseReceiveID { get; set; }
 
     public string ProductName { get; set; }
 
@@ -35,7 +33,7 @@ public partial class PurchaseReceiveItemDrafts
 
     public string SKU { get; set; }
 
-    public string Description { get; set; }
+    public string Note { get; set; }
 
     public decimal? POQuantity { get; set; }
 
@@ -61,9 +59,7 @@ public partial class PurchaseReceiveItemDrafts
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Products Product { get; set; }
-
-    public virtual PurchaseReceiveDrafts PurchaseReceiveDraft { get; set; }
+    public virtual PurchaseReceives PurchaseReceive { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

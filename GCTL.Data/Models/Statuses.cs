@@ -57,6 +57,8 @@ public partial class Statuses
 
     public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistory { get; set; } = new List<InventoryTransactionHistory>();
 
+    public virtual ICollection<InventoryTransfers> InventoryTransfers { get; set; } = new List<InventoryTransfers>();
+
     public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
 
     public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
@@ -67,7 +69,9 @@ public partial class Statuses
 
     public virtual ICollection<LoanBaseApprovalHistory> LoanBaseApprovalHistory { get; set; } = new List<LoanBaseApprovalHistory>();
 
-    public virtual ICollection<PurchasOrderVersions> PurchasOrderVersions { get; set; } = new List<PurchasOrderVersions>();
+    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
+
+    public virtual ICollection<PurchaseReceives> PurchaseReceives { get; set; } = new List<PurchaseReceives>();
 
     public virtual ICollection<ReqItemApprovalHistory> ReqItemApprovalHistory { get; set; } = new List<ReqItemApprovalHistory>();
 
@@ -79,9 +83,12 @@ public partial class Statuses
 
     public virtual ICollection<RosterInOfficeDays> RosterInOfficeDays { get; set; } = new List<RosterInOfficeDays>();
 
+    public virtual ICollection<Shipments> Shipments { get; set; } = new List<Shipments>();
+
     public virtual ICollection<TerminationApprovalHistory> TerminationApprovalHistory { get; set; } = new List<TerminationApprovalHistory>();
 
     public virtual ICollection<Terminations> Terminations { get; set; } = new List<Terminations>();
+    public ICollection<Invoices> Invoices { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

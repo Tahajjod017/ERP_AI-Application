@@ -13,29 +13,7 @@ public partial class PurchaseReceiveItems
 
     public int? ProductID { get; set; }
 
-    public string ProductName { get; set; }
-
-    public string BrandName { get; set; }
-
-    public string Length { get; set; }
-
-    public string Width { get; set; }
-
-    public string ProductTypeName { get; set; }
-
-    public string UnitTypeName { get; set; }
-
-    public string Weight { get; set; }
-
-    public string WeightUnitTypeName { get; set; }
-
-    public string SizeUnitTypeName { get; set; }
-
-    public string SquareFeet { get; set; }
-
-    public string SKU { get; set; }
-
-    public string Description { get; set; }
+    public string Note { get; set; }
 
     public decimal? POQuantity { get; set; }
 
@@ -57,11 +35,21 @@ public partial class PurchaseReceiveItems
 
     public int? DeletedBy { get; set; }
 
+    public int? PurchasOrderVersionItemID { get; set; }
+
+    public decimal? AcceptedQuantity { get; set; }
+
+    public decimal? RejectedQuantity { get; set; }
+
+    public string RejectionReason { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Products Product { get; set; }
+
+    public virtual PurchasOrderItemVersions PurchasOrderVersionItem { get; set; }
 
     public virtual PurchaseReceives PurchaseReceive { get; set; }
 

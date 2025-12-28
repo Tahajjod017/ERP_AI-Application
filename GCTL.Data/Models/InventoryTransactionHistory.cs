@@ -35,13 +35,31 @@ public partial class InventoryTransactionHistory
 
     public int? InventoryID { get; set; }
 
+    public DateTime? TransactionDate { get; set; }
+
+    public string ReferenceType { get; set; }
+
+    public int? ReferenceID { get; set; }
+
+    public int? FromLocationID { get; set; }
+
+    public int? ToLocationID { get; set; }
+
+    public string Note { get; set; }
+
+    public decimal? BalanceAfter { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual Locations FromLocation { get; set; }
+
     public virtual Inventory Inventory { get; set; }
 
     public virtual Products Product { get; set; }
+
+    public virtual Locations ToLocation { get; set; }
 
     public virtual Statuses TransactionTypeNavigation { get; set; }
 

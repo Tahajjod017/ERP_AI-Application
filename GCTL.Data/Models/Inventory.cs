@@ -13,7 +13,7 @@ public partial class Inventory
 
     public decimal? Quantity { get; set; }
 
-    public decimal? UnitPrice { get; set; }
+    public decimal? AverageCost { get; set; }
 
     public string LIP { get; set; }
 
@@ -32,6 +32,16 @@ public partial class Inventory
     public int? DeletedBy { get; set; }
 
     public int? LocationID { get; set; }
+
+    public decimal ReservedQuantity { get; set; }
+
+    public decimal? MinimumQuantity { get; set; }
+
+    public decimal? MaximumQuantity { get; set; }
+
+    public DateTime? LastTransactionDate { get; set; }
+
+    public decimal? TotalValue { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 

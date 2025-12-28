@@ -97,7 +97,11 @@ public partial class Products
 
     public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistory { get; set; } = new List<InventoryTransactionHistory>();
 
+    public virtual ICollection<InventoryTransferItems> InventoryTransferItems { get; set; } = new List<InventoryTransferItems>();
+
     public virtual ICollection<InvoiceItems> InvoiceItems { get; set; } = new List<InvoiceItems>();
+
+    public virtual ICollection<PriceQuotationVersionItems> PriceQuotationVersionItems { get; set; } = new List<PriceQuotationVersionItems>();
 
     public virtual ICollection<ProductAdvancedPricing> ProductAdvancedPricing { get; set; } = new List<ProductAdvancedPricing>();
 
@@ -119,11 +123,13 @@ public partial class Products
 
     public virtual ICollection<PurchasOrderItemVersions> PurchasOrderItemVersions { get; set; } = new List<PurchasOrderItemVersions>();
 
-    public virtual ICollection<PurchaseReceiveItemDrafts> PurchaseReceiveItemDrafts { get; set; } = new List<PurchaseReceiveItemDrafts>();
-
     public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
 
     public virtual ICollection<RequisitionItems> RequisitionItems { get; set; } = new List<RequisitionItems>();
+
+    public virtual ICollection<SalesOrderVersionItems> SalesOrderVersionItems { get; set; } = new List<SalesOrderVersionItems>();
+
+    public virtual ICollection<ShipmentItems> ShipmentItems { get; set; } = new List<ShipmentItems>();
 
     public virtual UnitTypes UnitType { get; set; }
 

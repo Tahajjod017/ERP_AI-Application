@@ -33,6 +33,16 @@ public partial class PurchasOrderItemVersions
 
     public int? PurchasOrderVersionID { get; set; }
 
+    public decimal? ReceivedQuantity { get; set; }
+
+    public decimal? AcceptedQuantity { get; set; }
+
+    public decimal? RejectedQuantity { get; set; }
+
+    public decimal? RemainingQuantity { get; set; }
+
+    public bool IsFullyReceived { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
@@ -40,6 +50,8 @@ public partial class PurchasOrderItemVersions
     public virtual Products Product { get; set; }
 
     public virtual PurchasOrderVersions PurchasOrderVersion { get; set; }
+
+    public virtual ICollection<PurchaseReceiveItems> PurchaseReceiveItems { get; set; } = new List<PurchaseReceiveItems>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

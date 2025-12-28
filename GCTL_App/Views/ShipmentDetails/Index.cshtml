@@ -1,0 +1,248 @@
+﻿@using GCTL.Core.ViewModels.POS.Sales.ShipmentDetails
+@model ShipmentDetailsViewModel
+@{
+    var sidebarData = ViewBag.SidebarData as ShipmentSidebarDetailsViewModel;
+    var isEditMode = ViewBag.IsEditMode ?? false;
+    ViewData["Title"] = Html.SmartLocalize("Shipment Details");
+}
+
+<div class="row">
+    <div class="row col-xl-12 border-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <p class="mb-1 fw-lighter fs-5">@Html.SmartLocalize("Shipment Details")</p>
+            <a class="btn btn-primary" href="/ShipmentList/Index">@Html.SmartLocalize("Back to List")</a>
+        </div>
+    </div>
+</div>
+
+<div class="">
+    @if (isEditMode)
+    {
+        <!-- EDIT MODE - Form with editable fields -->
+        <form asp-action="Save" asp-controller="Shipment" method="post" id="shipmentForm">
+            <input asp-for="Id" type="hidden" />
+            <div class="row mb-4">
+                <div class="col-xl-9">
+                    <div class="card pt-4 p-5 mb-3" style="min-height: 1000px;">
+                        <div class="row col-xl-12">
+                            <p class="mb-1 fw-bold fs-7">@Html.SmartLocalize("Shipment")</p>
+                            <div class="border-bottom border-2"></div>
+                        </div>
+
+                        <div class="row mb-3 mt-3">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-xl-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">@Html.SmartLocalize("Shipment Number")</label>
+                                            <input asp-for="ShipmentNumber" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">@Html.SmartLocalize("Tracking Number")</label>
+                                            <input asp-for="TrackingNumber" class="form-control" />
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">@Html.SmartLocalize("Shipment Date")</label>
+                                            <input asp-for="ShipmentDate" class="form-control" type="date" />
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">@Html.SmartLocalize("Expected Delivery")</label>
+                                            <input asp-for="ExpectedDeliveryDate" class="form-control" type="date" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Items Table -->
+                        <div class="col-xl-12 mt-3">
+                            <table class="table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">@Html.SmartLocalize("SL")</th>
+                                        <th>@Html.SmartLocalize("Product")</th>
+                                        <th class="text-center">@Html.SmartLocalize("Location")</th>
+                                        <th class="text-center">@Html.SmartLocalize("Ordered")</th>
+                                        <th class="text-center">@Html.SmartLocalize("Shipped")</th>
+                                        <th style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Items.Count; i++)
+                                    {
+                                        <tr data-index="@i">
+                                            <td class="fs-8 text-center align-middle">@(i + 1)</td>
+                                            <td>
+                                                <select asp-for="Items[i].ProductId" class="form-select searchableSelect productDD">
+                                                    <option value="">@Html.SmartLocalize("-- Select Product --")</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select asp-for="Items[i].FromLocationId" class="form-select searchableSelect locationDD">
+                                                    <option value="">@Html.SmartLocalize("-- Select Location --")</option>
+                                                </select>
+                                            </td>
+                                            <td><input asp-for="Items[i].OrderedQuantity" class="form-control" type="number" step="any" /></td>
+                                            <td><input asp-for="Items[i].ShippedQuantity" class="form-control" type="number" step="any" /></td>
+                                            <td class="text-center align-middle">
+                                                <button type="button" class="btn btn-sm btn-outline-danger remove-item">
+                                                    <i class="far fa-trash-alt text-black"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <a id="add-item-btn" class="text-primary py-2" role="button" style="cursor:pointer;">
+                                                @Html.SmartLocalize("Add an Item")
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Note -->
+                        <div class="col-xl-12 mb-3">
+                            <p class="mb-1 fw-bold fs-8">@Html.SmartLocalize("Note")</p>
+                            <textarea asp-for="Note" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="col-xl-12 mb-3">
+                            <div class="d-flex justify-content-end">
+                                <a href="@Url.Action("Index", "ShipmentDetails", new { id = Model.Id })" class="btn btn-secondary me-2">@Html.SmartLocalize("Cancel")</a>
+                                <button type="submit" class="btn btn-primary">@Html.SmartLocalize("Save Shipment")</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                @if (sidebarData != null)
+                {
+                    <partial name="_ShipmentSidebar" model="sidebarData" />
+                }
+            </div>
+        </form>
+    }
+    else
+    {
+        <!-- READ-ONLY MODE - Display only -->
+        <div class="row mb-4">
+            <div class="col-xl-9">
+                <div class="card pt-4 p-5 mb-3" style="min-height: 1000px;">
+                    <div class="row col-xl-12">
+                        <p class="mb-1 fw-bold fs-7">@Html.SmartLocalize("Shipment Information")</p>
+                        <div class="border-bottom border-2"></div>
+                    </div>
+
+                    <div class="row mb-3 mt-3">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <!-- Shipment Info -->
+                                <div class="col-xl-6">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-2">@Html.SmartLocalize("Shipment Details")</h5>
+                                            <p class="mb-1 fs-9"><strong>@Html.SmartLocalize("Shipment Number:"):</strong> @Model.ShipmentNumber</p>
+                                            <p class="mb-1 fs-9"><strong>@Html.SmartLocalize("Tracking Number:"):</strong> @Model.TrackingNumber</p>
+                                            <p class="mb-1 fs-9"><strong>@Html.SmartLocalize("Shipment Date:"):</strong> @Model.ShipmentDate?.ToString("MMM dd, yyyy")</p>
+                                            <p class="mb-1 fs-9"><strong>@Html.SmartLocalize("Expected Delivery:"):</strong> @Model.ExpectedDeliveryDate?.ToString("MMM dd, yyyy")</p>
+                                            @if (Model.ActualDeliveryDate.HasValue)
+                                            {
+                                                <p class="mb-1 fs-9"><strong>@Html.SmartLocalize("Delivered On:"):</strong> @Model.ActualDeliveryDate?.ToString("MMM dd, yyyy")</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Shipping Address -->
+                                <div class="col-xl-6">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-2">@Html.SmartLocalize("Shipping Address")</h5>
+                                            <p class="mb-1 fs-9">@Model.ShippingAddress.FullName</p>
+                                            <p class="mb-1 fs-9">@Model.ShippingAddress.FullAddress</p>
+                                            <p class="mb-1 fs-9">@Model.ShippingAddress.City, @Model.ShippingAddress.State @Model.ShippingAddress.PostalCode</p>
+                                            <p class="mb-1 fs-9">@Model.ShippingAddress.Phone</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items Table (Read-only) -->
+                    <div class="col-xl-12 mt-3">
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">@Html.SmartLocalize("SL")</th>
+                                    <th>@Html.SmartLocalize("Product")</th>
+                                    <th class="text-center">@Html.SmartLocalize("From Location")</th>
+                                    <th class="text-center">@Html.SmartLocalize("Ordered Qty")</th>
+                                    <th class="text-center">@Html.SmartLocalize("Shipped Qty")</th>
+                                    <th>@Html.SmartLocalize("Note")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 0; i < Model.Items.Count; i++)
+                                {
+                                    <tr>
+                                        <td class="fs-8 text-center align-middle">@(i + 1)</td>
+                                        <td>@Model.Items[i].ProductName</td>
+                                        <td class="text-center">@Model.Items[i].FromLocationName</td>
+                                        <td class="text-center">@Model.Items[i].OrderedQuantity.ToString("N2")</td>
+                                        <td class="text-center">@Model.Items[i].ShippedQuantity.ToString("N2")</td>
+                                        <td>@Model.Items[i].Note</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Note (Read-only) -->
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <div class="col-xl-12 mb-3">
+                            <p class="mb-1 fw-bold fs-8">@Html.SmartLocalize("Note")</p>
+                            <p class="fs-9">@Model.Note</p>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-end gap-2 align-items-center">
+                        @if (!isEditMode && sidebarData != null && sidebarData.CanEdit)
+                        {
+                            <a href="@Url.Action("Edit", "ShipmentDetails", new { id = Model.Id })" class="btn btn-primary">
+                                <i class="fa fa-edit me-1"></i> @Html.SmartLocalize("Edit Shipment")
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            @if (sidebarData != null)
+            {
+                <partial name="_ShipmentSidebar" model="sidebarData" />
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script src="~/js/pages/Sales/ShipmentDetails.js"></script>
+    
+    <script src="~/js/pages/Sales/ShipmentSidebarActions.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+}

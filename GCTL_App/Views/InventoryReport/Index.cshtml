@@ -1,0 +1,101 @@
+﻿
+<div class="d-flex mb-3 pb-3">
+    <span class="fa-stack me-2 ms-n1">
+        <i class="fas fa-circle fa-stack-2x text-primary"></i>
+        <i class="fa-inverse fa-stack-1x text-primary-subtle fas fa-file-alt" data-fa-transform="shrink-4"></i>
+    </span>
+    <div class="col">
+        <h3 class="mb-0 text-primary position-relative fw-bold">
+            <span class="bg-body pe-2">Inventory Reports</span>
+            <span class="border border-primary position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+        </h3>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Stock Summary Report -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-info-subtle">
+                <h5 class="mb-0 text-info">Current Stock Report</h5>
+            </div>
+            <div class="card-body">
+                <form id="stockReportForm">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Location</label>
+                            <select class="form-select choiceDD" id="reportLocation" asp-items="@ViewBag.Locations as SelectList">
+                                <option value="">All Locations</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Product Type</label>
+                            <select class="form-select choiceDD" id="reportProductType" asp-items="@ViewBag.ProductTypes as SelectList">
+                                <option value="">All Types</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="reportLowStockOnly" />
+                                <label class="form-check-label" for="reportLowStockOnly">Low Stock Only</label>
+                            </div>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-outline-info me-2" formtarget="_blank" id="pdfBtn">
+                                <i class="fas fa-file-pdf"></i> Download PDF
+                            </button>
+                            <button type="button" class="btn btn-outline-success" id="excelBtn">
+                                <i class="fas fa-file-excel"></i> Download Excel
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Movement Report -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-success-subtle">
+                <h5 class="mb-0 text-success">Stock Movement Report</h5>
+            </div>
+            <div class="card-body">
+                <form id="movementReportForm">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="moveFromDate" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="moveToDate" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Location (optional)</label>
+                            <select class="form-select choiceDD" id="moveLocation" asp-items="@ViewBag.Locations as SelectList">
+                                <option value="">All Locations</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Product (optional)</label>
+                            <select class="form-select choiceDD" id="moveProduct" asp-items="@ViewBag.Products as SelectList">
+                                <option value="">All Products</option>
+                            </select>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-outline-success" formtarget="_blank">
+                                <i class="fas fa-file-pdf"></i> Generate PDF
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts {
+    <script src="~/js/pages/POS/Inventory/inventoryReports.js"></script>
+}

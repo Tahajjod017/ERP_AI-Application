@@ -50,7 +50,7 @@
                                             }
                                             else
                                             {
-                                                <a href="@Url.Action("Edit", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
+                                                <a href="@Url.Action("Index", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
                                             }
                                         }
                                     }
@@ -99,6 +99,314 @@
                         </div>
                     }
 
+
+
+                    <!-- ADD THIS SECTION HERE -->
+                    <!-- Create Shipment Section -->
+                    <div class="accordion-item border-top">
+                        <h2 class="accordion-header" id="headingShipment">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipment" aria-expanded="true" aria-controls="collapseShipment">
+                                @Html.SmartLocalize("Shipment")
+                            </button>
+                        </h2>
+                        <div class="accordion-collapse collapse show" id="collapseShipment" aria-labelledby="headingShipment" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                @if (Model.CanCreateShipment)
+                                {
+                                    <p class="fs-9">
+                                        <a href="/Shipment/Index?salesOrderId=@Model.SalesOrderId" class="btn btn-sm btn-phoenix-primary w-100">
+                                            <i class="fas fa-shipping-fast me-2"></i>
+                                            @Html.SmartLocalize("Create Shipment")
+                                        </a>
+                                    </p>
+                                }
+
+
+                                @if (Model.IsFullyShipped)
+                                {
+                                    <div class="alert alert-success fs-9 py-2 mb-2">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        @Html.SmartLocalize("Fully Shipped")
+                                    </div>
+                                }
+                                else if (Model.HasShipmentsStarted)
+                                {
+                                    <div class="alert alert-info fs-9 py-2 mb-2">
+                                        <i class="fas fa-shipping-fast me-2"></i>
+                                        @Html.SmartLocalize("Partially Shipped")
+                                    </div>
+                                }
+
+
+                                @if (Model.HasShipments && Model.Shipments != null && Model.Shipments.Any())
+                                {
+                                    <hr class="my-2" />
+                                    <p class="fs-9 fw-bold mb-2">@Html.SmartLocalize("Existing Shipments:")</p>
+                                    @foreach (var shipment in Model.Shipments)
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <a href="/ShipmentDetails/Index/@shipment.ShipmentId" class="fs-9 text-decoration-none">
+                                                @shipment.ShipmentNumber
+                                            </a>
+                                            <span class="badge badge-phoenix-@shipment.StatusClass fs-10">
+                                                @shipment.Status
+                                            </span>
+                                        </div>
+                                    }
+                                }
+                                else if (!Model.CanCreateShipment)
+                                {
+                                    <p class="fs-9 text-muted">@Html.SmartLocalize("No shipments available")</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Invoice Section -->
+                    @*@if (Model.HasShipmentsStarted)
+        {
+            <div class="accordion-item border-top">
+                <h2 class="accordion-header" id="headingInvoice">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseInvoice" aria-expanded="true"
+                            aria-controls="collapseInvoice">
+                        @Html.SmartLocalize("Invoice")
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse show" id="collapseInvoice"
+                     aria-labelledby="headingInvoice" data-bs-parent="#accordionExample">
+                    <div class="accordion-body pt-0">
+                        @if (Model.CanCreateInvoice && !Model.IsFullyShipped)
+                        {
+                            <p class="fs-9">
+                                <a href="/Invoice/Create?shipmentId=XXXX" class="btn btn-sm btn-success w-100">
+                                    <i class="fas fa-file-invoice-dollar me-2"></i>
+                                    @Html.SmartLocalize("Create Partial Invoice")
+                                </a>
+                            </p>
+                        }
+                        @if (Model.IsFullyShipped)
+                        {
+                            <p class="fs-9">
+                                <a href="/Invoice/Create?salesOrderId=@Model.SalesOrderId" class="btn btn-sm btn-success w-100">
+                                    <i class="fas fa-file-invoice-dollar me-2"></i>
+                                    @Html.SmartLocalize("Create Final Invoice")
+                                </a>
+                            </p>
+                        }
+
+
+
+                        @if (Model.HasInvoices)
+                        {
+
+                        }
+                    </div>
+                </div>
+            </div>
+        }*@
+
+                    <!-- Invoice Section -->
+                    @if (Model.HasShipmentsStarted)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingInvoice">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseInvoice" aria-expanded="true"
+                                        aria-controls="collapseInvoice">
+                                    @Html.SmartLocalize("Invoice")
+                                    @if (Model.HasInvoices)
+                                    {
+                                        <span class="badge bg-primary ms-2">@Model.Invoices.Count</span>
+                                    }
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseInvoice"
+                                 aria-labelledby="headingInvoice" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+
+                                    <!-- Create Invoice Buttons -->
+                                    <div class="mb-3">
+                                        @if (Model.CanCreatePartialInvoice)
+                                        {
+                                            <div class="mb-2">
+                                                <a href="/Invoice/CreatePartial?salesOrderId=@Model.SalesOrderId"
+                                                   class="btn btn-sm btn-warning w-100">
+                                                    <i class="fas fa-file-invoice me-2"></i>
+                                                    @Html.SmartLocalize("Create Partial Invoice")
+                                                </a>
+                                                <small class="text-muted d-block mt-1 text-center">
+                                                    For shipped items only
+                                                </small>
+                                            </div>
+                                        }
+
+                                        @if (Model.IsFullyShipped && Model.CanCreateInvoice && !Model.HasFinalInvoice)
+                                        {
+                                            <div class="mb-2">
+                                                <a href="/Invoice/CreateFinal?salesOrderId=@Model.SalesOrderId"
+                                                   class="btn btn-sm btn-success w-100">
+                                                    <i class="fas fa-file-invoice-dollar me-2"></i>
+                                                    @Html.SmartLocalize("Create Final Invoice")
+                                                </a>
+                                                <small class="text-muted d-block mt-1 text-center">
+                                                    For all items (fully shipped)
+                                                </small>
+                                            </div>
+                                        }
+
+                                        @if (!Model.IsFullyShipped && Model.CanCreateInvoice && !Model.HasFinalInvoice)
+                                        {
+                                            @*<div class="mb-2">
+                                                <a href="/Invoice/CreateDraft?salesOrderId=@Model.SalesOrderId"
+                                                   class="btn btn-sm btn-info w-100">
+                                                    <i class="fas fa-file-edit me-2"></i>
+                                                    @Html.SmartLocalize("Create Draft Invoice")
+                                                </a>
+                                                <small class="text-muted d-block mt-1 text-center">
+                                                    Draft invoice for current shipped items
+                                                </small>
+                                            </div>*@
+                                        }
+                                    </div>
+
+                                    <!-- Invoice List -->
+                                    @if (Model.HasInvoices)
+                                    {
+                                        <hr class="my-2" />
+                                        <p class="fs-9 fw-bold mb-2">@Html.SmartLocalize("Invoices:")</p>
+
+                                        @foreach (var invoice in Model.Invoices)
+                                        {
+                                            <div class="invoice-item mb-3 p-2 border rounded">
+                                                <!-- Invoice Header -->
+                                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                                    <div>
+                                                        <a href="/InvoiceDetails/Index/@invoice.InvoiceId"
+                                                           class="fs-9 fw-bold text-decoration-none">
+                                                            <i class="fas fa-file-invoice me-1"></i>
+                                                            @invoice.InvoiceNumber
+                                                        </a>
+                                                        @if (invoice.IsPartial && !string.IsNullOrEmpty(invoice.PartialForInvoiceNumber))
+                                                        {
+                                                            <small class="text-muted ms-2">
+                                                                <i class="fas fa-link"></i> Partial of @invoice.PartialForInvoiceNumber
+                                                            </small>
+                                                        }
+                                                    </div>
+                                                    <div class="text-end">
+                                                        @if (!string.IsNullOrEmpty(invoice.StatusName))
+                                                        {
+                                                            <span class="badge bg-@invoice.StatusClass fs-10">
+                                                                @invoice.StatusName
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                </div>
+
+                                                <!-- Invoice Details -->
+                                                <div class="row">
+                                                    <div class="col-8">
+                                                        <small class="text-muted d-block">
+                                                            <i class="far fa-calendar me-1"></i>
+                                                            @invoice.InvoiceDate?.ToString("MMM dd, yyyy")
+                                                        </small>
+                                                        <small class="d-block">
+                                                            @if (invoice.IsDraft)
+                                                            {
+                                                                <span class="badge bg-warning">Draft</span>
+                                                            }
+                                                            @if (invoice.IsPartial)
+                                                            {
+                                                                <span class="badge bg-info">Partial</span>
+                                                            }
+                                                            @if (invoice.IsFinal)
+                                                            {
+                                                                <span class="badge bg-success">Final</span>
+                                                            }
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-4 text-end">
+                                                        <small class="fw-bold d-block">@invoice.GrandTotal.ToString("C")</small>
+                                                        @if (invoice.PaidAmount > 0)
+                                                        {
+                                                            <small class="@(invoice.PaidAmount >= invoice.GrandTotal ? "text-success" : "text-warning")">
+                                                                @if (invoice.PaidAmount >= invoice.GrandTotal)
+                                                                {
+                                                                    <i class="fas fa-check-circle"></i> 
+                                                                 }
+                                                                else
+                                                                {
+                                                                    <i class="fas fa-exclamation-circle"></i>
+                                                                 }
+                                                            </small>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center py-3">
+                                            <i class="fas fa-file-invoice fa-2x text-muted mb-2"></i>
+                                            <p class="text-muted fs-9 mb-0">@Html.SmartLocalize("No invoices created yet")</p>
+                                            @if (!Model.HasShipmentsStarted)
+                                            {
+                                                <small class="text-muted">Create shipments first</small>
+                                            }
+                                        </div>
+                                    }
+
+                                    <!-- Invoice Summary -->
+                                    @if (Model.HasInvoices)
+                                    {
+                                        <div class="mt-3 pt-3 border-top">
+                                            <div class="row fs-9">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Total Invoices:</small>
+                                                </div>
+                                                <div class="col-6 text-end fw-bold">
+                                                    @Model.Invoices.Count
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <small class="text-muted">Total Amount:</small>
+                                                </div>
+                                                <div class="col-6 text-end fw-bold">
+                                                    @Model.Invoices.Sum(i => i.GrandTotal).ToString("C")
+                                                </div>
+
+                                                @{
+                                                    var totalPaid = Model.Invoices.Sum(i => i.PaidAmount);
+                                                    var totalDue = Model.Invoices.Sum(i => i.GrandTotal - i.PaidAmount);
+                                                }
+
+                                                <div class="col-6">
+                                                    <small class="text-muted">Total Paid:</small>
+                                                </div>
+                                                <div class="col-6 text-end fw-bold text-success">
+                                                    @totalPaid.ToString("C")
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <small class="text-muted">Total Due:</small>
+                                                </div>
+                                                <div class="col-6 text-end fw-bold text-danger">
+                                                    @totalDue.ToString("C")
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+
+
+                    <!-- Send Email Section starts here (existing code) -->
                     <!-- Send Email Section -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingEmail">
@@ -120,6 +428,28 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <!-- Status Actions -->
+                    @if (Model.CanMakeFinal == true && !Model.HasShipments)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingStatus">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStatus" aria-expanded="true" aria-controls="collapseStatus">
+                                    @Html.SmartLocalize("Status Actions")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseStatus" aria-labelledby="headingStatus" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" onclick="markAsApproved(@Model.SalesOrderId)">@Html.SmartLocalize("Mark as Approved")</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+
                 </div>
             </div>
         </div>
@@ -157,6 +487,27 @@
 </div>
 
 <script>
+    function createPartialInvoice(salesOrderId) {
+        if (confirm('Create partial invoice for shipped items?')) {
+            window.location.href = '/Invoice/CreatePartial?salesOrderId=' + salesOrderId;
+        }
+    }
+
+    // Create final invoice
+    function createFinalInvoice(salesOrderId) {
+        if (confirm('Create final invoice for all items? This can only be done once.')) {
+            window.location.href = '/Invoice/Create?salesOrderId=' + salesOrderId;
+        }
+    }
+
+//    function createInvoice(salesOrderId, isPartial) {
+
+//        showDev(salesOrderId + " " + isPartial, 'salesOrderId + isPartial')
+//    // Your invoice creation logic
+//}
+
+
+
 function duplicateSalesOrder(salesOrderId) {
     if (confirm('@Html.SmartLocalize("Are you sure you want to duplicate this sales order?")')) {
         $.ajax({
@@ -177,6 +528,32 @@ function duplicateSalesOrder(salesOrderId) {
         });
     }
 }
+
+
+    function markAsApproved(salesOrderId) {
+        if (confirm('Mark this Sales Order as Approved?')) {
+            $.ajax({
+                url: '/SalesOrderDetails/UpdateStatus',
+                method: 'POST',
+                data: {
+                    id: salesOrderId,
+                    status: 3 // QuotationStatus.Approved
+                },
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success('Quotation marked as Approved!');
+                        location.reload();
+                    } else {
+                        toastr.warning('Failed to update status: ' + response.message);
+                    }
+                },
+                error: function () {
+                    toastr.error('Failed to update status. Please try again.');
+                }
+            });
+        }
+    }
+
 
 function sendEmailNow(salesOrderId) {
     const recipient = $('#recipientEmail').val();

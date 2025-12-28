@@ -10,6 +10,7 @@ namespace GCTL.Service.POS.Sales.PriceQuotation
 {
     public interface IPriceQuotation
     {
+        Task<CommonReturnViewModel> ConvertToSalesOrder(int id , BaseViewModel? baseView);
         Task<string> GetNextPQcode();
         Task<CommonReturnViewModel> SaveAsync(PriceQuotationViewModel vm);
     }

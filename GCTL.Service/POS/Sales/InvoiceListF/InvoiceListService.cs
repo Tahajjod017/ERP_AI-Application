@@ -27,7 +27,7 @@ namespace GCTL.Service.POS.Sales.InvoiceListF
         {
             var query = _invoiceRepository.AllActive()
                 .Include(inv => inv.Customer)
-                .Include(inv => inv.SalesOrders)
+                .Include(inv => inv.SalesOrderVersion).ThenInclude(inv => inv.SalesOrders)
                 .Include(inv => inv.CreatedByNavigation)
                 .Include(inv => inv.InvoiceItems)
                 .AsQueryable();
@@ -38,7 +38,7 @@ namespace GCTL.Service.POS.Sales.InvoiceListF
                 query = query.Where(inv =>
                     inv.InvoiceNumber.Contains(searchTerm) ||
                     inv.Customer.FullName.Contains(searchTerm) ||
-                    inv.SalesOrders != null && inv.SalesOrders.SalesOrderNumber.Contains(searchTerm) ||
+                    inv.SalesOrderVersion.SalesOrders != null && inv.SalesOrderVersion.SalesOrders.SalesOrderNumber.Contains(searchTerm) ||
                     inv.InvoiceNote != null && inv.InvoiceNote.Contains(searchTerm));
             }
 
@@ -80,7 +80,7 @@ namespace GCTL.Service.POS.Sales.InvoiceListF
                     InvoiceID = inv.InvoiceID,
                     InvoiceNumber = inv.InvoiceNumber ?? "",
                     CustomerName = inv.Customer != null ? inv.Customer.FullName : "",
-                    SalesOrderNumber = inv.SalesOrders != null ? inv.SalesOrders.SalesOrderNumber : "",
+                    SalesOrderNumber = inv.SalesOrderVersion.SalesOrders != null ? inv.SalesOrderVersion.SalesOrders.SalesOrderNumber : "",
                     CreatedBy = inv.CreatedByNavigation != null ? inv.CreatedByNavigation.FirstName + " " + inv.CreatedByNavigation.LastName : "",
                     InvoiceDate = inv.InvoiceDate,
                     TotalItems = inv.InvoiceItems.Count,

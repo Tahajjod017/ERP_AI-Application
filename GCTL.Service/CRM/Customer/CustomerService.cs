@@ -1933,5 +1933,20 @@ GetAllShippingAsync(
             };
         }
         #endregion
+
+        #region Get Customer Info
+        public async Task<SelectListItem> GetCustomerById(int id, int organizationID)
+        {
+            var result = await _customersRepository.AllActive().Include(x=> x.CustomerAddresses).ThenInclude(x=> x.Address).AsNoTracking().FirstOrDefaultAsync(x => x.CustomerID == id);
+            return new SelectListItem
+            {
+                Value = result?.CustomerID.ToString(),
+                Text = $"{result?.FullName} " +
+                   $"{string.Join(", ", result?.CustomerAddresses.Select(x => x.Address.Email).FirstOrDefault())} " +
+                   $"{string.Join(", ", result?.CustomerAddresses.Select(x => x.Address.Phone).FirstOrDefault())}"
+
+            };
+        }
+        #endregion
     }
 }

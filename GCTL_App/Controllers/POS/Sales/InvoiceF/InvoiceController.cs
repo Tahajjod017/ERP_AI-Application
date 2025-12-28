@@ -65,6 +65,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         [HttpGet]
         public IActionResult Create(int? customerId = null, int? salesOrderId = null)
         {
+            ViewBag.Products = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
+
+
             var vm = new InvoiceViewModel
             {
                 Id = null,
@@ -103,6 +106,17 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     vm.SelectedSalesOrderId = salesOrder.SalesOrdersVersionID;
                     vm.VatPercent = salesOrder.VatPercentage ?? 5m;
                     vm.InvoiceNote = salesOrder.Note;
+                    vm.IsDraft = true;
+                    vm.OtherReference = "TODO";
+
+                    vm.Items = salesOrder.SalesOrderVersionItems.Select(e => new InvoiceItem
+                    {
+                        SL = 1,
+                        ProductId = e.ProductID ?? 0,
+                        Quantity = e.Quantity,
+                        UnitPrice = e.Rate
+
+                    }).ToList();
 
                     // Load items from sales order (you'll need to map these to products)
                     // This is a simplified version - adjust based on your business logic

@@ -1,4 +1,4 @@
-﻿
+
 //Customer Dropdown with Select2 and AJAX
 $(document).ready(function () {
     // local veriable
@@ -178,6 +178,7 @@ $(document).ready(function () {
         width: '100%'
     });
 
+    let customerScriptLoaded = false
 
     //Modal customer
     $(document).on("click", "#createCustomer", function () {
@@ -185,10 +186,9 @@ $(document).ready(function () {
             $('.create-lead-modal-body').html(html);
             // Load script if needed
             $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
-                .done(() => {
-                    if (typeof initCreateLeadModal === "function") {
-                        initCreateJobModal();
-                    }
+                .done(function () {
+
+                    initCreateJobModal();
                 });
 
             const modalEl = document.getElementById('createCustomerModalToggle');
@@ -202,21 +202,29 @@ $(document).ready(function () {
 
     //Modal job
     $(document).on("click", "#createJob", function () {
+        debugger
         $.get('/CreateJobs/IndexModal', function (html) {
             $('.create-job-modal-body').html(html);
             // Load script if needed
-            $.getScript('/js/pages/FieldServices/CreateJob.js');
-                //.done(() => {
-                //    if (typeof initCreate === "function") {
-                //        initCreate();
-                //    }
-                //});
+            $.getScript('/js/pages/FieldServices/CreateJob.js')
+                .done(() => {
+                    debugger;
+                    if (typeof initCreateJobModal === "function") {
+                        initCreateJobModal();
+                    }
 
-            const modalEl = document.getElementById('createJobModalToggle');
-            modalEl.setAttribute("data-bs-backdrop", "static");
-            modalEl.setAttribute("data-bs-keyboard", "false");
-            // Now open modal
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                const modalEl = document.getElementById('createJobModalToggle');
+                modalEl.setAttribute("data-bs-backdrop", "static");
+                modalEl.setAttribute("data-bs-keyboard", "false");
+                // Now open modal
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+
+                    if (typeof LoadMainPageData === "function") {
+                    LoadMainPageData(customerId);
+                }
+            });
+
+           
         });
     });
 
@@ -243,61 +251,12 @@ $(document).ready(function () {
 
 
 
-    //// Cascading Job by Customer with Select2
-    //$("#CustomerID2").on('change', function () {
-    //    const customerId = $(this).val();
-
-    //    if (customerId) {
-    //        $.ajax({
-    //            url: '/EmployeeAdvanced/GetJobByCusId',
-    //            type: "GET",
-    //            data: { customerId: customerId },
-    //            success: function (result) {
-    //                if (result.success) {
-    //                    var data = result.data;
-    //                    // clear select2 options
-    //                    $("#JobID").empty();
-
-    //                    if (data && data.length > 0) {
-    //                        // build array for select2
-    //                        let jobs = data.map(job => ({
-    //                            id: job.jobID,
-    //                            text: job.jobTitle
-    //                        }));
-
-    //                        // re-init select2 with new data
-    //                        $("#JobID").select2({
-    //                            data: jobs,
-    //                            placeholder: 'select job',
-    //                            width: '100%'
-    //                        });
-    //                    } else {
-    //                        $("#JobID").select2({
-    //                            data: [{ id: '', text: 'No jobs found' }],
-    //                            width: '100%'
-    //                        });
-    //                    }
-    //                } else {
-    //                    toastr.error("Something went wrong!");
-    //                }
-    //            },
-    //            error: function () {
-    //                toastr.error("Something went wrong!");
-    //            }
-    //        });
-    //    } else {
-    //        $("#JobID").select2({
-    //            data: [{ id: '', text: 'Select Client' }],
-    //            width: '100%'
-    //        });
-    //    }
-    //});
-
     // propagate CustomerID2 value into modal after modal is shown
     $('#createJobModalToggle').on('shown.bs.modal', function () {
         const selectedCustomerId = $("#CustomerID2").val();
         $(this).find('#CustomerID2').val(selectedCustomerId).trigger('change');
     });
+
 
 
 
@@ -401,27 +360,21 @@ $(document).ready(function () {
                             <td>
                                 <input type="checkbox" class="form-check-input" data-id="${item.employeeAdvanceID}" />
                             </td>
-                            <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
-                                <span>${item.customerID2}</span>
+                            <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">${item.customerID2}
                             </td>
-                            <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                <div class="d-flex align-items-center position-relative">
-                                    <div class="avatar avatar-m me-3">
-                                        <img class="rounded-circle avatar-placeholder" src="../../assets/img/team/avatar.webp" alt="" />
-                                    </div>
-                                    <a class="text-body-highlight fw-bold stretched-link" href="#!">${item.customerName || 'N/A'}</a>
-                                </div>
+                            <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">${item.customerName}
+                                
                             </td>
                             <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTitle || 'N/A'}</td>
-                            <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobID || 'N/A'}</td>
+                            <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTypeName || 'N/A'}</td>
                             <td class="empSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.amountRequested || 0}</td>
-                            <td class="empBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
+                            <td class="empBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.groupEmployeeName}
                                
                             </td>
-                            <td class="empDeduction align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
-                                <span class="badge badge-phoenix ${item.approvalStatusID}">
+                            <td class="empDeduction align-middle white-space-nowrap ps-4 fw-semibold text-body py-1"> ${item.statusName}
+                                
                             </td>
-                            <td class="netSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.approvalStatusID || 0}</td>
+                            <td class="netSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.requestedByUser || 0}</td>
                             <td class="paySlip align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startDate} </td>
                             <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                                 <div class="d-flex btn-reveal-trigger position-static">
@@ -492,6 +445,15 @@ $(document).ready(function () {
     });
     // #endregion
 
+
+
+    window.finishModalProcess = function (value, text) {
+        debugger;
+        alert("I Got response");
+        const modalEl = document.getElementById('createCustomerModalToggle');
+        // Now open modal
+        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+    }
 
 
 });
