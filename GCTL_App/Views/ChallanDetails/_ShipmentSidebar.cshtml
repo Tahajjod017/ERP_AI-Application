@@ -9,37 +9,37 @@
                     @if (Model.Status == GCTL.Core.Enums.ShipmentStatus.Pending)
                     {
                         <div class="alert alert-subtle-warning" role="alert">
-                            @Html.SmartLocalize("Shipment pending. Ready to pack.")
+                            @Html.SmartLocalize("Challan pending. Ready to pack.")
                         </div>
                     }
                     else if (Model.Status == GCTL.Core.Enums.ShipmentStatus.Packed)
                     {
                         <div class="alert alert-subtle-info" role="alert">
-                            @Html.SmartLocalize("Shipment packed. Ready to ship.")
+                            @Html.SmartLocalize("Challan packed. Ready to ship.")
                         </div>
                     }
                     else if (Model.Status == GCTL.Core.Enums.ShipmentStatus.Shipped)
                     {
                         <div class="alert alert-subtle-primary" role="alert">
-                            @Html.SmartLocalize("Shipment shipped. In transit.")
+                            @Html.SmartLocalize("Challan shipped. In transit.")
                         </div>
                     }
                     else if (Model.Status == GCTL.Core.Enums.ShipmentStatus.InTransit)
                     {
                         <div class="alert alert-subtle-primary" role="alert">
-                            @Html.SmartLocalize("Shipment in transit.")
+                            @Html.SmartLocalize("Challan in transit.")
                         </div>
                     }
                     else if (Model.Status == GCTL.Core.Enums.ShipmentStatus.Delivered)
                     {
                         <div class="alert alert-subtle-success" role="alert">
-                            @Html.SmartLocalize("Shipment delivered successfully.")
+                            @Html.SmartLocalize("Challan delivered successfully.")
                         </div>
                     }
                     else if (Model.Status == GCTL.Core.Enums.ShipmentStatus.Cancelled)
                     {
                         <div class="alert alert-subtle-danger" role="alert">
-                            @Html.SmartLocalize("Shipment cancelled.")
+                            @Html.SmartLocalize("Challan cancelled.")
                         </div>
                     }
                 </div>
@@ -123,7 +123,7 @@
                         <div class="accordion-item border-top">
                             <h2 class="accordion-header" id="headingPack">
                                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePack" aria-expanded="true" aria-controls="collapsePack">
-                                    @Html.SmartLocalize("Pack Shipment")
+                                    @Html.SmartLocalize("Pack Challan")
                                 </button>
                             </h2>
                             <div class="accordion-collapse collapse show" id="collapsePack" aria-labelledby="headingPack" data-bs-parent="#accordionExample">
@@ -203,7 +203,7 @@
                             <div class="accordion-collapse collapse show" id="collapseCancel" aria-labelledby="headingCancel" data-bs-parent="#accordionExample">
                                 <div class="accordion-body pt-0">
                                     <p class="fs-9">
-                                        <a href="javascript:void(0)" class="text-danger" onclick="cancelShipment(@Model.ShipmentId)">@Html.SmartLocalize("Cancel Shipment")</a>
+                                        <a href="javascript:void(0)" class="text-danger" onclick="cancelShipment(@Model.ShipmentId)">@Html.SmartLocalize("Cancel Challan")</a>
                                     </p>
                                 </div>
                             </div>
