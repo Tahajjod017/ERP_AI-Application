@@ -141,7 +141,7 @@
                            <span class="badge badge-phoenix ${statusBadge} fs-9">${item.leadStatus}</span>
                         </td>
                         <td class="status align-middle white-space-nowrap pe-0 ps-2 d-flex justify-content-center" data-column="11">
-                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2"  id="editModalBtn" data-id="${item.leadId}"><i class="fas fa-edit text-black"></i></a>
+                            <a href="#!" class="btn btn-outline-light btn-icon addShift-bulkEdit me-2 editModalBtn"  data-id="${item.leadId}"><i class="fas fa-edit text-black"></i></a>
                         </td>
                     </tr>
                 `);
@@ -160,59 +160,59 @@
     loadProcessedTable();
 
 
-    // ====================
-    // Edit Button work
-    // ======================
-    $(document).on("click", "#editModalBtn", function (e) {
-        var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
-            keyboard: false
-        });
-        myModal.show();
+    //// ====================
+    //// Edit Button work
+    //// ======================
+    //$(document).on("click", "#editModalBtn", function (e) {
+    //    var myModal = new bootstrap.Modal(document.getElementById('editModal'), {
+    //        keyboard: false
+    //    });
+    //    myModal.show();
 
-        let leadID = $(this).data('id');
-        $.ajax({
-            url: '/CRM/GetLeadInfo',
-            method: 'POST',
-            data: { id: leadID },
-            success: function (response) {
-                $("#leadID").val(response.leadID);
-                $("#leadName").val(response.leadName);
-                $("#leadStatusID").val(response.leadStatusID);
-                $("#leadSourceID").val(response.leadSourceID);
-                $("#leadPriorityID").val(response.priorityID);
-                $("#approximateDealValue").val(response.approximateDealValue);
-                $("#probabilityPercentage").val(response.probability);
-                $("#completionValue").text(response.probability + '%');
-                $("#descriptionText").val(response.leadDescription);
-                $("#queryText").val(response.leadOwnerName);
-               // $("#selectedID").val(response.leadOwnerId);
+    //    let leadID = $(this).data('id');
+    //    $.ajax({
+    //        url: '/CRM/GetLeadInfo',
+    //        method: 'POST',
+    //        data: { id: leadID },
+    //        success: function (response) {
+    //            $("#leadID").val(response.leadID);
+    //            $("#leadName").val(response.leadName);
+    //            $("#leadStatusID").val(response.leadStatusID);
+    //            $("#leadSourceID").val(response.leadSourceID);
+    //            $("#leadPriorityID").val(response.priorityID);
+    //            $("#approximateDealValue").val(response.approximateDealValue);
+    //            $("#probabilityPercentage").val(response.probability);
+    //            $("#completionValue").text(response.probability + '%');
+    //            $("#descriptionText").val(response.leadDescription);
+    //            $("#queryText").val(response.leadOwnerName);
+    //           // $("#selectedID").val(response.leadOwnerId);
 
-                choiceManager.setChoiceValue('leadOwnerId', response.leadOwnerId)
-                // multiselect edit field read
-                $('#serviceTypes').val(response.serviceIds).each(function () {
-                    coreui.MultiSelect.getInstance(this)?.update();
-                });
+    //            choiceManager.setChoiceValue('leadOwnerId', response.leadOwnerId)
+    //            // multiselect edit field read
+    //            $('#serviceTypes').val(response.serviceIds).each(function () {
+    //                coreui.MultiSelect.getInstance(this)?.update();
+    //            });
 
 
 
-                // employee add
-                const currentOwnerId = response.leadOwnerId;
-                const currentOwnerName = response.leadOwnerName;
+    //            // employee add
+    //            const currentOwnerId = response.leadOwnerId;
+    //            const currentOwnerName = response.leadOwnerName;
 
-                if (currentOwnerId && currentOwnerName) {
-                    choices.setChoices(
-                        [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
-                        'value',
-                        'label',
-                        false // false = append (don’t clear)
-                    );
-                }
-            },
-            error: function (xhr) {
-                toastr.error("Error creating lead");
-            }
-        });
-    });
+    //            if (currentOwnerId && currentOwnerName) {
+    //                choices.setChoices(
+    //                    [{ value: currentOwnerId, label: currentOwnerName, selected: true }],
+    //                    'value',
+    //                    'label',
+    //                    false // false = append (don’t clear)
+    //                );
+    //            }
+    //        },
+    //        error: function (xhr) {
+    //            toastr.error("Error creating lead");
+    //        }
+    //    });
+    //});
 
 
     $('.sort').on('click', function () {
@@ -346,33 +346,179 @@
     //    return isValid;
     //}
 
-    // #region Choice with Pagination + Infinite Scroll (server-side search only)
+    //// #region Choice with Pagination + Infinite Scroll (server-side search only)
+    //const selectEl = document.getElementById('leadOwnerId');
+    //let debounceTimer;
+    //let loading = false;
+    //let currentPage = 1;
+    //let lastSearch = '';
+    //let hasMore = true;
+
+    //const choices = new Choices(selectEl, {
+    //    searchEnabled: true,
+    //    placeholder: true,
+    //    placeholderValue: 'Select Organization...',
+    //    searchPlaceholderValue: 'Type to search...',
+    //    noChoicesText: 'Type 3 or more characters...',
+    //    searchResultLimit: -1, // disable local limiting
+    //    shouldSort: false,
+    //    duplicateItemsAllowed: false,
+    //    itemSelectText: '',
+    //    removeItemButton: true,
+
+    //    // 🚨 disable client-side filtering (server handles search)
+    //    searchChoices: false,
+    //    fuseOptions: false,
+    //    searchFn: () => true
+    //});
+
+    //// Fetch data from server
+    //async function fetchOptions(search, page = 1, pageSize = 50) {
+    //    loading = true;
+    //    try {
+    //        const res = await fetch(`/CRM/SearchEmployee?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
+    //        const data = await res.json();
+    //        hasMore = data.hasMore;
+    //        return data;
+    //    } catch (error) {
+    //        console.error("Error fetching organizations:", error);
+    //        return { items: [], hasMore: false };
+    //    } finally {
+    //        loading = false;
+    //    }
+    //}
+
+    //// Handle debounce on search
+    //selectEl.addEventListener('search', function (e) {
+    //    const searchTerm = e.detail.value;
+    //    clearTimeout(debounceTimer);
+
+    //    if (searchTerm.length < 1) {
+    //        choices.clearChoices();
+    //        return;
+    //    }
+
+    //    debounceTimer = setTimeout(async () => {
+    //        currentPage = 1;
+    //        lastSearch = searchTerm;
+    //        const data = await fetchOptions(searchTerm, currentPage);
+
+    //        choices.clearChoices();
+    //        if (data.items.length > 0) {
+    //            // replace with new results
+    //            choices.setChoices(data.items, 'value', 'label', true);
+    //        }
+    //    }, 500); // debounce delay
+    //});
+
+    //// Scroll handler
+    //async function handleScroll(e) {
+    //    const dropdownList = e.target;
+    //    if (!loading && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
+    //        currentPage++;
+    //        const data = await fetchOptions(lastSearch, currentPage);
+
+    //        if (data.items.length > 0) {
+    //            // append results, keep existing
+    //            choices.setChoices(data.items, 'value', 'label', false);
+    //        }
+    //    }
+    //}
+
+    //// Reattach scroll listener when dropdown opens
+    //choices.passedElement.element.addEventListener('showDropdown', () => {
+    //    const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
+    //    if (dropdownList) {
+    //        dropdownList.removeEventListener('scroll', handleScroll);
+    //        dropdownList.addEventListener('scroll', handleScroll);
+    //    }
+    //});
+    //// #endregion
+
+    //#region Edit Modal Button
+    $(document).on("click", ".editModalBtn", function () {
+        $("#leadModalTitle").text("Edit");
+        const leadId = $(this).data('id');
+        const firstModalEl = document.getElementById('createLeadModalToggle');
+        const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
+        firstModal.hide();
+
+        $.get('/CreateLead/IndexModal', function (html) {
+            $('.create-lead-modal-body').html(html);
+
+            $.getScript('/js/pages/crm/createlead_modal.js')
+                .done(function () {
+                    if (typeof initCreateLeadModal === "function") {
+                        initCreateLeadModal();
+                    }
+
+                    const modalEl = document.getElementById('createLeadModalToggle');
+                    modalEl.setAttribute("data-bs-backdrop", "static");
+                    modalEl.setAttribute("data-bs-keyboard", "false");
+
+                    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+
+                    if (typeof loadEditData === "function") {
+                        loadEditData(leadId);
+                    }
+                });
+        });
+    });
+    //#endregion
+
+    //#region Modal Edit Customer Button
+    $(document).on("click", "#editCustomerBtn2", function (e) {
+        e.preventDefault();
+        $("#customerModalActionName").text("Edit")
+
+        $.get('/Customers/IndexModal', function (html) {
+            $('.customer-modal-content').html(html);
+
+            if (typeof initCustomerModal !== 'function') {
+                $.getScript('/js/pages/CRM/Customer/customer.bundle.js')
+                    .done(() => initCustomerModal && initCustomerModal());
+            } else {
+                initCustomerModal();
+            }
+
+            const id = $('#CustomerId2').val();
+            loadCustomerData(id);
+
+            const secondModal = bootstrap.Modal.getOrCreateInstance('#openCustomerModalToggle', {
+                backdrop: 'static',
+                focus: true,
+                keyboard: false
+            });
+
+            secondModal.show();
+        });
+    });
+    //#endregion
+});
+
+function initCreateLeadModal() {
+
     const selectEl = document.getElementById('leadOwnerId');
+    if (!selectEl) return; // safety
+
     let debounceTimer;
     let loading = false;
     let currentPage = 1;
     let lastSearch = '';
     let hasMore = true;
 
-    const choices = new Choices(selectEl, {
+    window.leadOwnerChoices = new Choices(selectEl, {
         searchEnabled: true,
         placeholder: true,
         placeholderValue: 'Select Organization...',
         searchPlaceholderValue: 'Type to search...',
-        noChoicesText: 'Type 3 or more characters...',
-        searchResultLimit: -1, // disable local limiting
+        noChoicesText: 'Type to search...',
         shouldSort: false,
-        duplicateItemsAllowed: false,
-        itemSelectText: '',
         removeItemButton: true,
-
-        // 🚨 disable client-side filtering (server handles search)
         searchChoices: false,
-        fuseOptions: false,
         searchFn: () => true
     });
 
-    // Fetch data from server
     async function fetchOptions(search, page = 1, pageSize = 50) {
         loading = true;
         try {
@@ -380,58 +526,42 @@
             const data = await res.json();
             hasMore = data.hasMore;
             return data;
-        } catch (error) {
-            console.error("Error fetching organizations:", error);
-            return { items: [], hasMore: false };
         } finally {
             loading = false;
         }
     }
 
-    // Handle debounce on search
     selectEl.addEventListener('search', function (e) {
         const searchTerm = e.detail.value;
         clearTimeout(debounceTimer);
 
         if (searchTerm.length < 1) {
-            choices.clearChoices();
+            leadOwnerChoices.clearChoices();
             return;
         }
 
         debounceTimer = setTimeout(async () => {
             currentPage = 1;
             lastSearch = searchTerm;
+
             const data = await fetchOptions(searchTerm, currentPage);
-
-            choices.clearChoices();
-            if (data.items.length > 0) {
-                // replace with new results
-                choices.setChoices(data.items, 'value', 'label', true);
-            }
-        }, 500); // debounce delay
+            leadOwnerChoices.clearChoices();
+            leadOwnerChoices.setChoices(data.items, 'value', 'label', true);
+        }, 400);
     });
 
-    // Scroll handler
-    async function handleScroll(e) {
-        const dropdownList = e.target;
-        if (!loading && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
-            currentPage++;
-            const data = await fetchOptions(lastSearch, currentPage);
+    leadOwnerChoices.passedElement.element.addEventListener('showDropdown', () => {
+        const dropdown = document.querySelector('.choices__list--dropdown .choices__list');
+        if (!dropdown) return;
 
-            if (data.items.length > 0) {
-                // append results, keep existing
-                choices.setChoices(data.items, 'value', 'label', false);
+        dropdown.addEventListener('scroll', async () => {
+            if (!loading && hasMore &&
+                dropdown.scrollTop + dropdown.clientHeight >= dropdown.scrollHeight - 10) {
+
+                currentPage++;
+                const data = await fetchOptions(lastSearch, currentPage);
+                leadOwnerChoices.setChoices(data.items, 'value', 'label', false);
             }
-        }
-    }
-
-    // Reattach scroll listener when dropdown opens
-    choices.passedElement.element.addEventListener('showDropdown', () => {
-        const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
-        if (dropdownList) {
-            dropdownList.removeEventListener('scroll', handleScroll);
-            dropdownList.addEventListener('scroll', handleScroll);
-        }
+        });
     });
-    // #endregion
-});
+}

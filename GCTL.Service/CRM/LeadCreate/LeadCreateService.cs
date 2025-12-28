@@ -172,7 +172,7 @@ namespace GCTL.Service.CRM.LeadCreate
 
 
         #region EditLead
-        public async Task<CommonReturnViewModel> EditLead(LeadUpdateVM leadUpdateVM)
+        public async Task<CommonReturnViewModel> EditLead(LeadsVM leadUpdateVM)
         {
             // Begin transaction
             await _leadsRepository.BeginTransactionAsync();
@@ -191,11 +191,12 @@ namespace GCTL.Service.CRM.LeadCreate
                 }
 
                 // Update lead fields
+                leadObj.CustomerID = leadUpdateVM.CustomerId;
                 leadObj.LeadName = leadUpdateVM.LeadName;
-                leadObj.LeadStatusID = leadUpdateVM.LeadStatusID ?? null;
-                leadObj.LeadSourceID = leadUpdateVM.LeadSourceID ?? null;
-                leadObj.LeadOwnerID = leadUpdateVM.LeadOwnerID ?? null;
-                leadObj.PriorityID = leadUpdateVM.PriorityID ?? null;
+                leadObj.LeadStatusID = leadUpdateVM.LeadStatusID;
+                leadObj.LeadSourceID = leadUpdateVM.LeadSourceID;
+                leadObj.LeadOwnerID = leadUpdateVM.LeadOwnerID;
+                leadObj.PriorityID = leadUpdateVM.PriorityID;
                 leadObj.ApproximateDealValue = leadUpdateVM.ApproximateDealValue;
                 leadObj.ProbabilityPercentage = leadUpdateVM.ProbabilityPercentage;
                 leadObj.LeadDescription = leadUpdateVM.LeadDescription;

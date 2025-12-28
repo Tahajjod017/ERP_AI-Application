@@ -31,7 +31,14 @@ namespace GCTL_App.Controllers.CRM
         }
         public IActionResult IndexModal()
         {
-            return PartialView("_createLeadPartial");
+            try
+            {
+                return PartialView("_createLeadPartial");
+            } catch (Exception e)
+            {
+                return PartialView();
+            }
+            
         }
         #endregion
 
@@ -52,6 +59,29 @@ namespace GCTL_App.Controllers.CRM
                 Success = false,
                 Message = "Data not inserted"
             });
+        }
+        #endregion
+
+        #region Edit
+        [HttpPost]
+        [Permission("Edit", "CreateLead")]
+        public async Task<IActionResult> Edit([FromBody] LeadsVM leadUpdateVM)
+        {
+            if (ModelState.IsValid)
+            {
+                if (leadUpdateVM.LeadID != 0)
+                {
+                    var result = await _leadCreateService.EditLead(leadUpdateVM);
+                    return Ok(result);
+                }
+            }
+            var results = new ReturnView
+            {
+                Success = false,
+                Message = "Data not inserted",
+            };
+            return Ok(results);
+
         }
         #endregion
 
@@ -122,7 +152,7 @@ namespace GCTL_App.Controllers.CRM
 
             return Json(formatted);
         }
-        #endregion
+        #endregion 
 
         #region Get GetPriorityListAsync List
         [HttpGet]

@@ -5,7 +5,7 @@ $(function () {
         file: '#aFile',
         contactNumber: "#ContectPersonId",
         contactEmail: "#ContectPersonEmailId",
-        leadID: '#leadID',
+        leadID: '#leadID2',
         addActiveBtn: '#addLActivity',
         wonConfirmDiv: '#won-fonfirm-div',
         restoreBtn: '#restoreBtn2',
@@ -397,7 +397,7 @@ $(function () {
 
             const tabName = $("#myTab .nav-link.active").text().trim();
             const search = $("#search-activity").val() || "";
-            const id = $("#leadID").val();
+            const id = $("#leadID2").val();
             const typeD = tabName === "All Activity" ? "" : tabName;
 
             $.ajax({
@@ -525,7 +525,7 @@ $(function () {
     function updateUpcomingActivate(page = 1) {
         if (loading2) return;
         loading2 = true;
-        const id = $("#leadID").val();
+        const id = $("#leadID2").val();
         $.ajax({
             url: '/LeadDetails/GetUpcomingActivityList',
             method: 'GET',
@@ -873,12 +873,10 @@ $(function () {
     updateActivate(1, "reset");
     updateUpcomingActivate();
 
-    // ====================
-    // Edit Button work
-    // ======================
+    //#region Edit Modal Button
     $(document).on("click", "#editModalBtn", function () {
         $("#leadModalTitle").text("Edit");
-        const leadId = $("#leadID").val();
+        const leadId = $("#leadID2").val();
         const firstModalEl = document.getElementById('createLeadModalToggle');
         const firstModal = bootstrap.Modal.getOrCreateInstance(firstModalEl);
         firstModal.hide();
@@ -904,6 +902,7 @@ $(function () {
                 });
         });
     });
+    //#endregion
 
     // ======================
     // employee
@@ -948,7 +947,7 @@ $(function () {
     $("#editBtn").on("click", function (e) {
         e.preventDefault();
         const data = {
-            LeadID: $("#leadID").val(),
+            LeadID: $("#leadID2").val(),
             LeadName: $("#leadName").val() || "",
             LeadStatusID: parseInt($("#leadStatusID").val()) || 0,
             LeadSourceID: parseInt($("#leadSourceID").val()) || 0,
@@ -1118,7 +1117,7 @@ $(function () {
         firstModal.hide();
     });
 
-    // Edit Customer Button
+    //#region Modal Edit Customer Button
     $(document).on("click", "#editCustomerBtn2", function (e) {
         e.preventDefault();
         $("#customerModalActionName").text("Edit")
@@ -1145,6 +1144,7 @@ $(function () {
             secondModal.show();
         });
     });
+    //#endregion
 
     // ==============================
     // Make Functions Globally Accessible

@@ -3,7 +3,7 @@ namespace GCTL.Core.ViewModels.CRM
 {
     public class LeadsVM : BaseViewModel
     {
-        public int LeadID { get; set; }
+        public int? LeadID { get; set; }
         public string LeadName { get; set; }
         public int LeadStatusID { get; set; }
         public int LeadSourceID { get; set; }

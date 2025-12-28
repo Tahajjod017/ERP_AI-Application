@@ -202,28 +202,6 @@ namespace GCTL_App.Controllers.CRM
             return Ok(list);
         }
 
-        // TODO: update Lead
-
-        [HttpPost]
-        public async Task<IActionResult> EditLeadData([FromBody] LeadUpdateVM leadUpdateVM)
-        {
-            if (ModelState.IsValid)
-            {
-                if (leadUpdateVM.LeadID != 0)
-                {
-                    var result = await _leadCreateService.EditLead(leadUpdateVM);
-                    return Ok(result);
-                }
-            }
-            var results = new ReturnView
-            {
-                Success = false,
-                Message = "Data not inserted",
-            };
-            return Ok(results);
-
-        }
-
 
         // ===================
         // new lead details
