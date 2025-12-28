@@ -11,6 +11,7 @@ using GCTL.Service.CommonService;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using GCTL.Service.FieldServices;
+using GCTL.Service.Pagination;
 
 namespace GCTL_App.Controllers.FieldServices
 {
@@ -143,6 +144,15 @@ namespace GCTL_App.Controllers.FieldServices
                     message = ex.Message
                 });
             }
+        }
+        #endregion
+
+        #region GetAll Employee Advance with Pagination
+        [HttpGet("EmployeeAdvanced/GetAllAsync")]
+        public async Task<IActionResult> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
+        {
+            var result = await _mainservice.GetAllAsync(pageNumber,pageSize,searchTerm,sortColumn,sortOrder, mainempId);
+            return Json(result);
         }
         #endregion
 
