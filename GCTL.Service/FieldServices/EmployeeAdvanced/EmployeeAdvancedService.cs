@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using NetTopologySuite.Precision;
 
+#region Services
 namespace GCTL.Service.FieldServices.EmployeeAdvanced
 {
     public class EmployeeAdvancedService : AppService<EmployeeAdvances>, IEmployeeAdvanced
@@ -36,6 +37,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             _job = job;
             _groupEmployeeRepository = groupEmployeeRepository;
         }
+        #endregion
 
         #region Add
         public async Task<CommonReturnViewModel> AddAsync(EmployeeAdvancedVM emp)
@@ -256,8 +258,6 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         }
         #endregion
 
-
-
         #region GetAllAsync
         public Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
         {
@@ -374,7 +374,43 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             }
 
         }
+        public async Task<EmployeeAdvancedVM> GetByIdAsync(int id)
+        {
+            try
+            {
+                var data = await _genericRepository.AllActive()
+                    .Include(x => x.EmployeeAdvanceFor)
+                    .Include(x => x.GroupEmployee).ThenInclude(x => x.Employee)
+                    .Include(x => x.Job).ThenInclude(x => x.Customer)
+                    .FirstOrDefaultAsync(x => x.EmployeeAdvanceID == id);
+
+                return new EmployeeAdvancedVM
+                {
+                    CustomerID2 = data.Job.CustomerID, // Job -> CustomerID
+                    CustomerName = data.Job.Customer.FullName, // Job -> Customer -> FullName
+
+                    JobID = data.JobID,
+                    JobName = data.Job.JobTitle, //Jod -> JobTitle
+
+                    AmountRequested = data.AmountRequested,
+                    StartDate = data.StartDate.HasValue ? data.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+                    EndDate = data.EndDate.HasValue ? data.EndDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+                    GroupEmployeeName = data.GroupEmployee.Select(ge => ge.Employee.FirstName).ToList(),
+                    RequestedByUserID = data.RequestedByUserID.HasValue ? new List<int> { data.RequestedByUserID.Value } : new List<int>(),
+                    ApprovedByUserID = data.ApprovedByUserID,
+                    //GroupEmployeeID = data.GroupEmployee
+                    //    .Where(ge => ge.EmployeeID.HasValue) // Ensure EmployeeID is not null
+                    //    .Select(ge => ge.EmployeeID.Value)  // Convert nullable int to non-nullable int
+                    //    .ToList()
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving Employee Advanced by ID.", ex);
+            }
+        }
         #endregion
 
     }
 }
+

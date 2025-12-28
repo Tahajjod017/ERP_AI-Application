@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace GCTL.Service.FieldServices.EmployeeAdvanced
 {
+    #region CRUD
     public interface IEmployeeAdvanced
     {
         Task<CommonReturnViewModel>AddAsync(EmployeeAdvancedVM emp);
@@ -16,12 +17,17 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
         Task<ReturnDataView<SelectListItem>> GetJobTypeAsync(string search, int page, int pageSize, int organizationID);//Modern Dropdown for Job Types
 
-        Task<CommonReturnViewModel> ApproveAsync(int id, int approvedByUserId);
+        //Task<CommonReturnViewModel> ApproveAsync(int id, int approvedByUserId);
 
         Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId); //Cascading
 
         Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5,
              string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainAccId = null);
 
+         Task<EmployeeAdvancedVM> GetByIdAsync(int id);
+
+
+
     }
+    #endregion
 }
