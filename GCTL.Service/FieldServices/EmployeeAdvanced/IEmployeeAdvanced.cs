@@ -1,4 +1,4 @@
-﻿
+
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;

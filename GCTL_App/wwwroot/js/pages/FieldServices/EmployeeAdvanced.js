@@ -1,4 +1,4 @@
-﻿
+
 //Customer Dropdown with Select2 and AJAX
 $(document).ready(function () {
     // local veriable

@@ -426,7 +426,7 @@ namespace GCTL_App.Controllers.POS.Purchase
 
         private int GetCurrentUserId()
         {
-            return 1;
+            return GetCurrentEmployeeIdAsync().Result ?? 1;
         }
     }
 }
