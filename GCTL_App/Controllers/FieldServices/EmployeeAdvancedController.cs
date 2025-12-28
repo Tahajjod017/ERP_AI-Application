@@ -85,7 +85,7 @@ namespace GCTL_App.Controllers.FieldServices
         [HttpGet]
         public async Task<IActionResult> GetJobsType(string search = "", int page = 1, int pageSize = 20)
         {
-            var result = await _mainservice.GetJobTypeAsync (
+            var result = await _mainservice.GetJobTypeAsync(
                 search, page, pageSize, await GetCurrentOrganizationIdAsync() ?? 0
             );
 
@@ -104,7 +104,6 @@ namespace GCTL_App.Controllers.FieldServices
             return Ok(formatted);
         }
         #endregion
-
 
         #region GetJobsByJobType
 
@@ -125,7 +124,7 @@ namespace GCTL_App.Controllers.FieldServices
         #endregion
 
         #region GetJobByCustomer(Nested)
-        public async Task<IActionResult> GetJobByCusId(int customerId) 
+        public async Task<IActionResult> GetJobByCusId(int customerId)
         {
             try
             {
@@ -151,31 +150,36 @@ namespace GCTL_App.Controllers.FieldServices
         [HttpGet("EmployeeAdvanced/GetAllAsync")]
         public async Task<IActionResult> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
         {
-            var result = await _mainservice.GetAllAsync(pageNumber,pageSize,searchTerm,sortColumn,sortOrder, mainempId);
+            var result = await _mainservice.GetAllAsync(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, mainempId);
             return Json(result);
         }
         #endregion
 
+        #region GetByID
 
-        // NEW: Approve Employee Advance
-        [HttpPost]
-        public async Task<IActionResult> Approve(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var approvedByUserId = await GetCurrentEmployeeIdAsync();
-
-            if (!approvedByUserId.HasValue)
+            try
             {
-                return Json(new { success = false, message = "User not authenticated" });
+                var result = await _mainservice.GetByIdAsync(id);
+                if (result == null)
+                {
+                    return Json(new { isSuccess = false, message = "Record not found" });
+                }
+                return Json(new
+                {
+                    isSuccess = true,
+                    data = result
+                });
             }
-
-            var result = await _mainservice.ApproveAsync(id, approvedByUserId.Value);
-
-            return Json(new
+            catch (Exception ex)
             {
-                success = result.Success,
-                message = result.Message
-            });
+
+                return Json(new { isSuccess = false, message = ex.Message });
+                #endregion
+
+            }
         }
-       
     }
 }
+

@@ -1,9 +1,11 @@
 
+
 //Customer Dropdown with Select2 and AJAX
 $(document).ready(function () {
     // local veriable
     let customerId = null;
 
+    //#region Customer 
     $('#CustomerID2').select2({
         placeholder: 'Select Customer',
         width: '100%',
@@ -46,16 +48,51 @@ $(document).ready(function () {
         customerId = $(this).val();
 
     });
+    //#endregion
 
-    // Save Functionality
+    //#region Job
+    $('#JobID').select2({
+        placeholder: 'Select Job',
+        width: '100%',
+        ajax: {
+            url: `/createjobs/getjobs`,
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    customerId: customerId, search: params.term || '',
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.results,
+                    pagination: {
+                        more: data.pagination.more
+                    }
+                };
+            },
+            cache: true
+        },
+        language: {
+            noResults: function () {
+                return 'Data not found. Create a <a href="#" id="createJob">job</a>';
+            }
+        },
+        escapeMarkup: function (markup) { return markup; } // allow HTML in noResults
+    });
+    //#endregion
+
+    //#region Save Functionality
     $('#saveBtn').on('click', function (e) {
         e.preventDefault();
 
-         var formData = new FormData();
+        var formData = new FormData();
         formData.append('CustomerID2', $('#CustomerID2').val());
         formData.append('JobID', $('#JobID').val());
 
-        var requestedUsers = $("#RequestedByUserID").val(); 
+        var requestedUsers = $("#RequestedByUserID").val();
         requestedUsers.forEach(function (id) {
             formData.append('RequestedByUserID', id);
         }); //Multiple Select
@@ -70,7 +107,7 @@ $(document).ready(function () {
         formData.append('StartDate', $('#StartDate').val());
         formData.append('EndDate', $('#EndDate').val());
         formData.append('ApprovedByUserID', $('#ApprovedByUserID').val());
-        
+
 
         $.ajax({
             url: '/EmployeeAdvanced/Create/',
@@ -107,42 +144,101 @@ $(document).ready(function () {
             }
         });
     });
+    //#endregion
 
 
-    $('#JobID').select2({
-        placeholder: 'Select Job',
-        width: '100%',
-        ajax: {
-            url: `/createjobs/getjobs`,
-            dataType: 'json',
-            delay: 250,
-            data: function (params) {
-                return {
-                    customerId: customerId, search: params.term || '',
-                    page: params.page || 1
-                };
-            },
-            processResults: function (data, params) {
-                params.page = params.page || 1;
-                return {
-                    results: data.results,
-                    pagination: {
-                        more: data.pagination.more
-                    }
-                };
-            },
-            cache: true
-        },
-        language: {
-            noResults: function () {
-                return 'Data not found. Create a <a href="#" id="createJob">job</a>';
+
+    //#region Edit
+   
+    function setSelect2Value(selector, id, text) {
+        if (!id) return;
+        const option = new Option(text, id, true, true);
+        $(selector).append(option).trigger('change');
+    }
+
+    // Choices.js multiple setter
+    function setChoicesMultiple(choicesInstance, values) {
+        if (!choicesInstance) return;
+
+        // normalize to array
+        if (values === null || values === undefined) return;
+
+        if (!Array.isArray(values)) {
+            values = [values]; // convert single value to array
+        }
+
+        choicesInstance.removeActiveItems();
+        values.forEach(v => {
+            if (v !== null && v !== undefined) {
+                choicesInstance.setChoiceByValue(v.toString());
             }
-        },
-        escapeMarkup: function (markup) { return markup; } // allow HTML in noResults
+        });
+    }
+ 
+    $(document).on('click', '.employeeAdvance-editBtn', async function (e) {
+        e.preventDefault();
+
+        const id = $(this).data('id');
+        if (!id) {
+            toastr.error('Invalid record ID');
+            return;
+        }
+
+        try {
+            const response = await $.get('/EmployeeAdvanced/GetById', { id });
+
+            if (!response.isSuccess) {
+                toastr.warning(response.message);
+                return;
+            }
+
+            const data = response.data;
+
+            /* ---------- CUSTOMER (Select2 AJAX) ---------- */
+            setSelect2Value(
+                '#CustomerID2',
+                data.customerID2,
+                data.customerName
+            );
+
+            /* ---------- JOB (Dependent Select2 AJAX) ---------- */
+            customerId = data.customerID2;
+            document.getElementById("JobID").disabled = false;
+
+            setSelect2Value(
+                '#JobID',
+                data.jobID,
+                data.jobName
+            );
+
+            /* ---------- INPUTS ---------- */
+            $('#AmountRequested').val(data.amountRequested);
+            $('#StartDate').val(data.startDate ? data.startDate.split('T')[0] : '');
+            $('#EndDate').val(data.endDate ? data.endDate.split('T')[0] : '');
+
+            /* ---------- MULTI SELECT (Choices) ---------- */
+            setChoicesMultiple(
+                employeeDD, // Choices instance
+                data.approvedByUserID
+            );
+
+            setChoicesMultiple(
+                employeeDD, // Choices instance
+                data.groupEmployeeName
+            );
+
+            $('#employeeAdvance-saveBtn').text('Update');
+        }
+        catch (err) {
+            console.error(err);
+            toastr.error('Failed to load data');
+        }
     });
 
+    // #endregion
 
-    //Modal Job Type Dropdown
+
+    //#region Modal Job Type Dropdown
 
     $('#RequestedByUserID').select2({
         placeholder: 'Select Job',
@@ -177,10 +273,11 @@ $(document).ready(function () {
         },
         width: '100%'
     });
+    //#endregion
 
+    //#region Modal customer
     let customerScriptLoaded = false
 
-    //Modal customer
     $(document).on("click", "#createCustomer", function () {
         $.get('/Customers/IndexModal', function (html) {
             $('.create-lead-modal-body').html(html);
@@ -198,9 +295,9 @@ $(document).ready(function () {
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
         });
     });
+    //#endregion
 
-
-    //Modal job
+    //#region Modal job
     $(document).on("click", "#createJob", function () {
         debugger
         $.get('/CreateJobs/IndexModal', function (html) {
@@ -213,31 +310,32 @@ $(document).ready(function () {
                         initCreateJobModal();
                     }
 
-                const modalEl = document.getElementById('createJobModalToggle');
-                modalEl.setAttribute("data-bs-backdrop", "static");
-                modalEl.setAttribute("data-bs-keyboard", "false");
-                // Now open modal
-                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                    const modalEl = document.getElementById('createJobModalToggle');
+                    modalEl.setAttribute("data-bs-backdrop", "static");
+                    modalEl.setAttribute("data-bs-keyboard", "false");
+                    // Now open modal
+                    bootstrap.Modal.getOrCreateInstance(modalEl).show();
 
                     if (typeof LoadMainPageData === "function") {
-                    LoadMainPageData(customerId);
-                }
-            });
+                        LoadMainPageData(customerId);
+                    }
+                });
 
-           
+
         });
     });
 
     const checkbox = document.getElementById('toggleCheckbox');
-   
+
     const hiddenDiv2 = document.getElementById('hiddenDiv2');
 
     checkbox.addEventListener('change', function () {
-     
+
         hiddenDiv2.style.display = this.checked ? 'block' : 'none';
     });
+    //#endregion
 
-    //Clear Function
+    // #region Clear Function
 
     function clearForm() {
         $('#formClear')[0].reset();
@@ -256,14 +354,22 @@ $(document).ready(function () {
         const selectedCustomerId = $("#CustomerID2").val();
         $(this).find('#CustomerID2').val(selectedCustomerId).trigger('change');
     });
+    //#endregion
 
+    //#region Checkbox
+    $(document).ready(function () {
+        $('#empAdvanced-check-all').on('change', function () {
+            var isChecked = $(this).prop('checked');
+            $('.addEmpCheck-selectedItem').prop('checked', isChecked);
 
-
-
-
-
-
-
+           
+        });
+        $(document).on('change', '.addEmpCheck-selectedItem',
+            function () {
+                toggleBulkActions();
+            });
+    });
+    //#endregion
 
     // #region loadTableData
     var currentPage = 1;
@@ -355,10 +461,10 @@ $(document).ready(function () {
                 if (response.data.length > 0) {
                     response.data.forEach(function (item, index) {
                         var rowIndex = (currentPage - 1) * pageSize + index + 1;
-                                            tableBody.append(`
+                        tableBody.append(`
                         <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                             <td>
-                                <input type="checkbox" class="form-check-input" data-id="${item.employeeAdvanceID}" />
+                                <input type="checkbox" class="form-check-input addEmpCheck-selectedItem" data-id="${item.employeeAdvanceID}" />
                             </td>
                             <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">${item.customerID2}
                             </td>
@@ -378,10 +484,15 @@ $(document).ready(function () {
                             <td class="paySlip align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startDate} </td>
                             <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                                 <div class="d-flex btn-reveal-trigger position-static">
-                                    <a href="#!" class="btn bnt-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#edit_employee_salary" data-                id="${item.employeeAdvanceID}">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="#!" class="btn btn-phoenix-danger btn-icon me-1 fs-10 text-body px-0 advance-delete" data-id="${item.  employeeAdvanceID}"       title="Delete">
+                                    <a href="#!"
+                                           class="btn btn-outline-dark btn-sm employeeAdvance-editBtn"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#edit_employee_salary"
+                                           data-id="${item.employeeAdvanceID}">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        
+                                    <a href="#!" class="btn btn-phoenix-danger btn-icon me-1 fs-10 text-body px-0 advance-delete" data-id="${item.employeeAdvanceID}"       title="Delete">
                                         <i class="fa-regular fa-trash-can text-black"></i>
                                     </a>
                                 </div>

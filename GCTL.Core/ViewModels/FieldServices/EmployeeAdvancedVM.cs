@@ -54,7 +54,10 @@ namespace GCTL.Core.ViewModels.FieldServices
 
         public string? JobTypeName { get; set; } //New Added
 
-        public string? RequestedByUser { get; set; }
+        public string? RequestedByUser { get; set; } //New Added
+
+        public string? JobName { get; set; }
+
 
 
 
