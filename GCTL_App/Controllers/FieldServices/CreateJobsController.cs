@@ -75,19 +75,20 @@ namespace GCTL_App.Controllers.FieldServices
             {
                 if (ModelState.IsValid)
                 {
+                    string fileLocation = model.FileLink is not null ? await StorePhoto(model.FileLink) : string.Empty;
                     if (model.JobID == 0)
                     {
-
-                        string fileLocation = model.FileLink is not null ? await StorePhoto(model.FileLink) : string.Empty;
-
                         var result = await _createJobService.AddAsync(model, fileLocation);
                         if (result)
                         {
                             return Ok(new { Success = true, Message = "Job Created" });
                         }
                         return Ok(new { Success = false, Message = "Something goes to wrong" });
+                    } else
+                    {
+                        var result = await _createJobService.EditAsync(model, fileLocation);
                     }
-                    return Ok(new { Success = false, Message = "Id is not valid" });
+                        return Ok(new { Success = false, Message = "Id is not valid" });
                 }
                 return Ok(new { Success = false, Message = "Model state is not valid" });
             } catch(Exception ex)
@@ -158,6 +159,7 @@ namespace GCTL_App.Controllers.FieldServices
             return Ok(formatted);
         }
         #endregion
+
         #region Get JobType List
         [HttpGet]
         public async Task<IActionResult> GetJobTypes(string search = "")

@@ -43,12 +43,18 @@
 
             <div class="col-12 col-sm-auto">
                 <div class="d-flex align-items-center">
+
+
                     <div class="dropdown me-3">
                         <div class="input-icon-end position-relative">
-                            <input class="form-control datetimepicker flatpickr-input caiCon" id="pendingFromDate" type="text"
+                            <input class="form-control datetimepicker flatpickr-input caiCon caiClear" id="pendingFromDate" type="text"
                                    placeholder="@Html.SmartLocalize("From")" data-options='{"dateFormat":"d/m/y","disableMobile":true}' readonly="readonly">
                         </div>
                     </div>
+
+                 
+
+
                     <div class="dropdown me-3">
                         <div class="input-icon-end position-relative">
                             <input class="form-control datetimepicker flatpickr-input caiCon" id="pendingToDate" type="text"
@@ -215,7 +221,7 @@
 <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header border-0">
                 <h5 class="modal-title" id="approvalModalLabel">Requisition Details</h5>
                 <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -301,7 +307,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer" id="modalFooterButtons">
+            <div class="modal-footer border-0" id="modalFooterButtons">
                 <!-- Buttons will be dynamically added based on permissions -->
             </div>
         </div>
@@ -312,7 +318,7 @@
 <div class="modal fade" id="declineModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header border-0">
                 <h5 class="modal-title">Decline Requisition</h5>
                 <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal"></button>
             </div>
@@ -327,7 +333,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer border-0">
                 <button class="btn btn-danger" type="button" onclick="confirmDecline()">Decline Requisition</button>
                 <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
             </div>

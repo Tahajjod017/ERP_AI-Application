@@ -57,6 +57,8 @@ public partial class Requisitions
 
     public virtual OrganizationBranches OrganizationBranch { get; set; }
 
+    public virtual ICollection<PurchasOrders> PurchasOrders { get; set; } = new List<PurchasOrders>();
+
     public virtual Employees RequisitionByNavigation { get; set; }
 
     public virtual ICollection<RequisitionItems> RequisitionItems { get; set; } = new List<RequisitionItems>();

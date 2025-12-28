@@ -543,11 +543,11 @@
         const token = $("input[name='__RequestVerificationToken']").val();
         const formData = new FormData(form);
         const jsonData = {};
-
+        console.log(formData);
         formData.forEach((value, key) => {
             if (key === "__RequestVerificationToken") return;
 
-            if (["CustomerId", "LeadStatusID", "LeadSourceID", "LeadOwnerID", "PriorityID", "BranchId"].includes(key)) {
+            if (["CustomerId", "LeadStatusID", "LeadSourceID", "LeadOwnerID", "PriorityID"].includes(key)) {
                 jsonData[key] = parseInt(value) || 0;
             } else if (["ApproximateDealValue", "ProbabilityPercentage"].includes(key)) {
                 jsonData[key] = parseFloat(value) || 0;

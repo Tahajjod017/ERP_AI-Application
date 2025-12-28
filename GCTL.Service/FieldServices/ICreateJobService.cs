@@ -27,6 +27,7 @@ namespace GCTL.Service.FieldServices
         Task<ReturnDataView<SelectListItem>> GetDivisionsAsync(string search);
         Task<ReturnDataView<SelectListItem>> GetStatusesAsync(string search);
         Task<ReturnDataView<SelectListItem>> GetJobTypesAsync(string search);
+        Task<bool> EditAsync(CreateJobVM model, string FileLink);
         #endregion
     }
 }

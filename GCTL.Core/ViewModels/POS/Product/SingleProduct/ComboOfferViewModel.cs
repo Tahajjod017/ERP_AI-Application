@@ -47,7 +47,7 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         public int? ComboQuantity { get; set; }
 
         [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Unit price must be greater than 0.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Product price must be greater than 0.")]
         public decimal? ComboUnitPrice { get; set; }
 
         [Required]

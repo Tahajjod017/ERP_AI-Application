@@ -546,10 +546,10 @@
     .timeline-wrapper::before {
         content: '';
         position: absolute;
-        left: 22px;
+        left: 34px;
         top: 10px;
         bottom: 10px;
-        width: 2px;
+        width: 4px;
         background: linear-gradient(to bottom, #667eea 0%, #764ba2 50%, #667eea 100%);
         opacity: 0.3;
         z-index: 0;
@@ -893,11 +893,6 @@
         .timeline-wrapper {
             padding-left: 45px;
         }
-
-            .vertical-timeline-line,
-            .timeline-wrapper::before {
-                left: 20px;
-            }
 
         .timeline-activity-icon {
             left: -34px;
@@ -1291,7 +1286,6 @@
                 <div class="card-body">
                     <div class="timeline-container">
                         <div id="upcoming-activity" class="timeline-wrapper" data-timeline-type="upcoming">
-                            <div class="vertical-timeline-line"></div>
                             <!-- Activities will be loaded here dynamically -->
                         </div>
                     </div>
@@ -1334,7 +1328,6 @@
                         </div>
                         <div class="timeline-container">
                             <div id="activity-list" class="timeline-wrapper" data-timeline-type="all">
-                                <div class="vertical-timeline-line"></div>
                                 <!-- Activities will be loaded here dynamically -->
                             </div>
                         </div>

@@ -7,7 +7,9 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.POS.Purchase.PurchaseOrder;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
+using GCTL.Service.MasterSetup.Statuse;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace GCTL.Service.POS.Purchase.PurchaseOrder
 {
@@ -16,18 +18,27 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
         private readonly IGenericRepository<PurchasOrders> _purchaseOrderRepository;
         private readonly IGenericRepository<PurchasOrderItemVersions> _purchaseOrderItemRepository;
         private readonly IGenericRepository<PurchasOrderVersions> _purchaseOrderVersionsRepository;
+        private readonly IGenericRepository<PurOrderBaseSAddresses> _purchaseOrderAddressRepository;
+        private readonly IGenericRepository<Statuses> _statusRepository;
         private readonly IUserInfoService _userInfoService;
+        private readonly IStatusService _statusService;
 
         public PurchaseOrderService(
             IGenericRepository<PurchasOrders> purchaseOrderRepository,
             IGenericRepository<PurchasOrderItemVersions> purchaseOrderItemRepository,
             IUserInfoService userInfoService,
-            IGenericRepository<PurchasOrderVersions> purchaseOrderVersionsRepository)
+            IGenericRepository<PurchasOrderVersions> purchaseOrderVersionsRepository,
+            IGenericRepository<Statuses> statusRepository,
+            IStatusService statusService,
+            IGenericRepository<PurOrderBaseSAddresses> purchaseOrderAddressRepository)
         {
             _purchaseOrderRepository = purchaseOrderRepository;
             _purchaseOrderItemRepository = purchaseOrderItemRepository;
             _userInfoService = userInfoService;
             _purchaseOrderVersionsRepository = purchaseOrderVersionsRepository;
+            _statusRepository = statusRepository;
+            _statusService = statusService;
+            _purchaseOrderAddressRepository = purchaseOrderAddressRepository;
         }
 
         public async Task<string> GetNextPOCode()
@@ -52,12 +63,17 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
             return nextPO;
         }
 
-        public async Task<CommonReturnViewModel> SaveAsync(PurchaseOrderViewModel vm)
+        public async Task<CommonReturnViewModel> SaveAsync(PurchaseOrderViewModel vm, int? org)
         {
             await _purchaseOrderItemRepository.OpenTransactionAsync();
 
             try
             {
+                var OpenStatus = await _statusService.GetStatusIDAsync("Open" , "po");              
+                var DraftStatus = await _statusService.GetStatusIDAsync("Draft", "po");
+
+              
+
                 // ============================================================
                 // 1️⃣ CHECK IF EXISTING VERSION
                 // ============================================================
@@ -66,6 +82,8 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
 
                 if (prevVersion != null && prevVersion.IsDraft != false)
                 {
+                    
+
                     // 🔹 Update header fields
                     prevVersion.SupplierID = vm.SelectedSupplierId;
                     prevVersion.PurchaseDate = vm.PurchaseDate;
@@ -153,6 +171,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
                         previousPO = new PurchasOrders
                         {
                             POID = vm.POID,
+                            POStatusID = vm.IsDraft ? DraftStatus : OpenStatus,
                             CreatedAt = DateTime.Now,
                             CreatedBy = vm.CreatedBy
                         };
@@ -172,7 +191,7 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
                         WorkOrderDate = vm.WorkOrderDate,
                         OBBillingAddressID = vm.BillingAddressId,
                         OBShipingAddressID = vm.SelectedShippingAddressId,
-                        OrganizationID = vm.OrganizationId,
+                        OrganizationID = org,
                         OrganizationBranchID = vm.OrganizationBranchId,
                         PaymentMethodID = vm.PaymentMethodId,
                         BankAccountInfoID = vm.BankAccountInfoId,
@@ -187,10 +206,12 @@ namespace GCTL.Service.POS.Purchase.PurchaseOrder
                         GrandTotalAmount = vm.GrandTotal,
                         PaidAmount = vm.PaidAmount,
                         DueAmount = vm.DueAmount,
+                        TotalReceiveCount = 0,
                         IsDraft = vm.IsDraft,
                         IsFinal = !vm.IsDraft,
                         CreatedAt = DateTime.Now,
-                        CreatedBy = vm.CreatedBy
+                        CreatedBy = vm.CreatedBy,
+                        
                     };
 
                     await _purchaseOrderVersionsRepository.AddAsync(newVersion);

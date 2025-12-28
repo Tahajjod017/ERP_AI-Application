@@ -12,6 +12,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public int? Id { get; set; }
         public DateTime OrderDate { get; set; }
         public string OrderNumber { get; set; }
+        public int? LocationId { get; set; }
         public int? SelectedCustomerId { get; set; }
         public int? SelectedQuotationId { get; set; }
         public string QuotationNumber { get; set; }
@@ -26,6 +27,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
 
         // Sidebar data
         public string CreatedByName { get; set; }
+        public string? LocationName { get; set; }
         public DateTime? CreatedAt { get; set; }
         public string UpdatedByName { get; set; }
         public DateTime? UpdatedAt { get; set; }
@@ -35,13 +37,14 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
 
         // Customer list for dropdown
         public List<CustomerDto> Customers { get; set; } = new List<CustomerDto>();
+        public bool CanEdit { get; set; }
     }
 
     public class SalesOrderItemDetails
     {
         public int SL { get; set; }
         public string Description { get; set; }
-        public int Unit { get; set; }
+        public int Product { get; set; }
         public string UnitName { get; set; }
         public decimal Area { get; set; }
         public decimal Rate { get; set; }
@@ -49,7 +52,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public string LIP { get; set; }
         public string LMAC { get; set; }
 
-        public decimal Amount => Area * Rate;
+        public decimal Amount => Quantity * Rate;
     }
 
     //public class CustomerDetailsViewModel
@@ -89,5 +92,44 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public bool CanSendEmail => true; // Add your logic here
 
         public List<PriceQuotationVersionViewModel> SalesOrderIdList { get; set; }
+
+        public bool CanCreateShipment { get; set; }
+        public bool HasShipments => Shipments != null && Shipments.Any();
+        public List<ShipmentInfo> Shipments { get; set; } = new List<ShipmentInfo>();
+        public bool CanMakeFinal { get; set; }
+
+        public bool IsFullyShipped { get; set; }
+        public bool HasShipmentsStarted { get; set; }
+        public bool CanCreateInvoice { get; set; }
+
+
+    
+        public bool CanCreatePartialInvoice { get; set; }
+       
+        public List<InvoiceInfo> Invoices { get; set; } = new List<InvoiceInfo>();
+        public bool HasInvoices => Invoices != null && Invoices.Any();
+        public bool HasPartialInvoices => Invoices?.Any(i => i.IsPartial) ?? false;
+        public bool HasFinalInvoice => Invoices?.Any(i => i.IsFinal && !i.IsPartial) ?? false;
     }
+
+
+
+    public class InvoiceInfo
+    {
+        public int InvoiceId { get; set; }
+        public string InvoiceNumber { get; set; }
+        public DateTime? InvoiceDate { get; set; }
+        public decimal GrandTotal { get; set; }
+        public decimal PaidAmount { get; set; }
+        public bool IsDraft { get; set; }
+        public bool IsFinal { get; set; }
+        public bool IsPartial { get; set; }
+        public int? InvoiceStatusID { get; set; }
+        public string StatusName { get; set; }
+        public string StatusClass { get; set; }
+        public int? PartialForInvoiceID { get; set; }
+        public string PartialForInvoiceNumber { get; set; }
+    }
+
+
 }

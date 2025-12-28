@@ -57,7 +57,24 @@ public partial class Invoices
 
     public decimal DueAmount { get; set; }
 
-    public int? SalesOrdersID { get; set; }
+    public int? SalesOrderVersionID { get; set; }
+
+    public int? InvoiceStatusID { get; set; }
+
+    public bool IsPartial { get; set; } = false; // Default value
+
+    public int? PartialForInvoiceID { get; set; }
+
+    // Self-reference navigation
+    public Invoices PartialForInvoice { get; set; }
+    public ICollection<Invoices> PartialInvoices { get; set; }
+
+
+
+    // Navigation property
+    public Statuses InvoiceStatus { get; set; }
+
+
 
     public virtual Employees CreatedByNavigation { get; set; }
 
@@ -77,7 +94,9 @@ public partial class Invoices
 
     public virtual ICollection<PaymentTransactions> PaymentTransactions { get; set; } = new List<PaymentTransactions>();
 
-    public virtual SalesOrders SalesOrders { get; set; }
+    public virtual SalesOrdersVersions SalesOrderVersion { get; set; }
+
+    public virtual ICollection<Shipments> Shipments { get; set; } = new List<Shipments>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

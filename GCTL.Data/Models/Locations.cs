@@ -29,11 +29,27 @@ public partial class Locations
 
     public int? DeletedBy { get; set; }
 
+    public string LocationName { get; set; }
+
+    public string LocationCode { get; set; }
+
+    public string LocationType { get; set; }
+
+    public string Address { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public bool IsDefaultLocation { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual ICollection<Inventory> Inventory { get; set; } = new List<Inventory>();
+
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistoryFromLocation { get; set; } = new List<InventoryTransactionHistory>();
+
+    public virtual ICollection<InventoryTransactionHistory> InventoryTransactionHistoryToLocation { get; set; } = new List<InventoryTransactionHistory>();
 
     public virtual ICollection<InventoryTransfers> InventoryTransfersFromLocation { get; set; } = new List<InventoryTransfers>();
 
@@ -42,6 +58,16 @@ public partial class Locations
     public virtual Organization Organization { get; set; }
 
     public virtual OrganizationBranches OrganizationBranch { get; set; }
+
+    public virtual ICollection<PriceQuotationVersions> PriceQuotationVersions { get; set; } = new List<PriceQuotationVersions>();
+
+    public virtual ICollection<PurOrderBaseSAddresses> PurOrderBaseSAddresses { get; set; } = new List<PurOrderBaseSAddresses>();
+
+    public virtual ICollection<PurchaseReceives> PurchaseReceives { get; set; } = new List<PurchaseReceives>();
+
+    public virtual ICollection<SalesOrdersVersions> SalesOrdersVersions { get; set; } = new List<SalesOrdersVersions>();
+
+    public virtual ICollection<ShipmentItems> ShipmentItems { get; set; } = new List<ShipmentItems>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

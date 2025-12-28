@@ -118,7 +118,7 @@ namespace GCTL_App.Controllers.POS.Purchase
         // ==============================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public JsonResult Save(PurchaseOrderViewModel vm)
+        public async Task<JsonResult> Save(PurchaseOrderViewModel vm)
         {
             if (!ModelState.IsValid)
             {
@@ -138,7 +138,10 @@ namespace GCTL_App.Controllers.POS.Purchase
                 return Json(new { success = false, errors, message = messages });
             }
 
-            var result = _purchaseOrderService.SaveAsync(vm).Result;
+            var org = await GetCurrentOrganizationIdAsync();
+
+
+            var result = _purchaseOrderService.SaveAsync(vm , org).Result;
 
             return Json(new
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,9 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public DateTime OrderDate { get; set; }
         public bool IsDraft { get; set; }
         public string OrderNumber { get; set; }
+
+        [Required]
+        public int? LocationId { get; set; }
         public int? SelectedCustomerId { get; set; }
         public int? SelectedQuotationId { get; set; }
         public decimal VatPercent { get; set; }
@@ -31,14 +35,14 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
     {
         public int SL { get; set; }
         public string Description { get; set; }
-        public int Unit { get; set; }
+        public int? Product { get; set; }
         public decimal? Area { get; set; }
         public decimal? Rate { get; set; }
         public decimal? Quantity { get; set; }
         public string? LIP { get; set; }
         public string? LMAC { get; set; }
 
-        public decimal Amount => (Area ?? 0) * (Rate ?? 0);
+        public decimal Amount => (Quantity ?? 0) * (Rate ?? 0);
     }
 
     public class CustomerDto

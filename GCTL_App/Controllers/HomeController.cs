@@ -1,14 +1,16 @@
+using System.Diagnostics;
 using GCTL.Core.DataTables;
+using GCTL.Core.Repository;
+using GCTL.Data.Models;
 using GCTL.Service.AdminSettings.GeneralSettings;
 using GCTL.Service.Language;
 using GCTL.Service.UserProfile;
 using GCTL_App.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using NodaTime.Text;
 using NodaTime;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Authorization;
+using NodaTime.Text;
 
 namespace GCTL_App.Controllers
 {
@@ -16,14 +18,19 @@ namespace GCTL_App.Controllers
     public class HomeController : BaseController
     {
         private readonly ILocalizationContext _loc;
-        public HomeController(ITranslateService translateService, IUserProfileService userProfileService, ILocalizationContext loc) : base(translateService, userProfileService)
+        private readonly IGenericRepository<Organization> _orgaRepository;
+
+        public HomeController(ITranslateService translateService, IUserProfileService userProfileService, ILocalizationContext loc, IGenericRepository<Organization> orgaRepository) : base(translateService, userProfileService)
         {
             _loc = loc;
+            _orgaRepository = orgaRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-           
+            var orga = await GetCurrentOrganizationIdAsync();
+
+            ViewBag.OrgaName = _orgaRepository.AllActive().Where(e => e.OrganizationID == orga).Select(e => e.OrganizationName).FirstOrDefault();
 
             SetSmartPageCode(912000);
 
@@ -31,7 +38,7 @@ namespace GCTL_App.Controllers
         }
 
 
-        
+
 
         public IActionResult Privacy()
         {

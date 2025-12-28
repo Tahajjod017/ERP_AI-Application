@@ -12,6 +12,7 @@ namespace GCTL_App.Controllers.POS.Requisition
 {
     public class RequisitionApproverController : BaseController
     {
+        #region CTOR
         private readonly IRequisitionApproverService _approverService;
         private readonly IGenericRepository<Statuses> _statusRepository;
         private readonly IGenericRepository<ProductTypes> _productTypesRepository;
@@ -28,6 +29,8 @@ namespace GCTL_App.Controllers.POS.Requisition
             _statusRepository = statusRepository;
             _productTypesRepository = productTypesRepository;
         }
+
+        #endregion
 
         #region Index
         public IActionResult Index()

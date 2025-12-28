@@ -42,8 +42,8 @@ namespace GCTL.Core.ViewModels.POS.Product.SingleProduct
         [Display(Name = "Barcode Type")] public string AttrBarcodeType { get; set; }
         [Display(Name = "Barcode Value")] public string AttrBarcodeValue { get; set; }
 
-        // ---------- Unit / assets / quantity ----------
-        [Display(Name = "Unit")] public string AttrUnit { get; set; }
+        // ---------- Product / assets / quantity ----------
+        [Display(Name = "Product")] public string AttrUnit { get; set; }
         [Display(Name = "Assets Type")] public string AttrAssetsType { get; set; }
         [Display(Name = "Quantity Alert")]
         [Range(0, int.MaxValue)]

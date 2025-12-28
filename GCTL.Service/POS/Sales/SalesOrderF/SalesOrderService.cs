@@ -20,6 +20,8 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
         private readonly IGenericRepository<SalesOrderVersionItems> _salesOrderItemRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
+        private readonly IGenericRepository<PriceQuotationVersions> _priceQuotationVersionRepository;
+        private readonly IGenericRepository<GCTL.Data.Models.Inventory> _inventoryRepository;
         private readonly IUserInfoService _userInfoService;
 
         public SalesOrderService(
@@ -27,13 +29,17 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
             IGenericRepository<SalesOrderVersionItems> salesOrderItemRepository,
             IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
             IUserInfoService userInfoService,
-            IGenericRepository<BloodGroup> bloodRepository)
+            IGenericRepository<BloodGroup> bloodRepository,
+            IGenericRepository<Data.Models.Inventory> inventoryRepository,
+            IGenericRepository<PriceQuotationVersions> priceQuotationVersionRepository)
         {
             _salesOrderRepository = salesOrderRepository;
             _salesOrderItemRepository = salesOrderItemRepository;
             _salesOrderVersionRepository = salesOrderVersionRepository;
             _userInfoService = userInfoService;
             _bloodRepository = bloodRepository;
+            _inventoryRepository = inventoryRepository;
+            _priceQuotationVersionRepository = priceQuotationVersionRepository;
         }
 
         public async Task<string> GetNextSOcode()
@@ -64,7 +70,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
             var result = await _salesOrderVersionRepository.AllActive().FirstOrDefaultAsync(e => e.SalesOrdersVersionID == vm.Id);
 
-           
+            var quotation = await _priceQuotationVersionRepository.AllActive().FirstOrDefaultAsync(e => e.PriceQuotationVersionID == vm.SelectedQuotationId);
 
             try
             {
@@ -89,6 +95,8 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
                     result.VatPercentage = vm.VatPercent;
                     result.Note = vm.Note;
                     result.IsDraft = vm.IsDraft;
+                    result.IsFinal = !vm.IsDraft;
+                    result.LocationID = vm.LocationId;
 
                     await _salesOrderVersionRepository.UpdateAsync(result, vm);
                     await _userInfoService.ActionLogAsync("SalesOrderVersion", ActionName.DataUpdated, null, result, result.SalesOrdersVersionID, vm);
@@ -107,7 +115,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
                         {
                             SalesOrdersVersionID = result.SalesOrdersVersionID,
                             Description = item.Description,
-                            UnitTypeID = Convert.ToInt32(item.Unit),
+                            ProductID = Convert.ToInt32(item.Product),
                             Area = item.Area,
                             Rate = item.Rate,
                             Quantity = item.Quantity,
@@ -119,6 +127,31 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
                         await _salesOrderItemRepository.AddAsync(modelItem);
                         await _userInfoService.ActionLogAsync("SalesOrderItem", ActionName.DataAdd, null, modelItem, modelItem.SalesOrderVersionItemID, vm);
+
+                        if (result.IsFinal == true)
+                        {
+                            var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == modelItem.ProductID && e.LocationID == vm.LocationId);
+
+                            if (inv != null && inv.Quantity >= modelItem.Quantity)
+                            {
+                                inv.ReservedQuantity += modelItem.Quantity ?? 0;
+                                //inv.Quantity -= modelItem.Quantity;
+                                await _inventoryRepository.UpdateAsync(inv);
+
+                            }
+                            else
+                            {
+                                await _bloodRepository.RollbackTransactionAsync();
+                                return new CommonReturnViewModel
+                                {
+                                    Success = false,
+                                    Message = "Your stock is low"
+                                };
+                            }
+                        }
+
+                        
+
                     }
 
                     // Commit transaction
@@ -148,7 +181,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
                          salesOrderExists = new SalesOrders
                         {
-                            PriceQuotationID = vm.SelectedQuotationId,
+                            PriceQuotationID = quotation?.PriceQuotationID ?? null,
                             SalesOrderNumber = vm.OrderNumber,
 
                         };
@@ -173,11 +206,56 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
                         Note = vm.Note,
                         IsDraft = vm.IsDraft,
                         IsFinal = vm.IsDraft ? false : true,
+                        LocationID = vm.LocationId
                     };
 
                     await _salesOrderVersionRepository.AddAsync(version, vm);
                     await _userInfoService.ActionLogAsync("SalesOrderVersion", ActionName.DataAdd, null, version, version.SalesOrdersVersionID, vm);
 
+
+                    if (version.IsFinal == true)
+                    {
+                        var listData = await _salesOrderVersionRepository.AllActive()
+                            .Where(so => so.SalesOrdersID == salesOrderExists.SalesOrdersID 
+                        && so.SalesOrdersVersionID != version.SalesOrdersVersionID).ToListAsync();
+
+                        var prevFinal = await _salesOrderVersionRepository.AllActive().Include(e=>e.SalesOrderVersionItems)
+                            .Where(so => so.SalesOrdersID == salesOrderExists.SalesOrdersID
+                            && so.SalesOrdersVersionID != version.SalesOrdersVersionID && so.IsFinal == true).FirstOrDefaultAsync();
+
+                        if (prevFinal != null)
+                        {
+                            foreach (var item in prevFinal.SalesOrderVersionItems)
+                            {
+                                var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == item.ProductID && e.LocationID == vm.LocationId);
+
+                                if (inv != null)// && inv.Quantity <= item.Quantity)
+                                {
+                                    inv.ReservedQuantity -= item.Quantity ?? 0;
+                                   // inv.Quantity += item.Quantity;
+                                    await _inventoryRepository.UpdateAsync(inv);
+
+                                }
+                            }
+                        }
+
+
+                        listData.ForEach(e =>
+                        {
+                            e.IsFinal = false;
+                            e.IsDraft = false;
+                            e.LIP = vm.LIP;
+                            e.LMAC = vm.LMAC;
+                            e.CreatedBy = vm.CreatedBy;
+                            e.CreatedAt = DateTime.Now;
+                        });
+
+
+
+                        await _salesOrderVersionRepository.UpdateRangeAsync(listData);
+
+
+                    }
 
 
                     // Save sales order items
@@ -187,7 +265,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
                         {
                             SalesOrdersVersionID = version.SalesOrdersVersionID,
                             Description = item.Description,
-                            UnitTypeID = Convert.ToInt32(item.Unit),
+                            ProductID = Convert.ToInt32(item.Product),
                             Area = item.Area,
                             Rate = item.Rate,
                             Quantity = item.Quantity,
@@ -199,6 +277,30 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
                         await _salesOrderItemRepository.AddAsync(modelItem);
                         await _userInfoService.ActionLogAsync("SalesOrder", ActionName.DataAdd, null, modelItem, modelItem.SalesOrderVersionItemID, vm);
+
+
+                        if (version.IsFinal == true)
+                        {
+                            var inv = await _inventoryRepository.AllActive().FirstOrDefaultAsync(e => e.ProductID == modelItem.ProductID && e.LocationID == vm.LocationId);
+
+                            if (inv != null && inv.Quantity >= modelItem.Quantity)
+                            {
+                                inv.ReservedQuantity += modelItem.Quantity ?? 0;
+                               // inv.Quantity -= modelItem.Quantity;
+
+                                await _inventoryRepository.UpdateAsync(inv);
+                            }
+                            else
+                            {
+                                await _bloodRepository.RollbackTransactionAsync();
+                                return new CommonReturnViewModel
+                                {
+                                    Success = false,
+                                    Message = "Your stock is low"
+                                };
+                            }
+                        }
+
                     }
 
                     // Commit transaction

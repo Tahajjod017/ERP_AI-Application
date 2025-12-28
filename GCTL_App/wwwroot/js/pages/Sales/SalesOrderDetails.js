@@ -132,11 +132,11 @@
                 <td class="fs-8 text-center align-middle">${newIndex + 1}</td>
                 <td><input name="Items[${newIndex}].Description" class="form-control" /></td>
                 <td>
-                    <select name="Items[${newIndex}].Unit" class="form-select searchableSelect unitDD">
-                        <option value="">-- Select Unit --</option>
+                    <select name="Items[${newIndex}].Product" class="form-select searchableSelect unitDD">
+                        <option value="">-- Select Product --</option>
                     </select>
                 </td>
-                <td><input name="Items[${newIndex}].Area" class="form-control calc" type="number" step="any" /></td>
+                <!-- <td><input name="Items[${newIndex}].Area" class="form-control calc" type="number" step="any" /></td> -->
                 <td><input name="Items[${newIndex}].Rate" class="form-control calc" type="number" step="any" /></td>
                 <td><input name="Items[${newIndex}].Quantity" class="form-control calc-qty" type="number" step="any" /></td>
             
@@ -175,7 +175,7 @@
 
     function loadUnitOptions($select) {
         $.ajax({
-            url: '/SalesOrder/GetUnits',
+            url: '/SalesOrder/GetProduct',
             method: 'GET',
             success: function (units) {
                 initializeSelect();
@@ -218,7 +218,7 @@
     function recalcTotals() {
         let sub = 0;
         $('#itemsTable tbody tr[data-index]').each(function () {
-            const area = parseFloat($(this).find('input[name$=".Area"]').val()) || 0;
+            const area = parseFloat($(this).find('input[name$=".Quantity"]').val()) || 0;
             const rate = parseFloat($(this).find('input[name$=".Rate"]').val()) || 0;
 
             const amount = area * rate;
@@ -254,7 +254,7 @@
 
         let hasValidItem = false;
         $('#itemsTable tbody tr[data-index]').each(function () {
-            const area = parseFloat($(this).find('input[name$=".Area"]').val()) || 0;
+            const area = parseFloat($(this).find('input[name$=".Quantity"]').val()) || 0;
             const rate = parseFloat($(this).find('input[name$=".Rate"]').val()) || 0;
             if (area > 0 && rate > 0) {
                 hasValidItem = true;

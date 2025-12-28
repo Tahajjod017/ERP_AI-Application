@@ -4,18 +4,14 @@
    "ContextNamespace": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
-   "IrregularWords": null,
-   "MinimumProductVersion": "2.6.1244",
    "ModelNamespace": null,
    "OutputContextPath": null,
    "OutputPath": "Models",
-   "PluralRules": null,
    "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "GCTL.Data",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 2,
    "SelectedToBeGenerated": 0,
-   "SingularRules": null,
    "T4TemplatePath": null,
    "Tables": [
       {
@@ -767,6 +763,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[SC].[InventoryTransferItems]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[SC].[InventoryTransfers]",
          "ObjectType": 0
       },
@@ -839,11 +839,7 @@
          "ObjectType": 0
       },
       {
-         "Name": "[SC].[PurchaseReceiveDrafts]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[SC].[PurchaseReceiveItemDrafts]",
+         "Name": "[SC].[PurchaseReceiveItemHistory]",
          "ObjectType": 0
       },
       {
@@ -908,6 +904,18 @@
       },
       {
          "Name": "[SC].[SalesOrderVersionItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ShipmentItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[Shipments]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[SC].[ShippingMethods]",
          "ObjectType": 0
       },
       {
@@ -1028,7 +1036,6 @@
    "UseHandleBars": false,
    "UseHierarchyId": false,
    "UseInflector": false,
-   "UseInternalAccessModifiersForSprocsAndFunctions": false,
    "UseLegacyPluralizer": false,
    "UseManyToManyEntity": false,
    "UseNoDefaultConstructor": false,

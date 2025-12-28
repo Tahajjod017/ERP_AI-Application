@@ -33,8 +33,6 @@ public partial class SalesOrders
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Invoices> Invoices { get; set; } = new List<Invoices>();
-
     public virtual PriceQuotations PriceQuotation { get; set; }
 
     public virtual ICollection<SalesOrdersVersions> SalesOrdersVersions { get; set; } = new List<SalesOrdersVersions>();

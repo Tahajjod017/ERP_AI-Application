@@ -135,7 +135,7 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                 {
                     invoice = new Invoices
                     {
-                        SalesOrdersID = vm.SelectedSalesOrderId,
+                        SalesOrderVersionID = vm.SelectedSalesOrderId,
                         InvoiceNumber = await GetNextInvoiceCode(),
                         Version = vers,
                         IsDraft = vm.IsDraft,

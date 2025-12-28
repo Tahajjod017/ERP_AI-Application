@@ -59,6 +59,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 empadvance.RequestedByUserID = emp.ApprovedByUserID ;
                 empadvance.ApprovalStatusID = 11; // Pending
                 
+                
                
                 //empadvance.JobID = emp.JobID;
                 await _genericRepository.AddAsync(empadvance);
@@ -178,6 +179,28 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             };
         }
         #endregion
+        #region GetJobsByCusId(Nestesd)
+        public async Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId)
+        {
+            try
+            {
+                var data = await (from j in _job.AllActive()
+                                  join c in _customer.AllActive() on j.CustomerID equals c.CustomerID
+                                  where j.CustomerID == customerId
+                                  select new EmployeeAdvancedVM
+                                  {
+                                      JobID = j.JobID,
+                                      JobTitle = j.JobTitle + " " + (j.StartDateTime.HasValue ? j.StartDateTime.Value.ToString("dd/MM/yyyy") : string.Empty) + " - " + (j.EndDateTime.HasValue ? j.EndDateTime.Value.ToString("dd/MM/yyyy") : string.Empty)
+                                  }).ToListAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
 
         #region Approve Service
         public async Task<CommonReturnViewModel> ApproveAsync(int id, int approvedByUserId)
@@ -233,28 +256,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         }
         #endregion
 
-        #region GetJobsByCusId(Nestesd)
-        public async Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId)
-        {
-            try
-            {
-                var data = await (from j in _job.AllActive()
-                                  join c in _customer.AllActive() on j.CustomerID equals c.CustomerID
-                                  where j.CustomerID == customerId
-                                  select new EmployeeAdvancedVM
-                                  {
-                                      JobID = j.JobID,
-                                      JobTitle = j.JobTitle + " " + (j.StartDateTime.HasValue ? j.StartDateTime.Value.ToString("dd/MM/yyyy") : string.Empty) + " - " + (j.EndDateTime.HasValue ? j.EndDateTime.Value.ToString("dd/MM/yyyy") : string.Empty)
-                                  }).ToListAsync();
 
-                return data;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
-        #endregion
 
         #region GetAllAsync
         public Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
@@ -263,8 +265,13 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             {
                 var query = _genericRepository.AllActive()
                     .Include(e => e.EmployeeAdvanceFor)
-                    .Include(e => e.Job)
-                    .Include(e => e.GroupEmployee)
+                    .Include(e => e.Job).ThenInclude(e => e.Customer) // Job -> Customer
+                    .Include(e => e.Job).ThenInclude(e => e.JobType)  // Job -> JobType
+                    .Include(e => e.GroupEmployee).ThenInclude(e => e.Employee) // GroupEmployee -> Employee
+                    .Include(e => e.ApprovalStatus)
+                    .Include(e => e.RequestedByUser)
+                    
+                    
                     .AsNoTracking()
                     .Where(x => x.DeletedAt == null && x.DeletedBy == null);
 
@@ -317,8 +324,16 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         x.AmountRequested.ToString().ToLower().Contains(term),
                     selector: x => new EmployeeAdvancedVM
                     
+                    
                     {
                         EmployeeAdvanceID = x.EmployeeAdvanceID,
+                        CustomerName = x.Job.Customer.FullName, // Job -> Customer then include
+                        JobTypeName = x.Job.JobType.JobTypeName, // Job -> JobType -> JobTypeName
+                        RequestedByUser = (x.RequestedByUser.FirstName ?? "")
+                + (string.IsNullOrEmpty(x.RequestedByUser.LastName) ? "" : " " + x.RequestedByUser.LastName), // If Null could be here
+
+
+
                         CustomerID2 = x.Job.CustomerID,
                         JobID = x.JobID,
                         JobTitle = x.Job.JobTitle,
@@ -329,8 +344,13 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                             .Where(id => id.HasValue) // Filter out null values
                             .Select(id => id.Value)  // Convert nullable int to non-nullable int
                             .ToList(),
+                        GroupEmployeeName = x.GroupEmployee.Select(ge => ge.Employee.FirstName).ToList(), // GroupEmployee -> Employee -> FristName,LastNme
                         ApprovalStatusID = x.ApprovalStatusID,
+                        StatusName = x.ApprovalStatus.StatusName,
+
                         StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+
+                        
 
 
                         //JobID = x.JobID,
@@ -355,5 +375,6 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
         }
         #endregion
+
     }
 }
