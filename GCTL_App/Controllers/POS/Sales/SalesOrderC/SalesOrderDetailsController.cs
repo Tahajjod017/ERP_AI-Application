@@ -686,8 +686,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         // Helper methods
         private int GetCurrentUserId()
         {
-            // Get current logged-in user ID
-            return 1; // Replace with actual implementation
+           
+            return GetCurrentEmployeeIdAsync().Result ?? 1;
         }
     }
 }
