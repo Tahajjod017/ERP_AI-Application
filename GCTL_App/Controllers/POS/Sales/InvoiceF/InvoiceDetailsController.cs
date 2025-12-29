@@ -209,27 +209,58 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     Id = invoice.InvoiceID,
                     InvoiceDate = invoice.InvoiceDate,
                     InvoiceNumber = invoice?.InvoiceNumber ?? "N/A",
-                    SelectedCustomerId = invoice.CustomerID,
+                    SelectedCustomerId = invoice?.CustomerID ?? 0,
                     SelectedSalesOrderId = invoice?.SalesOrderVersionID,
-                    SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber, // safe chaining
-                    IsDraft = invoice.IsDraft ?? false,
+                    SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber ?? "", // safe chaining
+                    IsDraft = invoice?.IsDraft ?? false,
 
-                    Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
+                    //Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
+                    //{
+                    //    SL = m.InvoiceItemID,
+                    //    ProductId = m.ProductID ?? 0,
+                    //    ProductName = m.Product?.ProductName ?? "Unknown Product",
+                    //    Quantity = m.Quantity ?? 0m,
+                    //    UnitPrice = m.UnitPrice ?? 0m
+                    //}).ToList() ?? new List<InvoiceItemDetails>(),
+
+                    //VatPercent = invoice.VatPercentage ?? 0m,
+                    //SubTotal = invoice.SubTotal ?? 0m,
+                    //VatAmount = invoice.VatAmount ?? 0m,
+                    //GrandTotal = invoice.GrandTotal ?? 0m,
+
+                    Items = invoice?.InvoiceItems?.Select(m => new InvoiceItemDetails
                     {
                         SL = m.InvoiceItemID,
                         ProductId = m.ProductID ?? 0,
                         ProductName = m.Product?.ProductName ?? "Unknown Product",
                         Quantity = m.Quantity ?? 0m,
-                        UnitPrice = m.UnitPrice ?? 0m
+                        UnitPrice = m.UnitPrice ?? 0m,
+                        // NEW: Add per-item VAT and Amount
+                        VatAmount = m.VatAmount ?? 0m,
+                        Amount = m.Amount ?? 0m
                     }).ToList() ?? new List<InvoiceItemDetails>(),
 
+                    // VAT Mode Flags
+                    IsVatAfterSubtotal = invoice.IsVatAfterSubtotal,
+                    IsItemPriceIncludingVat = invoice.IsItemPriceIncludingVat,
+                    IsPriceWithoutVat = invoice.IsPriceWithoutVat,
+                    ShowTaxColumn = invoice.ShowTaxColumn,
+
+                    // VAT and AIT
                     VatPercent = invoice.VatPercentage ?? 0m,
                     SubTotal = invoice.SubTotal ?? 0m,
                     VatAmount = invoice.VatAmount ?? 0m,
+                    GrossSubtotal = invoice.GrossSubtotal ?? 0m,
+
+                    IsAit = invoice.IsAit,
+                    AitPercent = invoice.AitPercent,
+                    AitAmount = invoice.AitAmount,
+
                     GrandTotal = invoice.GrandTotal ?? 0m,
-                    PaidAmount = invoice.PaidAmount ?? 0m,
-                    OtherReference = invoice.OtherReference,
-                    InvoiceNote = invoice.InvoiceNote,
+
+                    PaidAmount = invoice?.PaidAmount ?? 0m,
+                    OtherReference = invoice?.OtherReference ?? "",
+                    InvoiceNote = invoice?.InvoiceNote ?? "",
                     Finalized = FinalAse != null,
 
                     BillingAddress = invoice.IBaseBillingAddress != null ? new AddressViewModel
@@ -422,19 +453,52 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber, // safe chaining
                 IsDraft = invoice.IsDraft ?? false,
 
+                //Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
+                //{
+                //    SL = m.InvoiceItemID,
+                //    ProductId = m.ProductID ?? 0,
+                //    ProductName = m.Product?.ProductName ?? "Unknown Product",
+                //    Quantity = m.Quantity ?? 0m,
+                //    UnitPrice = m.UnitPrice ?? 0m
+                //}).ToList() ?? new List<InvoiceItemDetails>(),
+
+                //VatPercent = invoice.VatPercentage ?? 0m,
+                //SubTotal = invoice.SubTotal ?? 0m,
+                //VatAmount = invoice.VatAmount ?? 0m,
+                //GrandTotal = invoice.GrandTotal ?? 0m,
+
+
                 Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
                 {
                     SL = m.InvoiceItemID,
                     ProductId = m.ProductID ?? 0,
                     ProductName = m.Product?.ProductName ?? "Unknown Product",
                     Quantity = m.Quantity ?? 0m,
-                    UnitPrice = m.UnitPrice ?? 0m
+                    UnitPrice = m.UnitPrice ?? 0m,
+                    // NEW: Add per-item VAT and Amount
+                    VatAmount = m.VatAmount ?? 0m,
+                    Amount = m.Amount ?? 0m
                 }).ToList() ?? new List<InvoiceItemDetails>(),
 
+                // VAT Mode Flags
+                IsVatAfterSubtotal = invoice.IsVatAfterSubtotal,
+                IsItemPriceIncludingVat = invoice.IsItemPriceIncludingVat,
+                IsPriceWithoutVat = invoice.IsPriceWithoutVat,
+                ShowTaxColumn = invoice.ShowTaxColumn,
+
+                // VAT and AIT
                 VatPercent = invoice.VatPercentage ?? 0m,
                 SubTotal = invoice.SubTotal ?? 0m,
                 VatAmount = invoice.VatAmount ?? 0m,
+                GrossSubtotal = invoice.GrossSubtotal ?? 0m,
+
+                IsAit = invoice.IsAit,
+                AitPercent = invoice.AitPercent,
+                AitAmount = invoice.AitAmount,
+
                 GrandTotal = invoice.GrandTotal ?? 0m,
+
+
                 PaidAmount = invoice.PaidAmount ?? 0m,
                 OtherReference = invoice.OtherReference,
                 InvoiceNote = invoice.InvoiceNote,

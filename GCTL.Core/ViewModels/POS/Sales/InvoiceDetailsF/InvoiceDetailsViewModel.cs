@@ -11,6 +11,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
     {
         public int? Id { get; set; }
         public DateTime InvoiceDate { get; set; }
+        public DateTime DueDate { get; set; }
         public string InvoiceNumber { get; set; }
         public int? SelectedCustomerId { get; set; }
         public int? SelectedSalesOrderId { get; set; }
@@ -44,6 +45,14 @@ namespace GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
         // Customer list for dropdown
         public List<CustomerDto> Customers { get; set; } = new List<CustomerDto>();
         public bool Finalized { get; set; }
+        public bool IsVatAfterSubtotal { get; set; }
+        public bool IsItemPriceIncludingVat { get; set; }
+        public bool IsPriceWithoutVat { get; set; }
+        public bool ShowTaxColumn { get; set; }
+        public decimal GrossSubtotal { get; set; }
+        public bool IsAit { get; set; }
+        public decimal AitPercent { get; set; }
+        public decimal AitAmount { get; set; }
     }
 
     public class InvoiceItemDetails
@@ -54,7 +63,10 @@ namespace GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
         public decimal Quantity { get; set; }
         public decimal UnitPrice { get; set; }
 
-        public decimal Amount => Quantity * UnitPrice;
+        //public decimal Amount => Quantity * UnitPrice;
+
+        public decimal? Amount { get; set; }
+        public decimal VatAmount { get; set; }
     }
 
     public class AddressViewModel
