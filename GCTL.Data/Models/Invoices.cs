@@ -61,9 +61,21 @@ public partial class Invoices
 
     public int? InvoiceStatusID { get; set; }
 
-    public bool IsPartial { get; set; }
+    public bool IsVatAfterSubtotal { get; set; }
 
-    public int? PartialForInvoiceID { get; set; }
+    public bool IsItemPriceIncludingVat { get; set; }
+
+    public bool IsPriceWithoutVat { get; set; }
+
+    public bool IsAit { get; set; }
+
+    public decimal AitPercent { get; set; }
+
+    public decimal AitAmount { get; set; }
+
+    public bool ShowTaxColumn { get; set; }
+
+    public decimal? GrossSubtotal { get; set; }
 
     public virtual ICollection<Challans> Challans { get; set; } = new List<Challans>();
 
@@ -81,13 +93,9 @@ public partial class Invoices
 
     public virtual InvoiceBaseCAddresses IBaseShippingAddress { get; set; }
 
-    public virtual ICollection<Invoices> InversePartialForInvoice { get; set; } = new List<Invoices>();
-
     public virtual ICollection<InvoiceItems> InvoiceItems { get; set; } = new List<InvoiceItems>();
 
     public virtual Statuses InvoiceStatus { get; set; }
-
-    public virtual Invoices PartialForInvoice { get; set; }
 
     public virtual ICollection<PaymentTransactions> PaymentTransactions { get; set; } = new List<PaymentTransactions>();
 

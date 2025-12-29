@@ -5,7 +5,7 @@
     </span>
     <div class="col">
         <h3 class="mb-0 text-primary position-relative fw-bold">
-            <span class="bg-body pe-2">@Html.SmartLocalize("Shipment List")</span>
+            <span class="bg-body pe-2">@Html.SmartLocalize("Challan List")</span>
             <span class="border border-primary position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
         </h3>
     </div>
@@ -29,7 +29,7 @@
 
                     <!-- Search Input -->
                     <div class="me-3">
-                        <input class="form-control" id="searchInput" type="text" placeholder="Search shipments...">
+                        <input class="form-control" id="searchInput" type="text" placeholder="Search Challans...">
                     </div>
 
                     <!-- Page Size Selector -->
@@ -49,8 +49,8 @@
                     </div>
 
                     <div class="me-3">
-                        <a href="/Shipment/index" class="btn btn-phoenix-primary">
-                            @Html.SmartLocalize("Create Shipment")
+                        <a href="/Challan/index" class="btn btn-phoenix-primary">
+                            @Html.SmartLocalize("Create Challan")
                         </a>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                                     </th>
                                     <th class="white-space-nowrap align-middle ps-0" scope="col" data-sort="ShipmentNumber">
                                         <a href="#" class="text-decoration-none text-body sort-header" data-column="ShipmentNumber">
-                                            @Html.SmartLocalize("Shipment #")
+                                            @Html.SmartLocalize("Challan #")
                                             <i class="fas fa-sort" id="sort-ShipmentNumber"></i>
                                         </a>
                                     </th>
@@ -85,7 +85,7 @@
                                     </th>
                                     <th class="white-space-nowrap align-middle ps-2" scope="col" data-sort="ShipmentDate">
                                         <a href="#" class="text-decoration-none text-body sort-header" data-column="ShipmentDate">
-                                            @Html.SmartLocalize("Shipment Date")
+                                            @Html.SmartLocalize("Challan Date")
                                             <i class="fas fa-sort" id="sort-ShipmentDate"></i>
                                         </a>
                                     </th>

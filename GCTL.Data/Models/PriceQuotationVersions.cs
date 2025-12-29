@@ -57,5 +57,7 @@ public partial class PriceQuotationVersions
 
     public virtual ICollection<PriceQuotationVersionItems> PriceQuotationVersionItems { get; set; } = new List<PriceQuotationVersionItems>();
 
+    public virtual ICollection<SalesOrders> SalesOrders { get; set; } = new List<SalesOrders>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

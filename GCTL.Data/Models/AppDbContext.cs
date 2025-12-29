@@ -46,7 +46,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     //public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
 
-
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
 
@@ -4154,6 +4153,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("InvoiceItems", "SC");
 
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -4163,6 +4163,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Quantity).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            entity.Property(e => e.VatAmount).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.InvoiceItemsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
@@ -4191,12 +4192,17 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
             entity.ToTable("Invoices", "SC");
 
+            entity.Property(e => e.AitAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.AitPercent)
+                .HasDefaultValue(5.00m)
+                .HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DeletedAt).HasColumnType("datetime");
             entity.Property(e => e.DueAmount).HasColumnType("decimal(12, 2)");
             entity.Property(e => e.GrandTotal).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.GrossSubtotal).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.InvoiceDate).HasColumnType("datetime");
             entity.Property(e => e.InvoiceNote).HasMaxLength(200);
             entity.Property(e => e.InvoiceNumber).HasMaxLength(20);
@@ -4233,10 +4239,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.InvoiceStatus).WithMany(p => p.Invoices)
                 .HasForeignKey(d => d.InvoiceStatusID)
                 .HasConstraintName("FK_Invoices_Statuses");
-
-            entity.HasOne(d => d.PartialForInvoice).WithMany(p => p.InversePartialForInvoice)
-                .HasForeignKey(d => d.PartialForInvoiceID)
-                .HasConstraintName("FK_Invoice_PartialFor");
 
             entity.HasOne(d => d.SalesOrderVersion).WithMany(p => p.Invoices)
                 .HasForeignKey(d => d.SalesOrderVersionID)
@@ -7910,9 +7912,9 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(d => d.DeletedBy)
                 .HasConstraintName("FK__SalesOrde__Delet__621B6E8C");
 
-            entity.HasOne(d => d.PriceQuotation).WithMany(p => p.SalesOrders)
-                .HasForeignKey(d => d.PriceQuotationID)
-                .HasConstraintName("FK__SalesOrde__Price__630F92C5");
+            entity.HasOne(d => d.PriceQuotationVersion).WithMany(p => p.SalesOrders)
+                .HasForeignKey(d => d.PriceQuotationVersionID)
+                .HasConstraintName("FK_SalesOrders_PriceQuotationVersionID");
 
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SalesOrdersUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)

@@ -43,7 +43,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.Shipment
         public CustomerDetailsViewModel? CustomerData { get; set; }
 
         public int? SelectedDeliveryId { get; set; }
-
+        public int SourceId { get; set; }
     }
 
     public class ShipmentItem

@@ -9,8 +9,6 @@ public partial class SalesOrders
 {
     public int SalesOrdersID { get; set; }
 
-    public int? PriceQuotationID { get; set; }
-
     public string SalesOrderNumber { get; set; }
 
     public string LIP { get; set; }
@@ -29,11 +27,13 @@ public partial class SalesOrders
 
     public int? DeletedBy { get; set; }
 
+    public int? PriceQuotationVersionID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual PriceQuotations PriceQuotation { get; set; }
+    public virtual PriceQuotationVersions PriceQuotationVersion { get; set; }
 
     public virtual ICollection<SalesOrdersVersions> SalesOrdersVersions { get; set; } = new List<SalesOrdersVersions>();
 

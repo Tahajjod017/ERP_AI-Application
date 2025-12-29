@@ -9,7 +9,7 @@
             escapeMarkup: markup => markup
         });
     };
-
+    
     initializeSelect();
 
     // ==============================================================

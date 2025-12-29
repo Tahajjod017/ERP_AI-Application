@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Repository;
+﻿using System.Threading.Tasks;
+using GCTL.Core.Repository;
 using GCTL.Core.ViewModels.POS.Sales.InvoiceF;
 using GCTL.Data.Models;
 using GCTL.Service.Language;
@@ -63,7 +64,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         // GET: /Invoice/Create
         // ==============================
         [HttpGet]
-        public IActionResult Create(int? customerId = null, int? salesOrderId = null)
+        public async Task<IActionResult> Create(int? customerId = null, int? salesOrderId = null)
         {
             ViewBag.Products = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
 
@@ -72,7 +73,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             {
                 Id = null,
                 InvoiceDate = DateTime.Today,
-                InvoiceNumber = GenerateInvoiceNumber(),
+                InvoiceNumber = await GenerateInvoiceNumber(),
                 SelectedCustomerId = customerId,
                 SelectedSalesOrderId = salesOrderId,
                 IsDraft = true,
@@ -83,8 +84,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     {
                         SL = 1,
                         ProductId = 0,
-                        Quantity = null,
-                        UnitPrice = null
+                        Quantity = 0,
+                        UnitPrice = 0
                     }
                 },
 
@@ -95,10 +96,10 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             // If sales order is selected, load its data
             if (salesOrderId.HasValue)
             {
-                var salesOrder = _salesOrderVersionRepository.AllActive()
+                var salesOrder = await _salesOrderVersionRepository.AllActive()
                     .Include(so => so.SalesOrderVersionItems)
                     .Include(so => so.Customer)
-                    .FirstOrDefault(so => so.SalesOrdersVersionID == salesOrderId.Value);
+                    .FirstOrDefaultAsync(so => so.SalesOrdersVersionID == salesOrderId.Value);
 
                 if (salesOrder != null)
                 {
@@ -113,8 +114,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     {
                         SL = 1,
                         ProductId = e.ProductID ?? 0,
-                        Quantity = e.Quantity,
-                        UnitPrice = e.Rate
+                        Quantity = e.Quantity ?? 0,
+                        UnitPrice = e.Rate ?? 0,
 
                     }).ToList();
 
@@ -300,9 +301,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         // ==============================
         // Helper: Generate Invoice Number
         // ==============================
-        private string GenerateInvoiceNumber()
+        private async Task<string> GenerateInvoiceNumber()
         {
-            return "INV-" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
+            return await _invoiceService.GetNextInvoiceCode();
         }
 
         [HttpGet]

@@ -33,7 +33,5 @@ public partial class PriceQuotations
 
     public virtual ICollection<PriceQuotationVersions> PriceQuotationVersions { get; set; } = new List<PriceQuotationVersions>();
 
-    public virtual ICollection<SalesOrders> SalesOrders { get; set; } = new List<SalesOrders>();
-
     public virtual Employees UpdatedByNavigation { get; set; }
 }

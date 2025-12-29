@@ -38,6 +38,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         // Customer list for dropdown
         public List<CustomerDto> Customers { get; set; } = new List<CustomerDto>();
         public bool CanEdit { get; set; }
+        public int QuotationId { get; set; }
     }
 
     public class SalesOrderItemDetails
@@ -110,6 +111,8 @@ namespace GCTL.Core.ViewModels.POS.Sales.SalesOrders
         public bool HasInvoices => Invoices != null && Invoices.Any();
         public bool HasPartialInvoices => Invoices?.Any(i => i.IsPartial) ?? false;
         public bool HasFinalInvoice => Invoices?.Any(i => i.IsFinal && !i.IsPartial) ?? false;
+
+        public int QuotationId { get; set; }
     }
 
 

@@ -28,7 +28,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderList
             var query = _salesOrderVersionRepository.AllActive()
                 .Include(so => so.Customer)
                 .Include(so => so.SalesOrders)
-                .ThenInclude(so => so.PriceQuotation)
+                .ThenInclude(so => so.PriceQuotationVersion).ThenInclude(e=>e.PriceQuotation)
                 .Include(so => so.CreatedByNavigation)
                 .Include(so => so.SalesOrderVersionItems)
                 .Where(e=>e.IsDraft == true || e.IsFinal == true)
@@ -40,7 +40,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderList
                 query = query.Where(so =>
                     so.SalesOrders.SalesOrderNumber.Contains(searchTerm) ||
                     so.Customer.FullName.Contains(searchTerm) ||
-                    so.SalesOrders.PriceQuotation != null && so.SalesOrders.PriceQuotation.QuotationNumber.Contains(searchTerm) ||
+                    so.SalesOrders.PriceQuotationVersion != null && so.SalesOrders.PriceQuotationVersion.PriceQuotation.QuotationNumber.Contains(searchTerm) ||
                     so.Note != null && so.Note.Contains(searchTerm));
             }
 
@@ -82,7 +82,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderList
                     SalesOrderID = so.SalesOrdersVersionID,
                     SalesOrderNumber = so.SalesOrders.SalesOrderNumber,
                     CustomerName = so.Customer != null ? so.Customer.FullName : "",
-                    QuotationNumber = so.SalesOrders != null ? so.SalesOrders.PriceQuotation.QuotationNumber : "",
+                    QuotationNumber = so.SalesOrders != null ? so.SalesOrders.PriceQuotationVersion.PriceQuotation.QuotationNumber : "",
                     CreatedBy = so.CreatedByNavigation != null
                         ? so.CreatedByNavigation.FirstName + " " + so.CreatedByNavigation.LastName
                         : "",

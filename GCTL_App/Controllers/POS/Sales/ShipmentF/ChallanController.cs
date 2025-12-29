@@ -116,6 +116,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                     .Select(salesOrder => new
                     {
                         SourceNumber = salesOrder.SalesOrders.SalesOrderNumber,
+                        SourceId = salesOrder.SalesOrdersVersionID,
                         Items = salesOrder.SalesOrderVersionItems,
                         CustomerData = salesOrder.Customer,
                         cusAddress = salesOrder.Customer.CustomerAddresses.FirstOrDefault().Address,
@@ -126,8 +127,9 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                     .FirstOrDefault();
                 if (salesOrder != null)
                 {
-                    vm.SourceType = "SalesOrder";
+                    vm.SourceType = "SalesOrderDetails";
                     vm.SourceNumber = salesOrder.SourceNumber;
+                    vm.SourceId = salesOrder.SourceId;
                     vm.Items = salesOrder.Items.Select(e =>
                     {
                         var alreadyShipped = salesOrder.Challans
@@ -166,7 +168,7 @@ namespace GCTL_App.Controllers.POS.Sales.ShipmentF
                     .FirstOrDefault(i => i.InvoiceID == invoiceId);
                 if (invoice != null)
                 {
-                    vm.SourceType = "Invoice";
+                    vm.SourceType = "InvoiceDetails";
                     vm.SourceNumber = invoice.InvoiceNumber;
                 }
             }
