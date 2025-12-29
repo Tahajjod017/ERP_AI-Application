@@ -3,16 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GCTL.Core.Helpers;
+using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
+using GCTL.Core.ViewModels.Finance.AddSubAccountVM;
 using GCTL.Data.Models;
+using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using NetTopologySuite.Precision;
+using Newtonsoft.Json;
 
 #region Services
 namespace GCTL.Service.FieldServices.EmployeeAdvanced
@@ -26,8 +32,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         public readonly IGenericRepository<Customers> _customer;
         public readonly IGenericRepository<Jobs> _job;
         public readonly IGenericRepository<GroupEmployee> _groupEmployeeRepository;
+        private readonly IUserInfoService _userInfoService;
 
-        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, IGenericRepository<Customers> customer, IGenericRepository<Jobs> job, IGenericRepository<GroupEmployee> groupEmployeeRepository) : base(genericRepository)
+        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, IGenericRepository<Customers> customer, IGenericRepository<Jobs> job, IGenericRepository<GroupEmployee> groupEmployeeRepository, IUserInfoService userInfoService) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _employees = employees;
@@ -36,6 +43,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             _customer = customer;
             _job = job;
             _groupEmployeeRepository = groupEmployeeRepository;
+            _userInfoService = userInfoService;
         }
         #endregion
 
@@ -58,11 +66,11 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 empadvance.CreatedAt = DateTime.UtcNow;
                 empadvance.CreatedBy = emp.CreatedBy;
                 empadvance.UpdatedBy = emp.UpdatedBy;
-                empadvance.RequestedByUserID = emp.ApprovedByUserID ;
+                empadvance.RequestedByUserID = emp.ApprovedByUserID;
                 empadvance.ApprovalStatusID = 11; // Pending
-                
-                
-               
+
+
+
                 //empadvance.JobID = emp.JobID;
                 await _genericRepository.AddAsync(empadvance);
 
@@ -74,7 +82,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         EmployeeAdvanceFor employeeAdvanceFor = new EmployeeAdvanceFor();
                         employeeAdvanceFor.EmployeeAdvanceID = empadvance.EmployeeAdvanceID;
                         employeeAdvanceFor.JobTypeID = item;
-                        employeeAdvanceFor.LIP = emp.LIP; 
+                        employeeAdvanceFor.LIP = emp.LIP;
                         employeeAdvanceFor.LMAC = emp.LMAC;
                         employeeAdvanceFor.CreatedAt = DateTime.Now;
                         employeeAdvanceFor.CreatedBy = emp.CreatedBy;
@@ -85,7 +93,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                     // Multiple Grop Employee Save to GroupEmployee Table
                     if (emp.GroupEmployeeID != null)
                     {
-                        foreach (var item in emp.GroupEmployeeID) 
+                        foreach (var item in emp.GroupEmployeeID)
                         {
                             GroupEmployee groupEmployee = new GroupEmployee();
                             groupEmployee.EmployeeAdvanceID = empadvance.EmployeeAdvanceID;
@@ -100,9 +108,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
                         }
                     }
-                    
+
                 }
-                
+
                 await _genericRepository.CommitTransactionAsync();
                 return new CommonReturnViewModel
                 {
@@ -181,6 +189,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             };
         }
         #endregion
+
         #region GetJobsByCusId(Nestesd)
         public async Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId)
         {
@@ -270,8 +279,8 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                     .Include(e => e.GroupEmployee).ThenInclude(e => e.Employee) // GroupEmployee -> Employee
                     .Include(e => e.ApprovalStatus)
                     .Include(e => e.RequestedByUser)
-                    
-                    
+
+
                     .AsNoTracking()
                     .Where(x => x.DeletedAt == null && x.DeletedBy == null);
 
@@ -323,8 +332,8 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         x.Job.JobTitle.ToLower().Contains(term) ||
                         x.AmountRequested.ToString().ToLower().Contains(term),
                     selector: x => new EmployeeAdvancedVM
-                    
-                    
+
+
                     {
                         EmployeeAdvanceID = x.EmployeeAdvanceID,
                         CustomerName = x.Job.Customer.FullName, // Job -> Customer then include
@@ -350,7 +359,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
                         StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
 
-                        
+
 
 
                         //JobID = x.JobID,
@@ -383,25 +392,27 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                     .Include(x => x.GroupEmployee).ThenInclude(x => x.Employee)
                     .Include(x => x.Job).ThenInclude(x => x.Customer)
                     .FirstOrDefaultAsync(x => x.EmployeeAdvanceID == id);
-
                 return new EmployeeAdvancedVM
                 {
-                    CustomerID2 = data.Job.CustomerID, // Job -> CustomerID
-                    CustomerName = data.Job.Customer.FullName, // Job -> Customer -> FullName
-
+                    CustomerID2 = data.Job.CustomerID,
+                    CustomerName = data.Job.Customer.FullName,
                     JobID = data.JobID,
-                    JobName = data.Job.JobTitle, //Jod -> JobTitle
-
+                    JobName = data.Job.JobTitle,
                     AmountRequested = data.AmountRequested,
                     StartDate = data.StartDate.HasValue ? data.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
                     EndDate = data.EndDate.HasValue ? data.EndDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
-                    GroupEmployeeName = data.GroupEmployee.Select(ge => ge.Employee.FirstName).ToList(),
-                    RequestedByUserID = data.RequestedByUserID.HasValue ? new List<int> { data.RequestedByUserID.Value } : new List<int>(),
-                    ApprovedByUserID = data.ApprovedByUserID,
-                    //GroupEmployeeID = data.GroupEmployee
-                    //    .Where(ge => ge.EmployeeID.HasValue) // Ensure EmployeeID is not null
-                    //    .Select(ge => ge.EmployeeID.Value)  // Convert nullable int to non-nullable int
-                    //    .ToList()
+                    GroupEmployeeID = data.GroupEmployee
+                        .Where(ge => ge.EmployeeID.HasValue)
+                        .Select(ge => ge.EmployeeID.Value)
+                        .ToList(),
+
+                                  RequestedByUserID = data.EmployeeAdvanceFor
+                  .Where(e => e.JobTypeID.HasValue)
+                  .Select(e => e.JobTypeID.Value)
+                  .ToList(),
+
+                                  ApprovedByUserID = data.ApprovedByUserID,
+                                  EmployeeAdvanceID = data.EmployeeAdvanceID
                 };
             }
             catch (Exception ex)
@@ -409,8 +420,133 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 throw new Exception("An error occurred while retrieving Employee Advanced by ID.", ex);
             }
         }
+
+
+
+        
+
+        public async Task<CommonReturnViewModel> UpdateAsync(EmployeeAdvancedVM emp)
+        {
+            await _genericRepository.BeginTransactionAsync();
+            {
+                try
+                {
+                    var entity = await _genericRepository.GetByIdAsync(emp.EmployeeAdvanceID);
+                    if (entity == null)
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "Data not found"
+                        };
+                    }
+
+                    var beforeEntity = JsonConvert.DeserializeObject<EmployeeAdvancedVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+
+                    entity.JobID = emp.JobID;
+                    entity.AmountRequested = emp.AmountRequested;
+                    entity.StartDate = emp.StartDate.HasValue ? DateOnly.FromDateTime(emp.StartDate.Value) : null;
+                    entity.EndDate = emp.EndDate.HasValue ? DateOnly.FromDateTime(emp.EndDate.Value) : null;
+
+                    entity.RequestedByUserID = emp.RequestedByUserID != null && emp.RequestedByUserID.Count > 0 ? emp.RequestedByUserID.FirstOrDefault() : null;
+
+                    entity.ApprovedByUserID = emp.ApprovedByUserID;
+
+                    // Update the GroupEmployee Multiple
+
+                    if (emp.GroupEmployeeID != null)
+                    {
+                        foreach (var groupEmployee in entity.GroupEmployee)
+                        {
+                            if (emp.GroupEmployeeID.Contains(groupEmployee.EmployeeID ?? 0))
+                            {
+                                groupEmployee.EmployeeAdvanceID = emp.EmployeeAdvanceID;
+                                groupEmployee.UpdatedAt = DateTime.UtcNow;
+                                groupEmployee.UpdatedBy = emp.UpdatedBy;
+                            }
+                        }
+                    }
+
+                    entity.LIP = emp.LIP;
+                    entity.LMAC = emp.LMAC;
+                    entity.UpdatedAt = DateTime.UtcNow;
+                    entity.UpdatedBy = emp.UpdatedBy;
+
+                    await _genericRepository.UpdateAsync(entity);
+
+                    var afterEntity = JsonConvert.DeserializeObject<EmployeeAdvancedVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+
+                    await _userInfoService.ActionLogAsync("EmployeeAdvances", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EmployeeAdvanceID, emp);
+
+                    await _genericRepository.CommitTransactionAsync();
+                    return new CommonReturnViewModel
+                    {
+                        Success = true,
+                        Message = "Employee Advance Updated Successfully"
+                    };
+                }
+                catch (Exception ex)
+                {
+                    await _genericRepository.RollbackTransactionAsync();
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = ex.Message,
+                    };
+                }
+            }
+        }
+
+        #region
+        public async Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                await _genericRepository.BeginTransactionAsync();
+
+                var data = await _genericRepository.FindAsync(x => requestVM.Ids.Contains(x.EmployeeAdvanceID));
+                if (data == null || data.Count == 0)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Message = "No data found to soft delete."
+                    };
+                }
+
+                var beforeEntity = JsonConvert.DeserializeObject<List<CommonReturnViewModel>>(JsonConvert.SerializeObject(data, JsonSettings.IgnoreReferenceLoop));
+                var targetIds = data.Select(x => (int?)x.EmployeeAdvanceID).ToList();
+
+                foreach (var item in data)
+                {
+                    item.DeletedAt = DateTime.UtcNow;
+                    item.DeletedBy = requestVM.DeletedBy;
+                    item.LIP = requestVM.LIP;
+                    item.LMAC = requestVM.LMAC;
+                }
+
+                await _genericRepository.UpdateRangeAsync(data);
+
+                await _userInfoService.ActionLogDeleteAsync("Add Sub Account", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+
+                await _genericRepository.CommitTransactionAsync();
+
+                return new CommonReturnViewModel
+                {
+                    Message = $"{data.Count} data(s) deleted successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                await _genericRepository.RollbackTransactionAsync();
+                throw new Exception("An error occurred while deleting the Add Sub Account.", ex);
+            }
+        }
         #endregion
+
+
+
 
     }
 }
 
+#endregion
