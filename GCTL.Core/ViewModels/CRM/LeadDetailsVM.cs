@@ -9,6 +9,7 @@ namespace GCTL.Core.ViewModels.CRM
 {
     public class LeadDetailsVM : BaseViewModel
     {
+        public int? LeadDetailID { get; set; }
         public int? LeadID { get; set; }
 
         public int? LeadActivityTypeID { get; set; }
@@ -19,7 +20,7 @@ namespace GCTL.Core.ViewModels.CRM
         public IFormFile? File { get; set; }
         public string? ContactNumber { get; set; }
         public string? ContactEmail { get; set; }
-
+        public bool? IsDone { get; set; }
 
     }
 }

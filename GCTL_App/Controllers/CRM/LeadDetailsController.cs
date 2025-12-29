@@ -264,7 +264,7 @@ namespace GCTL_App.Controllers.CRM
             return Ok(restult);
         }
 
-        #region Get GetContactPerson List
+        #region Get GetContactNumber List
         [HttpGet]
         public async Task<IActionResult> GetContactNumberList(int leadId, string search = "", int page = 1, int pageSize = 20)
         {
@@ -286,7 +286,8 @@ namespace GCTL_App.Controllers.CRM
             return Json(formatted);
         }
         #endregion
-        #region Get GetContactPerson List
+
+        #region Get GetContactEmail List
         [HttpGet]
         public async Task<IActionResult> GetContactEmailList(int leadId, string search = "", int page = 1, int pageSize = 20)
         {
@@ -306,6 +307,20 @@ namespace GCTL_App.Controllers.CRM
             };
 
             return Json(formatted);
+        }
+        #endregion
+
+        #region Complete Activity
+        public async Task<IActionResult> Complete(LeadDetailsVM model)
+        {
+            try
+            {
+                var result = await _leadDetailsService.CompleteAsync(model);
+                return Json(new { success = true, message = "" });
+            } catch (Exception e)
+            {
+                return Json(new { success = false, message = "Something went to wrong!" });
+            }
         }
         #endregion
     }
