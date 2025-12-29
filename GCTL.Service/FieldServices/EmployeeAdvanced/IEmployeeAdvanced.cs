@@ -1,4 +1,5 @@
 
+using GCTL.Core.Helpers;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
@@ -12,19 +13,27 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
     #region CRUD
     public interface IEmployeeAdvanced
     {
-        Task<CommonReturnViewModel>AddAsync(EmployeeAdvancedVM emp);
-        Task<IEnumerable<CommonSelectVM>>EmployeeDD(); //Modern Dropdown for Employees
+        Task<CommonReturnViewModel> AddAsync(EmployeeAdvancedVM emp);
 
-        Task<ReturnDataView<SelectListItem>> GetJobTypeAsync(string search, int page, int pageSize, int organizationID);//Modern Dropdown for Job Types
+        Task<CommonReturnViewModel> UpdateAsync(EmployeeAdvancedVM emp);
+
+        Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM);
+
+        Task<IEnumerable<CommonSelectVM>> EmployeeDD(); //Modern Dropdown for Employees
+
+        
 
         //Task<CommonReturnViewModel> ApproveAsync(int id, int approvedByUserId);
-
-        Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId); //Cascading
 
         Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5,
              string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainAccId = null);
 
-         Task<EmployeeAdvancedVM> GetByIdAsync(int id);
+        #region Get
+        Task<EmployeeAdvancedVM> GetByIdAsync(int id);
+        Task<List<EmployeeAdvancedVM>> GetJobByCusId(int customerId); //Cascading
+
+        Task<ReturnDataView<SelectListItem>> GetJobTypeAsync(string search, int page, int pageSize, int organizationID);//Modern Dropdown for Job Types
+        #endregion
 
 
 

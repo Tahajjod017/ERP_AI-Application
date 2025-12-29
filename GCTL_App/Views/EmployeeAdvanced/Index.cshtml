@@ -10,7 +10,9 @@
 	</div>
 	<div class="card-body">
 		<div class="row col-md-12">
+			
 			<form asp-controller="EmployeeAdvanced" id="formClear" asp-action="Create">
+				<input hidden asp-for="EmployeeAdvanceID"value=0 />
 				<div class="modal-body pb-0">
 					<div class="row mt-3">
 
@@ -25,7 +27,7 @@
 						<div class="col-md-3 ">
 							<div class="mb-3">
 								<label class="form-label req" asp-for="JobID">Job Name</label>
-								<select asp-for="JobID" class="form-select" desable>
+								<select asp-for="JobID" class="form-select" asp-items="ViewBag.JobTypesDD" desable>
 								</select>
 								<span asp-validation-for="JobID" class="text-danger"></span>
 							</div>
@@ -33,7 +35,7 @@
 						<div class="col-md-3">
 							<div class="mb-3">
 								<label class="form-label" for="organizerMultiple">Job Type</label>
-								<select asp-for="RequestedByUserID" class="form-select" data-choice="data-choices" multiple="multiple" asp-items="ViewBag.JobTypesDDD"></select>
+								<select asp-for="RequestedByUserID" class="form-select"multiple="multiple" asp-items="ViewBag.JobTypesDDD"></select>
 								<span asp-validation-for="RequestedByUserID" class="text-danger"></span>
 							</div>
 						</div>
@@ -48,7 +50,7 @@
 
 								</label>
 
-								<select asp-for="ApprovedByUserID" class="form-select" data-choices="data-choices"
+								<select asp-for="ApprovedByUserID" class="form-select  approvedBySelect initSelectEmpAD"
 										asp-items="ViewBag.EmployeeDD">
 									<!--Advanced Recieved by-->
 									<span asp-validation-for="ApprovedByUserID"></span>
@@ -59,7 +61,7 @@
 						<div class="col-md-6" id="hiddenDiv2">
 							<div class="mb-3">
 								<label class="form-label" for="exampleFormControlInput">Other Employees Name</label>
-								<select asp-for="GroupEmployeeID" class="form-select" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}' asp-items="ViewBag.EmployeeDD">
+								<select asp-for="GroupEmployeeID" class="form-select initSelectEmpAD" multiple="multiple" asp-items="ViewBag.EmployeeDD">
 								</select>
 							</div>
 						</div>
@@ -106,21 +108,21 @@
 		<div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
 
 			<div class="dropdown me-2">
-				<select class="form-select" id="organizerSingle" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+				<select class="form-select" id="organizerSingle">
 					<option value="">Select Company...</option>
 					
 				</select>
 			</div>
 
 			@* <div class="dropdown me-2">
-                <select asp-for="ApprovalSettingID" class="form-select" data-choices="data-choices"
+                <select asp-for="ApprovalSettingID" class="form-select"
                         asp-items="ViewBag.ApprovalStatus">
 
                 </select>
             </div> *@
 
 			<div class="dropdown me-2">
-				<select class="form-select" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
+				<select class="form-select">
 					<option value="">Select Project</option>
 					
 				</select>
@@ -168,7 +170,7 @@
 				<thead>
 					<tr>
 						<th class="pe-5 align-start" scope="col" style="width: 5%;">
-							<input type="checkbox"  class="form-check-input" id="empAdvanced-check-all" />
+							<input type="checkbox" class="form-check-input addEmpCheck-selectedItem" id="empAdvanced-check-all" />
 						</th>
 						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empId">Receiving Employee</th>
 						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empName">Client Name</th>

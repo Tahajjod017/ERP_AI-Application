@@ -202,6 +202,45 @@ class UniversalChoices {
     //#endregion
 
 
+
+    //#region Get instace
+
+
+    //const instance = choiceManager.getChoiceInstance('empAdvanceId');
+
+
+
+    getChoiceInstance(id) {
+
+        if (!id) {
+
+            if (deb) console.warn('getChoiceInstance called without id');
+
+            return null;
+
+        }
+
+        const instance = this.instances[id];
+
+        if (!instance) {
+
+            if (deb) console.warn(`No Choices instance found for ID: ${id}`);
+
+            return null;
+
+        }
+
+        return instance;
+
+    }
+
+
+
+
+
+    //#endregion
+
+
     //choiceManager.getChoiceValue('dropdown1')
 
     getChoiceValue(id) {
