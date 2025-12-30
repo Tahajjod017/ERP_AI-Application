@@ -134,13 +134,8 @@
         </div>
     </div>
 </div>
-<!-- /Annual Leave settings-->
-<!-- Casual Leave settings-->
-<!-- /New Custom Policy -->
-<!-- Add Custom Policy Modal -->
+
 <partial name="_AddNewLeaveForm" />
-
-
 <div class="col-12 col-md-12 col-lg-12 ">
 
     <ul class="nav nav-underline fs-9" id="myTab" role="tablist">
@@ -256,7 +251,7 @@
                             </div>
 
                             <div class="col-xl-6 col-md-6">
-                                <div class="card" style="min-height:258px">
+                                <div class="card" style="min-height:450px">
                                     <div class="card-header"><h5>Allow requests for</h5> </div>
 
                                     <div class="mb-2">
@@ -302,25 +297,23 @@
                                                            value="true" />
                                                     <label class="form-check-label me-2"
                                                            for="IsSickLeaveDocumentRequired">
-                                                        Sick leave document required
+                                                        Sick leave document Upload  within
                                                     </label>
 
                                                     <input type="text"
                                                            class="form-control me-2"
                                                            id="SickLeaveDocumentWithinDays"
                                                            name="SickLeaveDocumentWithinDays"
-                                                           style="width: 3rem; height: 28px"
-                                                            />
+                                                           style="width: 3rem; height: 28px" />
 
                                                     <label class="form-check-label"
                                                            for="SickLeaveDocumentWithinDays">
-                                                        Upload within days
+                                                        days
                                                     </label>
                                                 </div>
                                                 <div class="form-check d-flex mb-1">
                                                     <input class="form-check-input me-2 mt-2 " id="IsRoundOffHour" name="IsRoundOffHour" checked value="true" type="checkbox" style="margin-top: 9px !important;" />
                                                     <label class="form-check-label mt-2 me-2" for="flexCheckChecked">Round of</label>
-
                                                     <div style="width:215px;">
                                                         <select class="form-select choiceDD" id="RoundOffHour">
                                                             <option value="">Select</option>
@@ -330,15 +323,11 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                               
+
                                                 <div class="form-check d-flex mb-1 mt-2">
                                                     <input class="form-check-input me-2 mt-2 " id="EnableLeaveBalanceResetDate" name="EnableLeaveBalanceResetDate" checked value="true" type="checkbox" />
                                                     <label class="form-check-label mt-2 me-2" for="flexCheckChecked">Year Leave Balance Reset Date</label>
-
-
                                                     <div class="mb-3 flatpickr-input-container">
-
-
                                                         <div class="input-icon-end position-relative flatpickr">
                                                             <input type="text" id="LeaveBalanceResetDate" class="form-control datetimepicker" required placeholder="dd/mm/yyyy">
                                                             <span class="uil uil-calendar-alt position-absolute top-50 end-0 translate-middle-y me-3 text-body-tertiary"></span>
@@ -350,6 +339,7 @@
                                             </form>
 
                                         </div>
+
                                     </div>
 
                                 </div>
@@ -359,13 +349,6 @@
                                 <div class="card">
                                     <div class="d-flex align-items-center justify-content-between ms-4">
                                         <form action="" style="margin-top:13px;">
-
-                                            <div class="d-flex align-items-center mb-3">
-                                                <h6 class="me-3 mb-0" style="white-space: nowrap;">Working Hour</h6>
-                                                <div class="flex-grow-1">
-                                                    <input class="form-control" id="WorkingHour" name="WorkingHour" type="number" placeholder="Enter working hour" />
-                                                </div>
-                                            </div>
                                             <div class="d-flex align-items-center mb-3">
                                                 <h6 class="me-3 mb-0" style="white-space: nowrap;">Short Leave Max Per Day</h6>
                                                 <div class="flex-grow-1">
@@ -379,7 +362,25 @@
 
                                 </div>
                             </div>
-                            
+                            <div class="col-xl-6 col-md-6 mt-1">
+                                <div class="card">
+                                    <div class="d-flex align-items-center justify-content-between ms-4">
+                                        <form action="" style="margin-top:13px;">
+
+                                            <div class="d-flex align-items-center mb-3">
+                                                <h6 class="me-3 mb-0" style="white-space: nowrap;">Working Hour</h6>
+                                                <div class="flex-grow-1">
+                                                    <input class="form-control" id="WorkingHour" name="WorkingHour" type="number" placeholder="Enter working hour" />
+                                                </div>
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
                             <div class="col-md-12 d-flex justify-content-end">
                                 <button type="button" class="btn btn-primary mt-2 submit-btn" id="AddLeavePolicyBtn">Save Leave Policy</button>
                             </div>
@@ -396,6 +397,8 @@
 </div>
 <partial name="_ConfirmDelete" />
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

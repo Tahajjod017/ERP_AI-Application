@@ -56,7 +56,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 await _genericRepository.BeginTransactionAsync();
                 EmployeeAdvances empadvance = new EmployeeAdvances();
 
-                empadvance.EmployeeAdvanceID = emp.EmployeeAdvanceID;
+                //empadvance.EmployeeAdvanceID = emp.EmployeeAdvanceID;
                 empadvance.JobID = emp.JobID;
                 empadvance.AmountRequested = emp.AmountRequested;
                 empadvance.StartDate = emp.StartDate.HasValue ? DateOnly.FromDateTime(emp.StartDate.Value) : null;
@@ -338,8 +338,8 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         EmployeeAdvanceID = x.EmployeeAdvanceID,
                         CustomerName = x.Job.Customer.FullName, // Job -> Customer then include
                         JobTypeName = x.Job.JobType.JobTypeName, // Job -> JobType -> JobTypeName
-                        RequestedByUser = (x.RequestedByUser.FirstName ?? "")
-                + (string.IsNullOrEmpty(x.RequestedByUser.LastName) ? "" : " " + x.RequestedByUser.LastName), // If Null could be here
+                        RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
+                + (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // If Null could be here
 
 
 
