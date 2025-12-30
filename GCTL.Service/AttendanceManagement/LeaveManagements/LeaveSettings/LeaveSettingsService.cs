@@ -410,11 +410,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                         };
                     }
                 }
-                else
-                {
-                    // Ensure clean data
-                    entityVM.SickLeaveDocumentWithinDays = 0;
-                }
+                
                 var beforeEntity = JsonConvert.DeserializeObject<AddLeavePolicyConfigarationVM>(JsonConvert.SerializeObject(existingPolicy, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
                 // Update fields
                 existingPolicy.IsWeekendCountedAsLeave = entityVM.IsWeekendCountedAsLeave;
