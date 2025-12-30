@@ -8,6 +8,7 @@ using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.Statuse;
+using GCTL.Service.POS.Sales.InvoiceF;
 using GCTL.Service.POS.Sales.SalesOrderF;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
     public class SalesOrderDetailsController : BaseController
     {
         #region CTOR
+        private readonly IGenericRepository<Challans> _challanRepository;
 
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
         private readonly IGenericRepository<SalesOrderVersionItems> _salesOrderItemRepository;
@@ -56,7 +58,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             IGenericRepository<GCTL.Data.Models.Inventory> inventoryRepository,
             IGenericRepository<Locations> locationRepository,
             IStatusService statusService,
-            IGenericRepository<Invoices> invoiceRepository)
+            IGenericRepository<Invoices> invoiceRepository,
+            IGenericRepository<Challans> challanRepository)
             : base(translateService, userProfileService)
         {
             _salesOrderRepository = salesOrderRepository;
@@ -75,6 +78,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
             _locationRepository = locationRepository;
             _statusService = statusService;
             _invoiceRepository = invoiceRepository;
+            _challanRepository = challanRepository;
         }
 
         #endregion
@@ -141,15 +145,29 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                                }).FirstOrDefault();
 
 
-                var shipments = salesOrder.Challans?
-                       .Where(s => s.DeletedAt == null)
-                       .Select(s => new ShipmentInfo
-                       {
-                           ShipmentId = s.ChallanID,
-                           ShipmentNumber = s.ChallanNumber,
-                           Status = s.Status != null ? s.Status.StatusName : "Pending",
-                           StatusClass = GetShipmentStatusClass(s.StatusID)
-                       }).ToList() ?? new List<ShipmentInfo>();
+                //var shipments = salesOrder.Challans?
+                //       .Where(s => s.DeletedAt == null)
+                //       .Select(s => new ShipmentInfo
+                //       {
+                //           ShipmentId = s.ChallanID,
+                //           ShipmentNumber = s.ChallanNumber,
+                //           Status = s.Status != null ? s.Status.StatusName : "Pending",
+                //           StatusClass = GetShipmentStatusClass("Pending")
+                //       }).ToList() ?? new List<ShipmentInfo>();
+
+                var InvoiceID = _invoiceRepository.AllActive().Where(e=>e.SalesOrderVersionID == salesOrder.SalesOrdersVersionID).Select(e=>e.InvoiceID).FirstOrDefault(); 
+
+                var challan = _challanRepository.AllActive().Where(e => e.InvoiceID == InvoiceID || e.SalesOrdersVersionID == salesOrder.SalesOrdersVersionID).Select(s => new ShipmentInfo
+                {
+                    ShipmentId = s.ChallanID,
+                    ShipmentNumber = s.ChallanNumber,
+                    Status = s.Status != null ? s.Status.StatusName : "Pending",
+                    StatusClass = GetShipmentStatusClass("Pending"),
+
+                }).ToList() ?? new List<ShipmentInfo>();
+
+                var challanData = _challanRepository.AllActive().Include(e => e.ChallanItems).Where(e => e.InvoiceID == InvoiceID || e.SalesOrdersVersionID == salesOrder.SalesOrdersVersionID).ToList();
+
 
 
                 bool isFullyShipped = false;
@@ -274,13 +292,8 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                     VatPercent = salesOrder?.VatPercentage ?? 0m,
                     Note = salesOrder?.Note ?? "",
                     LocationName = salesOrder?.Location?.LocationName ?? "",
-                    CreatedByName = salesOrder?.CreatedByNavigation != null
-        ? $"{salesOrder.CreatedByNavigation.FirstName} {salesOrder.CreatedByNavigation.LastName}"
-        : "Unknown",
-                    CreatedAt = salesOrder?.CreatedAt,
-                    UpdatedByName = salesOrder?.UpdatedByNavigation != null
-        ? $"{salesOrder.UpdatedByNavigation.FirstName} {salesOrder.UpdatedByNavigation.LastName}"
-        : "",
+                    CreatedByName = salesOrder?.CreatedByNavigation != null ? $"{salesOrder.CreatedByNavigation.FirstName} {salesOrder.CreatedByNavigation.LastName}" : "Unknown", CreatedAt = salesOrder?.CreatedAt,
+                    UpdatedByName = salesOrder?.UpdatedByNavigation != null ? $"{salesOrder.UpdatedByNavigation.FirstName} {salesOrder.UpdatedByNavigation.LastName}" : "",
                     UpdatedAt = salesOrder?.UpdatedAt,
                     CustomerData = new CustomerDetailsViewModel()
                     {
@@ -309,7 +322,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                     CreatedAt = vm.CreatedAt,
                     UpdatedByName = vm.UpdatedByName,
                     UpdatedAt = vm.UpdatedAt,
-                    Shipments = shipments, // ADD THIS
+                    Shipments = challan, // ADD THIS
                                            //Status = salesOrder.IsDraft == true ? SalesOrderStatus.Draft : SalesOrderStatus.Confirmed // ADD THIS (adjust based on your status logic)
                     CanMakeFinal = !versions.Where(e => e.id == vm.Id).Select(e => e.isFinal).FirstOrDefault(), // ✅ true if not current
 
@@ -326,7 +339,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
 
                 if (salesOrder?.IsFinal == true)
                 {
-                    sidebarVm.CanCreateShipment = (shipments.Count != 0 || shipments != null) ? true : false;
+                    sidebarVm.CanCreateShipment = (challan.Count != 0 || challan != null) ? true : false;
 
                 }
                 vm.CanEdit = !sidebarVm.HasShipments;
@@ -389,7 +402,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                     ShipmentId = s.ChallanID,
                     ShipmentNumber = s.ChallanNumber,
                     Status = s.Status != null ? s.Status.StatusName : "Pending",
-                    StatusClass = GetShipmentStatusClass(s.StatusID)
+                    StatusClass = GetShipmentStatusClass(s.Status != null ? s.Status.StatusName : "Pending")
                 }).ToList() ?? new List<ShipmentInfo>();
 
 
@@ -493,16 +506,16 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
         #endregion
 
 
-        private string GetShipmentStatusClass(int? statusId)
+        private string GetShipmentStatusClass(string? statusId)
         {
             return statusId switch
             {
-                1 => "warning",  // Pending
-                2 => "info",     // Packed
-                3 => "primary",  // Shipped
-                4 => "primary",  // In Transit
-                5 => "success",  // Delivered
-                6 => "danger",   // Cancelled
+                "Pending" => "warning",  // Pending
+                "Packed" => "info",     // Packed
+                "Shipped" => "primary",  // Shipped
+                "In Transit" => "primary",  // In Transit
+                "Delivered" => "success",  // Delivered
+                "Cancelled" => "danger",   // Cancelled
                 _ => "secondary"
             };
         }
