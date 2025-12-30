@@ -321,6 +321,8 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                     };
                 }
 
+               
+
                 return PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.GetPaginatedData(
                     query,
                     pageNumber,
@@ -338,8 +340,14 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         EmployeeAdvanceID = x.EmployeeAdvanceID,
                         CustomerName = x.Job.Customer.FullName, // Job -> Customer then include
                         JobTypeName = x.Job.JobType.JobTypeName, // Job -> JobType -> JobTypeName
+
                         RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
                 + (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // If Null could be here
+
+                        RequestedByUser = x.RequestedByUser != null
+        ? $"{x.RequestedByUser.FirstName ?? ""}{(!string.IsNullOrEmpty(x.RequestedByUser.LastName) ? " " + x.RequestedByUser.LastName : "")}".Trim()
+        : null,
+
 
 
 
@@ -383,6 +391,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             }
 
         }
+        #endregion
+
+        #region GetByID (Edit)
         public async Task<EmployeeAdvancedVM> GetByIdAsync(int id)
         {
             try
@@ -420,11 +431,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 throw new Exception("An error occurred while retrieving Employee Advanced by ID.", ex);
             }
         }
+        #endregion
 
-
-
-        
-
+        #region UpdateAsync
         public async Task<CommonReturnViewModel> UpdateAsync(EmployeeAdvancedVM emp)
         {
             await _genericRepository.BeginTransactionAsync();
@@ -496,8 +505,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 }
             }
         }
+        #endregion
 
-        #region
+        #region Soft Delete
         public async Task<CommonReturnViewModel> SoftDeleteAsync(DeleteRequestVM requestVM)
         {
             try
@@ -509,6 +519,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 {
                     return new CommonReturnViewModel
                     {
+                        Success = false,
                         Message = "No data found to soft delete."
                     };
                 }
@@ -526,12 +537,13 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Add Sub Account", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
+                await _userInfoService.ActionLogDeleteAsync("Add EmployeeAdvances", ActionName.DataDeleted, null,beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 
                 return new CommonReturnViewModel
                 {
+                    Success = true,
                     Message = $"{data.Count} data(s) deleted successfully."
                 };
             }
@@ -546,7 +558,6 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
 
 
+
     }
 }
-
-#endregion
