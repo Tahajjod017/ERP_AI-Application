@@ -51,6 +51,20 @@ $(document).ready(function () {
     //#endregion
 
     //#region Job
+
+    
+    const initializeSelect1 = () => {
+        $('.initSelectEmpAD').select2({
+            width: '100%',
+            allowClear: true,
+            placeholder: 'Select an option',
+            language: { noResults: () => 'No results found' },
+            escapeMarkup: markup => markup
+        });
+    };
+
+    initializeSelect1();
+
     $('#JobID').select2({
         placeholder: 'Select Job',
         width: '100%',
@@ -84,7 +98,7 @@ $(document).ready(function () {
     });
     //#endregion
 
-    //#region Save Functionality
+    //#region Save 
     $('#saveBtn').on('click', function (e) {
         e.preventDefault();
 
@@ -107,16 +121,27 @@ $(document).ready(function () {
         formData.append('StartDate', $('#StartDate').val());
         formData.append('EndDate', $('#EndDate').val());
         formData.append('ApprovedByUserID', $('#ApprovedByUserID').val());
+        formData.append('EmployeeAdvanceID', $('#EmployeeAdvanceID').val());
+        formData.forEach((value, key) => {
+            console.log(`${key}: ${value}`);
+        });
+        //Update
 
+        var id = $('#EmployeeAdvanceID').val();
+        var url = id > 0 ? '/EmployeeAdvanced/Update' : '/EmployeeAdvanced/Create/';
+        var type = 'POST';
 
         $.ajax({
-            url: '/EmployeeAdvanced/Create/',
-            type: 'POST',
+            url: url,
+            type: type,
             data: formData,
             processData: false,
             contentType: false,
             beforeSend: function () {
                 showLoadingIndicator();
+
+
+                
             },
             success: function (response) {
                 console.log("Response:", response);
@@ -144,36 +169,17 @@ $(document).ready(function () {
             }
         });
     });
+
     //#endregion
 
-
-
     //#region Edit
-   
     function setSelect2Value(selector, id, text) {
         if (!id) return;
         const option = new Option(text, id, true, true);
         $(selector).append(option).trigger('change');
     }
 
-    // Choices.js multiple setter
-    function setChoicesMultiple(choicesInstance, values) {
-        if (!choicesInstance) return;
-
-        // normalize to array
-        if (values === null || values === undefined) return;
-
-        if (!Array.isArray(values)) {
-            values = [values]; // convert single value to array
-        }
-
-        choicesInstance.removeActiveItems();
-        values.forEach(v => {
-            if (v !== null && v !== undefined) {
-                choicesInstance.setChoiceByValue(v.toString());
-            }
-        });
-    }
+    
  
     $(document).on('click', '.employeeAdvance-editBtn', async function (e) {
         e.preventDefault();
@@ -210,24 +216,27 @@ $(document).ready(function () {
                 data.jobID,
                 data.jobName
             );
-
-            /* ---------- INPUTS ---------- */
             $('#AmountRequested').val(data.amountRequested);
             $('#StartDate').val(data.startDate ? data.startDate.split('T')[0] : '');
             $('#EndDate').val(data.endDate ? data.endDate.split('T')[0] : '');
+            $('#EmployeeAdvanceID').val(data.employeeAdvanceID);
 
-            /* ---------- MULTI SELECT (Choices) ---------- */
-            setChoicesMultiple(
-                employeeDD, // Choices instance
-                data.approvedByUserID
-            );
 
-            setChoicesMultiple(
-                employeeDD, // Choices instance
-                data.groupEmployeeName
-            );
+            $('#GroupEmployeeID')
+                .val(data.groupEmployeeID)   // must be array
+                .trigger('change');
 
-            $('#employeeAdvance-saveBtn').text('Update');
+            $('#RequestedByUserID')
+                .val(data.requestedByUserID)
+                .trigger('change'); //must be array
+
+            // Set selected value if data.approvedByUserID exists
+            if (data.approvedByUserID) {
+                $('#ApprovedByUserID').val(data.approvedByUserID.
+                    toString()).trigger('change');
+            }
+
+            $('#saveBtn').text('Update');
         }
         catch (err) {
             console.error(err);
@@ -237,6 +246,119 @@ $(document).ready(function () {
 
     // #endregion
 
+    //#region Update
+    function UpdateEmployeeAdvance(employeeAdvanceId) {
+        const formData = {
+            EmployeeAdvanceID: employeeAdvanceId,
+            JobID: $('#JobID').val(),
+            AmountRequested: $('#AmountRequested').val(),
+            StartDate: $('#StartDate').val(),
+            EndDate: $('#EndDate').val(),
+            RequestedByUserID: [$('#RequestedByUserID').val()],
+            ApprovedByUserID: $('#ApprovedByUserID').val(),
+            GroupEmployeeID: $('#GroupEmployeeID').val()?.split(',').map(Number) || [],
+            LIP: $('#LIP').val(),
+            LMAC: $('#LMAC').val(),
+            UpdatedBy: $('#UpdatedBy').val() || currentUserId // Replace with your actual user ID source
+        };
+
+        $.ajax({
+            url: '/EmployeeAdvanced/Update', // Replace 'YourController' with your actual controller name
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function (response) {
+                if (response.isSuccess) {
+                    toastr.success(response.message || 'Employee Advance Updated Successfully');
+                    loadTableData();
+                    clearForm();
+                    
+                    // Optionally reload table or redirect
+                    // $('#yourTableId').DataTable().ajax.reload();
+                    // window.location.href = '/YourController/Index';
+                } else {
+                    toastr.error(response.message || 'Update failed');
+                    if (response.field) {
+                        $(`#${response.field}`).addClass('is-invalid');
+                    }
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error('An error occurred while updating: ' + error);
+            }
+        });
+    }
+
+    // Example: Bind to update button click
+    $(document).on('click', '#btnUpdate', function () {
+        const employeeAdvanceId = $('#EmployeeAdvanceID').val();
+        UpdateEmployeeAdvance(employeeAdvanceId);
+    });
+    //#endregion
+
+    // #region Delete
+    // Bulk Delete Button Click
+    $("#empAdvanced-bulkDelBtn").on('click', function () {
+        var selectedItems = $(".addEmpCheck-selectedItem:checked");
+        var selectedIds = [];
+        selectedItems.each(function () {
+            selectedIds.push($(this).data('id'));
+        });
+        if (selectedIds.length > 0) {
+            showDeleteModal(function () {
+                $.ajax({
+                    url: '/EmployeeAdvanced/Delete',
+                    method: 'DELETE',
+                    data: { ids: selectedIds },
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            toastr.success(response.message);
+                            $("#empAdvanced-check-all").prop('checked', false);
+                            $('.addEmpCheck-selectedItem').prop('checked', false);
+                            $('#empAdvanced-bulkSelectActions').addClass('d-none');
+                            clear();
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error("Error occurred while deleting.");
+                    }
+                });
+            });
+        } else {
+            toastr.info("Please select at least one item to delete.");
+        }
+    });
+
+    // Single Delete Button Click
+    $(document).on('click', '.advance-delete', function () {
+        var id = $(this).data('id');
+        if (id) {
+            showDeleteModal(function () {
+                $.ajax({
+                    url: '/EmployeeAdvanced/Delete',
+                    method: 'DELETE',
+                    data: { ids: [id] },
+                    success: function (response) {
+                        if (response.isSuccess) {
+                            toastr.success(response.message);
+                            $("#empAdvanced-check-all").prop('checked', false);
+                            clear();
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error("Error occurred while deleting.");
+                    }
+                });
+            });
+        } else {
+            toastr.error("Invalid action.");
+        }
+    });
+    // #endregion
 
     //#region Modal Job Type Dropdown
 
@@ -275,7 +397,7 @@ $(document).ready(function () {
     });
     //#endregion
 
-    //#region Modal customer
+    //#region Modal customer Dropdown
     let customerScriptLoaded = false
 
     $(document).on("click", "#createCustomer", function () {
@@ -299,13 +421,11 @@ $(document).ready(function () {
 
     //#region Modal job
     $(document).on("click", "#createJob", function () {
-        debugger
         $.get('/CreateJobs/IndexModal', function (html) {
             $('.create-job-modal-body').html(html);
             // Load script if needed
             $.getScript('/js/pages/FieldServices/CreateJob.js')
                 .done(() => {
-                    debugger;
                     if (typeof initCreateJobModal === "function") {
                         initCreateJobModal();
                     }
@@ -344,6 +464,8 @@ $(document).ready(function () {
         $('#JobID').val(null).trigger('change');
         $('#RequestedByUserID').val(null).trigger('change');
         $('#ApprovedByUserID').val(null).trigger('change');
+        $('#saveBtn').text('Send For Approval');
+
 
     }
 
@@ -369,6 +491,18 @@ $(document).ready(function () {
                 toggleBulkActions();
             });
     });
+    //#endregion
+
+    //#region Bulk Action
+    function toggleBulkActions() {
+        var checkedCount = $('.addEmpCheck-selectedItem:checked').length;
+        if (checkedCount > 0) {
+            $('#empAdvanced-bulkSelectActions').removeClass('d-none');
+        } else {
+            $('#empAdvanced-bulkSelectActions').addClass('d-none');
+            $('#empAdvanced-check-all').prop('checked', false);
+        }
+    }
     //#endregion
 
     // #region loadTableData
@@ -485,20 +619,23 @@ $(document).ready(function () {
                             <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                                 <div class="d-flex btn-reveal-trigger position-static">
                                     <a href="#!"
-                                           class="btn btn-outline-dark btn-sm employeeAdvance-editBtn"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#edit_employee_salary"
-                                           data-id="${item.employeeAdvanceID}">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        
-                                    <a href="#!" class="btn btn-phoenix-danger btn-icon me-1 fs-10 text-body px-0 advance-delete" data-id="${item.employeeAdvanceID}"       title="Delete">
+                                       class="btn btn-phoenix-danger btn-icon me-1 fs-10 text-body px-0 employeeAdvance-editBtn"
+                                      
+                                       data-id="${item.employeeAdvanceID}"
+                                       title="Edit">
+                                        <i class="fas fa-edit text-black"></i>
+                                    </a>
+
+                                    <a href="#!" class="btn btn-phoenix-danger btn-icon me-1 fs-10 text-body px-0 advance-delete" data-id="${item.employeeAdvanceID}"title="Delete">
                                         <i class="fa-regular fa-trash-can text-black"></i>
                                     </a>
                                 </div>
                             </td>
                         </tr>
                     `);
+
+                        //data - bs - toggle="modal"
+                        //data - bs - target="#edit_employee_salary"
 
                     });
                 } else {
@@ -558,8 +695,9 @@ $(document).ready(function () {
 
 
 
+
+
     window.finishModalProcess = function (value, text) {
-        debugger;
         alert("I Got response");
         const modalEl = document.getElementById('createCustomerModalToggle');
         // Now open modal

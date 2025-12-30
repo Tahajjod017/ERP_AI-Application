@@ -33,6 +33,10 @@ public partial class InvoiceItems
 
     public int? DeletedBy { get; set; }
 
+    public decimal? VatAmount { get; set; }
+
+    public decimal? Amount { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

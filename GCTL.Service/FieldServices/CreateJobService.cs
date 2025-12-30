@@ -539,12 +539,13 @@ namespace GCTL.Service.FieldServices
                 .Take(pageSize)
                 .Select(t => new CreateJobVM
                 {
-                    JobTypeID = t.JobID,
+                    JobID = t.JobID,
                     CustomerName = t.Customer != null ? t.Customer.FullName : "",
                     JobTitle = t.JobTitle!= null ? t.JobTitle : "",
                     StartDate = t.StartDateTime.ToString(),
                     EndDate = t.EndDateTime.ToString(),
                     StatusName = t.JobStatus != null ? t.JobStatus.StatusName : string.Empty,
+                    //Phone = t.
                     JobLocation = t.Location != null ? t.Location : string.Empty,
                     Note = t.Note,
                     JobType = t.JobType != null ? t.JobType.JobTypeName : "",
@@ -569,8 +570,9 @@ namespace GCTL.Service.FieldServices
                      JobTypeID = t.JobID,
                      CustomerName = t.Customer != null ? t.Customer.FullName : "",
                      JobTitle = t.JobTitle != null ? t.JobTitle : "",
-                     StartDate = t.StartDateTime.ToString(),
-                     EndDate = t.EndDateTime.ToString(),
+                     InTime = t.StartDateTime <= DateTime.Now && t.EndDateTime >= DateTime.Now,
+                     StartDate = t.StartDateTime.Value.ToString("dd-MM-yyyy hh:mm tt"),
+                     EndDate = t.EndDateTime.Value.ToString("dd-MM-yyyy hh:mm tt"),
                      StatusName = t.JobStatus != null ? t.JobStatus.StatusName : string.Empty,
                      JobLocation = t.Location != null ? t.Location : string.Empty,
                      Note = t.Note,

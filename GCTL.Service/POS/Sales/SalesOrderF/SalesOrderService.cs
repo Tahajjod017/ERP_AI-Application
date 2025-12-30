@@ -181,7 +181,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
                          salesOrderExists = new SalesOrders
                         {
-                            PriceQuotationID = quotation?.PriceQuotationID ?? null,
+                            PriceQuotationVersionID = quotation?.PriceQuotationVersionID ?? null,
                             SalesOrderNumber = vm.OrderNumber,
 
                         };

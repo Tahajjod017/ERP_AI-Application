@@ -115,7 +115,7 @@ namespace GCTL_App.Controllers.POS.Sales
             }
 
             var salesOrder = _salesVersionRepository.AllActive().Include(e => e.SalesOrders)
-                .Where(e => e.SalesOrders.PriceQuotationID == quotation.PriceQuotationID && (e.IsFinal == true || e.IsDraft == true)).FirstOrDefault();
+                .Where(e => e.SalesOrders.PriceQuotationVersionID == quotation.PriceQuotationVersionID && (e.IsFinal == true || e.IsDraft == true)).FirstOrDefault();
 
             var versions = _priceQuotationVersionRepository.AllActive().Where(e => e.PriceQuotationID == quotation.PriceQuotationID).Select(e=>new PriceQuotationVersionViewModel
             {

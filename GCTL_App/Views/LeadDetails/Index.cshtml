@@ -612,39 +612,39 @@
 
     /* Icon Color Variants */
     .timeline-icon-call {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        background: linear-gradient(135deg, #4b5563 0%, #4b5563 100%);
     }
 
     .timeline-icon-meeting {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(135deg, #4b5563 0%, #4b5563 100%);
     }
 
     .timeline-icon-email {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #4b5563 0%, #4b5563 100%);
     }
 
     .timeline-icon-task {
-        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        background: linear-gradient(135deg, #4b5563 0%, #4b5563 100%);
     }
 
     .timeline-icon-note {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #4b5563 0%, #4b5563 100%);
     }
 
     .timeline-icon-success {
-        background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+        background: linear-gradient(135deg, #4b5563 0%, #4b5563 100%);
     }
 
     .timeline-icon-lost {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        background: linear-gradient(135deg, #4b5563 0%, #4b5563 100%);
     }
 
     .timeline-icon-cancel {
-        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        background: linear-gradient(135deg, #4b5563 0%, #4b5563 100%);
     }
 
     .timeline-icon-default {
-        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        background: linear-gradient(135deg, #4b5563 0%, #4b5563 100%);
     }
 
     /* Activity Content Card */
@@ -946,7 +946,7 @@
 <div class="pb-4">
     <!-- Page Header -->
     <div class="row align-items-center justify-content-between g-3 mb-4">
-        <div class="col-12 col-md-auto">
+        <div class="col-12 col-md-auto ms-4">
             <h2 class="fw-bold text-dark mb-0">Lead Details</h2>
         </div>
         <div class="col-12 col-md-auto d-flex gap-2">
@@ -1270,7 +1270,7 @@
                                     @item.LeadActivityName
                                 </button>
                             }
-                            <button class="btn btn-outline-danger rounded-pill d-none" id="restoreBtn2">
+                            <button class="btn btn-outline-danger rounded-pill border-danger d-none" id="restoreBtn2">
                                 <span class="fa-solid fa-rotate-right me-2"></span>Restart
                             </button>
                         </div>
@@ -1440,6 +1440,19 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="customer-modal-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Job Modal MODAL -->
+<div class="modal fade" id="createJobModalToggle" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="create-job-modal-body"></div>
         </div>
     </div>
 </div>

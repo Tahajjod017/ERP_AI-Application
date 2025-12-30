@@ -219,24 +219,62 @@
         });
     }
 
+    //function recalcTotals() {
+    //    let sub = 0;
+    //    $('#itemsTable tbody tr[data-index]').each(function () {
+    //        const quantity = parseFloat($(this).find('input[name$=".Quantity"]').val()) || 0;
+    //        const price = parseFloat($(this).find('input[name$=".UnitPrice"]').val()) || 0;
+
+    //        const amount = quantity * price;
+
+    //        $(this).find('.amount').text(amount.toFixed(2));
+    //        sub += amount;
+    //    });
+
+    //    const percentValue = parseFloat($('#vatPercent').val()) || 0;
+    //    const vat = (sub * percentValue) / 100;
+    //    const grand = sub + vat;
+
+    //    $('#subTotal').text(sub.toFixed(2));
+    //    $('#vatAmount').text(vat.toFixed(2));
+    //    $('#grandTotal').text(grand.toFixed(2));
+    //}
+
     function recalcTotals() {
-        let sub = 0;
+        const vatPercent = parseFloat($('#vatPercent').val()) || 0;
+        const aitPercent = parseFloat($('#aitPercent').val()) || 5;
+
+        let netSubtotal = 0;
+        let grossSubtotal = 0;
+        let totalVAT = 0;
+
+        // Read VAT mode from hidden fields or checkboxes (if they exist)
+        const isIncludingVat = $('#IsItemPriceIncludingVat').is(':checked');
+        const isWithoutVat = $('#IsPriceWithoutVat').is(':checked');
+        const isAfterSubtotal = $('#IsVatAfterSubtotal').is(':checked');
+
         $('#itemsTable tbody tr[data-index]').each(function () {
             const quantity = parseFloat($(this).find('input[name$=".Quantity"]').val()) || 0;
             const price = parseFloat($(this).find('input[name$=".UnitPrice"]').val()) || 0;
 
             const amount = quantity * price;
-
             $(this).find('.amount').text(amount.toFixed(2));
-            sub += amount;
+            netSubtotal += amount;
         });
 
-        const percentValue = parseFloat($('#vatPercent').val()) || 0;
-        const vat = (sub * percentValue) / 100;
-        const grand = sub + vat;
+        // Calculate VAT based on mode (simplified for edit mode)
+        if (isAfterSubtotal) {
+            totalVAT = (netSubtotal * vatPercent) / 100;
+        }
 
-        $('#subTotal').text(sub.toFixed(2));
-        $('#vatAmount').text(vat.toFixed(2));
+        grossSubtotal = netSubtotal + totalVAT;
+
+        // Calculate AIT
+        const aitAmount = (grossSubtotal * aitPercent) / 100;
+        const grand = grossSubtotal + aitAmount;
+
+        $('#subTotal').text(netSubtotal.toFixed(2));
+        $('#vatAmount').text(totalVAT.toFixed(2));
         $('#grandTotal').text(grand.toFixed(2));
     }
 

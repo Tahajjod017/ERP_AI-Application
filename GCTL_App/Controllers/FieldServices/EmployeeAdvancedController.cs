@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using GCTL.Service.FieldServices;
 using GCTL.Service.Pagination;
+using GCTL.Core.Helpers;
 
 namespace GCTL_App.Controllers.FieldServices
 {
@@ -24,6 +25,7 @@ namespace GCTL_App.Controllers.FieldServices
         private readonly IGenericRepository<ApprovalSettings> _approvalsettings;
         private readonly IGenericRepository<EmployeeAdvanceFor> _employeeAdvanceForRepository;
         private readonly ICreateJobService _createJobService;
+
 
 
         public EmployeeAdvancedController(ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<JobTypes> jobTypeRepository, IEmployeeAdvanced service, IGenericRepository<GCTL.Data.Models.Employees> employees, ICommonService commonService, IGenericRepository<JobTypes> jobtype, IGenericRepository<ApprovalSettings> approvalsettings, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, ICreateJobService createJobService) : base(translateService, userProfileService)
@@ -56,6 +58,7 @@ namespace GCTL_App.Controllers.FieldServices
         #endregion
 
         #region Create
+        [HttpPost]
         public async Task<IActionResult> Create(EmployeeAdvancedVM emp)
         {
             if (!ModelState.IsValid)
@@ -78,6 +81,69 @@ namespace GCTL_App.Controllers.FieldServices
                 success = result.Success,
                 message = result.Message
             });
+        }
+        #endregion
+
+        #region Update
+        [HttpPost]
+        public async Task<IActionResult> Update(EmployeeAdvancedVM emp) 
+        
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var result = await _mainservice.UpdateAsync(emp);
+                    return Json(new
+                    {
+                        isSuccess = result.Success,
+                        message = result.Message
+                    });
+
+                }
+                var orederedKeys = new[] { "EmployeeID", "JobID", "AdvanceAmount", "AdvanceDate" };
+                foreach (var key in orederedKeys)
+                {
+                    if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                    {
+                        return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                    }
+                    var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+
+                    return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong" });
+
+                }
+
+                return Json(new { isSuccess = false, message = "" ?? "Something went wrong" });
+            }
+
+            catch (Exception ex)
+            {
+
+                return Json(new { isSuccess = false, message = $"Error:{ex.Message}" });
+            }
+        }
+
+        #endregion
+
+        #region SoftDelete
+        [HttpDelete]
+        public async Task<IActionResult>Delete(DeleteRequestVM requestVM)
+        {
+            try
+            {
+                var result = await _mainservice.SoftDeleteAsync(requestVM);
+                return Json(new
+                {
+                    isSuccess = result.Success,
+                    message = result.Message,
+                    
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
         }
         #endregion
 

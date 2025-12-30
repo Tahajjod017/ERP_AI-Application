@@ -6,41 +6,281 @@ using System.Threading.Tasks;
 
 namespace GCTL.Core.ViewModels.POS.Sales.InvoiceF
 {
+
     public class InvoiceViewModel : BaseViewModel
     {
         public int? Id { get; set; }
         public DateTime InvoiceDate { get; set; }
+        public DateTime DueDate { get; set; }
         public string InvoiceNumber { get; set; }
         public int? SelectedCustomerId { get; set; }
         public int? SelectedSalesOrderId { get; set; }
+
+        // Flags
         public bool IsDraft { get; set; }
-        public decimal VatPercent { get; set; }
+        public bool IsVatAfterSubtotal { get; set; }
+        public bool IsItemPriceIncludingVat { get; set; }
+        public bool IsPriceWithoutVat { get; set; }
+        public bool ShowTaxColumn { get; set; }
+        public bool IsAit { get; set; }
+
+        // Percentages
+        public decimal VatPercent { get; set; } = 15;   // default VAT %
+        public decimal AitPercent { get; set; } = 5;    // default AIT %
+
+        // References
         public string? OtherReference { get; set; }
         public string? InvoiceNote { get; set; }
+
         public List<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
 
         // Addresses
-        public AddressViewModel BillingAddress { get; set; }
-        public AddressViewModel ShippingAddress { get; set; }
+        public AddressViewModel BillingAddress { get; set; } = new AddressViewModel();
+        public AddressViewModel ShippingAddress { get; set; } = new AddressViewModel();
 
-        // For display
-        public decimal SubTotal => Items?.Sum(i => i.Amount) ?? 0;
-        public decimal VatAmount => SubTotal * VatPercent / 100;
-        public decimal GrandTotal => SubTotal + VatAmount;
-
-        // Customer list for dropdown
+        // Customers
         public List<CustomerDto> Customers { get; set; } = new List<CustomerDto>();
+
+        // ============================================
+        // CALCULATIONS - OPTION A LOGIC
+        // ============================================
+
+        /// <summary>
+        /// Net Subtotal (excluding VAT)
+        /// In "Including VAT" mode, this extracts the net amount.
+        /// In other modes, prices are already net.
+        /// </summary>
+        public decimal SubTotal
+        {
+            get
+            {
+                if (Items == null || !Items.Any())
+                    return 0;
+
+                // MODE 1: Each item price including VAT
+                if (IsItemPriceIncludingVat)
+                {
+                    // Extract net price from gross price
+                    return Items.Sum(i =>
+                    {
+                        var netPrice = i.UnitPrice / (1 + VatPercent / 100);
+                        return netPrice * i.Quantity;
+                    });
+                }
+                else
+                {
+                    // MODE 2 & 3: Prices are already net
+                    return Items.Sum(i => i.UnitPrice * i.Quantity);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Total VAT Amount based on selected mode
+        /// </summary>
+        public decimal VatAmount
+        {
+            get
+            {
+                if (Items == null || !Items.Any())
+                    return 0;
+
+                // MODE 1: Each item price including VAT
+                if (IsItemPriceIncludingVat)
+                {
+                    // Extract VAT from each item's gross price
+                    return Items.Sum(i =>
+                    {
+                        var netPrice = i.UnitPrice / (1 + VatPercent / 100);
+                        var vatPerItem = i.UnitPrice - netPrice;
+                        return vatPerItem * i.Quantity;
+                    });
+                }
+                // MODE 2: Price without VAT (per-item calculation)
+                else if (IsPriceWithoutVat)
+                {
+                    // Calculate VAT per item on net price
+                    return Items.Sum(i =>
+                        (i.UnitPrice * i.Quantity * VatPercent) / 100
+                    );
+                }
+                // MODE 3: VAT after subtotal (invoice-level calculation)
+                else if (IsVatAfterSubtotal)
+                {
+                    // Calculate VAT once on entire subtotal
+                    return SubTotal * VatPercent / 100;
+                }
+
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Gross Subtotal (including VAT)
+        /// </summary>
+        public decimal GrossSubtotal => SubTotal + VatAmount;
+
+        /// <summary>
+        /// AIT Amount (only if IsAit is enabled)
+        /// Calculated on gross subtotal (after VAT)
+        /// </summary>
+        public decimal AitAmount => IsAit ? (GrossSubtotal * AitPercent / 100) : 0;
+
+        /// <summary>
+        /// Grand Total = Gross Subtotal + AIT
+        /// </summary>
+        public decimal GrandTotal => GrossSubtotal + AitAmount;
+
+        /// <summary>
+        /// Get VAT amount for a specific item (for display in table)
+        /// </summary>
+        public decimal GetItemVatAmount(InvoiceItem item)
+        {
+            if (item == null)
+                return 0;
+
+            // MODE 1: Each item price including VAT
+            if (IsItemPriceIncludingVat)
+            {
+                var netPrice = item.UnitPrice / (1 + VatPercent / 100);
+                var vatPerItem = item.UnitPrice - netPrice;
+                return vatPerItem * item.Quantity;
+            }
+            // MODE 2: Price without VAT (per-item)
+            else if (IsPriceWithoutVat)
+            {
+                return (item.UnitPrice * item.Quantity * VatPercent) / 100;
+            }
+            // MODE 3: VAT after subtotal (no per-item VAT)
+            else
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Get total amount for a specific item (net + VAT if applicable)
+        /// </summary>
+        public decimal GetItemTotalAmount(InvoiceItem item)
+        {
+            if (item == null)
+                return 0;
+
+            // MODE 1: Each item price including VAT
+            if (IsItemPriceIncludingVat)
+            {
+                // Item total is the gross price × quantity
+                return item.UnitPrice * item.Quantity;
+            }
+            // MODE 2: Price without VAT
+            else if (IsPriceWithoutVat)
+            {
+                var netAmount = item.UnitPrice * item.Quantity;
+                var vatAmount = (netAmount * VatPercent) / 100;
+                return netAmount + vatAmount;
+            }
+            // MODE 3: VAT after subtotal
+            else
+            {
+                // Item total is just net amount (VAT added at invoice level)
+                return item.UnitPrice * item.Quantity;
+            }
+        }
+
+        /// <summary>
+        /// Validates that only one VAT mode is active
+        /// </summary>
+        public bool IsVatModeValid()
+        {
+            int activeModesCount =
+                (IsItemPriceIncludingVat ? 1 : 0) +
+                (IsPriceWithoutVat ? 1 : 0) +
+                (IsVatAfterSubtotal ? 1 : 0);
+
+            return activeModesCount <= 1;
+        }
+
+        /// <summary>
+        /// Returns the name of the active VAT mode
+        /// </summary>
+        public string GetActiveVatMode()
+        {
+            if (IsItemPriceIncludingVat)
+                return "Each item price including VAT";
+            if (IsPriceWithoutVat)
+                return "Price without VAT (per-item)";
+            if (IsVatAfterSubtotal)
+                return "VAT after subtotal";
+            return "No VAT";
+        }
     }
+
+
 
     public class InvoiceItem
     {
-        public int SL { get; set; }
+        public int? Id { get; set; }
         public int ProductId { get; set; }
-        public decimal? Quantity { get; set; }
-        public decimal? UnitPrice { get; set; }
+        public string? ProductName { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
 
-        public decimal Amount => (Quantity ?? 0) * (UnitPrice ?? 0);
+        /// <summary>
+        /// Base amount (UnitPrice × Quantity)
+        /// This is the net amount in most cases
+        /// </summary>
+        public decimal Amount => UnitPrice * Quantity;
+
+        public int SL { get; set; }
     }
+
+
+
+    //public class InvoiceViewModel : BaseViewModel
+    //{
+    //    public int? Id { get; set; }
+    //    public DateTime InvoiceDate { get; set; }
+    //    public string InvoiceNumber { get; set; }
+    //    public int? SelectedCustomerId { get; set; }
+    //    public int? SelectedSalesOrderId { get; set; }
+
+
+
+    //    public bool IsDraft { get; set; }
+    //    public bool IsVatAfterSubtotal { get; set; }
+    //    public bool IsItemPriceIncludingVat { get; set; }
+    //    public bool IsPriceWithoutVat { get; set; }
+    //    public bool AddAIT5Percent { get; set; }
+    //    public bool ShowTaxColumn { get; set; }
+
+
+    //    public decimal VatPercent { get; set; }
+    //    public string? OtherReference { get; set; }
+    //    public string? InvoiceNote { get; set; }
+    //    public List<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
+
+    //    // Addresses
+    //    public AddressViewModel BillingAddress { get; set; }
+    //    public AddressViewModel ShippingAddress { get; set; }
+
+    //    // For display
+    //    public decimal SubTotal => Items?.Sum(i => i.Amount) ?? 0;
+    //    public decimal VatAmount => SubTotal * VatPercent / 100;
+    //    public decimal GrandTotal => SubTotal + VatAmount;
+
+    //    // Customer list for dropdown
+    //    public List<CustomerDto> Customers { get; set; } = new List<CustomerDto>();
+    //}
+
+    //public class InvoiceItem
+    //{
+    //    public int SL { get; set; }
+    //    public int ProductId { get; set; }
+    //    public decimal? Quantity { get; set; }
+    //    public decimal? UnitPrice { get; set; }
+
+    //    public decimal Amount => (Quantity ?? 0) * (UnitPrice ?? 0);
+    //}
 
     public class AddressViewModel
     {

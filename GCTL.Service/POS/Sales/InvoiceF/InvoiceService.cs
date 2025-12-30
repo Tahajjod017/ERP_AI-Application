@@ -62,6 +62,16 @@ namespace GCTL.Service.POS.Sales.InvoiceF
 
             try
             {
+                if (!ValidateVatMode(vm, out string errorMessage))
+                {
+                    await _invoiceItemRepository.RollbackTransactionAsync();
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = errorMessage
+                    };
+                }
+
                 int vers = 1;
                 // Generate invoice number if not provided
                 if (string.IsNullOrEmpty(vm.InvoiceNumber) || vm.InvoiceNumber.StartsWith("INV-"))
@@ -125,14 +135,46 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                 }
 
                 // Calculate totals
-                decimal subTotal = vm.Items.Sum(i => i.Amount);
-                decimal vatAmount = subTotal * vm.VatPercent / 100;
-                decimal grandTotal = subTotal + vatAmount;
+                //decimal subTotal = vm.Items.Sum(i => i.Amount);
+                //decimal vatAmount = subTotal * vm.VatPercent / 100;
+                //decimal grandTotal = subTotal + vatAmount;
+
+                // Calculate totals using ViewModel logic (Option A)
+                decimal subTotal = vm.SubTotal;
+                decimal vatAmount = vm.VatAmount;
+                decimal grossSubtotal = vm.GrossSubtotal;
+                decimal aitAmount = vm.AitAmount;
+                decimal grandTotal = vm.GrandTotal;
 
 
 
                 if (invoice == null)
                 {
+                    //invoice = new Invoices
+                    //{
+                    //    SalesOrderVersionID = vm.SelectedSalesOrderId,
+                    //    InvoiceNumber = await GetNextInvoiceCode(),
+                    //    Version = vers,
+                    //    IsDraft = vm.IsDraft,
+                    //    IsFinal = !vm.IsDraft,
+                    //    //InvoiceNumber = vm.InvoiceNumber,
+                    //    CustomerID = vm.SelectedCustomerId,
+                    //    IBaseBillingAddressID = billingAddressId,
+                    //    IBaseShippingAddressID = shippingAddressId,
+
+                    //    InvoiceDate = vm.InvoiceDate,
+                    //    VatPercentage = vm.VatPercent,
+                    //    VatAmount = vatAmount,
+                    //    SubTotal = subTotal,
+                    //    GrandTotal = grandTotal,
+                    //    PaidAmount = 0,
+                    //    OtherReference = vm.OtherReference,
+                    //    InvoiceNote = vm.InvoiceNote,
+                    //    CreatedAt = DateTime.Now,
+                    //    CreatedBy = vm.CreatedBy
+                    //};
+
+
                     invoice = new Invoices
                     {
                         SalesOrderVersionID = vm.SelectedSalesOrderId,
@@ -140,22 +182,41 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                         Version = vers,
                         IsDraft = vm.IsDraft,
                         IsFinal = !vm.IsDraft,
-                        //InvoiceNumber = vm.InvoiceNumber,
                         CustomerID = vm.SelectedCustomerId,
                         IBaseBillingAddressID = billingAddressId,
                         IBaseShippingAddressID = shippingAddressId,
-
                         InvoiceDate = vm.InvoiceDate,
+
+                        // VAT Mode Flags
+                        IsVatAfterSubtotal = vm.IsVatAfterSubtotal,
+                        IsItemPriceIncludingVat = vm.IsItemPriceIncludingVat,
+                        IsPriceWithoutVat = vm.IsPriceWithoutVat,
+                        ShowTaxColumn = vm.ShowTaxColumn,
+
+                        // VAT Calculations
                         VatPercentage = vm.VatPercent,
                         VatAmount = vatAmount,
                         SubTotal = subTotal,
+                        GrossSubtotal = grossSubtotal,
+
+                        // AIT Fields
+                        IsAit = vm.IsAit,
+                        AitPercent = vm.AitPercent,
+                        AitAmount = aitAmount,
+
+                        // Totals
                         GrandTotal = grandTotal,
+                        DueAmount = grandTotal, // Initially, due = grand total
                         PaidAmount = 0,
+
                         OtherReference = vm.OtherReference,
                         InvoiceNote = vm.InvoiceNote,
                         CreatedAt = DateTime.Now,
                         CreatedBy = vm.CreatedBy
                     };
+
+
+
                     await _invoiceRepository.AddAsync(invoice, vm);
                     await _userInfoService.ActionLogAsync("Invoice", ActionName.DataAdd, null, invoice, invoice.InvoiceID, vm);
                 }
@@ -172,6 +233,11 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                         ProductID = item.ProductId,
                         Quantity = item.Quantity,
                         UnitPrice = item.UnitPrice,
+
+                        // Calculate and store per-item values
+                        Amount = vm.GetItemTotalAmount(item),
+                        VatAmount = vm.GetItemVatAmount(item),
+
                         CreatedAt = DateTime.Now,
                         CreatedBy = vm.CreatedBy
                     };
@@ -201,6 +267,21 @@ namespace GCTL.Service.POS.Sales.InvoiceF
             }
         }
 
+        /// <summary>
+        /// Validates VAT mode before saving
+        /// </summary>
+        private bool ValidateVatMode(InvoiceViewModel vm, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (!vm.IsVatModeValid())
+            {
+                errorMessage = "Only one VAT mode can be active at a time";
+                return false;
+            }
+
+            return true;
+        }
 
         public async Task<CommonReturnViewModel> UpdateAsync(InvoiceViewModel vm)
         {
@@ -271,24 +352,65 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                 }
 
                 // Recalculate totals
-                decimal subTotal = vm.Items.Sum(i => i.Amount);
-                decimal vatAmount = subTotal * vm.VatPercent / 100;
-                decimal grandTotal = subTotal + vatAmount;
+                //decimal subTotal = vm.Items.Sum(i => i.Amount);
+                //decimal vatAmount = subTotal * vm.VatPercent / 100;
+                //decimal grandTotal = subTotal + vatAmount;
+
+                // Recalculate totals using ViewModel logic (Option A)
+                decimal subTotal = vm.SubTotal;
+                decimal vatAmount = vm.VatAmount;
+                decimal grossSubtotal = vm.GrossSubtotal;
+                decimal aitAmount = vm.AitAmount;
+                decimal grandTotal = vm.GrandTotal;
+
 
                 // Update invoice header
+                //invoice.CustomerID = vm.SelectedCustomerId;
+                ////invoice.SalesOrdersID = vm.SelectedSalesOrderId;
+                //invoice.InvoiceDate = vm.InvoiceDate;
+                //invoice.InvoiceNumber = vm.InvoiceNumber;
+                //invoice.VatPercentage = vm.VatPercent;
+                //invoice.SubTotal = subTotal;
+                //invoice.VatAmount = vatAmount;
+                //invoice.GrandTotal = grandTotal;
+                //invoice.OtherReference = vm.OtherReference;
+                //invoice.InvoiceNote = vm.InvoiceNote;
+                //invoice.IsDraft = vm.IsDraft;
+                //invoice.UpdatedAt = DateTime.Now;
+                //invoice.UpdatedBy = vm.UpdatedBy;
+
+
                 invoice.CustomerID = vm.SelectedCustomerId;
-                //invoice.SalesOrdersID = vm.SelectedSalesOrderId;
                 invoice.InvoiceDate = vm.InvoiceDate;
                 invoice.InvoiceNumber = vm.InvoiceNumber;
+
+                // VAT Mode Flags
+                invoice.IsVatAfterSubtotal = vm.IsVatAfterSubtotal;
+                invoice.IsItemPriceIncludingVat = vm.IsItemPriceIncludingVat;
+                invoice.IsPriceWithoutVat = vm.IsPriceWithoutVat;
+                invoice.ShowTaxColumn = vm.ShowTaxColumn;
+
+                // VAT Calculations
                 invoice.VatPercentage = vm.VatPercent;
-                invoice.SubTotal = subTotal;
                 invoice.VatAmount = vatAmount;
+                invoice.SubTotal = subTotal;
+                invoice.GrossSubtotal = grossSubtotal;
+
+                // AIT Fields
+                invoice.IsAit = vm.IsAit;
+                invoice.AitPercent = vm.AitPercent;
+                invoice.AitAmount = aitAmount;
+
+                // Totals
                 invoice.GrandTotal = grandTotal;
+                invoice.DueAmount = grandTotal - (invoice.PaidAmount ?? 0); // Recalculate due
+
                 invoice.OtherReference = vm.OtherReference;
                 invoice.InvoiceNote = vm.InvoiceNote;
                 invoice.IsDraft = vm.IsDraft;
                 invoice.UpdatedAt = DateTime.Now;
                 invoice.UpdatedBy = vm.UpdatedBy;
+
 
                 await _invoiceRepository.UpdateAsync(invoice);
 
@@ -310,6 +432,11 @@ namespace GCTL.Service.POS.Sales.InvoiceF
                         ProductID = item.ProductId,
                         Quantity = item.Quantity,
                         UnitPrice = item.UnitPrice,
+
+                        // Calculate and store per-item values
+                        Amount = vm.GetItemTotalAmount(item),
+                        VatAmount = vm.GetItemVatAmount(item),
+
                         CreatedAt = DateTime.Now,
                         CreatedBy = vm.UpdatedBy
                     };

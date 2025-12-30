@@ -22,7 +22,7 @@
             placeholder: 'Select Customer',
             width: '100%',
             dropdownParent: modalContentArea,
-            allowClear: true,
+            allowClear: false,
             ajax: {
                 url: '/CreateJobs/GetCustomers',
                 dataType: 'json',
@@ -48,7 +48,7 @@
             placeholder: 'Select Lead Source',
             width: '100%',
             dropdownParent: modalContentArea,
-            allowClear: true,
+            allowClear: false,
             ajax: {
                 url: '/CreateLead/GetLeadSourceList',
                 dataType: 'json',
@@ -72,7 +72,7 @@
             placeholder: 'Select Lead Status',
             width: '100%',
             dropdownParent: modalContentArea,
-            allowClear: true,
+            allowClear: false,
             ajax: {
                 url: '/CreateLead/GetLeadStatusList',
                 dataType: 'json',
@@ -96,7 +96,7 @@
             placeholder: 'Select Priority',
             width: '100%',
             dropdownParent: modalContentArea,
-            allowClear: true,
+            allowClear: false,
             ajax: {
                 url: '/CreateLead/GetPriorityList',
                 dataType: 'json',
@@ -120,7 +120,7 @@
             placeholder: 'Select Lead Owner',
             width: '100%',
             dropdownParent: modalContentArea,
-            allowClear: true,
+            allowClear: false,
             ajax: {
                 url: '/CreateLead/GetLeadOwnerList',
                 dataType: 'json',
@@ -144,7 +144,7 @@
             placeholder: 'Select Service Types',
             width: '100%',
             dropdownParent: modalContentArea,
-            allowClear: true,
+            allowClear: false,
             multiple: true,
             ajax: {
                 url: '/CreateLead/GetServiceList',
@@ -185,7 +185,7 @@
         // Initialize Select2
         $branch.select2({
             placeholder: 'Select a branch',
-            allowClear: true,
+            allowClear: false,
             width: '100%',
             dropdownParent: modalContentArea,
             minimumInputLength: 0,

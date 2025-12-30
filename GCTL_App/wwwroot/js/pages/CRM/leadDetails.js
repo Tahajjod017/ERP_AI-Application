@@ -291,9 +291,41 @@ $(function () {
     //============================
     // yes no Won button work
     // ============================
-    $('#wonYes, #wonNo').on('click', function () {
+    $('#wonNo').on('click', function () {
         saveActivityFunction(this);
         secialButtonState = "won";
+    });
+    $('#wonYes').on('click', function () {
+        debugger;
+        //open modal
+        $("#customerModalActionName").text("Create")
+
+
+        $.get('/CreateJobs/IndexModal', function (html) {
+            $('.create-job-modal-body').html(html);
+            // Load script if needed
+            $.getScript('/js/pages/FieldServices/CreateJob.js')
+                .done(() => {
+                    debugger;
+                    if (typeof initCreateJobModal === "function") {
+                        initCreateJobModal();
+                    }
+
+                    const modalEl = document.getElementById('createJobModalToggle');
+                    modalEl.setAttribute("data-bs-backdrop", "static");
+                    modalEl.setAttribute("data-bs-keyboard", "false");
+                    // Now open modal
+                    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+
+                    if (typeof loadDataFromLeadId === "function") {
+                        loadDataFromLeadId(leadId);
+                    }
+                });
+
+
+        });
+        //saveActivityFunction(this);
+        //secialButtonState = "won";
     });
 
     //============================
