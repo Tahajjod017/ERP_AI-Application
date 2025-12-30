@@ -61,26 +61,25 @@ namespace GCTL_App.Controllers.FieldServices
         [HttpPost]
         public async Task<IActionResult> Create(EmployeeAdvancedVM emp)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                var errors = ModelState
-                    .Where(x => x.Value.Errors.Count > 0)
-                    .Select(x => new
-                    {
-                        Field = x.Key,
-                        Message = x.Value.Errors.First().ErrorMessage
-                    });
-
-                return Json(new { success = false, errors });
+                var result = await _mainservice.AddAsync(emp);
+                return Json(new { isSuccess = result.Success, message = result.Message });
             }
 
-            var result = await _mainservice.AddAsync(emp);
 
-            return Json(new
+            var orderedKeys = new[] { "CustomerID2", "JobID", "RequestedByUserID", "AmountRequested", "ApprovedByUserID" };
+
+            foreach (var key in orderedKeys)
             {
-                success = result.Success,
-                message = result.Message
-            });
+                if (ModelState.TryGetValue(key, out var entry) && entry.Errors.Any())
+                {
+                    return Json(new { isSuccess = false, field = key, message = entry.Errors.First().ErrorMessage });
+                }
+            }
+
+            var errorMessage = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+            return Json(new { isSuccess = false, message = errorMessage ?? "Something went wrong." });
         }
         #endregion
 
