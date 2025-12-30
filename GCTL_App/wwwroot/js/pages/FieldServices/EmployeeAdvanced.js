@@ -309,14 +309,15 @@ $(document).ready(function () {
                 $.ajax({
                     url: '/EmployeeAdvanced/Delete',
                     method: 'DELETE',
-                    data: { ids: selectedIds },
+                    data: { ids:selectedIds },
                     success: function (response) {
                         if (response.isSuccess) {
                             toastr.success(response.message);
                             $("#empAdvanced-check-all").prop('checked', false);
                             $('.addEmpCheck-selectedItem').prop('checked', false);
                             $('#empAdvanced-bulkSelectActions').addClass('d-none');
-                            clear();
+                            clearForm();
+                           loadTableData();
                         } else {
                             toastr.error(response.message);
                         }
@@ -344,7 +345,8 @@ $(document).ready(function () {
                         if (response.isSuccess) {
                             toastr.success(response.message);
                             $("#empAdvanced-check-all").prop('checked', false);
-                            clear();
+                            clearForm();
+                            loadTableData();
                         } else {
                             toastr.error(response.message);
                         }
