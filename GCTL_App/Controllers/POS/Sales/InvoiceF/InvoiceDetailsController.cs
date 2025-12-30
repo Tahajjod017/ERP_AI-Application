@@ -4,10 +4,13 @@ using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF;
 using GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails;
+using GCTL.Core.ViewModels.POS.Sales.SalesOrders;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Language;
+using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.POS.Sales.InvoiceF;
+using GCTL.Service.POS.Sales.SalesOrderF;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,6 +22,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
     {
         #region CTOR
 
+        private readonly IGenericRepository<Challans> _challanRepository;
         private readonly IGenericRepository<Invoices> _invoiceRepository;
         private readonly IGenericRepository<InvoiceItems> _invoiceItemRepository;
         //private readonly IGenericRepository<InvoicesVersions> _invoiceVersionRepository;
@@ -31,6 +35,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         private readonly IGenericRepository<PaymentTransactions> _paymentTransactionRepository;
         private readonly IGenericRepository<PaymentMethods> _paymentMethodRepository;
         private readonly IUserInfoService _userInfoService;
+        private readonly IStatusService _statusService;
+
 
         public InvoiceDetailsController(
             ITranslateService translateService,
@@ -45,7 +51,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             IGenericRepository<SalesOrders> salesOrderRepository,
             IGenericRepository<PaymentTransactions> paymentTransactionRepository,
             IGenericRepository<PaymentMethods> paymentMethodRepository,
-            IUserInfoService userInfoService)
+            IUserInfoService userInfoService,
+            IGenericRepository<Challans> challanRepository,
+            IStatusService statusService)
             //IGenericRepository<InvoicesVersions> invoiceVersionRepository)
             : base(translateService, userProfileService)
         {
@@ -60,6 +68,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             _paymentTransactionRepository = paymentTransactionRepository;
             _paymentMethodRepository = paymentMethodRepository;
             _userInfoService = userInfoService;
+            _challanRepository = challanRepository;
+            _statusService = statusService;
             //_invoiceVersionRepository = invoiceVersionRepository;
         }
 
@@ -204,6 +214,45 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 //};
 
 
+                var challan = _challanRepository.AllActive().Where(e=>e.InvoiceID == invoice.InvoiceID || e.SalesOrdersVersionID == invoice.SalesOrderVersionID).Select(s => new ShipmentInfo
+                {
+                    ShipmentId = s.ChallanID,
+                    ShipmentNumber = s.ChallanNumber,
+                    Status = s.Status != null ? s.Status.StatusName : "Pending",
+                    StatusClass = GetShipmentStatusClass("Pending"),
+
+                }).ToList() ?? new List<ShipmentInfo>();
+
+                var challanData = _challanRepository.AllActive().Include(e=>e.ChallanItems).Where(e => e.InvoiceID == invoice.InvoiceID || e.SalesOrdersVersionID == invoice.SalesOrderVersionID).ToList();
+
+                bool isFullyShipped = false;
+                bool hasShipmentsStarted = false;
+
+                if (challanData != null && challanData.Any(s => s.DeletedAt == null))
+                {
+                    hasShipmentsStarted = true;
+
+                    var cancelledStatusId = _statusService.GetStatusID("Cancelled");
+
+                    isFullyShipped = invoice.InvoiceItems.All(soi =>
+                    {
+                        decimal orderedQty = soi.Quantity ?? 0;
+
+                        decimal shippedQty = challanData
+                            .Where(s => s.StatusID != cancelledStatusId && s.DeletedAt == null)
+                            .SelectMany(s => s.ChallanItems)
+                            .Where(si => si.ProductID == soi.ProductID && si.DeletedAt == null)
+                            .Sum(si => si.DeliveredQuantity ?? 0);
+
+                        return orderedQty <= shippedQty;
+                    });
+
+
+                }
+
+
+
+
                 var vm = new InvoiceDetailsViewModel
                 {
                     Id = invoice.InvoiceID,
@@ -263,7 +312,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     InvoiceNote = invoice?.InvoiceNote ?? "",
                     Finalized = FinalAse != null,
 
-                    BillingAddress = invoice.IBaseBillingAddress != null ? new AddressViewModel
+                    BillingAddress = invoice?.IBaseBillingAddress != null ? new AddressViewModel
                     {
                         FirstName = invoice.IBaseBillingAddress.FirstName,
                         LastName = invoice.IBaseBillingAddress.LastName,
@@ -273,9 +322,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                         PostalCode = invoice.IBaseBillingAddress.PostalCode,
                         Phone = invoice.IBaseBillingAddress.Phone,
                         Email = invoice.IBaseBillingAddress.Email
-                    } : null,
+                    } : new AddressViewModel(),
 
-                    ShippingAddress = invoice.IBaseShippingAddress != null ? new AddressViewModel 
+                    ShippingAddress = invoice?.IBaseShippingAddress != null ? new AddressViewModel 
                     {
                         FirstName = invoice.IBaseBillingAddress.FirstName,
                         LastName = invoice.IBaseBillingAddress.LastName,
@@ -285,9 +334,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                         PostalCode = invoice.IBaseBillingAddress.PostalCode,
                         Phone = invoice.IBaseBillingAddress.Phone,
                         Email = invoice.IBaseBillingAddress.Email
-                    } : null,
+                    } : new AddressViewModel(),
 
-                    PaymentHistory = invoice.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
+                    PaymentHistory = invoice?.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
                     {
                         PaymentTransactionID = pt.PaymentTransactionID,
                         TransactionRefNo = pt.TransactionRefNo,
@@ -297,9 +346,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                         Status = pt.Status
                     }).ToList() ?? new List<PaymentHistoryViewModel>(),
 
-                    CreatedByName = invoice.CreatedByNavigation != null ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}" : "Unknown",
+                    CreatedByName = invoice?.CreatedByNavigation != null ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}" : "Unknown",
 
-                    UpdatedByName = invoice.UpdatedByNavigation != null ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}" : "Unknown",
+                    UpdatedByName = invoice?.UpdatedByNavigation != null ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}" : "Unknown",
 
                     CustomerData = new CustomerDetailsViewModel()
                     {
@@ -325,8 +374,20 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     CreatedByName = vm.CreatedByName,
                     CreatedAt = vm.CreatedAt,
                     UpdatedByName = vm.UpdatedByName,
-                    UpdatedAt = vm.UpdatedAt
+                    UpdatedAt = vm.UpdatedAt,
+                    SalesOrderId = vm.SelectedSalesOrderId,
+
+                    Shipments = challan,
+                    HasShipmentsStarted = hasShipmentsStarted,
+                    IsFullyShipped = isFullyShipped,
+
                 };
+
+                if (invoice?.IsFinal == true)
+                {
+                    sidebarVm.CanCreateShipment = (challan.Count != 0 || challan != null) ? true : false;
+
+                }
 
                 ViewBag.SidebarData = sidebarVm;
 
@@ -339,7 +400,21 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             }
             
         }
+
         #endregion
+        private string GetShipmentStatusClass(string? statusId)
+        {
+            return statusId switch
+            {
+                "Pending" => "warning",  // Pending
+                "Packed" => "info",     // Packed
+                "Shipped" => "primary",  // Shipped
+                "In Transit" => "primary",  // In Transit
+                "Delivered" => "success",  // Delivered
+                "Cancelled" => "danger",   // Cancelled
+                _ => "secondary"
+            };
+        }
 
         #region EDIT MODE - Edit Invoice
         public IActionResult Edit(int id)
@@ -448,10 +523,10 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 Id = invoice.InvoiceID,
                 InvoiceDate = invoice.InvoiceDate,
                 InvoiceNumber = invoice?.InvoiceNumber ?? "N/A",
-                SelectedCustomerId = invoice.CustomerID,
+                SelectedCustomerId = invoice?.CustomerID ?? 0,
                 SelectedSalesOrderId = invoice?.SalesOrderVersionID,
-                SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber, // safe chaining
-                IsDraft = invoice.IsDraft ?? false,
+                SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber ?? "", // safe chaining
+                IsDraft = invoice?.IsDraft ?? false,
 
                 //Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
                 //{
@@ -468,7 +543,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 //GrandTotal = invoice.GrandTotal ?? 0m,
 
 
-                Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
+                Items = invoice?.InvoiceItems?.Select(m => new InvoiceItemDetails
                 {
                     SL = m.InvoiceItemID,
                     ProductId = m.ProductID ?? 0,
@@ -481,30 +556,30 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 }).ToList() ?? new List<InvoiceItemDetails>(),
 
                 // VAT Mode Flags
-                IsVatAfterSubtotal = invoice.IsVatAfterSubtotal,
-                IsItemPriceIncludingVat = invoice.IsItemPriceIncludingVat,
-                IsPriceWithoutVat = invoice.IsPriceWithoutVat,
-                ShowTaxColumn = invoice.ShowTaxColumn,
+                IsVatAfterSubtotal = invoice?.IsVatAfterSubtotal ?? false,
+                IsItemPriceIncludingVat = invoice?.IsItemPriceIncludingVat ?? false,
+                IsPriceWithoutVat = invoice?.IsPriceWithoutVat ?? false,
+                ShowTaxColumn = invoice?.ShowTaxColumn ?? false,
 
                 // VAT and AIT
-                VatPercent = invoice.VatPercentage ?? 0m,
-                SubTotal = invoice.SubTotal ?? 0m,
-                VatAmount = invoice.VatAmount ?? 0m,
-                GrossSubtotal = invoice.GrossSubtotal ?? 0m,
+                VatPercent = invoice?.VatPercentage ?? 0m,
+                SubTotal = invoice?.SubTotal ?? 0m,
+                VatAmount = invoice?.VatAmount ?? 0m,
+                GrossSubtotal = invoice?.GrossSubtotal ?? 0m,
 
-                IsAit = invoice.IsAit,
-                AitPercent = invoice.AitPercent,
-                AitAmount = invoice.AitAmount,
+                IsAit = invoice?.IsAit ?? false,
+                AitPercent = invoice?.AitPercent ?? 0m,
+                AitAmount = invoice?.AitAmount ?? 0m,
 
-                GrandTotal = invoice.GrandTotal ?? 0m,
+                GrandTotal = invoice?.GrandTotal ?? 0m,
 
 
-                PaidAmount = invoice.PaidAmount ?? 0m,
-                OtherReference = invoice.OtherReference,
-                InvoiceNote = invoice.InvoiceNote,
+                PaidAmount = invoice?.PaidAmount ?? 0m,
+                OtherReference = invoice?.OtherReference ?? "",
+                InvoiceNote = invoice?.InvoiceNote ?? "",
                 
 
-                BillingAddress = invoice.IBaseBillingAddress != null ? new AddressViewModel
+                BillingAddress = invoice?.IBaseBillingAddress != null ? new AddressViewModel
                 {
                     FirstName = invoice.IBaseBillingAddress.FirstName,
                     LastName = invoice.IBaseBillingAddress.LastName,
@@ -514,9 +589,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     PostalCode = invoice.IBaseBillingAddress.PostalCode,
                     Phone = invoice.IBaseBillingAddress.Phone,
                     Email = invoice.IBaseBillingAddress.Email
-                } : null,
+                } : new AddressViewModel(),
 
-                ShippingAddress = invoice.IBaseShippingAddress != null ? new AddressViewModel
+                ShippingAddress = invoice?.IBaseShippingAddress != null ? new AddressViewModel
                 {
                     FirstName = invoice.IBaseBillingAddress.FirstName,
                     LastName = invoice.IBaseBillingAddress.LastName,
@@ -526,9 +601,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     PostalCode = invoice.IBaseBillingAddress.PostalCode,
                     Phone = invoice.IBaseBillingAddress.Phone,
                     Email = invoice.IBaseBillingAddress.Email
-                } : null,
+                } : new AddressViewModel(),
 
-                PaymentHistory = invoice.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
+                PaymentHistory = invoice?.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
                 {
                     PaymentTransactionID = pt.PaymentTransactionID,
                     TransactionRefNo = pt.TransactionRefNo,
@@ -538,13 +613,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     Status = pt.Status
                 }).ToList() ?? new List<PaymentHistoryViewModel>(),
 
-                CreatedByName = invoice.CreatedByNavigation != null
-       ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}"
-       : "Unknown",
+                CreatedByName = invoice?.CreatedByNavigation != null ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}" : "Unknown",
 
-                UpdatedByName = invoice.UpdatedByNavigation != null
-       ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}"
-       : "Unknown",
+                UpdatedByName = invoice?.UpdatedByNavigation != null ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}" : "Unknown",
 
                
             };
@@ -564,7 +635,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 CreatedByName = vm.CreatedByName,
                 CreatedAt = vm.CreatedAt,
                 UpdatedByName = vm.UpdatedByName,
-                UpdatedAt = vm.UpdatedAt
+                UpdatedAt = vm.UpdatedAt,
+                SalesOrderId = vm.SelectedSalesOrderId
             };
 
             ViewBag.SidebarData = sidebarVm;
@@ -640,6 +712,30 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         }
 
         [HttpPost]
+        public async Task<IActionResult> UpdateStatus(int id, int status, BaseViewModel baseView)
+        {
+            try
+            {
+                var invoice = await _invoiceRepository.All().Include(e => e.InvoiceItems).FirstOrDefaultAsync(e => e.InvoiceID == id);
+                if (invoice == null)
+                {
+                    return Json(new { success = false, message = "Invoice not found" });
+                }
+
+                invoice.IsFinal = true;
+                invoice.IsDraft = false;
+
+                await _invoiceRepository.UpdateAsync(invoice);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
         public IActionResult MarkAsPaid(int id)
         {
             try
@@ -680,6 +776,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             // TODO: Implement PDF generation
             return NotFound();
         }
+
+
 
         [HttpPost]
         public IActionResult Delete(int id)

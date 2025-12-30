@@ -87,13 +87,13 @@
                                             <div class="col-xl-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Invoice Date</label>
-                                                    <input asp-for="InvoiceDate" class="form-control" type="date" />
+                                                    <input asp-for="InvoiceDate" class="form-control datetimepicker caiCon" type="date" />
                                                 </div>
                                             </div>
                                             <div class="col-xl-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Due Date</label>
-                                                    <input asp-for="DueDate" class="form-control" type="date" />
+                                                    <input asp-for="DueDate" class="form-control datetimepicker caiCon" type="date" />
                                                 </div>
                                             </div>
                                             <div class="col-xl-6">
@@ -442,27 +442,27 @@
                                             <!-- VAT Mode Display -->
                                             <div class="col-12 mt-2">
                                                 <label class="form-label fw-bold">VAT Configuration</label>
-                                                <div class="fs-9 ms-3">
+                                                <div class=" ms-3">
                                                     @if (Model.IsItemPriceIncludingVat)
                                                     {
-                                                        <span class="badge bg-info">Item Price Including VAT</span>
+                                                        <span class="badge badge-phoenix badge-phoenix-info">Item Price Including VAT</span>
                                                     }
                                                     else if (Model.IsPriceWithoutVat)
                                                     {
-                                                        <span class="badge bg-info">Price Without VAT (Per-Item)</span>
+                                                        <span class="badge badge-phoenix badge-phoenix-info">Price Without VAT (Per-Item)</span>
                                                     }
                                                     else if (Model.IsVatAfterSubtotal)
                                                     {
-                                                        <span class="badge bg-info">VAT After Subtotal</span>
+                                                        <span class="badge badge-phoenix badge-phoenix-info">VAT After Subtotal</span>
                                                     }
                                                     else
                                                     {
-                                                        <span class="badge bg-secondary">No VAT</span>
+                                                        <span class="badge badge-phoenix badge-phoenix-secondary">No VAT</span>
                                                     }
 
                                                     @if (Model.IsAit)
                                                     {
-                                                        <span class="badge bg-warning ms-1">AIT @Model.AitPercent%</span>
+                                                        <span class="badge badge-phoenix badge-phoenix-warning ms-1">AIT @Model.AitPercent%</span>
                                                     }
                                                 </div>
                                             </div>
@@ -538,7 +538,7 @@
                                         {
                                             <td class="text-center">@Model.Items[i].VatAmount.ToString("N2")</td>
                                         }
-                                        <td class="text-end">@Model.Items[i].Amount.Value.ToString("N2")</td>
+                                        <td class="text-end">@Model.Items[i].Amount?.ToString("N2")</td>
                                     </tr>
                                 }
                                 <tr>
