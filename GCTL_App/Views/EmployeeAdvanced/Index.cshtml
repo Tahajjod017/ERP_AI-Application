@@ -10,9 +10,9 @@
 	</div>
 	<div class="card-body">
 		<div class="row col-md-12">
-			
+
 			<form asp-controller="EmployeeAdvanced" id="formClear" asp-action="Create">
-				<input hidden asp-for="EmployeeAdvanceID"value=0 />
+				<input hidden asp-for="EmployeeAdvanceID" value=0 />
 				<div class="modal-body pb-0">
 					<div class="row mt-3">
 
@@ -35,7 +35,7 @@
 						<div class="col-md-3">
 							<div class="mb-3">
 								<label class="form-label" for="organizerMultiple">Job Type</label>
-								<select asp-for="RequestedByUserID" class="form-select"multiple="multiple" asp-items="ViewBag.JobTypesDDD"></select>
+								<select asp-for="RequestedByUserID" class="form-select" multiple="multiple" asp-items="ViewBag.JobTypesDDD"></select>
 								<span asp-validation-for="RequestedByUserID" class="text-danger"></span>
 							</div>
 						</div>
@@ -110,7 +110,7 @@
 			<div class="dropdown me-2">
 				<select class="form-select" id="organizerSingle">
 					<option value="">Select Company...</option>
-					
+
 				</select>
 			</div>
 
@@ -124,7 +124,7 @@
 			<div class="dropdown me-2">
 				<select class="form-select">
 					<option value="">Select Project</option>
-					
+
 				</select>
 			</div>
 		</div>
@@ -185,7 +185,6 @@
 					</tr>
 				</thead>
 				<tbody id="empAdvanced-tBody">
-					
 				</tbody>
 			</table>
 		</div>
@@ -237,4 +236,3 @@
 @section Scripts {
 	<script src="~/js/pages/fieldservices/employeeadvanced.js"></script>
 }
-

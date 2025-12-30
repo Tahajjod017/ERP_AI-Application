@@ -62,7 +62,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
                 if (propertyValue?.ToString() == _desiredValue.ToString())
                 {
                     if (value == null || (value is string s && string.IsNullOrWhiteSpace(s)))
-                        return new ValidationResult(ErrorMessage ?? $"{validationContext.DisplayName} is required.");
+                        return new ValidationResult(ErrorMessage ?? $"{validationContext.DisplayName} is required."); 
                 }
 
                 return ValidationResult.Success;

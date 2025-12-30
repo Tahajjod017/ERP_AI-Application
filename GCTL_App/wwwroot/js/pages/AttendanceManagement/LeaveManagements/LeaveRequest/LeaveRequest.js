@@ -253,7 +253,8 @@ $(document).ready(function () {
                 }
 
             },
-            error: function () {
+            error: function ()
+            {
                 toastr.error('Failed to retrieve employee data.');
             }
         });
@@ -442,7 +443,7 @@ $(document).ready(function () {
                 type: 'GET',
                 data: { employeeId: employeeId, leaveTypeId: leaveTypeID },
                 success: function (data) {
-
+                    
                     if (data && data.leaveDays !== null) {
                         $('#LeaveDays').val(data.leaveDays);
                         $('#LeaveDaysEdit').val(data.leaveDays);
@@ -471,6 +472,12 @@ $(document).ready(function () {
         var leaveTypeID = $(leaveTypeIdField).val();
         var employeeId = choiceManager.getChoiceValue(employeeIdField);
         GetleaveDaysOrAvailble(employeeId, leaveTypeID);
+        if (leaveTypeID == 2) {
+            $('#sickLeaveUploadDiv').removeClass('d-none');
+        } else {
+            $('#sickLeaveUploadDiv').addClass('d-none');
+            $('#SickLeaveDocument').val(''); // clear file if not sick
+        }
     }
 
     // Bind events for both Add and Edit forms

@@ -25,6 +25,7 @@ namespace GCTL_App.Controllers.FieldServices
         private readonly IGenericRepository<ApprovalSettings> _approvalsettings;
         private readonly IGenericRepository<EmployeeAdvanceFor> _employeeAdvanceForRepository;
         private readonly ICreateJobService _createJobService;
+     
 
 
 
@@ -37,7 +38,10 @@ namespace GCTL_App.Controllers.FieldServices
             _approvalsettings = approvalsettings;
             _employeeAdvanceForRepository = employeeAdvanceForRepository;
             _createJobService = createJobService;
+           
         }
+
+
 
         #region Index
         public async Task<IActionResult> Index()
@@ -49,8 +53,6 @@ namespace GCTL_App.Controllers.FieldServices
             ViewBag.JobTypesDDD = new SelectList(_jobTypeRepository.AllActive().Select(j => new { j.JobTypeID, j.JobTypeName }), "JobTypeID", "JobTypeName");
 
             ViewBag.ApprovalStatus = new SelectList(_approvalsettings.AllActive().Select(a => new { a.ApprovalSettingID }), "ApprovalSettingsID");
-
-
 
 
             return View();
