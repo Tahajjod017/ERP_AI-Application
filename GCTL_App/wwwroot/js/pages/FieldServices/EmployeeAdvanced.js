@@ -102,8 +102,12 @@ $(document).ready(function () {
     $('#saveBtn').on('click', function (e) {
         e.preventDefault();
 
+        var customerValue = $('#CustomerID2').val();
+
+        // Continue with form submission
         var formData = new FormData();
-        formData.append('CustomerID2', $('#CustomerID2').val());
+        formData.append('CustomerID2', customerValue);
+
         formData.append('JobID', $('#JobID').val());
 
         var requestedUsers = $("#RequestedByUserID").val();
@@ -139,29 +143,20 @@ $(document).ready(function () {
             contentType: false,
             beforeSend: function () {
                 showLoadingIndicator();
-
-
-                
             },
             success: function (response) {
-                console.log("Response:", response);
-                if (response.success) {
-                    toastr.success("Saved Successfully");
+                const allFields = ["CustomerID2", "JobID", "RequestedByUserID", "AmountRequested", "ApprovedByUserID"];
+                allFields.forEach(fieldId => validateField(fieldId, response));
+
+                if (response.isSuccess) {
+                    toastr.success(response.message);
                     clearForm();
+                    loadTableData();
                 } else {
-                    if (response.errors) {
-                        // Display validation errors
-                        response.errors.forEach(function (error) {
-                            toastr.error(error.message);
-                        });
-                    } else {
-                        toastr.error(response.Message || "Validation failed");
-                    }
+                    toastr.error(response.message);
                 }
-                // Handle success (e.g., show a success message, redirect, etc.)
             },
             error: function (xhr, status, error) {
-                // Handle error (e.g., show an error message)
                 toastr.error("Error during Save");
             },
             complete: function () {
@@ -254,7 +249,7 @@ $(document).ready(function () {
             AmountRequested: $('#AmountRequested').val(),
             StartDate: $('#StartDate').val(),
             EndDate: $('#EndDate').val(),
-            RequestedByUserID: [$('#RequestedByUserID').val()],
+            RequestedByUserID: parseInt($('#RequestedByUserID').val()),
             ApprovedByUserID: $('#ApprovedByUserID').val(),
             GroupEmployeeID: $('#GroupEmployeeID').val()?.split(',').map(Number) || [],
             LIP: $('#LIP').val(),
@@ -469,7 +464,7 @@ $(document).ready(function () {
         $('#RequestedByUserID').val(null).trigger('change');
         $('#ApprovedByUserID').val(null).trigger('change');
         $('#saveBtn').text('Send For Approval');
-
+        resetValidation(["CustomerID2", "JobID", "RequestedByUserID", "AmountRequested", "ApprovedByUserID"]);
 
     }
 
@@ -708,7 +703,6 @@ $(document).ready(function () {
         // Now open modal
         bootstrap.Modal.getOrCreateInstance(modalEl).hide();
     }
-
 
 });
 
