@@ -418,13 +418,11 @@ $(document).ready(function () {
 
     //#region Modal job
     $(document).on("click", "#createJob", function () {
-        debugger
         $.get('/CreateJobs/IndexModal', function (html) {
             $('.create-job-modal-body').html(html);
             // Load script if needed
             $.getScript('/js/pages/FieldServices/CreateJob.js')
                 .done(() => {
-                    debugger;
                     if (typeof initCreateJobModal === "function") {
                         initCreateJobModal();
                     }
@@ -697,7 +695,6 @@ $(document).ready(function () {
 
 
     window.finishModalProcess = function (value, text) {
-        debugger;
         alert("I Got response");
         const modalEl = document.getElementById('createCustomerModalToggle');
         // Now open modal
