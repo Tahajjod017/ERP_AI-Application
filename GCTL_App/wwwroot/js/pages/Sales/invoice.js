@@ -47,23 +47,60 @@
         recalcTotals();
     }
 
+    //function updateVatColumnVisibility() {
+    //    const showVatColumn = $incVat.is(":checked") || $noVat.is(":checked");
+
+    //    if (showVatColumn) {
+    //        // Show VAT column header and cells
+    //        $('#itemsTable thead th:nth-child(5)').show();
+    //        $('#itemsTable tbody td.vatPerItem').parent().find('.vatPerItem').show();
+    //    } else {
+    //        // Hide VAT column
+    //        $('#itemsTable thead th:nth-child(5)').hide();
+    //        $('#itemsTable tbody td.vatPerItem').hide();
+    //    }
+    //}
+
     function updateVatColumnVisibility() {
-        const showVatColumn = $incVat.is(":checked") || $noVat.is(":checked");
+        debugger
+        const showVatColumn = $showTax.is(':checked');
 
         if (showVatColumn) {
-            // Show VAT column header and cells
-            $('#itemsTable thead th:nth-child(5)').show();
-            $('#itemsTable tbody td.vatPerItem').parent().find('.vatPerItem').show();
+            // Show header
+            $('#itemsTable thead th.vat-column-header').show();
+            // Show all VAT cells in rows (both % badge and amount)
+            $('#itemsTable tbody td .vat-percent-badge').show();
+            $('#itemsTable tbody td .vat-amount').show();
+            // Also show the hidden input if needed (optional)
+            $('#itemsTable tbody .item-vat-percent').closest('td').show();
         } else {
-            // Hide VAT column
-            $('#itemsTable thead th:nth-child(5)').hide();
-            $('#itemsTable tbody td.vatPerItem').hide();
+            // Hide header
+            $('#itemsTable thead th.vat-column-header').hide();
+            // Hide all VAT display elements
+            $('#itemsTable tbody td .vat-percent-badge').hide();
+            $('#itemsTable tbody td .vat-amount').hide();
+            // Optional: hide entire column cells
+            $('#itemsTable td:nth-child(5), #itemsTable th:nth-child(5)').hide();
         }
     }
 
     // Bind events
+    //$("#toggleCheckboxEV, #toggleCheckboxforIncludingVat, #toggleCheckboxForPriceWithoutVat, #toggleCheckboxForAIT, #showTaxColumn")
+    //    .on("change", reconcileConflicts);
+
+    // Bind events - add this to your existing change handlers
     $("#toggleCheckboxEV, #toggleCheckboxforIncludingVat, #toggleCheckboxForPriceWithoutVat, #toggleCheckboxForAIT, #showTaxColumn")
-        .on("change", reconcileConflicts);
+        .on("change", function () {
+            debugger
+            reconcileConflicts();
+            updateVatColumnVisibility();  // Add this line
+        });
+
+    // Also call it on page load
+    $(document).ready(function () {
+        updateVatColumnVisibility();
+        reconcileConflicts();
+    });
 
     // Initialize on load
     reconcileConflicts();
@@ -280,6 +317,27 @@
         const rowCount = $table.find('tr[data-index]').length;
         const newIndex = rowCount;
 
+        //const newRow = `
+        //    <tr data-index="${newIndex}">
+        //        <td class="fs-8 text-center align-middle">${newIndex + 1}</td>
+        //        <td>
+        //            <select name="Items[${newIndex}].ProductId" class="form-select searchableSelect productDD">
+        //                <option value="">-- Select Product --</option>
+        //            </select>
+        //        </td>
+        //        <td><input name="Items[${newIndex}].Quantity" class="form-control calc" type="number" step="any" /></td>
+        //        <td><input name="Items[${newIndex}].UnitPrice" class="form-control calc" type="number" step="any" /></td>
+        //        <td class="vatPerItem text-end align-middle">
+        //            <input type="hidden" name="Items[${newIndex}].VatPercent" class="item-vat-percent" value="5" />
+        //        0.00</td>
+        //        <td class="amount text-center align-middle">0.00</td>
+        //        <td class="text-center align-middle">
+        //            <button type="button" class="btn btn-sm btn-outline-danger remove-item">
+        //                <i class="far fa-trash-alt text-black"></i>
+        //            </button>
+        //        </td>
+        //    </tr>`;
+
         const newRow = `
             <tr data-index="${newIndex}">
                 <td class="fs-8 text-center align-middle">${newIndex + 1}</td>
@@ -290,8 +348,12 @@
                 </td>
                 <td><input name="Items[${newIndex}].Quantity" class="form-control calc" type="number" step="any" /></td>
                 <td><input name="Items[${newIndex}].UnitPrice" class="form-control calc" type="number" step="any" /></td>
-                <td class="vatPerItem text-end align-middle">0.00</td>
-                <td class="amount text-center align-middle">0.00</td>
+                <td class="text-end align-middle">
+                    <input type="hidden" name="Items[${newIndex}].VatPercent" class="item-vat-percent" value="5" />
+                    <span class="vat-percent-badge badge badge-phoenix badge-phoenix-warning clickable-vat" style="cursor:pointer;">0.00%</span>
+                    <span class="vat-amount ms-2">0.00</span>
+                </td>
+                <td class="amount text-end align-middle">0.00</td>
                 <td class="text-center align-middle">
                     <button type="button" class="btn btn-sm btn-outline-danger remove-item">
                         <i class="far fa-trash-alt text-black"></i>
@@ -307,6 +369,7 @@
         updateVatColumnVisibility();
         attachCalcEvents();
         renumberRows();
+        recalcTotals();
     });
 
     $(document).on('click', '.remove-item', function () {
@@ -330,20 +393,41 @@
                 initializeSelect();
                 $select.empty().append('<option value="">-- Select Product --</option>');
                 $.each(products, function (i, product) {
-                    $select.append(`<option value="${product.id}" data-price="${product.price}">${product.name}</option>`);
+                    //$select.append(`<option value="${product.id}" data-price="${product.price}">${product.name}</option>`);
+
+                    $select.append(`<option value="${product.id}" 
+                        data-price="${product.price}" 
+                        data-vat="${product.vatPercent}">
+                        ${product.name}
+                    </option>`);
+
                 });
 
                 if (selectedValue) {
                     $select.val(selectedValue);
                 }
 
+                //$select.on('change', function () {
+                //    const selectedOption = $(this).find('option:selected');
+                //    const price = selectedOption.data('price');
+                //    const $row = $(this).closest('tr');
+                //    $row.find('input[name$=".UnitPrice"]').val(price);
+                //    recalcTotals();
+                //});
+
+
                 $select.on('change', function () {
-                    const selectedOption = $(this).find('option:selected');
-                    const price = selectedOption.data('price');
+                    const $option = $(this).find('option:selected');
+                    const price = $option.data('price') || 0;
+                    const vat = $option.data('vat') || 5;
                     const $row = $(this).closest('tr');
                     $row.find('input[name$=".UnitPrice"]').val(price);
+                    $row.find('.item-vat-percent').val(vat);
+                    $row.find('.vat-percent-badge').text(vat.toFixed(2) + '%');
                     recalcTotals();
                 });
+
+
             },
             error: function () {
                 console.error('Failed to load products');
@@ -351,6 +435,45 @@
         });
     }
     //#endregion
+
+
+    // Per-item VAT % edit
+    $(document).on('click', '.clickable-vat', function () {
+        const $row = $(this).closest('tr');
+        const currentVat = parseFloat($row.find('.item-vat-percent').val()) || 5;
+        const newVat = prompt("Enter VAT % for this item:", currentVat.toFixed(2));
+        if (newVat !== null && !isNaN(newVat) && parseFloat(newVat) >= 0) {
+            const vatVal = parseFloat(newVat);
+            $row.find('.item-vat-percent').val(vatVal);
+            $row.find('.vat-percent-badge').text(vatVal.toFixed(2) + '%');
+            recalcTotals();
+        }
+    });
+
+    // Global VAT % edit
+    $(document).on('click', '.clickable-global-vat', function () {
+        const current = parseFloat($('#vatPercent').val()) || 5;
+        const newVal = prompt("Enter global VAT %:", current.toFixed(2));
+        if (newVal !== null && !isNaN(newVal) && parseFloat(newVal) >= 0) {
+            const val = parseFloat(newVal);
+            $('#vatPercent').val(val);
+            $('#globalVatPercentDisplay').text(val.toFixed(2) + '%');
+            recalcTotals();
+        }
+    });
+
+    // Global AIT % edit
+    $(document).on('click', '.clickable-global-ait', function () {
+        const current = parseFloat($('#aitPercent').val()) || 5;
+        const newVal = prompt("Enter AIT %:", current.toFixed(2));
+        if (newVal !== null && !isNaN(newVal) && parseFloat(newVal) >= 0) {
+            const val = parseFloat(newVal);
+            $('#aitPercent').val(val);
+            $('#globalAitPercentDisplay').text(val.toFixed(2) + '%');
+            recalcTotals();
+        }
+    });
+
 
     //#region Calculation Logic - OPTION A
     function attachCalcEvents() {
@@ -373,84 +496,179 @@
         });
     }
 
+    //function recalcTotals() {
+    //    const vatPercent = parseFloat($('#vatPercent').val()) || 0;
+    //    const aitPercent = parseFloat($('#aitPercent').val()) || 5;
+
+    //    let netSubtotal = 0;
+    //    let grossSubtotal = 0;
+    //    let totalVAT = 0;
+
+    //    // Calculate based on selected mode
+    //    $('#itemsTable tbody tr[data-index]').each(function () {
+    //        const $row = $(this);
+    //        const quantity = parseFloat($row.find('input[name$=".Quantity"]').val()) || 0;
+    //        const price = parseFloat($row.find('input[name$=".UnitPrice"]').val()) || 0;
+
+    //        let netPrice = 0;
+    //        let grossPrice = 0;
+    //        let vatPerItem = 0;
+    //        let itemTotal = 0;
+
+    //        // MODE: Each item price including VAT
+    //        if ($incVat.is(':checked')) {
+    //            grossPrice = price;
+    //            netPrice = grossPrice / (1 + vatPercent / 100);
+    //            vatPerItem = (grossPrice - netPrice) * quantity;
+    //            itemTotal = grossPrice * quantity;
+
+    //            $row.find('.vatPerItem').text(vatPerItem.toFixed(2));
+    //            $row.find('.amount').text(itemTotal.toFixed(2));
+
+    //            netSubtotal += netPrice * quantity;
+    //            grossSubtotal += itemTotal;
+    //            totalVAT += vatPerItem;
+    //        }
+    //        // MODE: Price without VAT (per-item calculation)
+    //        else if ($noVat.is(':checked')) {
+    //            netPrice = price;
+    //            vatPerItem = (netPrice * quantity * vatPercent) / 100;
+    //            grossPrice = netPrice + (vatPerItem / quantity);
+    //            itemTotal = (netPrice * quantity) + vatPerItem;
+
+    //            $row.find('.vatPerItem').text(vatPerItem.toFixed(2));
+    //            $row.find('.amount').text(itemTotal.toFixed(2));
+
+    //            netSubtotal += netPrice * quantity;
+    //            grossSubtotal += itemTotal;
+    //            totalVAT += vatPerItem;
+    //        }
+    //        // MODE: VAT after subtotal (invoice-level)
+    //        else if ($ev.is(':checked')) {
+    //            netPrice = price;
+    //            itemTotal = netPrice * quantity;
+
+    //            $row.find('.vatPerItem').text('—');
+    //            $row.find('.amount').text(itemTotal.toFixed(2));
+
+    //            netSubtotal += itemTotal;
+    //            grossSubtotal = netSubtotal; // Will add VAT later
+    //        }
+    //        // NO VAT MODE
+    //        else {
+    //            netPrice = price;
+    //            itemTotal = netPrice * quantity;
+
+    //            $row.find('.vatPerItem').text('—');
+    //            $row.find('.amount').text(itemTotal.toFixed(2));
+
+    //            netSubtotal += itemTotal;
+    //            grossSubtotal = netSubtotal;
+    //        }
+    //    });
+
+    //    // For "VAT after subtotal" mode, calculate VAT on entire subtotal
+    //    if ($ev.is(':checked')) {
+    //        totalVAT = (netSubtotal * vatPercent) / 100;
+    //        grossSubtotal = netSubtotal + totalVAT;
+    //    }
+
+    //    // Calculate AIT if enabled
+    //    let aitAmount = 0;
+    //    if ($ait.is(':checked')) {
+    //        aitAmount = (grossSubtotal * aitPercent) / 100;
+    //    }
+
+    //    // Grand Total
+    //    const grandTotal = grossSubtotal + aitAmount;
+
+    //    // Update display
+    //    $('#subTotal').text(netSubtotal.toFixed(2));
+    //    $('#vatAmount').text(totalVAT.toFixed(2));
+    //    $('#grandTotal').text(grandTotal.toFixed(2));
+
+    //    // Show/hide VAT row based on Show Tax Column checkbox
+    //    if ($showTax.is(':checked')) {
+    //        $('#vatAmount').closest('tr').show();
+    //    } else {
+    //        $('#vatAmount').closest('tr').hide();
+    //    }
+
+    //    // Show/hide AIT row
+    //    if ($ait.is(':checked')) {
+    //        $('#aitAmount').closest('tr').show();
+    //        $('#aitAmount').text(aitAmount.toFixed(2));
+    //    } else {
+    //        $('#aitAmount').closest('tr').hide();
+    //    }
+    //}
+
+
     function recalcTotals() {
-        const vatPercent = parseFloat($('#vatPercent').val()) || 0;
+        const globalVatPercent = parseFloat($('#vatPercent').val()) || 15; // Global fallback
         const aitPercent = parseFloat($('#aitPercent').val()) || 5;
 
-        let netSubtotal = 0;
-        let grossSubtotal = 0;
-        let totalVAT = 0;
+        let netSubtotal = 0;      // Amount excluding VAT
+        let totalVAT = 0;         // Total VAT across all items
+        let grossSubtotal = 0;    // Amount including VAT (before AIT)
 
-        // Calculate based on selected mode
         $('#itemsTable tbody tr[data-index]').each(function () {
             const $row = $(this);
             const quantity = parseFloat($row.find('input[name$=".Quantity"]').val()) || 0;
-            const price = parseFloat($row.find('input[name$=".UnitPrice"]').val()) || 0;
+            const unitPrice = parseFloat($row.find('input[name$=".UnitPrice"]').val()) || 0;
+            const itemVatPercent = parseFloat($row.find('.item-vat-percent').val()) || globalVatPercent;
 
-            let netPrice = 0;
-            let grossPrice = 0;
-            let vatPerItem = 0;
-            let itemTotal = 0;
+            let itemNetAmount = 0;
+            let itemVatAmount = 0;
+            let itemTotalAmount = 0; // Line total (net + VAT)
 
-            // MODE: Each item price including VAT
+            // MODE 1: Each item price INCLUDING VAT
             if ($incVat.is(':checked')) {
-                grossPrice = price;
-                netPrice = grossPrice / (1 + vatPercent / 100);
-                vatPerItem = (grossPrice - netPrice) * quantity;
-                itemTotal = grossPrice * quantity;
+                // UnitPrice is gross → extract net
+                const netPrice = unitPrice / (1 + itemVatPercent / 100);
+                itemNetAmount = netPrice * quantity;
+                itemVatAmount = (unitPrice - netPrice) * quantity;
+                itemTotalAmount = unitPrice * quantity;
 
-                $row.find('.vatPerItem').text(vatPerItem.toFixed(2));
-                $row.find('.amount').text(itemTotal.toFixed(2));
-
-                netSubtotal += netPrice * quantity;
-                grossSubtotal += itemTotal;
-                totalVAT += vatPerItem;
+                $row.find('.vat-amount').text(itemVatAmount.toFixed(2));
+                $row.find('.amount').text(itemTotalAmount.toFixed(2));
             }
-            // MODE: Price without VAT (per-item calculation)
+            // MODE 2: Price WITHOUT VAT (VAT added per item)
             else if ($noVat.is(':checked')) {
-                netPrice = price;
-                vatPerItem = (netPrice * quantity * vatPercent) / 100;
-                grossPrice = netPrice + (vatPerItem / quantity);
-                itemTotal = (netPrice * quantity) + vatPerItem;
+                itemNetAmount = unitPrice * quantity;
+                itemVatAmount = (unitPrice * quantity * itemVatPercent) / 100;
+                itemTotalAmount = itemNetAmount + itemVatAmount;
 
-                $row.find('.vatPerItem').text(vatPerItem.toFixed(2));
-                $row.find('.amount').text(itemTotal.toFixed(2));
-
-                netSubtotal += netPrice * quantity;
-                grossSubtotal += itemTotal;
-                totalVAT += vatPerItem;
+                $row.find('.vat-amount').text(itemVatAmount.toFixed(2));
+                $row.find('.amount').text(itemTotalAmount.toFixed(2));
             }
-            // MODE: VAT after subtotal (invoice-level)
-            else if ($ev.is(':checked')) {
-                netPrice = price;
-                itemTotal = netPrice * quantity;
-
-                $row.find('.vatPerItem').text('—');
-                $row.find('.amount').text(itemTotal.toFixed(2));
-
-                netSubtotal += itemTotal;
-                grossSubtotal = netSubtotal; // Will add VAT later
-            }
-            // NO VAT MODE
+            // MODE 3: VAT AFTER SUBTOTAL (invoice-level VAT) OR No VAT mode
             else {
-                netPrice = price;
-                itemTotal = netPrice * quantity;
+                itemNetAmount = unitPrice * quantity;
+                itemTotalAmount = itemNetAmount;
 
-                $row.find('.vatPerItem').text('—');
-                $row.find('.amount').text(itemTotal.toFixed(2));
-
-                netSubtotal += itemTotal;
-                grossSubtotal = netSubtotal;
+                // In "VAT after subtotal" mode, per-item VAT is 0 (shown at bottom)
+                if ($ev.is(':checked')) {
+                    $row.find('.vat-amount').text('—');
+                } else {
+                    $row.find('.vat-amount').text('0.00');
+                }
+                $row.find('.amount').text(itemTotalAmount.toFixed(2));
             }
+
+            // Accumulate totals
+            netSubtotal += itemNetAmount;
+            totalVAT += itemVatAmount;
+            grossSubtotal += itemTotalAmount;
         });
 
-        // For "VAT after subtotal" mode, calculate VAT on entire subtotal
+        // Special case: VAT after subtotal → calculate VAT once on entire net subtotal using GLOBAL %
         if ($ev.is(':checked')) {
-            totalVAT = (netSubtotal * vatPercent) / 100;
+            totalVAT = (netSubtotal * globalVatPercent) / 100;
             grossSubtotal = netSubtotal + totalVAT;
         }
 
-        // Calculate AIT if enabled
+        // AIT Calculation (on gross subtotal if enabled)
         let aitAmount = 0;
         if ($ait.is(':checked')) {
             aitAmount = (grossSubtotal * aitPercent) / 100;
@@ -459,13 +677,14 @@
         // Grand Total
         const grandTotal = grossSubtotal + aitAmount;
 
-        // Update display
+        // Update display fields
         $('#subTotal').text(netSubtotal.toFixed(2));
         $('#vatAmount').text(totalVAT.toFixed(2));
+        $('#aitAmount').text(aitAmount.toFixed(2));
         $('#grandTotal').text(grandTotal.toFixed(2));
 
         // Show/hide VAT row based on Show Tax Column checkbox
-        if ($showTax.is(':checked')) {
+        if ($showTax.is(':checked') && (totalVAT > 0 || $ev.is(':checked'))) {
             $('#vatAmount').closest('tr').show();
         } else {
             $('#vatAmount').closest('tr').hide();
@@ -474,11 +693,14 @@
         // Show/hide AIT row
         if ($ait.is(':checked')) {
             $('#aitAmount').closest('tr').show();
-            $('#aitAmount').text(aitAmount.toFixed(2));
         } else {
             $('#aitAmount').closest('tr').hide();
         }
+
+        // Update VAT column visibility based on modes
+        updateVatColumnVisibility();
     }
+
 
     attachCalcEvents();
     recalcTotals();

@@ -1,8 +1,8 @@
 ﻿@using GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
 @model InvoiceSidebarDetailsViewModel
 
-<div class="col-md-3 mb-4">
-    <div class="card mb-3" style="min-height: 1000px;">
+<div class="col-md-3 mb-4 ps-1 pe-1">
+    <div class="card mb-3" style="min-height: 1050px;">
         <div class="card-body">
             <div class="invoice-card">
                 <div>
@@ -59,14 +59,14 @@
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapsePayment" aria-labelledby="headingPayment" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
-                                <p class="fs-9">
+                                <p class="fs-9 mb-0">
                                     <strong>@Html.SmartLocalize("Total Amount:")</strong> @Model.TotalAmount.ToString("N2") BDT<br>
                                     <strong>@Html.SmartLocalize("Paid Amount:")</strong> <span class="text-success">@Model.PaidAmount.ToString("N2") BDT</span><br>
                                     <strong>@Html.SmartLocalize("Due Amount:")</strong> <span class="text-danger">@Model.DueAmount.ToString("N2") BDT</span><br>
                                     @if (!Model.IsFullyPaid && !Model.IsDraft)
                                     {
-                                        <br>
-                                        <a href="javascript:void(0)" onclick="addPayment(@Model.InvoiceId)" class="btn btn-sm btn-primary mt-2">
+                                        
+                                        <a href="javascript:void(0)" onclick="addPayment(@Model.InvoiceId)" class="btn btn-sm btn-phoenix-primary ">
                                             <i class="fa fa-plus me-1"></i> @Html.SmartLocalize("Add Payment")
                                         </a>
                                     }

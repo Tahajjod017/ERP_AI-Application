@@ -68,6 +68,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
 
         public decimal? Amount { get; set; }
         public decimal VatAmount { get; set; }
+        public decimal VatPercent { get; set; }
     }
 
     public class AddressViewModel
