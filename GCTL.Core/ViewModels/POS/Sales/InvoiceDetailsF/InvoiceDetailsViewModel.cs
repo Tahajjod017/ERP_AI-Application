@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GCTL.Core.ViewModels.POS.Sales.PriceQuotationDetails;
+using GCTL.Core.ViewModels.POS.Sales.SalesOrders;
 
 namespace GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
 {
@@ -134,5 +135,11 @@ namespace GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
         public bool IsFullyPaid => DueAmount <= 0;
 
         public List<PriceQuotationVersionViewModel> InvoiceIdList { get; set; }
+        public int? SalesOrderId { get; set; }
+        public List<ShipmentInfo> Shipments { get; set; }
+        public bool HasShipments => Shipments != null && Shipments.Any();
+        public bool IsFullyShipped { get; set; }
+        public bool HasShipmentsStarted { get; set; }
+        public bool CanCreateShipment { get; set; }
     }
 }

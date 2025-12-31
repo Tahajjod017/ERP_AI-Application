@@ -4,39 +4,46 @@
 	ViewData["Title"] = "Employee Advanced";
 }
 
+
+
 <div class="card">
 	<div class="card-header">
 		<h3>Employee  Advanced</h3>
 	</div>
 	<div class="card-body">
 		<div class="row col-md-12">
-			
+
 			<form asp-controller="EmployeeAdvanced" id="formClear" asp-action="Create">
-				<input hidden asp-for="EmployeeAdvanceID"value=0 />
+				<input hidden asp-for="EmployeeAdvanceID" value=0 />
 				<div class="modal-body pb-0">
 					<div class="row mt-3">
 
 						<div class="col-md-6">
 							<div class="mb-3">
 								<label class="form-label req" asp-for="CustomerID2">Client Name</label>
-								<select asp-for="CustomerID2"></select>
-								<span asp-validation-for="CustomerID2" class="text-danger"></span>
+								<select class="form-select" asp-for="CustomerID2"></select>
+								<span id="CustomerID2Error" class="text-danger" style="display:none;"></span>
 							</div>
 						</div>
 
 						<div class="col-md-3 ">
 							<div class="mb-3">
 								<label class="form-label req" asp-for="JobID">Job Name</label>
-								<select asp-for="JobID" class="form-select" asp-items="ViewBag.JobTypesDD" desable>
+								<select asp-for="JobID" class="form-select"desable>
 								</select>
-								<span asp-validation-for="JobID" class="text-danger"></span>
+								<span id="JobIDError" class="text-danger" style="display:none;"></span>
 							</div>
 						</div>
 						<div class="col-md-3">
 							<div class="mb-3">
 								<label class="form-label" for="organizerMultiple">Job Type</label>
+<<<<<<< GCTL_App/Views/EmployeeAdvanced/Index.cshtml
 								<select asp-for="RequestedByUserID" class="form-select"multiple="multiple" asp-items="ViewBag.JobTypesDDD"></select>
+								<span id="RequestedByUserIDError" class="text-danger" style="display:none;"></span>
+=======
+								<select asp-for="RequestedByUserID" class="form-select" multiple="multiple" asp-items="ViewBag.JobTypesDDD"></select>
 								<span asp-validation-for="RequestedByUserID" class="text-danger"></span>
+>>>>>>> GCTL_App/Views/EmployeeAdvanced/Index.cshtml
 							</div>
 						</div>
 
@@ -53,7 +60,7 @@
 								<select asp-for="ApprovedByUserID" class="form-select  approvedBySelect initSelectEmpAD"
 										asp-items="ViewBag.EmployeeDD">
 									<!--Advanced Recieved by-->
-									<span asp-validation-for="ApprovedByUserID"></span>
+									<span id="ApprovedByUserIDError" class="text-danger" style="display:none;"></span>
 								</select>
 							</div>
 						</div>
@@ -86,6 +93,7 @@
 							<div class="mb-3">
 								<label class="form-label" asp-for="AmountRequested">Amount</label>
 								<input class="form-control" asp-for="AmountRequested" type="number" />
+								<span id="AmountRequestedError" class="text-danger" style="display: none;"></span>
 							</div>
 						</div>
 					</div>
@@ -110,7 +118,7 @@
 			<div class="dropdown me-2">
 				<select class="form-select" id="organizerSingle">
 					<option value="">Select Company...</option>
-					
+
 				</select>
 			</div>
 
@@ -124,7 +132,7 @@
 			<div class="dropdown me-2">
 				<select class="form-select">
 					<option value="">Select Project</option>
-					
+
 				</select>
 			</div>
 		</div>
@@ -185,7 +193,6 @@
 					</tr>
 				</thead>
 				<tbody id="empAdvanced-tBody">
-					
 				</tbody>
 			</table>
 		</div>
@@ -231,6 +238,18 @@
 		</div>
 	</div>
 </div>
+
+<partial name="_ConfirmDelete" />
+
+<<<<<<< GCTL_App/Views/EmployeeAdvanced/Index.cshtml
+
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<script src="~/js/pages/fieldservices/employeeadvanced.js"></script>
+}
 
 @section Scripts {
 	<script src="~/js/pages/fieldservices/employeeadvanced.js"></script>

@@ -137,10 +137,22 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-12">
+
+            
+
+            <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Reason</label>
-                    <textarea asp-for="Reason" class="form-control" rows="3"></textarea>
+                    <textarea asp-for="Reason" class="form-control" rows="1" placeholder="Please enter reason"></textarea>
+                </div>
+            </div>
+            <div class="col-md-6 d-none" id="sickLeaveUploadDiv">
+                <div class="mb-3">
+                    <label class="form-label">Medical Document (PDF / Image)</label>
+                    <input type="file"
+                           id="SickLeaveDocument"
+                           class="form-control"
+                           accept=".pdf,.jpg,.jpeg,.png">
                 </div>
             </div>
         </div>

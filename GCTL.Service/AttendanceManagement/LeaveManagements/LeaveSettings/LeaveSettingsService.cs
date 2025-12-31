@@ -302,7 +302,24 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     Message = "Data Can not be null"
                 };
             }
-           
+            if (entityVM.IsSickLeaveDocumentRequired)
+            {
+                if (!entityVM.SickLeaveDocumentWithinDays.HasValue ||
+                    entityVM.SickLeaveDocumentWithinDays <= 0)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Sick leave document upload within days is required."
+                    };
+                }
+            }
+            else
+            {
+                // Ensure clean data
+                entityVM.SickLeaveDocumentWithinDays = 0;
+            }
+
             await leavepolicy.BeginTransactionAsync();
             try
             {
@@ -326,6 +343,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                      WorkingHour=entityVM.WorkingHour,
                      ShortLeaveMaxInADay=entityVM.ShortLeaveMaxInADay,
                      IsEmailSendEnabled = entityVM.IsEmailSendEnabled,
+                    IsSickLeaveDocumentRequired = entityVM.IsSickLeaveDocumentRequired,
+                    SickLeaveDocumentWithinDays = entityVM.SickLeaveDocumentWithinDays,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedBy = entityVM.CreatedBy,
@@ -364,7 +383,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
             try
             {
                 await leavepolicy.BeginTransactionAsync();
-
+                if (entityVM.LeavePolicyConfigurationID==null || entityVM.LeavePolicyConfigurationID <= 0)
+                {
+                    response.Success = false;
+                    response.Message = "Data Id  null.";
+                    return response;
+                }
                 var existingPolicy = await leavepolicy.GetByIdAsync(entityVM.LeavePolicyConfigurationID);
 
                 if (existingPolicy == null)
@@ -374,6 +398,19 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     await leavepolicy.RollbackTransactionAsync();
                     return response;
                 }
+                if (entityVM.IsSickLeaveDocumentRequired)
+                {
+                    if (!entityVM.SickLeaveDocumentWithinDays.HasValue ||
+                        entityVM.SickLeaveDocumentWithinDays <= 0)
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "Sick leave document upload within days is required."
+                        };
+                    }
+                }
+                
                 var beforeEntity = JsonConvert.DeserializeObject<AddLeavePolicyConfigarationVM>(JsonConvert.SerializeObject(existingPolicy, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
                 // Update fields
                 existingPolicy.IsWeekendCountedAsLeave = entityVM.IsWeekendCountedAsLeave;
@@ -396,6 +433,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingPolicy.WorkingHour = entityVM.WorkingHour;
                 existingPolicy.ShortLeaveMaxInADay = entityVM.ShortLeaveMaxInADay;
                 existingPolicy.IsEmailSendEnabled = entityVM.IsEmailSendEnabled;
+                existingPolicy.IsSickLeaveDocumentRequired = entityVM.IsSickLeaveDocumentRequired;
+                existingPolicy.SickLeaveDocumentWithinDays = entityVM.SickLeaveDocumentWithinDays;
                 existingPolicy.LIP = entityVM.LIP;
                 existingPolicy.LMAC = entityVM.LMAC;
                 await leavepolicy.UpdateAsync(existingPolicy);
@@ -451,7 +490,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     IsAllowCrossLeave=x.IsAllowCrossLeave,
                     WorkingHour=x.WorkingHour,
                     ShortLeaveMaxInADay=x.ShortLeaveMaxInADay,
-                    IsEmailSendEnabled = x.IsEmailSendEnabled
+                    IsEmailSendEnabled = x.IsEmailSendEnabled,
+                    IsSickLeaveDocumentRequired = x.IsSickLeaveDocumentRequired,
+                    SickLeaveDocumentWithinDays = x.SickLeaveDocumentWithinDays
 
                 }).ToList();
 
