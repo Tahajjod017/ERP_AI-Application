@@ -25,5 +25,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
         public int? MinimumDaysRequiredEncashement { get; set; }
 
         public int? MaximumDaysAllowedEncashement { get; set; }
+        public bool IsSickLeaveDocumentRequired { get; set; }
+
+        public int? SickLeaveDocumentWithinDays { get; set; }
+
     }
 }

@@ -511,6 +511,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[SickLeaveDocument]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[SMSSettings]",
          "ObjectType": 0
       },

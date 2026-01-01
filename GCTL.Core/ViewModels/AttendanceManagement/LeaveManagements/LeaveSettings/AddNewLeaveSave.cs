@@ -23,5 +23,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
 
         public string? EffectiveAfter { get; set; }
 
+        public bool IsSickLeaveDocumentRequired { get; set; }
+
+        public int? SickLeaveDocumentWithinDays { get; set; }
+
     }
 }

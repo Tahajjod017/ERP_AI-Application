@@ -61,10 +61,6 @@ public partial class LeavePolicyConfiguration
 
     public bool IsEmailSendEnabled { get; set; }
 
-    public bool IsSickLeaveDocumentRequired { get; set; }
-
-    public int? SickLeaveDocumentWithinDays { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

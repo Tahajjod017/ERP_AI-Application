@@ -14,9 +14,9 @@
         $('#IsAllowRequestForFutureDays').prop('checked', false);
         $('#IsMaximumleaveDaysPerAplication').prop('checked', false);
         $('#IsMaximumGapDaysBetweenAplications').prop('checked', false);
-        $('#IsSickLeaveDocumentRequired').prop('checked', false);
+       
         // Clear textboxes
-        $('#AllowRequestForFutureDays, #MaxLeavePerApplication, #MaxGapBetweenApplications,#WorkingHour,#ShortLeaveMaxInADay,#SickLeaveDocumentWithinDays').val('');
+        $('#AllowRequestForFutureDays, #MaxLeavePerApplication, #MaxGapBetweenApplications,#WorkingHour,#ShortLeaveMaxInADay').val('');
         choiceManager.clearChoice('RoundOffHour');
         $('#LeavePolicyConfigurationID').val('');
         $('#EnableLeaveBalanceResetDate').prop('checked', false);
@@ -44,18 +44,7 @@
             alert('Please enter a value for Working Hour.');
             return;
         }
-        const isSickDocRequired = $('#IsSickLeaveDocumentRequired').is(':checked');
-
-        const sickLeaveWithinDays = (function () {
-            const v = parseInt($('#SickLeaveDocumentWithinDays').val());
-            return isNaN(v) ? 0 : v;
-        })();
-
-        if (isSickDocRequired && sickLeaveWithinDays <= 0) {
-            toastr.error("Sick leave document upload within days is required.");
-            $('#SickLeaveDocumentWithinDays').focus();
-            return; 
-        }
+       
 
 
         const leaveData = {
@@ -70,11 +59,7 @@
             RoundOffHour: $('#IsRoundOffHour').is(':checked') ? $('#RoundOffHour').val() : null,
             LeavePolicyConfigurationID: parseInt($('#LeavePolicyConfigurationID').val()) || 0,
 
-            //SickLeaveDocumentWithinDays: parseInt($('#SickLeaveDocumentWithinDays').val()) || 0,
-            //IsSickLeaveDocumentRequired: $('input[name="IsSickLeaveDocumentRequired"]:checked').val() === 'true',
-            // ✅ Sick Leave Rule
-            IsSickLeaveDocumentRequired: isSickDocRequired,
-            SickLeaveDocumentWithinDays: isSickDocRequired ? sickLeaveWithinDays : 0,
+            
             //
             IsAllowRequestForFutureDays: $('#IsAllowRequestForFutureDays').is(':checked'),
             // *Always* read the user's input (default to null if blank/invalid)

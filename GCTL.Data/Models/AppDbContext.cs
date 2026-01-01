@@ -428,6 +428,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<Shifts> Shifts { get; set; }
 
+    public virtual DbSet<SickLeaveDocument> SickLeaveDocument { get; set; }
+
     public virtual DbSet<SpiralBioWeeklyPattern> SpiralBioWeeklyPattern { get; set; }
 
     public virtual DbSet<SpiralBioWeeklyPatternDetails> SpiralBioWeeklyPatternDetails { get; set; }
@@ -484,6 +486,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<ActionLogs>(entity =>
         {
@@ -786,8 +789,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         });
 
         modelBuilder.Entity<ApplicationUser>()
-.HasDiscriminator<string>("Discriminator")
-.HasValue<ApplicationUser>("ApplicationUser");
+ .HasDiscriminator<string>("Discriminator")
+ .HasValue<ApplicationUser>("ApplicationUser");
         modelBuilder.Entity<ApplicationUser>()
         .HasOne(u => u.Employees)
         .WithMany(e => e.AspNetUsers)
@@ -7944,6 +7947,27 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.ShiftsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__Shifts__UpdatedB__4E3E9311");
+        });
+
+        modelBuilder.Entity<SickLeaveDocument>(entity =>
+        {
+            entity.HasKey(e => e.SickLeaveDocumentID).HasName("PK__SickLeav__2F41C3CE3FE24800");
+
+            entity.HasIndex(e => e.LeaveApplicationID, "UQ_SickLeaveDocument_LeaveApplication").IsUnique();
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DocumentPath)
+                .IsRequired()
+                .HasMaxLength(500);
+            entity.Property(e => e.UpdatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.LeaveApplication).WithOne(p => p.SickLeaveDocument)
+                .HasForeignKey<SickLeaveDocument>(d => d.LeaveApplicationID)
+                .HasConstraintName("FK_SickLeaveDocument_LeaveApplications");
         });
 
         modelBuilder.Entity<SpiralBioWeeklyPattern>(entity =>
