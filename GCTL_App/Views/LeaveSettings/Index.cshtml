@@ -42,21 +42,22 @@
                                 <input type="hidden" class="form-control" id="LeaveTypeIDEdit" />
 
                                 <div class="col-md-6">
-                                    <div class="mb-3">
+                                    <div class="mb-1">
                                         <label class="form-label">Leave Name</label>
                                         <input type="text" id="LeaveTypeNameEdit" class="form-control" />
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <div class="mb-3">
+                                    <div class="mb-1">
                                         <label class="form-label">Code</label>
                                         <input type="text" id="CodeEdit" class="form-control" />
                                     </div>
                                 </div>
+                                
 
                                 <div class="col-md-6">
-                                    <div class="mb-3 mt-1">
+                                    <div class="mb-1 mt-1">
                                         <label class="form-label d-block mb-2">Paid Type</label>
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="radio" name="IsPaidEdit" id="IsPaidPaidEdit" value="true">
@@ -69,16 +70,48 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <div class="mb-3">
+                                
+
+
+                                <div class="col-md-6 mt-3" id="SickLeaveHideShow" style="display: none;">
+                                    <div class="mb-2">
+                                        <div class="form-check d-flex align-items-center">
+                                            <input class="form-check-input me-2"
+                                                   id="IsSickLeaveDocumentRequired"
+                                                   name="IsSickLeaveDocumentRequired"
+                                                   type="checkbox"
+                                                   value="true" />
+                                            <label class="form-check-label me-2"
+                                                   for="IsSickLeaveDocumentRequired">
+                                                Sick leave document Upload  within
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control me-2"
+                                                   id="SickLeaveDocumentWithinDays"
+                                                   name="SickLeaveDocumentWithinDays"
+                                                   style="width: 3rem; height: 28px" />
+
+                                            <label class="form-check-label"
+                                                   for="SickLeaveDocumentWithinDays">
+                                                days
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6" id="MaxLeaveDaysDiv">
+                                    <div class="mb-1">
                                         <label class="form-label">Maximum No of Days</label>
                                         <input type="text" id="LeaveDaysEdit" class="form-control" />
                                     </div>
                                 </div>
+                                <!-- Sick Leave Document Requirement -->
+                               
 
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <div class="mb-3">
+                                        <div class="mb-1">
                                             <label class="form-label">Effective From</label>
                                             <input type="text" class="form-control" id="EffectiveFromEdit" />
                                         </div>
@@ -108,11 +141,11 @@
 
                                     <div id="hiddenEncashmentDiv" class="card p-3 mb-4">
                                         <div class="row">
-                                            <div class="col-md-12 mb-3">
+                                            <div class="col-md-12 mb-1">
                                                 <label class="form-label">Minimum Days Required For Encashement</label>
                                                 <input type="text" class="form-control" id="minEncash">
                                             </div>
-                                            <div class="col-md-12 mb-3">
+                                            <div class="col-md-12 mb-1">
                                                 <label class="form-label">Maximum Days Allowed For Encashement</label>
                                                 <input type="text" class="form-control" id="maxEncash">
                                             </div>
@@ -288,29 +321,8 @@
                                                     <label class="form-check-label" for="IsEmailSendEnabled">Enable Email Sending</label>
                                                 </div>
 
-                                                <!-- Sick Leave Document Requirement -->
-                                                <div class="form-check d-flex align-items-center mb-3">
-                                                    <input class="form-check-input me-2"
-                                                           id="IsSickLeaveDocumentRequired"
-                                                           name="IsSickLeaveDocumentRequired"
-                                                           type="checkbox"
-                                                           value="true" />
-                                                    <label class="form-check-label me-2"
-                                                           for="IsSickLeaveDocumentRequired">
-                                                        Sick leave document Upload  within
-                                                    </label>
+                                               
 
-                                                    <input type="text"
-                                                           class="form-control me-2"
-                                                           id="SickLeaveDocumentWithinDays"
-                                                           name="SickLeaveDocumentWithinDays"
-                                                           style="width: 3rem; height: 28px" />
-
-                                                    <label class="form-check-label"
-                                                           for="SickLeaveDocumentWithinDays">
-                                                        days
-                                                    </label>
-                                                </div>
                                                 <div class="form-check d-flex mb-1">
                                                     <input class="form-check-input me-2 mt-2 " id="IsRoundOffHour" name="IsRoundOffHour" checked value="true" type="checkbox" style="margin-top: 9px !important;" />
                                                     <label class="form-check-label mt-2 me-2" for="flexCheckChecked">Round of</label>

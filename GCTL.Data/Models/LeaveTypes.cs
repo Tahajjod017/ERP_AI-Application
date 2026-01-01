@@ -51,6 +51,10 @@ public partial class LeaveTypes
 
     public int? LeavePriorityId { get; set; }
 
+    public bool IsSickLeaveDocumentRequired { get; set; }
+
+    public int? SickLeaveDocumentWithinDays { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

@@ -13,7 +13,8 @@
             Code: $('#Code').val(),
             EffectiveFrom: $('#EffectiveFrom').val(),
             EffectiveFromMonthYear: $('#EffectiveFromMonthYear').val(),
-            EffectiveAfter: $('#EffectiveAfter').val()
+            EffectiveAfter: $('#EffectiveAfter').val(),
+            
         };
 
         $.ajax({
@@ -139,7 +140,10 @@
 
         return isValid;
     }
-    
+
+
+
+
     loadLeaveTypeCard();
  
     function loadLeaveTypeCard() {
@@ -197,18 +201,28 @@
                     `);
                     });
 
-                    feather.replace(); // Important to re-render icons
+                    feather.replace(); 
                 } else {
                     container.append('<div class="col-12 text-center">No leave types found.</div>');
                 }
             },
-            error: function () {
+            error: function (err)
+            {
                 toastr.error('Failed to fetch leave types.');
             }
         });
     }
 
     //
+
+    $(document).on('change', '#IsSickLeaveDocumentRequired', function () {
+        if ($(this).is(':checked')) {
+            $('#MaxLeaveDaysDiv').hide();
+        } else {
+            $('#MaxLeaveDaysDiv').show();
+        }
+    });
+
 
     $(document).on('click', 'a[data-bs-target="#annual_leave_settings"]', function (e) {
         e.preventDefault();
@@ -238,7 +252,7 @@
                     // Checkbox example
                     $('input[name="IsPaidEdit"][value="' + response.isPaid + '"]').prop('checked', true);
 
-
+                    
 
                     if (response.leaveTypeName === "Annual Leave") {
                         $('#encashmentSection').show();
@@ -247,6 +261,22 @@
                         $('#toggleEncashementCheckbox').prop('checked', false);
                         $('#hiddenEncashmentDiv').hide();
                     }
+                    if (response.code === 'SL') {
+                        $('#SickLeaveHideShow').show();
+
+                        $('#IsSickLeaveDocumentRequired')
+                            .prop('checked', response.isSickLeaveDocumentRequired);
+                        $('#SickLeaveDocumentWithinDays').val(response.sickLeaveDocumentWithinDays);
+                        if (response.isSickLeaveDocumentRequired) {
+                            $('#MaxLeaveDaysDiv').hide();
+                        } else {
+                            $('#MaxLeaveDaysDiv').show();
+                        }
+                    } else {
+                        $('#SickLeaveHideShow').hide();
+                        $('#MaxLeaveDaysDiv').show();
+                    }
+
                   
                 } else {
                     toastr.error(response.message || "Data not found.");
@@ -275,7 +305,11 @@
             EffectiveFromMonthYear: $('#EffectiveFromMonthYearEdit').val(),
             EffectiveAfter: $('#EffectiveAfterEdit').val(),
             MinimumDaysRequiredEncashement: $('#minEncash').val(),
-            MaximumDaysAllowedEncashement: $('#maxEncash').val()
+            MaximumDaysAllowedEncashement: $('#maxEncash').val(),
+            IsSickLeaveDocumentRequired: $('#IsSickLeaveDocumentRequired').is(':checked'),
+            SickLeaveDocumentWithinDays: $('#IsSickLeaveDocumentRequired').is(':checked')
+                ? $('#SickLeaveDocumentWithinDays').val()
+                : 0
         };
     
         $.ajax({
@@ -288,6 +322,9 @@
                     toastr.success(response.message);
                     resetLeaveForm();
                     loadLeaveTypeCard();
+                    var modalEl = document.getElementById('annual_leave_settings');
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
                     // Optionally reload data or close modal
                 } else {
                     toastr.error(response.message);
@@ -340,27 +377,27 @@
     //
 
     function resetLeaveForm() {
-        
+        $('#annual_leave_settings form')[0]?.reset();
         $('#LeaveTypeIDEdit').val('');
         $('#LeaveTypeNameEdit').val('');
         $('#CodeEdit').val('');
         $('#LeaveDaysEdit').val('');
         $('#EffectiveFromEdit').val('');
-        $('#EffectiveFromMonthYearEdit').val('');
         $('#EffectiveAfterEdit').val('After Joining Date');
-
-        // Reset radio buttons
         $('input[name="IsPaidEdit"]').prop('checked', true);
         $('input[name="IsActiveEdit"]').prop('checked', true);
-
-        // Hide encashment section
         $('#encashmentSection').show();
         $('#toggleEncashementCheckbox').prop('checked', false);
         $('#hiddenEncashmentDiv').hide();
         $('#minEncash').val('');
         $('#maxEncash').val('');
+        $('#SickLeaveDocumentWithinDays').val('');
+        $('#IsSickLeaveDocumentRequired').prop('checked', false);
 
-        // Remove validation errors
+        //choiceManager.resetAll();
+
+        choiceManager.setChoiceValue('EffectiveFromMonthYearEdit', 'Months');
+       
         $('.is-invalid').removeClass('is-invalid');
         $('.text-danger').remove();
     }
@@ -401,9 +438,11 @@
     //
     
 
-    $('#add_new_leave,#annual_leave_settings').on('hidden.bs.modal', function () {
+    $('#add_new_leave,#annual_leave_settings').on('hidden.bs.modal', function ()
+    {
         resetForm();
         resetLeaveForm();
+
     });
     //
 });

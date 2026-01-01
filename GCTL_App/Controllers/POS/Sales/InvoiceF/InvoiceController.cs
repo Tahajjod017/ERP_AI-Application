@@ -210,24 +210,38 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         // ==============================
         // AJAX: Get Products
         // ==============================
+        //[HttpGet]
+        //public JsonResult GetProducts()
+        //{
+        //    var result = _productRepository.AllActive().Include(e=>e.ProductPricing)
+        //        .Select(p => new
+        //        {
+        //            id = p.ProductID,
+        //            name = p.ProductName,
+        //            price = p.ProductPricing != null ? p.ProductPricing.Select(e => e.SellingPriceExclVAT).FirstOrDefault() : 0m,
+        //           // price =  52m,
+        //            vatPercent = p.ProductPricing != null ? p.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m
+        //        })
+        //        .ToList();
+        //    return Json(result);
+        //}
+
         [HttpGet]
         public JsonResult GetProducts()
         {
-            var result = _productRepository.AllActive().Include(e=>e.ProductPricing)
+            var result = _productRepository.AllActive().Include(e => e.ProductPricing)
                 .Select(p => new
                 {
                     id = p.ProductID,
                     name = p.ProductName,
                     price = p.ProductPricing != null ? p.ProductPricing.Select(e => e.SellingPriceExclVAT).FirstOrDefault() : 0m,
-                   // price =  52m,
-                    vatPercent = p.ProductPricing != null ? p.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m
+                    vatPercent = p.ProductPricing != null ? p.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m,
+                    aitPercent = p.ProductPricing != null ? p.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m // Add this
                 })
                 .ToList();
             return Json(result);
         }
 
-
-        
 
         // ==============================
         // AJAX: Get Sales Orders by Customer

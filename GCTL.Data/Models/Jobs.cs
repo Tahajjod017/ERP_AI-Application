@@ -51,6 +51,10 @@ public partial class Jobs
 
     public int? DivisionID { get; set; }
 
+    public DateTime? FinishAt { get; set; }
+
+    public int? Progress { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Customers Customer { get; set; }
@@ -66,6 +70,8 @@ public partial class Jobs
     public virtual ICollection<JobTeams> JobTeams { get; set; } = new List<JobTeams>();
 
     public virtual JobTypes JobType { get; set; }
+
+    public virtual ICollection<JobWays> JobWays { get; set; } = new List<JobWays>();
 
     public virtual Organization Organization { get; set; }
 

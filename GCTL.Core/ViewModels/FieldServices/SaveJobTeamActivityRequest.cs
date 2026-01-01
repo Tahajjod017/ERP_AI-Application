@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GCTL_App.ViewModels.FieldServiceOne
 {
-    public class SaveActivityRequest
+    public class SaveActivityRequest : BaseViewModel
     {
         [Required(ErrorMessage = "Job ID is required")]
         public int JobID { get; set; }
@@ -13,7 +13,7 @@ namespace GCTL_App.ViewModels.FieldServiceOne
         public int ActivityStep { get; set; }
 
         [Required(ErrorMessage = "Remarks are required")]
-        [StringLength(500, ErrorMessage = "Remarks cannot exceed 500 characters")]
+        //[StringLength(500, ErrorMessage = "Remarks cannot exceed 500 characters")]
         public string Remarks { get; set; }
     }
 

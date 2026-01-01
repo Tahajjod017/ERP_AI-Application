@@ -1,4 +1,4 @@
-﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Dapper.SqlMapper;
 
 namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
 {
@@ -44,7 +45,9 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     EffectiveFromMonthYear = string.IsNullOrWhiteSpace(data.EffectiveFromMonthYear) ? "" : data.EffectiveFromMonthYear,
                     EffectiveAfter = string.IsNullOrWhiteSpace(data.EffectiveAfter) ? "" : data.EffectiveAfter,
                     MinimumDaysRequiredEncashement = data.MinimumDaysRequiredEncashement.HasValue ? data.MinimumDaysRequiredEncashement : 0,
-                    MaximumDaysAllowedEncashement = data.MaximumDaysAllowedEncashement.HasValue ? data.MaximumDaysAllowedEncashement : 0
+                    MaximumDaysAllowedEncashement = data.MaximumDaysAllowedEncashement.HasValue ? data.MaximumDaysAllowedEncashement : 0,
+                    IsSickLeaveDocumentRequired = data.IsSickLeaveDocumentRequired,
+                    SickLeaveDocumentWithinDays = data.SickLeaveDocumentWithinDays.HasValue ? data.SickLeaveDocumentWithinDays : 0
                 };
 
                 return dataVM;
@@ -87,7 +90,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
             }
 
             await leaveType.BeginTransactionAsync();
-
+            
             try
             {
                 var entity = new LeaveTypes
@@ -106,7 +109,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     EffectiveFrom = entityVM.EffectiveFrom,
                     EffectiveAfter = entityVM.EffectiveAfter,
                     ApplicableYear=DateTime.Now.Year,
-                    
+                    IsSickLeaveDocumentRequired = false,
+                    SickLeaveDocumentWithinDays = 0
+
+
                 };
 
                 await leaveType.AddAsync(entity);
@@ -169,6 +175,16 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingLeave.MinimumDaysRequiredEncashement = entityVM.MinimumDaysRequiredEncashement;
                 existingLeave.MaximumDaysAllowedEncashement = entityVM.MaximumDaysAllowedEncashement;
                 existingLeave.ApplicableYear = DateTime.Now.Year;
+                if (entityVM.IsSickLeaveDocumentRequired == true && existingLeave.Code=="SL")
+                {
+                    existingLeave.IsSickLeaveDocumentRequired = entityVM.IsSickLeaveDocumentRequired;
+                    existingLeave.SickLeaveDocumentWithinDays = entityVM.SickLeaveDocumentWithinDays;
+                    existingLeave.LeaveDays = 365;
+                }else
+                {
+                    existingLeave.IsSickLeaveDocumentRequired = false;
+                    existingLeave.SickLeaveDocumentWithinDays = 0;
+                }
                 existingLeave.LIP = entityVM.LIP;
                 existingLeave.LMAC = entityVM.LMAC;
                 existingLeave.UpdatedAt = DateTime.Now;
@@ -302,23 +318,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     Message = "Data Can not be null"
                 };
             }
-            if (entityVM.IsSickLeaveDocumentRequired)
-            {
-                if (!entityVM.SickLeaveDocumentWithinDays.HasValue ||
-                    entityVM.SickLeaveDocumentWithinDays <= 0)
-                {
-                    return new CommonReturnViewModel
-                    {
-                        Success = false,
-                        Message = "Sick leave document upload within days is required."
-                    };
-                }
-            }
-            else
-            {
-                // Ensure clean data
-                entityVM.SickLeaveDocumentWithinDays = 0;
-            }
+           
 
             await leavepolicy.BeginTransactionAsync();
             try
@@ -343,8 +343,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                      WorkingHour=entityVM.WorkingHour,
                      ShortLeaveMaxInADay=entityVM.ShortLeaveMaxInADay,
                      IsEmailSendEnabled = entityVM.IsEmailSendEnabled,
-                    IsSickLeaveDocumentRequired = entityVM.IsSickLeaveDocumentRequired,
-                    SickLeaveDocumentWithinDays = entityVM.SickLeaveDocumentWithinDays,
+
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedBy = entityVM.CreatedBy,
@@ -391,25 +390,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 }
                 var existingPolicy = await leavepolicy.GetByIdAsync(entityVM.LeavePolicyConfigurationID);
 
-                if (existingPolicy == null)
-                {
-                    response.Success = false;
-                    response.Message = "Leave policy not found.";
-                    await leavepolicy.RollbackTransactionAsync();
-                    return response;
-                }
-                if (entityVM.IsSickLeaveDocumentRequired)
-                {
-                    if (!entityVM.SickLeaveDocumentWithinDays.HasValue ||
-                        entityVM.SickLeaveDocumentWithinDays <= 0)
-                    {
-                        return new CommonReturnViewModel
-                        {
-                            Success = false,
-                            Message = "Sick leave document upload within days is required."
-                        };
-                    }
-                }
+                
                 
                 var beforeEntity = JsonConvert.DeserializeObject<AddLeavePolicyConfigarationVM>(JsonConvert.SerializeObject(existingPolicy, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
                 // Update fields
@@ -433,8 +414,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingPolicy.WorkingHour = entityVM.WorkingHour;
                 existingPolicy.ShortLeaveMaxInADay = entityVM.ShortLeaveMaxInADay;
                 existingPolicy.IsEmailSendEnabled = entityVM.IsEmailSendEnabled;
-                existingPolicy.IsSickLeaveDocumentRequired = entityVM.IsSickLeaveDocumentRequired;
-                existingPolicy.SickLeaveDocumentWithinDays = entityVM.SickLeaveDocumentWithinDays;
+
                 existingPolicy.LIP = entityVM.LIP;
                 existingPolicy.LMAC = entityVM.LMAC;
                 await leavepolicy.UpdateAsync(existingPolicy);
@@ -491,8 +471,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     WorkingHour=x.WorkingHour,
                     ShortLeaveMaxInADay=x.ShortLeaveMaxInADay,
                     IsEmailSendEnabled = x.IsEmailSendEnabled,
-                    IsSickLeaveDocumentRequired = x.IsSickLeaveDocumentRequired,
-                    SickLeaveDocumentWithinDays = x.SickLeaveDocumentWithinDays
+
 
                 }).ToList();
 

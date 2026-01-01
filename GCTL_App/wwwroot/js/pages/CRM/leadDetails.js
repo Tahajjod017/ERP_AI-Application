@@ -636,7 +636,7 @@ $(function () {
                 ).join('');
             }
         }
-
+        let taskStatus = value.isDone === true ? "Completed" : "Incomplete";
         // Build description with show more/less
         let descriptionHtml = '';
         if (value.activityNote && value.activityNote.trim() !== "") {
@@ -684,9 +684,9 @@ $(function () {
                     </div>
                     ${descriptionHtml}
                     <div class="timeline-activity-footer">
-                        <span class="timeline-activity-status ${isUpcoming ? 'timeline-status-upcoming' : 'timeline-status-completed'}">
-                            <i class="fa ${isUpcoming ? 'fa-clock-o' : 'fa-check-circle'}"></i>
-                            ${isUpcoming ? 'Upcoming' : 'Completed'}
+                        <span class="timeline-activity-status ${isUpcoming ? 'timeline-status-upcoming' : value.isDone ? 'timeline-status-completed' : 'timeline-status-incompleted'}">
+                            <i class="fa ${isUpcoming ? 'fa-regular fa-clock' : 'fa-check-circle'}"></i>
+                            ${isUpcoming ? 'Upcoming' : taskStatus}
                         </span>
                         <div class="timeline-activity-actions">
                             ${isUpcoming ? `

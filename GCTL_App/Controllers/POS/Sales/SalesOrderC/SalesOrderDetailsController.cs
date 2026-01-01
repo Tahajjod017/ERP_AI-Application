@@ -10,6 +10,7 @@ using GCTL.Service.Language;
 using GCTL.Service.MasterSetup.Statuse;
 using GCTL.Service.POS.Sales.InvoiceF;
 using GCTL.Service.POS.Sales.SalesOrderF;
+using GCTL.Service.POS.Sales.Shipment;
 using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -83,234 +84,95 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
 
         #endregion
 
-        #region READ-ONLY MODE - View Sales Order
-        public IActionResult Index(int id)
-        {
 
+        #region VIEW / EDIT Sales Order (Shared Logic)
+
+        public IActionResult Index(int id) => GetSalesOrder(id, isEditMode: false);
+
+        public IActionResult Edit(int id) => GetSalesOrder(id, isEditMode: true);
+
+
+        private IActionResult GetSalesOrder(int id, bool isEditMode)
+        {
             try
             {
                 SetSmartPageCode(9025000);
 
-                ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
+                // Common ViewBags
+                ViewBag.location = new SelectList(
+                    _locationRepository.AllActive()
+                        .Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }),
+                    "Id", "Name");
 
-                ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
-                ViewBag.IsEditMode = false; // Read-only mode
+                ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive(), "UnitTypeID", "UnitTypeName");
 
+                if (isEditMode)
+                {
+                    ViewBag.product = new SelectList(_productRepository.AllActive(), "ProductID", "ProductName");
+                }
+
+                ViewBag.IsEditMode = isEditMode;
+
+                // Load core sales order with all required includes
                 var salesOrder = _salesOrderVersionRepository.AllActive()
                     .Include(e => e.SalesOrderVersionItems).ThenInclude(e => e.Product)
                     .Include(e => e.Customer)
-                    .Include(e => e.SalesOrders).ThenInclude(e => e.PriceQuotationVersion).ThenInclude(e=>e.PriceQuotation)
-                     .Include(e => e.SalesOrders)
-                     .Include(e => e.Challans).ThenInclude(e => e.ChallanItems) // ADD THIS for shipments
-                     .Include(e => e.Challans).ThenInclude(e => e.Status) // ADD THIS for shipments
-
+                    .Include(e => e.SalesOrders).ThenInclude(e => e.PriceQuotationVersion).ThenInclude(e => e.PriceQuotation)
                     .Include(e => e.CreatedByNavigation)
                     .Include(e => e.UpdatedByNavigation)
                     .Include(e => e.Location)
+                    .Include(e => e.Challans).ThenInclude(e => e.ChallanItems)
+                    .Include(e => e.Challans).ThenInclude(e => e.Status)
                     .FirstOrDefault(e => e.SalesOrdersVersionID == id);
 
                 if (salesOrder == null)
-                {
                     return NotFound();
-                }
 
-                var versions = _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersID == salesOrder.SalesOrdersID).Select(e => new PriceQuotationVersionViewModel
-                {
-                    id = e.SalesOrdersVersionID,
-                    number = e.SalesOrders.SalesOrderNumber,
-                    version = e.Version ?? 0,
-                    draft = e.IsDraft,
-                    draftSign = e.IsDraft != true ? "" : "(Draft)",
-                    finalSign = e.IsFinal == true && e.IsDraft != true ? "(Final)" : "",
-                    current = e.SalesOrdersVersionID == id ? "current" : "",
-                    isFinal = e.IsFinal == true && e.IsDraft != true ? true : false,
-                }).ToList();
-
-                var company = (from customer in _customerRepository.AllActive()
-                               join custAddr in _customerAddressRepository.AllActive()
-                                   on customer.CustomerID equals custAddr.CustomerID
-                               join address in _addressRepository.AllActive()
-                                   on custAddr.AddressID equals address.AddressID
-                               where customer.CustomerID == salesOrder.CustomerID
-                               select new
-                               {
-                                   Id = customer.CustomerID,
-                                   CompanyName = customer.FullName,
-                                   ContactName = address.FirstName + " " + address.LastName,
-                                   address.Email,
-                                   address.Phone,
-                                   AddressLine1 = address.FullAddress,
-                                   AddressLine2 = address.Additionaladdress,
-                                   TaxNumber = address.OtherPhone
-                               }).FirstOrDefault();
-
-
-                //var shipments = salesOrder.Challans?
-                //       .Where(s => s.DeletedAt == null)
-                //       .Select(s => new ShipmentInfo
-                //       {
-                //           ShipmentId = s.ChallanID,
-                //           ShipmentNumber = s.ChallanNumber,
-                //           Status = s.Status != null ? s.Status.StatusName : "Pending",
-                //           StatusClass = GetShipmentStatusClass("Pending")
-                //       }).ToList() ?? new List<ShipmentInfo>();
-
-                var InvoiceID = _invoiceRepository.AllActive().Where(e=>e.SalesOrderVersionID == salesOrder.SalesOrdersVersionID).Select(e=>e.InvoiceID).FirstOrDefault(); 
-
-                var challan = _challanRepository.AllActive().Where(e => e.InvoiceID == InvoiceID || e.SalesOrdersVersionID == salesOrder.SalesOrdersVersionID).Select(s => new ShipmentInfo
-                {
-                    ShipmentId = s.ChallanID,
-                    ShipmentNumber = s.ChallanNumber,
-                    Status = s.Status != null ? s.Status.StatusName : "Pending",
-                    StatusClass = GetShipmentStatusClass("Pending"),
-
-                }).ToList() ?? new List<ShipmentInfo>();
-
-                var challanData = _challanRepository.AllActive().Include(e => e.ChallanItems).Where(e => e.InvoiceID == InvoiceID || e.SalesOrdersVersionID == salesOrder.SalesOrdersVersionID).ToList();
-
-
-
-                bool isFullyShipped = false;
-                bool hasShipmentsStarted = false;
-
-                if (salesOrder.Challans != null && salesOrder.Challans.Any(s => s.DeletedAt == null))
-                {
-                    hasShipmentsStarted = true;
-
-                    var cancelledStatusId = _statusService.GetStatusID("Cancelled");
-
-                    isFullyShipped = salesOrder.SalesOrderVersionItems.All(soi =>
+                // Versions list for sidebar
+                var versions = _salesOrderVersionRepository.AllActive()
+                    .Where(e => e.SalesOrdersID == salesOrder.SalesOrdersID)
+                    .Select(e => new PriceQuotationVersionViewModel
                     {
-                        decimal orderedQty = soi.Quantity ?? 0;
-
-                        decimal shippedQty = salesOrder.Challans
-                            .Where(s => s.StatusID != cancelledStatusId && s.DeletedAt == null)
-                            .SelectMany(s => s.ChallanItems)
-                            .Where(si => si.ProductID == soi.ProductID && si.DeletedAt == null)
-                            .Sum(si => si.DeliveredQuantity ?? 0);
-
-                        return orderedQty <= shippedQty;
-                    });
-
-
-                }
-
-
-
-                // Populate invoices with status
-                var invoices = _invoiceRepository.AllActive()
-                    .Include(i => i.InvoiceStatus) // Include status
-                   // .Include(i => i.PartialForInvoice) // Include parent invoice for partials
-                    .Where(i => i.SalesOrderVersionID == id) // || i.SalesOrdersID == salesOrder.SalesOrdersID)
-                    .Select(i => new InvoiceInfo
-                    {
-                        InvoiceId = i.InvoiceID,
-                        InvoiceNumber = i.InvoiceNumber,
-                        InvoiceDate = i.InvoiceDate,
-                        GrandTotal = i.GrandTotal ?? 0,
-                        PaidAmount = i.PaidAmount ?? 0,
-                        IsDraft = i.IsDraft ?? false,
-                        IsFinal = i.IsFinal != null ? i.IsFinal : false,
-                        //IsPartial = i.IsPartial != null ? i.IsPartial : false,
-                        InvoiceStatusID = i.InvoiceStatusID,
-                        StatusName = i.InvoiceStatus != null ? i.InvoiceStatus.StatusName : "Draft",
-                        //StatusClass = GetInvoiceStatusClass(i.InvoiceStatusID),
-                        //PartialForInvoiceID = i.PartialForInvoiceID,
-                        //PartialForInvoiceNumber = i.PartialForInvoice != null ? i.PartialForInvoice.InvoiceNumber : null
+                        id = e.SalesOrdersVersionID,
+                        number = e.SalesOrders.SalesOrderNumber,
+                        version = e.Version ?? 0,
+                        draft = e.IsDraft,
+                        draftSign = e.IsDraft == true ? "(Draft)" : "",
+                        finalSign = e.IsFinal == true && e.IsDraft != true ? "(Final)" : "",
+                        current = e.SalesOrdersVersionID == id ? "current" : "",
+                        isFinal = e.IsFinal == true && e.IsDraft != true
                     })
-                    .OrderByDescending(i => i.InvoiceDate)
                     .ToList();
 
-                // Calculate invoice creation permissions
-                bool canCreateInvoice = hasShipmentsStarted &&
-                                       salesOrder.IsFinal == true &&
-                                       !invoices.Any(i => i.IsFinal && !i.IsPartial); // No final invoice exists
 
-                bool canCreatePartialInvoice = hasShipmentsStarted &&
-                                              salesOrder.IsFinal == true &&
-                                              !isFullyShipped &&
-                                              !invoices.Any(i => i.IsPartial && i.IsFinal); // No partial final invoice
 
-                //var vm = new SalesOrderDetailsViewModel
-                //{
-                //    Id = salesOrder.SalesOrdersVersionID,
-                //    OrderDate = salesOrder.SalesOrderDate,
-                //    OrderNumber = salesOrder.SalesOrders.SalesOrderNumber,
-                //    SelectedCustomerId = salesOrder.CustomerID,
-                //    SelectedQuotationId = salesOrder.SalesOrders.PriceQuotationVersionID,
-                //    QuotationNumber = salesOrder?.SalesOrders?.PriceQuotationVersion.PriceQuotation?.QuotationNumber ?? "",
-                //    QuotationId = salesOrder?.SalesOrders.PriceQuotationVersionID ?? 0,
-                //    Items = salesOrder?.SalesOrderVersionItems.Select(m => new SalesOrderItemDetails
-                //    {
-                //        SL = m.SalesOrderVersionItemID,
-                //        Description = m.Description,
-                //        UnitName = m.Product != null ? m.Product.ProductName : "",
-                //        Area = m.Area ?? 0m,
-                //        Rate = m.Rate ?? 0m,
-                //        Quantity = m.Quantity ?? 0m,
-                //        //LIP = m.LIP,
-                //        //LMAC = m.LMAC
-                //    }).ToList() ?? new List<SalesOrderItemDetails>(),
-                //    VatPercent = salesOrder?.VatPercentage ?? 0m,
-                //    Note = salesOrder?.Note ?? "",
-                //    LocationName = salesOrder?.Location?.LocationName ?? "",
 
-                //    // Sidebar data
-                //    CreatedByName = salesOrder?.CreatedByNavigation != null ? salesOrder.CreatedByNavigation.FirstName + " " + salesOrder.CreatedByNavigation.LastName : "Unknown",
-                //    CreatedAt = salesOrder?.CreatedAt,
+                // Customer company/contact details
+                var company = GetCustomerCompanyDetails(salesOrder.CustomerID);
 
-                //    UpdatedByName = salesOrder?.UpdatedAt != null ? salesOrder.UpdatedByNavigation != null ? salesOrder.UpdatedByNavigation.FirstName + " " + salesOrder.UpdatedByNavigation.LastName : "Unknown" : "",
-                //    UpdatedAt = salesOrder?.UpdatedAt,
-                //    CustomerData = new CustomerDetailsViewModel()
-                //    {
-                //        CompanyName = company != null ? company.CompanyName : "",
-                //        AddressLine1 = company != null ? company.AddressLine1 : "",
-                //        ContactName = company != null ? company.ContactName : "",
-                //        Email = company != null ? company.Email : "",
-                //        Phone = company != null ? company.Phone : ""
-                //    }
-                //};
+                // Invoices (only needed in read-only mode)
+                var invoices = isEditMode
+                    ? new List<InvoiceInfo>()
+                    : GetInvoicesForSalesOrder(id);
 
-                var vm = new SalesOrderDetailsViewModel
+                // Shipments & shipment status logic
+                var (shipments, hasShipmentsStarted, isFullyShipped) = GetShipmentInfo(salesOrder);
+
+                // Permission flags (only relevant in read-only)
+                bool canCreateInvoice = false, canCreatePartialInvoice = false;
+                if (!isEditMode)
                 {
-                    Id = salesOrder?.SalesOrdersVersionID ?? 0,
-                    OrderDate = salesOrder?.SalesOrderDate ?? DateTime.MinValue,
-                    OrderNumber = salesOrder?.SalesOrders?.SalesOrderNumber ?? "",
-                    SelectedCustomerId = salesOrder?.CustomerID ?? 0,
-                    SelectedQuotationId = salesOrder?.SalesOrders?.PriceQuotationVersionID ?? 0,
-                    QuotationNumber = salesOrder?.SalesOrders?.PriceQuotationVersion?.PriceQuotation?.QuotationNumber ?? "",
-                    QuotationId = salesOrder?.SalesOrders?.PriceQuotationVersionID ?? 0,
-                    Items = salesOrder?.SalesOrderVersionItems?.Select(m => new SalesOrderItemDetails
-                    {
-                        SL = m.SalesOrderVersionItemID,
-                        Description = m.Description ?? "",
-                        UnitName = m.Product?.ProductName ?? "",
-                        Area = m.Area ?? 0m,
-                        Rate = m.Rate ?? 0m,
-                        Quantity = m.Quantity ?? 0m
-                    }).ToList() ?? new List<SalesOrderItemDetails>(),
-                    VatPercent = salesOrder?.VatPercentage ?? 0m,
-                    Note = salesOrder?.Note ?? "",
-                    LocationName = salesOrder?.Location?.LocationName ?? "",
-                    CreatedByName = salesOrder?.CreatedByNavigation != null ? $"{salesOrder.CreatedByNavigation.FirstName} {salesOrder.CreatedByNavigation.LastName}" : "Unknown", CreatedAt = salesOrder?.CreatedAt,
-                    UpdatedByName = salesOrder?.UpdatedByNavigation != null ? $"{salesOrder.UpdatedByNavigation.FirstName} {salesOrder.UpdatedByNavigation.LastName}" : "",
-                    UpdatedAt = salesOrder?.UpdatedAt,
-                    CustomerData = new CustomerDetailsViewModel()
-                    {
-                        CompanyName = company?.CompanyName ?? "",
-                        AddressLine1 = company?.AddressLine1 ?? "",
-                        ContactName = company?.ContactName ?? "",
-                        Email = company?.Email ?? "",
-                        Phone = company?.Phone ?? ""
-                    }
-                };
+                    canCreateInvoice = hasShipmentsStarted && salesOrder.IsFinal == true &&
+                                       !invoices.Any(i => i.IsFinal && !i.IsPartial);
 
-                // Calculate totals for display
-                vm.SubTotal = vm.Items.Sum(i => i.Amount);
-                vm.VatAmount = vm.SubTotal * vm.VatPercent / 100;
-                vm.GrandTotal = vm.SubTotal - vm.VatAmount;
+                    canCreatePartialInvoice = hasShipmentsStarted && salesOrder.IsFinal == true && !isFullyShipped &&
+                                              !invoices.Any(i => i.IsPartial && i.IsFinal);
+                }
 
-                // Create sidebar view model
+                // Build main ViewModel
+                var vm = BuildSalesOrderViewModel(salesOrder, company, isEditMode);
+
+                // Sidebar ViewModel
                 var sidebarVm = new SalesOrderSidebarDetailsViewModel
                 {
                     SalesOrderId = vm.Id,
@@ -322,189 +184,155 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                     CreatedAt = vm.CreatedAt,
                     UpdatedByName = vm.UpdatedByName,
                     UpdatedAt = vm.UpdatedAt,
-                    Shipments = challan, // ADD THIS
-                                           //Status = salesOrder.IsDraft == true ? SalesOrderStatus.Draft : SalesOrderStatus.Confirmed // ADD THIS (adjust based on your status logic)
-                    CanMakeFinal = !versions.Where(e => e.id == vm.Id).Select(e => e.isFinal).FirstOrDefault(), // ✅ true if not current
-
+                    Shipments = shipments,
                     HasShipmentsStarted = hasShipmentsStarted,
                     IsFullyShipped = isFullyShipped,
                     CanCreateInvoice = canCreateInvoice,
-
-                    Invoices = invoices,
-
                     CanCreatePartialInvoice = canCreatePartialInvoice,
-
-
+                    Invoices = invoices,
+                    CanMakeFinal = !versions.First(v => v.id == vm.Id).isFinal,
+                    CanCreateShipment = salesOrder.IsFinal == true && shipments.Any()
                 };
 
-                if (salesOrder?.IsFinal == true)
-                {
-                    sidebarVm.CanCreateShipment = (challan.Count != 0 || challan != null) ? true : false;
-
-                }
-                vm.CanEdit = !sidebarVm.HasShipments;
-
+                vm.CanEdit = !hasShipmentsStarted;
                 ViewBag.SidebarData = sidebarVm;
 
-                return View(vm);
+                return View("Index", vm);
             }
             catch (Exception)
             {
-
                 throw;
             }
-
-            
         }
+
+
+
         #endregion
 
-        #region EDIT MODE - Edit Sales Order
-        public IActionResult Edit(int id)
+        #region Helper Methods
+
+        private object GetCustomerCompanyDetails(int? customerId)
         {
-            ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
+            return (from customer in _customerRepository.AllActive()
+                    join custAddr in _customerAddressRepository.AllActive() on customer.CustomerID equals custAddr.CustomerID
+                    join address in _addressRepository.AllActive() on custAddr.AddressID equals address.AddressID
+                    where customer.CustomerID == customerId
+                    select new
+                    {
+                        Id = customer.CustomerID,
+                        CompanyName = customer.FullName,
+                        ContactName = address.FirstName + " " + address.LastName,
+                        Email = address.Email,
+                        Phone = address.Phone,
+                        AddressLine1 = address.FullAddress,
+                        AddressLine2 = address.Additionaladdress,
+                        TaxNumber = address.OtherPhone
+                    }).FirstOrDefault();
+        }
 
-            ViewBag.product = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
+        private List<InvoiceInfo> GetInvoicesForSalesOrder(int salesOrderVersionId)
+        {
+            return _invoiceRepository.AllActive()
+                .Include(i => i.InvoiceStatus)
+                .Where(i => i.SalesOrderVersionID == salesOrderVersionId)
+                .Select(i => new InvoiceInfo
+                {
+                    InvoiceId = i.InvoiceID,
+                    InvoiceNumber = i.InvoiceNumber,
+                    InvoiceDate = i.InvoiceDate,
+                    GrandTotal = i.GrandTotal ?? 0,
+                    PaidAmount = i.PaidAmount ?? 0,
+                    IsDraft = i.IsDraft ?? false,
+                    IsFinal = i.IsFinal != null ? i.IsFinal : false,
+                    InvoiceStatusID = i.InvoiceStatusID,
+                    StatusName = i.InvoiceStatus != null ? i.InvoiceStatus.StatusName : "Draft"
+                })
+                .OrderByDescending(i => i.InvoiceDate)
+                .ToList();
+        }
 
-            ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
-            ViewBag.IsEditMode = true; // Edit mode
+        private (List<ShipmentInfo> shipments, bool hasShipmentsStarted, bool isFullyShipped) GetShipmentInfo(SalesOrdersVersions salesOrder)
+        {
+            var activeChallans = salesOrder.Challans?.Where(c => c.DeletedAt == null).ToList() ?? new List<Challans>();
 
-            var salesOrder = _salesOrderVersionRepository.AllActive()
-                .Include(e => e.SalesOrderVersionItems)
-                .Include(e => e.CreatedByNavigation)
-                .Include(e => e.UpdatedByNavigation)
-                .Include(e => e.SalesOrders).ThenInclude(e=>e.PriceQuotationVersion).ThenInclude(e => e.PriceQuotation)
-                .Include(e => e.SalesOrders)
-                .Include(e => e.Challans) // ADD THIS
-                .ThenInclude(s => s.Status) // ADD THIS
-                .FirstOrDefault(e => e.SalesOrdersVersionID == id);
-
-            if (salesOrder == null)
+            var shipments = activeChallans.Select(s => new ShipmentInfo
             {
-                return NotFound();
-            }
-
-
-            var versions = _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersID == salesOrder.SalesOrdersID).Select(e => new PriceQuotationVersionViewModel
-            {
-                id = e.SalesOrdersVersionID,
-                number = e.SalesOrders.SalesOrderNumber,
-                version = e.Version ?? 0,
-                draft = e.IsDraft,
-                draftSign = e.IsDraft != true ? "" : "(Draft)",
-                finalSign = e.IsFinal == true && e.IsDraft != true ? "(Final)" : "",
-                current = e.SalesOrdersVersionID == id ? "current" : ""
+                ShipmentId = s.ChallanID,
+                ShipmentNumber = s.ChallanNumber,
+                Status = s.Status?.StatusName ?? "Pending",
+                StatusClass = GetShipmentStatusClass(s.Status?.StatusName ?? "Pending")
             }).ToList();
 
-            var shipments = salesOrder.Challans?
-                .Where(s => s.DeletedAt == null)
-                .Select(s => new ShipmentInfo
-                {
-                    ShipmentId = s.ChallanID,
-                    ShipmentNumber = s.ChallanNumber,
-                    Status = s.Status != null ? s.Status.StatusName : "Pending",
-                    StatusClass = GetShipmentStatusClass(s.Status != null ? s.Status.StatusName : "Pending")
-                }).ToList() ?? new List<ShipmentInfo>();
+            bool hasShipmentsStarted = activeChallans.Any();
 
+            var cancelledStatusId = _statusService.GetStatusID("Cancelled");
 
-            //var vm = new SalesOrderDetailsViewModel
-            //{
-            //    Id = salesOrder.SalesOrdersVersionID,
-            //    OrderDate = salesOrder.SalesOrderDate,
-            //    OrderNumber = salesOrder.SalesOrders.SalesOrderNumber,
-            //    SelectedCustomerId = salesOrder.CustomerID,
-            //    SelectedQuotationId = salesOrder.SalesOrders.PriceQuotationVersionID,
-            //    QuotationNumber = salesOrder?.SalesOrders.PriceQuotationVersion.PriceQuotation?.QuotationNumber ?? "",
-            //    QuotationId = salesOrder?.SalesOrders.PriceQuotationVersionID ?? 0,
-            //    Items = salesOrder?.SalesOrderVersionItems.Select(m => new SalesOrderItemDetails
-            //    {
-            //        SL = m.SalesOrderVersionItemID,
-            //        Description = m.Description,
-            //        Product = m.ProductID ?? 0,
-            //        Area = m.Area ?? 0m,
-            //        Rate = m.Rate ?? 0m,
-            //        Quantity = m.Quantity ?? 0m,
-            //        //LIP = m.LIP,
-            //        //LMAC = m.LMAC
-            //    }).ToList() ?? new List<SalesOrderItemDetails>(),
-            //    VatPercent = salesOrder?.VatPercentage ?? 0m,
-            //    Note = salesOrder?.Note ?? "",
-            //    LocationId = salesOrder?.LocationID ?? 0,
+            bool isFullyShipped = hasShipmentsStarted && salesOrder.SalesOrderVersionItems.All(soi =>
+            {
+                decimal orderedQty = soi.Quantity ?? 0;
+                decimal shippedQty = activeChallans
+                    .Where(c => c.StatusID != cancelledStatusId)
+                    .SelectMany(c => c.ChallanItems)
+                    .Where(ci => ci.ProductID == soi.ProductID && ci.DeletedAt == null)
+                    .Sum(ci => ci.DeliveredQuantity ?? 0);
 
-            //    // Sidebar data
-            //    CreatedByName = salesOrder?.CreatedByNavigation != null ? salesOrder.CreatedByNavigation.FirstName + " " + salesOrder.CreatedByNavigation.LastName : "Unknown",
-            //    CreatedAt = salesOrder.CreatedAt,
-            //    UpdatedByName = salesOrder.UpdatedByNavigation != null ? salesOrder.UpdatedByNavigation.FirstName + " " + salesOrder.UpdatedByNavigation.LastName : "Unknown",
-            //    UpdatedAt = salesOrder.UpdatedAt,
-            //};
+                return orderedQty <= shippedQty;
+            });
+
+            return (shipments, hasShipmentsStarted, isFullyShipped);
+        }
+
+        private SalesOrderDetailsViewModel BuildSalesOrderViewModel(SalesOrdersVersions salesOrder, object company, bool isEditMode)
+        {
+            var items = salesOrder.SalesOrderVersionItems.Select(m => new SalesOrderItemDetails
+            {
+                SL = m.SalesOrderVersionItemID,
+                Description = m.Description ?? "",
+                Product = isEditMode ? m.ProductID ?? 0 : 0, // Only needed in edit mode
+                UnitName = isEditMode ? "" : m.Product?.ProductName ?? "",
+                Area = m.Area ?? 0m,
+                Rate = m.Rate ?? 0m,
+                Quantity = m.Quantity ?? 0m
+            }).ToList();
 
             var vm = new SalesOrderDetailsViewModel
             {
-                Id = salesOrder?.SalesOrdersVersionID ?? 0,
-                OrderDate = salesOrder?.SalesOrderDate ?? DateTime.MinValue,
-                OrderNumber = salesOrder?.SalesOrders?.SalesOrderNumber ?? "",
-                SelectedCustomerId = salesOrder?.CustomerID ?? 0,
-                SelectedQuotationId = salesOrder?.SalesOrders?.PriceQuotationVersionID ?? 0,
-                QuotationNumber = salesOrder?.SalesOrders?.PriceQuotationVersion?.PriceQuotation?.QuotationNumber ?? "",
-                QuotationId = salesOrder?.SalesOrders?.PriceQuotationVersionID ?? 0,
-                Items = salesOrder?.SalesOrderVersionItems?.Select(m => new SalesOrderItemDetails
+                Id = salesOrder.SalesOrdersVersionID,
+                OrderDate = salesOrder.SalesOrderDate,
+                OrderNumber = salesOrder.SalesOrders?.SalesOrderNumber ?? "",
+                SelectedCustomerId = salesOrder.CustomerID ?? 0,
+                SelectedQuotationId = salesOrder.SalesOrders?.PriceQuotationVersionID ?? 0,
+                QuotationNumber = salesOrder.SalesOrders?.PriceQuotationVersion?.PriceQuotation?.QuotationNumber ?? "",
+                QuotationId = salesOrder.SalesOrders?.PriceQuotationVersionID ?? 0,
+                Items = items,
+                VatPercent = salesOrder.VatPercentage ?? 0m,
+                Note = salesOrder.Note ?? "",
+                LocationId = isEditMode ? (salesOrder.LocationID ?? 0) : 0,
+                LocationName = isEditMode ? "" : salesOrder.Location?.LocationName ?? "",
+                CreatedByName = salesOrder.CreatedByNavigation != null
+                    ? $"{salesOrder.CreatedByNavigation.FirstName} {salesOrder.CreatedByNavigation.LastName}"
+                    : "Unknown",
+                CreatedAt = salesOrder.CreatedAt,
+                UpdatedByName = salesOrder.UpdatedByNavigation != null
+                    ? $"{salesOrder.UpdatedByNavigation.FirstName} {salesOrder.UpdatedByNavigation.LastName}"
+                    : "Unknown",
+                UpdatedAt = salesOrder.UpdatedAt,
+                CustomerData = new CustomerDetailsViewModel
                 {
-                    SL = m.SalesOrderVersionItemID,
-                    Description = m.Description ?? "",
-                    Product = m.ProductID ?? 0,
-                    Area = m.Area ?? 0m,
-                    Rate = m.Rate ?? 0m,
-                    Quantity = m.Quantity ?? 0m
-                }).ToList() ?? new List<SalesOrderItemDetails>(),
-                VatPercent = salesOrder?.VatPercentage ?? 0m,
-                Note = salesOrder?.Note ?? "",
-                LocationId = salesOrder?.LocationID ?? 0,
-                CreatedByName = salesOrder?.CreatedByNavigation != null
-            ? $"{salesOrder.CreatedByNavigation.FirstName} {salesOrder.CreatedByNavigation.LastName}"
-            : "Unknown",
-                CreatedAt = salesOrder?.CreatedAt ?? DateTime.MinValue,
-                UpdatedByName = salesOrder?.UpdatedByNavigation != null
-            ? $"{salesOrder.UpdatedByNavigation.FirstName} {salesOrder.UpdatedByNavigation.LastName}"
-            : "Unknown",
-                UpdatedAt = salesOrder?.UpdatedAt ?? DateTime.MinValue
+                    CompanyName = company?.GetType().GetProperty("CompanyName")?.GetValue(company)?.ToString() ?? "",
+                    AddressLine1 = company?.GetType().GetProperty("AddressLine1")?.GetValue(company)?.ToString() ?? "",
+                    ContactName = company?.GetType().GetProperty("ContactName")?.GetValue(company)?.ToString() ?? "",
+                    Email = company?.GetType().GetProperty("Email")?.GetValue(company)?.ToString() ?? "",
+                    Phone = company?.GetType().GetProperty("Phone")?.GetValue(company)?.ToString() ?? ""
+                }
             };
 
-
-
-
-            // Calculate totals for display
-            vm.SubTotal = vm.Items.Sum(i => i.Amount);
+            vm.SubTotal = items.Sum(i => i.Amount);
             vm.VatAmount = vm.SubTotal * vm.VatPercent / 100;
-            vm.GrandTotal = vm.SubTotal - vm.VatAmount;
+            vm.GrandTotal = vm.SubTotal - vm.VatAmount; // Note: your original code subtracts VAT – confirm if intentional
 
-            // Create sidebar view model
-            var sidebarVm = new SalesOrderSidebarDetailsViewModel
-            {
-                SalesOrderId = vm.Id,
-                SalesOrderIdList = versions,
-                SalesOrderNumber = vm.OrderNumber,
-                QuotationNumber = vm.QuotationNumber,
-                QuotationId = vm.QuotationId,
-                CreatedByName = vm.CreatedByName,
-                CreatedAt = vm.CreatedAt,
-                UpdatedByName = vm.UpdatedByName,
-                UpdatedAt = vm.UpdatedAt,
-                Shipments = shipments,
-            };
-
-
-            if (salesOrder.IsFinal == true)
-            {
-                sidebarVm.CanCreateShipment = salesOrder != null ? false : true;
-            }
-
-
-            ViewBag.SidebarData = sidebarVm;
-
-            // Return the same view but in edit mode
-            return View("Index", vm);
+            return vm;
         }
-        #endregion
-
 
         private string GetShipmentStatusClass(string? statusId)
         {
@@ -519,6 +347,14 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
                 _ => "secondary"
             };
         }
+
+
+
+        #endregion
+
+
+
+
 
 
         #region Sidebar Actions
@@ -671,72 +507,7 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
 
 
 
-        //[HttpPost]
-        //public async Task<IActionResult> Duplicate(int id, BaseViewModel vm)
-        //{
-        //    await _salesOrderRepository.BeginTransactionAsync();
-
-        //    try
-        //    {
-
-
-
-        //        var original = _salesOrderVersionRepository.AllActive()
-        //            .Include(e => e.SalesOrderVersionItems)
-        //            .Include(e => e.SalesOrders)
-        //            .FirstOrDefault(e => e.SalesOrdersVersionID == id);
-
-        //        if (original == null)
-        //        {
-        //            return Json(new { success = false, message = "Sales Order not found" });
-        //        }
-
-
-        //        var duplicate = new SalesOrders
-        //        {
-        //            //CustomerID = original.CustomerID,
-        //            PriceQuotationID = original.PriceQuotationID,
-        //            //SalesOrderDate = DateTime.Now,
-        //            SalesOrderNumber = await _salesOrderService.GetNextSOcode(),
-        //            //VatPercentage = original.VatPercentage,
-        //            //Note = original.Note + " (Copy)",
-        //            CreatedAt = DateTime.Now,
-        //            CreatedBy = vm.CreatedBy
-        //        };
-
-        //        await _salesOrderRepository.AddAsync(duplicate, vm);
-        //        await _userInfoService.ActionLogAsync("SalesOrderDup", ActionName.DataAdd, null, duplicate, duplicate.SalesOrderID, vm);
-
-        //        // Copy items
-        //        foreach (var item in original.SalesOrderVersionItems)
-        //        {
-        //            var duplicateItem = new SalesOrderVersionItems
-        //            {
-        //                SalesOrderVersionItemID = duplicate.SalesOrdersID,
-        //                Description = item.Description,
-        //                UnitTypeID = item.UnitTypeID,
-        //                Area = item.Area,
-        //                Rate = item.Rate,
-        //                Quantity = item.Quantity,
-        //                LIP = item.LIP,
-        //                LMAC = item.LMAC,
-        //                CreatedAt = DateTime.Now,
-        //                CreatedBy = vm.CreatedBy
-        //            };
-        //            await _salesOrderItemRepository.AddAsync(duplicateItem, vm);
-        //            await _userInfoService.ActionLogAsync("SalesOrderDup", ActionName.DataAdd, null, duplicateItem, duplicateItem.SalesOrderItemID, vm);
-        //        }
-
-        //        await _salesOrderItemRepository.CommitTransactionAsync();
-
-        //        return Json(new { success = true, newSalesOrderId = duplicate.SalesOrderID });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await _salesOrderItemRepository.RollbackTransactionAsync();
-        //        return Json(new { success = false, message = ex.Message });
-        //    }
-        //}
+       
 
         [HttpPost]
         public IActionResult SendEmail(int id, string recipientEmail, string subject, string message)
@@ -790,5 +561,354 @@ namespace GCTL_App.Controllers.POS.Sales.SalesOrderC
            
             return GetCurrentEmployeeIdAsync().Result ?? 1;
         }
+
+
+
+        //#region READ-ONLY MODE - View Sales Order
+        //public IActionResult Index(int id)
+        //{
+
+        //    try
+        //    {
+        //        SetSmartPageCode(9025000);
+
+        //        ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
+
+        //        ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
+        //        ViewBag.IsEditMode = false; // Read-only mode
+
+        //        var salesOrder = _salesOrderVersionRepository.AllActive()
+        //            .Include(e => e.SalesOrderVersionItems).ThenInclude(e => e.Product)
+        //            .Include(e => e.Customer)
+        //            .Include(e => e.SalesOrders).ThenInclude(e => e.PriceQuotationVersion).ThenInclude(e=>e.PriceQuotation)
+        //             .Include(e => e.SalesOrders)
+        //             .Include(e => e.Challans).ThenInclude(e => e.ChallanItems) // ADD THIS for shipments
+        //             .Include(e => e.Challans).ThenInclude(e => e.Status) // ADD THIS for shipments
+
+        //            .Include(e => e.CreatedByNavigation)
+        //            .Include(e => e.UpdatedByNavigation)
+        //            .Include(e => e.Location)
+        //            .FirstOrDefault(e => e.SalesOrdersVersionID == id);
+
+        //        if (salesOrder == null)
+        //        {
+        //            return NotFound();
+        //        }
+
+        //        var versions = _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersID == salesOrder.SalesOrdersID).Select(e => new PriceQuotationVersionViewModel
+        //        {
+        //            id = e.SalesOrdersVersionID,
+        //            number = e.SalesOrders.SalesOrderNumber,
+        //            version = e.Version ?? 0,
+        //            draft = e.IsDraft,
+        //            draftSign = e.IsDraft != true ? "" : "(Draft)",
+        //            finalSign = e.IsFinal == true && e.IsDraft != true ? "(Final)" : "",
+        //            current = e.SalesOrdersVersionID == id ? "current" : "",
+        //            isFinal = e.IsFinal == true && e.IsDraft != true ? true : false,
+        //        }).ToList();
+
+        //        var company = (from customer in _customerRepository.AllActive()
+        //                       join custAddr in _customerAddressRepository.AllActive()
+        //                           on customer.CustomerID equals custAddr.CustomerID
+        //                       join address in _addressRepository.AllActive()
+        //                           on custAddr.AddressID equals address.AddressID
+        //                       where customer.CustomerID == salesOrder.CustomerID
+        //                       select new
+        //                       {
+        //                           Id = customer.CustomerID,
+        //                           CompanyName = customer.FullName,
+        //                           ContactName = address.FirstName + " " + address.LastName,
+        //                           address.Email,
+        //                           address.Phone,
+        //                           AddressLine1 = address.FullAddress,
+        //                           AddressLine2 = address.Additionaladdress,
+        //                           TaxNumber = address.OtherPhone
+        //                       }).FirstOrDefault();
+
+
+
+
+        //        var InvoiceID = _invoiceRepository.AllActive().Where(e=>e.SalesOrderVersionID == salesOrder.SalesOrdersVersionID).Select(e=>e.InvoiceID).FirstOrDefault(); 
+
+        //        var challan = _challanRepository.AllActive().Where(e => e.InvoiceID == InvoiceID || e.SalesOrdersVersionID == salesOrder.SalesOrdersVersionID).Select(s => new ShipmentInfo
+        //        {
+        //            ShipmentId = s.ChallanID,
+        //            ShipmentNumber = s.ChallanNumber,
+        //            Status = s.Status != null ? s.Status.StatusName : "Pending",
+        //            StatusClass = GetShipmentStatusClass("Pending"),
+
+        //        }).ToList() ?? new List<ShipmentInfo>();
+
+        //        var challanData = _challanRepository.AllActive().Include(e => e.ChallanItems).Where(e => e.InvoiceID == InvoiceID || e.SalesOrdersVersionID == salesOrder.SalesOrdersVersionID).ToList();
+
+
+
+        //        bool isFullyShipped = false;
+        //        bool hasShipmentsStarted = false;
+
+        //        if (salesOrder.Challans != null && salesOrder.Challans.Any(s => s.DeletedAt == null))
+        //        {
+        //            hasShipmentsStarted = true;
+
+        //            var cancelledStatusId = _statusService.GetStatusID("Cancelled");
+
+        //            isFullyShipped = salesOrder.SalesOrderVersionItems.All(soi =>
+        //            {
+        //                decimal orderedQty = soi.Quantity ?? 0;
+
+        //                decimal shippedQty = salesOrder.Challans
+        //                    .Where(s => s.StatusID != cancelledStatusId && s.DeletedAt == null)
+        //                    .SelectMany(s => s.ChallanItems)
+        //                    .Where(si => si.ProductID == soi.ProductID && si.DeletedAt == null)
+        //                    .Sum(si => si.DeliveredQuantity ?? 0);
+
+        //                return orderedQty <= shippedQty;
+        //            });
+
+
+        //        }
+
+
+
+        //        // Populate invoices with status
+        //        var invoices = _invoiceRepository.AllActive()
+        //            .Include(i => i.InvoiceStatus) // Include status
+        //           // .Include(i => i.PartialForInvoice) // Include parent invoice for partials
+        //            .Where(i => i.SalesOrderVersionID == id) // || i.SalesOrdersID == salesOrder.SalesOrdersID)
+        //            .Select(i => new InvoiceInfo
+        //            {
+        //                InvoiceId = i.InvoiceID,
+        //                InvoiceNumber = i.InvoiceNumber,
+        //                InvoiceDate = i.InvoiceDate,
+        //                GrandTotal = i.GrandTotal ?? 0,
+        //                PaidAmount = i.PaidAmount ?? 0,
+        //                IsDraft = i.IsDraft ?? false,
+        //                IsFinal = i.IsFinal != null ? i.IsFinal : false,
+        //                InvoiceStatusID = i.InvoiceStatusID,
+        //                StatusName = i.InvoiceStatus != null ? i.InvoiceStatus.StatusName : "Draft",
+        //                //StatusClass = GetInvoiceStatusClass(i.InvoiceStatusID),
+
+        //            })
+        //            .OrderByDescending(i => i.InvoiceDate)
+        //            .ToList();
+
+        //        // Calculate invoice creation permissions
+        //        bool canCreateInvoice = hasShipmentsStarted &&
+        //                               salesOrder.IsFinal == true &&
+        //                               !invoices.Any(i => i.IsFinal && !i.IsPartial); // No final invoice exists
+
+        //        bool canCreatePartialInvoice = hasShipmentsStarted &&
+        //                                      salesOrder.IsFinal == true &&
+        //                                      !isFullyShipped &&
+        //                                      !invoices.Any(i => i.IsPartial && i.IsFinal); // No partial final invoice
+
+
+
+        //        var vm = new SalesOrderDetailsViewModel
+        //        {
+        //            Id = salesOrder?.SalesOrdersVersionID ?? 0,
+        //            OrderDate = salesOrder?.SalesOrderDate ?? DateTime.MinValue,
+        //            OrderNumber = salesOrder?.SalesOrders?.SalesOrderNumber ?? "",
+        //            SelectedCustomerId = salesOrder?.CustomerID ?? 0,
+        //            SelectedQuotationId = salesOrder?.SalesOrders?.PriceQuotationVersionID ?? 0,
+        //            QuotationNumber = salesOrder?.SalesOrders?.PriceQuotationVersion?.PriceQuotation?.QuotationNumber ?? "",
+        //            QuotationId = salesOrder?.SalesOrders?.PriceQuotationVersionID ?? 0,
+        //            Items = salesOrder?.SalesOrderVersionItems?.Select(m => new SalesOrderItemDetails
+        //            {
+        //                SL = m.SalesOrderVersionItemID,
+        //                Description = m.Description ?? "",
+        //                UnitName = m.Product?.ProductName ?? "",
+        //                Area = m.Area ?? 0m,
+        //                Rate = m.Rate ?? 0m,
+        //                Quantity = m.Quantity ?? 0m
+        //            }).ToList() ?? new List<SalesOrderItemDetails>(),
+        //            VatPercent = salesOrder?.VatPercentage ?? 0m,
+        //            Note = salesOrder?.Note ?? "",
+        //            LocationName = salesOrder?.Location?.LocationName ?? "",
+        //            CreatedByName = salesOrder?.CreatedByNavigation != null ? $"{salesOrder.CreatedByNavigation.FirstName} {salesOrder.CreatedByNavigation.LastName}" : "Unknown", CreatedAt = salesOrder?.CreatedAt,
+        //            UpdatedByName = salesOrder?.UpdatedByNavigation != null ? $"{salesOrder.UpdatedByNavigation.FirstName} {salesOrder.UpdatedByNavigation.LastName}" : "",
+        //            UpdatedAt = salesOrder?.UpdatedAt,
+        //            CustomerData = new CustomerDetailsViewModel()
+        //            {
+        //                CompanyName = company?.CompanyName ?? "",
+        //                AddressLine1 = company?.AddressLine1 ?? "",
+        //                ContactName = company?.ContactName ?? "",
+        //                Email = company?.Email ?? "",
+        //                Phone = company?.Phone ?? ""
+        //            }
+        //        };
+
+        //        // Calculate totals for display
+        //        vm.SubTotal = vm.Items.Sum(i => i.Amount);
+        //        vm.VatAmount = vm.SubTotal * vm.VatPercent / 100;
+        //        vm.GrandTotal = vm.SubTotal - vm.VatAmount;
+
+        //        // Create sidebar view model
+        //        var sidebarVm = new SalesOrderSidebarDetailsViewModel
+        //        {
+        //            SalesOrderId = vm.Id,
+        //            SalesOrderIdList = versions,
+        //            SalesOrderNumber = vm.OrderNumber,
+        //            QuotationNumber = vm.QuotationNumber,
+        //            QuotationId = vm.QuotationId,
+        //            CreatedByName = vm.CreatedByName,
+        //            CreatedAt = vm.CreatedAt,
+        //            UpdatedByName = vm.UpdatedByName,
+        //            UpdatedAt = vm.UpdatedAt,
+        //            Shipments = challan, // ADD THIS
+        //                                   //Status = salesOrder.IsDraft == true ? SalesOrderStatus.Draft : SalesOrderStatus.Confirmed // ADD THIS (adjust based on your status logic)
+        //            CanMakeFinal = !versions.Where(e => e.id == vm.Id).Select(e => e.isFinal).FirstOrDefault(), // ✅ true if not current
+
+        //            HasShipmentsStarted = hasShipmentsStarted,
+        //            IsFullyShipped = isFullyShipped,
+        //            CanCreateInvoice = canCreateInvoice,
+
+        //            Invoices = invoices,
+
+        //            CanCreatePartialInvoice = canCreatePartialInvoice,
+
+
+        //        };
+
+        //        if (salesOrder?.IsFinal == true)
+        //        {
+        //            sidebarVm.CanCreateShipment = (challan.Count != 0 || challan != null) ? true : false;
+
+        //        }
+        //        vm.CanEdit = !sidebarVm.HasShipments;
+
+        //        ViewBag.SidebarData = sidebarVm;
+
+        //        return View(vm);
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+
+
+        //}
+        //#endregion
+
+        //#region EDIT MODE - Edit Sales Order
+        //public IActionResult Edit(int id)
+        //{
+        //    ViewBag.location = new SelectList(_locationRepository.AllActive().Select(e => new { Id = e.LocationID, Name = e.LocationName + " (" + e.LocationCode + ")" }).ToList(), "Id", "Name");
+
+        //    ViewBag.product = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
+
+        //    ViewBag.Unit = new SelectList(_unitTypeRepository.AllActive().ToList(), "UnitTypeID", "UnitTypeName");
+        //    ViewBag.IsEditMode = true; // Edit mode
+
+        //    var salesOrder = _salesOrderVersionRepository.AllActive()
+        //        .Include(e => e.SalesOrderVersionItems)
+        //        .Include(e => e.CreatedByNavigation)
+        //        .Include(e => e.UpdatedByNavigation)
+        //        .Include(e => e.SalesOrders).ThenInclude(e=>e.PriceQuotationVersion).ThenInclude(e => e.PriceQuotation)
+        //        .Include(e => e.SalesOrders)
+        //        .Include(e => e.Challans) // ADD THIS
+        //        .ThenInclude(s => s.Status) // ADD THIS
+        //        .FirstOrDefault(e => e.SalesOrdersVersionID == id);
+
+        //    if (salesOrder == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+
+        //    var versions = _salesOrderVersionRepository.AllActive().Where(e => e.SalesOrdersID == salesOrder.SalesOrdersID).Select(e => new PriceQuotationVersionViewModel
+        //    {
+        //        id = e.SalesOrdersVersionID,
+        //        number = e.SalesOrders.SalesOrderNumber,
+        //        version = e.Version ?? 0,
+        //        draft = e.IsDraft,
+        //        draftSign = e.IsDraft != true ? "" : "(Draft)",
+        //        finalSign = e.IsFinal == true && e.IsDraft != true ? "(Final)" : "",
+        //        current = e.SalesOrdersVersionID == id ? "current" : ""
+        //    }).ToList();
+
+        //    var shipments = salesOrder.Challans?
+        //        .Where(s => s.DeletedAt == null)
+        //        .Select(s => new ShipmentInfo
+        //        {
+        //            ShipmentId = s.ChallanID,
+        //            ShipmentNumber = s.ChallanNumber,
+        //            Status = s.Status != null ? s.Status.StatusName : "Pending",
+        //            StatusClass = GetShipmentStatusClass(s.Status != null ? s.Status.StatusName : "Pending")
+        //        }).ToList() ?? new List<ShipmentInfo>();
+
+
+
+
+        //    var vm = new SalesOrderDetailsViewModel
+        //    {
+        //        Id = salesOrder?.SalesOrdersVersionID ?? 0,
+        //        OrderDate = salesOrder?.SalesOrderDate ?? DateTime.MinValue,
+        //        OrderNumber = salesOrder?.SalesOrders?.SalesOrderNumber ?? "",
+        //        SelectedCustomerId = salesOrder?.CustomerID ?? 0,
+        //        SelectedQuotationId = salesOrder?.SalesOrders?.PriceQuotationVersionID ?? 0,
+        //        QuotationNumber = salesOrder?.SalesOrders?.PriceQuotationVersion?.PriceQuotation?.QuotationNumber ?? "",
+        //        QuotationId = salesOrder?.SalesOrders?.PriceQuotationVersionID ?? 0,
+        //        Items = salesOrder?.SalesOrderVersionItems?.Select(m => new SalesOrderItemDetails
+        //        {
+        //            SL = m.SalesOrderVersionItemID,
+        //            Description = m.Description ?? "",
+        //            Product = m.ProductID ?? 0,
+        //            Area = m.Area ?? 0m,
+        //            Rate = m.Rate ?? 0m,
+        //            Quantity = m.Quantity ?? 0m
+        //        }).ToList() ?? new List<SalesOrderItemDetails>(),
+        //        VatPercent = salesOrder?.VatPercentage ?? 0m,
+        //        Note = salesOrder?.Note ?? "",
+        //        LocationId = salesOrder?.LocationID ?? 0,
+        //        CreatedByName = salesOrder?.CreatedByNavigation != null
+        //    ? $"{salesOrder.CreatedByNavigation.FirstName} {salesOrder.CreatedByNavigation.LastName}"
+        //    : "Unknown",
+        //        CreatedAt = salesOrder?.CreatedAt ?? DateTime.MinValue,
+        //        UpdatedByName = salesOrder?.UpdatedByNavigation != null
+        //    ? $"{salesOrder.UpdatedByNavigation.FirstName} {salesOrder.UpdatedByNavigation.LastName}"
+        //    : "Unknown",
+        //        UpdatedAt = salesOrder?.UpdatedAt ?? DateTime.MinValue
+        //    };
+
+
+
+
+        //    // Calculate totals for display
+        //    vm.SubTotal = vm.Items.Sum(i => i.Amount);
+        //    vm.VatAmount = vm.SubTotal * vm.VatPercent / 100;
+        //    vm.GrandTotal = vm.SubTotal - vm.VatAmount;
+
+        //    // Create sidebar view model
+        //    var sidebarVm = new SalesOrderSidebarDetailsViewModel
+        //    {
+        //        SalesOrderId = vm.Id,
+        //        SalesOrderIdList = versions,
+        //        SalesOrderNumber = vm.OrderNumber,
+        //        QuotationNumber = vm.QuotationNumber,
+        //        QuotationId = vm.QuotationId,
+        //        CreatedByName = vm.CreatedByName,
+        //        CreatedAt = vm.CreatedAt,
+        //        UpdatedByName = vm.UpdatedByName,
+        //        UpdatedAt = vm.UpdatedAt,
+        //        Shipments = shipments,
+        //    };
+
+
+        //    if (salesOrder.IsFinal == true)
+        //    {
+        //        sidebarVm.CanCreateShipment = salesOrder != null ? false : true;
+        //    }
+
+
+        //    ViewBag.SidebarData = sidebarVm;
+
+        //    // Return the same view but in edit mode
+        //    return View("Index", vm);
+        //}
+        //#endregion
+
+
     }
 }

@@ -34,5 +34,6 @@ namespace GCTL.Service.FieldServices
            int organizationID,
            int currentUserId);
         #endregion
+        Task<CommonReturnViewModel>  SaveActivityAsync( SaveActivityRequest request, int organizationID, int currentUserId);
     }
 }

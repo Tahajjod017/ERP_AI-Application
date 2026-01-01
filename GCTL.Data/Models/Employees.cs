@@ -723,6 +723,12 @@ public partial class Employees
 
     public virtual ICollection<JobTypes> JobTypesUpdatedByNavigation { get; set; } = new List<JobTypes>();
 
+    public virtual ICollection<JobWays> JobWaysCreatedByNavigation { get; set; } = new List<JobWays>();
+
+    public virtual ICollection<JobWays> JobWaysDeletedByNavigation { get; set; } = new List<JobWays>();
+
+    public virtual ICollection<JobWays> JobWaysUpdatedByNavigation { get; set; } = new List<JobWays>();
+
     public virtual ICollection<Jobs> JobsCreatedByNavigation { get; set; } = new List<Jobs>();
 
     public virtual ICollection<Jobs> JobsDeletedByNavigation { get; set; } = new List<Jobs>();
