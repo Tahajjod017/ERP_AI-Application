@@ -46,11 +46,17 @@
                                         {
                                             if (item.current == "current")
                                             {
-                                                <a href="#" style="color: black;text-decoration: none;">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
+                                                <a href="#" style="color: black;text-decoration: none;">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign
+                                                @*<a href="@Url.Action("Edit", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Edit")</a>*@
+                                                <br>
+
+                                                
                                             }
                                             else
                                             {
-                                                <a href="@Url.Action("Index", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
+                                                <a href="@Url.Action("Index", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign
+                                                @*<a href="@Url.Action("Edit", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Edit")</a>*@
+                                                <br>
                                             }
                                         }
                                     }
