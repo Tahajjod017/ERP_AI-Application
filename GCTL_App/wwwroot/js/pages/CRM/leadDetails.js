@@ -310,15 +310,15 @@ $(function () {
                     if (typeof initCreateJobModal === "function") {
                         initCreateJobModal();
                     }
-
+                    debugger;
                     const modalEl = document.getElementById('createJobModalToggle');
                     modalEl.setAttribute("data-bs-backdrop", "static");
                     modalEl.setAttribute("data-bs-keyboard", "false");
                     // Now open modal
                     bootstrap.Modal.getOrCreateInstance(modalEl).show();
-
-                    if (typeof loadDataFromLeadId === "function") {
-                        loadDataFromLeadId(leadId);
+                    const customerId2 = $('#CustomerId2').val();
+                    if (typeof LoadMainPageData === "function") {
+                        LoadMainPageData(customerId2);
                     }
                 });
 

@@ -1,11 +1,13 @@
 ﻿<style>
     :root {
-        --primary-color: #276CF5;
-        --success-color: #2D3748;
-        --gray-color: #718096;
-        --light-gray: #E2E8F0;
-        --dark-color: #1A202C;
-        --border-color: #CBD5E0;
+        --primary-color: #3B82F6; /* Blue for active */
+        --success-color: #F8FAFC; /* Light white/gray for completed */
+        --active-color: #2563EB; /* Darker blue for active state */
+        --gray-color: #94A3B8;
+        --light-gray: #F1F5F9;
+        --dark-color: #334155;
+        --border-color: #E2E8F0;
+        --completed-bg: #FFFFFF; /* White background for completed */
     }
 
     /* Timeline Container */
@@ -64,27 +66,27 @@
         .step-circle:hover:not(.completed):not(.active) {
             transform: scale(1.1);
             border-color: var(--dark-color);
-            color:white;
+            color: white;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
         }
 
         .step-circle.completed {
-            background: var(--dark-color);
-            color: white;
-            border-color: var(--gray-color);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            background: var(--completed-bg);
+            color: var(--dark-color);
+            border-color: var(--success-color);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
             animation: pulse 0.6s ease-in-out;
         }
 
             .step-circle.completed i {
-                color: white;
+                color: var(--dark-color);
             }
-
+        /* Update step circle active state - BLUE */
         .step-circle.active {
-            background: var(--gray-color);
+            background: var(--primary-color);
             color: white;
-            border-color: var(--gray-color);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            border-color: var(--active-color);
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
             animation: pulse 0.6s ease-in-out;
         }
 
@@ -162,8 +164,8 @@
     }
 
         .timeline-line.completed {
-            background: var(--dark-color);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            background: var(--success-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
     /* Progress Section */
@@ -205,7 +207,7 @@
 
     .custom-progress-bar {
         height: 100%;
-        background: linear-gradient(90deg, #2D3748, #1A202C);
+        background: linear-gradient(90deg, #3B82F6, #2563EB);
         border-radius: 15px;
         transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
@@ -215,7 +217,7 @@
         color: white;
         font-weight: 600;
         font-size: 14px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
     }
 
     /* User Avatar Placeholder */
@@ -384,7 +386,7 @@
         <div class="timeline-wrapper mt-5" id="timelineWrapper">
             <div class="timeline-container" id="timelineContainer">
                 <!-- Step 1: Schedule -->
-                <div class="timeline-step" id="s" data-step="1">
+                <div class="timeline-step" data-step="1">
                     <div class="step-circle" data-step="1">
                         <i class="fas fa-calendar-check"></i>
                         <span class="step-badge"><i class="fas fa-check"></i></span>
@@ -407,32 +409,21 @@
                     </div>
                 </div>
 
-                <!-- Step 3: Start -->
+                <!-- Step 3: Start/Pause (COMBINED BUTTON) -->
                 <div class="timeline-step" data-step="3">
                     <div class="step-circle" data-step="3">
-                        <i class="fas fa-play"></i>
+                        <i class="fas fa-play-circle"></i>
                         <span class="step-badge"><i class="fas fa-check"></i></span>
                     </div>
                     <div class="step-label">
-                        <div class="step-title">Start</div>
-                        <div class="step-date">Pending</div>
-                    </div>
-                </div>
-                <!-- Step 3: Push -->
-                <div class="timeline-step" data-step="4">
-                    <div class="step-circle" data-step="4">
-                        <i class="fa-solid fa-pause"></i>
-                        <span class="step-badge"><i class="fas fa-check"></i></span>
-                    </div>
-                    <div class="step-label">
-                        <div class="step-title">Push</div>
+                        <div class="step-title">Start/Pause</div>
                         <div class="step-date">Pending</div>
                     </div>
                 </div>
 
                 <!-- Step 4: Finish -->
-                <div class="timeline-step" data-step="5">
-                    <div class="step-circle" data-step="5">
+                <div class="timeline-step" data-step="4">
+                    <div class="step-circle" data-step="4">
                         <i class="fas fa-flag-checkered"></i>
                         <span class="step-badge"><i class="fas fa-check"></i></span>
                     </div>
@@ -443,8 +434,8 @@
                 </div>
 
                 <!-- Step 5: Invoice -->
-                <div class="timeline-step" data-step="6">
-                    <div class="step-circle" data-step="6">
+                <div class="timeline-step" data-step="5">
+                    <div class="step-circle" data-step="5">
                         <i class="fas fa-file-invoice"></i>
                         <span class="step-badge"><i class="fas fa-check"></i></span>
                     </div>
@@ -455,8 +446,8 @@
                 </div>
 
                 <!-- Step 6: Payment -->
-                <div class="timeline-step" data-step="7">
-                    <div class="step-circle" data-step="7">
+                <div class="timeline-step" data-step="6">
+                    <div class="step-circle" data-step="6">
                         <i class="fas fa-dollar-sign"></i>
                         <span class="step-badge"><i class="fas fa-check"></i></span>
                     </div>
@@ -482,8 +473,8 @@
         </div>
 
         <!-- Job Details Card -->
-        <div class="pb-6 card">
-            <div class="d-flex justify-content-between align-items-center my-3 px-3 fw-bold">
+        <div class="card pb-6">
+            <div class="d-flex justify-content-between align-items-center fw-bold my-3 px-3">
                 <div class="pt-2">
                     <h5 class="mb-0" id="jobTitle">Loading...</h5>
                 </div>
@@ -510,13 +501,13 @@
             </div>
 
             <!-- Customer Info Section with Placeholder -->
-            <div class="d-flex align-items-center bg-light mb-3 p-3 rounded">
-                <div class="customer-avatar me-3 fs-6" id="customerAvatarContainer">
+            <div class="d-flex align-items-center bg-light mb-3 rounded p-3">
+                <div class="customer-avatar fs-6 me-3" id="customerAvatarContainer">
                     <i class="fa-solid fa-user"></i>
                 </div>
                 <div class="flex-1">
-                    <h6 class="fw-bold mb-1 text-dark fs-7" id="customerName">Loading...</h6>
-                    <p class="fs-9 mb-0 text-muted ">
+                    <h6 class="fw-bold text-dark fs-7 mb-1" id="customerName">Loading...</h6>
+                    <p class="fs-9 text-muted mb-0">
                         <span id="companyName">Company Name</span>
                         <span class="mx-2">•</span>
                         <span id="customerLocation">Location</span>
@@ -529,7 +520,7 @@
             <!-- Job Details Row -->
             <div class="row g-6 px-3">
                 <div class="col-xl-6">
-                    <table class="table table-borderless mt-4">
+                    <table class="table-borderless mt-4 table">
                         <tbody>
                             <tr>
                                 <td class="py-2 ps-0">
@@ -538,8 +529,8 @@
                                         <h5 class="lh-sm me-4">Start Date</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
                                     <h5 class="lh-sm fs-9 text-body-secondary" id="startDate">-</h5>
                                 </td>
                             </tr>
@@ -550,8 +541,8 @@
                                         <h5 class="lh-sm me-4">End Date</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
                                     <h5 class="lh-lg fs-8 text-body-secondary" id="endDate">-</h5>
                                 </td>
                             </tr>
@@ -562,8 +553,8 @@
                                         <h5 class="lh-sm me-4">Location</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
                                     <h5 class="lh-lg fw-normal text-body-secondary" id="jobLocation">-</h5>
                                 </td>
                             </tr>
@@ -574,8 +565,8 @@
                                         <h5 class="lh-sm me-4">Phone</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
                                     <h5 class="lh-sm fw-normal text-body-secondary" id="customerPhone">-</h5>
                                 </td>
                             </tr>
@@ -586,8 +577,8 @@
                                         <h5 class="lh-sm me-4">Notes</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
                                     <h5 class="lh-sm fw-normal text-body-secondary" id="note">-</h5>
                                 </td>
                             </tr>
@@ -596,7 +587,7 @@
                 </div>
 
                 <div class="col-xl-6">
-                    <table class="table table-borderless mt-4">
+                    <table class="table-borderless mt-4 table">
                         <tbody>
                             <tr>
                                 <td class="py-2 ps-0">
@@ -605,8 +596,8 @@
                                         <h5 class="lh-sm me-4">Job Type</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
                                     <h5 class="lh-sm fw-normal text-body-secondary" id="jobType">-</h5>
                                 </td>
                             </tr>
@@ -617,8 +608,8 @@
                                         <h5 class="lh-sm me-4">Status</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
                                     <span class="badge bg-light" id="statusName">-</span>
                                 </td>
                             </tr>
@@ -629,8 +620,8 @@
                                         <h5 class="lh-sm me-4">Team Members</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
                                     <div id="teamMembers" class="d-flex align-items-center flex-wrap">
                                         <span class="text-muted">Loading...</span>
                                     </div>
@@ -642,7 +633,7 @@
             </div>
 
             <!-- Google Map -->
-            <div class="d-flex align-items-center bg-light mb-3 p-2 rounded">
+            <div class="d-flex align-items-center bg-light mb-3 rounded p-2">
                 <div id="map" class="w-100">
                     <iframe class="w-100 rounded"
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3713.9743141183694!2d92.0126222750432!3d21.430254580321478!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30adc7004ca0d447%3A0xa6cae203b8e06e73!2sCox%E2%80%99s%20Bazar%20Railway%20Station%20South%20View!5e0!3m2!1sen!2sbd!4v1752973402779!5m2!1sen!2sbd"
