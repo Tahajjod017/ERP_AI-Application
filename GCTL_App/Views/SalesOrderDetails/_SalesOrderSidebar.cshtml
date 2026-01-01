@@ -1,7 +1,7 @@
 @using GCTL.Core.ViewModels.POS.Sales.SalesOrders
 @model SalesOrderSidebarDetailsViewModel
 
-<div class="col-md-3 mb-4">
+<div class="col-md-3 mb-4 ps-1">
     <div class="card mb-3" style="min-height: 1000px;">
         <div class="card-body">
             <div class="invoice-card">
@@ -46,11 +46,17 @@
                                         {
                                             if (item.current == "current")
                                             {
-                                                <a href="#" style="color: black;text-decoration: none;">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
+                                                <a href="#" style="color: black;text-decoration: none;">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign
+                                                @*<a href="@Url.Action("Edit", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Edit")</a>*@
+                                                <br>
+
+                                                
                                             }
                                             else
                                             {
-                                                <a href="@Url.Action("Index", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
+                                                <a href="@Url.Action("Index", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign
+                                                @*<a href="@Url.Action("Edit", "SalesOrderDetails", new { id = item.id })">@Html.SmartLocalize("Edit")</a>*@
+                                                <br>
                                             }
                                         }
                                     }
@@ -202,7 +208,7 @@
                                     @Html.SmartLocalize("Invoice")
                                     @if (Model.HasInvoices)
                                     {
-                                        <span class="badge badge-phoenix bg-primary ms-2">@Model.Invoices.Count</span>
+                                        @*<span class="badge badge-phoenix badge-phoenix-primary ms-2">@Model.Invoices.Count</span>*@
                                     }
                                 </button>
                             </h2>
@@ -352,12 +358,12 @@
                                     {
                                         <div class="mt-3 pt-3 border-top">
                                             <div class="row fs-9">
-                                                <div class="col-6">
+                                                @*<div class="col-6">
                                                     <small class="text-muted">Total Invoices:</small>
                                                 </div>
                                                 <div class="col-6 text-end fw-bold">
                                                     @Model.Invoices.Count
-                                                </div>
+                                                </div>*@
 
                                                 <div class="col-6">
                                                     <small class="text-muted">Total Amount:</small>

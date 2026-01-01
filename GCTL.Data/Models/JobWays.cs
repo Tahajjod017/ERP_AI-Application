@@ -5,13 +5,17 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class JobTeams
+public partial class JobWays
 {
+    public int JobWayID { get; set; }
+
+    public int JobID { get; set; }
+
     public int JobTeamID { get; set; }
 
-    public int? EmployeeID { get; set; }
+    public DateTime? GoingAT { get; set; }
 
-    public bool? IsTeamHead { get; set; }
+    public DateTime? FinishAT { get; set; }
 
     public string LIP { get; set; }
 
@@ -29,19 +33,15 @@ public partial class JobTeams
 
     public int? DeletedBy { get; set; }
 
-    public int? JobID { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Employees Employee { get; set; }
-
     public virtual Jobs Job { get; set; }
 
-    public virtual ICollection<JobTeamActivities> JobTeamActivities { get; set; } = new List<JobTeamActivities>();
+    public virtual JobTeams JobTeam { get; set; }
 
-    public virtual ICollection<JobWays> JobWays { get; set; } = new List<JobWays>();
+    public virtual ICollection<JobTeamActivities> JobTeamActivities { get; set; } = new List<JobTeamActivities>();
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

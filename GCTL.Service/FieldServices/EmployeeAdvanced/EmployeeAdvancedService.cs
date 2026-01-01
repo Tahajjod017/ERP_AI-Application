@@ -58,7 +58,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
                 //empadvance.EmployeeAdvanceID = emp.EmployeeAdvanceID;
                 empadvance.JobID = emp.JobID;
-                empadvance.AmountRequested = emp.AmountRequested;
+                empadvance.AmountRequested = (decimal)emp.AmountRequested;
                 empadvance.StartDate = emp.StartDate.HasValue ? DateOnly.FromDateTime(emp.StartDate.Value) : null;
                 empadvance.EndDate = emp.EndDate.HasValue ? DateOnly.FromDateTime(emp.EndDate.Value) : null;
                 empadvance.LIP = emp.LIP;
@@ -344,9 +344,11 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
                 + (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // If Null could be here
 
-                        RequestedByUser = x.RequestedByUser != null
-        ? $"{x.RequestedByUser.FirstName ?? ""}{(!string.IsNullOrEmpty(x.RequestedByUser.LastName) ? " " + x.RequestedByUser.LastName : "")}".Trim()
-        : null,
+
+        //                RequestedByUser = x.RequestedByUser != null
+
+        //? $"{x.RequestedByUser.FirstName ?? ""}{(!string.IsNullOrEmpty(x.RequestedByUser.LastName) ? " " + x.RequestedByUser.LastName : "")}".Trim()
+        //: null,
 
 
 
@@ -453,11 +455,14 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                     var beforeEntity = JsonConvert.DeserializeObject<EmployeeAdvancedVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
 
                     entity.JobID = emp.JobID;
-                    entity.AmountRequested = emp.AmountRequested;
+                    entity.AmountRequested = (decimal)emp.AmountRequested;
                     entity.StartDate = emp.StartDate.HasValue ? DateOnly.FromDateTime(emp.StartDate.Value) : null;
                     entity.EndDate = emp.EndDate.HasValue ? DateOnly.FromDateTime(emp.EndDate.Value) : null;
 
-                    entity.RequestedByUserID = emp.RequestedByUserID != null && emp.RequestedByUserID.Count > 0 ? emp.RequestedByUserID.FirstOrDefault() : null;
+                    entity.RequestedByUserID =
+    emp.RequestedByUserID != null && emp.RequestedByUserID.Count > 0
+        ? emp.RequestedByUserID.FirstOrDefault()
+        : null;
 
                     entity.ApprovedByUserID = emp.ApprovedByUserID;
 

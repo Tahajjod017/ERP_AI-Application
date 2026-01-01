@@ -1,4 +1,4 @@
-﻿using GCTL.Core.Helpers;
+using GCTL.Core.Helpers;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettings;
@@ -343,7 +343,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                      WorkingHour=entityVM.WorkingHour,
                      ShortLeaveMaxInADay=entityVM.ShortLeaveMaxInADay,
                      IsEmailSendEnabled = entityVM.IsEmailSendEnabled,
-                    
+
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedBy = entityVM.CreatedBy,
@@ -414,6 +414,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingPolicy.WorkingHour = entityVM.WorkingHour;
                 existingPolicy.ShortLeaveMaxInADay = entityVM.ShortLeaveMaxInADay;
                 existingPolicy.IsEmailSendEnabled = entityVM.IsEmailSendEnabled;
+
                 existingPolicy.LIP = entityVM.LIP;
                 existingPolicy.LMAC = entityVM.LMAC;
                 await leavepolicy.UpdateAsync(existingPolicy);
@@ -470,6 +471,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     WorkingHour=x.WorkingHour,
                     ShortLeaveMaxInADay=x.ShortLeaveMaxInADay,
                     IsEmailSendEnabled = x.IsEmailSendEnabled,
+
 
                 }).ToList();
 

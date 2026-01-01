@@ -21,7 +21,7 @@
             <input asp-for="Id" type="hidden" />
 
             <div class="row mb-4">
-                <div class="col-xl-9">
+                <div class="col-xl-9 pe-1">
                     <div class="card pt-4 p-5 mb-3" style="min-height: 1000px;">
 
                         <div class="row col-xl-12">
@@ -87,13 +87,13 @@
                                             <div class="col-xl-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Invoice Date</label>
-                                                    <input asp-for="InvoiceDate" class="form-control" type="date" />
+                                                    <input asp-for="InvoiceDate" class="form-control datetimepicker caiCon" type="date" />
                                                 </div>
                                             </div>
                                             <div class="col-xl-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Due Date</label>
-                                                    <input asp-for="DueDate" class="form-control" type="date" />
+                                                    <input asp-for="DueDate" class="form-control datetimepicker caiCon" type="date" />
                                                 </div>
                                             </div>
                                             <div class="col-xl-6">
@@ -174,7 +174,8 @@
                                         <th class="text-center">Product</th>
                                         <th class="text-center">Quantity</th>
                                         <th class="text-center">Product Price (BDT)</th>
-                                        <th class="text-center">VAT Amount</th>
+                                        @*<th class="text-center">VAT Amount</th>*@
+                                        <th class="text-center vat-column-header">VAT % / Amount</th>
                                         <th class="text-center">Amount (BDT)</th>
                                         <th style="width: 50px;"></th>
                                     </tr>
@@ -191,7 +192,16 @@
                                             </td>
                                             <td><input asp-for="Items[i].Quantity" class="form-control calc" type="number" step="any" /></td>
                                             <td><input asp-for="Items[i].UnitPrice" class="form-control calc" type="number" step="any" /></td>
-                                            <td class="vatPerItem text-end align-middle">@Model.Items[i].VatAmount.ToString("N2")</td>
+                                            @*<td class="vatPerItem text-end align-middle">@Model.Items[i].VatAmount.ToString("N2")</td>*@
+
+                                            <td class="text-end align-middle">
+                                                <input type="hidden" asp-for="Items[i].VatPercent" class="item-vat-percent" value="@Model.Items[i].VatPercent" />
+                                                <span class="vat-percent-badge badge bg-secondary clickable-vat" style="cursor:pointer;">
+                                                    @Model.Items[i].VatPercent.ToString("F2")%
+                                                </span>
+                                                <span class="vat-amount ms-2">@Model.Items[i].VatAmount.ToString("N2")</span>
+                                            </td>
+
                                             <td class="amount text-center align-middle">@Model.Items[i].Amount.Value.ToString("N2")</td>
                                             <td class="text-center align-middle">
                                                 <button type="button" class="btn btn-sm btn-outline-danger mx-2 remove-item">
@@ -215,7 +225,14 @@
                                         <td colspan="5" class="text-end fs-9 py-2">
                                             <div class="d-flex justify-content-end">
                                                 <div class="mx-2 mt-2">VAT (%)</div>
-                                                <div><input asp-for="VatPercent" id="vatPercent" class="form-control vatPercent" type="number" step="any" /></div>
+                                                <div>
+                                                    @*<input asp-for="VatPercent" id="vatPercent" class="form-control vatPercent" type="number" step="any" />*@
+                                                    <input asp-for="VatPercent" id="vatPercent" type="hidden" />
+                                                    <span id="globalVatPercentDisplay" class="badge bg-primary clickable-global-vat" style="cursor:pointer; font-size:1.1rem; padding:8px 12px;">
+                                                        @Model.VatPercent%
+                                                    </span>
+
+                                                </div>
                                             </div>
                                         </td>
                                         <td colspan="1" class="text-center fs-9" id="vatAmount">@Model.VatAmount.ToString("N2")</td>
@@ -224,7 +241,13 @@
                                         <td colspan="5" class="text-end fs-9 py-2">
                                             <div class="d-flex justify-content-end">
                                                 <div class="mx-2 mt-2">AIT (%)</div>
-                                                <div><input asp-for="AitPercent" id="aitPercent" class="form-control" type="number" step="any" value="5" /></div>
+                                                <div>
+                                                    @*<input asp-for="AitPercent" id="aitPercent" class="form-control" type="number" step="any" value="5" />*@
+                                                    <input asp-for="AitPercent" id="aitPercent" type="hidden" value="@Model.AitPercent" />
+                                                    <span id="globalAitPercentDisplay" class="badge bg-info clickable-global-ait" style="cursor:pointer; font-size:1.1rem; padding:8px 12px;">
+                                                        @Model.AitPercent%
+                                                    </span>
+                                                </div>
                                             </div>
                                         </td>
                                         <td colspan="1" class="text-center fs-9" id="aitAmount">@Model.AitAmount.ToString("N2")</td>
@@ -385,8 +408,8 @@
     {
         <!-- READ-ONLY MODE - Display only -->
         <div class="row mb-4">
-            <div class="col-xl-9">
-                <div class="card pt-4 p-5 mb-3" style="min-height: 1000px;">
+            <div class="col-xl-9 pe-1">
+                <div class="card pt-4 p-5 mb-3" style="min-height: 1050px;">
 
                     <div class="row col-xl-12">
                         <p class="mb-1 fw-bold fs-7">Invoice Details</p>
@@ -442,27 +465,27 @@
                                             <!-- VAT Mode Display -->
                                             <div class="col-12 mt-2">
                                                 <label class="form-label fw-bold">VAT Configuration</label>
-                                                <div class="fs-9 ms-3">
+                                                <div class=" ms-3">
                                                     @if (Model.IsItemPriceIncludingVat)
                                                     {
-                                                        <span class="badge bg-info">Item Price Including VAT</span>
+                                                        <span class="badge badge-phoenix badge-phoenix-info">Item Price Including VAT</span>
                                                     }
                                                     else if (Model.IsPriceWithoutVat)
                                                     {
-                                                        <span class="badge bg-info">Price Without VAT (Per-Item)</span>
+                                                        <span class="badge badge-phoenix badge-phoenix-info">Price Without VAT (Per-Item)</span>
                                                     }
                                                     else if (Model.IsVatAfterSubtotal)
                                                     {
-                                                        <span class="badge bg-info">VAT After Subtotal</span>
+                                                        <span class="badge badge-phoenix badge-phoenix-info">VAT After Subtotal</span>
                                                     }
                                                     else
                                                     {
-                                                        <span class="badge bg-secondary">No VAT</span>
+                                                        <span class="badge badge-phoenix badge-phoenix-secondary">No VAT</span>
                                                     }
 
                                                     @if (Model.IsAit)
                                                     {
-                                                        <span class="badge bg-warning ms-1">AIT @Model.AitPercent%</span>
+                                                        <span class="badge badge-phoenix badge-phoenix-warning ms-1">AIT @Model.AitPercent%</span>
                                                     }
                                                 </div>
                                             </div>
@@ -523,7 +546,7 @@
                                     {
                                         <th class="text-center">VAT Amount</th>
                                     }
-                                    <th class="text-center">Amount</th>
+                                    <th class="text-end">Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -536,9 +559,14 @@
                                         <td class="text-center">@Model.Items[i].UnitPrice.ToString("N2")</td>
                                         @if (Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat))
                                         {
-                                            <td class="text-center">@Model.Items[i].VatAmount.ToString("N2")</td>
+                                            @*<td class="text-center">@Model.Items[i].VatAmount.ToString("N2")</td>*@
+                                            <td class="text-center">
+                                                <span class="badge bg-secondary">@Model.Items[i].VatPercent.ToString("F2")%</span>
+                                                <span class="ms-2">@Model.Items[i].VatAmount.ToString("N2")</span>
+                                            </td>
+                                        
                                         }
-                                        <td class="text-end">@Model.Items[i].Amount.Value.ToString("N2")</td>
+                                        <td class="text-end">@Model.Items[i].Amount?.ToString("N2")</td>
                                     </tr>
                                 }
                                 <tr>

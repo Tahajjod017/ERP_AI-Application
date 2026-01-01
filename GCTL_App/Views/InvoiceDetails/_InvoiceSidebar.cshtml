@@ -1,8 +1,8 @@
 ﻿@using GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
 @model InvoiceSidebarDetailsViewModel
 
-<div class="col-md-3 mb-4">
-    <div class="card mb-3" style="min-height: 1000px;">
+<div class="col-md-3 mb-4 ps-1 pe-1">
+    <div class="card mb-3" style="min-height: 1050px;">
         <div class="card-body">
             <div class="invoice-card">
                 <div>
@@ -59,14 +59,14 @@
                         </h2>
                         <div class="accordion-collapse collapse show" id="collapsePayment" aria-labelledby="headingPayment" data-bs-parent="#accordionExample">
                             <div class="accordion-body pt-0">
-                                <p class="fs-9">
+                                <p class="fs-9 mb-0">
                                     <strong>@Html.SmartLocalize("Total Amount:")</strong> @Model.TotalAmount.ToString("N2") BDT<br>
                                     <strong>@Html.SmartLocalize("Paid Amount:")</strong> <span class="text-success">@Model.PaidAmount.ToString("N2") BDT</span><br>
                                     <strong>@Html.SmartLocalize("Due Amount:")</strong> <span class="text-danger">@Model.DueAmount.ToString("N2") BDT</span><br>
                                     @if (!Model.IsFullyPaid && !Model.IsDraft)
                                     {
-                                        <br>
-                                        <a href="javascript:void(0)" onclick="addPayment(@Model.InvoiceId)" class="btn btn-sm btn-primary mt-2">
+                                        
+                                        <a href="javascript:void(0)" onclick="addPayment(@Model.InvoiceId)" class="btn btn-sm btn-phoenix-primary ">
                                             <i class="fa fa-plus me-1"></i> @Html.SmartLocalize("Add Payment")
                                         </a>
                                     }
@@ -94,7 +94,7 @@
                                     {
                                         @foreach (var item in Model.InvoiceIdList)
                                         {
-                                            <a href="@Url.Action("Index", "InvoiceDetails", new { id = item.id })">@Html.SmartLocalize("Version") @item.version</a> @item.draftSign @item.finalSign <br>
+                                            <a href="@Url.Action("Edit", "InvoiceDetails", new { id = item.id })">@Html.SmartLocalize("Edit Invoice") @item.version</a> @item.draftSign @item.finalSign <br>
                                         }
                                     }
                                 </p>
@@ -103,21 +103,21 @@
                     </div>
 
                     <!-- Duplicate Section -->
-                    <div class="accordion-item border-top">
-                        <h2 class="accordion-header" id="headingDuplicate">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuplicate" aria-expanded="true" aria-controls="collapseDuplicate">
-                                @Html.SmartLocalize("Duplicate")
-                            </button>
-                        </h2>
-                        <div class="accordion-collapse collapse show" id="collapseDuplicate" aria-labelledby="headingDuplicate" data-bs-parent="#accordionExample">
-                            <div class="accordion-body pt-0">
-                                <p class="fs-9">
-                                    @Html.SmartLocalize("Invoice Number:") @Model.InvoiceNumber <br>
-                                    <a href="javascript:void(0)" onclick="duplicateInvoice(@Model.InvoiceId)">@Html.SmartLocalize("Create Duplicate")</a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    @*<div class="accordion-item border-top">
+            <h2 class="accordion-header" id="headingDuplicate">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDuplicate" aria-expanded="true" aria-controls="collapseDuplicate">
+                    @Html.SmartLocalize("Duplicate")
+                </button>
+            </h2>
+            <div class="accordion-collapse collapse show" id="collapseDuplicate" aria-labelledby="headingDuplicate" data-bs-parent="#accordionExample">
+                <div class="accordion-body pt-0">
+                    <p class="fs-9">
+                        @Html.SmartLocalize("Invoice Number:") @Model.InvoiceNumber <br>
+                        <a href="javascript:void(0)" onclick="duplicateInvoice(@Model.InvoiceId)">@Html.SmartLocalize("Create Duplicate")</a>
+                    </p>
+                </div>
+            </div>
+        </div>*@
 
                     <!-- Source Sales Order Section -->
                     @if (!string.IsNullOrEmpty(Model.SalesOrderNumber))
@@ -130,11 +130,93 @@
                             </h2>
                             <div class="accordion-collapse collapse show" id="collapseSalesOrder" aria-labelledby="headingSalesOrder" data-bs-parent="#accordionExample">
                                 <div class="accordion-body pt-0">
-                                    <span class="fs-9">@Html.SmartLocalize("Sales Order Number:") @Model.SalesOrderNumber</span>
-                                </div>
+                                    <span class="fs-9">
+                                        @Html.SmartLocalize("Sales Order Number: ")
+                                    <a href="@Url.Action("index", "SalesOrderDetails", new { id = Model.SalesOrderId })">@Model.SalesOrderNumber</a>
+
+                                </span>
                             </div>
                         </div>
-                    }
+                    </div>
+                }
+
+
+                    <div class="accordion-item border-top">
+                        <div class="accordion-header" id="headingShipment">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseShipment" aria-expanded="true" aria-controls="collapseShipment">
+                                @Html.SmartLocalize("Challan")
+
+
+
+                                @if (Model.IsFullyShipped)
+                                {
+                                    <span class="ms-3 badge badge-phoenix badge-phoenix-primary">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        @Html.SmartLocalize("Fully Shipped")
+                                    </span>
+                                }
+                                else if (Model.HasShipmentsStarted)
+                                {
+                                    <div class="ms-3 badge badge-phoenix badge-phoenix-secondary">
+                                        <i class="fas fa-shipping-fast me-2"></i>
+                                        @Html.SmartLocalize("Partially Challaned")
+                                    </div>
+                                }
+                            </button>
+
+
+
+                        </div>
+
+
+
+                        <div class="accordion-collapse collapse show" id="collapseShipment" aria-labelledby="headingShipment" data-bs-parent="#accordionExample">
+                            <div class="accordion-body pt-0">
+                                @if (Model.CanCreateShipment && !Model.IsFullyShipped)
+                                {
+                                    <p class="fs-9">
+                                        <a href="/Challan/Index?salesOrderId=@Model.SalesOrderId" class="btn btn-sm btn-phoenix-primary w-100">
+                                            <i class="fas fa-shipping-fast me-2"></i>
+                                            @Html.SmartLocalize("Create Challan")
+                                        </a>
+                                    </p>
+                                }
+
+
+
+
+
+                                @if (Model.HasShipments && Model.Shipments != null && Model.Shipments.Any())
+                                {
+                                    <hr class="my-2" />
+                                    <p class="fs-9 fw-bold mb-2">@Html.SmartLocalize("Existing Challan:")</p>
+                                    @foreach (var shipment in Model.Shipments)
+                                    {
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <a href="/ChallanDetails/Index/@shipment.ShipmentId" class="fs-9 text-decoration-none">
+                                                @shipment.ShipmentNumber
+                                            </a>
+
+
+                                            <span class="badge badge-phoenix badge-phoenix-@shipment.StatusClass fs-10">
+                                                @shipment.Status
+                                            </span>
+
+
+
+
+
+                                        </div>
+                                    }
+                                }
+                                else if (!Model.CanCreateShipment)
+                                {
+                                    <p class="fs-9 text-muted">@Html.SmartLocalize("No Challan available")</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- Send Email Section -->
                     <div class="accordion-item">
@@ -153,6 +235,25 @@
                             </div>
                         </div>
                     </div>
+
+                    @if (Model.CanEdit)
+                    {
+                        <div class="accordion-item border-top">
+                            <h2 class="accordion-header" id="headingStatus">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStatus" aria-expanded="true" aria-controls="collapseStatus">
+                                    @Html.SmartLocalize("Status Actions")
+                                </button>
+                            </h2>
+                            <div class="accordion-collapse collapse show" id="collapseStatus" aria-labelledby="headingStatus" data-bs-parent="#accordionExample">
+                                <div class="accordion-body pt-0">
+                                    <p class="fs-9">
+                                        <a href="javascript:void(0)" onclick="markAsApproved(@Model.InvoiceId)">@Html.SmartLocalize("Mark as Approved")</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
                 </div>
             </div>
         </div>
@@ -190,6 +291,31 @@
 </div>
 
 <script>
+
+    function markAsApproved(invoiceId) {
+        if (confirm('Mark this Sales Order as Approved?')) {
+            $.ajax({
+                url: '/InvoiceDetails/UpdateStatus',
+                method: 'POST',
+                data: {
+                    id: invoiceId,
+                    status: 3 // QuotationStatus.Approved
+                },
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success('Quotation marked as Approved!');
+                        location.reload();
+                    } else {
+                        toastr.warning('Failed to update status: ' + response.message);
+                    }
+                },
+                error: function () {
+                    toastr.error('Failed to update status. Please try again.');
+                }
+            });
+        }
+    }
+
     function duplicateInvoice(invoiceId) {
         if (confirm('@Html.SmartLocalize("Are you sure you want to duplicate this invoice?")')) {
             $.ajax({

@@ -22,47 +22,63 @@ namespace GCTL.Service.CRM
 
         #region Task
         public async Task<(List<LeadsTableVM> Leads, int TotalCount)> GetLeads(
-            int currentOrgId,
-            int customerType,
-            string dateRange,
-            string leadStatus2,
-            int pageNumber = 1,
-            int pageSize = 10,
-            string searchTerm = null,
-            string sortColumn = null,
-            string sortDirection = null)
+    int currentOrgId,
+    int customerType,
+    string dateRange, // Note: not used yet — add date filtering if needed later
+    string leadStatus2,
+    int pageNumber = 1,
+    int pageSize = 10,
+    string searchTerm = null,
+    string sortColumn = null,
+    string sortDirection = null)
         {
-            var query = from lead in _leadsGenericRepository.AllActive()
-                        join indDddr in _context.CustomerAddresses
-                            on lead.CustomerID equals indDddr.CustomerID
-                        join address in _context.Addresses
-                            on indDddr.AddressID equals address.AddressID
-                        join individual in _context.Customers
-                            on indDddr.CustomerID equals individual.CustomerID
-                        join leadStatus in _context.LeadStatuses
-                            on lead.LeadStatusID equals leadStatus.LeadStatusID
-                        join leadSource in _context.LeadSources
-                            on lead.LeadSourceID equals leadSource.LeadSourceID
-                        join leadOwner in _context.Employees
-                            on lead.LeadOwnerID equals leadOwner.EmployeeID
-                        where lead.OrganizationID == currentOrgId
-                        select new LeadsTableVM
-                        {
-                            LeadId = lead.LeadID,
-                            LeadStatus = lead.IsOwn == true ? "Won": lead.IsOwn == false ? "Lost":  leadStatus.LeadStatusName,
-                            LeadSourceName = leadSource.LeadSourceName,
-                            LeadOwnerName = leadOwner.FirstName + " " + leadOwner.LastName,
-                            ApproximateDealValue = lead.ApproximateDealValue,
-                            ProbabilityPercentage = lead.ProbabilityPercentage,
-                            LeadName = lead.LeadName,
-                            Phone = address.Phone,
-                            Email = address.Email,
-                            ContactName = address.FirstName + " " + address.LastName,
-                            Status = lead.LeadStatus.LeadStatusName,
-                            CreatedDate = lead.CreatedAt,
-                            CustomerTypeID = indDddr.AddressType.AddressTypeID
-                        };
+            IQueryable<LeadsTableVM> query = _leadsGenericRepository.AllActive()
+                .AsNoTracking()
+                .Where(lead => lead.OrganizationID == currentOrgId)
+                .Select(lead => new LeadsTableVM
+                {
+                    LeadId = lead.LeadID,
+                    LeadName = lead.LeadName,
+                    ApproximateDealValue = lead.ApproximateDealValue,
+                    ProbabilityPercentage = lead.ProbabilityPercentage,
+                    CreatedDate = lead.CreatedAt,
 
+                    // LeadStatus with Won/Lost override
+                    LeadStatus = lead.IsOwn == true ? "Won" :
+                                 lead.IsOwn == false ? "Lost" :
+                                 lead.LeadStatus != null ? lead.LeadStatus.LeadStatusName : "",
+
+                    Status = lead.LeadStatus != null ? lead.LeadStatus.LeadStatusName : "",
+                    LeadSourceName = lead.LeadSource != null ? lead.LeadSource.LeadSourceName : "",
+                    LeadOwnerName = lead.LeadOwner != null
+                        ? lead.LeadOwner.FirstName + " " + lead.LeadOwner.LastName
+                        : "",
+
+                    // Assuming each customer has at least one address; take the first one
+                    // You might want to filter by primary address or specific AddressType if needed
+                    Phone = lead.Customer != null && lead.Customer.CustomerAddresses.Any(ca => ca.Address != null)
+                        ? lead.Customer.CustomerAddresses
+                            .FirstOrDefault(ca => ca.Address != null).Address.Phone ?? ""
+                        : "",
+
+                    Email = lead.Customer != null && lead.Customer.CustomerAddresses.Any(ca => ca.Address != null)
+                        ? lead.Customer.CustomerAddresses
+                            .FirstOrDefault(ca => ca.Address != null).Address.Email ?? ""
+                        : "",
+
+                    ContactName = lead.Customer != null && lead.Customer.CustomerAddresses.Any(ca => ca.Address != null)
+                        ? (lead.Customer.CustomerAddresses
+                            .FirstOrDefault(ca => ca.Address != null).Address.FirstName ?? "") + " " +
+                          (lead.Customer.CustomerAddresses
+                            .FirstOrDefault(ca => ca.Address != null).Address.LastName ?? "")
+                        : "",
+
+                    CustomerTypeID = lead.Customer != null && lead.Customer.CustomerAddresses.Any()
+                        ? lead.Customer.CustomerAddresses.FirstOrDefault().AddressType.AddressTypeID
+                        : 0
+                });
+
+            // Filters
             if (customerType > 0)
                 query = query.Where(r => r.CustomerTypeID == customerType);
 
@@ -71,25 +87,29 @@ namespace GCTL.Service.CRM
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                searchTerm = searchTerm.ToLower();
+                var term = searchTerm.Trim().ToLowerInvariant();
                 query = query.Where(r =>
-                    (r.LeadName != null && r.LeadName.ToLower().Contains(searchTerm)) ||
-                    (r.Phone != null && r.Phone.ToLower().Contains(searchTerm)) ||
-                    (r.ContactName != null && r.ContactName.ToLower().Contains(searchTerm)) ||
-                    (r.Email != null && r.Email.ToLower().Contains(searchTerm))
+                    (r.LeadName != null && EF.Functions.Like(r.LeadName.ToLower(), $"%{term}%")) ||
+                    (r.Phone != null && EF.Functions.Like(r.Phone, $"%{term}%")) ||
+                    (r.ContactName != null && EF.Functions.Like(r.ContactName.ToLower(), $"%{term}%")) ||
+                    (r.Email != null && EF.Functions.Like(r.Email.ToLower(), $"%{term}%"))
                 );
             }
 
             // Sorting
-            query = (sortColumn, sortDirection) switch
+            var sortKey = sortColumn?.Trim().ToLowerInvariant();
+            var sortAsc = sortDirection?.Trim().ToLowerInvariant() != "desc";
+
+            query = sortKey switch
             {
-                ("leadStatus", "desc") => query.OrderByDescending(r => r.LeadStatus),
-                ("leadStatus", _) => query.OrderBy(r => r.LeadStatus),
-                ("leadName", "desc") => query.OrderByDescending(r => r.LeadName),
-                ("leadName", _) => query.OrderBy(r => r.LeadName),
+                "leadstatus" when sortAsc => query.OrderBy(r => r.LeadStatus),
+                "leadstatus" => query.OrderByDescending(r => r.LeadStatus),
+                "leadname" when sortAsc => query.OrderBy(r => r.LeadName),
+                "leadname" => query.OrderByDescending(r => r.LeadName),
                 _ => query.OrderByDescending(r => r.LeadId)
             };
 
+            // Count and paging in two efficient queries
             var totalCount = await query.CountAsync();
 
             var leads = await query

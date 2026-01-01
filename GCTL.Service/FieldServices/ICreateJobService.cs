@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
 using GCTL.Service.Pagination;
+using GCTL_App.ViewModels.FieldServiceOne;
 using Microsoft.AspNetCore.Mvc.Rendering;
 namespace GCTL.Service.FieldServices
 {
@@ -28,6 +29,11 @@ namespace GCTL.Service.FieldServices
         Task<ReturnDataView<SelectListItem>> GetStatusesAsync(string search);
         Task<ReturnDataView<SelectListItem>> GetJobTypesAsync(string search);
         Task<bool> EditAsync(CreateJobVM model, string FileLink);
+        Task<CommonReturnViewModel> SaveJobTeamActivityAsync(
+            SaveJobTeamActivityRequest request,
+           int organizationID,
+           int currentUserId);
         #endregion
+        //Task<CommonReturnViewModel>  SaveActivityAsync( SaveActivityRequest request, int organizationID, int currentUserId);
     }
 }

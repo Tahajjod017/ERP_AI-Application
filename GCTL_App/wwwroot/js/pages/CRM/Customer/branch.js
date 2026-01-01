@@ -355,7 +355,7 @@ function validateEmail(email) {
         return `
     <div class="row align-items-center gap-2 mx-2 mb-2 bcontact-item p-2">
         <!-- Index number -->
-        <div class="col-auto text-center align-self-center fw-bold fs-6" style="margin-top: 23px!important;">
+        <div class="col-auto text-center align-self-center fw-semibold border rounded fs-7" style="margin-top: 23px!important;">
             ${index + 1}
         </div>
 
@@ -393,7 +393,7 @@ function validateEmail(email) {
 
         <!-- Delete button -->
         <div class="col-auto text-center">
-            <button type="button" class="btn btn-sm btn-danger bremove-contact" title="Remove Contact"  data-bcontact-id="${c.id ?? 0}" style="margin-top: 23px!important;">
+            <button type="button" class="btn btn-sm border bremove-contact" title="Remove Contact"  data-bcontact-id="${c.id ?? 0}" style="margin-top: 23px!important;">
                 <i class="fas fa-trash"></i>
             </button>
         </div>

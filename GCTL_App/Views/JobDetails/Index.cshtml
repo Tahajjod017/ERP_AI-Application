@@ -1,695 +1,710 @@
 ﻿<style>
+    :root {
+        --primary-color: #3B82F6; /* Blue for active */
+        --success-color: #728bfc; /* Light white/gray for completed */
+        --active-color: #2563EB; /* Darker blue for active state */
+        --gray-color: #94A3B8;
+        --light-gray: #F1F5F9;
+        --dark-color: #334155;
+        --border-color: #E2E8F0;
+        --completed-bg: #4061f5; /* background */
+        --pertial-success: #13d168;
+    }
+
+    /* Timeline Container */
+    .timeline-wrapper {
+        position: relative;
+        padding: 40px 0;
+        background: linear-gradient(135deg, #F7FAFC 0%, #EDF2F7 100%);
+        border-radius: 20px;
+        margin-bottom: 30px;
+        border: 2px solid var(--border-color);
+    }
 
     .timeline-container {
         display: flex;
         align-items: center;
-        width: 80%;
-        margin: 60px auto;
+        justify-content: space-between;
         position: relative;
+        margin: 0 auto;
+        max-width: 900px;
+        padding: 0 20px;
     }
 
+    /* Timeline Step */
     .timeline-step {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         position: relative;
         z-index: 2;
-        display: flex;
-        justify-content: center;
-        flex: 1; /* distribute evenly */
     }
 
-    .timeline-title{
-        position: absolute;
-        bottom: -28px;
-        color: lightslategrey;
-    }
-    .step-icon {
-        width: 50px;
-        height: 50px;
+    /* Step Circle */
+    .step-circle {
+        width: 70px;
+        height: 70px;
         border-radius: 50%;
+        background: white;
+        border: 4px solid var(--light-gray);
         display: flex;
-        justify-content: center;
         align-items: center;
-        color: white;
+        justify-content: center;
         cursor: pointer;
-        z-index: 2;
-        background-color: lightgray;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        z-index: 3;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-        
-        .step-icon.completed {
-            color: white;
-            background: #007bff;
-            box-shadow: 0 4px 5px rgba(65, 105, 225, 0.4);
+
+        .step-circle i {
+            font-size: 28px;
+            color: var(--gray-color);
+            transition: all 0.3s ease;
         }
 
-    /* Line connecting steps */
-    .step-line {
+        .step-circle:hover:not(.completed):not(.active) {
+            transform: scale(1.1);
+            border-color: var(--success-color);
+            color: var(--completed-bg);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .step-circle.completed {
+            background: var(--completed-bg);
+            color: white;
+            border-color: var(--success-color);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+            animation: pulse 0.6s ease-in-out;
+        }
+
+            .step-circle.completed i {
+                color: var(--border-color);
+            }
+        /* Update step circle active state - BLUE */
+        .step-circle.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--active-color);
+            box-shadow: 0 5px 20px rgba(59, 130, 246, 0.4);
+            animation: pulse 0.6s ease-in-out;
+        }
+
+            .step-circle.active i {
+                color: white;
+            }
+
+    /* Step Badge */
+    .step-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 24px;
+        height: 24px;
+        background: var(--pertial-success);
+        border-radius: 50%;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .step-circle.completed .step-badge {
+        display: flex;
+    }
+
+    .step-badge i {
+        font-size: 10px;
+        color: white;
+    }
+
+    /* Step Label */
+    .step-label {
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .step-title {
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--gray-color);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+
+    .step-circle.completed ~ .step-label .step-title,
+    .step-circle.active ~ .step-label .step-title {
+        color: var(--dark-color);
+        font-weight: 700;
+    }
+
+    .step-date {
+        font-size: 12px;
+        color: var(--gray-color);
+        margin-top: 5px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .step-circle.completed ~ .step-label .step-date,
+    .step-circle.active ~ .step-label .step-date {
+        opacity: 1;
+    }
+
+    /* Connecting Lines */
+    .timeline-line {
         position: absolute;
         height: 4px;
-        background-color: lightgray;
-        top: 50%;
+        background: var(--border-color);
+        top: 35px;
         z-index: 1;
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .step-line.completed {
-            background: #007bff;
+        .timeline-line.completed {
+            background: var(--success-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+    /* Progress Section */
+    .progress-section {
+        margin: 30px 0;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        border: 2px solid var(--border-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
-    .timeline-title.completed {
-        color: #007bff;
-        font-weight: bold;
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
     }
-    /* // increase icon size */
-    .step-icon svg {
-        width: 25px;
+
+        .progress-header h5 {
+            color: var(--dark-color);
+            font-weight: 600;
+            margin: 0;
+        }
+
+    .progress-percentage {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--dark-color);
+    }
+
+    .custom-progress {
         height: 25px;
+        border-radius: 15px;
+        background: var(--light-gray);
+        overflow: hidden;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #3B82F6, #2563EB);
+        border-radius: 15px;
+        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 15px;
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+    }
+
+    /* User Avatar Placeholder */
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--light-gray);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .user-avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #CBD5E0 0%, #A0AEC0 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    /* Customer Avatar */
+    .customer-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--light-gray);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+        .customer-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .customer-avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #718096 0%, #4A5568 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 32px;
+    }
+
+    /* Team Member Avatar */
+    .team-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--border-color);
+        margin-right: 8px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+        .team-avatar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .team-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .team-avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #A0AEC0 0%, #718096 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    /* Card Styling */
+    .card {
+        border: 2px solid var(--border-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Animations */
+    @@keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+    }
+
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .timeline-container {
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .timeline-line {
+            display: none;
+        }
+
+        .step-circle {
+            width: 60px;
+            height: 60px;
+        }
+
+            .step-circle i {
+                font-size: 24px;
+            }
+
+        .timeline-wrapper {
+            padding: 20px 0;
+        }
     }
 </style>
+
 <div class="card">
     <div class="content pt-0">
-        <div class="timeline-container">
-            <div class="timeline-step" data-step="1">
-                <div class="step-icon"><i class="fa-regular fa-calendar"></i></div>
-                <div class="timeline-title">SCHEDULE</div>
-            </div>
-            <div class="timeline-step" data-step="2">
-                <div class="step-icon"><i class="fa-solid fa-car-on"></i></i></div>
-                <div class="timeline-title">OMW</div>
-            </div>
-            <div class="timeline-step" data-step="3">
-                <div class="step-icon"><i class="fa-solid fa-play"></i></i></div>
-                <div class="timeline-title">START</div>
-            </div>
-            <div class="timeline-step" data-step="4">
-                <div class="step-icon"><i class="fa-solid fa-flag-checkered"></i></i></div>
-                <div class="timeline-title">FINISH</div>
-            </div>
-            <div class="timeline-step" data-step="5">
-                <div class="step-icon"><i class="fa-regular fa-file-lines"></i></div>
-                <div class="timeline-title">INVOICE</div>
-            </div>
-            <div class="timeline-step" data-step="6">
-                <div class="step-icon"><i class="fa-solid fa-money-bill-1-wave"></i></div>
-                <div class="timeline-title">PAY</div>
+        <!-- Beautiful Timeline -->
+        <div class="timeline-wrapper mt-5" id="timelineWrapper">
+            <div class="timeline-container" id="timelineContainer">
+                <!-- Step 1: Schedule -->
+                <div class="timeline-step" data-step="1">
+                    <div class="step-circle" data-step="1">
+                        <i class="fas fa-calendar-check"></i>
+                        <span class="step-badge"><i class="fas fa-check"></i></span>
+                    </div>
+                    <div class="step-label">
+                        <div class="step-title">Schedule</div>
+                        <div class="step-date">Pending</div>
+                    </div>
+                </div>
+
+                <!-- Step 2: On My Way -->
+                <div class="timeline-step" data-step="2">
+                    <div class="step-circle" data-step="2">
+                        <i class="fas fa-car"></i>
+                        <span class="step-badge"><i class="fas fa-check"></i></span>
+                    </div>
+                    <div class="step-label">
+                        <div class="step-title">On My Way</div>
+                        <div class="step-date">Pending</div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Start/Pause (COMBINED BUTTON) -->
+                <div class="timeline-step" data-step="3">
+                    <div class="step-circle" data-step="3" id="start-push-icon">
+                        <i class="fas fa-play-circle"></i>
+                        <span class="step-badge"><i class="fas fa-check"></i></span>
+                    </div>
+                    <div class="step-label">
+                        <div class="step-title">Start/Pause</div>
+                        <div class="step-date">Pending</div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Finish -->
+                <div class="timeline-step" data-step="4">
+                    <div class="step-circle" data-step="4">
+                        <i class="fas fa-flag-checkered"></i>
+                        <span class="step-badge"><i class="fas fa-check"></i></span>
+                    </div>
+                    <div class="step-label">
+                        <div class="step-title">Finish</div>
+                        <div class="step-date">Pending</div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Invoice -->
+                <div class="timeline-step" data-step="5">
+                    <div class="step-circle" data-step="5">
+                        <i class="fas fa-file-invoice"></i>
+                        <span class="step-badge"><i class="fas fa-check"></i></span>
+                    </div>
+                    <div class="step-label">
+                        <div class="step-title">Invoice</div>
+                        <div class="step-date">Pending</div>
+                    </div>
+                </div>
+
+                <!-- Step 6: Payment -->
+                <div class="timeline-step" data-step="6">
+                    <div class="step-circle" data-step="6">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span class="step-badge"><i class="fas fa-check"></i></span>
+                    </div>
+                    <div class="step-label">
+                        <div class="step-title">Payment</div>
+                        <div class="step-date">Pending</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="pb-6 card ">
-            <div class="d-flex justify-content-between align-items-center my-3 px-3 fw-bold">
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <h5><i class="fas fa-chart-line me-2"></i>Overall Progress</h5>
+                <span class="progress-percentage" id="progressPercentage">0%</span>
+            </div>
+            <div class="custom-progress">
+                <div class="custom-progress-bar" id="progressBar" style="width: 0%;">
+                    0% Complete
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Details Card -->
+        <div class="card pb-6">
+            <div class="d-flex justify-content-between align-items-center fw-bold my-3 px-3">
                 <div class="pt-2">
-                    <h5 class="mb-0" id="jobTitle"></h5>
+                    <h5 class="mb-0" id="jobTitle">Loading...</h5>
                 </div>
 
-                <div class="">
+                <div>
                     <button class="btn" type="button">
                         <span class="fas fa-angle-left fs-9"></span>
                     </button>
-                    <a class="text-body-secondary dropdown-toggle text-decoration-none dropdown-caret-none" href="#!" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="text-body-secondary dropdown-toggle text-decoration-none dropdown-caret-none"
+                       href="#!" data-bs-toggle="dropdown" aria-expanded="false">
                         Mon, 23 Dec, 2025
                     </a>
                     <button class="btn" type="button">
                         <span class="fas fa-angle-right fs-9"></span>
                     </button>
                 </div>
-                <div class="">
-                    <!-- <button type="button" class="btn custom-circle-btn"><span class="fs-6 text-primary" data-feather="file-plus"></span></button> -->
-                    <button class="btn btn-sm btn-phoenix-secondary" type="button" data-bs-toggle="modal" data-bs-target="#verticallyCentered"><span class="fa-solid fas fa-plus me-2"></span>Extend days</button>
-                </div>
-                <div class="modal fade" id="verticallyCentered" tabindex="-1" aria-labelledby="verticallyCenteredModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="verticallyCenteredModalLabel">Assign Employee</h5>
-                                <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="mb-2">
-                                    <label for="organizerSingle">Select Team Leader</label>
-                                    <select class="form-select" id="" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                        <option>Abid Hasan</option>
-                                        <option>Kazi Ala-uddin</option>
-                                    </select>
-                                </div>
 
-                                <div class="mb-2">
-                                    <label for="organizerSingle">Select Executive Members</label>
-                                    <select class="form-select" id="organizerMultiple" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                        <option>Abid Hasan</option>
-                                        <option>Kazi Ala-uddin</option>
-                                        <option>Sadek Hasan</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-primary" type="button">Okay</button>
-                                <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                    <button class="btn btn-sm btn-primary" type="button"
+                            data-bs-toggle="modal" data-bs-target="#extendDaysModal">
+                        <span class="fa-solid fas fa-plus me-2"></span>Extend days
+                    </button>
                 </div>
             </div>
-            <div class="d-flex align-items-center bg-body-secondary mb-3 p-2">
-                <a href="#" class="ms-3">
-                    <div class="avatar avatar-xl  me-2">
-                        <img class="rounded-circle " src="../../assets/img//team/21.webp" alt="" />
 
-                    </div>
-                </a>
+            <!-- Customer Info Section with Placeholder -->
+            <div class="d-flex align-items-center bg-light mb-3 rounded p-3">
+                <div class="customer-avatar fs-6 me-3" id="customerAvatarContainer">
+                    <i class="fa-solid fa-user"></i>
+                </div>
                 <div class="flex-1">
-                    <a class="fw-bold mb-0 text-body-emphasis" id="customerName"></a>
-                    <p class="fs-10 mb-0 text-body-tertiary text-opacity-85 fw-semibold">
-                        ABC COmpany LTD
-                        <span class="fa-solid fa-circle text-body-quaternary text-opacity-50" data-fa-transform="shrink-10 down-2"></span>
-                        Gulshan, Dhaka
-                        <span class="fa-solid fa-circle text-body-quaternary text-opacity-50" data-fa-transform="shrink-10 down-2"></span>
-                        <a href=""><span class="fa-solid fa-file-contract text-body fs-8 ms-4"></span></a>
+                    <h6 class="fw-bold text-dark fs-7 mb-1" id="customerName">Loading...</h6>
+                    <p class="fs-9 text-muted mb-0">
+                        @* <span id="companyName">Company Name</span> *@
+                        @* <span class="mx-2">•</span> *@
+                        <span id="customerLocation">Location</span>
+                        @* <span class="mx-2">•</span>
+                        <a href="#" class="text-dark"><i class="fas fa-file-contract"></i></a> *@
                     </p>
-
                 </div>
-                <!-- <div class="btn-reveal-trigger">
-                  <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none d-flex btn-reveal" type="button">
-                    <span class="fas fa-file-contract"></span>
-                  </button>
-                </div> -->
             </div>
 
+            <!-- Job Details Row -->
             <div class="row g-6 px-3">
                 <div class="col-xl-6">
-
-                    <table class="table table-borderless mt-4">
+                    <table class="table-borderless mt-4 table">
                         <tbody>
                             <tr>
                                 <td class="py-2 ps-0">
                                     <div class="d-flex">
-                                        <span class="fs-3 me-2" data-feather="calendar"> </span>
+                                        <span class="fs-3 me-2" data-feather="calendar"></span>
                                         <h5 class="lh-sm me-4">Start Date</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
-                                    <h5 class="lh-sm fs-9 text-body-secondary" id="startDate"></h5>
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
+                                    <h5 class="lh-sm fs-9 text-body-secondary" id="startDate">-</h5>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="py-2 ps-0">
                                     <div class="d-flex">
-                                        <span class="fs-3 me-2" data-feather="calendar"> </span>
+                                        <span class="fs-3 me-2" data-feather="calendar"></span>
                                         <h5 class="lh-sm me-4">End Date</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
-                                    <h5 class="lh-lg fs-8 text-body-secondary" id="endDate"></h5>
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
+                                    <h5 class="lh-lg fs-8 text-body-secondary" id="endDate">-</h5>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="py-2 ps-0">
                                     <div class="d-flex">
-                                        <span class="fs-3 me-2" data-feather="home"> </span>
+                                        <span class="fs-3 me-2" data-feather="home"></span>
                                         <h5 class="lh-sm me-4">Location</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
-                                    <h5 class="lh-lg fw-normal text-body-secondary" id="jobLocation"></h5>
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
+                                    <h5 class="lh-lg fw-normal text-body-secondary" id="jobLocation">-</h5>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="py-2 ps-0">
                                     <div class="d-flex">
-                                        <span class="fs-3 me-2" data-feather="phone"> </span>
+                                        <span class="fs-3 me-2" data-feather="phone"></span>
                                         <h5 class="lh-sm me-4">Phone</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
-                                    <h5 class="lh-sm fw-normal text-body-secondary">818-414-4092</h5>
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
+                                    <h5 class="lh-sm fw-normal text-body-secondary" id="customerPhone">-</h5>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="py-2 ps-0">
                                     <div class="d-flex">
-                                        <span class="fs-3 me-2" data-feather="notes"> </span>
+                                        <span class="fs-3 me-2" data-feather="file-text"></span>
                                         <h5 class="lh-sm me-4">Notes</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
-                                    <h5 class="lh-sm fw-normal text-body-secondary" id="note"></h5>
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
+                                    <h5 class="lh-sm fw-normal text-body-secondary" id="note">-</h5>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="col-xl-5">
 
-                    <table class="table table-borderless mt-4">
+                <div class="col-xl-6">
+                    <table class="table-borderless mt-4 table">
                         <tbody>
                             <tr>
                                 <td class="py-2 ps-0">
                                     <div class="d-flex">
-                                        <span class="fs-3 me-2" data-feather="user-plus"> </span>
-                                        <h5 class="lh-sm me-4">Assign To</h5>
+                                        <span class="fs-3 me-2" data-feather="briefcase"></span>
+                                        <h5 class="lh-sm me-4">Job Type</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
-
-                                    <div class="avatar-group avatar-group-dense">
-                                        <a class="dropdown-toggle dropdown-caret-none d-inline-block" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                            <div class="avatar avatar-s  rounded-circle">
-                                                <img class="rounded-circle " src="../../assets/img/team/9.webp" alt="" />
-
-                                            </div>
-                                        </a>
-                                        <div class="dropdown-menu avatar-dropdown-menu p-0 overflow-hidden" style="width: 320px;">
-                                            <div class="position-relative">
-                                                <div class="bg-holder z-n1" style="background-image:url(../../assets/img/bg/bg-32.png);background-size: auto;">
-                                                </div>
-                                                <!--/.bg-holder-->
-
-                                                <div class="p-3">
-                                                    <div class="text-end">
-                                                        <button class="btn p-0 me-2"><span class="fa-solid fa-user-plus text-white"></span></button>
-                                                        <button class="btn p-0"><span class="fa-solid fa-ellipsis text-white"></span></button>
-                                                    </div>
-                                                    <div class="text-center">
-                                                        <div class="avatar avatar-xl status-online position-relative me-2 me-sm-0 me-xl-2 mb-2"><img class="rounded-circle border border-light-subtle" src="../../assets/img/team/9.webp" alt="" /></div>
-                                                        <h6 class="text-white">Michael Jenkins</h6>
-                                                        <p class="text-light text-opacity-50 fw-semibold fs-10 mb-2">tyrion222</p>
-                                                        <div class="d-flex flex-center mb-3">
-                                                            <h6 class="text-white mb-0">224 <span class="fw-normal text-light text-opacity-75">connections</span></h6><span class="fa-solid fa-circle text-body-tertiary mx-1" data-fa-transform="shrink-10 up-2"></span>
-                                                            <h6 class="text-white mb-0">23 <span class="fw-normal text-light text-opacity-75">mutual</span></h6>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="bg-body-emphasis">
-                                                <div class="p-3 border-bottom border-translucent">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div class="d-flex">
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg me-2"><span class="fa-solid fa-phone"></span></button>
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg me-2"><span class="fa-solid fa-message"></span></button>
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg"><span class="fa-solid fa-video"></span></button>
-                                                        </div>
-                                                        <button class="btn btn-phoenix-primary"><span class="fa-solid fa-envelope me-2"></span>Send Email</button>
-                                                    </div>
-                                                </div>
-                                                <ul class="nav d-flex flex-column py-3 border-bottom">
-                                                    <li class="nav-item"><a class="nav-link px-3 d-flex flex-between-center" href="#!"> <span class="me-2 text-body d-inline-block" data-feather="clipboard"></span><span class="text-body-highlight flex-1">Assigned Projects</span><span class="fa-solid fa-chevron-right fs-11"></span></a></li>
-                                                    <li class="nav-item"><a class="nav-link px-3 d-flex flex-between-center" href="#!"> <span class="me-2 text-body" data-feather="pie-chart"></span><span class="text-body-highlight flex-1">View activiy</span><span class="fa-solid fa-chevron-right fs-11"></span></a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="p-3 d-flex justify-content-between"><a class="btn btn-link p-0 text-decoration-none" href="#!">Details </a><a class="btn btn-link p-0 text-decoration-none text-danger" href="#!">Unassign </a></div>
-                                        </div>
-                                        <a class="dropdown-toggle dropdown-caret-none d-inline-block" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                            <div class="avatar avatar-s  rounded-circle">
-                                                <img class="rounded-circle " src="../../assets/img/team/25.webp" alt="" />
-
-                                            </div>
-                                        </a>
-                                        <div class="dropdown-menu avatar-dropdown-menu p-0 overflow-hidden" style="width: 320px;">
-                                            <div class="position-relative">
-                                                <div class="bg-holder z-n1" style="background-image:url(../../assets/img/bg/bg-32.png);background-size: auto;">
-                                                </div>
-                                                <!--/.bg-holder-->
-
-                                                <div class="p-3">
-                                                    <div class="text-end">
-                                                        <button class="btn p-0 me-2"><span class="fa-solid fa-user-plus text-white"></span></button>
-                                                        <button class="btn p-0"><span class="fa-solid fa-ellipsis text-white"></span></button>
-                                                    </div>
-                                                    <div class="text-center">
-                                                        <div class="avatar avatar-xl status-online position-relative me-2 me-sm-0 me-xl-2 mb-2"><img class="rounded-circle border border-light-subtle" src="../../assets/img/team/25.webp" alt="" /></div>
-                                                        <h6 class="text-white">Ansolo Lazinatov</h6>
-                                                        <p class="text-light text-opacity-50 fw-semibold fs-10 mb-2">tyrion222</p>
-                                                        <div class="d-flex flex-center mb-3">
-                                                            <h6 class="text-white mb-0">224 <span class="fw-normal text-light text-opacity-75">connections</span></h6><span class="fa-solid fa-circle text-body-tertiary mx-1" data-fa-transform="shrink-10 up-2"></span>
-                                                            <h6 class="text-white mb-0">23 <span class="fw-normal text-light text-opacity-75">mutual</span></h6>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="bg-body-emphasis">
-                                                <div class="p-3 border-bottom border-translucent">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div class="d-flex">
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg me-2"><span class="fa-solid fa-phone"></span></button>
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg me-2"><span class="fa-solid fa-message"></span></button>
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg"><span class="fa-solid fa-video"></span></button>
-                                                        </div>
-                                                        <button class="btn btn-phoenix-primary"><span class="fa-solid fa-envelope me-2"></span>Send Email</button>
-                                                    </div>
-                                                </div>
-                                                <ul class="nav d-flex flex-column py-3 border-bottom">
-                                                    <li class="nav-item"><a class="nav-link px-3 d-flex flex-between-center" href="#!"> <span class="me-2 text-body d-inline-block" data-feather="clipboard"></span><span class="text-body-highlight flex-1">Assigned Projects</span><span class="fa-solid fa-chevron-right fs-11"></span></a></li>
-                                                    <li class="nav-item"><a class="nav-link px-3 d-flex flex-between-center" href="#!"> <span class="me-2 text-body" data-feather="pie-chart"></span><span class="text-body-highlight flex-1">View activiy</span><span class="fa-solid fa-chevron-right fs-11"></span></a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="p-3 d-flex justify-content-between"><a class="btn btn-link p-0 text-decoration-none" href="#!">Details </a><a class="btn btn-link p-0 text-decoration-none text-danger" href="#!">Unassign </a></div>
-                                        </div>
-                                        <a class="dropdown-toggle dropdown-caret-none d-inline-block" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                            <div class="avatar avatar-s  rounded-circle">
-                                                <img class="rounded-circle " src="../../assets/img/team/32.webp" alt="" />
-
-                                            </div>
-                                        </a>
-                                        <div class="dropdown-menu avatar-dropdown-menu p-0 overflow-hidden" style="width: 320px;">
-                                            <div class="position-relative">
-                                                <div class="bg-holder z-n1" style="background-image:url(../../assets/img/bg/bg-32.png);background-size: auto;">
-                                                </div>
-                                                <!--/.bg-holder-->
-
-                                                <div class="p-3">
-                                                    <div class="text-end">
-                                                        <button class="btn p-0 me-2"><span class="fa-solid fa-user-plus text-white"></span></button>
-                                                        <button class="btn p-0"><span class="fa-solid fa-ellipsis text-white"></span></button>
-                                                    </div>
-                                                    <div class="text-center">
-                                                        <div class="avatar avatar-xl status-online position-relative me-2 me-sm-0 me-xl-2 mb-2"><img class="rounded-circle border border-light-subtle" src="../../assets/img/team/32.webp" alt="" /></div>
-                                                        <h6 class="text-white">Jennifer Schramm</h6>
-                                                        <p class="text-light text-opacity-50 fw-semibold fs-10 mb-2">tyrion222</p>
-                                                        <div class="d-flex flex-center mb-3">
-                                                            <h6 class="text-white mb-0">224 <span class="fw-normal text-light text-opacity-75">connections</span></h6><span class="fa-solid fa-circle text-body-tertiary mx-1" data-fa-transform="shrink-10 up-2"></span>
-                                                            <h6 class="text-white mb-0">23 <span class="fw-normal text-light text-opacity-75">mutual</span></h6>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="bg-body-emphasis">
-                                                <div class="p-3 border-bottom border-translucent">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div class="d-flex">
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg me-2"><span class="fa-solid fa-phone"></span></button>
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg me-2"><span class="fa-solid fa-message"></span></button>
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg"><span class="fa-solid fa-video"></span></button>
-                                                        </div>
-                                                        <button class="btn btn-phoenix-primary"><span class="fa-solid fa-envelope me-2"></span>Send Email</button>
-                                                    </div>
-                                                </div>
-                                                <ul class="nav d-flex flex-column py-3 border-bottom">
-                                                    <li class="nav-item"><a class="nav-link px-3 d-flex flex-between-center" href="#!"> <span class="me-2 text-body d-inline-block" data-feather="clipboard"></span><span class="text-body-highlight flex-1">Assigned Projects</span><span class="fa-solid fa-chevron-right fs-11"></span></a></li>
-                                                    <li class="nav-item"><a class="nav-link px-3 d-flex flex-between-center" href="#!"> <span class="me-2 text-body" data-feather="pie-chart"></span><span class="text-body-highlight flex-1">View activiy</span><span class="fa-solid fa-chevron-right fs-11"></span></a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="p-3 d-flex justify-content-between"><a class="btn btn-link p-0 text-decoration-none" href="#!">Details </a><a class="btn btn-link p-0 text-decoration-none text-danger" href="#!">Unassign </a></div>
-                                        </div>
-                                        <a class="dropdown-toggle dropdown-caret-none d-inline-block" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
-                                            <div class="avatar avatar-s  rounded-circle">
-                                                <img class="rounded-circle avatar-placeholder" src="../../assets/img/team/avatar.webp" alt="" />
-
-                                            </div>
-                                        </a>
-                                        <div class="dropdown-menu avatar-dropdown-menu p-0 overflow-hidden" style="width: 320px;">
-                                            <div class="position-relative">
-                                                <div class="bg-holder z-n1" style="background-image:url(../../assets/img/bg/bg-32.png);background-size: auto;">
-                                                </div>
-                                                <!--/.bg-holder-->
-
-                                                <div class="p-3">
-                                                    <div class="text-end">
-                                                        <button class="btn p-0 me-2"><span class="fa-solid fa-user-plus text-white"></span></button>
-                                                        <button class="btn p-0"><span class="fa-solid fa-ellipsis text-white"></span></button>
-                                                    </div>
-                                                    <div class="text-center">
-                                                        <div class="avatar avatar-xl status-online position-relative me-2 me-sm-0 me-xl-2 mb-2"><img class="rounded-circle border border-light-subtle" src="../../assets/img/team/avatar.webp" alt="" /></div>
-                                                        <h6 class="text-white">Kristine Cadena</h6>
-                                                        <p class="text-light text-opacity-50 fw-semibold fs-10 mb-2">tyrion222</p>
-                                                        <div class="d-flex flex-center mb-3">
-                                                            <h6 class="text-white mb-0">224 <span class="fw-normal text-light text-opacity-75">connections</span></h6><span class="fa-solid fa-circle text-body-tertiary mx-1" data-fa-transform="shrink-10 up-2"></span>
-                                                            <h6 class="text-white mb-0">23 <span class="fw-normal text-light text-opacity-75">mutual</span></h6>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="bg-body-emphasis">
-                                                <div class="p-3 border-bottom border-translucent">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div class="d-flex">
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg me-2"><span class="fa-solid fa-phone"></span></button>
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg me-2"><span class="fa-solid fa-message"></span></button>
-                                                            <button class="btn btn-phoenix-secondary btn-icon btn-icon-lg"><span class="fa-solid fa-video"></span></button>
-                                                        </div>
-                                                        <button class="btn btn-phoenix-primary"><span class="fa-solid fa-envelope me-2"></span>Send Email</button>
-                                                    </div>
-                                                </div>
-                                                <ul class="nav d-flex flex-column py-3 border-bottom">
-                                                    <li class="nav-item"><a class="nav-link px-3 d-flex flex-between-center" href="#!"> <span class="me-2 text-body d-inline-block" data-feather="clipboard"></span><span class="text-body-highlight flex-1">Assigned Projects</span><span class="fa-solid fa-chevron-right fs-11"></span></a></li>
-                                                    <li class="nav-item"><a class="nav-link px-3 d-flex flex-between-center" href="#!"> <span class="me-2 text-body" data-feather="pie-chart"></span><span class="text-body-highlight flex-1">View activiy</span><span class="fa-solid fa-chevron-right fs-11"></span></a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="p-3 d-flex justify-content-between"><a class="btn btn-link p-0 text-decoration-none" href="#!">Details </a><a class="btn btn-link p-0 text-decoration-none text-danger" href="#!">Unassign </a></div>
-                                        </div>
-                                        <div class="avatar avatar-s  rounded-circle">
-                                            <div class="avatar-name rounded-circle ">
-                                                <span>
-                                                    <a class="text-decoration-none fs-8" type="button" data-bs-toggle="modal" data-bs-target="#verticallyCentered1">+</a>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="modal fade" id="verticallyCentered1" tabindex="-1" aria-labelledby="verticallyCentered1ModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="verticallyCenteredModalLabel">Assign Employee</h5>
-                                                    <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div class="mb-2">
-                                                        <label for="organizerSingle">Select Team Leader</label>
-                                                        <select class="form-select" id="" data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option>Abid Hasan</option>
-                                                            <option>Kazi Ala-uddin</option>
-                                                        </select>
-                                                    </div>
-
-                                                    <div class="mb-2">
-                                                        <label for="organizerSingle">Select Executive Members</label>
-                                                        <select class="form-select" id="organizerMultiple" data-choices="data-choices" multiple="multiple" data-options='{"removeItemButton":true,"placeholder":true}'>
-                                                            <option>Abid Hasan</option>
-                                                            <option>Kazi Ala-uddin</option>
-                                                            <option>Sadek Hasan</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button class="btn btn-primary" type="button">Okay</button>
-                                                    <button class="btn btn-outline-primary" type="button" data-bs-dismiss="modal">Cancel</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
+                                    <h5 class="lh-sm fw-normal text-body-secondary" id="jobType">-</h5>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="py-2 ps-0">
                                     <div class="d-flex">
-                                        <span class="fs-3 me-2" data-feather="tag"> </span>
-                                        <h5 class="lh-sm me-4">Add Tag</h5>
+                                        <span class="fs-3 me-2" data-feather="activity"></span>
+                                        <h5 class="lh-sm me-4">Status</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
-                                    <button class="btn btn-sm btn-phoenix-secondary" type="button"><span class="fa-solid fas fa-tag me-2"></span>Tag</button>
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
+                                    <span class="badge bg-light" id="statusName">-</span>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="py-2 ps-0">
                                     <div class="d-flex">
-                                        <span class="fs-3 me-2" data-feather="git-commit"> </span>
-                                        <h5 class="lh-sm me-4">Completion Progress</h5>
+                                        <span class="fs-3 me-2" data-feather="users"></span>
+                                        <h5 class="lh-sm me-4">Team Members</h5>
                                     </div>
                                 </td>
-                                <td class="py-2 fw-bold lh-sm">:</td>
-                                <td class="py-2 px-3">
-                                    <div class="progress" style="height:15px">
-                                        <div class="progress-bar rounded-3" role="progressbar" style="width: 50%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">50%</div>
+                                <td class="fw-bold lh-sm py-2">:</td>
+                                <td class="px-3 py-2">
+                                    <div id="teamMembers" class="d-flex align-items-center flex-wrap">
+                                        <span class="text-muted">Loading...</span>
                                     </div>
                                 </td>
                             </tr>
-
-
-
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="d-flex align-items-center bg-body-secondary mb-3 p-2">
-
-
-                <!-- Google Map -->
+            <!-- Google Map -->
+            <div class="d-flex align-items-center bg-light mb-3 rounded p-2">
                 <div id="map" class="w-100">
-                    <iframe class="w-100" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3713.9743141183694!2d92.0126222750432!3d21.430254580321478!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30adc7004ca0d447%3A0xa6cae203b8e06e73!2sCox%E2%80%99s%20Bazar%20Railway%20Station%20South%20View!5e0!3m2!1sen!2sbd!4v1752973402779!5m2!1sen!2sbd"
-                            style="border:0;  height: 30rem;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <div class="modal fade" id="searchBoxModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true" data-phoenix-modal="data-phoenix-modal" style="--phoenix-backdrop-opacity: 1;">
-        <div class="modal-dialog">
-            <div class="modal-content mt-15 rounded-pill">
-                <div class="modal-body p-0">
-                    <div class="search-box navbar-top-search-box" data-list='{"valueNames":["title"]}' style="width: auto;">
-                        <form class="position-relative" data-bs-toggle="search" data-bs-display="static">
-                            <input class="form-control search-input fuzzy-search rounded-pill form-control-lg" type="search" placeholder="Search..." aria-label="Search" />
-                            <span class="fas fa-search search-box-icon"></span>
-
-                        </form>
-                        <div class="btn-close position-absolute end-0 top-50 translate-middle cursor-pointer shadow-none" data-bs-dismiss="search">
-                            <button class="btn btn-link p-0" aria-label="Close"></button>
-                        </div>
-                        <div class="dropdown-menu border start-0 py-0 overflow-hidden w-100">
-                            <div class="scrollbar-overlay" style="max-height: 30rem;">
-                                <div class="list pb-3">
-                                    <h6 class="dropdown-header text-body-highlight fs-10 py-2">24 <span class="text-body-quaternary">results</span></h6>
-                                    <hr class="my-0" />
-                                    <h6 class="dropdown-header text-body-highlight fs-9 border-bottom border-translucent py-2 lh-sm">Recently Searched </h6>
-                                    <div class="py-2">
-                                        <a class="dropdown-item" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="d-flex align-items-center">
-
-                                                <div class="fw-normal text-body-highlight title"><span class="fa-solid fa-clock-rotate-left" data-fa-transform="shrink-2"></span> Store Macbook</div>
-                                            </div>
-                                        </a>
-                                        <a class="dropdown-item" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="d-flex align-items-center">
-
-                                                <div class="fw-normal text-body-highlight title"> <span class="fa-solid fa-clock-rotate-left" data-fa-transform="shrink-2"></span> MacBook Air - 13″</div>
-                                            </div>
-                                        </a>
-
-                                    </div>
-                                    <hr class="my-0" />
-                                    <h6 class="dropdown-header text-body-highlight fs-9 border-bottom border-translucent py-2 lh-sm">Products</h6>
-                                    <div class="py-2">
-                                        <a class="dropdown-item py-2 d-flex align-items-center" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="file-thumbnail me-2"><img class="h-100 w-100 object-fit-cover rounded-3" src="" alt="" /></div>
-                                            <div class="flex-1">
-                                                <h6 class="mb-0 text-body-highlight title">MacBook Air - 13″</h6>
-                                                <p class="fs-10 mb-0 d-flex text-body-tertiary"><span class="fw-medium text-body-tertiary text-opactity-85">8GB Memory - 1.6GHz - 128GB Storage</span></p>
-                                            </div>
-                                        </a>
-                                        <a class="dropdown-item py-2 d-flex align-items-center" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="file-thumbnail me-2"><img class="img-fluid" src="" alt="" /></div>
-                                            <div class="flex-1">
-                                                <h6 class="mb-0 text-body-highlight title">MacBook Pro - 13″</h6>
-                                                <p class="fs-10 mb-0 d-flex text-body-tertiary"><span class="fw-medium text-body-tertiary text-opactity-85">30 Sep at 12:30 PM</span></p>
-                                            </div>
-                                        </a>
-
-                                    </div>
-                                    <hr class="my-0" />
-                                    <h6 class="dropdown-header text-body-highlight fs-9 border-bottom border-translucent py-2 lh-sm">Quick Links</h6>
-                                    <div class="py-2">
-                                        <a class="dropdown-item" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="d-flex align-items-center">
-
-                                                <div class="fw-normal text-body-highlight title"><span class="fa-solid fa-link text-body" data-fa-transform="shrink-2"></span> Support MacBook House</div>
-                                            </div>
-                                        </a>
-                                        <a class="dropdown-item" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="d-flex align-items-center">
-
-                                                <div class="fw-normal text-body-highlight title"> <span class="fa-solid fa-link text-body" data-fa-transform="shrink-2"></span> Store MacBook″</div>
-                                            </div>
-                                        </a>
-
-                                    </div>
-                                    <hr class="my-0" />
-                                    <h6 class="dropdown-header text-body-highlight fs-9 border-bottom border-translucent py-2 lh-sm">Files</h6>
-                                    <div class="py-2">
-                                        <a class="dropdown-item" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="d-flex align-items-center">
-
-                                                <div class="fw-normal text-body-highlight title"><span class="fa-solid fa-file-zipper text-body" data-fa-transform="shrink-2"></span> Library MacBook folder.rar</div>
-                                            </div>
-                                        </a>
-                                        <a class="dropdown-item" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="d-flex align-items-center">
-
-                                                <div class="fw-normal text-body-highlight title"> <span class="fa-solid fa-file-lines text-body" data-fa-transform="shrink-2"></span> Feature MacBook extensions.txt</div>
-                                            </div>
-                                        </a>
-                                        <a class="dropdown-item" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="d-flex align-items-center">
-
-                                                <div class="fw-normal text-body-highlight title"> <span class="fa-solid fa-image text-body" data-fa-transform="shrink-2"></span> MacBook Pro_13.jpg</div>
-                                            </div>
-                                        </a>
-
-                                    </div>
-                                    <hr class="my-0" />
-                                    <h6 class="dropdown-header text-body-highlight fs-9 border-bottom border-translucent py-2 lh-sm">Members</h6>
-                                    <div class="py-2">
-                                        <a class="dropdown-item py-2 d-flex align-items-center" href="../../pages/members.html">
-                                            <div class="avatar avatar-l status-online  me-2 text-body">
-                                                <img class="rounded-circle " src="../../assets/img/team/40x40/10.webp" alt="" />
-
-                                            </div>
-                                            <div class="flex-1">
-                                                <h6 class="mb-0 text-body-highlight title">Carry Anna</h6>
-                                                <p class="fs-10 mb-0 d-flex text-body-tertiary">anna@technext.it</p>
-                                            </div>
-                                        </a>
-                                        <a class="dropdown-item py-2 d-flex align-items-center" href="../../pages/members.html">
-                                            <div class="avatar avatar-l  me-2 text-body">
-                                                <img class="rounded-circle " src="../../assets/img/team/40x40/12.webp" alt="" />
-
-                                            </div>
-                                            <div class="flex-1">
-                                                <h6 class="mb-0 text-body-highlight title">John Smith</h6>
-                                                <p class="fs-10 mb-0 d-flex text-body-tertiary">smith@technext.it</p>
-                                            </div>
-                                        </a>
-
-                                    </div>
-                                    <hr class="my-0" />
-                                    <h6 class="dropdown-header text-body-highlight fs-9 border-bottom border-translucent py-2 lh-sm">Related Searches</h6>
-                                    <div class="py-2">
-                                        <a class="dropdown-item" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="d-flex align-items-center">
-
-                                                <div class="fw-normal text-body-highlight title"><span class="fa-brands fa-firefox-browser text-body" data-fa-transform="shrink-2"></span> Search in the Web MacBook</div>
-                                            </div>
-                                        </a>
-                                        <a class="dropdown-item" href="../../apps/e-commerce/landing/product-details.html">
-                                            <div class="d-flex align-items-center">
-
-                                                <div class="fw-normal text-body-highlight title"> <span class="fa-brands fa-chrome text-body" data-fa-transform="shrink-2"></span> Store MacBook″</div>
-                                            </div>
-                                        </a>
-
-                                    </div>
-                                </div>
-                                <div class="text-center">
-                                    <p class="fallback fw-bold fs-7 d-none">No Result Found.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <iframe class="w-100 rounded"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3713.9743141183694!2d92.0126222750432!3d21.430254580321478!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30adc7004ca0d447%3A0xa6cae203b8e06e73!2sCox%E2%80%99s%20Bazar%20Railway%20Station%20South%20View!5e0!3m2!1sen!2sbd!4v1752973402779!5m2!1sen!2sbd"
+                            style="border:0; height: 30rem;" allowfullscreen="" loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-@* modal *@
-<div class="modal fade" id="activityModal" tabindex="-1">
-    <div class="modal-dialog">
+<!-- Activity Modal -->
+<div class="modal fade" id="activityModal" tabindex="-1" aria-labelledby="activityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Activity</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-light text-white">
+                <h5 class="modal-title" id="activityModalLabel">
+                    <i class="fas fa-plus-circle me-2"></i>Update Activity
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p id="modalStepInfo"></p>
-                <input type="text" id="activityInput" class="form-control" placeholder="Enter remarks...">
+                <div class="mb-3">
+                    <p id="modalStepInfo" class="fw-bold text-dark"></p>
+                </div>
+                <div class="mb-3">
+                    <label for="activityInput" class="form-label">
+                        <i class="fas fa-comment-dots me-2"></i>Remarks
+                    </label>
+                    <textarea class="form-control" id="activityInput" rows="4"
+                              placeholder="Enter activity details..." required></textarea>
+                </div>
             </div>
             <div class="modal-footer">
-                <button id="saveActivity" type="button" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button id="saveActivity" type="button" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Activity
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Extend Days Modal -->
+<div class="modal fade" id="extendDaysModal" tabindex="-1" aria-labelledby="extendDaysModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-light text-white">
+                <h5 class="modal-title" id="extendDaysModalLabel">Extend Job Duration</h5>
+                <button class="btn-close btn-close-white" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="newEndDate" class="form-label">New End Date</label>
+                    <input type="datetime-local" class="form-control" id="newEndDate">
+                </div>
+                <div class="mb-3">
+                    <label for="extendReason" class="form-label">Reason</label>
+                    <textarea class="form-control" id="extendReason" rows="3"
+                              placeholder="Enter reason for extension..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" id="saveExtension">
+                    <i class="fas fa-save me-2"></i>Save
+                </button>
+                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>

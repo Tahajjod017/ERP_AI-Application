@@ -138,14 +138,14 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             if (!ModelState.IsValid)
             {
                 var errors = ModelState
-                        .Where(x => x.Value.Errors.Count > 0)
+                        .Where(x => x.Value?.Errors.Count > 0)
                         .ToDictionary(
                             kvp => kvp.Key,
-                            kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                            kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToList()
                         );
 
                 var messages = ModelState
-                    .Where(x => x.Value.Errors.Count > 0)
+                    .Where(x => x.Value?.Errors.Count > 0)
                     .SelectMany(x => x.Value.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
@@ -210,22 +210,38 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         // ==============================
         // AJAX: Get Products
         // ==============================
+        //[HttpGet]
+        //public JsonResult GetProducts()
+        //{
+        //    var result = _productRepository.AllActive().Include(e=>e.ProductPricing)
+        //        .Select(p => new
+        //        {
+        //            id = p.ProductID,
+        //            name = p.ProductName,
+        //            price = p.ProductPricing != null ? p.ProductPricing.Select(e => e.SellingPriceExclVAT).FirstOrDefault() : 0m,
+        //           // price =  52m,
+        //            vatPercent = p.ProductPricing != null ? p.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m
+        //        })
+        //        .ToList();
+        //    return Json(result);
+        //}
+
         [HttpGet]
         public JsonResult GetProducts()
         {
-            var result = _productRepository.AllActive()
+            var result = _productRepository.AllActive().Include(e => e.ProductPricing)
                 .Select(p => new
                 {
                     id = p.ProductID,
                     name = p.ProductName,
-                    price = p.ProductAdvancedPricing != null ? p.ProductAdvancedPricing.Select(e => e.PriceValue).FirstOrDefault() : 0m
+                    price = p.ProductPricing != null ? p.ProductPricing.Select(e => e.SellingPriceExclVAT).FirstOrDefault() : 0m,
+                    vatPercent = p.ProductPricing != null ? p.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m,
+                    aitPercent = p.ProductPricing != null ? p.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m // Add this
                 })
                 .ToList();
-
-           
-
             return Json(result);
         }
+
 
         // ==============================
         // AJAX: Get Sales Orders by Customer
