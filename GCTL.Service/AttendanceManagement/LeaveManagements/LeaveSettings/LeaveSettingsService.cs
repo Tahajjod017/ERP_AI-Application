@@ -343,8 +343,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                      WorkingHour=entityVM.WorkingHour,
                      ShortLeaveMaxInADay=entityVM.ShortLeaveMaxInADay,
                      IsEmailSendEnabled = entityVM.IsEmailSendEnabled,
-                    IsSickLeaveDocumentRequired = entityVM.IsSickLeaveDocumentRequired,
-                    SickLeaveDocumentWithinDays = entityVM.SickLeaveDocumentWithinDays,
+                    //IsSickLeaveDocumentRequired = entityVM.IsSickLeaveDocumentRequired,
+                    //SickLeaveDocumentWithinDays = entityVM.SickLeaveDocumentWithinDays,
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
                     CreatedBy = entityVM.CreatedBy,
@@ -433,8 +433,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingPolicy.WorkingHour = entityVM.WorkingHour;
                 existingPolicy.ShortLeaveMaxInADay = entityVM.ShortLeaveMaxInADay;
                 existingPolicy.IsEmailSendEnabled = entityVM.IsEmailSendEnabled;
-                existingPolicy.IsSickLeaveDocumentRequired = entityVM.IsSickLeaveDocumentRequired;
-                existingPolicy.SickLeaveDocumentWithinDays = entityVM.SickLeaveDocumentWithinDays;
+                //existingPolicy.IsSickLeaveDocumentRequired = entityVM.IsSickLeaveDocumentRequired;
+                //existingPolicy.SickLeaveDocumentWithinDays = entityVM.SickLeaveDocumentWithinDays;
                 existingPolicy.LIP = entityVM.LIP;
                 existingPolicy.LMAC = entityVM.LMAC;
                 await leavepolicy.UpdateAsync(existingPolicy);
@@ -491,8 +491,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     WorkingHour=x.WorkingHour,
                     ShortLeaveMaxInADay=x.ShortLeaveMaxInADay,
                     IsEmailSendEnabled = x.IsEmailSendEnabled,
-                    IsSickLeaveDocumentRequired = x.IsSickLeaveDocumentRequired,
-                    SickLeaveDocumentWithinDays = x.SickLeaveDocumentWithinDays
+                    //IsSickLeaveDocumentRequired = x.IsSickLeaveDocumentRequired,
+                    //SickLeaveDocumentWithinDays = x.SickLeaveDocumentWithinDays
 
                 }).ToList();
 

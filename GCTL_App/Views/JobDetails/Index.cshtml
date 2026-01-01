@@ -1,13 +1,14 @@
 ﻿<style>
     :root {
         --primary-color: #3B82F6; /* Blue for active */
-        --success-color: #F8FAFC; /* Light white/gray for completed */
+        --success-color: #728bfc; /* Light white/gray for completed */
         --active-color: #2563EB; /* Darker blue for active state */
         --gray-color: #94A3B8;
         --light-gray: #F1F5F9;
         --dark-color: #334155;
         --border-color: #E2E8F0;
-        --completed-bg: #FFFFFF; /* White background for completed */
+        --completed-bg: #4061f5; /* background */
+        --pertial-success: #13d168;
     }
 
     /* Timeline Container */
@@ -65,21 +66,21 @@
 
         .step-circle:hover:not(.completed):not(.active) {
             transform: scale(1.1);
-            border-color: var(--dark-color);
-            color: white;
+            border-color: var(--success-color);
+            color: var(--completed-bg);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
         }
 
         .step-circle.completed {
             background: var(--completed-bg);
-            color: var(--dark-color);
+            color: white;
             border-color: var(--success-color);
             box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
             animation: pulse 0.6s ease-in-out;
         }
 
             .step-circle.completed i {
-                color: var(--dark-color);
+                color: var(--border-color);
             }
         /* Update step circle active state - BLUE */
         .step-circle.active {
@@ -101,7 +102,7 @@
         right: -8px;
         width: 24px;
         height: 24px;
-        background: var(--dark-color);
+        background: var(--pertial-success);
         border-radius: 50%;
         display: none;
         align-items: center;
@@ -411,7 +412,7 @@
 
                 <!-- Step 3: Start/Pause (COMBINED BUTTON) -->
                 <div class="timeline-step" data-step="3">
-                    <div class="step-circle" data-step="3">
+                    <div class="step-circle" data-step="3" id="start-push-icon">
                         <i class="fas fa-play-circle"></i>
                         <span class="step-badge"><i class="fas fa-check"></i></span>
                     </div>
@@ -508,11 +509,11 @@
                 <div class="flex-1">
                     <h6 class="fw-bold text-dark fs-7 mb-1" id="customerName">Loading...</h6>
                     <p class="fs-9 text-muted mb-0">
-                        <span id="companyName">Company Name</span>
-                        <span class="mx-2">•</span>
+                        @* <span id="companyName">Company Name</span> *@
+                        @* <span class="mx-2">•</span> *@
                         <span id="customerLocation">Location</span>
-                        <span class="mx-2">•</span>
-                        <a href="#" class="text-dark"><i class="fas fa-file-contract"></i></a>
+                        @* <span class="mx-2">•</span>
+                        <a href="#" class="text-dark"><i class="fas fa-file-contract"></i></a> *@
                     </p>
                 </div>
             </div>

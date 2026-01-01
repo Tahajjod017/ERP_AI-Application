@@ -77,6 +77,8 @@ public partial class LeaveApplications
 
     public virtual LeaveTypes LeaveType { get; set; }
 
+    public virtual SickLeaveDocument SickLeaveDocument { get; set; }
+
     public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }

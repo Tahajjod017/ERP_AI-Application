@@ -218,6 +218,7 @@ namespace GCTL.Service.CRM.LeadDetail
                     FileLink = e.FileLink,
                     PhoneNumber = e.PhoneNumber,
                     EmailAddress = e.EmailAddress,
+                    IsDone = e.IsDone,
                     LeadActivityName = e.LeadActivityType.LeadActivityName,
                     LeadActivityIcon = e.LeadActivityType.LeadActivityIcon,
                     CreatedByName = e.CreatedByNavigation != null
