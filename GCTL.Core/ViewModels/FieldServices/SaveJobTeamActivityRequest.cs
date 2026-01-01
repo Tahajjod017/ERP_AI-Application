@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GCTL_App.ViewModels.FieldServiceOne
 {
-    public class SaveActivityRequest
+    public class SaveActivityRequest : BaseViewModel
     {
         [Required(ErrorMessage = "Job ID is required")]
         public int JobID { get; set; }

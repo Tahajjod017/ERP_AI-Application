@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Web.Helpers;
 
 
@@ -24,9 +25,12 @@ namespace GCTL.Service.FieldServices
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfoRepository;
         public readonly IGenericRepository<Statuses> _statusRepository;
         public readonly IGenericRepository<JobTypes> _jobTypeRepository;
+        public readonly IGenericRepository<JobTeams> _jobTeamsRepository;
+        public readonly IGenericRepository<JobTeamActivities> _jobTeamActivitiesRepository;
+        public readonly IGenericRepository<JobWays> _jobWaysRepository;
         private readonly AppDbContext _context;
 
-        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, AppDbContext context, IGenericRepository<Country> countryRepository, IGenericRepository<Divisions> divisionsRepository, IGenericRepository<Statuses> statusRepository, IGenericRepository<JobTypes> jobTypeRepository) : base(genericRepository)
+        public CreateJobService(IGenericRepository<LeadActivityTypes> genericRepository, IGenericRepository<Jobs> jobsRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, AppDbContext context, IGenericRepository<Country> countryRepository, IGenericRepository<Divisions> divisionsRepository, IGenericRepository<Statuses> statusRepository, IGenericRepository<JobTypes> jobTypeRepository, IGenericRepository<JobTeams> jobTeamsRepository, IGenericRepository<JobTeamActivities> jobTeamActivitiesRepository, IGenericRepository<JobWays> jobWaysRepository) : base(genericRepository)
         {
             _jobsRepository = jobsRepository;
             _customersRepository = customersRepository;
@@ -36,6 +40,9 @@ namespace GCTL.Service.FieldServices
             _divisionsRepository = divisionsRepository;
             _statusRepository = statusRepository;
             _jobTypeRepository = jobTypeRepository;
+            _jobTeamsRepository = jobTeamsRepository;
+            _jobTeamActivitiesRepository = jobTeamActivitiesRepository;
+            _jobWaysRepository = jobWaysRepository;
         }
         #endregion
 
@@ -604,59 +611,138 @@ namespace GCTL.Service.FieldServices
             return query ?? new CreateJobVM();
         }
 
-        //public async Task<CommonReturnViewModel> SaveActivityAsync(
-        //    SaveActivityRequest request,
-        //    int organizationID,
-        //    int currentUserId)
-        //{
-        //    try
-        //    {
-        //        // Verify job belongs to organization
-        //        var jobExists = await _context.Jobs
-        //            .AnyAsync(j => j.JobID == request.JobID &&
-        //                          j.Customer.OrganizationID == organizationID);
+        public async Task<CommonReturnViewModel> SaveActivityAsync(
+    SaveActivityRequest request,
+    int organizationID,
+    int currentUserId)
+        {
+            try
+            {
+                // 1️⃣ Check job team & permission
+                var jobTeam = await _jobTeamsRepository
+                    .AllActive()
+                    .Include(x => x.Job)
+                    .Include(x => x.JobWays)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x =>
+                        x.JobID == request.JobID &&
+                        x.EmployeeID == currentUserId &&
+                        x.DeletedAt == null);
 
-        //        if (!jobExists)
-        //        {
-        //            return new CommonReturnViewModel
-        //            {
-        //                Success = false,
-        //                Message = "Job not found or you don't have permission",
-        //                Data = false
-        //            };
-        //        }
+                if (jobTeam == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Job not found or you don't have permission",
+                        Data = false
+                    };
+                }
 
-        //        // Create job activity record
-        //        var activity = new JobWays
-        //        {
-        //            JobI = request.JobID,
-        //            ActivityStep = request.ActivityStep,
-        //            Remarks = request.Remarks,
-        //            ActivityDate = DateTime.Now,
-        //            CreatedBy = currentUserId,
-        //            CreatedAt = DateTime.Now,
-        //        };
+                // 2️⃣ Job time validation
+                var now = DateTime.Now;
+                if (jobTeam.Job.StartDateTime > now || jobTeam.Job.EndDateTime < now)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Job is not active at this time",
+                        Data = false
+                    };
+                }
 
-        //        _context.JobTeamActivities.Add(activity);
-        //        await _context.SaveChangesAsync();
+                // 3️⃣ Check today's JobWays record
+                var today = DateTime.Today;
 
-        //        return new CommonReturnViewModel
-        //        {
-        //            Success = true,
-        //            Message = "Activity saved successfully",
-        //            Data = true
-        //        };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new CommonReturnViewModel
-        //        {
-        //            Success = false,
-        //            Message = $"Error saving activity: {ex.Message}",
-        //            Data = false
-        //        };
-        //    }
-        //}
+                var jobWays = await _jobWaysRepository
+                    .AllActive()
+                    .FirstOrDefaultAsync(x =>
+                        x.JobID == request.JobID &&
+                        x.JobTeamID == jobTeam.JobTeamID &&
+                        x.CreatedAt == today);
+
+                // 🔹 STEP 2 → START ACTIVITY
+                if (request.ActivityStep == 2)
+                {
+                    if (jobWays != null)
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "Activity already started",
+                            Data = false
+                        };
+                    }
+
+                    var newWays = new JobWays
+                    {
+                        JobID = request.JobID,
+                        JobTeamID = jobTeam.JobTeamID,
+                        GoingAT = now,
+                        CreatedAt = now,
+                        CreatedBy = request.CreatedBy,
+                        LIP = request.LIP,
+                        LMAC = request.LMAC
+                    };
+
+                    await _jobWaysRepository.AddAsync(newWays);
+
+                    return new CommonReturnViewModel
+                    {
+                        Success = true,
+                        Message = "Activity started successfully",
+                        Data = true
+                    };
+                }
+
+                // 🔹 STEP 4 → END ACTIVITY
+                if (request.ActivityStep == 4)
+                {
+                    if (jobWays == null)
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "Activity not started yet",
+                            Data = false
+                        };
+                    }
+
+                    jobWays.FinishAT = now;
+                    jobWays.UpdatedAt = now;
+                    jobWays.UpdatedBy = request.CreatedBy;
+                    jobWays.LIP = request.LIP;
+                    jobWays.LMAC = request.LMAC;
+
+                    await _jobWaysRepository.UpdateAsync(jobWays);
+
+                    return new CommonReturnViewModel
+                    {
+                        Success = true,
+                        Message = "Activity ended successfully",
+                        Data = true
+                    };
+                }
+
+                // 4️⃣ Invalid step
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Invalid activity step",
+                    Data = false
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = $"Error saving activity: {ex.Message}",
+                    Data = false
+                };
+            }
+        }
+
 
         public async Task<CommonReturnViewModel> SaveJobTeamActivityAsync(
             SaveJobTeamActivityRequest request,
