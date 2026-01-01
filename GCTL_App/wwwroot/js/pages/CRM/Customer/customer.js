@@ -316,7 +316,7 @@ window.initCustomerForm = function (root) {
         return `
     <div class="row align-items-center gap-2 mx-2 mb-2 contact-item p-2">
         <!-- Index number -->
-        <div class="col-auto text-center align-self-center fw-bold fs-6" style="margin-top: 23px!important;">
+        <div class="col-auto text-center align-self-center fw-semibold border rounded fs-7" style="margin-top: 23px!important;">
             ${index + 1}
         </div>
 
@@ -354,7 +354,7 @@ window.initCustomerForm = function (root) {
 
         <!-- Delete button -->
         <div class="col-auto text-center">
-            <button type="button" class="btn btn-sm btn-danger remove-contact" title="Remove Contact" class="removeBtn"  data-contact-id="${c.id ?? 0}" style="margin-top: 23px!important;">
+            <button type="button" class="btn btn-sm border remove-contact" title="Remove Contact" class="removeBtn"  data-contact-id="${c.id ?? 0}" style="margin-top: 23px!important;">
                 <i class="fas fa-trash"></i>
             </button>
         </div>

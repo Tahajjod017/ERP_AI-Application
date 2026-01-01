@@ -4,6 +4,7 @@ using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
 using GCTL.Data.Models;
+using GCTL_App.ViewModels.FieldServiceOne;
 using Microsoft.AspNetCore.JsonPatch.Internal;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -539,12 +540,13 @@ namespace GCTL.Service.FieldServices
                 .Take(pageSize)
                 .Select(t => new CreateJobVM
                 {
-                    JobTypeID = t.JobID,
+                    JobID = t.JobID,
                     CustomerName = t.Customer != null ? t.Customer.FullName : "",
                     JobTitle = t.JobTitle!= null ? t.JobTitle : "",
                     StartDate = t.StartDateTime.ToString(),
                     EndDate = t.EndDateTime.ToString(),
                     StatusName = t.JobStatus != null ? t.JobStatus.StatusName : string.Empty,
+                    //Phone = t.
                     JobLocation = t.Location != null ? t.Location : string.Empty,
                     Note = t.Note,
                     JobType = t.JobType != null ? t.JobType.JobTypeName : "",
@@ -561,34 +563,242 @@ namespace GCTL.Service.FieldServices
 
         #region pending
         public async Task<CreateJobVM> GetByIdAsync(int organizationID, int jobId)
-        {
+            {
             var query = await _context.Jobs
-                 .AsNoTracking()
-                 .Where(t => t.Customer != null && t.Customer.OrganizationID == organizationID && t.JobID == jobId).Select(t => new CreateJobVM
-                 {
-                     JobTypeID = t.JobID,
-                     CustomerName = t.Customer != null ? t.Customer.FullName : "",
-                     JobTitle = t.JobTitle != null ? t.JobTitle : "",
-                     StartDate = t.StartDateTime.ToString(),
-                     EndDate = t.EndDateTime.ToString(),
-                     StatusName = t.JobStatus != null ? t.JobStatus.StatusName : string.Empty,
-                     JobLocation = t.Location != null ? t.Location : string.Empty,
-                     Note = t.Note,
-                     JobType = t.JobType != null ? t.JobType.JobTypeName : "",
-                 }).FirstOrDefaultAsync();
+                .AsNoTracking()
+                .Where(t => t.Customer != null &&
+                           t.Customer.OrganizationID == organizationID &&
+                           t.JobID == jobId)
+                .Select(t => new CreateJobVM
+                {
+                    JobID = t.JobID,
+                    JobTypeID = t.JobTypeID,
+                    CustomerName = t.Customer != null ? t.Customer.FullName : "",
+                    //CustomerImage = t.Customer != null ? t.Customer.ProfileImage : "",
+                    //CustomerLocation = t.Customer != null ? t.Customer.Address : "",
+                    //CustomerPhone = t.Customer != null ? t.Customer.Phone : "",
+                    //CustomerEmail = t.Customer != null ? t.Customer.Email : "",
+                    //CompanyName = t.Customer != null ? t.Customer.CompanyName : "",
+                    JobTitle = t.JobTitle ?? "",
+                    InTime = t.StartDateTime <= DateTime.Now && t.EndDateTime >= DateTime.Now,
+                    StartDate = t.StartDateTime.HasValue ? t.StartDateTime.Value.ToString("dd-MM-yyyy hh:mm tt") : "",
+                    EndDate = t.EndDateTime.HasValue ? t.EndDateTime.Value.ToString("dd-MM-yyyy hh:mm tt") : "",
+                    StatusName = t.JobStatus != null ? t.JobStatus.StatusName : string.Empty,
+                    JobLocation = t.Location ?? string.Empty,
+                    Note = t.Note,
+                    JobType = t.JobType != null ? t.JobType.JobTypeName : "",
+                    //TeamMembers = t.JobTeams
+                    //    .SelectMany(jt => jt.JobTeamMembers)
+                    //    .Select(jtm => new TeamMemberVM
+                    //    {
+                    //        EmployeeID = jtm.EmployeeID,
+                    //        Name = jtm.Employee.FullName,
+                    //        FullName = jtm.Employee.FullName,
+                    //        ImageUrl = jtm.Employee.ProfileImage,
+                    //        Image = jtm.Employee.ProfileImage,
+                    //        Avatar = jtm.Employee.ProfileImage
+                    //    }).ToList()
+                })
+                .FirstOrDefaultAsync();
 
             return query ?? new CreateJobVM();
         }
 
-        public Task<CreateJobVM> SoftDeleteAsync(DeleteRequestVM requestVM)
+        //public async Task<ServiceResponse<bool>> SaveActivityAsync(
+        //    SaveActivityRequest request,
+        //    int organizationID,
+        //    int currentUserId,
+        //    string ip,
+        //    string mac)
+        //{
+        //    try
+        //    {
+        //        // Verify job belongs to organization
+        //        var jobExists = await _context.Jobs
+        //            .AnyAsync(j => j.JobID == request.JobID &&
+        //                          j.Customer.OrganizationID == organizationID);
+
+        //        if (!jobExists)
+        //        {
+        //            return new ServiceResponse<bool>
+        //            {
+        //                Success = false,
+        //                Message = "Job not found or you don't have permission",
+        //                Data = false
+        //            };
+        //        }
+
+        //        // Create job activity record
+        //        var activity = new JobActivities
+        //        {
+        //            JobID = request.JobID,
+        //            ActivityStep = request.ActivityStep,
+        //            Remarks = request.Remarks,
+        //            ActivityDate = DateTime.Now,
+        //            CreatedBy = currentUserId,
+        //            CreatedAt = DateTime.Now,
+        //            LIP = ip,
+        //            LMAC = mac
+        //        };
+
+        //        _context.JobActivities.Add(activity);
+        //        await _context.SaveChangesAsync();
+
+        //        return new ServiceResponse<bool>
+        //        {
+        //            Success = true,
+        //            Message = "Activity saved successfully",
+        //            Data = true
+        //        };
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return new ServiceResponse<bool>
+        //        {
+        //            Success = false,
+        //            Message = $"Error saving activity: {ex.Message}",
+        //            Data = false
+        //        };
+        //    }
+        //}
+
+        public async Task<CommonReturnViewModel> SaveJobTeamActivityAsync(
+            SaveJobTeamActivityRequest request,
+            int organizationID,
+            int currentUserId)
         {
-            throw new NotImplementedException();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Get the job and its team
+                var job = await _context.Jobs
+                    .Include(j => j.JobTeams)
+                    //.ThenInclude(jt => jt.JobTeamMembers)
+                    .FirstOrDefaultAsync(j => j.JobID == request.JobID &&
+                                             j.Customer.OrganizationID == organizationID);
+
+                if (job == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Job not found or you don't have permission",
+                        Data = false
+                    };
+                }
+
+                var jobTeam = job.JobTeams.FirstOrDefault();
+                if (jobTeam == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "No team assigned to this job",
+                        Data = false
+                    };
+                }
+
+                if (request.ActivityType.ToLower() == "start")
+                {
+                    // Check if there's already an active activity
+                    var hasActiveActivity = await _context.JobTeamActivities
+                        .AnyAsync(a => a.JobTeamID == jobTeam.JobTeamID &&
+                                      a.EndDateTime == null);
+
+                    if (hasActiveActivity)
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "There is already an active activity. Please pause it first.",
+                            Data = false
+                        };
+                    }
+
+                    // Create new activity with start time
+                    var activity = new JobTeamActivities
+                    {
+                        JobTeamID = jobTeam.JobTeamID,
+                        StartDateTime = DateTime.Now,
+                        EndDateTime = null,
+                        CreatedBy = currentUserId,
+                        CreatedAt = DateTime.Now,
+                        LIP = request.LIP,
+                        LMAC = request.LMAC
+                    };
+
+                    _context.JobTeamActivities.Add(activity);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+
+                    return new CommonReturnViewModel
+                    {
+                        Success = true,
+                        Message = "Job activity started successfully",
+                        Data = true
+                    };
+                }
+                else if (request.ActivityType.ToLower() == "push" || request.ActivityType.ToLower() == "pause")
+                {
+                    // Find the last active activity (no end time)
+                    var activeActivity = await _context.JobTeamActivities
+                        .Where(a => a.JobTeamID == jobTeam.JobTeamID &&
+                                   a.EndDateTime == null)
+                        .OrderByDescending(a => a.StartDateTime)
+                        .FirstOrDefaultAsync();
+
+                    if (activeActivity == null)
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "No active activity found to pause",
+                            Data = false
+                        };
+                    }
+
+                    // Update end time
+                    activeActivity.EndDateTime = DateTime.Now;
+                    activeActivity.UpdatedBy = currentUserId;
+                    activeActivity.UpdatedAt = DateTime.Now;
+
+                    _context.JobTeamActivities.Update(activeActivity);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+
+                    return new CommonReturnViewModel
+                    {
+                        Success = true,
+                        Message = "Job activity paused successfully",
+                        Data = true
+                    };
+                }
+                else
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Invalid activity type. Use 'start' or 'push'",
+                        Data = false
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = $"Error saving job team activity: {ex.Message}",
+                    Data = false
+                };
+            }
         }
 
-        public Task<bool> UpdateAsync(CreateJobVM model)
-        {
-            throw new NotImplementedException();
-        }
+
+    
         #endregion
 
         #region GetCalenderData
@@ -627,6 +837,16 @@ namespace GCTL.Service.FieldServices
                 };
             }
             
+        }
+
+        public Task<bool> UpdateAsync(CreateJobVM model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<CreateJobVM> SoftDeleteAsync(DeleteRequestVM requestVM)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }
