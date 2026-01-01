@@ -344,7 +344,9 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
                 + (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // If Null could be here
 
-                        //RequestedByUser = x.RequestedByUser != null
+
+        //                RequestedByUser = x.RequestedByUser != null
+
         //? $"{x.RequestedByUser.FirstName ?? ""}{(!string.IsNullOrEmpty(x.RequestedByUser.LastName) ? " " + x.RequestedByUser.LastName : "")}".Trim()
         //: null,
 

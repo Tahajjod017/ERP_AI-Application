@@ -291,9 +291,41 @@ $(function () {
     //============================
     // yes no Won button work
     // ============================
-    $('#wonYes, #wonNo').on('click', function () {
+    $('#wonNo').on('click', function () {
         saveActivityFunction(this);
         secialButtonState = "won";
+    });
+    $('#wonYes').on('click', function () {
+        debugger;
+        //open modal
+        $("#customerModalActionName").text("Create")
+
+
+        $.get('/CreateJobs/IndexModal', function (html) {
+            $('.create-job-modal-body').html(html);
+            // Load script if needed
+            $.getScript('/js/pages/FieldServices/CreateJob.js')
+                .done(() => {
+                    debugger;
+                    if (typeof initCreateJobModal === "function") {
+                        initCreateJobModal();
+                    }
+                    debugger;
+                    const modalEl = document.getElementById('createJobModalToggle');
+                    modalEl.setAttribute("data-bs-backdrop", "static");
+                    modalEl.setAttribute("data-bs-keyboard", "false");
+                    // Now open modal
+                    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                    const customerId2 = $('#CustomerId2').val();
+                    if (typeof LoadMainPageData === "function") {
+                        LoadMainPageData(customerId2);
+                    }
+                });
+
+
+        });
+        //saveActivityFunction(this);
+        //secialButtonState = "won";
     });
 
     //============================
@@ -1164,11 +1196,11 @@ $(function () {
         toastr.info('Edit functionality - ID: ' + activityId);
     }
 
-    function completeActivity(activityId) {
-        console.log('Complete activity:', activityId);
-        // Add your complete logic here
-        toastr.info('Complete functionality - ID: ' + activityId);
-    }
+    //function completeActivity(activityId) {
+    //    console.log('Complete activity:', activityId);
+    //    // Add your complete logic here
+    //    toastr.info('Complete functionality - ID: ' + activityId);
+    //}
 
     function viewActivity(activityId) {
         console.log('View activity:', activityId);
@@ -1184,3 +1216,24 @@ window.closeWindow = function () {
     const modal = bootstrap.Modal.getInstance(modalEl);
     if (modal) modal.hide();
 };
+
+function completeActivity(activityId) {
+    $.ajax({
+        url: '/LeadDetails/Complete',
+        method: 'POST',
+        data: { LeadDetailID: activityId },
+        success: function (response) {
+            if (response.success) {
+                customToaster.success(response.message);
+                resetAndReloadUpcoming();
+                resetAndReload();
+                makeEnableState();
+            } else {
+                toastr.error(response.message);
+            }
+        },
+        error: function (xhr) {
+            toastr.error("Error restoring lead");
+        }
+    });
+}
