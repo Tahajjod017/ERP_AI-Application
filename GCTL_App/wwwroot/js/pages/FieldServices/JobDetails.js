@@ -151,6 +151,7 @@
                 $('#startDate').text(data.startDate || 'N/A');
                 $('#endDate').text(data.endDate || 'N/A');
                 $('#statusName').text(data.statusName || 'N/A');
+                $('#customerLocation').text(data.jobLocation || 'N/A');
                 $('#jobLocation').text(data.jobLocation || 'N/A');
                 $('#note').text(data.note || 'N/A');
                 $('#jobType').text(data.jobType || 'N/A');
@@ -298,7 +299,8 @@
                         updateStepDates();
                         createLines();
                         updateProgress();
-
+ //                       $("#start-push-icon").html(`<i class="fa-solid fa-pause"></i>
+ //<span class="step-badge"><i class="fas fa-check"></i></span>`)
                         console.log('✓ Job paused successfully');
                         alert('Job paused successfully! Click again to resume.');
                     }

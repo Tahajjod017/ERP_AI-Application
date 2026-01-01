@@ -54,9 +54,7 @@ namespace GCTL_App.Controllers.FieldServices
             }
         }
 
-        /// <summary>
-        /// Save general job activity (for timeline steps)
-        /// </summary>
+
         //[HttpPost]
         //public async Task<IActionResult> SaveActivity([FromBody] SaveActivityRequest request)
         //{
@@ -68,16 +66,12 @@ namespace GCTL_App.Controllers.FieldServices
         //        }
 
         //        var organizationID = await GetCurrentOrganizationIdAsync() ?? 0;
-        //        var currentUserId = await GetCurrentUserIdAsync();
-        //        var ip = GetUserIP();
-        //        var mac = GetUserMAC();
+        //        var currentUserId = await GetCurrentEmployeeIdAsync() ?? 0;
 
         //        var result = await _jobService.SaveActivityAsync(
         //            request,
         //            organizationID,
-        //            currentUserId,
-        //            ip,
-        //            mac
+        //            currentUserId
         //        );
 
         //        if (result.Success)
@@ -97,9 +91,7 @@ namespace GCTL_App.Controllers.FieldServices
         //    }
         //}
 
-        /// <summary>
-        /// Save job team activity (Start/Push/Pause)
-        /// </summary>
+        
         [HttpPost]
         // Remove ValidateAntiForgeryToken for now to test
         public async Task<IActionResult> SaveJobTeamActivity([FromBody] SaveJobTeamActivityRequest request)

@@ -31,11 +31,15 @@ public partial class JobTeamActivities
 
     public int? DeletedBy { get; set; }
 
+    public int? JobWayID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual JobTeams JobTeam { get; set; }
+
+    public virtual JobWays JobWay { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

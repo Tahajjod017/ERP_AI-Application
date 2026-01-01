@@ -604,12 +604,10 @@ namespace GCTL.Service.FieldServices
             return query ?? new CreateJobVM();
         }
 
-        //public async Task<ServiceResponse<bool>> SaveActivityAsync(
+        //public async Task<CommonReturnViewModel> SaveActivityAsync(
         //    SaveActivityRequest request,
         //    int organizationID,
-        //    int currentUserId,
-        //    string ip,
-        //    string mac)
+        //    int currentUserId)
         //{
         //    try
         //    {
@@ -620,7 +618,7 @@ namespace GCTL.Service.FieldServices
 
         //        if (!jobExists)
         //        {
-        //            return new ServiceResponse<bool>
+        //            return new CommonReturnViewModel
         //            {
         //                Success = false,
         //                Message = "Job not found or you don't have permission",
@@ -629,22 +627,20 @@ namespace GCTL.Service.FieldServices
         //        }
 
         //        // Create job activity record
-        //        var activity = new JobActivities
+        //        var activity = new JobWays
         //        {
-        //            JobID = request.JobID,
+        //            JobI = request.JobID,
         //            ActivityStep = request.ActivityStep,
         //            Remarks = request.Remarks,
         //            ActivityDate = DateTime.Now,
         //            CreatedBy = currentUserId,
         //            CreatedAt = DateTime.Now,
-        //            LIP = ip,
-        //            LMAC = mac
         //        };
 
-        //        _context.JobActivities.Add(activity);
+        //        _context.JobTeamActivities.Add(activity);
         //        await _context.SaveChangesAsync();
 
-        //        return new ServiceResponse<bool>
+        //        return new CommonReturnViewModel
         //        {
         //            Success = true,
         //            Message = "Activity saved successfully",
@@ -653,7 +649,7 @@ namespace GCTL.Service.FieldServices
         //    }
         //    catch (Exception ex)
         //    {
-        //        return new ServiceResponse<bool>
+        //        return new CommonReturnViewModel
         //        {
         //            Success = false,
         //            Message = $"Error saving activity: {ex.Message}",

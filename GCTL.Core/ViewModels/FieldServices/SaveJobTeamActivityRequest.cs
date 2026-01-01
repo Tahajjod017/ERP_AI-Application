@@ -13,7 +13,7 @@ namespace GCTL_App.ViewModels.FieldServiceOne
         public int ActivityStep { get; set; }
 
         [Required(ErrorMessage = "Remarks are required")]
-        [StringLength(500, ErrorMessage = "Remarks cannot exceed 500 characters")]
+        //[StringLength(500, ErrorMessage = "Remarks cannot exceed 500 characters")]
         public string Remarks { get; set; }
     }
 
