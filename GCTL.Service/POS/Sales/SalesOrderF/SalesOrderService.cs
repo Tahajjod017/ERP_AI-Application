@@ -18,6 +18,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
     {
         private readonly IGenericRepository<BloodGroup> _bloodRepository;
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
+        private readonly IGenericRepository<Invoices> _invoiceRepository;
         private readonly IGenericRepository<SalesOrderVersionItems> _salesOrderItemRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
         private readonly IGenericRepository<PriceQuotationVersions> _priceQuotationVersionRepository;
@@ -31,7 +32,8 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
             IUserInfoService userInfoService,
             IGenericRepository<BloodGroup> bloodRepository,
             IGenericRepository<Data.Models.Inventory> inventoryRepository,
-            IGenericRepository<PriceQuotationVersions> priceQuotationVersionRepository)
+            IGenericRepository<PriceQuotationVersions> priceQuotationVersionRepository,
+            IGenericRepository<Invoices> invoiceRepository)
         {
             _salesOrderRepository = salesOrderRepository;
             _salesOrderItemRepository = salesOrderItemRepository;
@@ -40,6 +42,7 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
             _bloodRepository = bloodRepository;
             _inventoryRepository = inventoryRepository;
             _priceQuotationVersionRepository = priceQuotationVersionRepository;
+            _invoiceRepository = invoiceRepository;
         }
 
         public async Task<string> GetNextSOcode()
@@ -107,7 +110,15 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
                     await _salesOrderItemRepository.DeleteRangeAsync(existingItems);
 
-                   
+
+                    var invoice = _invoiceRepository.AllActive().FirstOrDefault(e => e.SalesOrderVersionID == result.SalesOrdersVersionID);
+
+
+                    if (invoice != null)
+                    {
+
+                    }
+
 
                     foreach (var item in vm.Items)
                     {
@@ -139,20 +150,24 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
                                 await _inventoryRepository.UpdateAsync(inv);
 
                             }
-                            else
-                            {
-                                await _bloodRepository.RollbackTransactionAsync();
-                                return new CommonReturnViewModel
-                                {
-                                    Success = false,
-                                    Message = "Your stock is low"
-                                };
-                            }
+                            //else  //TODO: Stock Check off
+                            //{
+                            //    await _bloodRepository.RollbackTransactionAsync();
+                            //    return new CommonReturnViewModel
+                            //    {
+                            //        Success = false,
+                            //        Message = "Your stock is low"
+                            //    };
+                            //}
                         }
 
                         
 
                     }
+
+
+
+
 
                     // Commit transaction
                     await _salesOrderItemRepository.CommitTransactionAsync();
@@ -290,15 +305,15 @@ namespace GCTL.Service.POS.Sales.SalesOrderF
 
                                 await _inventoryRepository.UpdateAsync(inv);
                             }
-                            else
-                            {
-                                await _bloodRepository.RollbackTransactionAsync();
-                                return new CommonReturnViewModel
-                                {
-                                    Success = false,
-                                    Message = "Your stock is low"
-                                };
-                            }
+                            //else  //TODO stock low
+                            //{
+                            //    await _bloodRepository.RollbackTransactionAsync();
+                            //    return new CommonReturnViewModel
+                            //    {
+                            //        Success = false,
+                            //        Message = "Your stock is low"
+                            //    };
+                            //}
                         }
 
                     }
