@@ -55,43 +55,43 @@ namespace GCTL_App.Controllers.FieldServices
         }
 
 
-        //[HttpPost]
-        //public async Task<IActionResult> SaveActivity([FromBody] SaveActivityRequest request)
-        //{
-        //    try
-        //    {
-        //        if (!ModelState.IsValid)
-        //        {
-        //            return BadRequest(new { success = false, message = "Invalid request data" });
-        //        }
+        [HttpPost]
+        public async Task<IActionResult> SaveActivity([FromBody] SaveActivityRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { success = false, message = "Invalid request data" });
+                }
 
-        //        var organizationID = await GetCurrentOrganizationIdAsync() ?? 0;
-        //        var currentUserId = await GetCurrentEmployeeIdAsync() ?? 0;
+                var organizationID = await GetCurrentOrganizationIdAsync() ?? 0;
+                var currentUserId = await GetCurrentEmployeeIdAsync() ?? 0;
 
-        //        var result = await _jobService.SaveActivityAsync(
-        //            request,
-        //            organizationID,
-        //            currentUserId
-        //        );
+                var result = await _jobService.SaveActivityAsync(
+                    request,
+                    organizationID,
+                    currentUserId
+                );
 
-        //        if (result.Success)
-        //        {
-        //            return Ok(result);
-        //        }
+                if (result.Success)
+                {
+                    return Ok(result);
+                }
 
-        //        return BadRequest(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new
-        //        {
-        //            success = false,
-        //            message = "Error saving activity"
-        //        });
-        //    }
-        //}
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Error saving activity"
+                });
+            }
+        }
 
-        
+
         [HttpPost]
         // Remove ValidateAntiForgeryToken for now to test
         public async Task<IActionResult> SaveJobTeamActivity([FromBody] SaveJobTeamActivityRequest request)
