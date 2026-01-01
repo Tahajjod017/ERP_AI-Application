@@ -5,7 +5,7 @@ $(document).ready(function () {
     // local veriable
     let customerId = null;
 
-    //#region Customer 
+    //#region Customer Select 2
     $('#CustomerID2').select2({
         placeholder: 'Select Customer',
         width: '100%',
@@ -50,7 +50,7 @@ $(document).ready(function () {
     });
     //#endregion
 
-    //#region Job
+    //#region Job Select 2
 
     
     const initializeSelect1 = () => {
@@ -461,14 +461,20 @@ $(document).ready(function () {
         $('#JobID').val(null).trigger('change');
         $('#RequestedByUserID').val(null).trigger('change');
         $('#ApprovedByUserID').val(null).trigger('change');
+        $('#GroupEmployeeID').val(null).trigger('change');
         $('#saveBtn').text('Send For Approval');
-        resetValidation(["CustomerID2", "JobID", "RequestedByUserID", "AmountRequested", "ApprovedByUserID"]);
+        resetValidation(["CustomerID2", "JobID", "RequestedByUserID", "AmountRequested", "ApprovedByUserID"]); //Added Validation
 
     }
+    //#endregion
 
+    //#region Cancel
+    $('#cancleBtn').on('click', function () {
+        clearForm();
+    });
+    //#endregion
 
-
-    // propagate CustomerID2 value into modal after modal is shown
+    // #region propagate CustomerID2 
     $('#createJobModalToggle').on('shown.bs.modal', function () {
         const selectedCustomerId = $("#CustomerID2").val();
         $(this).find('#CustomerID2').val(selectedCustomerId).trigger('change');
@@ -602,17 +608,17 @@ $(document).ready(function () {
                             <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">${item.customerName}
                                 
                             </td>
-                            <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTitle || 'N/A'}</td>
-                            <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTypeName || 'N/A'}</td>
+                            <td class="empProjectName align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTitle || 'N/A'}</td>
+                            <td class="empProjectType align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTypeName || 'N/A'}</td>
                             <td class="empSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.amountRequested || 0}</td>
-                            <td class="empBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.groupEmployeeName}
+                            <td class="empGroupName align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.groupEmployeeName}
                                
                             </td>
-                            <td class="empDeduction align-middle white-space-nowrap ps-4 fw-semibold text-body py-1"> ${item.statusName}
+                            <td class="empStatus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1"> ${item.statusName}
                                 
                             </td>
-                            <td class="netSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.requestedByUser || 0}</td>
-                            <td class="paySlip align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startDate} </td>
+                            <td class="empapprovedName align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.requestedByUser || 0}</td>
+                            <td class="empDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startDate} </td>
                             <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                                 <div class="d-flex btn-reveal-trigger position-static">
                                     <a href="#!"
