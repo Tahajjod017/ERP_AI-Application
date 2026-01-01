@@ -70,6 +70,7 @@ using GCTL.Service.Employees.EmployeeTermination;
 using GCTL.Service.Employees.EmployeeTraining;
 using GCTL.Service.Employees.EmpTransfer;
 using GCTL.Service.FieldServices;
+using GCTL.Service.FieldServices.Advanced_Apporval;
 using GCTL.Service.FieldServices.EmployeeAdvanced;
 using GCTL.Service.FileHandler;
 using GCTL.Service.Finance.AddJournal;
@@ -330,6 +331,7 @@ namespace GCTL_App.Extensions
 
             #region Tahajjod 
             services.AddScoped<IEmployeeAdvanced,EmployeeAdvancedService>();
+            services.AddScoped<IAdvancedApprovalService,AdvancedApprovalService>();
             #endregion
 
             #region Language Services

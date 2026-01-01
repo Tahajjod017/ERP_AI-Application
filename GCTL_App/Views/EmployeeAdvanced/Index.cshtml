@@ -37,13 +37,9 @@
 						<div class="col-md-3">
 							<div class="mb-3">
 								<label class="form-label" for="organizerMultiple">Job Type</label>
-<<<<<<< GCTL_App/Views/EmployeeAdvanced/Index.cshtml
 								<select asp-for="RequestedByUserID" class="form-select"multiple="multiple" asp-items="ViewBag.JobTypesDDD"></select>
 								<span id="RequestedByUserIDError" class="text-danger" style="display:none;"></span>
-=======
-								<select asp-for="RequestedByUserID" class="form-select" multiple="multiple" asp-items="ViewBag.JobTypesDDD"></select>
-								<span asp-validation-for="RequestedByUserID" class="text-danger"></span>
->>>>>>> GCTL_App/Views/EmployeeAdvanced/Index.cshtml
+
 							</div>
 						</div>
 
@@ -182,13 +178,13 @@
 						</th>
 						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empId">Receiving Employee</th>
 						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empName">Client Name</th>
-						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDept">Project Name</th>
-						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDept">Project Type</th>
+						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empProjectName">Project Name</th>
+						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empProjectType">Project Type</th>
 						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empSalary">Advanced <br> Ammount</th>
-						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empBonus">Other Members</th>
-						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDeduction">Status</th>
-						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="netSalary">Approved <br> Person</th>
-						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="paySlip">Date</th>
+						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empGroupName">Other Members</th>
+						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empStatus">Status</th>
+						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empapprovedName">Approved <br> Person</th>
+						<th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDate">Date</th>
 						<th class="align-middle white-space-nowrap ps-0 text-uppercase" scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
 					</tr>
 				</thead>
@@ -241,7 +237,7 @@
 
 <partial name="_ConfirmDelete" />
 
-<<<<<<< GCTL_App/Views/EmployeeAdvanced/Index.cshtml
+
 
 
 @section Scripts {
@@ -251,7 +247,4 @@
 	<script src="~/js/pages/fieldservices/employeeadvanced.js"></script>
 }
 
-@section Scripts {
-	<script src="~/js/pages/fieldservices/employeeadvanced.js"></script>
-}
 
