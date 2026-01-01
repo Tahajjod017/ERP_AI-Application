@@ -134,84 +134,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
 
                 var FinalAse = _invoiceRepository.AllActive().FirstOrDefault(e => e.InvoiceNumber == invoice.InvoiceNumber && e.IsFinal == true && e.IsDraft != true);
 
-                //var vm = new InvoiceDetailsViewModel
-                //{
-                //    Id = invoice.InvoicesVersionID,
-                //    InvoiceDate = invoice.InvoiceDate,
-                //    InvoiceNumber = invoice.Invoice.InvoiceNumber,
-                //    SelectedCustomerId = invoice.CustomerID,
-                //    SelectedSalesOrderId = invoice.Invoice.SalesOrdersID,
-                //    SalesOrderNumber = invoice.Invoice.SalesOrders?.SalesOrderNumber,
-                //    IsDraft = invoice.IsDraft ?? false,
-                //    Items = invoice.InvoiceVersionItems.Select(m => new InvoiceItemDetails
-                //    {
-                //        SL = m.InvoiceVersionItemID,
-                //        ProductId = m.ProductID ?? 0,
-                //        ProductName = m.Product?.ProductName ?? "",
-                //        Quantity = m.Quantity ?? 0m,
-                //        UnitPrice = m.UnitPrice ?? 0m
-                //    }).ToList(),
-                //    VatPercent = invoice.VatPercentage ?? 0m,
-                //    SubTotal = invoice.SubTotal ?? 0m,
-                //    VatAmount = invoice.VatAmount ?? 0m,
-                //    GrandTotal = invoice.GrandTotal ?? 0m,
-                //    PaidAmount = invoice.PaidAmount ?? 0m,
-                //    OtherReference = invoice.OtherReference,
-                //    InvoiceNote = invoice.InvoiceNote,
-                //    Finalized = FinalAse != null ? true : false,
-
-                //    // Billing Address
-                //    BillingAddress = invoice.IBaseBillingAddress != null ? new AddressViewModel
-                //    {
-                //        FirstName = invoice.IBaseBillingAddress.FirstName,
-                //        LastName = invoice.IBaseBillingAddress.LastName,
-                //        FullAddress = invoice.IBaseBillingAddress.FullAddress,
-                //        City = invoice.IBaseBillingAddress.City,
-                //        State = invoice.IBaseBillingAddress.State,
-                //        PostalCode = invoice.IBaseBillingAddress.PostalCode,
-                //        Phone = invoice.IBaseBillingAddress.Phone,
-                //        Email = invoice.IBaseBillingAddress.Email
-                //    } : null,
-
-                //    // Shipping Address
-                //    ShippingAddress = invoice.IBaseShippingAddress != null ? new AddressViewModel
-                //    {
-                //        FirstName = invoice.IBaseShippingAddress.FirstName,
-                //        LastName = invoice.IBaseShippingAddress.LastName,
-                //        FullAddress = invoice.IBaseShippingAddress.FullAddress,
-                //        City = invoice.IBaseShippingAddress.City,
-                //        State = invoice.IBaseShippingAddress.State,
-                //        PostalCode = invoice.IBaseShippingAddress.PostalCode,
-                //        Phone = invoice.IBaseShippingAddress.Phone,
-                //        Email = invoice.IBaseShippingAddress.Email
-                //    } : null,
-
-                //    // Payment History
-                //    PaymentHistory = invoice.PaymentTransactions.Select(pt => new PaymentHistoryViewModel
-                //    {
-                //        PaymentTransactionID = pt.PaymentTransactionID,
-                //        TransactionRefNo = pt.TransactionRefNo,
-                //        TransactionDate = pt.TransactionDate,
-                //        PaymentMethodName = pt.PaymentMethod?.MethodName ?? "",
-                //        Amount = pt.Amount,
-                //        Status = pt.Status
-                //    }).ToList(),
-
-                //    // Sidebar data
-                //    CreatedByName = invoice.CreatedByNavigation != null ? invoice.CreatedByNavigation.FirstName + " " + invoice.CreatedByNavigation.LastName : "Unknown",
-                //    CreatedAt = invoice.CreatedAt,
-                //    UpdatedByName = invoice.UpdatedByNavigation != null ? invoice.UpdatedByNavigation.FirstName + " " + invoice.UpdatedByNavigation.LastName : "Unknown",
-                //    UpdatedAt = invoice.UpdatedAt,
-
-                //    CustomerData = new CustomerDetailsViewModel()
-                //    {
-                //        CompanyName = company != null ? company.CompanyName : "",
-                //        AddressLine1 = company != null ? company.AddressLine1 : "",
-                //        ContactName = company != null ? company.ContactName : "",
-                //        Email = company != null ? company.Email : "",
-                //        Phone = company != null ? company.Phone : ""
-                //    }
-                //};
+               
 
 
                 var challan = _challanRepository.AllActive().Where(e=>e.InvoiceID == invoice.InvoiceID || e.SalesOrdersVersionID == invoice.SalesOrderVersionID).Select(s => new ShipmentInfo
@@ -253,104 +176,205 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
 
 
 
+                //var vm = new InvoiceDetailsViewModel
+                //{
+                //    Id = invoice.InvoiceID,
+                //    InvoiceDate = invoice.InvoiceDate,
+                //    InvoiceNumber = invoice?.InvoiceNumber ?? "N/A",
+                //    SelectedCustomerId = invoice?.CustomerID ?? 0,
+                //    SelectedSalesOrderId = invoice?.SalesOrderVersionID,
+                //    SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber ?? "", // safe chaining
+                //    IsDraft = invoice?.IsDraft ?? false,
+
+
+
+                //    Items = invoice?.InvoiceItems?.Select(m => new InvoiceItemDetails
+                //    {
+                //        SL = m.InvoiceItemID,
+                //        ProductId = m.ProductID ?? 0,
+                //        ProductName = m.Product?.ProductName ?? "Unknown Product",
+                //        Quantity = m.Quantity ?? 0m,
+                //        UnitPrice = m.UnitPrice ?? 0m,
+                //        // NEW: Add per-item VAT and Amount
+                //        VatAmount = m.VatAmount ?? 0m,
+                //        Amount = m.Amount ?? 0m,
+                //        VatPercent = m.VatAmount ?? 0m
+                //    }).ToList() ?? new List<InvoiceItemDetails>(),
+
+                //    // VAT Mode Flags
+                //    IsVatAfterSubtotal = invoice?.IsVatAfterSubtotal ?? false,
+                //    IsItemPriceIncludingVat = invoice?.IsItemPriceIncludingVat ?? false,
+                //    IsPriceWithoutVat = invoice?.IsPriceWithoutVat ?? false,
+                //    ShowTaxColumn = invoice?.ShowTaxColumn ?? false,
+
+                //    // VAT and AIT
+                //    VatPercent = invoice?.VatPercentage ?? 0m,
+                //    SubTotal = invoice?.SubTotal ?? 0m,
+                //    VatAmount = invoice?.VatAmount ?? 0m,
+                //    GrossSubtotal = invoice?.GrossSubtotal ?? 0m,
+
+                //    IsAit = invoice?.IsAit ?? false,
+                //    AitPercent = invoice?.AitPercent ?? 0m,
+                //    AitAmount = invoice?.AitAmount ?? 0m,
+
+                //    GrandTotal = invoice?.GrandTotal ?? 0m,
+
+                //    PaidAmount = invoice?.PaidAmount ?? 0m,
+                //    OtherReference = invoice?.OtherReference ?? "",
+                //    InvoiceNote = invoice?.InvoiceNote ?? "",
+                //    Finalized = FinalAse != null,
+
+                //    BillingAddress = invoice?.IBaseBillingAddress != null ? new AddressViewModel
+                //    {
+                //        FirstName = invoice.IBaseBillingAddress.FirstName,
+                //        LastName = invoice.IBaseBillingAddress.LastName,
+                //        FullAddress = invoice.IBaseBillingAddress.FullAddress,
+                //        City = invoice.IBaseBillingAddress.City,
+                //        State = invoice.IBaseBillingAddress.State,
+                //        PostalCode = invoice.IBaseBillingAddress.PostalCode,
+                //        Phone = invoice.IBaseBillingAddress.Phone,
+                //        Email = invoice.IBaseBillingAddress.Email
+                //    } : new AddressViewModel(),
+
+                //    ShippingAddress = invoice?.IBaseShippingAddress != null ? new AddressViewModel 
+                //    {
+                //        FirstName = invoice.IBaseBillingAddress.FirstName,
+                //        LastName = invoice.IBaseBillingAddress.LastName,
+                //        FullAddress = invoice.IBaseBillingAddress.FullAddress,
+                //        City = invoice.IBaseBillingAddress.City,
+                //        State = invoice.IBaseBillingAddress.State,
+                //        PostalCode = invoice.IBaseBillingAddress.PostalCode,
+                //        Phone = invoice.IBaseBillingAddress.Phone,
+                //        Email = invoice.IBaseBillingAddress.Email
+                //    } : new AddressViewModel(),
+
+                //    PaymentHistory = invoice?.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
+                //    {
+                //        PaymentTransactionID = pt.PaymentTransactionID,
+                //        TransactionRefNo = pt.TransactionRefNo,
+                //        TransactionDate = pt.TransactionDate,
+                //        PaymentMethodName = pt.PaymentMethod?.MethodName ?? "Unknown",
+                //        Amount = pt.Amount,
+                //        Status = pt.Status
+                //    }).ToList() ?? new List<PaymentHistoryViewModel>(),
+
+                //    CreatedByName = invoice?.CreatedByNavigation != null ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}" : "Unknown",
+
+                //    UpdatedByName = invoice?.UpdatedByNavigation != null ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}" : "Unknown",
+
+                //    CustomerData = new CustomerDetailsViewModel()
+                //    {
+                //        CompanyName = company?.CompanyName ?? "",
+                //        AddressLine1 = company?.AddressLine1 ?? "",
+                //        ContactName = company?.ContactName ?? "",
+                //        Email = company?.Email ?? "",
+                //        Phone = company?.Phone ?? ""
+                //    }
+                //};
+
+
                 var vm = new InvoiceDetailsViewModel
                 {
+                    // ================= Basic Invoice =================
                     Id = invoice.InvoiceID,
                     InvoiceDate = invoice.InvoiceDate,
-                    InvoiceNumber = invoice?.InvoiceNumber ?? "N/A",
-                    SelectedCustomerId = invoice?.CustomerID ?? 0,
-                    SelectedSalesOrderId = invoice?.SalesOrderVersionID,
-                    SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber ?? "", // safe chaining
-                    IsDraft = invoice?.IsDraft ?? false,
+                    InvoiceNumber = invoice.InvoiceNumber ?? "N/A",
+                    SelectedCustomerId = invoice.CustomerID ?? 0,
+                    SelectedSalesOrderId = invoice.SalesOrderVersionID,
+                    SalesOrderNumber = invoice.SalesOrderVersion?.SalesOrders?.SalesOrderNumber ?? "",
+                    IsDraft = invoice.IsDraft ?? false,
 
-                    //Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
-                    //{
-                    //    SL = m.InvoiceItemID,
-                    //    ProductId = m.ProductID ?? 0,
-                    //    ProductName = m.Product?.ProductName ?? "Unknown Product",
-                    //    Quantity = m.Quantity ?? 0m,
-                    //    UnitPrice = m.UnitPrice ?? 0m
-                    //}).ToList() ?? new List<InvoiceItemDetails>(),
-
-                    //VatPercent = invoice.VatPercentage ?? 0m,
-                    //SubTotal = invoice.SubTotal ?? 0m,
-                    //VatAmount = invoice.VatAmount ?? 0m,
-                    //GrandTotal = invoice.GrandTotal ?? 0m,
-
-                    Items = invoice?.InvoiceItems?.Select(m => new InvoiceItemDetails
+                    // ================= Invoice Items =================
+                    Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
                     {
                         SL = m.InvoiceItemID,
                         ProductId = m.ProductID ?? 0,
                         ProductName = m.Product?.ProductName ?? "Unknown Product",
                         Quantity = m.Quantity ?? 0m,
                         UnitPrice = m.UnitPrice ?? 0m,
-                        // NEW: Add per-item VAT and Amount
                         VatAmount = m.VatAmount ?? 0m,
-                        Amount = m.Amount ?? 0m
+                        Amount = m.Amount ?? 0m,
+                        VatPercent = m.VatAmount ?? 0m
                     }).ToList() ?? new List<InvoiceItemDetails>(),
 
-                    // VAT Mode Flags
-                    IsVatAfterSubtotal = invoice.IsVatAfterSubtotal,
-                    IsItemPriceIncludingVat = invoice.IsItemPriceIncludingVat,
-                    IsPriceWithoutVat = invoice.IsPriceWithoutVat,
-                    ShowTaxColumn = invoice.ShowTaxColumn,
+                    // ================= VAT Flags =================
+                    IsVatAfterSubtotal = invoice?.IsVatAfterSubtotal ?? false,
+                    IsItemPriceIncludingVat = invoice?.IsItemPriceIncludingVat ?? false,
+                    IsPriceWithoutVat = invoice?.IsPriceWithoutVat ?? false,
+                    ShowTaxColumn = invoice?.ShowTaxColumn ?? false,
 
-                    // VAT and AIT
+                    // ================= VAT Calculation =================
                     VatPercent = invoice.VatPercentage ?? 0m,
                     SubTotal = invoice.SubTotal ?? 0m,
                     VatAmount = invoice.VatAmount ?? 0m,
                     GrossSubtotal = invoice.GrossSubtotal ?? 0m,
 
-                    IsAit = invoice.IsAit,
-                    AitPercent = invoice.AitPercent,
-                    AitAmount = invoice.AitAmount,
+                    // ================= AIT =================
+                    IsAit = invoice?.IsAit ?? false,
+                    AitPercent = invoice?.AitPercent ?? 0m,
+                    AitAmount = invoice?.AitAmount ?? 0m,
 
+                    // ================= Totals =================
                     GrandTotal = invoice.GrandTotal ?? 0m,
+                    PaidAmount = invoice.PaidAmount ?? 0m,
 
-                    PaidAmount = invoice?.PaidAmount ?? 0m,
-                    OtherReference = invoice?.OtherReference ?? "",
-                    InvoiceNote = invoice?.InvoiceNote ?? "",
+                    // ================= Others =================
+                    OtherReference = invoice.OtherReference ?? "",
+                    InvoiceNote = invoice.InvoiceNote ?? "",
                     Finalized = FinalAse != null,
 
-                    BillingAddress = invoice?.IBaseBillingAddress != null ? new AddressViewModel
+                    // ================= Billing Address =================
+                    BillingAddress = invoice.IBaseBillingAddress != null
+                    ? new AddressViewModel
                     {
-                        FirstName = invoice.IBaseBillingAddress.FirstName,
-                        LastName = invoice.IBaseBillingAddress.LastName,
-                        FullAddress = invoice.IBaseBillingAddress.FullAddress,
-                        City = invoice.IBaseBillingAddress.City,
-                        State = invoice.IBaseBillingAddress.State,
-                        PostalCode = invoice.IBaseBillingAddress.PostalCode,
-                        Phone = invoice.IBaseBillingAddress.Phone,
-                        Email = invoice.IBaseBillingAddress.Email
-                    } : new AddressViewModel(),
+                        FirstName = invoice.IBaseBillingAddress.FirstName ?? "",
+                        LastName = invoice.IBaseBillingAddress.LastName ?? "",
+                        FullAddress = invoice.IBaseBillingAddress.FullAddress ?? "",
+                        City = invoice.IBaseBillingAddress.City ?? "",
+                        State = invoice.IBaseBillingAddress.State ?? "",
+                        PostalCode = invoice.IBaseBillingAddress.PostalCode ?? "",
+                        Phone = invoice.IBaseBillingAddress.Phone ?? "",
+                        Email = invoice.IBaseBillingAddress.Email ?? ""
+                    }
+                    : new AddressViewModel(),
 
-                    ShippingAddress = invoice?.IBaseShippingAddress != null ? new AddressViewModel 
-                    {
-                        FirstName = invoice.IBaseBillingAddress.FirstName,
-                        LastName = invoice.IBaseBillingAddress.LastName,
-                        FullAddress = invoice.IBaseBillingAddress.FullAddress,
-                        City = invoice.IBaseBillingAddress.City,
-                        State = invoice.IBaseBillingAddress.State,
-                        PostalCode = invoice.IBaseBillingAddress.PostalCode,
-                        Phone = invoice.IBaseBillingAddress.Phone,
-                        Email = invoice.IBaseBillingAddress.Email
-                    } : new AddressViewModel(),
+                    // ================= Shipping Address =================
+                    ShippingAddress = invoice.IBaseShippingAddress != null
+                        ? new AddressViewModel
+                        {
+                            FirstName = invoice.IBaseShippingAddress.FirstName ?? "",
+                            LastName = invoice.IBaseShippingAddress.LastName ?? "",
+                            FullAddress = invoice.IBaseShippingAddress.FullAddress ?? "",
+                            City = invoice.IBaseShippingAddress.City ?? "",
+                            State = invoice.IBaseShippingAddress.State ?? "",
+                            PostalCode = invoice.IBaseShippingAddress.PostalCode ?? "",
+                            Phone = invoice.IBaseShippingAddress.Phone ?? "",
+                            Email = invoice.IBaseShippingAddress.Email ?? ""
+                        }
+                        : new AddressViewModel(),
 
-                    PaymentHistory = invoice?.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
+                    // ================= Payment History =================
+                    PaymentHistory = invoice.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
                     {
                         PaymentTransactionID = pt.PaymentTransactionID,
-                        TransactionRefNo = pt.TransactionRefNo,
+                        TransactionRefNo = pt.TransactionRefNo ?? "",
                         TransactionDate = pt.TransactionDate,
                         PaymentMethodName = pt.PaymentMethod?.MethodName ?? "Unknown",
-                        Amount = pt.Amount,
-                        Status = pt.Status
+                        Amount = pt?.Amount ?? 0m,
+                        Status = pt.Status ?? ""
                     }).ToList() ?? new List<PaymentHistoryViewModel>(),
 
-                    CreatedByName = invoice?.CreatedByNavigation != null ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}" : "Unknown",
+                    // ================= Audit =================
+                    CreatedByName = invoice.CreatedByNavigation != null
+        ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}"
+        : "Unknown",
 
-                    UpdatedByName = invoice?.UpdatedByNavigation != null ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}" : "Unknown",
+                    UpdatedByName = invoice.UpdatedByNavigation != null
+        ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}"
+        : "Unknown",
 
-                    CustomerData = new CustomerDetailsViewModel()
+                    // ================= Customer =================
+                    CustomerData = new CustomerDetailsViewModel
                     {
                         CompanyName = company?.CompanyName ?? "",
                         AddressLine1 = company?.AddressLine1 ?? "",
@@ -359,6 +383,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                         Phone = company?.Phone ?? ""
                     }
                 };
+
+
+
 
                 // Create sidebar view model
                 var sidebarVm = new InvoiceSidebarDetailsViewModel
@@ -453,33 +480,60 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             var ifFinal = _invoiceRepository.AllActive().FirstOrDefault(e => e.InvoiceNumber == invoice.InvoiceNumber && e.IsFinal == true && e.IsDraft != true);
 
 
+
+
+
             //var vm = new InvoiceDetailsViewModel
             //{
-            //    Id = invoice.InvoicesVersionID,
+            //    Id = invoice.InvoiceID,
             //    InvoiceDate = invoice.InvoiceDate,
-            //    InvoiceNumber = invoice.Invoice.InvoiceNumber,
-            //    SelectedCustomerId = invoice.CustomerID,
-            //    SelectedSalesOrderId = invoice.Invoice.SalesOrdersID,
-            //    SalesOrderNumber = invoice.Invoice.SalesOrders.SalesOrderNumber,
-            //    IsDraft = invoice.IsDraft ?? false,
-            //    Items = invoice.InvoiceVersionItems.Select(m => new InvoiceItemDetails
+            //    InvoiceNumber = invoice?.InvoiceNumber ?? "N/A",
+            //    SelectedCustomerId = invoice?.CustomerID ?? 0,
+            //    SelectedSalesOrderId = invoice?.SalesOrderVersionID,
+            //    SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber ?? "", // safe chaining
+            //    IsDraft = invoice?.IsDraft ?? false,
+
+
+
+
+            //    Items = invoice?.InvoiceItems?.Select(m => new InvoiceItemDetails
             //    {
-            //        SL = m.InvoiceVersionItemID,
+            //        SL = m.InvoiceItemID,
             //        ProductId = m.ProductID ?? 0,
+            //        ProductName = m.Product?.ProductName ?? "Unknown Product",
             //        Quantity = m.Quantity ?? 0m,
-            //        UnitPrice = m.UnitPrice ?? 0m
-            //    }).ToList(),
-            //    VatPercent = invoice.VatPercentage ?? 0m,
-            //    SubTotal = invoice.SubTotal ?? 0m,
-            //    VatAmount = invoice.VatAmount ?? 0m,
-            //    GrandTotal = invoice.GrandTotal ?? 0m,
-            //    PaidAmount = invoice.PaidAmount ?? 0m,
-            //    OtherReference = invoice.OtherReference,
-            //    InvoiceNote = invoice.InvoiceNote,
-            //    Finalized = ifFinal != null ? true : false,
+            //        UnitPrice = m.UnitPrice ?? 0m,
+            //        // NEW: Add per-item VAT and Amount
+            //        VatAmount = m.VatAmount ?? 0m,
+            //        Amount = m.Amount ?? 0m,
+            //        VatPercent = m.VatAmount ?? 0m
+            //    }).ToList() ?? new List<InvoiceItemDetails>(),
+
+            //    // VAT Mode Flags
+            //    IsVatAfterSubtotal = invoice?.IsVatAfterSubtotal ?? false,
+            //    IsItemPriceIncludingVat = invoice?.IsItemPriceIncludingVat ?? false,
+            //    IsPriceWithoutVat = invoice?.IsPriceWithoutVat ?? false,
+            //    ShowTaxColumn = invoice?.ShowTaxColumn ?? false,
+
+            //    // VAT and AIT
+            //    VatPercent = invoice?.VatPercentage ?? 0m,
+            //    SubTotal = invoice?.SubTotal ?? 0m,
+            //    VatAmount = invoice?.VatAmount ?? 0m,
+            //    GrossSubtotal = invoice?.GrossSubtotal ?? 0m,
+
+            //    IsAit = invoice?.IsAit ?? false,
+            //    AitPercent = invoice?.AitPercent ?? 0m,
+            //    AitAmount = invoice?.AitAmount ?? 0m,
+
+            //    GrandTotal = invoice?.GrandTotal ?? 0m,
 
 
-            //    BillingAddress = invoice.IBaseBillingAddress != null ? new AddressViewModel
+            //    PaidAmount = invoice?.PaidAmount ?? 0m,
+            //    OtherReference = invoice?.OtherReference ?? "",
+            //    InvoiceNote = invoice?.InvoiceNote ?? "",
+
+
+            //    BillingAddress = invoice?.IBaseBillingAddress != null ? new AddressViewModel
             //    {
             //        FirstName = invoice.IBaseBillingAddress.FirstName,
             //        LastName = invoice.IBaseBillingAddress.LastName,
@@ -489,59 +543,47 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             //        PostalCode = invoice.IBaseBillingAddress.PostalCode,
             //        Phone = invoice.IBaseBillingAddress.Phone,
             //        Email = invoice.IBaseBillingAddress.Email
-            //    } : null,
+            //    } : new AddressViewModel(),
 
-            //    // Shipping Address
-            //    ShippingAddress = invoice.IBaseShippingAddress != null ? new AddressViewModel
+            //    ShippingAddress = invoice?.IBaseShippingAddress != null ? new AddressViewModel
             //    {
-            //        FirstName = invoice.IBaseShippingAddress.FirstName,
-            //        LastName = invoice.IBaseShippingAddress.LastName,
-            //        FullAddress = invoice.IBaseShippingAddress.FullAddress,
-            //        City = invoice.IBaseShippingAddress.City,
-            //        State = invoice.IBaseShippingAddress.State,
-            //        PostalCode = invoice.IBaseShippingAddress.PostalCode,
-            //        Phone = invoice.IBaseShippingAddress.Phone,
-            //        Email = invoice.IBaseShippingAddress.Email
-            //    } : null,
+            //        FirstName = invoice.IBaseBillingAddress.FirstName,
+            //        LastName = invoice.IBaseBillingAddress.LastName,
+            //        FullAddress = invoice.IBaseBillingAddress.FullAddress,
+            //        City = invoice.IBaseBillingAddress.City,
+            //        State = invoice.IBaseBillingAddress.State,
+            //        PostalCode = invoice.IBaseBillingAddress.PostalCode,
+            //        Phone = invoice.IBaseBillingAddress.Phone,
+            //        Email = invoice.IBaseBillingAddress.Email
+            //    } : new AddressViewModel(),
+
+            //    PaymentHistory = invoice?.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
+            //    {
+            //        PaymentTransactionID = pt.PaymentTransactionID,
+            //        TransactionRefNo = pt.TransactionRefNo,
+            //        TransactionDate = pt.TransactionDate,
+            //        PaymentMethodName = pt.PaymentMethod?.MethodName ?? "Unknown",
+            //        Amount = pt.Amount,
+            //        Status = pt.Status
+            //    }).ToList() ?? new List<PaymentHistoryViewModel>(),
+
+            //    CreatedByName = invoice?.CreatedByNavigation != null ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}" : "Unknown",
+
+            //    UpdatedByName = invoice?.UpdatedByNavigation != null ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}" : "Unknown",
 
 
-
-
-
-            //    // Sidebar data
-            //    CreatedByName = invoice.CreatedByNavigation != null
-            //        ? invoice.CreatedByNavigation.FirstName + " " + invoice.CreatedByNavigation.LastName
-            //        : "Unknown",
-            //    CreatedAt = invoice.CreatedAt,
-            //    UpdatedByName = invoice.UpdatedByNavigation?.FirstName,
-            //    UpdatedAt = invoice.UpdatedAt,
             //};
 
 
             var vm = new InvoiceDetailsViewModel
             {
-                Id = invoice.InvoiceID,
-                InvoiceDate = invoice.InvoiceDate,
+                Id = invoice?.InvoiceID ?? 0,
+                InvoiceDate = invoice?.InvoiceDate ?? DateTime.Now,
                 InvoiceNumber = invoice?.InvoiceNumber ?? "N/A",
                 SelectedCustomerId = invoice?.CustomerID ?? 0,
                 SelectedSalesOrderId = invoice?.SalesOrderVersionID,
-                SalesOrderNumber = invoice?.SalesOrderVersion.SalesOrders?.SalesOrderNumber ?? "", // safe chaining
+                SalesOrderNumber = invoice?.SalesOrderVersion?.SalesOrders?.SalesOrderNumber ?? "",
                 IsDraft = invoice?.IsDraft ?? false,
-
-                //Items = invoice.InvoiceItems?.Select(m => new InvoiceItemDetails
-                //{
-                //    SL = m.InvoiceItemID,
-                //    ProductId = m.ProductID ?? 0,
-                //    ProductName = m.Product?.ProductName ?? "Unknown Product",
-                //    Quantity = m.Quantity ?? 0m,
-                //    UnitPrice = m.UnitPrice ?? 0m
-                //}).ToList() ?? new List<InvoiceItemDetails>(),
-
-                //VatPercent = invoice.VatPercentage ?? 0m,
-                //SubTotal = invoice.SubTotal ?? 0m,
-                //VatAmount = invoice.VatAmount ?? 0m,
-                //GrandTotal = invoice.GrandTotal ?? 0m,
-
 
                 Items = invoice?.InvoiceItems?.Select(m => new InvoiceItemDetails
                 {
@@ -550,18 +592,16 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                     ProductName = m.Product?.ProductName ?? "Unknown Product",
                     Quantity = m.Quantity ?? 0m,
                     UnitPrice = m.UnitPrice ?? 0m,
-                    // NEW: Add per-item VAT and Amount
                     VatAmount = m.VatAmount ?? 0m,
-                    Amount = m.Amount ?? 0m
+                    Amount = m.Amount ?? 0m,
+                    VatPercent = m.VatAmount ?? 0m
                 }).ToList() ?? new List<InvoiceItemDetails>(),
 
-                // VAT Mode Flags
                 IsVatAfterSubtotal = invoice?.IsVatAfterSubtotal ?? false,
                 IsItemPriceIncludingVat = invoice?.IsItemPriceIncludingVat ?? false,
                 IsPriceWithoutVat = invoice?.IsPriceWithoutVat ?? false,
                 ShowTaxColumn = invoice?.ShowTaxColumn ?? false,
 
-                // VAT and AIT
                 VatPercent = invoice?.VatPercentage ?? 0m,
                 SubTotal = invoice?.SubTotal ?? 0m,
                 VatAmount = invoice?.VatAmount ?? 0m,
@@ -572,53 +612,60 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 AitAmount = invoice?.AitAmount ?? 0m,
 
                 GrandTotal = invoice?.GrandTotal ?? 0m,
-
-
                 PaidAmount = invoice?.PaidAmount ?? 0m,
+
                 OtherReference = invoice?.OtherReference ?? "",
                 InvoiceNote = invoice?.InvoiceNote ?? "",
-                
 
-                BillingAddress = invoice?.IBaseBillingAddress != null ? new AddressViewModel
-                {
-                    FirstName = invoice.IBaseBillingAddress.FirstName,
-                    LastName = invoice.IBaseBillingAddress.LastName,
-                    FullAddress = invoice.IBaseBillingAddress.FullAddress,
-                    City = invoice.IBaseBillingAddress.City,
-                    State = invoice.IBaseBillingAddress.State,
-                    PostalCode = invoice.IBaseBillingAddress.PostalCode,
-                    Phone = invoice.IBaseBillingAddress.Phone,
-                    Email = invoice.IBaseBillingAddress.Email
-                } : new AddressViewModel(),
+                BillingAddress = invoice?.IBaseBillingAddress != null
+        ? new AddressViewModel
+        {
+            FirstName = invoice.IBaseBillingAddress.FirstName ?? "",
+            LastName = invoice.IBaseBillingAddress.LastName ?? "",
+            FullAddress = invoice.IBaseBillingAddress.FullAddress ?? "",
+            City = invoice.IBaseBillingAddress.City ?? "",
+            State = invoice.IBaseBillingAddress.State ?? "",
+            PostalCode = invoice.IBaseBillingAddress.PostalCode ?? "",
+            Phone = invoice.IBaseBillingAddress.Phone ?? "",
+            Email = invoice.IBaseBillingAddress.Email ?? ""
+        }
+        : new AddressViewModel(),
 
-                ShippingAddress = invoice?.IBaseShippingAddress != null ? new AddressViewModel
-                {
-                    FirstName = invoice.IBaseBillingAddress.FirstName,
-                    LastName = invoice.IBaseBillingAddress.LastName,
-                    FullAddress = invoice.IBaseBillingAddress.FullAddress,
-                    City = invoice.IBaseBillingAddress.City,
-                    State = invoice.IBaseBillingAddress.State,
-                    PostalCode = invoice.IBaseBillingAddress.PostalCode,
-                    Phone = invoice.IBaseBillingAddress.Phone,
-                    Email = invoice.IBaseBillingAddress.Email
-                } : new AddressViewModel(),
+                ShippingAddress = invoice?.IBaseShippingAddress != null
+        ? new AddressViewModel
+        {
+            FirstName = invoice.IBaseShippingAddress.FirstName ?? "",
+            LastName = invoice.IBaseShippingAddress.LastName ?? "",
+            FullAddress = invoice.IBaseShippingAddress.FullAddress ?? "",
+            City = invoice.IBaseShippingAddress.City ?? "",
+            State = invoice.IBaseShippingAddress.State ?? "",
+            PostalCode = invoice.IBaseShippingAddress.PostalCode ?? "",
+            Phone = invoice.IBaseShippingAddress.Phone ?? "",
+            Email = invoice.IBaseShippingAddress.Email ?? ""
+        }
+        : new AddressViewModel(),
 
                 PaymentHistory = invoice?.PaymentTransactions?.Select(pt => new PaymentHistoryViewModel
                 {
                     PaymentTransactionID = pt.PaymentTransactionID,
-                    TransactionRefNo = pt.TransactionRefNo,
+                    TransactionRefNo = pt.TransactionRefNo ?? "",
                     TransactionDate = pt.TransactionDate,
                     PaymentMethodName = pt.PaymentMethod?.MethodName ?? "Unknown",
-                    Amount = pt.Amount,
-                    Status = pt.Status
+                    Amount = pt?.Amount ?? 0m,
+                    Status = pt.Status ?? ""
                 }).ToList() ?? new List<PaymentHistoryViewModel>(),
 
-                CreatedByName = invoice?.CreatedByNavigation != null ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}" : "Unknown",
+                CreatedByName = invoice?.CreatedByNavigation != null
+        ? $"{invoice.CreatedByNavigation.FirstName} {invoice.CreatedByNavigation.LastName}"
+        : "Unknown",
 
-                UpdatedByName = invoice?.UpdatedByNavigation != null ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}" : "Unknown",
-
-               
+                UpdatedByName = invoice?.UpdatedByNavigation != null
+        ? $"{invoice.UpdatedByNavigation.FirstName} {invoice.UpdatedByNavigation.LastName}"
+        : "Unknown",
             };
+
+
+
 
 
             // Create sidebar view model

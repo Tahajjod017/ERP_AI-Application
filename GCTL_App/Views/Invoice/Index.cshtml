@@ -107,16 +107,6 @@
 
 
 
-                                @*<div class="col-xl-6">
-            <div class="mb-3">
-                <div class="form-check">
-                    <input asp-for="IsDraft" class="form-check-input" type="checkbox" id="isDraft" />
-                    <label class="form-check-label" for="isDraft">
-                        @Html.SmartLocalize("Save as Draft")
-                    </label>
-                </div>
-            </div>
-        </div>*@
 
 
                                 <div class="col-xl-12">
@@ -226,9 +216,9 @@
                             <th class="text-center">@Html.SmartLocalize("Quantity")</th>
                             <th class="text-center">@Html.SmartLocalize("Product Price (BDT)")</th>
 
-                            <th class="text-center">VAT Amount</th>
-                            
-                            <th class="text-center">@Html.SmartLocalize("Amount (BDT)")</th>
+                            <th class="text-end">@Html.SmartLocalize("VAT % / Amount")</th>
+
+                            <th class="text-end">@Html.SmartLocalize("Amount (BDT)")</th>
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
@@ -245,10 +235,17 @@
                                 <td><input asp-for="Items[i].Quantity" class="form-control calc" type="number" step="any" /></td>
                                 <td><input asp-for="Items[i].UnitPrice" class="form-control calc" type="number" step="any" /></td>
 
-                                <td class="vatPerItem text-end align-middle">0.00</td>
+                                @*<td class="vatPerItem text-end align-middle">0.00</td>*@
 
+                                <td class="text-end align-middle">
+                                    <input type="hidden" asp-for="Items[i].VatPercent" class="item-vat-percent" />
+                                    <span class="vat-percent-badge badge badge-phoenix badge-phoenix-warning clickable-vat" style="cursor:pointer;">
+                                        @Model.Items[i].VatPercent.ToString("F2")%
+                                    </span>
+                                    <span class="vat-amount ms-2">0.00</span>
+                                </td>
 
-                                <td class="amount text-center align-middle">@Model.Items[i].Amount.ToString("N2")</td>
+                                <td class="amount text-end align-middle">@Model.Items[i].Amount.ToString("N2")</td>
                                 <td class="text-center align-middle">
                                     <button type="button" class="btn btn-sm btn-outline-danger mx-2 remove-item">
                                         <i class="far fa-trash-alt text-black"></i>
@@ -265,16 +262,23 @@
                         </tr>
                         <tr>
                             <td colspan="5" class="text-end fs-9 fw-bold">@Html.SmartLocalize("Sub Total Taka")</td>
-                            <td colspan="1" class="text-center fs-9 fw-bold" id="subTotal">@Model.SubTotal.ToString("N2")</td>
+                            <td colspan="1" class="text-end fs-9 fw-bold" id="subTotal">@Model.SubTotal.ToString("N2")</td>
                         </tr>
                         <tr>
                             <td colspan="5" class="text-end fs-9 py-2">
                                 <div class="d-flex justify-content-end">
                                     <div class="mx-2 mt-2">@Html.SmartLocalize("VAT (%)")</div>
-                                    <div><input asp-for="VatPercent" id="vatPercent" class="form-control vatPercent" type="number" step="any" /></div>
+                                    <div>
+                                        @*<input asp-for="VatPercent" id="vatPercent" class="form-control vatPercent" type="number" step="any" />*@
+                                        <span id="globalVatPercentDisplay" class="badge badge-phoenix badge-phoenix-warning fs-9 mx-2 mt-2 clickable-global-vat" style="cursor:pointer; font-size:1rem;">
+                                            @Model.VatPercent%
+                                        </span>
+                                        <input asp-for="VatPercent" id="vatPercent" type="hidden" />
+
+                                    </div>
                                 </div>
                             </td>
-                            <td colspan="1" class="text-center fs-9" id="vatAmount">@Model.VatAmount.ToString("N2")</td>
+                            <td colspan="1" class="text-end fs-9" id="vatAmount">@Model.VatAmount.ToString("N2")</td>
                         </tr>
 
 
@@ -282,17 +286,23 @@
                             <td colspan="5" class="text-end fs-9 py-2">
                                 <div class="d-flex justify-content-end">
                                     <div class="mx-2 mt-2">AIT (%)</div>
-                                    <div><input asp-for="AitPercent" id="aitPercent" class="form-control" type="number" step="any" value="5" /></div>
+                                    <div>
+                                        @*<input asp-for="AitPercent" id="aitPercent" class="form-control" type="number" step="any" value="5" />*@
+                                        <span id="globalAitPercentDisplay" class="badge badge-phoenix badge-phoenix-warning fs-9 mx-2 mt-2 clickable-global-ait" style="cursor:pointer; font-size:1rem;">
+                                            @Model.AitPercent%
+                                        </span>
+                                        <input asp-for="AitPercent" id="aitPercent" type="hidden" />
+                                    </div>
                                 </div>
                             </td>
-                            <td colspan="1" class="text-center fs-9" id="aitAmount">@Model.AitAmount.ToString("N2")</td>
+                            <td colspan="1" class="text-end fs-9" id="aitAmount">@Model.AitAmount.ToString("N2")</td>
                         </tr>
 
 
 
                         <tr>
                             <td colspan="5" class="text-end h5">@Html.SmartLocalize("Grand Total Taka")</td>
-                            <td colspan="1" class="text-center h5" id="grandTotal">@Model.GrandTotal.ToString("N2")</td>
+                            <td colspan="1" class="text-end h5" id="grandTotal">@Model.GrandTotal.ToString("N2")</td>
                         </tr>
                     </tbody>
                 </table>
@@ -429,6 +439,7 @@
                     <button type="submit" class="btn btn-primary me-2">@Html.SmartLocalize("Save Invoice")</button>
                 </div>
             </div>
+
         </div>
     </form>
 </div>
