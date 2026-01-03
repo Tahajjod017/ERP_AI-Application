@@ -16,6 +16,7 @@ namespace GCTL.Core.ViewModels.FieldServices
         public bool? InTime { get; set; }
         [Display(Name = "Division")]
         public int? DivisionId { get; set; }
+        public string? CustomerPhone { get; set; }
         public string? CustomerName { get; set; }
         [Display(Name = "Job Title")]
         public string JobTitle { get; set; }

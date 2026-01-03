@@ -1,4 +1,5 @@
 ﻿using GCTL.Data.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -40,6 +41,8 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
 
         public bool? IsGroupApplication { get; set; }
         public int? GroupApplicationID { get; set; }
+
+        public IFormFile? DocumentPath { get; set; }
         public class RequiredIfAttribute : ValidationAttribute
         {
             private readonly string _propertyName;

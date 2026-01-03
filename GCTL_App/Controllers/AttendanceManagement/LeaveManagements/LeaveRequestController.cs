@@ -395,5 +395,43 @@ namespace GCTL_App.Controllers.AttendanceManagement.LeaveManagements
 
         }
         #endregion
+
+        #region Sick Leave Configuration
+        [Route("LeaveRequest/GetSickLeaveConfigurationAsync")]
+        [HttpGet]
+        public async Task<IActionResult> GetSickLeaveConfigurationAsync()
+        {
+            try
+            {
+                var data = await leaveRequestService.GetSickLeaveConfigurationAsync();
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
+
+        [Route("LeaveRequest/SaveSickLeaveDocAsync")]
+        [HttpPost]
+        public async Task<IActionResult> SaveSickLeaveDocAsync(UploadSickDocVM model)
+        {
+            var data = await leaveRequestService.SaveSickLeaveDocAsync(model);
+            return Json( new {Success=data.Success, Message = data.Message });
+
+        }
+
+        [Route("LeaveRequest/GetSickLeaveDocAsync")]
+        [HttpPost]
+        public async Task<IActionResult> GetSickLeaveDocAsync(int id)
+        {
+            var data = await leaveRequestService.GetSickLeaveDocAsync(id);
+            return Json(new { Success = data.Success, Message = data.Message ,data=data.Data });
+
+        }
+        #endregion 
+
     }
 }
