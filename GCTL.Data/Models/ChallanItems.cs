@@ -33,6 +33,8 @@ public partial class ChallanItems
 
     public int? DeletedBy { get; set; }
 
+    public string SerialNumber { get; set; }
+
     public virtual Challans Challan { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }

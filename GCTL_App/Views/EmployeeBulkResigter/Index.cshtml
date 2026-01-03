@@ -1,0 +1,369 @@
+﻿@using GCTL.Core.ViewModels.Employee.EmployeeBulkRegister
+@model EmpPagedResult<EmployeeExcelVM>
+
+
+
+<div class="d-flex ms-3" id="scrollspyEmployeeUpload">
+    <span class="fa-stack me-2 ms-n1">
+        <i class="fas fa-circle fa-stack-2x text-primary"></i>
+        <i class="fa-inverse fa-stack-1x text-primary-subtle fas fa-file-excel" data-fa-transform="shrink-4"></i>
+    </span>
+    <div class="col">
+        <h3 class="mb-0 text-primary position-relative fw-bold">
+            <span class="bg-body pe-2">Employee Excel Preview</span>
+            <span class="border border-primary position-absolute top-50 translate-middle-y w-100 start-0 z-n1"></span>
+        </h3>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+
+    <div class="alert shadow p-3 bg-body-emphasis rounded fade show mx-3 mt-3 d-flex justify-content-between" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class=" alert shadow p-3 bg-body-emphasis rounded fade show mx-3 mt-3 d-flex justify-content-between" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Warnings"] != null)
+{
+    <div class="alert shadow p-3 bg-body-emphasis rounded  fade show mx-3 mt-3 d-flex justify-content-between" role="alert">
+        <strong><i class="fas fa-exclamation-triangle me-2"></i>Duplicates Detected:</strong>
+        <div class="mt-2">@Html.Raw(TempData["Warnings"])</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row mt-3 mx-3">
+    <div class="col-12 bg-body-emphasis rounded">
+        <div class="d-flex justify-content-between align-items-end my-4">
+            <div class="d-flex align-items-center">
+                <a href="/EmployeeBulkResigter/DownloadTemplate" class="btn btn-phoenix-primary me-3">
+                    <i class="fas fa-download me-2"></i>Download Excel Template
+                </a>
+                <form method="post" enctype="multipart/form-data" action="/EmployeeBulkResigter/UploadExcel" class="d-flex align-items-center">
+                    <input type="file" name="excelFile" accept=".xlsx,.xls" class="form-control d-inline w-auto" required>
+                    <button type="submit" class="btn btn-phoenix-success ms-2">
+                        <i class="fas fa-upload me-2"></i>Upload & Preview
+                    </button>
+                    @Html.AntiForgeryToken()
+                </form>
+            </div>
+
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <input class="form-control" id="searchInput" type="text"
+                           placeholder="Search employee..." value="@ViewBag.SearchTerm">
+                </div>
+                <div class="dropdown me-3">
+                    <div class="input-group">
+                        <span class="input-group-text">Showing</span>
+                        <select class="form-select" id="pageSizeSelect">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+                @if (Model.Data != null && Model.Data.Any())
+                {
+                    <div class="me-3">
+                        <button class="btn btn-phoenix-success" id="confirmSaveBtn" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                            <i class="fas fa-check me-2"></i>Confirm & Save
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (Model.Data != null && Model.Data.Any())
+        {
+            <div class="px-2 px-lg-2">
+                <div class="table-responsive scrollbar">
+                    <table class="table table-borderless table-hover fs-9 mb-0 border-translucent">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>Name</th>
+                                <th>Gender</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Branch</th>
+                                <th>Joining Date</th>
+                                <th>Designation</th>
+                                <th>Department</th>
+                                <th>Supervisor</th>
+                                <th>Dept. Head</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int rowIndex = (Model.PageNumber - 1) * Model.PageSize;
+                            }
+                            @foreach (var item in Model.Data)
+                            {
+                                var isDuplicate = (!string.IsNullOrEmpty(item.EmployeeCode) && ViewBag.DuplicateEmployeeCodes?.Contains(item.EmployeeCode) == true) ||
+                                                 (!string.IsNullOrEmpty(item.Email) && ViewBag.DuplicateEmails?.Contains(item.Email) == true);
+
+                                <tr class="@(isDuplicate ? "table-warning" : "")">
+
+                                    <td>
+                                        @item.EmployeeCode
+                                        @if (!string.IsNullOrEmpty(item.EmployeeCode) && ViewBag.DuplicateEmployeeCodes?.Contains(item.EmployeeCode) == true)
+                                        {
+                                            <i class="fas fa-exclamation-triangle text-warning ms-1" title="Duplicate Employee Code"></i>
+                                        }
+                                    </td>
+                                    <td>@item.FirstName @item.LastName</td>
+                                    <td>@item.Gender</td>
+                                    <td>
+                                        @item.Email
+                                        @if (!string.IsNullOrEmpty(item.Email) && ViewBag.DuplicateEmails?.Contains(item.Email) == true)
+                                        {
+                                            <i class="fas fa-exclamation-triangle text-warning ms-1" title="Duplicate Email"></i>
+                                        }
+                                    </td>
+                                    <td>@item.PhoneNumber</td>
+                                    <td>@item.Branch</td>
+                                    <td>@item.JoiningDate?.ToString("dd-MMM-yyyy")</td>
+                                    <td>@item.Designation</td>
+                                    <td>@item.DepartmentName</td>
+                                    <td>@item.ImmediateSupervisorName</td>
+                                    <td>@item.DepartmentHeadName</td>
+                                    <td>
+
+                                        <div class="btn-reveal-trigger position-static g-3">
+                                            <a href="#" class="nav-item me-2" onclick="editEmployee(@rowIndex)" data-bs-toggle="modal" data-bs-target="#editModal">
+                                                <i class="fas fa-edit text-black"></i>
+                                            </a>
+
+                                            <a href="#" class="nav-item me-2" onclick="deleteEmployee(@rowIndex)">
+                                                <i class="far fa-trash-alt text-black tblDelBtn"></i>
+                                            </a>
+
+
+                                        </div>
+
+
+                                        @*<button class="btn btn-sm btn-phoenix-primary me-1" onclick="editEmployee(@rowIndex)" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-phoenix-danger" onclick="deleteEmployee(@rowIndex)" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>*@
+                                    </td>
+                                </tr>
+                                rowIndex++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                    <div class="text-muted">
+                        Showing
+                        @((Model.PageNumber - 1) * Model.PageSize + 1)
+                        to
+                        @(Math.Min(Model.PageNumber * Model.PageSize, Model.TotalRecords))
+                        of @Model.TotalRecords
+                    </div>
+
+                    @if (Model.TotalPages > 1)
+                    {
+                        <nav>
+                            <ul class="pagination mb-0">
+                                <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                                    <a class="page-link"
+                                       href="?page=@(Model.PageNumber - 1)&pageSize=@Model.PageSize&search=@ViewBag.SearchTerm">
+                                        Previous
+                                    </a>
+                                </li>
+
+                                @{
+                                    int startPage = Math.Max(1, Model.PageNumber - 2);
+                                    int endPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+                                }
+
+                                @if (startPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1&pageSize=@Model.PageSize&search=@ViewBag.SearchTerm">1</a>
+                                    </li>
+                                    @if (startPage > 2)
+                                    {
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    }
+                                }
+
+                                @for (int i = startPage; i <= endPage; i++)
+                                {
+                                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                        <a class="page-link"
+                                           href="?page=@i&pageSize=@Model.PageSize&search=@ViewBag.SearchTerm">
+                                            @i
+                                        </a>
+                                    </li>
+                                }
+
+                                @if (endPage < Model.TotalPages)
+                                {
+                                    @if (endPage < Model.TotalPages - 1)
+                                    {
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    }
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=@Model.TotalPages&pageSize=@Model.PageSize&search=@ViewBag.SearchTerm">@Model.TotalPages</a>
+                                    </li>
+                                }
+
+                                <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                                    <a class="page-link"
+                                       href="?page=@(Model.PageNumber + 1)&pageSize=@Model.PageSize&search=@ViewBag.SearchTerm">
+                                        Next
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-file-excel fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No employee data loaded. Please upload an Excel file to begin.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-question-circle text-warning me-2"></i>Confirm Save</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Are you sure you want to save <strong>@Model.TotalRecords employee(s)</strong> to the database?</p>
+                @if (ViewBag.HasDuplicates == true)
+                {
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> Duplicate entries detected. Please review before saving.
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-phoenix-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-phoenix-success" id="proceedSaveBtn">
+                    <i class="fas fa-check me-2"></i>Yes, Proceed
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Employee Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editIndex" />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Employee Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editEmployeeCode" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">First Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editFirstName" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="editLastName">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Gender</label>
+                        <select class="form-select" id="editGender">
+                            <option value="">Select...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="editEmail" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Official Email</label>
+                        <input type="email" class="form-control" id="editOfficialEmail">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="editPhoneNumber">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Branch</label>
+                        <input type="text" class="form-control" id="editBranch">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Joining Date</label>
+                        <input type="date" class="form-control" id="editJoiningDate">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Designation <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editDesignation" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Department <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="editDepartmentName" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Immediate Supervisor</label>
+                        <input type="text" class="form-control" id="editImmediateSupervisorName">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Department Head</label>
+                        <input type="text" class="form-control" id="editDepartmentHeadName">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Comment</label>
+                        <textarea class="form-control" id="editComment" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-phoenix-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-phoenix-primary" id="saveEditBtn">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script src="~/js/pages/Employees/EmployeeBulkResigter.js"></script>
+
+    
+}

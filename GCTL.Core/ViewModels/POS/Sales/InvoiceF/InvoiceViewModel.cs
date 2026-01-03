@@ -24,6 +24,8 @@ namespace GCTL.Core.ViewModels.POS.Sales.InvoiceF
         public bool ShowTaxColumn { get; set; }
         public bool IsAit { get; set; }
 
+        public bool IsDirectChallan { get; set; }
+
         // Percentages
         public decimal VatPercent { get; set; } = 15;   // default VAT %
         public decimal AitPercent { get; set; } = 5;    // default AIT %
@@ -350,6 +352,8 @@ namespace GCTL.Core.ViewModels.POS.Sales.InvoiceF
         /// This is the net amount in most cases
         /// </summary>
         public decimal Amount => UnitPrice * Quantity;
+
+        public string ItemSerial { get; set; }  // New property for Direct Challan
 
 
         public decimal EffectiveVatPercent(decimal globalVatPercent)
