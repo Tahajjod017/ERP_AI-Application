@@ -104,6 +104,7 @@
     $(document).ready(function () {
         updateUI();
         initializeSortable();
+        initializeBarcodeScanner();
     });
 
     // Initialize on load
@@ -376,36 +377,40 @@
         showSearchBox();
     });
 
-    // Add Item via Barcode Button
-    $('#add-item-barcode-btn').on('click', function () {
-        // TODO: Implement barcode scanning logic
-        // This will require:
-        // 1. Barcode scanner integration (USB/Bluetooth device)
-        // 2. Server-side endpoint to get product by barcode: /Invoice/GetProductByBarcode
-        // 3. Call addItemRow with the product data returned from server
+    //// Add Item via Barcode Button
+    //$('#add-item-barcode-btn').on('click', function () {
+    //    // TODO: Implement barcode scanning logic
+    //    // This will require:
+    //    // 1. Barcode scanner integration (USB/Bluetooth device)
+    //    // 2. Server-side endpoint to get product by barcode: /Invoice/GetProductByBarcode
+    //    // 3. Call addItemRow with the product data returned from server
 
-        // Example implementation when ready:
-        /*
-        const barcode = "SCANNED_BARCODE_VALUE"; // Get from scanner device
-        $.ajax({
-            url: '/Invoice/GetProductByBarcode',
-            method: 'GET',
-            data: { barcode: barcode },
-            success: function (product) {
-                if (product) {
-                    addItemRow(product);
-                } else {
-                    toastr.error('Product not found for barcode: ' + barcode);
-                }
-            },
-            error: function () {
-                toastr.error('Failed to fetch product by barcode');
-            }
-        });
-        */
+    //    // Example implementation when ready:
+    //    /*
+    //    const barcode = "SCANNED_BARCODE_VALUE"; // Get from scanner device
+    //    $.ajax({
+    //        url: '/Invoice/GetProductByBarcode',
+    //        method: 'GET',
+    //        data: { barcode: barcode },
+    //        success: function (product) {
+    //            if (product) {
+    //                addItemRow(product);
+    //            } else {
+    //                toastr.error('Product not found for barcode: ' + barcode);
+    //            }
+    //        },
+    //        error: function () {
+    //            toastr.error('Failed to fetch product by barcode');
+    //        }
+    //    });
+    //    */
 
-        toastr.info('Barcode scanning feature - Coming soon!');
-    });
+    //    toastr.info('Barcode scanning feature - Coming soon!');
+    //});
+
+
+
+
 
     function showSearchBox() {
         // Remove existing search if any
@@ -496,15 +501,31 @@
         </div>
         <div class="col text-end amount">${(displayPrice * existingQuantity).toFixed(2)}</div>
         <div class="col-1 text-center">
-            <button type="button" class="btn btn-sm btn-outline-primary edit-item me-1" title="Edit">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-danger delete-item" title="Delete">
-                <i class="far fa-trash-alt"></i>
-            </button>
+
+             <div class="btn-reveal-trigger position-static g-3">
+                    <a href="#" class="nav-item me-2 edit-item " title="Edit">
+                        <i class="fas fa-edit text-black"></i>
+                    </a>
+                               
+                    <a href="#" class="nav-item me-2 delete-item" title="Delete">
+                        <i class="far fa-trash-alt text-black "></i>
+                    </a>
+
+
+                </div>
+
+            
         </div>
     </div>
     `);
+
+    //<button type="button" class="btn btn-sm btn-outline-primary edit-item me-1" title="Edit">
+    //            <i class="fas fa-edit"></i>
+    //        </button>
+    //        <button type="button" class="btn btn-sm btn-outline-danger delete-item" title="Delete">
+    //            <i class="far fa-trash-alt"></i>
+    //        </button>
+
 
         $('#add-item-btn').before(row);
         renumberRows();
@@ -594,6 +615,129 @@
     if (!$('#showTaxColumn').is(':checked')) {
         $('.vat-cell').hide();
     }
+
+    //#endregion
+
+
+    //#region Barcode Scanner Implementation
+
+    // Global variable to store barcode input
+    let barcodeBuffer = '';
+    let barcodeTimeout = null;
+
+    // Initialize barcode scanner listener
+    function initializeBarcodeScanner() {
+        // Listen for keypress events (barcode scanners act like keyboards)
+        $(document).on('keypress', function (e) {
+            // Ignore if user is typing in an input field
+            if ($(e.target).is('input, textarea')) {
+                return;
+            }
+
+            // Check if Enter key (scanners typically end with Enter)
+            if (e.which === 13) {
+                if (barcodeBuffer.length > 0) {
+                    processBarcodeInput(barcodeBuffer);
+                    barcodeBuffer = '';
+                }
+            } else {
+                // Add character to buffer
+                barcodeBuffer += String.fromCharCode(e.which);
+
+                // Clear timeout
+                if (barcodeTimeout) {
+                    clearTimeout(barcodeTimeout);
+                }
+
+                // Set timeout to clear buffer (scanners are fast, typing is slow)
+                barcodeTimeout = setTimeout(function () {
+                    barcodeBuffer = '';
+                }, 100); // 100ms timeout
+            }
+        });
+    }
+
+    // Process barcode input
+    function processBarcodeInput(barcode) {
+        console.log('Barcode scanned:', barcode);
+
+        // Show loading indicator
+        toastr.info('Searching for product...', 'Barcode Scanned');
+
+        // Call server to get product by barcode
+        $.ajax({
+            url: '/Invoice/GetProductByBarcode',
+            method: 'GET',
+            data: { barcode: barcode },
+            success: function (product) {
+                playBeep();
+                if (product && product.id) {
+                    // Check if product already exists in the list
+                    let existingRow = null;
+                    $('.item-row').each(function () {
+                        const productId = parseInt($(this).find('input[name$=".ProductId"]').val());
+                        if (productId === product.id) {
+                            existingRow = $(this);
+                            return false; // break the loop
+                        }
+                    });
+
+                    if (existingRow) {
+                        // Increment quantity if product already exists
+                        const qtyInput = existingRow.find('.quantity');
+                        const currentQty = parseFloat(qtyInput.val()) || 0;
+                        qtyInput.val(currentQty + 1);
+                        recalcTotals();
+                        toastr.success('Quantity increased for: ' + product.name);
+                    } else {
+                        // Add new item
+                        addItemRow(product);
+                        toastr.success('Product added: ' + product.name);
+                    }
+                } else {
+                    toastr.error('Product not found for barcode: ' + barcode);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Barcode lookup error:', error);
+                toastr.error('Failed to fetch product by barcode: ' + barcode);
+            }
+        });
+    }
+
+    // Manual barcode entry button
+    $('#add-item-barcode-btn').on('click', function () {
+        const barcode = prompt("Enter product barcode:");
+
+        if (barcode && barcode.trim() !== '') {
+            processBarcodeInput(barcode.trim());
+        }
+    });
+
+    // Initialize barcode scanner on document ready
+    //$(document).ready(function () {
+    //    initializeBarcodeScanner();
+    //});
+
+
+    function playBeep() {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZRQ8');
+        audio.play();
+    }
+
+    // Add to processBarcodeInput success:
+    playBeep();
+
+    // Add to processBarcodeInput
+    function flashScreen() {
+        $('body').append('<div id="scan-flash" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,255,0,0.3); z-index:9999;"></div>');
+        setTimeout(function () {
+            $('#scan-flash').fadeOut(200, function () {
+                $(this).remove();
+            });
+        }, 100);
+    }
+
 
     //#endregion
 

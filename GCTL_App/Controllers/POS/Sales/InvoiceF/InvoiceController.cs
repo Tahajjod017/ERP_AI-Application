@@ -207,6 +207,61 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             return Json(result);
         }
 
+
+
+        // ==============================
+        // AJAX: Get Product By Barcode
+        // ==============================
+        [HttpGet]
+        public JsonResult GetProductByBarcode(string barcode)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(barcode))
+                {
+                    return Json(new { success = false, message = "Barcode is required" });
+                }
+
+                // Query product by barcode
+                var product = _productRepository.AllActive()
+                    .Include(e => e.ProductPricing)
+                    .FirstOrDefault(e=>e.SKU == barcode);
+
+                if (product == null)
+                {
+                    return Json(new { success = false, message = "Product not found" });
+                }
+
+                // Return product data in same format as GetProducts
+                var result = new
+                {
+                    id = product.ProductID,
+                    name = product.ProductName,
+                    price = product.ProductPricing != null
+                        ? product.ProductPricing.Select(e => e.SellingPriceExclVAT).FirstOrDefault()
+                        : 0m,
+                    vatPercent = product.ProductPricing != null
+                        ? product.ProductPricing.Select(e => e.VATPercent).FirstOrDefault()
+                        : 0m,
+                    aitPercent = product.ProductPricing != null
+                        ? product.ProductPricing.Select(e => e.VATPercent).FirstOrDefault()
+                        : 0m,
+                    success = true
+                };
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                Console.WriteLine($"Error in GetProductByBarcode: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred" });
+            }
+        }
+
+
+
+
         // ==============================
         // AJAX: Get Products
         // ==============================
@@ -225,6 +280,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         //        .ToList();
         //    return Json(result);
         //}
+
+
+
 
         [HttpGet]
         public JsonResult GetProducts()
