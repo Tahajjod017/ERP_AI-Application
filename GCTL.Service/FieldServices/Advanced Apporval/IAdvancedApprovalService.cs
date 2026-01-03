@@ -14,6 +14,6 @@ namespace GCTL.Service.FieldServices.Advanced_Apporval
        
 
         Task<PaginationService<EmployeeAdvances, ApprovalGetALLVM>.PaginationResult<ApprovalGetALLVM>> GetAllAsync1(int pageNumber = 1, int pageSize = 5,
-           string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainAccId = null);
+           string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainAccId = null, string userId = "");
     }
 }

@@ -1,4 +1,5 @@
-﻿using GCTL.Core.Repository;
+﻿using System.Security.Claims;
+using GCTL.Core.Repository;
 using GCTL.Data.Models;
 using GCTL.Service.FieldServices.Advanced_Apporval;
 using GCTL.Service.Language;
@@ -25,7 +26,8 @@ namespace GCTL_App.Controllers.FieldServices
         [HttpGet("AdvancedApproval/GetAll")]
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
         {
-            var result = await _mainservice.GetAllAsync1(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, mainempId);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _mainservice.GetAllAsync1(pageNumber, pageSize, searchTerm, sortColumn, sortOrder, mainempId,userId);
             return Json(result);
         }
         #endregion

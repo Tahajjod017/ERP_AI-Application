@@ -23,8 +23,9 @@ namespace GCTL.Service.FieldServices.Advanced_Apporval
         public readonly IGenericRepository<Jobs> _job;
         public readonly IGenericRepository<GroupEmployee> _groupEmployeeRepository;
         private readonly IUserInfoService _userInfoService;
+        private readonly AppDbContext appDb;
 
-        public AdvancedApprovalService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, IGenericRepository<Customers> customer, IGenericRepository<Jobs> job, IGenericRepository<GroupEmployee> groupEmployeeRepository, IUserInfoService userInfoService):base(genericRepository)
+        public AdvancedApprovalService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, IGenericRepository<Customers> customer, IGenericRepository<Jobs> job, IGenericRepository<GroupEmployee> groupEmployeeRepository, IUserInfoService userInfoService, AppDbContext appDb) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _employees = employees;
@@ -34,25 +35,35 @@ namespace GCTL.Service.FieldServices.Advanced_Apporval
             _job = job;
             _groupEmployeeRepository = groupEmployeeRepository;
             _userInfoService = userInfoService;
+            this.appDb = appDb;
         }
 
 
         #region GetAllAsync
-        public Task<PaginationService<EmployeeAdvances, ApprovalGetALLVM>.PaginationResult<ApprovalGetALLVM>> GetAllAsync1(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
+        public  Task<PaginationService<EmployeeAdvances, ApprovalGetALLVM>.PaginationResult<ApprovalGetALLVM>> GetAllAsync1(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null, string userId = "")
         {
             try
             {
+
+                var employeeId =  appDb.Users
+                    .Where(u => u.Id == userId)
+                    .Select(e => e.EmployeeId)
+                    .FirstOrDefaultAsync();
+
+                var roleName = (from user in appDb.Users
+                                     join userRole in appDb.UserRoles on user.Id equals userRole.UserId
+                                     join role in appDb.Roles on userRole.RoleId equals role.Id
+                                     where user.Id == userId
+                                     select role.Name).FirstOrDefaultAsync();
+
+                //bool isSuperAdmin = string.Equals(roleName, "SuperAdmin", StringComparison.OrdinalIgnoreCase);
                 var query = _genericRepository.AllActive()
                     .Include(e => e.EmployeeAdvanceFor)
                     .Include(e => e.Job).ThenInclude(e => e.Customer) // Job -> Customer
                     .Include(e => e.Job).ThenInclude(e => e.JobType)  // Job -> JobType
                     .Include(e => e.GroupEmployee).ThenInclude(e => e.Employee) // GroupEmployee -> Employee
                     .Include(e => e.ApprovalStatus)
-                    .Include(e => e.RequestedByUser)
-
-
-                    .AsNoTracking()
-                    .Where(x => x.DeletedAt == null && x.DeletedBy == null);
+                    .Include(e => e.RequestedByUser).AsNoTracking();
 
                 if (mainempId != null)
                 {
@@ -104,15 +115,9 @@ namespace GCTL.Service.FieldServices.Advanced_Apporval
                         ? query.OrderByDescending(x => x.StartDate)
                         : query.OrderBy(x => x.StartDate),
 
-
-
-
                         _ => query.OrderBy(x => x.EmployeeAdvanceID)
                     };
                 }
-
-
-
                 return PaginationService<EmployeeAdvances, ApprovalGetALLVM>.GetPaginatedData(
                     query,
                     pageNumber,
@@ -133,11 +138,6 @@ namespace GCTL.Service.FieldServices.Advanced_Apporval
 
                         RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
                 + (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // Concutination
-
-
-
-
-
 
                         CustomerID2 = x.Job.CustomerID,
                         JobID = x.JobID,
