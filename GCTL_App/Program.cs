@@ -1,3 +1,5 @@
+using System.Text;
+using GCTL.Core.ServiceExtensions;
 using GCTL.Data.Models;
 using GCTL.Service;
 using GCTL.Service.AccessPermissions;
@@ -13,7 +15,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using QuestPDF.Infrastructure;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,20 @@ builder.Services.ConfigureDapperConnection(builder.Configuration);
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.AddMemoryCache();
 builder.Services.AddSignalR();
+
+
+// Add session services here
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+
+
+
 #endregion
 
 
@@ -246,13 +261,22 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseMiddleware<LocalizationMiddleware>();
+
+app.MapHub<EmployeeUploadHub>("/employeeUploadHub");
+
+
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllers(); // Maps attribute-routed API controllers
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}"
 );
+
+
+
 
 
 app.Run();

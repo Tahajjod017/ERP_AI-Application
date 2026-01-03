@@ -53,6 +53,7 @@ using GCTL.Service.ElementPermission;
 using GCTL.Service.Employees.EmployeeAdditional;
 using GCTL.Service.Employees.EmployeeAllowance;
 using GCTL.Service.Employees.EmployeeBenifit;
+using GCTL.Service.Employees.EmployeeBulkRegister;
 using GCTL.Service.Employees.EmployeeContact;
 using GCTL.Service.Employees.EmployeeDetails;
 using GCTL.Service.Employees.EmployeeEducational;
@@ -360,6 +361,7 @@ namespace GCTL_App.Extensions
 
             services.AddScoped<IEmployeeNavigationService, EmployeeNavigationService>();
             services.AddScoped<IEmployeeReportService, EmployeeReportService>();
+            services.AddScoped<IEmployeeBulkRegisterService, EmployeeBulkRegisterService>();
 
             #endregion
 

@@ -5,17 +5,19 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class InvoiceItems
+public partial class EmpAdvApprovalHistory
 {
-    public int InvoiceItemID { get; set; }
+    public int EmpAdvApprovalHistoryID { get; set; }
 
-    public int? InvoiceID { get; set; }
+    public int? EmployeeAdvanceID { get; set; }
 
-    public int? ProductID { get; set; }
+    public int? ApproveBy { get; set; }
 
-    public decimal? Quantity { get; set; }
+    public int? StatusID { get; set; }
 
-    public decimal? UnitPrice { get; set; }
+    public int? ApprovalStep { get; set; }
+
+    public string ApproverNote { get; set; }
 
     public string LIP { get; set; }
 
@@ -33,19 +35,15 @@ public partial class InvoiceItems
 
     public int? DeletedBy { get; set; }
 
-    public decimal? VatAmount { get; set; }
-
-    public decimal? Amount { get; set; }
-
-    public decimal? VatPercent { get; set; }
+    public virtual Employees ApproveByNavigation { get; set; }
 
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual Invoices Invoice { get; set; }
+    public virtual EmployeeAdvances EmployeeAdvance { get; set; }
 
-    public virtual Products Product { get; set; }
+    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

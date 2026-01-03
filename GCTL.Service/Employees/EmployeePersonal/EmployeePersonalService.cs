@@ -676,5 +676,32 @@ namespace GCTL.Service.Employees.EmployeePersonal
         #endregion
 
 
+        public async Task<string> GetEmployeeCode()
+        {
+            var lastCode = await _employeePersonalRepository.All()
+                .Select(e => new { code = e.EmployeeCode, id = e.EmployeeID })
+                .OrderByDescending(e => e.id)
+                .FirstOrDefaultAsync();
+
+            if (lastCode == null)
+            {
+                return "00001";
+            }
+
+            // Parse the last code as an integer
+            if (int.TryParse(lastCode.code, out int numericCode))
+            {
+                numericCode++;
+                // Pad with leading zeros to maintain 5 digits
+                return numericCode.ToString("D5");
+            }
+
+            // Fallback if parsing fails
+            return "00001";
+        }
+
+
+
+
     }
 }

@@ -7,10 +7,10 @@
     const $ait = $("#toggleCheckboxForAIT"); // Add AIT 5%
     const $showTax = $("#showTaxColumn"); // Show VAT Column
     const $hiddenDiv = $("#hiddenDiv"); // wrapper div for showTax
-    const $directChallan = $("#toggleCheckboxForDirectChallan"); // Direct Challan
 
     function updateUI() {
-        // 1. Show/hide Show Tax Column wrapper - ONLY when incVat is checked
+        // 1. Show/hide Show Tax Column wrapper - ONLY when AIT is checked
+        //$hiddenDiv.toggle($ait.is(":checked"));
         $hiddenDiv.toggle($incVat.is(":checked"));
 
         // 2. Update VAT column visibility based on Show Tax Column checkbox
@@ -19,14 +19,14 @@
         // 3. Show/hide VAT after subtotal row in summary
         $('#vatRow').toggle($ev.is(':checked'));
 
-        // 4. Update AIT display in product price column
+        // 4. Show/hide AIT row in summary
+        $('#aitRow').toggle($ait.is(':checked'));
+
+        // 5. Update AIT display in product price column
         updateAitDisplay();
 
-        // 5. Update VAT % badges visibility
+        // 6. Update VAT % badges visibility
         updateVatBadgeVisibility();
-
-        // 6. Update ItemSerial column visibility
-        updateItemSerialColumnVisibility();
 
         // Recalculate totals
         recalcTotals();
@@ -42,16 +42,6 @@
         $('.item-row .vat-cell').toggle(showVatColumn);
     }
 
-    function updateItemSerialColumnVisibility() {
-        const showItemSerial = $directChallan.is(':checked');
-
-        // Show/hide ItemSerial column header
-        $('#headerRow .itemserial-col').toggle(showItemSerial);
-
-        // Show/hide ItemSerial column in each item row
-        $('.item-row .itemserial-cell').toggle(showItemSerial);
-    }
-
     function updateAitDisplay() {
         const showAit = $ait.is(':checked');
 
@@ -60,11 +50,11 @@
             const $aitDisplay = $row.find('.ait-display');
 
             if (showAit) {
-                const basePrice = parseFloat($row.find('.unit-price').data('base-price')) || 0;
-                const aitPercent = parseFloat($row.find('.item-ait-percent').val()) || 5;
-                const aitAmount = (basePrice * aitPercent) / 100;
+                const unitPrice = parseFloat($row.find('.unit-price').val()) || 0;
+                const aitPercent = 5; // Assuming 5% AIT
+                const aitAmount = (unitPrice * aitPercent) / 100;
 
-                $aitDisplay.text(`+${aitAmount.toFixed(2)} AIT`).show();
+              //  $aitDisplay.text(`+${aitAmount.toFixed(2)} AIT`).show();
             } else {
                 $aitDisplay.hide();
             }
@@ -97,73 +87,17 @@
     }
 
     // Event bindings
-    $("#toggleCheckboxEV, #toggleCheckboxforIncludingVat, #toggleCheckboxForPriceWithoutVat, #toggleCheckboxForAIT, #toggleCheckboxForDirectChallan").on("change", reconcileConflicts);
+    $("#toggleCheckboxEV, #toggleCheckboxforIncludingVat, #toggleCheckboxForPriceWithoutVat, #toggleCheckboxForAIT").on("change", reconcileConflicts);
     $("#showTaxColumn").on("change", updateVatColumnVisibility);
 
     // Initialize on page load
     $(document).ready(function () {
         updateUI();
-        initializeSortable();
     });
 
     // Initialize on load
     reconcileConflicts();
 
-    //#endregion
-
-    //#region Drag and Drop - Sortable
-    function initializeSortable() {
-        const container = document.getElementById('item-container');
-        if (!container) return;
-
-        // Get all item rows except the add button
-        const itemRows = Array.from(container.querySelectorAll('.item-row'));
-
-        itemRows.forEach(row => {
-            row.draggable = true;
-
-            row.addEventListener('dragstart', function (e) {
-                e.dataTransfer.effectAllowed = 'move';
-                this.classList.add('dragging');
-                this.style.opacity = '0.5';
-            });
-
-            row.addEventListener('dragend', function (e) {
-                this.classList.remove('dragging');
-                this.style.opacity = '1';
-                renumberRows();
-            });
-
-            row.addEventListener('dragover', function (e) {
-                e.preventDefault();
-                const dragging = container.querySelector('.dragging');
-                if (!dragging) return;
-
-                const afterElement = getDragAfterElement(container, e.clientY);
-
-                if (afterElement == null) {
-                    container.insertBefore(dragging, document.getElementById('add-item-btn'));
-                } else {
-                    container.insertBefore(dragging, afterElement);
-                }
-            });
-        });
-    }
-
-    function getDragAfterElement(container, y) {
-        const draggableElements = [...container.querySelectorAll('.item-row:not(.dragging)')];
-
-        return draggableElements.reduce((closest, child) => {
-            const box = child.getBoundingClientRect();
-            const offset = y - box.top - box.height / 2;
-
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
-            } else {
-                return closest;
-            }
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
-    }
     //#endregion
 
     //#region Select2 initialization
@@ -370,41 +304,10 @@
     }
     //#endregion
 
-    //#region Line Items - Add/Remove/Edit
+    //#region Line Items - Add/Remove
 
     $('#add-item-btn').on('click', function () {
         showSearchBox();
-    });
-
-    // Add Item via Barcode Button
-    $('#add-item-barcode-btn').on('click', function () {
-        // TODO: Implement barcode scanning logic
-        // This will require:
-        // 1. Barcode scanner integration (USB/Bluetooth device)
-        // 2. Server-side endpoint to get product by barcode: /Invoice/GetProductByBarcode
-        // 3. Call addItemRow with the product data returned from server
-
-        // Example implementation when ready:
-        /*
-        const barcode = "SCANNED_BARCODE_VALUE"; // Get from scanner device
-        $.ajax({
-            url: '/Invoice/GetProductByBarcode',
-            method: 'GET',
-            data: { barcode: barcode },
-            success: function (product) {
-                if (product) {
-                    addItemRow(product);
-                } else {
-                    toastr.error('Product not found for barcode: ' + barcode);
-                }
-            },
-            error: function () {
-                toastr.error('Failed to fetch product by barcode');
-            }
-        });
-        */
-
-        toastr.info('Barcode scanning feature - Coming soon!');
     });
 
     function showSearchBox() {
@@ -450,43 +353,36 @@
         input.on('blur', () => setTimeout(() => dropdown.hide(), 200));
 
         searchWrapper.append(input).append(dropdown);
+
+        // FIX: target a real element instead of `this`
         $('#add-item-btn').before(searchWrapper);
+
         input.focus();
     }
 
-    function addItemRow(product, existingQuantity = 1, existingItemSerial = '') {
+
+    function addItemRow(product) {
         const rowCount = $('.item-row').length;
         const newIndex = rowCount;
         const aitPercent = product.aitPercent || 5;
-        const basePrice = product.price;
-        const showAit = $ait.is(':checked');
-
-        // Calculate display price with AIT if enabled
-        const displayPrice = showAit ? basePrice * (1 + aitPercent / 100) : basePrice;
-        const aitAmount = (basePrice * aitPercent) / 100;
+        const aitAmount = (product.price * aitPercent) / 100;
 
         const row = $(`
-    <div class="row align-items-center mb-2 item-row" data-index="${newIndex}" draggable="true" style="cursor:move;">
-        <div class="col-1 fs-8 align-middle d-flex align-items-center justify-content-center text-center">
-            <i class="fas fa-grip-vertical text-muted"></i>
-            <span class="row-number ms-2 d-block">${newIndex + 1}</span>
-        </div>
-        <div class="col-3 col-md-2">
+    <div class="row align-items-center mb-2 item-row" data-index="${newIndex}">
+        <div class="col-1 fs-8 align-middle text-center">${newIndex + 1}</div>
+        <div class="col-3 col-md-3">
             <input name="Items[${newIndex}].ProductId" type="hidden" value="${product.id}" />
-            <div class="product-name-display">${product.name}</div>
+            <div>${product.name}</div>
         </div>
-        <div class="col-2 col-md-1">
-            <input name="Items[${newIndex}].Quantity" class="form-control text-center calc quantity" type="number" step="any" value="${existingQuantity}" />
-        </div>
-        <div class="col itemserial-cell" style="display: none;">
-            <input name="Items[${newIndex}].ItemSerial" class="form-control item-serial" type="text" value="${existingItemSerial}" placeholder="Serial" />
+        <div class="col-2 col-md-2">
+            <input name="Items[${newIndex}].Quantity" class="form-control text-center calc quantity" type="number" step="any" value="1" />
         </div>
         <div class="col text-end product-price-cell">
-            <input name="Items[${newIndex}].UnitPrice" type="hidden" class="unit-price" value="${displayPrice}" data-base-price="${basePrice}" />
+            <input name="Items[${newIndex}].UnitPrice" type="hidden" class="unit-price" value="${product.price}" />
             <input type="hidden" name="Items[${newIndex}].VatPercent" class="item-vat-percent" value="${product.vatPercent || 15}" />
             <input type="hidden" name="Items[${newIndex}].AitPercent" class="item-ait-percent" value="${aitPercent}" />
-            <span class="price-display">${displayPrice.toFixed(2)}</span>
-            <span class="ait-display" style="display: ${showAit ? 'inline' : 'none'};">+${aitAmount.toFixed(2)} AIT</span>
+            <span class="price-display">${product.price.toFixed(2)}</span>
+            <span class="ait-display" style="display: none;">+${aitAmount.toFixed(2)} AIT</span>
             <span class="vat-percent-badge badge badge-phoenix badge-phoenix-warning clickable-vat ms-1" style="cursor:pointer; display: none;">
                 ${(product.vatPercent || 15).toFixed(2)}%
             </span>
@@ -494,12 +390,9 @@
         <div class="col text-end vat-cell" style="display: none;">
             <span class="vat-amount">0.00</span>
         </div>
-        <div class="col text-end amount">${(displayPrice * existingQuantity).toFixed(2)}</div>
-        <div class="col-1 text-center">
-            <button type="button" class="btn btn-sm btn-outline-primary edit-item me-1" title="Edit">
-                <i class="fas fa-edit"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-danger delete-item" title="Delete">
+        <div class="col text-end amount">${product.price.toFixed(2)}</div>
+        <div class="col-1 col-md-1 text-center">
+            <button type="button" class="btn btn-sm btn-outline-danger delete-item">
                 <i class="far fa-trash-alt"></i>
             </button>
         </div>
@@ -509,66 +402,62 @@
         $('#add-item-btn').before(row);
         renumberRows();
         attachCalcEvents();
-        updateUI();
+        updateUI(); // This will set proper visibility
         recalcTotals();
-        initializeSortable();
     }
 
-    // Edit Item
-    $(document).on('click', '.edit-item', function () {
-        const $row = $(this).closest('.item-row');
-        const currentQuantity = parseFloat($row.find('.quantity').val()) || 1;
-        const currentItemSerial = $row.find('.item-serial').val() || '';
 
-        // Remove existing search if any
-        $('.search-wrapper').remove();
+    //function addItemRow(product) {
+    //    const rowCount = $('.item-row').length;
+    //    const newIndex = rowCount;
 
-        const searchWrapper = $('<div class="search-wrapper position-relative mb-3"></div>');
-        const input = $('<input type="text" class="form-control" placeholder="Type product name to change..." autocomplete="off">');
-        const dropdown = $('<div class="search-dropdown border mt-1" style="display:none; position:absolute; width:100%; max-height:200px; overflow-y:auto; background:white; z-index:1000;"></div>');
+    //    //<select name="Items[${newIndex}].ProductId" class="form-select productDD searchableSelect">
+    //    //    <option value="${product.id}" selected>${product.name}</option>
+    //    //</select>
 
-        function renderDropdown(keyword = "") {
-            $.ajax({
-                url: '/Invoice/GetProducts',
-                method: 'GET',
-                success: function (products) {
-                    dropdown.empty();
-                    const filtered = products.filter(p =>
-                        p.name.toLowerCase().includes(keyword.toLowerCase())
-                    );
+    //    const row = $(`
+    //    <div class="row align-items-center mb-2 item-row " data-index="${newIndex}">
+    //        <div class="col-md-1 fs-9 align-middle">${newIndex + 1}</div>
+    //        <div class="col-md-3">
 
-                    if (filtered.length === 0) {
-                        dropdown.hide();
-                        return;
-                    }
+    //            <input name="Items[${newIndex}].ProductId" class="form-control" type="hidden"  />
+    //            <div>${product.name}</div>
 
-                    filtered.forEach(product => {
-                        const item = $(`<div class="px-3 py-2 hover-bg" style="cursor:pointer;">${product.name} - ${product.price.toFixed(2)} BDT</div>`);
-                        item.on('click', () => {
-                            searchWrapper.remove();
-                            $row.remove();
-                            addItemRow(product, currentQuantity, currentItemSerial);
-                        });
-                        dropdown.append(item);
-                    });
-                    dropdown.show();
-                }
-            });
-        }
+               
+    //        </div>
+    //        <div class="col-md-1">
+    //            <input name="Items[${newIndex}].Quantity" class="form-control text-center calc quantity" type="number" step="any" value="1" />
+    //        </div>
+    //        <div class="col-md-2 text-end">
+    //            <input name="Items[${newIndex}].UnitPrice" type="hidden" class="unit-price" value="${product.price}" />
+    //            <input type="hidden" name="Items[${newIndex}].VatPercent" class="item-vat-percent" value="${product.vatPercent || 15}" />
+    //            <span class="price-display">${product.price.toFixed(2)}</span>
 
-        input.on('input', function () {
-            renderDropdown($(this).val());
-        });
+    //             <span class="vat-percent-badge badge badge-phoenix badge-phoenix-warning clickable-vat me-2" style="cursor:pointer;">
+    //                ${(product.vatPercent || 15).toFixed(2)}%
+    //            </span>
 
-        input.on('blur', () => setTimeout(() => {
-            dropdown.hide();
-            searchWrapper.remove();
-        }, 200));
+    //        </div>
+    //        <div class="col-md-2 text-end vat-cell">
+               
+    //            <span class="vat-amount">0.00</span>
+    //        </div>
+    //        <div class="col-md-2 text-end amount">0.00</div>
+    //        <div class="col-md-1 text-center">
+    //            <button type="button" class="btn btn-sm btn-outline-danger delete-item">
+    //                <i class="far fa-trash-alt"></i>
+    //            </button>
+    //        </div>
+    //    </div>
+    //`);
 
-        searchWrapper.append(input).append(dropdown);
-        $row.before(searchWrapper);
-        input.focus();
-    });
+    //    $('#add-item-btn').before(row);
+    //    renumberRows();
+    //    attachCalcEvents();
+    //    recalcTotals();
+    //}
+
+
 
     // Delete Item
     $(document).on('click', '.delete-item', function () {
@@ -595,11 +484,144 @@
         $('.vat-cell').hide();
     }
 
+
+    //$('#add-item-btn').on('click', function () {
+    //    const $table = $('#itemsTable tbody');
+    //    const rowCount = $table.find('tr[data-index]').length;
+    //    const newIndex = rowCount;
+
+    //    //const newRow = `
+    //    //    <tr data-index="${newIndex}">
+    //    //        <td class="fs-8 text-center align-middle">${newIndex + 1}</td>
+    //    //        <td>
+    //    //            <select name="Items[${newIndex}].ProductId" class="form-select searchableSelect productDD">
+    //    //                <option value="">-- Select Product --</option>
+    //    //            </select>
+    //    //        </td>
+    //    //        <td><input name="Items[${newIndex}].Quantity" class="form-control calc" type="number" step="any" /></td>
+    //    //        <td><input name="Items[${newIndex}].UnitPrice" class="form-control calc" type="number" step="any" /></td>
+    //    //        <td class="vatPerItem text-end align-middle">
+    //    //            <input type="hidden" name="Items[${newIndex}].VatPercent" class="item-vat-percent" value="5" />
+    //    //        0.00</td>
+    //    //        <td class="amount text-center align-middle">0.00</td>
+    //    //        <td class="text-center align-middle">
+    //    //            <button type="button" class="btn btn-sm btn-outline-danger remove-item">
+    //    //                <i class="far fa-trash-alt text-black"></i>
+    //    //            </button>
+    //    //        </td>
+    //    //    </tr>`;
+
+    //    const newRow = `
+    //        <tr data-index="${newIndex}">
+    //            <td class="fs-8 text-center align-middle">${newIndex + 1}</td>
+    //            <td>
+    //                <select name="Items[${newIndex}].ProductId" class="form-select searchableSelect productDD">
+    //                    <option value="">-- Select Product --</option>
+    //                </select>
+    //            </td>
+    //            <td><input name="Items[${newIndex}].Quantity" class="form-control calc" type="number" step="any" /></td>
+    //            <td>
+    //                <input name="Items[${newIndex}].UnitPrice" class="form-control calc" type="hidden" step="any" />
+    //                <input name="Items[${newIndex}].VatPercent" class="item-vat-percent" type="hidden" value="5" />
+
+    //                <span class="price-per-amount">0.00</span>
+    //                <span class="vat-percent-badge badge badge-phoenix badge-phoenix-warning clickable-vat" style="cursor:pointer;">0.00%</span>
+    //                <span class="vat-per-amount ms-2">0.00</span>
+    //            </td>
+    //            <td class="text-end align-middle">
+                   
+                   
+    //                <span class="vat-amount ms-2">0.00</span>
+    //            </td>
+    //            <td class="amount text-end align-middle">0.00</td>
+    //            <td class="text-center align-middle">
+    //                <button type="button" class="btn btn-sm btn-outline-danger remove-item">
+    //                    <i class="far fa-trash-alt text-black"></i>
+    //                </button>
+    //            </td>
+    //        </tr>`;
+
+    //    $(this).closest('tr').before(newRow);
+
+    //    const $newSelect = $table.find(`tr[data-index="${newIndex}"] .productDD`);
+    //    loadProductOptions($newSelect);
+
+    //    updateVatColumnVisibility();
+    //    attachCalcEvents();
+    //    renumberRows();
+    //    recalcTotals();
+    //});
+
+    $(document).on('click', '.remove-item', function () {
+        const $rows = $('#itemsTable tbody tr[data-index]');
+
+        if ($rows.length <= 1) {
+            toastr.warning('At least one item is required');
+            return;
+        }
+
+        $(this).closest('tr').remove();
+        renumberRows();
+        recalcTotals();
+    });
+
+    function loadProductOptions($select, selectedValue) {
+        $.ajax({
+            url: '/Invoice/GetProducts',
+            method: 'GET',
+            success: function (products) {
+                initializeSelect();
+                $select.empty().append('<option value="">-- Select Product --</option>');
+                $.each(products, function (i, product) {
+                    //$select.append(`<option value="${product.id}" data-price="${product.price}">${product.name}</option>`);
+
+                    $select.append(`<option value="${product.id}" 
+                        data-price="${product.price}" 
+                        data-vat="${product.vatPercent}">
+                        ${product.name}
+                    </option>`);
+
+                });
+
+                if (selectedValue) {
+                    $select.val(selectedValue);
+                }
+
+                //$select.on('change', function () {
+                //    const selectedOption = $(this).find('option:selected');
+                //    const price = selectedOption.data('price');
+                //    const $row = $(this).closest('tr');
+                //    $row.find('input[name$=".UnitPrice"]').val(price);
+                //    recalcTotals();
+                //});
+
+
+                $select.on('change', function () {
+                    const $option = $(this).find('option:selected');
+                    const price = $option.data('price') || 0;
+                    const vat = $option.data('vat') || 5;
+                    const $row = $(this).closest('tr');
+                    $row.find('input[name$=".UnitPrice"]').val(price);
+                    $row.find('.price-per-amount').text(price);
+                    $row.find('.vat-per-amount').text((price * vat)/100);
+                    $row.find('.item-vat-percent').val(vat);
+                    $row.find('.vat-percent-badge').text(vat.toFixed(2) + '%');
+                    recalcTotals();
+                });
+
+
+            },
+            error: function () {
+                console.error('Failed to load products');
+            }
+        });
+    }
     //#endregion
+
 
     // Per-item VAT % edit
     $(document).on('click', '.clickable-vat', function () {
-        const $row = $(this).closest('.item-row');
+        const $row = $(this).closest('tr');
         const currentVat = parseFloat($row.find('.item-vat-percent').val()) || 5;
         const newVat = prompt("Enter VAT % for this item:", currentVat.toFixed(2));
         if (newVat !== null && !isNaN(newVat) && parseFloat(newVat) >= 0) {
@@ -630,25 +652,12 @@
             const val = parseFloat(newVal);
             $('#aitPercent').val(val);
             $('#globalAitPercentDisplay').text(val.toFixed(2) + '%');
-
-            // Update all item prices with new AIT
-            $('.item-row').each(function () {
-                const $row = $(this);
-                const basePrice = parseFloat($row.find('.unit-price').data('base-price')) || 0;
-                const showAit = $ait.is(':checked');
-                const newDisplayPrice = showAit ? basePrice * (1 + val / 100) : basePrice;
-
-                $row.find('.unit-price').val(newDisplayPrice);
-                $row.find('.item-ait-percent').val(val);
-                $row.find('.price-display').text(newDisplayPrice.toFixed(2));
-            });
-
-            updateAitDisplay();
             recalcTotals();
         }
     });
 
-    //#region Calculation Logic
+
+    //#region Calculation Logic - OPTION A
     function attachCalcEvents() {
         $('.calc').off('input').on('input', recalcTotals);
     }
@@ -656,9 +665,10 @@
     $('#vatPercent, #aitPercent').on('input', recalcTotals);
 
     function renumberRows() {
-        $('.item-row').each(function (i) {
+        const $rows = $('#itemsTable tbody tr[data-index]');
+        $rows.each(function (i) {
             $(this).attr('data-index', i);
-            $(this).find('.row-number').text(i + 1);
+            $(this).find('td:first').text(i + 1);
             $(this).find('input, textarea, select').each(function () {
                 const name = $(this).attr('name');
                 if (name) {
@@ -676,33 +686,25 @@
 
         let netSubtotal = 0;
         let totalVAT = 0;
+        let totalAIT = 0;
         let grossSubtotal = 0;
-
-        // Object to store VAT amounts by percentage
-        let vatByPercent = {};
 
         $('.item-row').each(function () {
             const $row = $(this);
             const quantity = parseFloat($row.find('.quantity').val()) || 0;
-            let unitPrice = parseFloat($row.find('.unit-price').val()) || 0;
-            const basePrice = parseFloat($row.find('.unit-price').data('base-price')) || unitPrice;
+            const unitPrice = parseFloat($row.find('.unit-price').val()) || 0;
             const itemVatPercent = parseFloat($row.find('.item-vat-percent').val()) || globalVatPercent;
             const itemAitPercent = parseFloat($row.find('.item-ait-percent').val()) || aitPercent;
 
-            // Recalculate unit price with AIT if needed
-            if (showAit) {
-                unitPrice = basePrice * (1 + itemAitPercent / 100);
-                $row.find('.unit-price').val(unitPrice);
-                $row.find('.price-display').text(unitPrice.toFixed(2));
-            } else {
-                unitPrice = basePrice;
-                $row.find('.unit-price').val(unitPrice);
-                $row.find('.price-display').text(unitPrice.toFixed(2));
-            }
-
-            let itemNetAmount = 0;
+            let itemNetAmount = unitPrice * quantity;
             let itemVatAmount = 0;
-            let itemTotalAmount = 0;
+            let itemAitAmount = 0;
+            let itemTotalAmount = itemNetAmount;
+
+            // Calculate AIT
+            if (showAit) {
+                itemAitAmount = (itemNetAmount * itemAitPercent) / 100;
+            }
 
             // MODE 1: Each item price INCLUDING VAT
             if ($incVat.is(':checked')) {
@@ -710,36 +712,28 @@
                 const netPrice = unitPrice / (1 + itemVatPercent / 100);
                 itemNetAmount = netPrice * quantity;
                 itemVatAmount = (unitPrice - netPrice) * quantity;
-                itemTotalAmount = unitPrice * quantity;
+                itemTotalAmount = itemNetAmount + itemVatAmount + itemAitAmount;
 
                 // Show VAT amount in VAT column
                 $row.find('.vat-amount').text(itemVatAmount.toFixed(2));
             }
             // MODE 2: Price WITHOUT VAT
             else if ($noVat.is(':checked')) {
-                itemNetAmount = unitPrice * quantity;
                 itemVatAmount = (itemNetAmount * itemVatPercent) / 100;
-                itemTotalAmount = itemNetAmount + itemVatAmount;
+                itemTotalAmount = itemNetAmount + itemVatAmount + itemAitAmount;
 
                 // Show VAT amount in VAT column
                 $row.find('.vat-amount').text(itemVatAmount.toFixed(2));
             }
             // MODE 3: VAT AFTER SUBTOTAL
             else if (vatAfterSubtotal) {
-                itemNetAmount = unitPrice * quantity;
-                itemTotalAmount = itemNetAmount;
+                // VAT will be calculated at invoice level
+                itemTotalAmount = itemNetAmount + itemAitAmount;
                 $row.find('.vat-amount').text('—');
-
-                // Store item for later VAT calculation by percent
-                if (!vatByPercent[itemVatPercent]) {
-                    vatByPercent[itemVatPercent] = 0;
-                }
-                vatByPercent[itemVatPercent] += itemNetAmount;
             }
             // No VAT mode
             else {
-                itemNetAmount = unitPrice * quantity;
-                itemTotalAmount = itemNetAmount;
+                itemTotalAmount = itemNetAmount + itemAitAmount;
                 $row.find('.vat-amount').text('0.00');
             }
 
@@ -748,51 +742,125 @@
 
             // Accumulate totals
             netSubtotal += itemNetAmount;
-            if (!vatAfterSubtotal) {
-                totalVAT += itemVatAmount;
-            }
+            totalVAT += itemVatAmount;
+            totalAIT += itemAitAmount;
             grossSubtotal += itemTotalAmount;
         });
 
         // Calculate VAT after subtotal if that mode is active
         if (vatAfterSubtotal) {
-            $('#vatBreakdownRows').empty();
-            let totalVATSum = 0;
-
-            // Sort VAT percentages for consistent display
-            Object.keys(vatByPercent).sort((a, b) => parseFloat(a) - parseFloat(b)).forEach(function (percent) {
-                const subtotalForPercent = vatByPercent[percent];
-                const vatForPercent = (subtotalForPercent * parseFloat(percent)) / 100;
-                totalVATSum += vatForPercent;
-
-                const row = `<p class="mb-2 fw-bold">VAT @ ${parseFloat(percent).toFixed(2)}%: <span>${vatForPercent.toFixed(2)}</span> BDT</p>`;
-                $('#vatBreakdownRows').append(row);
-            });
-
-            totalVAT = totalVATSum;
-            grossSubtotal = netSubtotal + totalVAT;
-
-            // Show total VAT row if there are multiple VAT percentages
-            if (Object.keys(vatByPercent).length > 1) {
-                $('#totalVatRow').show();
-                $('#totalVatAmount').text(totalVAT.toFixed(2));
-            } else {
-                $('#totalVatRow').hide();
-            }
-        } else {
-            $('#vatBreakdownRows').empty();
-            $('#totalVatRow').hide();
+            totalVAT = (netSubtotal * globalVatPercent) / 100;
+            grossSubtotal = netSubtotal + totalVAT + totalAIT;
         }
 
         // Update summary display
         $('#subTotal').text(netSubtotal.toFixed(2));
         $('#vatAmount').text(totalVAT.toFixed(2));
+        $('#aitAmount').text(totalAIT.toFixed(2));
         $('#grandTotal').text(grossSubtotal.toFixed(2));
 
         // Update global VAT and AIT displays
         $('#globalVatPercentDisplay').text(globalVatPercent.toFixed(2) + '%');
         $('#globalAitPercentDisplay').text(aitPercent.toFixed(2) + '%');
     }
+
+    //function recalcTotals() {
+    //    const globalVatPercent = parseFloat($('#vatPercent').val()) || 15; // Global fallback
+    //    const aitPercent = parseFloat($('#aitPercent').val()) || 5;
+
+    //    let netSubtotal = 0;      // Amount excluding VAT
+    //    let totalVAT = 0;         // Total VAT across all items
+    //    let grossSubtotal = 0;    // Amount including VAT (before AIT)
+
+    //    $('#itemsTable tbody tr[data-index]').each(function () {
+    //        const $row = $(this);
+    //        const quantity = parseFloat($row.find('input[name$=".Quantity"]').val()) || 0;
+    //        const unitPrice = parseFloat($row.find('input[name$=".UnitPrice"]').val()) || 0;
+    //        const itemVatPercent = parseFloat($row.find('.item-vat-percent').val()) || globalVatPercent;
+
+    //        let itemNetAmount = 0;
+    //        let itemVatAmount = 0;
+    //        let itemTotalAmount = 0; // Line total (net + VAT)
+
+    //        // MODE 1: Each item price INCLUDING VAT
+    //        if ($incVat.is(':checked')) {
+    //            // UnitPrice is gross → extract net
+    //            const netPrice = unitPrice / (1 + itemVatPercent / 100);
+    //            itemNetAmount = netPrice * quantity;
+    //            itemVatAmount = (unitPrice - netPrice) * quantity;
+    //            itemTotalAmount = unitPrice * quantity;
+
+    //            $row.find('.vat-amount').text(itemVatAmount.toFixed(2));
+    //            $row.find('.amount').text(itemTotalAmount.toFixed(2));
+    //        }
+    //        // MODE 2: Price WITHOUT VAT (VAT added per item)
+    //        else if ($noVat.is(':checked')) {
+    //            itemNetAmount = unitPrice * quantity;
+    //            itemVatAmount = (unitPrice * quantity * itemVatPercent) / 100;
+    //            itemTotalAmount = itemNetAmount + itemVatAmount;
+
+    //            $row.find('.vat-amount').text(itemVatAmount.toFixed(2));
+    //            $row.find('.amount').text(itemTotalAmount.toFixed(2));
+    //        }
+    //        // MODE 3: VAT AFTER SUBTOTAL (invoice-level VAT) OR No VAT mode
+    //        else {
+    //            itemNetAmount = unitPrice * quantity;
+    //            itemTotalAmount = itemNetAmount;
+
+    //            // In "VAT after subtotal" mode, per-item VAT is 0 (shown at bottom)
+    //            if ($ev.is(':checked')) {
+    //                $row.find('.vat-amount').text('—');
+    //            } else {
+    //                $row.find('.vat-amount').text('0.00');
+    //            }
+    //            $row.find('.amount').text(itemTotalAmount.toFixed(2));
+    //        }
+
+    //        // Accumulate totals
+    //        netSubtotal += itemNetAmount;
+    //        totalVAT += itemVatAmount;
+    //        grossSubtotal += itemTotalAmount;
+    //    });
+
+    //    // Special case: VAT after subtotal → calculate VAT once on entire net subtotal using GLOBAL %
+    //    if ($ev.is(':checked')) {
+    //        totalVAT = (netSubtotal * globalVatPercent) / 100;
+    //        grossSubtotal = netSubtotal + totalVAT;
+    //    }
+
+    //    // AIT Calculation (on gross subtotal if enabled)
+    //    let aitAmount = 0;
+    //    if ($ait.is(':checked')) {
+    //        aitAmount = (grossSubtotal * aitPercent) / 100;
+    //    }
+
+    //    // Grand Total
+    //    const grandTotal = grossSubtotal + aitAmount;
+
+    //    // Update display fields
+    //    $('#subTotal').text(netSubtotal.toFixed(2));
+    //    $('#vatAmount').text(totalVAT.toFixed(2));
+    //    $('#aitAmount').text(aitAmount.toFixed(2));
+    //    $('#grandTotal').text(grandTotal.toFixed(2));
+
+    //    // Show/hide VAT row based on Show Tax Column checkbox
+    //    if ($showTax.is(':checked') && (totalVAT > 0 || $ev.is(':checked'))) {
+    //        $('#vatAmount').closest('tr').show();
+    //    } else {
+    //        $('#vatAmount').closest('tr').hide();
+    //    }
+
+    //    // Show/hide AIT row
+    //    if ($ait.is(':checked')) {
+    //        $('#aitAmount').closest('tr').show();
+    //    } else {
+    //        $('#aitAmount').closest('tr').hide();
+    //    }
+
+    //    // Update VAT column visibility based on modes
+    //    updateVatColumnVisibility();
+    //}
+
 
     attachCalcEvents();
     recalcTotals();
@@ -822,9 +890,9 @@
         }
 
         let hasValidItem = false;
-        $('.item-row').each(function () {
-            const quantity = parseFloat($(this).find('.quantity').val()) || 0;
-            const price = parseFloat($(this).find('.unit-price').val()) || 0;
+        $('#itemsTable tbody tr[data-index]').each(function () {
+            const quantity = parseFloat($(this).find('input[name$=".Quantity"]').val()) || 0;
+            const price = parseFloat($(this).find('input[name$=".UnitPrice"]').val()) || 0;
             if (quantity > 0 && price > 0) {
                 hasValidItem = true;
                 return false;
@@ -865,3 +933,5 @@
     });
     //#endregion
 });
+
+
