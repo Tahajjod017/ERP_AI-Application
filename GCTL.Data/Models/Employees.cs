@@ -413,6 +413,14 @@ public partial class Employees
 
     public virtual ICollection<EmailSettings> EmailSettingsUpdatedByNavigation { get; set; } = new List<EmailSettings>();
 
+    public virtual ICollection<EmpAdvApprovalHistory> EmpAdvApprovalHistoryApproveByNavigation { get; set; } = new List<EmpAdvApprovalHistory>();
+
+    public virtual ICollection<EmpAdvApprovalHistory> EmpAdvApprovalHistoryCreatedByNavigation { get; set; } = new List<EmpAdvApprovalHistory>();
+
+    public virtual ICollection<EmpAdvApprovalHistory> EmpAdvApprovalHistoryDeletedByNavigation { get; set; } = new List<EmpAdvApprovalHistory>();
+
+    public virtual ICollection<EmpAdvApprovalHistory> EmpAdvApprovalHistoryUpdatedByNavigation { get; set; } = new List<EmpAdvApprovalHistory>();
+
     public virtual ICollection<EmployeeActionTypes> EmployeeActionTypesCreatedByNavigation { get; set; } = new List<EmployeeActionTypes>();
 
     public virtual ICollection<EmployeeActionTypes> EmployeeActionTypesDeletedByNavigation { get; set; } = new List<EmployeeActionTypes>();

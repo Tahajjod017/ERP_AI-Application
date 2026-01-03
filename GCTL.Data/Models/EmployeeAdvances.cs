@@ -51,6 +51,8 @@ public partial class EmployeeAdvances
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<EmpAdvApprovalHistory> EmpAdvApprovalHistory { get; set; } = new List<EmpAdvApprovalHistory>();
+
     public virtual ICollection<EmployeeAdvanceFor> EmployeeAdvanceFor { get; set; } = new List<EmployeeAdvanceFor>();
 
     public virtual ICollection<GroupEmployee> GroupEmployee { get; set; } = new List<GroupEmployee>();

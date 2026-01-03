@@ -16,12 +16,15 @@ namespace GCTL.Service.CRM.LeadDetail
 
     public class LeadDetailsService : ILeadDetailsService
     {
+        #region Properties
         private readonly IGenericRepository<LeadActivityTypes> _leadActivityTypesGenericRepository;
         private readonly IGenericRepository<GCTL.Data.Models.LeadDetails> _leadDetailsGenericRepository;
         private readonly IGenericRepository<Leads> _leadsRepository;
         private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
         private readonly IUserInfoService _userInfoService;
+        #endregion
 
+        #region Constructor
         public LeadDetailsService(IGenericRepository<GCTL.Data.Models.LeadDetails> leadDetailsGenericRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesGenericRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<LeadDetails> leadDetailsRepository, IUserInfoService userInfoService)
         {
             _leadActivityTypesGenericRepository = leadActivityTypesGenericRepository;
@@ -30,8 +33,9 @@ namespace GCTL.Service.CRM.LeadDetail
             _leadDetailsRepository = leadDetailsRepository;
             _userInfoService = userInfoService;
         }
+        #endregion
 
-
+        #region CreateLeadActivateTypes
         public async Task<bool> CreateLeadActivateTypes()
         {
             var leadActivityObjs = await _leadActivityTypesGenericRepository.GetAllAsync();
@@ -56,7 +60,9 @@ namespace GCTL.Service.CRM.LeadDetail
             }
             return false;
         }
+        #endregion
 
+        #region CreateLeadDeatil
         public async Task<ReturnView> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation)
         {
 
@@ -144,10 +150,9 @@ namespace GCTL.Service.CRM.LeadDetail
                 };
             }
         }
+        #endregion
 
-        //======================
-        // getLeadActivityList
-        //====================
+        #region ActivityList
         public async Task<LeadActivityResultVM> ActivityList(int id, string query, int page, string type)
         {
             int leadDetailsTypeID = 0;
@@ -238,8 +243,10 @@ namespace GCTL.Service.CRM.LeadDetail
                 ClosingDate = leadObj.ClosingDate ?? null
             };
         }
+        #endregion
 
         // lead table source, status update service function
+        #region UpdateLeadFieldValue
         public async Task<ReturnView> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM)
         {
             await _leadsRepository.BeginTransactionAsync();
@@ -309,11 +316,9 @@ namespace GCTL.Service.CRM.LeadDetail
                 };
             }
         }
+        #endregion
 
-        // ==============================
-        // Save Won or Loss function
-        // ==============================
-
+        #region Save Won or Loss function
         public async Task<ReturnView> AddIsWon(IsWonVM isWonVM)
         {
             // Begin transaction
@@ -418,10 +423,9 @@ namespace GCTL.Service.CRM.LeadDetail
                 };
             }
         }
+        #endregion
 
-        //=================================
-        // restore lead activity
-        //=================================
+        #region  restore lead activity
         public async Task<ReturnView> RestoreLead(int id)
         {
             try
@@ -491,8 +495,9 @@ namespace GCTL.Service.CRM.LeadDetail
             }
 
         }
-        #region Task<ReturnView> CompleteAsync(int activityId)
+        #endregion
 
+        #region CompleteAsync
         public async Task<ReturnView> CompleteAsync(LeadDetailsVM model)
         {
             await _leadDetailsRepository.BeginTransactionAsync();
@@ -564,8 +569,47 @@ namespace GCTL.Service.CRM.LeadDetail
                 #endif
             }
         }
+        #endregion
 
+        #region GetLeadDetailsInfoAsync
+        public async Task<ReturnDataView<LeadActivityVM>> GetLeadDetailsInfoAsync(int activityId)
+        {
+            try
+            {
+                var result = await _leadDetailsGenericRepository
+                    .AllActive()
+                    .AsNoTracking()
+                    .Include(x => x.LeadActivityType)
+                    .Where(x => x.LeadDetailID == activityId)
+                    .Select(x => new LeadActivityVM
+                    {
+                        LeadActivityName = x.LeadActivityType.LeadActivityName ?? string.Empty,
+                        ActivityNote = x.ActivityNote,
+                        EmailAddress = x.EmailAddress,
+                        PhoneNumber = x.PhoneNumber,
+                        FileLink = x.FileLink,
+                        ActivityDateTime = x.ActivityDateTime
+                    })
+                    .FirstOrDefaultAsync();
 
+                return new ReturnDataView<LeadActivityVM>
+                {
+                    success = true,
+                    data = result != null
+                        ? new List<LeadActivityVM> { result }
+                        : new List<LeadActivityVM>()
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ReturnDataView<LeadActivityVM>
+                {
+                    success = false,
+                    message = ex.Message,
+                    data = new List<LeadActivityVM>()
+                };
+            }
+        }
         #endregion
     }
 }
