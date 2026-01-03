@@ -1,21 +1,16 @@
-﻿using Bogus.DataSets;
-using GCTL.Core.Repository;
+﻿using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Data.Models;
 using GCTL.Service.Finance.TransactionAccount;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using SkiaSharp;
-using System.Security.Cryptography;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace GCTL.Service.CRM.LeadCreate
 {
     public class LeadCreateService : ILeadCreateService
     {
-        #region Repositories
+        #region properties 
         private readonly IGenericRepository<AddressTypes> _addressTypesRepository;
         private readonly IGenericRepository<CustomerAddresses> _customerAddressesRepository;
         private readonly IGenericRepository<Leads> _leadsRepository;
@@ -26,6 +21,7 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly IGenericRepository<GCTL.Data.Models.Services> _servicesRepository;
         private readonly IGenericRepository<EmployeeOfficeInfo> _employeeOfficeInfoRepository;
         private readonly IGenericRepository<OtherContacts> _otherContactsRepository;
+        #endregion
 
         #region Added by Md. Rakib Hasan
         private readonly IGenericRepository<Heads> _heads;
@@ -35,6 +31,7 @@ namespace GCTL.Service.CRM.LeadCreate
         private readonly ITransactionAccountService _transactionAccountService;
         #endregion
 
+        #region Constructor
         public LeadCreateService(AppDbContext context, IGenericRepository<LeadServices> leadServicesRepository, IGenericRepository<CompanyWarehouses> companyWarehousesRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Addresses> addressesRepository, IGenericRepository<AddressTypes> addressTypesRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<CustomerAddresses> customerAddressesRepository, IGenericRepository<Heads> heads, IGenericRepository<HeadDetails> headDetails, IGenericRepository<TransactionAccounts> transactionAccounts, IGenericRepository<SubAccounts> subAccounts, ITransactionAccountService transactionAccountService, IGenericRepository<EmployeeOfficeInfo> employeeOfficeInfoRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<LeadStatuses> statusesRepository, IGenericRepository<LeadSources> sourcesRepository, IGenericRepository<Services> servicesRepository, IGenericRepository<OtherContacts> otherContactsRepository)
         {
             _addressTypesRepository = addressTypesRepository;
@@ -170,7 +167,6 @@ namespace GCTL.Service.CRM.LeadCreate
         }
         #endregion
 
-
         #region EditLead
         public async Task<CommonReturnViewModel> EditLead(LeadsVM leadUpdateVM)
         {
@@ -250,7 +246,6 @@ namespace GCTL.Service.CRM.LeadCreate
             }
         }
         #endregion
-
 
         #region get Owner List 
         public async Task<ReturnDataView<CustomerInfoVM>> GetLeadOwnerListAsync(string search, int page, int pageSize, int organizationID)
@@ -478,7 +473,6 @@ namespace GCTL.Service.CRM.LeadCreate
             catch (Exception ex) { return new ReturnDataView<CommonSelectVM>(); }
         }
         #endregion
-
 
         #region GetContactPersonNumberAsync
         public async Task<ReturnDataView<CommonSelectVM>> GetContactPersonNumberAsync(

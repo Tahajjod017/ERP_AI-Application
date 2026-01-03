@@ -9,6 +9,14 @@
         --border-color: #E2E8F0;
         --completed-bg: #4061f5; /* background */
         --pertial-success: #13d168;
+
+        /* progressbar */
+        --primary-gradient: linear-gradient(90deg, #4361ee 0%, #3f37c9 100%);
+        --bg-color: #f8f9fa;
+        --card-bg: #ffffff;
+        --text-color: #2b2d42;
+        --gray-track: #e9ecef;
+        --thumb-size: 20px;
     }
 
     /* Timeline Container */
@@ -170,7 +178,7 @@
         }
 
     /* Progress Section */
-    .progress-section {
+    /* .progress-section {
         margin: 30px 0;
         padding: 20px;
         background: white;
@@ -219,7 +227,7 @@
         font-weight: 600;
         font-size: 14px;
         box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
-    }
+    } */
 
     /* User Avatar Placeholder */
     .user-avatar {
@@ -379,6 +387,113 @@
             padding: 20px 0;
         }
     }
+
+    /* // progress bar css */
+
+
+
+
+
+    /* --- Progress Section Styles --- */
+    .progress-section {
+        width: 100%;
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+        .progress-header h5 {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+
+    .progress-percentage {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+        min-width: 45px; /* Prevent layout shift */
+        text-align: right;
+    }
+
+    /* The Track */
+    .custom-progress {
+        position: relative;
+        height: 24px; /* Increased height for better touch area */
+        background-color: var(--gray-track);
+        border-radius: 12px;
+        cursor: pointer; /* Indicates clickability */
+        overflow: visible; /* Allow thumb to overflow if needed */
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* The Fill Bar */
+    .custom-progress-bar {
+        height: 100%;
+        background: var(--primary-gradient);
+        border-radius: 12px;
+        width: 0%; /* Dynamic Width */
+        position: relative;
+        transition: width 0.1s ease-out; /* Smooth visual update */
+        display: flex;
+        align-items: center;
+        justify-content: flex-end; /* Keep thumb at the edge */
+        padding-right: 2px;
+    }
+
+    /* Text inside the bar */
+    .bar-label {
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+        padding-left: 10px;
+        opacity: 0; /* Hidden by default, shown when bar is wide enough */
+        pointer-events: none;
+        transition: opacity 0.2s;
+    }
+
+    /* The Slider Handle (Thumb) */
+    .slider-thumb {
+        width: var(--thumb-size);
+        height: var(--thumb-size);
+        background: #fff;
+        border: 2px solid var(--primary-color);
+        border-radius: 50%;
+        position: absolute;
+        right: -10px; /* Center it on the end of the bar */
+        top: 50%;
+        transform: translateY(-50%) scale(1); /* Center vertically */
+        cursor: grab;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: transform 0.1s, right 0.1s ease-out;
+        z-index: 2;
+    }
+
+        .slider-thumb:active {
+            cursor: grabbing;
+            transform: translateY(-50%) scale(1.2);
+            background: var(--primary-color);
+        }
+
+    /* Hover effects for desktop */
+    .custom-progress:hover .slider-thumb {
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Helper instruction text */
+    .instruction {
+        margin-top: 15px;
+        font-size: 0.85rem;
+        color: #6c757d;
+        text-align: center;
+    }
 </style>
 
 <div class="card">
@@ -425,7 +540,7 @@
                 <!-- Step 4: Finish -->
                 <div class="timeline-step" data-step="4">
                     <div class="step-circle" data-step="4">
-                        <i class="fas fa-flag-checkered"></i>
+                        <i class="fa-regular fa-rectangle-list"></i>
                         <span class="step-badge"><i class="fas fa-check"></i></span>
                     </div>
                     <div class="step-label">
@@ -434,9 +549,21 @@
                     </div>
                 </div>
 
-                <!-- Step 5: Invoice -->
+                <!-- Step 4: Finish -->
                 <div class="timeline-step" data-step="5">
                     <div class="step-circle" data-step="5">
+                        <i class="fas fa-flag-checkered"></i>
+                        <span class="step-badge"><i class="fas fa-check"></i></span>
+                    </div>
+                    <div class="step-label">
+                        <div class="step-title">Project Finish</div>
+                        <div class="step-date">Pending</div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Invoice -->
+                <div class="timeline-step" data-step="6">
+                    <div class="step-circle" data-step="6">
                         <i class="fas fa-file-invoice"></i>
                         <span class="step-badge"><i class="fas fa-check"></i></span>
                     </div>
@@ -447,8 +574,8 @@
                 </div>
 
                 <!-- Step 6: Payment -->
-                <div class="timeline-step" data-step="6">
-                    <div class="step-circle" data-step="6">
+                <div class="timeline-step" data-step="7">
+                    <div class="step-circle" data-step="7">
                         <i class="fas fa-dollar-sign"></i>
                         <span class="step-badge"><i class="fas fa-check"></i></span>
                     </div>
@@ -466,9 +593,12 @@
                 <h5><i class="fas fa-chart-line me-2"></i>Overall Progress</h5>
                 <span class="progress-percentage" id="progressPercentage">0%</span>
             </div>
-            <div class="custom-progress">
+
+            <!-- The Interactive Slider Track -->
+            <div class="custom-progress" id="progressTrack">
                 <div class="custom-progress-bar" id="progressBar" style="width: 0%;">
-                    0% Complete
+                    <!-- Draggable Handle -->
+                    <div class="slider-thumb" id="sliderThumb"></div>
                 </div>
             </div>
         </div>

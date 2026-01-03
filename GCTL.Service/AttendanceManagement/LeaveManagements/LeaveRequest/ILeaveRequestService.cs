@@ -58,6 +58,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         Task<List<PersonLeaveStepVM>> GetByPersonLeaveStepVM(int leaveApplicationID);
         #endregion
 
+
+        #region Sick Leave configuration
+        Task<List<CommonReturnViewModel>> GetSickLeaveConfigurationAsync();
+        Task<CommonReturnViewModel> SaveSickLeaveDocAsync(UploadSickDocVM entityVM);
+        Task<CommonReturnViewModel> GetSickLeaveDocAsync(int  id);
+        #endregion
+
     }
 
 

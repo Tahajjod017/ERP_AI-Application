@@ -294,8 +294,8 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                     query = sortColumn switch
                     {
                         "empId" => sortOrder == "desc"
-                        ?query.OrderByDescending(x => x.Job.CustomerID)
-                        :query.OrderBy(x => x.Job.CustomerID),
+                        ? query.OrderByDescending(x => x.Job.CustomerID)
+                        : query.OrderBy(x => x.Job.CustomerID),
 
                         //"" => sortOrder == "desc"
                         //    ? query.OrderByDescending(x => x.MainAccount.Class.ClassName)
@@ -303,8 +303,8 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
 
                         "empName" => sortOrder == "desc"
-                        ?query.OrderByDescending(x => x.Job.Customer.FullName)
-                        :query.OrderBy(x => x.Job.Customer.FullName),
+                        ? query.OrderByDescending(x => x.Job.Customer.FullName)
+                        : query.OrderBy(x => x.Job.Customer.FullName),
 
                         "empProjectName" => sortOrder == "desc"
                             ? query.OrderByDescending(x => x.Job.JobTitle)
@@ -326,23 +326,16 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                             ? query.OrderByDescending(x => x.ApprovalStatus.StatusName)
                             : query.OrderBy(x => x.ApprovalStatus.StatusName),
 
-                    "empapprovedName" => sortOrder == "desc"
-                            ? query.OrderByDescending(x => x.RequestedByUser.FirstName)
-                            : query.OrderBy(x => x.RequestedByUser.FirstName),
+                        "empapprovedName" => sortOrder == "desc"
+                                ? query.OrderByDescending(x => x.RequestedByUser.FirstName)
+                                : query.OrderBy(x => x.RequestedByUser.FirstName),
 
-                    "empDate" => sortOrder == "desc"
-                    ?query.OrderByDescending(x => x.StartDate)
-                    :query.OrderBy(x => x.StartDate),
-
-
-
-
+                        "empDate" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.StartDate)
+                        : query.OrderBy(x => x.StartDate),
                         _ => query.OrderBy(x => x.EmployeeAdvanceID)
                     };
                 }
-
-               
-
                 return PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.GetPaginatedData(
                     query,
                     pageNumber,
@@ -351,8 +344,20 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                     sortColumn,
                     sortOrder,
                     searchPredicate: (term) => x =>
+                    x.EmployeeAdvanceID.ToString().ToLower().Contains(term) ||
                         x.Job.JobTitle.ToLower().Contains(term) ||
-                        x.AmountRequested.ToString().ToLower().Contains(term),
+                        x.AmountRequested.ToString().ToLower().Contains(term) ||
+                        x.Job.Customer.FullName.ToLower().Contains(term) ||
+                        x.Job.JobType.JobTypeName.ToLower().Contains(term) ||
+                        x.ApprovalStatus.StatusName.ToLower().Contains(term) ||
+                        (
+                        (x.RequestedByUser.FirstName ?? "").ToLower().Contains(term) ||
+                        (x.RequestedByUser.LastName ?? "").ToLower().Contains(term)
+                        ) || x.GroupEmployee.Any(ge =>
+                                 ge.Employee.FirstName.ToLower().Contains(term) ||
+                                 ge.Employee.LastName.ToLower().Contains(term)
+                        ),
+
                     selector: x => new EmployeeAdvancedVM
 
 
@@ -361,13 +366,22 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         CustomerName = x.Job.Customer.FullName, // Job -> Customer then include
                         JobTypeName = x.Job.JobType.JobTypeName, // Job -> JobType -> JobTypeName
 
+
+                //        RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
+                //+ (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // If Null could be here
+
+
+        //                RequestedByUser = x.RequestedByUser != null
+
+        //? $"{x.RequestedByUser.FirstName ?? ""}{(!string.IsNullOrEmpty(x.RequestedByUser.LastName) ? " " + x.RequestedByUser.LastName : "")}".Trim()
+        //: null,
+
+
+
+
+
                         RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
                 + (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // Concutination
-
-
-       
-
-
 
                         CustomerID2 = x.Job.CustomerID,
                         JobID = x.JobID,
@@ -375,7 +389,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         AmountRequested = x.AmountRequested,
                         GroupEmployeeID = x.GroupEmployee
                             .Select(ge => ge.EmployeeID)
-                            .Where(id => id.HasValue) 
+                            .Where(id => id.HasValue)
                             .Select(id => id.Value)
                             .ToList(),
                         GroupEmployeeName = x.GroupEmployee.Select(ge => ge.Employee.FirstName).ToList(), // GroupEmployee -> Employee -> FristName,LastNme
@@ -425,8 +439,8 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                   .Select(e => e.JobTypeID.Value)
                   .ToList(),
 
-                                  ApprovedByUserID = data.ApprovedByUserID,
-                                  EmployeeAdvanceID = data.EmployeeAdvanceID
+                    ApprovedByUserID = data.ApprovedByUserID,
+                    EmployeeAdvanceID = data.EmployeeAdvanceID
                 };
             }
             catch (Exception ex)
@@ -557,7 +571,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Add EmployeeAdvances", ActionName.DataDeleted, null,beforeEntity, targetIds, requestVM);
+                await _userInfoService.ActionLogDeleteAsync("Add EmployeeAdvances", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 

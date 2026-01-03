@@ -314,6 +314,11 @@ $(document).ready(function () {
     }
     // Display  Leave Balance
 
+
+    //
+
+   
+
     $(document).ready(function () {
         $.ajax({
             url: '/LeaveApprovalDeclineRoute/GetLeaveTypeBalancesForEmployeeDisplay',
@@ -467,18 +472,161 @@ $(document).ready(function () {
         }
     }
 
+    function loadSickLeaveConfiguration() {
+        $.ajax({
+            url: '/LeaveRequest/GetSickLeaveConfigurationAsync',
+            type: 'GET',
+            success: function (response) {
+                console.log(response);
+
+                if (response.length > 0 && response[0].success) {
+                    const config = response[0].data[0];
+
+                    // Store globally if needed later
+                    window.sickLeaveConfig = config;
+
+                    toggleSickLeaveDocument(config.isSickLeaveDocumentRequired);
+                } else {
+                    toastr.warning(response[0]?.message || 'No configuration found');
+                }
+            },
+            error: function () {
+                toastr.error('Failed to load sick leave configuration');
+            }
+        });
+    }
+    function toggleSickLeaveDocument(isRequired) {
+        if (isRequired === true) {
+            $('#sickLeaveUploadDiv').removeClass('d-none');
+        } else {
+            $('#sickLeaveUploadDiv').addClass('d-none');
+            $('#SickLeaveDocument').val('');
+        }
+    }
+
+    loadSickLeaveConfiguration();
+
+    //
+
+   
     //
     function handleLeaveChange(employeeIdField, leaveTypeIdField) {
         var leaveTypeID = $(leaveTypeIdField).val();
         var employeeId = choiceManager.getChoiceValue(employeeIdField);
         GetleaveDaysOrAvailble(employeeId, leaveTypeID);
-        if (leaveTypeID == 2) {
-            $('#sickLeaveUploadDiv').removeClass('d-none');
+
+        if (leaveTypeID == 2 && window.sickLeaveConfig?.isSickLeaveDocumentRequired) {
+            toggleSickLeaveDocument(true);
         } else {
-            $('#sickLeaveUploadDiv').addClass('d-none');
-            $('#SickLeaveDocument').val(''); // clear file if not sick
+            toggleSickLeaveDocument(false);
         }
+       
     }
+
+
+    $('#LeaveRequestFormUpload').on('submit', function (e) {
+        e.preventDefault();
+
+        const fileInput = $('#DocumentPathUpload')[0].files[0];
+
+        if (!fileInput) {
+            toastr.warning('Please select a document');
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('LeaveApplicationID', $('#LeaveApplicationIDUpload').val());
+        formData.append('SickLeaveDocumentID', $('#SickLeaveDocumentID').val());
+        formData.append('DocumentPath', fileInput);
+
+        $.ajax({
+            url: '/LeaveRequest/SaveSickLeaveDocAsync',
+            type: 'POST',
+            data: formData,
+            contentType: false,   // REQUIRED
+            processData: false,   // REQUIRED
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+
+                    $('#UploadSickDocu_leaves').modal('hide');
+                    $('#LeaveRequestFormUpload')[0].reset();
+                    var modalEl = document.getElementById('UploadSickDocu_leaves');
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    resetSickLeaveUploadForm();
+                    modal.hide();
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function () {
+                toastr.error('Something went wrong while uploading document');
+            }
+        });
+    });
+
+    function resetSickLeaveUploadForm() {
+        // Reset form fields
+        $('#LeaveRequestFormUpload')[0].reset();
+
+        // Clear hidden values
+        $('#LeaveApplicationIDUpload').val('');
+        $('#SickLeaveDocumentID').val('');
+        $('#DocumentPathdata').val('');
+
+        // Remove existing document link
+        $('#existingDocLink').remove();
+
+        // Optional: remove validation styles
+        $('.is-invalid').removeClass('is-invalid');
+    }
+
+
+    $(document).on('click', '[data-bs-target="#UploadSickDocu_leaves"]', function () {
+        const leaveApplicationID = $(this).data('id');
+
+        // Clear form first
+        $('#LeaveRequestFormUpload')[0].reset();
+        $('#LeaveApplicationIDUpload').val('');
+        $('#SickLeaveDocumentID').val('');
+        $('#DocumentPathdata').val('');
+
+        $.ajax({
+            url: '/LeaveRequest/GetSickLeaveDocAsync',
+            type: 'POST',
+            data: { id: leaveApplicationID },
+            success: function (response) {
+
+                if (response.success) {
+                    const data = response.data;
+
+                    $('#LeaveApplicationIDUpload').val(data.leaveApplicationID);
+                    $('#SickLeaveDocumentID').val(data.sickLeaveDocumentID);
+                    $('#DocumentPathdata').val(data.documentPathdata);
+
+                    // Optional: show existing document link
+                    if (data.documentPathdata) {
+                        $('#existingDocLink').remove();
+
+                        $('#DocumentPathUpload').after(`
+        <a id="existingDocLink"
+           href="/assets/img/SickLeaveDocImgPdf/${data.documentPathdata}"
+           target="_blank"
+           class="d-block mt-2 text-primary">
+           <i class="fas fa-file-alt me-1"></i> View Existing Document
+        </a>
+    `);
+                    }
+
+                } else {
+                    toastr.warning(response.message);
+                }
+            },
+            error: function () {
+                toastr.error('Failed to load sick leave document');
+            }
+        });
+    });
 
     // Bind events for both Add and Edit forms
     $('#EmployeeID,#LeaveTypeID').on('change', () =>
@@ -615,6 +763,10 @@ $(document).ready(function () {
         GetLeavedaysSubsequent(employeeId, fromDate, toDate);
 
     });
+    //
+   
+
+    //
 
     // Save Data Start
     let exceedConfirmed = false; // state flag
@@ -1195,7 +1347,6 @@ let currentSortOrder = '';
 
 $('th.sort').on('click', function () {
     const column = $(this).data('sort');
-    debugger
     if (currentSortColumn === column) {
         currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
     } else {
@@ -1345,6 +1496,19 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                         <td class="leaveTotalDay align-middle white-space-nowrap ps-4 fw-semibold text-body py-0">${item.applicationDateForTable}</td>
                      <td class="align-middle white-space-nowrap text-end pe-0">
                           <div class="d-flex justify-content-end align-items-center">
+
+                          <a
+                               href="#"
+                               title="File Upload"
+                               id="LeaveRequestEditButton"
+                               data-id="${item.leaveApplicationID}"
+                               class="btn btn-outline-light btn-icon me-1 ${item.isSickLeaveDocumentRequired ? '' : 'd-none'}"
+                               data-bs-toggle="modal" 
+                               data-bs-target="#UploadSickDocu_leaves">
+                               <i class="fas fa-upload text-black"></i> 
+
+                        </a>
+
                          <a
                                href="#"
                                title="Edit"
@@ -1355,7 +1519,9 @@ function loadTableData(currentSortColumn, currentSortOrder) {
                                data-bs-target="#edit_leaves"
                                ${isDisabled ? 'aria-disabled="true" tabindex="-1"' : ''}>
                                <i class="fas fa-edit text-black"></i>
-                    </a>
+                        </a>
+
+                        
                             <a 
                               href="#" title="Delete"  data-id="${item.leaveApplicationID}"
                               class="btn btn-outline-light btn-icon d-none"  
