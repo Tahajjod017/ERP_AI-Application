@@ -254,12 +254,26 @@
                         </div>
                         <div class="col text-end amount">@Model.Items[i].Amount.ToString("N2")</div>
                         <div class="col-1 text-center">
-                            <button type="button" class="btn btn-sm btn-outline-primary edit-item me-1" title="Edit">
+
+                            <div class="btn-reveal-trigger position-static g-3">
+                                <a href="#" class="nav-item me-2 edit-item " title="Edit">
+                                    <i class="fas fa-edit text-black"></i>
+                                </a>
+                               
+                                <a href="#" class="nav-item me-2 delete-item" title="Delete">
+                                    <i class="far fa-trash-alt text-black "></i>
+                                </a>
+
+
+                            </div>
+
+
+                            @*<button type="button" class="btn btn-sm btn-outline-primary edit-item me-1" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button type="button" class="btn btn-sm btn-outline-danger delete-item" title="Delete">
                                 <i class="far fa-trash-alt"></i>
-                            </button>
+                            </button>*@
                         </div>
                     </div>
                     }
