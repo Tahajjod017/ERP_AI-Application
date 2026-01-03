@@ -606,16 +606,13 @@ $(document).ready(function () {
                             <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">${item.customerID2}
                             </td>
                             <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">${item.customerName}
-                                
                             </td>
                             <td class="empProjectName align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTitle || 'N/A'}</td>
                             <td class="empProjectType align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTypeName || 'N/A'}</td>
                             <td class="empSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.amountRequested || 0}</td>
                             <td class="empGroupName align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.groupEmployeeName}
-                               
                             </td>
                             <td class="empStatus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1"> ${item.statusName}
-                                
                             </td>
                             <td class="empapprovedName align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.requestedByUser || 0}</td>
                             <td class="empDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startDate} </td>
@@ -628,7 +625,6 @@ $(document).ready(function () {
                                        title="Edit">
                                         <i class="fas fa-edit text-black"></i>
                                     </a>
-
                                     <a href="#!" class="btn btn-phoenix-danger btn-icon me-1 fs-10 text-body px-0 advance-delete" data-id="${item.employeeAdvanceID}"title="Delete">
                                         <i class="fa-regular fa-trash-can text-black"></i>
                                     </a>
