@@ -34,7 +34,17 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         public readonly IGenericRepository<GroupEmployee> _groupEmployeeRepository;
         private readonly IUserInfoService _userInfoService;
 
-        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, IGenericRepository<Customers> customer, IGenericRepository<Jobs> job, IGenericRepository<GroupEmployee> groupEmployeeRepository, IUserInfoService userInfoService) : base(genericRepository)
+        //
+        private readonly IGenericRepository<Organization> _organizationRepository;
+        private readonly IGenericRepository<Departments> _departmentRepository;
+        private readonly IGenericRepository<ApprovalSettings> approvalSettingsRepository;
+        private readonly IGenericRepository<ApprovalTypes> approvalTypesRepository;
+        private readonly AppDbContext appDb;
+        private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
+        private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
+        //
+
+        public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, IGenericRepository<Customers> customer, IGenericRepository<Jobs> job, IGenericRepository<GroupEmployee> groupEmployeeRepository, IUserInfoService userInfoService, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<ApprovalDesignation> approvaldesignation) : base(genericRepository)
         {
             _genericRepository = genericRepository;
             _employees = employees;
@@ -44,14 +54,272 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
             _job = job;
             _groupEmployeeRepository = groupEmployeeRepository;
             _userInfoService = userInfoService;
+            _organizationRepository = organizationRepository;
+            _departmentRepository = departmentRepository;
+            this.approvalSettingsRepository = approvalSettingsRepository;
+            this.approvalTypesRepository = approvalTypesRepository;
+            this.appDb = appDb;
+            this.empoffi = empoffi;
+            this.approvaldesignation = approvaldesignation;
         }
         #endregion
+        #region GetAllAsync
+        public Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
+        {
+            try
+            {
+                var query = _genericRepository.AllActive()
+                    .Include(e => e.EmployeeAdvanceFor)
+                    .Include(e => e.Job).ThenInclude(e => e.Customer) // Job -> Customer
+                    .Include(e => e.Job).ThenInclude(e => e.JobType)  // Job -> JobType
+                    .Include(e => e.GroupEmployee).ThenInclude(e => e.Employee) // GroupEmployee -> Employee
+                    .Include(e => e.ApprovalStatus)
+                    .Include(e => e.RequestedByUser)
 
+
+                    .AsNoTracking()
+                    .Where(x => x.DeletedAt == null && x.DeletedBy == null);
+
+                if (mainempId != null)
+                {
+                    query = query.Where(x => x.EmployeeAdvanceID == mainempId);
+                }
+
+                if (!string.IsNullOrEmpty(sortColumn))
+                {
+                    query = sortColumn switch
+                    {
+                        "empId" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.Job.CustomerID)
+                        : query.OrderBy(x => x.Job.CustomerID),
+
+                        //"" => sortOrder == "desc"
+                        //    ? query.OrderByDescending(x => x.MainAccount.Class.ClassName)
+                        //    : query.OrderBy(x => x.MainAccount.Class.ClassName),
+
+
+                        "empName" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.Job.Customer.FullName)
+                        : query.OrderBy(x => x.Job.Customer.FullName),
+
+                        "empProjectName" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.Job.JobTitle)
+                            : query.OrderBy(x => x.Job.JobTitle),
+
+                        "empProjectType" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.Job.JobType.JobTypeName)
+                            : query.OrderBy(x => x.Job.JobType.JobTypeName),
+
+                        "empSalary" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.AmountRequested)
+                            : query.OrderBy(x => x.AmountRequested),
+
+                        //"empGroupName" => sortOrder == "desc"
+                        //    ? query.OrderByDescending(x => x.GroupEmployee.Count.ToString)
+                        //    : query.OrderBy(x => x.GroupEmployee.Count.ToString),
+
+                        "empStatus" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.ApprovalStatus.StatusName)
+                            : query.OrderBy(x => x.ApprovalStatus.StatusName),
+
+                        "empapprovedName" => sortOrder == "desc"
+                                ? query.OrderByDescending(x => x.RequestedByUser.FirstName)
+                                : query.OrderBy(x => x.RequestedByUser.FirstName),
+
+                        "empDate" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.StartDate)
+                        : query.OrderBy(x => x.StartDate),
+                        _ => query.OrderBy(x => x.EmployeeAdvanceID)
+                    };
+                }
+                return PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.GetPaginatedData(
+                    query,
+                    pageNumber,
+                    pageSize,
+                    searchTerm,
+                    sortColumn,
+                    sortOrder,
+                    searchPredicate: (term) => x =>
+                    x.EmployeeAdvanceID.ToString().ToLower().Contains(term) ||
+                        x.Job.JobTitle.ToLower().Contains(term) ||
+                        x.AmountRequested.ToString().ToLower().Contains(term) ||
+                        x.Job.Customer.FullName.ToLower().Contains(term) ||
+                        x.Job.JobType.JobTypeName.ToLower().Contains(term) ||
+                        x.ApprovalStatus.StatusName.ToLower().Contains(term) ||
+                        (
+                        (x.RequestedByUser.FirstName ?? "").ToLower().Contains(term) ||
+                        (x.RequestedByUser.LastName ?? "").ToLower().Contains(term)
+                        ) || x.GroupEmployee.Any(ge =>
+                                 ge.Employee.FirstName.ToLower().Contains(term) ||
+                                 ge.Employee.LastName.ToLower().Contains(term)
+                        ),
+
+                    selector: x => new EmployeeAdvancedVM
+
+
+                    {
+                        EmployeeAdvanceID = x.EmployeeAdvanceID,
+                        CustomerName = x.Job.Customer.FullName, // Job -> Customer then include
+                        JobTypeName = x.Job.JobType.JobTypeName, // Job -> JobType -> JobTypeName
+
+                        RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
+                + (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // Concutination
+                        CustomerID2 = x.Job.CustomerID,
+                        JobID = x.JobID,
+                        JobTitle = x.Job.JobTitle,
+                        AmountRequested = x.AmountRequested,
+                        GroupEmployeeID = x.GroupEmployee
+                            .Select(ge => ge.EmployeeID)
+                            .Where(id => id.HasValue)
+                            .Select(id => id.Value)
+                            .ToList(),
+                        GroupEmployeeName = x.GroupEmployee.Select(ge => ge.Employee.FirstName).ToList(), // GroupEmployee -> Employee -> FristName,LastNme
+                        ApprovalStatusID = x.ApprovalStatusID,
+                        StatusName = x.ApprovalStatus.StatusName,
+
+                        StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
+
+                    }
+                );
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving Add EmployeeAdvanced.", ex);
+            }
+
+        }
+        #endregion
         #region Add
+        // added by 404
+
+        private async Task<int?> ResolveApprovalAsync(int? approvalId, bool isDesignation, dynamic offf)
+        {
+            if (!approvalId.HasValue) return null;
+
+            if (isDesignation)
+            {
+                var code = await approvaldesignation.AllActive()
+                    .Where(x => x.ApprovalDesignationID == approvalId)
+                    .Select(x => x.Code)
+                    .FirstOrDefaultAsync();
+
+                return code switch
+                {
+                    1 => offf.ImmediateSupervisorId,
+                    2 => offf.SeniorSupervisorId,
+                    3 => offf.HeadOfDepartmentId,
+                    _ => null
+                };
+            }
+
+            return approvalId;
+        }
+        private bool IsSelfApprovalBlocked(int? employeeId, int? approverId, bool? allowSelfApproval, int? exceptionId)
+        {
+            if (approverId != employeeId) return false;
+            if (allowSelfApproval == true && exceptionId != employeeId) return false;
+            return true;
+        }
+        //
+
         public async Task<CommonReturnViewModel> AddAsync(EmployeeAdvancedVM emp)
         {
             try
             {
+
+                //
+
+                var offf = await empoffi.AllActive()
+                .Where(x => x.EmployeeID == emp.CreatedBy)
+                .Select(x => new
+                {
+                    x.EmployeeID,
+                    x.OrganizationID,
+                    x.OrganizationBranchID,
+                    x.SeniorSupervisorId,
+                    x.ImmediateSupervisorId,
+                    x.HeadOfDepartmentId
+                }).FirstOrDefaultAsync();
+
+                if (offf == null)
+                    return new CommonReturnViewModel { Success = false, Message = "Employee office info not found." };
+
+                var approvalSettings = await approvalSettingsRepository.AllActive()
+                    .Include(x => x.ApprovalType).Where(x =>
+                        x.OrganizationID == offf.OrganizationID &&
+                        (x.OrganizationBranchID == null || x.OrganizationBranchID == offf.OrganizationBranchID) &&
+                        x.ApprovalType.ApprovalTypeName == "Transport Advance Approval").FirstOrDefaultAsync();
+
+                if (approvalSettings == null) return new CommonReturnViewModel { Success = false, Message = "No active Approval settings found." };
+
+                int? approvalPersonId = null;
+
+                var approvalFlow = new List<(int? id, bool isDesignation)>
+        {
+            (approvalSettings.FirstApprovalID, approvalSettings.IsDesignationOrEmpFirstApprovalID),
+            (approvalSettings.SecondApprovalID, approvalSettings.IsDesignationOrEmpSecondApprovalID),
+            (approvalSettings.ThirdApprovalID, approvalSettings.IsDesignationOrEmpThirdApprovalID)
+        };
+
+                bool isSelfApprover = false;
+                foreach (var step in approvalFlow)
+                {
+                    var resolvedId = await ResolveApprovalAsync(step.id, step.isDesignation, offf);
+                    if (resolvedId == emp.CreatedBy)
+                    {
+                        isSelfApprover = true;
+                        break;
+                    }
+                }
+
+
+                // Step 2: Self-approval logic for known fixed levels
+                if (isSelfApprover)
+                {
+                    if (approvalSettings.AllowSelfApproval == true)
+                    {
+                        if (emp.CreatedBy == approvalSettings.FirstApprovalID && emp.CreatedBy == approvalSettings.FirstApprovalID)
+                        {
+                            approvalPersonId = approvalSettings.SecondApprovalID;
+                        }
+                        else if (emp.CreatedBy == approvalSettings.SecondApprovalID && emp.CreatedBy == approvalSettings.SecondApprovalID)
+                        {
+                            approvalPersonId = approvalSettings.ThirdApprovalID;
+                        }
+                        else if (emp.CreatedBy == approvalSettings.ThirdApprovalID && emp.CreatedBy == approvalSettings.ThirdApprovalID)
+                        {
+                            approvalPersonId = approvalSettings.ThirdApprovalID;
+                        }
+                    }
+                    else // Self-approval not allowed
+                    {
+                        approvalPersonId = approvalSettings.SelfExceptionApprovalID;
+                    }
+
+                    
+                }
+
+                // Step 3: Normal approval flow (fallback logic)
+                foreach (var (id, isDesignation) in approvalFlow)
+                {
+                    var resolvedId = await ResolveApprovalAsync(id, isDesignation, offf);
+
+                    // Skip if resolved is the applicant
+                    if (resolvedId == emp.CreatedBy)
+                    {
+                        continue;
+                    }
+
+                    // Skip if blocked
+                    if (resolvedId.HasValue &&
+                        !IsSelfApprovalBlocked(emp.CreatedBy, resolvedId.Value,
+                            approvalSettings.AllowSelfApproval, approvalSettings.SelfExceptionApprovalID))
+                    {
+                        approvalPersonId = resolvedId.Value;
+                        break;
+                    }
+                }
+                //
 
                 await _genericRepository.BeginTransactionAsync();
                 EmployeeAdvances empadvance = new EmployeeAdvances();
@@ -66,7 +334,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 empadvance.CreatedAt = DateTime.UtcNow;
                 empadvance.CreatedBy = emp.CreatedBy;
                 empadvance.UpdatedBy = emp.UpdatedBy;
-                empadvance.ApprovedByUserID = emp.ApprovedByUserID;
+                empadvance.ApprovedByUserID = approvalPersonId;   // comes from approvalsetings according to settings 
                 empadvance.ApprovalStatusID = 11; // Pending
 
 
@@ -111,7 +379,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
                 }
 
-                await _genericRepository.CommitTransactionAsync();
+                await _genericRepository.CommitTransactionAsync();    
                 return new CommonReturnViewModel
                 {
                     Success = true,
@@ -267,132 +535,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         }
         #endregion
 
-        #region GetAllAsync
-        public Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
-        {
-            try
-            {
-                var query = _genericRepository.AllActive()
-                    .Include(e => e.EmployeeAdvanceFor)
-                    .Include(e => e.Job).ThenInclude(e => e.Customer) // Job -> Customer
-                    .Include(e => e.Job).ThenInclude(e => e.JobType)  // Job -> JobType
-                    .Include(e => e.GroupEmployee).ThenInclude(e => e.Employee) // GroupEmployee -> Employee
-                    .Include(e => e.ApprovalStatus)
-                    .Include(e => e.RequestedByUser)
-
-
-                    .AsNoTracking()
-                    .Where(x => x.DeletedAt == null && x.DeletedBy == null);
-
-                if (mainempId != null)
-                {
-                    query = query.Where(x => x.EmployeeAdvanceID == mainempId);
-                }
-
-                if (!string.IsNullOrEmpty(sortColumn))
-                {
-                    query = sortColumn switch
-                    {
-                        "empId" => sortOrder == "desc"
-                        ? query.OrderByDescending(x => x.Job.CustomerID)
-                        : query.OrderBy(x => x.Job.CustomerID),
-
-                        //"" => sortOrder == "desc"
-                        //    ? query.OrderByDescending(x => x.MainAccount.Class.ClassName)
-                        //    : query.OrderBy(x => x.MainAccount.Class.ClassName),
-
-
-                        "empName" => sortOrder == "desc"
-                        ? query.OrderByDescending(x => x.Job.Customer.FullName)
-                        : query.OrderBy(x => x.Job.Customer.FullName),
-
-                        "empProjectName" => sortOrder == "desc"
-                            ? query.OrderByDescending(x => x.Job.JobTitle)
-                            : query.OrderBy(x => x.Job.JobTitle),
-
-                        "empProjectType" => sortOrder == "desc"
-                            ? query.OrderByDescending(x => x.Job.JobType.JobTypeName)
-                            : query.OrderBy(x => x.Job.JobType.JobTypeName),
-
-                        "empSalary" => sortOrder == "desc"
-                            ? query.OrderByDescending(x => x.AmountRequested)
-                            : query.OrderBy(x => x.AmountRequested),
-
-                        //"empGroupName" => sortOrder == "desc"
-                        //    ? query.OrderByDescending(x => x.GroupEmployee.Count.ToString)
-                        //    : query.OrderBy(x => x.GroupEmployee.Count.ToString),
-
-                        "empStatus" => sortOrder == "desc"
-                            ? query.OrderByDescending(x => x.ApprovalStatus.StatusName)
-                            : query.OrderBy(x => x.ApprovalStatus.StatusName),
-
-                        "empapprovedName" => sortOrder == "desc"
-                                ? query.OrderByDescending(x => x.RequestedByUser.FirstName)
-                                : query.OrderBy(x => x.RequestedByUser.FirstName),
-
-                        "empDate" => sortOrder == "desc"
-                        ? query.OrderByDescending(x => x.StartDate)
-                        : query.OrderBy(x => x.StartDate),
-                        _ => query.OrderBy(x => x.EmployeeAdvanceID)
-                    };
-                }
-                return PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.GetPaginatedData(
-                    query,
-                    pageNumber,
-                    pageSize,
-                    searchTerm,
-                    sortColumn,
-                    sortOrder,
-                    searchPredicate: (term) => x =>
-                    x.EmployeeAdvanceID.ToString().ToLower().Contains(term) ||
-                        x.Job.JobTitle.ToLower().Contains(term) ||
-                        x.AmountRequested.ToString().ToLower().Contains(term) ||
-                        x.Job.Customer.FullName.ToLower().Contains(term) ||
-                        x.Job.JobType.JobTypeName.ToLower().Contains(term) ||
-                        x.ApprovalStatus.StatusName.ToLower().Contains(term) ||
-                        (
-                        (x.RequestedByUser.FirstName ?? "").ToLower().Contains(term) ||
-                        (x.RequestedByUser.LastName ?? "").ToLower().Contains(term)
-                        ) || x.GroupEmployee.Any(ge =>
-                                 ge.Employee.FirstName.ToLower().Contains(term) ||
-                                 ge.Employee.LastName.ToLower().Contains(term)
-                        ),
-
-                    selector: x => new EmployeeAdvancedVM
-
-
-                    {
-                        EmployeeAdvanceID = x.EmployeeAdvanceID,
-                        CustomerName = x.Job.Customer.FullName, // Job -> Customer then include
-                        JobTypeName = x.Job.JobType.JobTypeName, // Job -> JobType -> JobTypeName
-
-                        RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
-                + (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // Concutination
-                        CustomerID2 = x.Job.CustomerID,
-                        JobID = x.JobID,
-                        JobTitle = x.Job.JobTitle,
-                        AmountRequested = x.AmountRequested,
-                        GroupEmployeeID = x.GroupEmployee
-                            .Select(ge => ge.EmployeeID)
-                            .Where(id => id.HasValue)
-                            .Select(id => id.Value)
-                            .ToList(),
-                        GroupEmployeeName = x.GroupEmployee.Select(ge => ge.Employee.FirstName).ToList(), // GroupEmployee -> Employee -> FristName,LastNme
-                        ApprovalStatusID = x.ApprovalStatusID,
-                        StatusName = x.ApprovalStatus.StatusName,
-
-                        StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
-
-                    }
-                );
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("An error occurred while retrieving Add EmployeeAdvanced.", ex);
-            }
-
-        }
-        #endregion
+       
 
         #region GetByID (Edit)
         public async Task<EmployeeAdvancedVM> GetByIdAsync(int id)
