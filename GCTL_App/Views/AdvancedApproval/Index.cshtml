@@ -1,10 +1,4 @@
-﻿<nav class="mb-3" aria-label="breadcrumb">
-    <ol class="breadcrumb mb-0">
-        <li class="breadcrumb-item"><a href="#!">Page 1</a></li>
-        <li class="breadcrumb-item"><a href="#!">Page 2</a></li>
-        <li class="breadcrumb-item active">Default</li>
-    </ol>
-</nav>
+﻿@model GCTL.Core.ViewModels.FieldServices.ApprovalGetALLVM
 <h3>Advanced Approval</h3>
 
 <div class="card my-4">
@@ -50,73 +44,22 @@
                 <table class="table table-sm fs-9 leads-table">
                     <thead>
                         <tr>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empId">Receiving <br> Employee</th>
+                            <th class="pe-5 align-start" scope="col" style="width: 5%;">
+                                <input type="checkbox" class="form-check-input addEmpCheck-selectedItem" id="empAdvanced-check-all" />
+                            </th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empId">Receiving Employee</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empName">Client Name</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDept">Project Name</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDept">Project Type</th>
-
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empBonus">Persons</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="paySlip"> Date</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empSalary">Advanced <br>Ammount</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="netSalary">Approved <br>Amount</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDeduction">Status</th>
-                            <th class="sort text-end align-middle pe-0 ps-5" scope="col"></th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empProjectName">Project Name</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empProjectType">Project Type</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empSalary">Advanced <br> Ammount</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empGroupName">Other Members</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empStatus">Status</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empapprovedName">Approved <br> Person</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDate">Date</th>
+                            <th class="align-middle white-space-nowrap ps-0 text-uppercase" scope="col" style="width: 5%;">@Html.SmartLocalize("Action")</th>
                         </tr>
                     </thead>
-                    <tbody class="list" id="purchasers-sellers-body">
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
-                                <span>Hasan Mahmud</span>
-                            </td>
-                            <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                <div class="d-flex align-items-center position-relative">
-                                    <div class="avatar avatar-m me-3">
-                                        <img class="rounded-circle avatar-placeholder" src="../../assets/img/team/avatar.webp" alt="" />
-                                    </div><a class="text-body-highlight fw-bold stretched-link" href="#!">Hasan Ali</a>
-                                </div>
-                            </td>
-                            <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">Project 4</td>
-                            <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">Service</td>
-                            <td class="empBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
-                                <div class="avatar-group mb-4 mt-3">
-                                    <div class="avatar avatar-s ">
-                                        <img class="rounded-circle " src="../../assets/img/team/30.webp" alt="" />
-                                    </div>
-                                    <div class="avatar avatar-s ">
-                                        <img class="rounded-circle " src="../../assets/img/team/57.webp" alt="" />
-                                    </div>
-                                    <div class="avatar avatar-s ">
-                                        <img class="rounded-circle " src="../../assets/img/team/25.webp" alt="" />
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="paySlip align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">24 Aug, 25  - 29 Aug, 25</td>
-
-                            <td class="netSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">5000</td>
-                            <td class="empSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
-                                <input class="form-control" id="" type="number" placeholder="4000" style="width: 80px;" />
-                            </td>
-
-                            <td class="empDeduction align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
-                                <select class="form-select" aria-label="Default select example">
-                                    <option selected="">New</option>
-                                    <option value="1">Approved</option>
-                                    <option value="2">Decline</option>
-                                </select>
-                            </td>
-
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <a href="#" class="nav-item mx-2">
-                                        <i class="fas fa-check-square text-success"></i>
-                                    </a>
-                                </div>
-                            </td>
-
-                        </tr>
-
-
-
+                    <tbody id="empApproval-tBody">
                     </tbody>
                 </table>
             </div>
@@ -183,68 +126,17 @@
                 <table class="table table-sm fs-9 leads-table">
                     <thead>
                         <tr>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empId">Receiving <br> Employee</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empId">Receiving Employee</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empName">Client Name</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDept">Project Name</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDept">Project Type</th>
-
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empBonus">Persons</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="paySlip"> Approval Date</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empProjectName">Project Name</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empProjectType">Project Type</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDate"> Approval Date</th>
                             <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empSalary">Advanced <br>Ammount</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="netSalary">Approved <br>Amount</th>
-                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empDeduction">Status</th>
+                            <th class="sort align-middle ps-4 pe-5 text-uppercase text-nowrap" scope="col" data-sort="empStatus">Status</th>
                             <th class="sort text-end align-middle pe-0 ps-5" scope="col"></th>
                         </tr>
                     </thead>
-                    <tbody class="list" id="purchasers-sellers-body">
-                        <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                            <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">
-                                <span>Hasan Mahmud</span>
-                            </td>
-                            <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">
-                                <div class="d-flex align-items-center position-relative">
-                                    <div class="avatar avatar-m me-3">
-                                        <img class="rounded-circle avatar-placeholder" src="../../assets/img/team/avatar.webp" alt="" />
-                                    </div><a class="text-body-highlight fw-bold stretched-link" href="#!">Hasan Ali</a>
-                                </div>
-                            </td>
-                            <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">Project 4</td>
-                            <td class="empDept align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">Service</td>
-                            <td class="empBonus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
-                                <div class="avatar-group mb-4 mt-3">
-                                    <div class="avatar avatar-s ">
-                                        <img class="rounded-circle " src="../../assets/img/team/30.webp" alt="" />
-                                    </div>
-                                    <div class="avatar avatar-s ">
-                                        <img class="rounded-circle " src="../../assets/img/team/57.webp" alt="" />
-                                    </div>
-                                    <div class="avatar avatar-s ">
-                                        <img class="rounded-circle " src="../../assets/img/team/25.webp" alt="" />
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="paySlip align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">30 Aug, 25</td>
-
-                            <td class="netSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">5000</td>
-                            <td class="netSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">4000</td>
-
-                            <td class="empDeduction align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
-                                <span class="badge badge-phoenix badge-phoenix-success">Approved</span>
-                            </td>
-
-                            <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
-                                <div class="btn-reveal-trigger position-static">
-                                    <a href="#!"
-                                       class="btn btn-phoenix-danger btn-icon me-1 fs-10 text-body px-0 bloodGroup-bulkDelete"
-                                       title="Delete">
-                                        <i class="fa-regular fa-trash-can text-black"></i></a>
-                                </div>
-                            </td>
-
-                        </tr>
-
-
-
+                    <tbody class="list" id="advancedApproval2-tbody">
                     </tbody>
                 </table>
             </div>
@@ -264,3 +156,10 @@
     </div>
 
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+	<script src="~/js/pages/fieldservices/advancedapproval.js"></script>
+}

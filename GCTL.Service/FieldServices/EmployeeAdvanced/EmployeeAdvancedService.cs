@@ -66,7 +66,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 empadvance.CreatedAt = DateTime.UtcNow;
                 empadvance.CreatedBy = emp.CreatedBy;
                 empadvance.UpdatedBy = emp.UpdatedBy;
-                empadvance.RequestedByUserID = emp.ApprovedByUserID;
+                empadvance.ApprovedByUserID = emp.ApprovedByUserID;
                 empadvance.ApprovalStatusID = 11; // Pending
 
 
@@ -74,7 +74,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 //empadvance.JobID = emp.JobID;
                 await _genericRepository.AddAsync(empadvance);
 
-                //(Multiple JobType Save to EmployeeAdvanceFor Table 
+                //(Multiple JobType Save to EmployeeAdvanceFor Table) 
                 if (emp.RequestedByUserID != null)
                 {
                     foreach (var item in emp.RequestedByUserID)
@@ -293,36 +293,49 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 {
                     query = sortColumn switch
                     {
-                        "EmployeeAdvancedID" => sortOrder == "desc"
-                            ? query.OrderByDescending(x => x.EmployeeAdvanceID)
-                            : query.OrderBy(x => x.EmployeeAdvanceID),
+                        "empId" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.Job.CustomerID)
+                        : query.OrderBy(x => x.Job.CustomerID),
 
                         //"" => sortOrder == "desc"
                         //    ? query.OrderByDescending(x => x.MainAccount.Class.ClassName)
                         //    : query.OrderBy(x => x.MainAccount.Class.ClassName),
 
-                        "JobID" => sortOrder == "desc"
-                            ? query.OrderByDescending(x => x.Job.JobID)
-                            : query.OrderBy(x => x.Job.JobID),
 
-                        "GroupEmployee" => sortOrder == "desc"
-                            ? query.OrderByDescending(x => x.GroupEmployee)
-                            : query.OrderBy(x => x.GroupEmployee),
+                        "empName" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.Job.Customer.FullName)
+                        : query.OrderBy(x => x.Job.Customer.FullName),
 
-                        "Status" => sortOrder == "desc"
-                            ? query.OrderByDescending(x => x.ApprovalStatus)
-                            : query.OrderBy(x => x.ApprovalStatusID),
+                        "empProjectName" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.Job.JobTitle)
+                            : query.OrderBy(x => x.Job.JobTitle),
 
-                        "Description" => sortOrder == "desc"
-                            ? query.OrderByDescending(x => x.RequestedByUser)
-                            : query.OrderBy(x => x.RequestedByUserID),
+                        "empProjectType" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.Job.JobType.JobTypeName)
+                            : query.OrderBy(x => x.Job.JobType.JobTypeName),
 
+                        "empSalary" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.AmountRequested)
+                            : query.OrderBy(x => x.AmountRequested),
+
+                        //"empGroupName" => sortOrder == "desc"
+                        //    ? query.OrderByDescending(x => x.GroupEmployee.Count.ToString)
+                        //    : query.OrderBy(x => x.GroupEmployee.Count.ToString),
+
+                        "empStatus" => sortOrder == "desc"
+                            ? query.OrderByDescending(x => x.ApprovalStatus.StatusName)
+                            : query.OrderBy(x => x.ApprovalStatus.StatusName),
+
+                        "empapprovedName" => sortOrder == "desc"
+                                ? query.OrderByDescending(x => x.RequestedByUser.FirstName)
+                                : query.OrderBy(x => x.RequestedByUser.FirstName),
+
+                        "empDate" => sortOrder == "desc"
+                        ? query.OrderByDescending(x => x.StartDate)
+                        : query.OrderBy(x => x.StartDate),
                         _ => query.OrderBy(x => x.EmployeeAdvanceID)
                     };
                 }
-
-               
-
                 return PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.GetPaginatedData(
                     query,
                     pageNumber,
@@ -331,8 +344,20 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                     sortColumn,
                     sortOrder,
                     searchPredicate: (term) => x =>
+                    x.EmployeeAdvanceID.ToString().ToLower().Contains(term) ||
                         x.Job.JobTitle.ToLower().Contains(term) ||
-                        x.AmountRequested.ToString().ToLower().Contains(term),
+                        x.AmountRequested.ToString().ToLower().Contains(term) ||
+                        x.Job.Customer.FullName.ToLower().Contains(term) ||
+                        x.Job.JobType.JobTypeName.ToLower().Contains(term) ||
+                        x.ApprovalStatus.StatusName.ToLower().Contains(term) ||
+                        (
+                        (x.RequestedByUser.FirstName ?? "").ToLower().Contains(term) ||
+                        (x.RequestedByUser.LastName ?? "").ToLower().Contains(term)
+                        ) || x.GroupEmployee.Any(ge =>
+                                 ge.Employee.FirstName.ToLower().Contains(term) ||
+                                 ge.Employee.LastName.ToLower().Contains(term)
+                        ),
+
                     selector: x => new EmployeeAdvancedVM
 
 
@@ -340,6 +365,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         EmployeeAdvanceID = x.EmployeeAdvanceID,
                         CustomerName = x.Job.Customer.FullName, // Job -> Customer then include
                         JobTypeName = x.Job.JobType.JobTypeName, // Job -> JobType -> JobTypeName
+
 
                 //        RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
                 //+ (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // If Null could be here
@@ -353,15 +379,18 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
 
 
+
+                        RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
+                + (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // Concutination
+
                         CustomerID2 = x.Job.CustomerID,
                         JobID = x.JobID,
                         JobTitle = x.Job.JobTitle,
                         AmountRequested = x.AmountRequested,
-                        // Fix for CS0029: Convert nullable int to non-nullable int using `.Value` and filter out nulls using `.Where`.
                         GroupEmployeeID = x.GroupEmployee
                             .Select(ge => ge.EmployeeID)
-                            .Where(id => id.HasValue) // Filter out null values
-                            .Select(id => id.Value)  // Convert nullable int to non-nullable int
+                            .Where(id => id.HasValue)
+                            .Select(id => id.Value)
                             .ToList(),
                         GroupEmployeeName = x.GroupEmployee.Select(ge => ge.Employee.FirstName).ToList(), // GroupEmployee -> Employee -> FristName,LastNme
                         ApprovalStatusID = x.ApprovalStatusID,
@@ -369,21 +398,6 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
                         StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
 
-
-
-
-                        //JobID = x.JobID,
-                        //JobTitle = x.Job.JobTitle,
-                        //AmountRequested = x.AmountRequested,
-                        //StartDate = x.StartDate.HasValue ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
-                        //EndDate = x.EndDate.HasValue ? x.EndDate.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
-                        //ApprovalStatusID = x.ApprovalStatusID,
-
-
-                        //ApprovalStatusName = x.ApprovalStatusID == 11 ? "Pending" :
-                        //                     x.ApprovalStatusID == 12 ? "Approved" : "Unknown",
-                        //RequestedByUserID = x.EmployeeAdvanceFor.Select(eaf => eaf.JobTypeID).ToList(),
-                        //GroupEmployeeID = x.GroupEmployee.Select(ge => ge.EmployeeID).ToList(),
                     }
                 );
             }
@@ -419,13 +433,14 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         .Select(ge => ge.EmployeeID.Value)
                         .ToList(),
 
-                                  RequestedByUserID = data.EmployeeAdvanceFor
+                    RequestedByUserID = data.EmployeeAdvanceFor
+
                   .Where(e => e.JobTypeID.HasValue)
                   .Select(e => e.JobTypeID.Value)
                   .ToList(),
 
-                                  ApprovedByUserID = data.ApprovedByUserID,
-                                  EmployeeAdvanceID = data.EmployeeAdvanceID
+                    ApprovedByUserID = data.ApprovedByUserID,
+                    EmployeeAdvanceID = data.EmployeeAdvanceID
                 };
             }
             catch (Exception ex)
@@ -452,19 +467,20 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         };
                     }
 
-                    var beforeEntity = JsonConvert.DeserializeObject<EmployeeAdvancedVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
-
-                    entity.JobID = emp.JobID;
-                    entity.AmountRequested = (decimal)emp.AmountRequested;
-                    entity.StartDate = emp.StartDate.HasValue ? DateOnly.FromDateTime(emp.StartDate.Value) : null;
-                    entity.EndDate = emp.EndDate.HasValue ? DateOnly.FromDateTime(emp.EndDate.Value) : null;
-
-                    entity.RequestedByUserID =
-    emp.RequestedByUserID != null && emp.RequestedByUserID.Count > 0
-        ? emp.RequestedByUserID.FirstOrDefault()
-        : null;
-
-                    entity.ApprovedByUserID = emp.ApprovedByUserID;
+                    var beforeEntity = new EmployeeAdvancedVM
+                    {
+                        EmployeeAdvanceID = entity.EmployeeAdvanceID,
+                        JobID = entity.JobID,
+                        AmountRequested = entity.AmountRequested,
+                        StartDate = entity.StartDate.HasValue ? entity.StartDate.Value.ToDateTime(TimeOnly.MinValue) : null,
+                        EndDate = entity.EndDate.HasValue ? entity.EndDate.Value.ToDateTime(TimeOnly.MinValue) : null,
+                        RequestedByUserID = entity.RequestedByUserID.HasValue
+                                ? new List<int> { entity.RequestedByUserID.Value }
+                                : new List<int>(),
+                        ApprovedByUserID = entity.ApprovedByUserID,
+                        LIP = entity.LIP,
+                        LMAC = entity.LMAC
+                    };
 
                     // Update the GroupEmployee Multiple
 
@@ -488,7 +504,20 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
                     await _genericRepository.UpdateAsync(entity);
 
-                    var afterEntity = JsonConvert.DeserializeObject<EmployeeAdvancedVM>(JsonConvert.SerializeObject(entity, JsonSettings.IgnoreReferenceLoop));
+                    var afterEntity = new EmployeeAdvancedVM
+                    {
+                        EmployeeAdvanceID = entity.EmployeeAdvanceID,
+                        JobID = entity.JobID,
+                        AmountRequested = entity.AmountRequested,
+                        StartDate = entity.StartDate.HasValue ? entity.StartDate.Value.ToDateTime(TimeOnly.MinValue) : null,
+                        EndDate = entity.EndDate.HasValue ? entity.EndDate.Value.ToDateTime(TimeOnly.MinValue) : null,
+                        RequestedByUserID = entity.RequestedByUserID.HasValue
+                ? new List<int> { entity.RequestedByUserID.Value }
+                : new List<int>(),
+                        ApprovedByUserID = entity.ApprovedByUserID,
+                        LIP = entity.LIP,
+                        LMAC = entity.LMAC
+                    };
 
                     await _userInfoService.ActionLogAsync("EmployeeAdvances", ActionName.DataUpdated, beforeEntity, afterEntity, entity.EmployeeAdvanceID, emp);
 
@@ -542,7 +571,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
 
                 await _genericRepository.UpdateRangeAsync(data);
 
-                await _userInfoService.ActionLogDeleteAsync("Add EmployeeAdvances", ActionName.DataDeleted, null,beforeEntity, targetIds, requestVM);
+                await _userInfoService.ActionLogDeleteAsync("Add EmployeeAdvances", ActionName.DataDeleted, null, beforeEntity, targetIds, requestVM);
 
                 await _genericRepository.CommitTransactionAsync();
 
