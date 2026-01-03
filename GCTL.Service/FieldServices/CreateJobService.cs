@@ -583,7 +583,7 @@ namespace GCTL.Service.FieldServices
                     CustomerName = t.Customer != null ? t.Customer.FullName : "",
                     //CustomerImage = t.Customer != null ? t.Customer.ProfileImage : "",
                     //CustomerLocation = t.Customer != null ? t.Customer.Address : "",
-                    //CustomerPhone = t.Customer != null ? t.Customer.Phone : "",
+                    CustomerPhone = t.Customer != null ? t.Customer.CustomerAddresses.Select(x => x.Address.Phone).FirstOrDefault() : "",
                     //CustomerEmail = t.Customer != null ? t.Customer.Email : "",
                     //CompanyName = t.Customer != null ? t.Customer.CompanyName : "",
                     JobTitle = t.JobTitle ?? "",
@@ -653,13 +653,16 @@ namespace GCTL.Service.FieldServices
 
                 // 3️⃣ Check today's JobWays record
                 var today = DateTime.Today;
+                var tomorrow = today.AddDays(1);
 
                 var jobWays = await _jobWaysRepository
                     .AllActive()
                     .FirstOrDefaultAsync(x =>
                         x.JobID == request.JobID &&
                         x.JobTeamID == jobTeam.JobTeamID &&
-                        x.CreatedAt == today);
+                        x.CreatedAt >= today &&
+                        x.CreatedAt < tomorrow
+                    );
 
                 // 🔹 STEP 2 → START ACTIVITY
                 if (request.ActivityStep == 2)
