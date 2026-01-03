@@ -16,6 +16,8 @@ namespace GCTL_App.Controllers.CRM
     [Authorize]
     public class LeadDetailsController : BaseController
     {
+
+        #region Property
         private readonly ILeadCreateService _leadCreateService;
         private readonly AppDbContext _context;
         private readonly IGenericRepository<LeadSources> _leadSourceTypeRepository;
@@ -26,8 +28,10 @@ namespace GCTL_App.Controllers.CRM
         private readonly IGenericRepository<Leads> _leadsRepository;
         private readonly ILeadDetailsService _leadDetailsService;
         private readonly IWebHostEnvironment _webHostEnvironment;
-
         private readonly IGenericRepository<Services> _serviceTypeRepository;
+        #endregion
+
+        #region Constractor
         public LeadDetailsController(IWebHostEnvironment webHostEnvironment, IGenericRepository<LeadDetails> leadDetailsRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesRepository, ILeadDetailsService leadDetailsService, IGenericRepository<LeadSources> leadSourceTypeRepository, AppDbContext context, ILeadCreateService leadCreateService, ITranslateService translateService, IUserProfileService userProfileService, IGenericRepository<LeadStatuses> leadStatusesRepository, IGenericRepository<Priorities> prioritiesRepository, IGenericRepository<Services> serviceTypeRepository, IGenericRepository<GCTL.Data.Models.Employees> employeeRepository, IGenericRepository<Customers> customersRepository, IGenericRepository<Country> countryRepository, IGenericRepository<Leads> leadsRepository) : base(translateService, userProfileService)
         {
             _leadCreateService = leadCreateService;
@@ -42,7 +46,9 @@ namespace GCTL_App.Controllers.CRM
             _serviceTypeRepository = serviceTypeRepository;
             _leadsRepository = leadsRepository;
         }
+        #endregion
 
+        #region Index
         public async Task<IActionResult> Index(int? id)
         {
 
@@ -99,7 +105,9 @@ namespace GCTL_App.Controllers.CRM
                 return View(obj);
             }
         }
+        #endregion
 
+        #region  StorePhoto
         public async Task<string> StorePhoto(IFormFile? file)
         {
             if (file == null || file.Length == 0) return null;
@@ -122,8 +130,9 @@ namespace GCTL_App.Controllers.CRM
 
             return $"/media/leads/{uniqueFileName}";
         }
+        #endregion
 
-
+        #region UpdateLeadValue
         [HttpPost]
         public async Task<IActionResult> UpdateLeadValue([FromForm] DetailsLeadUpdateVM detailsLeadUpdateVM)
         {
@@ -135,9 +144,9 @@ namespace GCTL_App.Controllers.CRM
             }
             return Ok(false);
         }
-
-        // geting all acitity list
-
+        #endregion
+ 
+        #region getActivityList
         [HttpGet]
         public async Task<IActionResult> getActivityList(int id, string query, int page, string type)
         {
@@ -145,6 +154,10 @@ namespace GCTL_App.Controllers.CRM
 
             return Ok(list);
         }
+        #endregion
+
+        #region GetUpcomingActivityList
+
         [HttpGet]
         public async Task<IActionResult> GetUpcomingActivityList(int id, int page)
         {
@@ -177,7 +190,9 @@ namespace GCTL_App.Controllers.CRM
 
             return Ok(list);
         }
+        #endregion
 
+        #region getUpcommingList
         [HttpGet]
         public async Task<IActionResult> getUpcommingList(int id, int page)
         {
@@ -201,11 +216,9 @@ namespace GCTL_App.Controllers.CRM
             .ToListAsync();
             return Ok(list);
         }
+        #endregion
 
-
-        // ===================
-        // new lead details
-        // =======================
+        #region SaveLeadActivity
         [Permission("Create", "LeadDetails")]
         [HttpPost]
         public async Task<IActionResult> SaveLeadActivity([FromForm] LeadDetailsVM leadDetailsVM)
@@ -253,16 +266,16 @@ namespace GCTL_App.Controllers.CRM
             }
 
         }
+        #endregion
 
-        //==============================
-        // restore lead details activity
-        //==============================
+        #region restore lead details activity
         [HttpPost]
         public async Task<IActionResult> RestoreLead([FromForm]  int id)
          {
             var restult = await _leadDetailsService.RestoreLead(id);
             return Ok(restult);
         }
+        #endregion
 
         #region Get GetContactNumber List
         [HttpGet]
@@ -321,6 +334,19 @@ namespace GCTL_App.Controllers.CRM
             {
                 return Json(new { success = false, message = "Something went to wrong!" });
             }
+        }
+        #endregion
+
+        #region Get Activity Info
+        public async Task<IActionResult> GetActivityInfo(int detailsId)
+        {
+            var result = await _leadDetailsService.GetLeadDetailsInfoAsync(detailsId);
+
+            return Ok(new
+            {
+                success = result.success,
+                data = result.data
+            });
         }
         #endregion
     }

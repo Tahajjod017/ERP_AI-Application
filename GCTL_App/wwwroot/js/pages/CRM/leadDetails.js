@@ -1191,10 +1191,194 @@ $(function () {
     // Activity Action Functions (Add your logic)
     // ==============================
     function editActivity(activityId) {
-        console.log('Edit activity:', activityId);
-        // Add your edit logic here
-        toastr.info('Edit functionality - ID: ' + activityId);
+        $.ajax({
+            url: '/LeadDetails/GetActivityInfo',
+            type: 'GET',
+            data: { detailsId: activityId },
+            success: function (res) {
+                console.log(res);
+                debugger;
+                if (!res.success || !res.data || res.data.length === 0) {
+                    toastr.error("No activity data found.");
+                    return;
+                }
+
+                let d = res.data[0];
+
+                const activityName = d.leadActivityName?.trim();
+                const activityNote = d.activityNote || "";
+                const emailAddress = d.emailAddress || "";
+                const phoneNumber = d.phoneNumber || "";
+                const fileLink = d.fileLink || null;
+                const date = d.activityDateTime || "";
+
+                // Step 1: Activate the correct activity type button
+                const $targetBtn = $(`.option-btn[data-usefor="${activityName}"]`);
+                if ($targetBtn.length === 0) {
+                    toastr.error("Activity type not supported for editing.");
+                    return;
+                }
+                $targetBtn.trigger('click');
+
+                // Step 2: Fill simple fields
+              
+                $(ids.note).val(activityNote);
+
+                // date time load
+                if (date && date.trim() !== "") {
+                    const backendDate = new Date(date);
+
+                    if (!isNaN(backendDate.getTime())) {
+                        // Format as DD/MM/YYYY HH:MM (AM/PM) – matches most Flatpickr setups
+                        const day = String(backendDate.getDate()).padStart(2, '0');
+                        const month = String(backendDate.getMonth() + 1).padStart(2, '0');
+                        const year = backendDate.getFullYear();
+                        const hours = backendDate.getHours();
+                        const mins = String(backendDate.getMinutes()).padStart(2, '0');
+                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                        const displayHours = hours % 12 || 12;
+
+                        const formattedDate = `${day}/${month}/${year} ${displayHours}:${mins} ${ampm}`;
+
+                        $(ids.date).val(formattedDate);
+
+                        // Important: If using Flatpickr, force update
+                        const fpInstance = $(ids.date)[0]._flatpickr;
+                        if (fpInstance) {
+                            fpInstance.setDate(formattedDate, true);
+                        }
+                    } else {
+                        console.warn("Invalid date from backend:", date);
+                    }
+                }
+
+                // Handle file preview
+                if (fileLink) {
+                    const fileName = fileLink.split('/').pop().split('?')[0];
+                    const filePreviewHtml = `
+                    <div class="mt-2 p-2 border rounded bg-light existing-file-preview">
+                        <small>Current file: 
+                            <a href="${fileLink}" target="_blank">${fileName}</a>
+                        </small><br>
+                        <small class="text-muted">Upload new file to replace</small>
+                    </div>`;
+                    $('#file-field .existing-file-preview').remove(); // clear old
+                    $('#file-field').append(filePreviewHtml);
+                    $('#file-field').data('existing-file', fileLink);
+                } else {
+                    $('#file-field .existing-file-preview').remove();
+                    $('#file-field').removeData('existing-file');
+                }
+
+                // Step 3: Handle Select2 AJAX fields (Contact Phone - multiple)
+                const phoneSelect = $('#ContectPersonId');
+                const emailSelect = $('#ContectPersonEmailId');
+
+                // Clear previous selections
+                phoneSelect.val(null).trigger('change');
+                emailSelect.val(null).trigger('change');
+
+                if (phoneNumber) {
+                    const phoneIds = phoneNumber.split(',').map(p => p.trim()).filter(Boolean);
+
+                    // For each ID, we need to fetch its text/label via the same AJAX endpoint
+                    let phoneLoaded = 0;
+                    phoneIds.forEach(id => {
+                        $.ajax({
+                            url: "/LeadDetails/GetContactNumberList",
+                            data: { leadId: $(ids.leadID).val(), search: id }, // search by exact ID to get single
+                            dataType: 'json',
+                            success: function (data) {
+                                console.log(data);
+                                if (data.items && data.items.length > 0) {
+                                    const item = data.items[0];
+                                    const option = new Option(item.label, item.value, true, true);
+                                    phoneSelect.append(option).trigger('change');
+                                }
+                                phoneLoaded++;
+                                if (phoneLoaded === phoneIds.length) {
+                                    phoneSelect.trigger('change'); // final refresh
+                                }
+                            }
+                        });
+                    });
+                }
+
+                // Step 4: Handle Email (seems single select from your code)
+                if (emailAddress) {
+                    $.ajax({
+                        url: "/LeadDetails/GetContactEmailList",
+                        data: { leadId: $(ids.leadID).val(), search: emailAddress },
+                        dataType: 'json',
+                        success: function (data) {
+                            if (data.items && data.items.length > 0) {
+                                const item = data.items[0];
+                                const option = new Option(item.label, item.value, true, true);
+                                emailSelect.append(option).trigger('change');
+                            }
+                        }
+                    });
+                }
+
+                // Step 5: Switch button to Update mode
+                $('#addLActivity')
+                    .text('Update Activity')
+                    .removeClass('btn-primary')
+                    .addClass('btn-success')
+                    .data('edit-mode', true)
+                    .data('edit-activity-id', activityId);
+
+                toastr.success("Activity loaded for editing. Modify and click 'Update Activity'.");
+
+                // Scroll to form
+                $('html, body').animate({
+                    //scrollTop: $("#activity-form-section").offset().top - 100
+                }, 500);
+            },
+            error: function (err) {
+                console.error(err);
+                toastr.error("Failed to load activity for editing.");
+            }
+        });
     }
+    //function editActivity(activityId) {
+    //    console.log('Edit activity:', activityId);
+    //    // Add your edit logic here
+    //    toastr.info('Edit functionality - ID: ' + activityId);
+    //    $.ajax({
+    //        url: '/LeadDetails/GetActivityInfo', // Controller/Action
+    //        type: 'GET',
+    //        data: { detailsId: activityId },
+    //        success: function (res) {
+
+    //            if (!res.success) {
+    //                alert("No data found");
+    //                return;
+    //            }
+
+    //            if (res.data && res.data.length > 0) {
+    //                let d = res.data[0]; // because data is List<>
+
+    //                $("#LeadActivityName").text(d.leadActivityName);
+    //                $("#ActivityNote").text(d.activityNote);
+    //                $("#EmailAddress").text(d.emailAddress);
+    //                $("#PhoneNumber").text(d.phoneNumber);
+
+    //                if (d.fileLink) {
+    //                    $("#FileLink")
+    //                        .attr("href", d.fileLink)
+    //                        .show();
+    //                } else {
+    //                    $("#FileLink").hide();
+    //                }
+    //            }
+    //        },
+    //        error: function (err) {
+    //            console.error(err);
+    //            alert("Something went wrong!");
+    //        }
+    //    });
+    //}
 
     //function completeActivity(activityId) {
     //    console.log('Complete activity:', activityId);
