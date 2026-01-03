@@ -40,6 +40,42 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="UploadSickDocu_leaves">
+    <div class="modal-dialog modal-dialog-centered modal-xl" style="width:522px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Upload Document</h4>
+                <button type="button" class="btn-close custom-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form  method="post" id="LeaveRequestFormUpload">
+                <div class="modal-body pb-0">
+                    <div class="row">
+                        <input type="hidden" id="LeaveApplicationIDUpload" class="form-control">
+                        <input type="hidden" id="SickLeaveDocumentID" class="form-control">
+                        <input type="hidden" id="DocumentPathdata">
+
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label class="form-label req">Medical Document (PDF / Image)</label>
+                                <input type="file"  id="DocumentPathUpload" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                <div class="text-muted text-danger mt-1" style="font-size: 0.9em;">
+                                    Allowed file types: JPG, JPEG, PNG, PDF. Max size: 2 MB.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 mt-1 mb-2 me-3">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button id="ApplyLeaveSubmitButton" class="btn btn-primary">Save</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
 <!-- Breadcrumb -->
 <partial name="_BreadCrumLeaveReq" />
 <!-- /Breadcrumb -->

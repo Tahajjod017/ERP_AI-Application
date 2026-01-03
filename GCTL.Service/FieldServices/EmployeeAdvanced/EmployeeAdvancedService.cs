@@ -366,8 +366,23 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                         CustomerName = x.Job.Customer.FullName, // Job -> Customer then include
                         JobTypeName = x.Job.JobType.JobTypeName, // Job -> JobType -> JobTypeName
 
+
+                //        RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
+                //+ (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // If Null could be here
+
+
+        //                RequestedByUser = x.RequestedByUser != null
+
+        //? $"{x.RequestedByUser.FirstName ?? ""}{(!string.IsNullOrEmpty(x.RequestedByUser.LastName) ? " " + x.RequestedByUser.LastName : "")}".Trim()
+        //: null,
+
+
+
+
+
                         RequestedByUser = (x.RequestedByUser?.FirstName ?? "")
                 + (string.IsNullOrEmpty(x.RequestedByUser?.LastName) ? "" : " " + x.RequestedByUser?.LastName) ?? "", // Concutination
+
                         CustomerID2 = x.Job.CustomerID,
                         JobID = x.JobID,
                         JobTitle = x.Job.JobTitle,

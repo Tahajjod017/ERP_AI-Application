@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
+using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using SkiaSharp;
 using System;
@@ -65,9 +66,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
         private readonly IEmailService  emailService;
         private readonly ILocalizationContext _localizationContext;
         private readonly ICommonDroDownService commonDroDownService;
-        
+        private readonly IGenericRepository<SickLeaveDocument>sickLeaveDocuments;
+
         //
-        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory, IEmailService emailService, ILocalizationContext localizationContext, ICommonDroDownService commonDroDownService) : base(leaveRequest)
+        public LeaveRequestService(IGenericRepository<LeaveApplications> leaveRequest, IGenericRepository<LeaveTypes> leaveTypes, IGenericRepository<Statuses> leaveStatuses, IUserInfoService userInfoService, IGenericRepository<Data.Models.Employees> employee, AppDbContext appDb, IGenericRepository<LeavePolicyConfiguration> leavePolicyConfiguration, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<Holidays> holidays, IGenericRepository<WeekendSettings> weenkendsettings, IGenericRepository<WeekendDays> weekedays, IGenericRepository<LeaveBalances> leaveBalances, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, IGenericRepository<ApprovalDesignation> approvaldesignation, IGenericRepository<LeaveBaseApprovalHistory> leaveBaseApprovalHistory, IEmailService emailService, ILocalizationContext localizationContext, ICommonDroDownService commonDroDownService, IGenericRepository<SickLeaveDocument> sickLeaveDocuments) : base(leaveRequest)
         {
             this.leaveRequest = leaveRequest;
             this.leaveTypes = leaveTypes;
@@ -90,11 +92,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
             this.emailService = emailService;
             _localizationContext = localizationContext;
             this.commonDroDownService = commonDroDownService;
+            this.sickLeaveDocuments = sickLeaveDocuments;
         }
 
         #region  Get Data All  Leave  Requyest
 
-         
+
         public async Task<PaginationService<LeaveApplications, LeaveApplicationsList>.PaginationResult<LeaveApplicationsList>> GetAllTableAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string currentSortColumn = "", string currentSortOrder = "", string url = "", string userId = "", int? leaveTypeID = null, int? statusID = null, int? organizationId = null,
           List<int> departmentIds = null, List<int> employeeIds = null, DateOnly? fromDate = null, DateOnly? toDate = null)
         {
@@ -108,7 +111,10 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                                       where user.Id == userId select role.Name).FirstOrDefaultAsync();
 
                 // 🔹 Step 3: Base query with includes
-                var query = leaveRequest.AllActive().Include(x => x.LeaveBaseApprovalHistory).Include(x => x.Employee).Include(x => x.Status).Include(x => x.LeaveType).OrderByDescending(x => x.LeaveApplicationID).AsQueryable();
+                var query = leaveRequest.AllActive().Include(x => x.LeaveBaseApprovalHistory)
+                     .Include(x => x.Employee).Include(x => x.Status)
+                     .Include(x => x.SickLeaveDocument)
+                    .Include(x => x.LeaveType).OrderByDescending(x => x.LeaveApplicationID).AsQueryable();
                 if (query == null)
                 {
                     throw new InvalidOperationException("query source is null.");
@@ -216,6 +222,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                         EmployeeDepartment = empoffi.AllActive().Where(e => e.EmployeeID == b.EmployeeID).Include(e => e.Department).Select(m => m.Department.DepartmentName).FirstOrDefault(),
                         ApproverStep = approvalStepsMap.ContainsKey(b.LeaveApplicationID) ? approvalStepsMap[b.LeaveApplicationID] : new List<int>(),
                         IsFinalApproved=b.IsFinalApproved,
+                        IsSickLeaveDocumentRequired = b.LeaveType != null ? b.LeaveType.IsSickLeaveDocumentRequired : false,
+                        SickLeaveDocumentID = sickLeaveDocuments.AllActive().Where(s => s.LeaveApplicationID == b.LeaveApplicationID).Select(s => s.SickLeaveDocumentID).FirstOrDefault()
 
                     });
 
@@ -313,9 +321,13 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
 
         #endregion
 
-        #region  Save Leave Reqest
+
 
         
+
+        #region  Save Leave Reqest
+
+
         // StatusID according to Name 
         private async Task<int?> GetIdByNameAsync(string name)
         {
@@ -770,6 +782,67 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     await leaveRequest.AddAsync(entity);
                     sequence = entity.LeaveApplicationID;
                     secrectCode = entity.SecrectCode;
+
+                    #region Sick Leave Document Upload
+
+                    var sickLeaveConfigResponse = await GetSickLeaveConfigurationAsync();
+
+                    var sickLeaveConfig = sickLeaveConfigResponse
+                        .FirstOrDefault(x => x.Success)?.Data as List<SickLeaveConfigGetVM>;
+
+                    var config = sickLeaveConfig?.FirstOrDefault();
+
+                    if (config != null && config.IsSickLeaveDocumentRequired)
+                    {
+                        // 🚨 Mandatory validation
+                        if (entityVM.DocumentPath == null || entityVM.DocumentPath.Length == 0)
+                        {
+                            throw new Exception("Sick leave document is required.");
+                        }
+
+                        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" , ".pdf" };
+                        var fileExtension = Path.GetExtension(entityVM.DocumentPath.FileName).ToLower();
+
+                        if (!allowedExtensions.Contains(fileExtension))
+                            throw new Exception("Only .jpg, .jpeg, or .png , .pdf files are allowed.");
+
+                        if (entityVM.DocumentPath.Length > 2 * 1024 * 1024)
+                            throw new Exception("File size cannot exceed 2 MB.");
+
+                        // ✅ Generate file
+                        var fileName = $"{Guid.NewGuid()}{fileExtension}";
+                        var folderPath = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot/assets/img/SickLeaveDocImgPdf"
+                        );
+
+                        if (!Directory.Exists(folderPath))
+                            Directory.CreateDirectory(folderPath);
+
+                        var filePath = Path.Combine(folderPath, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await entityVM.DocumentPath.CopyToAsync(stream);
+                        }
+
+                        // ✅ Save filename only
+
+                        #region DB Save
+                        var sickLeaveDocu = new SickLeaveDocument
+                        {
+                            LeaveApplicationID = sequence,
+                            DocumentPath = fileName,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        await sickLeaveDocuments.AddAsync(sickLeaveDocu);
+                        #endregion
+                    }
+
+                    #endregion
+
+
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, entity, entity.LeaveApplicationID, entityVM);
                 }
 
@@ -821,10 +894,73 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                             await leaveRequest.AddAsync(partial);
                             sequence = partial.LeaveApplicationID;
                             secrectCode = partial.SecrectCode;
+
+
+
+
                             await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, partial, partial.LeaveApplicationID, entityVM);
 
                             remainingDays -= usedFallback;
                             currentStart = currentStart.AddDays(usedFallback);
+
+                            #region Sick Leave Document Upload
+
+                            var sickLeaveConfigResponse = await GetSickLeaveConfigurationAsync();
+
+                            var sickLeaveConfig = sickLeaveConfigResponse
+                                .FirstOrDefault(x => x.Success)?.Data as List<SickLeaveConfigGetVM>;
+
+                            var config = sickLeaveConfig?.FirstOrDefault();
+
+                            if (config != null && config.IsSickLeaveDocumentRequired)
+                            {
+                                // 🚨 Mandatory validation
+                                if (entityVM.DocumentPath == null || entityVM.DocumentPath.Length == 0)
+                                {
+                                    throw new Exception("Sick leave document is required.");
+                                }
+
+                                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };
+                                var fileExtension = Path.GetExtension(entityVM.DocumentPath.FileName).ToLower();
+
+                                if (!allowedExtensions.Contains(fileExtension))
+                                    throw new Exception("Only .jpg, .jpeg, or .png , .pdf files are allowed.");
+
+                                if (entityVM.DocumentPath.Length > 2 * 1024 * 1024)
+                                    throw new Exception("File size cannot exceed 2 MB.");
+
+                                // ✅ Generate file
+                                var fileName = $"{Guid.NewGuid()}{fileExtension}";
+                                var folderPath = Path.Combine(
+                                    Directory.GetCurrentDirectory(),
+                                    "wwwroot/assets/img/SickLeaveDocImgPdf"
+                                );
+
+                                if (!Directory.Exists(folderPath))
+                                    Directory.CreateDirectory(folderPath);
+
+                                var filePath = Path.Combine(folderPath, fileName);
+
+                                using (var stream = new FileStream(filePath, FileMode.Create))
+                                {
+                                    await entityVM.DocumentPath.CopyToAsync(stream);
+                                }
+
+                                // ✅ Save filename only
+
+                                #region DB Save
+                                var sickLeaveDocu = new SickLeaveDocument
+                                {
+                                    LeaveApplicationID = sequence,
+                                    DocumentPath = fileName,
+                                    CreatedAt = DateTime.UtcNow
+                                };
+
+                                await sickLeaveDocuments.AddAsync(sickLeaveDocu);
+                                #endregion
+                            }
+
+                            #endregion
                         }
                     }
                 }
@@ -860,6 +996,67 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                     await leaveRequest.AddAsync(lwpEntity);
                     sequence=lwpEntity.LeaveApplicationID;
                     secrectCode = lwpEntity.SecrectCode;
+
+                    #region Sick Leave Document Upload
+
+                    var sickLeaveConfigResponse = await GetSickLeaveConfigurationAsync();
+
+                    var sickLeaveConfig = sickLeaveConfigResponse
+                        .FirstOrDefault(x => x.Success)?.Data as List<SickLeaveConfigGetVM>;
+
+                    var config = sickLeaveConfig?.FirstOrDefault();
+
+                    if (config != null && config.IsSickLeaveDocumentRequired)
+                    {
+                        // 🚨 Mandatory validation
+                        if (entityVM.DocumentPath == null || entityVM.DocumentPath.Length == 0)
+                        {
+                            throw new Exception("Sick leave document is required.");
+                        }
+
+                        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };
+                        var fileExtension = Path.GetExtension(entityVM.DocumentPath.FileName).ToLower();
+
+                        if (!allowedExtensions.Contains(fileExtension))
+                            throw new Exception("Only .jpg, .jpeg, or .png , .pdf files are allowed.");
+
+                        if (entityVM.DocumentPath.Length > 2 * 1024 * 1024)
+                            throw new Exception("File size cannot exceed 2 MB.");
+
+                        // ✅ Generate file
+                        var fileName = $"{Guid.NewGuid()}{fileExtension}";
+                        var folderPath = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot/assets/img/SickLeaveDocImgPdf"
+                        );
+
+                        if (!Directory.Exists(folderPath))
+                            Directory.CreateDirectory(folderPath);
+
+                        var filePath = Path.Combine(folderPath, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await entityVM.DocumentPath.CopyToAsync(stream);
+                        }
+
+                        // ✅ Save filename only
+
+                        #region DB Save
+                        var sickLeaveDocu = new SickLeaveDocument
+                        {
+                            LeaveApplicationID = sequence,
+                            DocumentPath = fileName,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        await sickLeaveDocuments.AddAsync(sickLeaveDocu);
+                        #endregion
+                    }
+
+                    #endregion
+
+
                     await userInfoService.ActionLogAsync("Leave Apply", ActionName.DataAdd, null, lwpEntity, lwpEntity.LeaveApplicationID, entityVM);
                 }
 
@@ -2342,7 +2539,219 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveRequest
                 throw;
             }
         }
-   
+
+
+
+        #endregion
+
+        #region Sick Leave Configuration
+        public async Task<List<CommonReturnViewModel>> GetSickLeaveConfigurationAsync()
+        {
+            var response = new List<CommonReturnViewModel>();
+
+            try
+            {
+                var sickLeaveConfigs = await leaveTypes.AllActive()
+                    .Where(x => x.Code == "SL")
+                    .Select(x => new SickLeaveConfigGetVM
+                    {
+                        Code = x.Code,
+                        IsSickLeaveDocumentRequired = x.IsSickLeaveDocumentRequired,
+                        SickLeaveDocumentWithinDays = x.SickLeaveDocumentWithinDays
+                    }).ToListAsync();
+
+                response.Add(new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Sick leave configuration found",
+                    Data = sickLeaveConfigs
+                });
+            }
+            catch (Exception ex)
+            {
+                response.Add(new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Failed to load sick leave configuration",
+                    Errors = new List<string> { ex.Message }
+                });
+            }
+
+            return response;
+        }
+        public async Task<CommonReturnViewModel> GetSickLeaveDocAsync(int id)
+        {
+            try
+            {
+                var data = await leaveRequest.AllActive()
+                    .Include(x => x.SickLeaveDocument)
+                    .FirstOrDefaultAsync(x => x.LeaveApplicationID == id);
+
+                if (data == null)
+                {
+                    return new CommonReturnViewModel
+                    {
+                        Success = false,
+                        Message = "Leave application not found"
+                    };
+                }
+
+                var vm = new UploadSickDocVM
+                {
+                    LeaveApplicationID = data.LeaveApplicationID,
+                    LeaveTypeID = data.LeaveTypeID,
+                    SickLeaveDocumentID = data.SickLeaveDocument?.SickLeaveDocumentID ?? 0,
+                    DocumentPathdata = data.SickLeaveDocument?.DocumentPath
+                };
+
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Sick leave document data loaded",
+                    Data = vm
+                };
+            }
+            catch (Exception ex)
+            {
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Failed to load sick leave document",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+        public async Task<CommonReturnViewModel> SaveSickLeaveDocAsync(UploadSickDocVM entityVM)
+        {
+            await sickLeaveDocuments.BeginTransactionAsync();
+
+            try
+            {
+                // 1️⃣ Get config
+                var sickLeaveConfigResponse = await GetSickLeaveConfigurationAsync();
+
+                var sickLeaveConfig = sickLeaveConfigResponse
+                    .FirstOrDefault(x => x.Success)?.Data as List<SickLeaveConfigGetVM>;
+
+                var config = sickLeaveConfig?.FirstOrDefault();
+
+                if (config != null && config.IsSickLeaveDocumentRequired)
+                {
+                    // 2️⃣ Mandatory validation
+                    if (entityVM.DocumentPath == null || entityVM.DocumentPath.Length == 0)
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "Sick leave document is required."
+                        };
+                    }
+
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };
+                    var fileExtension = Path.GetExtension(entityVM.DocumentPath.FileName).ToLower();
+
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "Only JPG, PNG, or PDF files are allowed."
+                        };
+                    }
+
+                    if (entityVM.DocumentPath.Length > 2 * 1024 * 1024)
+                    {
+                        return new CommonReturnViewModel
+                        {
+                            Success = false,
+                            Message = "File size cannot exceed 2 MB."
+                        };
+                    }
+
+                    // 3️⃣ Save file
+                    var fileName = $"{Guid.NewGuid()}{fileExtension}";
+                    var folderPath = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot/assets/img/SickLeaveDocImgPdf"
+                    );
+
+                    if (!Directory.Exists(folderPath))
+                        Directory.CreateDirectory(folderPath);
+
+                    var filePath = Path.Combine(folderPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await entityVM.DocumentPath.CopyToAsync(stream);
+                    }
+
+                    // 4️⃣ Insert OR Update
+                    var existingDoc = await sickLeaveDocuments.AllActive().FirstOrDefaultAsync(x => x.LeaveApplicationID == entityVM.LeaveApplicationID);
+
+                    if (existingDoc != null)
+                    {
+                        // 1️⃣ Store old file name
+                        var oldFileName = existingDoc.DocumentPath;
+
+                        // 2️⃣ Update DB
+                        existingDoc.DocumentPath = fileName;
+                        existingDoc.UpdatedAt = DateTime.UtcNow;
+
+                        await sickLeaveDocuments.UpdateAsync(existingDoc);
+
+                        // 3️⃣ Delete old file (safe)
+                        if (!string.IsNullOrEmpty(oldFileName))
+                        {
+                            var oldFilePath = Path.Combine(
+                                Directory.GetCurrentDirectory(),
+                                "wwwroot/assets/img/SickLeaveDocImgPdf",
+                                oldFileName
+                            );
+
+                            if (File.Exists(oldFilePath))
+                            {
+                                File.Delete(oldFilePath);
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        var sickLeaveDocu = new SickLeaveDocument
+                        {
+                            LeaveApplicationID = entityVM.LeaveApplicationID,
+                            DocumentPath = fileName,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        await sickLeaveDocuments.AddAsync(sickLeaveDocu);
+                    }
+                }
+
+                await sickLeaveDocuments.CommitTransactionAsync();
+
+                return new CommonReturnViewModel
+                {
+                    Success = true,
+                    Message = "Sick leave document saved successfully."
+                };
+            }
+            catch (Exception ex)
+            {
+                await sickLeaveDocuments.RollbackTransactionAsync();
+
+                return new CommonReturnViewModel
+                {
+                    Success = false,
+                    Message = "Failed to save sick leave document.",
+                    Errors = new List<string> { ex.Message }
+                };
+            }
+        }
+
+
+
         #endregion
     }
 }

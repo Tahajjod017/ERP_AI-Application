@@ -24,6 +24,8 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveReques
         public DateTime? ApplicationDate { get; set; }
         public List<int> ApproverStep { get; set; }
         public bool? IsFinalApproved { get; set; }
+        public bool IsSickLeaveDocumentRequired { get; set; }
+        public int SickLeaveDocumentID { get; set; }
     }
 }
 
