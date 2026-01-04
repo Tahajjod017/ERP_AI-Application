@@ -50,6 +50,7 @@
 		<Folder Include="wwwroot\js\pages\ProjectManagements\" />
 		<Folder Include="wwwroot\js\pages\shared\" />
 		<Folder Include="wwwroot\media\costomTosterImg\" />
+		<Folder Include="wwwroot\uploads\products\" />
 
 	</ItemGroup>
 
