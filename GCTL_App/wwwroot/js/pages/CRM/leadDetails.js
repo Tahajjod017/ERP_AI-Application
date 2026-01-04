@@ -691,6 +691,12 @@ $(function () {
                         <div class="timeline-activity-actions">
                             ${isUpcoming ? `
                                 <button class="timeline-action-btn" onclick="editActivity(${value.leadDetailID})">
+                                    <i class="fa fa-pencil"></i> Comment
+                                </button>
+                                <button class="timeline-action-btn" onclick="noResponseActivity(${value.leadDetailID})">
+                                    <i class="fa fa-pencil"></i> No Response
+                                </button>
+                                <button class="timeline-action-btn" onclick="editActivity(${value.leadDetailID})">
                                     <i class="fa fa-pencil"></i> Edit
                                 </button>
                                 <button class="timeline-action-btn" onclick="completeActivity(${value.leadDetailID})">
@@ -1184,6 +1190,7 @@ $(function () {
     window.toggleActivityDescription = toggleActivityDescription;
     window.previewFile = previewFile;
     window.editActivity = editActivity;
+    window.noResponseActivity = noResponseActivity;
     window.completeActivity = completeActivity;
     window.viewActivity = viewActivity;
 
@@ -1341,6 +1348,25 @@ $(function () {
             }
         });
     }
+    async function noResponseActivity(activityId) {
+        debugger
+        const confirmed = await customToaster.confirm("Do you want to confirm 'No Response' Button?");
+            if (confirmed) customToaster.success("Confirmed! Next process...");
+            else customToaster.error("Cancelled!");
+        
+        $.ajax({
+            url: '/LeadDetails/NoResponse',
+            type: 'GET',
+            data: { detailsId: activityId },
+            success: function (res) {
+                
+            },
+            error: function (err) {
+                console.error(err);
+                toastr.error("Failed to load activity for editing.");
+            }
+        });
+    }
     //function editActivity(activityId) {
     //    console.log('Edit activity:', activityId);
     //    // Add your edit logic here
@@ -1392,6 +1418,30 @@ $(function () {
         toastr.info('View functionality - ID: ' + activityId);
     }
 
+    function completeActivity(activityId) {
+        $.ajax({
+            url: '/LeadDetails/Complete',
+            method: 'POST',
+            data: { LeadDetailID: activityId },
+            success: function (response) {
+                debugger
+                if (response.success) {
+                    customToaster.success(response.message);
+
+                    resetAndReload();
+                    resetAndReloadUpcoming();
+
+                } else {
+                    toastr.error(response.message || "Failed to complete activity");
+                }
+            },
+            error: function () {
+                toastr.error("An error occurred while completing the activity");
+            }
+        });
+    }
+    
+
 });
 
 // Close Window Function
@@ -1401,23 +1451,6 @@ window.closeWindow = function () {
     if (modal) modal.hide();
 };
 
-function completeActivity(activityId) {
-    $.ajax({
-        url: '/LeadDetails/Complete',
-        method: 'POST',
-        data: { LeadDetailID: activityId },
-        success: function (response) {
-            if (response.success) {
-                customToaster.success(response.message);
-                resetAndReloadUpcoming();
-                resetAndReload();
-                makeEnableState();
-            } else {
-                toastr.error(response.message);
-            }
-        },
-        error: function (xhr) {
-            toastr.error("Error restoring lead");
-        }
-    });
+function rescheduleModal(taksName) {
+
 }

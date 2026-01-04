@@ -75,6 +75,13 @@
                         </select>
                     </div>
 
+                    @* Branch *@
+                <div class="col-md-6" id="branchContainer" style="display:none">
+                    <label class="form-label">Branch Name</label>
+                    <select asp-for="BranchId" class="select2">
+                    </select>
+                </div>
+
                     <div class="col-md-6">
                         <label class="form-label" asp-for="DivisionId"></label>
                         <select asp-for="DivisionId" class="form-select-lg">
