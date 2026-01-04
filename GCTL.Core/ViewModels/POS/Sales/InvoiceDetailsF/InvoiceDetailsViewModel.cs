@@ -13,6 +13,8 @@ namespace GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
         public int? Id { get; set; }
         public DateTime InvoiceDate { get; set; }
         public DateTime DueDate { get; set; }
+
+        public int Praroity { get; set; }
         public string InvoiceNumber { get; set; }
         public int? SelectedCustomerId { get; set; }
         public int? SelectedSalesOrderId { get; set; }
@@ -50,6 +52,7 @@ namespace GCTL.Core.ViewModels.POS.Sales.InvoiceDetailsF
         public bool IsItemPriceIncludingVat { get; set; }
         public bool IsPriceWithoutVat { get; set; }
         public bool ShowTaxColumn { get; set; }
+        public bool IsDirectChallan { get; set; }
         public decimal GrossSubtotal { get; set; }
         public bool IsAit { get; set; }
         public decimal AitPercent { get; set; }

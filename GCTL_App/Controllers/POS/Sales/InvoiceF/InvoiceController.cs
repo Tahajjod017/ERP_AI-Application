@@ -8,6 +8,7 @@ using GCTL.Service.UserProfile;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Index.HPRtree;
 
 namespace GCTL_App.Controllers.POS.Sales.InvoiceF
 {
@@ -20,6 +21,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         private readonly IGenericRepository<SalesOrders> _salesOrderRepository;
         private readonly IGenericRepository<SalesOrdersVersions> _salesOrderVersionRepository;
         private readonly IGenericRepository<PaymentMethods> _paymentMethodRepository;
+        private readonly IGenericRepository<Statuses> _statusRepository;
         private readonly IInvoice _invoiceService;
 
         public InvoiceController(
@@ -32,7 +34,8 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             IGenericRepository<Addresses> addressRepository,
             IGenericRepository<SalesOrders> salesOrderRepository,
             IGenericRepository<PaymentMethods> paymentMethodRepository,
-            IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository)
+            IGenericRepository<SalesOrdersVersions> salesOrderVersionRepository,
+            IGenericRepository<Statuses> statusRepository)
             : base(translateService, userProfileService)
         {
             _productRepository = productRepository;
@@ -43,6 +46,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             _salesOrderRepository = salesOrderRepository;
             _paymentMethodRepository = paymentMethodRepository;
             _salesOrderVersionRepository = salesOrderVersionRepository;
+            _statusRepository = statusRepository;
         }
 
         // ==============================
@@ -54,9 +58,11 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
 
             ViewBag.Products = new SelectList(_productRepository.AllActive().ToList(), "ProductID", "ProductName");
             ViewBag.PaymentMethods = new SelectList(_paymentMethodRepository.AllActive().ToList(), "PaymentMethodID", "MethodName");
+            ViewBag.Praroity = new SelectList(_statusRepository.AllActive().Where(e=>e.StatusType.ToLower() == "priority").ToList(), "StatusID", "StatusName");
 
             var data = new InvoiceViewModel();
             data.InvoiceDate = DateTime.Today;
+            data.DueDate = DateTime.Today.AddDays(10);
             return View(data);
         }
 
@@ -73,6 +79,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
             {
                 Id = null,
                 InvoiceDate = DateTime.Today,
+                DueDate = DateTime.Today.AddDays(10),
                 InvoiceNumber = await GenerateInvoiceNumber(),
                 SelectedCustomerId = customerId,
                 SelectedSalesOrderId = salesOrderId,
@@ -225,7 +232,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 // Query product by barcode
                 var product = _productRepository.AllActive()
                     .Include(e => e.ProductPricing)
-                    .FirstOrDefault(e=>e.SKU == barcode);
+                    .FirstOrDefault(e=>e.Barcode == barcode);
 
                 if (product == null)
                 {
@@ -237,15 +244,9 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 {
                     id = product.ProductID,
                     name = product.ProductName,
-                    price = product.ProductPricing != null
-                        ? product.ProductPricing.Select(e => e.SellingPriceExclVAT).FirstOrDefault()
-                        : 0m,
-                    vatPercent = product.ProductPricing != null
-                        ? product.ProductPricing.Select(e => e.VATPercent).FirstOrDefault()
-                        : 0m,
-                    aitPercent = product.ProductPricing != null
-                        ? product.ProductPricing.Select(e => e.VATPercent).FirstOrDefault()
-                        : 0m,
+                    price = product.ProductPricing != null ? product.ProductPricing.Select(e => e.SellingPriceExclVAT).FirstOrDefault() : 0m,
+                    vatPercent = product.ProductPricing != null ? product.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m,
+                    aitPercent = product.ProductPricing != null ? product.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m,
                     success = true
                 };
 
@@ -328,8 +329,7 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
         public JsonResult GetSalesOrderDetails(int salesOrderId)
         {
             var salesOrder = _salesOrderVersionRepository.AllActive()
-                .Include(so => so.SalesOrderVersionItems)
-                .ThenInclude(i => i.UnitType)
+                .Include(so => so.SalesOrderVersionItems).ThenInclude(i => i.Product).ThenInclude(e=>e.ProductPricing)
                 .FirstOrDefault(so => so.SalesOrdersVersionID == salesOrderId);
 
             if (salesOrder == null)
@@ -342,13 +342,21 @@ namespace GCTL_App.Controllers.POS.Sales.InvoiceF
                 success = true,
                 vatPercent = salesOrder.VatPercentage ?? 0,
                 note = salesOrder.Note,
-                items = salesOrder.SalesOrderVersionItems.Select(item => new
+                items = salesOrder.SalesOrderVersionItems.Select(product => new
                 {
-                    description = item.Description,
-                    unitName = item.UnitType?.UnitTypeName,
-                    area = item.Area ?? 0,
-                    rate = item.Rate ?? 0,
-                    quantity = item.Quantity ?? 0
+                    //productId = item.ProductID,
+                    //description = item.Description,
+                    //unitName = item.UnitType?.UnitTypeName,
+                    //area = item.Area ?? 0,
+                    //rate = item.Rate ?? 0,
+                    //quantity = item.Quantity ?? 0
+                    id = product.ProductID,
+                    name = product.Product.ProductName,
+                    price = product.Product.ProductPricing != null ? product.Product.ProductPricing.Select(e => e.SellingPriceExclVAT).FirstOrDefault() : 0m,
+                    vatPercent = product.Product.ProductPricing != null ? product.Product.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m,
+                    aitPercent = product.Product.ProductPricing != null ? product.Product.ProductPricing.Select(e => e.VATPercent).FirstOrDefault() : 0m,
+                    quantity = product.Quantity ?? 0
+                    
                 }).ToList()
             };
 
