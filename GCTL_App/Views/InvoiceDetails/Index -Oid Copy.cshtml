@@ -21,7 +21,7 @@
             <input asp-for="Id" type="hidden" />
 
             <div class="row mb-4">
-                <div class="col-xl-9 pe-1">
+                <div class="col-xl-9">
                     <div class="card pt-4 p-5 mb-3" style="min-height: 1000px;">
 
                         <div class="row col-xl-12">
@@ -36,23 +36,55 @@
                             <div class="col-md-12">
                                 <div class="row justify-content-between">
 
-                                    <!-- Customer Section -->
+                                    <!-- Customer Dropdown -->
+                                    @*<div class="col-xl-5">
+                                            <div class="mt-2">
+                                                <input asp-for="SelectedCustomerId" type="hidden" id="selectedCustomerId" />
+                                                <input type="hidden" id="preSelectedCustomerId" value="@(Model.SelectedCustomerId?.ToString() ?? "")" />
+
+                                                <div id="userInfo" class="card mb-3 mt-3">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title mb-2">Customer Information</h5>
+                                                        <div class="d-flex">
+                                                            <div class="me-auto">
+                                                                <p class="mb-1 fs-9 info-company"></p>
+                                                                <p class="mb-1 fs-9 info-addr1"></p>
+                                                                <p class="mb-1 fs-9 info-addr2"></p>
+                                                            </div>
+                                                            <div class="mx-auto">
+                                                                <p class="mb-1 fs-9 info-tax"></p>
+                                                                <p class="mb-1 fs-9 info-phone"></p>
+                                                                <p class="mb-1 fs-9 info-email"></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>*@
+
                                     <div class="col-xl-5">
                                         <div class="mt-2">
                                             <div class="d-flex gap-3">
                                                 <div class="col-md-12">
                                                     <input asp-for="SelectedCustomerId" type="hidden" id="selectedCustomerId" />
+
                                                     <button type="button" class="btn border border-github py-5 px-10 mt-4" id="showUserDropdownBtn">
                                                         <i class="fa fa-user fs-3 mb-2"></i>
-                                                        <p>Add Customer</p>
+                                                        <p>+ Add User</p>
                                                     </button>
+
                                                     <div id="userDropdownContainer" style="display:none;">
                                                         <label class="form-label">Select Customer</label>
                                                         <select id="customerDropdown" class="form-select">
                                                             <option value="">-- Select Customer --</option>
                                                         </select>
                                                     </div>
+
+                                                    <script type="application/json" id="customersData">
+                                                        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Customers))
+                                                    </script>
                                                     <input type="hidden" id="preSelectedCustomerId" value="@(Model.SelectedCustomerId?.ToString() ?? "")" />
+
                                                     <div id="userInfo" class="card mb-3 mt-3" style="display:none;">
                                                         <div class="card-body">
                                                             <h5 class="card-title mb-2">Customer Information</h5>
@@ -75,27 +107,26 @@
                                         </div>
                                     </div>
 
+
+
+
                                     <!-- Invoice Details -->
                                     <div class="col-xl-7">
                                         <div class="row mt-3">
-                                            <div class="col-xl-6">
+                                            <div class="col-xl-12">
                                                 <div class="mb-3">
                                                     <label class="form-label">Invoice Number</label>
                                                     <input asp-for="InvoiceNumber" class="form-control" readonly />
                                                 </div>
                                             </div>
+
                                             <div class="col-xl-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Invoice Date</label>
-                                                    <input asp-for="InvoiceDate" class="form-control datetimepicker caiCon" type="date" />
+                                                    <input asp-for="InvoiceDate" class="form-control" type="date" />
                                                 </div>
                                             </div>
-                                            <div class="col-xl-6">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Due Date</label>
-                                                    <input asp-for="DueDate" class="form-control datetimepicker caiCon" type="date" />
-                                                </div>
-                                            </div>
+
                                             <div class="col-xl-6">
                                                 <div class="mb-3">
                                                     <label class="form-label">Other Reference</label>
@@ -103,62 +134,15 @@
                                                 </div>
                                             </div>
 
-                                            <!-- VAT Mode Checkboxes - Row 1 -->
-                                            <div class="col-xl-12">
-                                                <div class="row">
-                                                    <div class="form-check form-switch">
-                                                        <div class="d-flex">
-                                                            <div class="col-md-4">
-                                                                <label>
-                                                                    <input asp-for="IsDraft" class="form-check-input fs-9 mt-2" type="checkbox" id="isDraft" />
-                                                                    <span class="fs-9">Save as Draft</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <label>
-                                                                    <input class="form-check-input fs-9 mt-2" asp-for="IsVatAfterSubtotal" type="checkbox" id="toggleCheckboxEV">
-                                                                    <span class="fs-9">VAT after subtotal</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <label class="mx-1">
-                                                                    <input class="form-check-input fs-9 mt-2" type="checkbox" asp-for="IsItemPriceIncludingVat" id="toggleCheckboxforIncludingVat">
-                                                                    <span class="fs-9">Each item price including vat</span>
-                                                                </label>
-                                                            </div>
-                                                        </div>
+                                            @if (!string.IsNullOrEmpty(Model.SalesOrderNumber))
+                                            {
+                                                <div class="col-xl-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Linked Sales Order</label>
+                                                        <input value="@Model.SalesOrderNumber" class="form-control" readonly />
                                                     </div>
                                                 </div>
-                                            </div>
-
-                                            <!-- VAT Mode Checkboxes - Row 2 -->
-                                            <div class="col-xl-12">
-                                                <div class="row">
-                                                    <div class="form-check form-switch">
-                                                        <div class="d-flex">
-                                                            <div class="col-md-4">
-                                                                <label class="me-1">
-                                                                    <input class="form-check-input fs-9 mt-2" type="checkbox" asp-for="IsPriceWithoutVat" id="toggleCheckboxForPriceWithoutVat">
-                                                                    <span class="fs-9">Price without vat</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <label>
-                                                                    <input class="form-check-input fs-9 mt-2" type="checkbox" asp-for="IsAit" id="toggleCheckboxForAIT">
-                                                                    <span class="fs-9">Add AIT 5%</span>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-xl-4" style="display: none;" id="hiddenDiv">
-                                                                <label>
-                                                                    <input class="form-check-input fs-9 mt-2" asp-for="ShowTaxColumn" id="showTaxColumn" type="checkbox" />
-                                                                    <span class="fs-9">Show Tax Column</span>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -168,97 +152,119 @@
                         <!-- Items Table (Editable) -->
                         <div class="col-xl-12 mt-3">
                             <table class="table" id="itemsTable" style="border-bottom: 0px solid #ffffff00;">
+
                                 <thead>
                                     <tr>
                                         <th style="width: 50px;">SL</th>
-                                        <th class="text-center">Product</th>
+                                        <th>Product</th>
                                         <th class="text-center">Quantity</th>
-                                        <th class="text-center">Product Price (BDT)</th>
-                                        @*<th class="text-center">VAT Amount</th>*@
-                                        <th class="text-center vat-column-header">VAT % / Amount</th>
-                                        <th class="text-center">Amount (BDT)</th>
-                                        <th style="width: 50px;"></th>
+                                        <th class="text-center">Unit Price</th>
+                                        @if (Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat))
+                                        {
+                                            <th class="text-center">VAT Amount</th>
+                                        }
+                                        <th class="text-center">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @for (int i = 0; i < Model.Items.Count; i++)
                                     {
-                                        <tr data-index="@i">
+                                        <tr>
                                             <td class="fs-8 text-center align-middle">@(i + 1)</td>
-                                            <td>
-                                                <select asp-for="Items[i].ProductId" class="form-select productDD searchableSelect" asp-items="ViewBag.Products">
-                                                    <option value="">-- Select Product --</option>
-                                                </select>
-                                            </td>
-                                            <td><input asp-for="Items[i].Quantity" class="form-control calc" type="number" step="any" /></td>
-                                            <td><input asp-for="Items[i].UnitPrice" class="form-control calc" type="number" step="any" /></td>
-                                            @*<td class="vatPerItem text-end align-middle">@Model.Items[i].VatAmount.ToString("N2")</td>*@
-
-                                            <td class="text-end align-middle">
-                                                <input type="hidden" asp-for="Items[i].VatPercent" class="item-vat-percent" value="@Model.Items[i].VatPercent" />
-                                                <span class="vat-percent-badge badge bg-secondary clickable-vat" style="cursor:pointer;">
-                                                    @Model.Items[i].VatPercent.ToString("F2")%
-                                                </span>
-                                                <span class="vat-amount ms-2">@Model.Items[i].VatAmount.ToString("N2")</span>
-                                            </td>
-
-                                            <td class="amount text-center align-middle">@Model.Items[i].Amount.Value.ToString("N2")</td>
-                                            <td class="text-center align-middle">
-                                                <button type="button" class="btn btn-sm btn-outline-danger mx-2 remove-item">
-                                                    <i class="far fa-trash-alt text-black"></i>
-                                                </button>
-                                            </td>
+                                            <td>@Model.Items[i].ProductName</td>
+                                            <td class="text-center">@Model.Items[i].Quantity.ToString("N2")</td>
+                                            <td class="text-center">@Model.Items[i].UnitPrice.ToString("N2")</td>
+                                            @if (Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat))
+                                            {
+                                                <td class="text-center">@Model.Items[i].VatAmount.ToString("N2")</td>
+                                            }
+                                            <td class="text-end">@Model.Items[i].Amount.Value.ToString("N2")</td>
                                         </tr>
                                     }
                                     <tr>
-                                        <td colspan="6" class="text-center">
-                                            <a id="add-item-btn" class="text-primary py-2" role="button" style="cursor:pointer;">
-                                                Add an Item
-                                            </a>
-                                        </td>
+                                        <td colspan="@(Model.ShowTaxColumn ? "5" : "4")" class="text-end fs-9 fw-bold">Sub Total Taka.</td>
+                                        <td class="text-end fs-9 fw-bold">@Model.SubTotal.ToString("N2")</td>
                                     </tr>
+                                    @if (Model.ShowTaxColumn)
+                                    {
+                                        <tr>
+                                            <td colspan="@(Model.ShowTaxColumn ? "5" : "4")" class="text-end fs-9">VAT - @Model.VatPercent%</td>
+                                            <td class="text-end fs-9">@Model.VatAmount.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                    @if (Model.IsAit)
+                                    {
+                                        <tr>
+                                            <td colspan="@(Model.ShowTaxColumn ? "5" : "4")" class="text-end fs-9">AIT - @Model.AitPercent%</td>
+                                            <td class="text-end fs-9">@Model.AitAmount.ToString("N2")</td>
+                                        </tr>
+                                    }
                                     <tr>
-                                        <td colspan="5" class="text-end fs-9 fw-bold">Sub Total Taka</td>
-                                        <td colspan="1" class="text-center fs-9 fw-bold" id="subTotal">@Model.SubTotal.ToString("N2")</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5" class="text-end fs-9 py-2">
-                                            <div class="d-flex justify-content-end">
-                                                <div class="mx-2 mt-2">VAT (%)</div>
-                                                <div>
-                                                    @*<input asp-for="VatPercent" id="vatPercent" class="form-control vatPercent" type="number" step="any" />*@
-                                                    <input asp-for="VatPercent" id="vatPercent" type="hidden" />
-                                                    <span id="globalVatPercentDisplay" class="badge bg-primary clickable-global-vat" style="cursor:pointer; font-size:1.1rem; padding:8px 12px;">
-                                                        @Model.VatPercent%
-                                                    </span>
-
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td colspan="1" class="text-center fs-9" id="vatAmount">@Model.VatAmount.ToString("N2")</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5" class="text-end fs-9 py-2">
-                                            <div class="d-flex justify-content-end">
-                                                <div class="mx-2 mt-2">AIT (%)</div>
-                                                <div>
-                                                    @*<input asp-for="AitPercent" id="aitPercent" class="form-control" type="number" step="any" value="5" />*@
-                                                    <input asp-for="AitPercent" id="aitPercent" type="hidden" value="@Model.AitPercent" />
-                                                    <span id="globalAitPercentDisplay" class="badge bg-info clickable-global-ait" style="cursor:pointer; font-size:1.1rem; padding:8px 12px;">
-                                                        @Model.AitPercent%
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td colspan="1" class="text-center fs-9" id="aitAmount">@Model.AitAmount.ToString("N2")</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5" class="text-end h5">Grand Total Taka</td>
-                                        <td colspan="1" class="text-center h5" id="grandTotal">@Model.GrandTotal.ToString("N2")</td>
+                                        <td colspan="@(Model.ShowTaxColumn ? "5" : "4")" class="text-end h5">Grand Total Taka</td>
+                                        <td class="text-end h5">@Model.GrandTotal.ToString("N2")</td>
                                     </tr>
                                 </tbody>
+
+
+                                @*<thead>
+            <tr>
+                <th style="width: 50px;">SL</th>
+                <th class="text-center">Product</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-center">Unit Price</th>
+                <th class="text-center">Amount</th>
+                <th style="width: 50px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Items.Count; i++)
+            {
+                <tr data-index="@i">
+                    <td class="fs-8 text-center align-middle">@(i + 1)</td>
+                    <td>
+                        <select asp-for="Items[i].ProductId" class="form-select productDD searchableSelect" asp-items="ViewBag.Products">
+                            <option value="">-- Select Product --</option>
+                        </select>
+                    </td>
+                    <td><input asp-for="Items[i].Quantity" class="form-control calc" type="number" step="any" /></td>
+                    <td><input asp-for="Items[i].UnitPrice" class="form-control calc" type="number" step="any" /></td>
+                    <td class="amount text-end align-middle">@Model.Items[i].Amount.ToString("N2")</td>
+                    <td class="text-center align-middle">
+                        <button type="button" class="btn btn-sm btn-outline-danger mx-2 remove-item">
+                            <i class="far fa-trash-alt text-black"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td colspan="6" class="text-center">
+                    <a id="add-item-btn" class="text-primary py-2" role="button" style="cursor:pointer;">
+                        + Add an Item
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-end fs-9 fw-bold">Sub Total Taka.</td>
+                <td colspan="2" class="text-center fs-9 fw-bold" id="subTotal">@Model.SubTotal.ToString("N2")</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-end fs-9 py-2">
+                    <div class="d-flex justify-content-end">
+                        <div class="mx-2 mt-2">VAT (%)</div>
+                        <div><input asp-for="VatPercent" id="vatPercent" class="form-control" type="number" step="any" /></div>
+                    </div>
+                </td>
+                <td colspan="2" class="text-center fs-9" id="vatAmount">@Model.VatAmount.ToString("N2")</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-end h5">Grand Total Taka</td>
+                <td colspan="2" class="text-center h5" id="grandTotal">@Model.GrandTotal.ToString("N2")</td>
+            </tr>
+        </tbody>*@
                             </table>
                         </div>
+
+
 
                         <!-- BILLING ADDRESS -->
                         <div class="row col-xl-12 mb-3 mt-4">
@@ -377,19 +383,23 @@
                             </div>
                         </div>
 
+
+
+
+
                         <!-- Note -->
-                        <div class="row col-xl-12 mb-3">
+                        <div class="col-xl-12 mb-3">
                             <p class="mb-1 fw-bold fs-8">Note</p>
-                            <div class="pe-3">
-                                <textarea asp-for="InvoiceNote" id="invoiceNote" class="form-control" rows="3" placeholder="Add any additional notes here..."></textarea>
+                            <div class="">
+                                <textarea asp-for="InvoiceNote" class="form-control" rows="3" placeholder="Add any additional notes here..."></textarea>
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="row col-xl-12 mb-3">
+                        <div class="col-xl-12 mb-3">
                             <div class="d-flex justify-content-end">
                                 <a href="@Url.Action("Index", "InvoiceDetails", new { id = Model.Id })" class="btn btn-secondary me-2">Cancel</a>
-                                <button type="submit" class="btn btn-primary me-2">Save Invoice</button>
+                                <button type="submit" class="btn btn-primary">Save Invoice</button>
                             </div>
                         </div>
 
@@ -408,8 +418,8 @@
     {
         <!-- READ-ONLY MODE - Display only -->
         <div class="row mb-4">
-            <div class="col-xl-9 pe-1">
-                <div class="card pt-4 p-5 mb-3" style="min-height: 1050px;">
+            <div class="col-xl-9">
+                <div class="card pt-4 p-5 mb-3" style="min-height: 1000px;">
 
                     <div class="row col-xl-12">
                         <p class="mb-1 fw-bold fs-7">Invoice Details</p>
@@ -437,58 +447,58 @@
                                     <div class="card pb-1 ps-2 p-3 mb-3" style="min-height: 165px;">
                                         <div class="row">
                                             <div class="col-4">
-                                                <label class="form-label fw-bold">Invoice Number</label>
-                                                <p class="fs-8 ms-3">@Model.InvoiceNumber</p>
-                                            </div>
-                                            <div class="col-4">
-                                                <label class="form-label fw-bold">Invoice Date</label>
-                                                <p class="fs-8 ms-3">@Model.InvoiceDate.ToString("MMM dd, yyyy")</p>
-                                            </div>
-                                            <div class="col-4">
-                                                <label class="form-label fw-bold">Status</label>
-                                                <p class="fs-8 ms-3">
-                                                    @if (Model.IsDraft)
-                                                    {
-                                                        <span class="badge badge-phoenix badge-phoenix-warning">Draft</span>
-                                                    }
-                                                    else if (Model.GrandTotal - Model.PaidAmount <= 0)
-                                                    {
-                                                        <span class="badge badge-phoenix badge-phoenix-success">Paid</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge badge-phoenix badge-phoenix-danger">Unpaid</span>
-                                                    }
-                                                </p>
-                                            </div>
-
-                                            <!-- VAT Mode Display -->
-                                            <div class="col-12 mt-2">
-                                                <label class="form-label fw-bold">VAT Configuration</label>
-                                                <div class=" ms-3">
-                                                    @if (Model.IsItemPriceIncludingVat)
-                                                    {
-                                                        <span class="badge badge-phoenix badge-phoenix-info">Item Price Including VAT</span>
-                                                    }
-                                                    else if (Model.IsPriceWithoutVat)
-                                                    {
-                                                        <span class="badge badge-phoenix badge-phoenix-info">Price Without VAT (Per-Item)</span>
-                                                    }
-                                                    else if (Model.IsVatAfterSubtotal)
-                                                    {
-                                                        <span class="badge badge-phoenix badge-phoenix-info">VAT After Subtotal</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge badge-phoenix badge-phoenix-secondary">No VAT</span>
-                                                    }
-
-                                                    @if (Model.IsAit)
-                                                    {
-                                                        <span class="badge badge-phoenix badge-phoenix-warning ms-1">AIT @Model.AitPercent%</span>
-                                                    }
+                                                <div class="">
+                                                    <label class="form-label fw-bold">Invoice Number</label>
+                                                    <p class="fs-8 ms-3">@Model.InvoiceNumber</p>
                                                 </div>
                                             </div>
+                                            <div class="col-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Invoice Date</label>
+                                                    <p class="fs-8 ms-3">@Model.InvoiceDate.ToString("MMM dd, yyyy")</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-4">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Status</label>
+                                                    <p class="fs-8 ms-3">
+                                                        @if (Model.IsDraft)
+                                                        {
+                                                            <span class="badge badge-phoenix badge-phoenix-warning">Draft</span>
+                                                        }
+                                                        else if (Model.GrandTotal - Model.PaidAmount <= 0)
+                                                        {
+                                                            <span class="badge badge-phoenix badge-phoenix-success">Paid</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-phoenix badge-phoenix-danger">Unpaid</span>
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            @if (!string.IsNullOrEmpty(Model.OtherReference))
+                                            {
+                                                <div class="col-4">
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Reference</label>
+                                                        <p class="fs-8 ms-3">@Model.OtherReference</p>
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(Model.SalesOrderNumber))
+                                            {
+                                                <div class="col-4">
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Sales Order</label>
+                                                        <p class="fs-8 ms-3">@Model.SalesOrderNumber</p>
+                                                    </div>
+                                                </div>
+                                            }
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -533,7 +543,7 @@
                         </div>
                     }
 
-                    <!-- Items Table (Read-only) with VAT Column -->
+                    <!-- Items Table (Read-only) -->
                     <div class="col-xl-12 mt-3">
                         <table class="table" style="border-bottom: 0px solid #ffffff00;">
                             <thead>
@@ -542,11 +552,7 @@
                                     <th>Product</th>
                                     <th class="text-center">Quantity</th>
                                     <th class="text-center">Unit Price</th>
-                                    @if (Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat))
-                                    {
-                                        <th class="text-center">VAT Amount</th>
-                                    }
-                                    <th class="text-end">Amount</th>
+                                    <th class="text-center">Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -557,47 +563,27 @@
                                         <td>@Model.Items[i].ProductName</td>
                                         <td class="text-center">@Model.Items[i].Quantity.ToString("N2")</td>
                                         <td class="text-center">@Model.Items[i].UnitPrice.ToString("N2")</td>
-                                        @if (Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat))
-                                        {
-                                            @*<td class="text-center">@Model.Items[i].VatAmount.ToString("N2")</td>*@
-                                            <td class="text-center">
-                                                <span class="badge bg-secondary">@Model.Items[i].VatPercent.ToString("F2")%</span>
-                                                <span class="ms-2">@Model.Items[i].VatAmount.ToString("N2")</span>
-                                            </td>
-                                        
-                                        }
-                                        <td class="text-end">@Model.Items[i].Amount?.ToString("N2")</td>
+                                        <td class="text-end">@Model.Items[i].Amount.Value.ToString("N2")</td>
                                     </tr>
                                 }
                                 <tr>
-                                    <td colspan="@(Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat) ? "5" : "4")" class="text-end fs-9 fw-bold">Sub Total Taka.</td>
+                                    <td colspan="4" class="text-end fs-9 fw-bold">Sub Total Taka.</td>
                                     <td class="text-end fs-9 fw-bold">@Model.SubTotal.ToString("N2")</td>
                                 </tr>
-                                @if (Model.ShowTaxColumn)
-                                {
-                                    <tr>
-                                       
-                                        <td colspan="@(Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat) ? "5" : "4")" class="text-end fs-9">VAT - @Model.VatPercent%</td>
-                                        <td class="text-end fs-9">@Model.VatAmount.ToString("N2")</td>
-                                    </tr>
-                                }
-                                @if (Model.IsAit && Model.ShowTaxColumn)
-                                {
-                                    <tr>
-                                        <td colspan="@(Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat) ? "5" : "4")" class="text-end fs-9">AIT - @Model.AitPercent%</td>
-                                        <td class="text-end fs-9">@Model.AitAmount.ToString("N2")</td>
-                                    </tr>
-                                }
                                 <tr>
-                                    <td colspan="@(Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat) ? "5" : "4")" class="text-end h5">Grand Total Taka</td>
+                                    <td colspan="4" class="text-end fs-9">VAT - @Model.VatPercent%</td>
+                                    <td class="text-end fs-9">@Model.VatAmount.ToString("N2")</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end h5">Grand Total Taka</td>
                                     <td class="text-end h5">@Model.GrandTotal.ToString("N2")</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="@(Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat) ? "5" : "4")" class="text-end fs-9 text-success fw-bold">Paid Amount</td>
+                                    <td colspan="4" class="text-end fs-9 text-success fw-bold">Paid Amount</td>
                                     <td class="text-end fs-9 text-success fw-bold">@Model.PaidAmount.ToString("N2")</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="@(Model.ShowTaxColumn && (Model.IsItemPriceIncludingVat || Model.IsPriceWithoutVat) ? "5" : "4")" class="text-end fs-9 text-danger fw-bold">Due Amount</td>
+                                    <td colspan="4" class="text-end fs-9 text-danger fw-bold">Due Amount</td>
                                     <td class="text-end fs-9 text-danger fw-bold">@((Model.GrandTotal - Model.PaidAmount).ToString("N2"))</td>
                                 </tr>
                             </tbody>
@@ -662,12 +648,14 @@
 
                     <div class="">
                         <div class="d-flex justify-content-end gap-2 align-items-center">
+                            @*@if (!isEditMode && sidebarData != null && sidebarData.CanEdit)*@
                             @if (!Model.Finalized)
                             {
                                 <a href="@Url.Action("Edit", "InvoiceDetails", new { id = Model.Id })" class="btn btn-primary">
                                     <i class="fa fa-edit me-1"></i> Edit Invoice
                                 </a>
                             }
+
                         </div>
                     </div>
 
@@ -681,12 +669,11 @@
             }
         </div>
     }
-
-
 </div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/pages/Sales/invoice.js"></script>
+    <script src="~/js/pages/Sales/InvoiceDetails.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 }
