@@ -498,20 +498,12 @@ namespace GCTL.Service.CRM.LeadDetail
         #endregion
 
         #region CompleteAsync
-        public async Task<ReturnView> CompleteAsync(LeadDetailsVM model)
+        public async Task<ReturnView> CompleteAsync(CRMStateModal model)
         {
             await _leadDetailsRepository.BeginTransactionAsync();
             try
             {
-                if (model.LeadDetailID == 0 || model.LeadDetailID == null) {
-                    return new ReturnView
-                    {
-                        Success = false,
-                        Message = "Something went to wrong!"
-                    };
-                }
-                
-                var query = await _leadDetailsRepository.GetByIdAsync(model.LeadDetailID ?? 0);
+                var query = await _leadDetailsRepository.GetByIdAsync(model.LeadDetailID);
                 var beforeEntity = JsonConvert.DeserializeObject<LeadDetailsVM>(JsonConvert.SerializeObject(query, JsonSettings.IgnoreReferenceLoop));
                 if (query == null)
                 {
@@ -534,6 +526,74 @@ namespace GCTL.Service.CRM.LeadDetail
                 }
 
                 query.IsDone = true;
+                //query.
+                query.UpdatedAt = DateTime.Now;
+                query.UpdatedBy = model.UpdatedBy;
+                query.LIP = model.LIP;
+                query.LMAC = model.LMAC;
+                await _leadDetailsRepository.UpdateAsync(query);
+                await _leadDetailsRepository.CommitTransactionAsync();
+                var afterEntity = JsonConvert.DeserializeObject<LeadDetailsVM>(JsonConvert.SerializeObject(query, JsonSettings.IgnoreReferenceLoop));
+
+                await _userInfoService.ActionLogAsync("LeadDetails", ActionName.DataUpdated, beforeEntity, afterEntity, query.LeadDetailID, model);
+
+                return new ReturnView
+                {
+                    Success = true,
+                    Message = "Activity completed successfully."
+                };
+            }
+            catch (Exception e)
+            {
+                await _leadDetailsRepository.RollbackTransactionAsync();
+
+                #if DEBUG
+                    return new ReturnView
+                    {
+                        Success = false,
+                        Message = "Error: " + e.Message
+                    };
+                #else
+                    return new ReturnView 
+                    { 
+                        Success = false, 
+                        Message = "An error occurred while completing the activity." 
+                    };
+                #endif
+            }
+        }
+        #endregion
+        #region No Response
+        public async Task<ReturnView> NoResponseAsync(CRMStateModal model)
+        {
+            await _leadDetailsRepository.BeginTransactionAsync();
+            try
+            {
+                
+                var query = await _leadDetailsRepository.GetByIdAsync(model.LeadDetailID);
+                var beforeEntity = JsonConvert.DeserializeObject<LeadDetailsVM>(JsonConvert.SerializeObject(query, JsonSettings.IgnoreReferenceLoop));
+                if (query == null)
+                {
+                    await _leadDetailsRepository.RollbackTransactionAsync();
+                    return new ReturnView
+                    {
+                        Success = false,
+                        Message = "Activity not found."
+                    };
+                }
+
+                if (query.IsDone?? false)
+                {
+                    await _leadDetailsRepository.RollbackTransactionAsync();
+                    return new ReturnView
+                    {
+                        Success = false,
+                        Message = "Activity is already completed."
+                    };
+                }
+
+                query.IsDone = true;
+                //query = await _leadDetailsRepository.
                 query.UpdatedAt = DateTime.Now;
                 query.UpdatedBy = model.UpdatedBy;
                 query.LIP = model.LIP;

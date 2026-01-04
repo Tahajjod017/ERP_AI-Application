@@ -41,6 +41,10 @@ public partial class LeadDetails
 
     public bool? IsDone { get; set; }
 
+    public int? StatusID { get; set; }
+
+    public string Comment { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
@@ -48,6 +52,8 @@ public partial class LeadDetails
     public virtual Leads Lead { get; set; }
 
     public virtual LeadActivityTypes LeadActivityType { get; set; }
+
+    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }
