@@ -1,4 +1,6 @@
-﻿// #region loadTableData
+﻿
+
+// #region loadTableData
 var currentPage = 1;
 var pageSize = 5;
 
@@ -93,34 +95,29 @@ function loadTableData(sortColumn, sortOrder) {
                             <td>
                                 <input type="checkbox" class="form-check-input addEmpCheck-selectedItem" data-id="${item.employeeAdvanceID}" />
                             </td>
-                            <td class="empId align-middle white-space-nowrap ps-5 fw-semibold text-body py-1">${item.customerID2}
+                            <td class="empId align-middle justify-text-center white-space-nowrap ps-5 fw-semibold text-body py-1">${item.customerID2}
                             </td>
-                            <td class="empName align-middle white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">${item.customerName}  
+                            <td class="empName align-middle justify-text-center white-space-nowrap fw-semibold text-body-emphasis ps-4 py-1">${item.customerName}  
                             </td>
-                            <td class="empProjectName align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTitle || 'N/A'}</td>
-                            <td class="empProjectType align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTypeName || 'N/A'}</td>
-                            <td class="empSalary align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.amountRequested || 0}</td>
-                            <td class="empGroupName align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.groupEmployeeName}  
+                            <td class="empProjectName align-middle justify-text-center white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTitle || 'N/A'}</td>
+                            <td class="empProjectType align-middle justify-text-center white-space-nowrap ps-4 fw-semibold text-body py-1">${item.jobTypeName || 'N/A'}</td>
+                            <td class="empSalary align-middle justify-text-center white-space-nowrap ps-4 fw-semibold text-body py-1">${item.amountRequested || 0}</td>
+                            <td class="empGroupName align-middle justify-text-center white-space-nowrap ps-4 fw-semibold text-body py-1">${item.groupEmployeeName}  
                             </td>
-                           <td class="empStatus align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">
+                           <td class="empStatus align-middle justify-text-center white-space-nowrap ps-4 fw-semibold text-body py-1">
                               <span class="badge badge-phoenix badge-phoenix-warning">
                                 ${item.statusName}
                               </span>
                             </td>
-                            <td class="empapprovedName align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.requestedByUser || 0}</td>
+                            <td class="empapprovedName align-middle justify-text-center white-space-nowrap ps-4 fw-semibold text-body py-1">${item.requestedByUser || 0}</td>
                             <td class="empDate align-middle white-space-nowrap ps-4 fw-semibold text-body py-1">${item.startDate} </td>
                             <td class="align-middle white-space-nowrap text-end pe-0 ps-4">
                                 <div class="d-flex btn-reveal-trigger position-static">
                                     <a href="#!"
                                        class="btn btn-phoenix-danger btn-icon me-1 fs-10 text-body px-0 employeeAdvance-editBtn"
-                                      
                                        data-id="${item.employeeAdvanceID}"
-                                       title="Edit">
-                                        <i class="fas fa-edit text-black"></i>
-                                    </a>
-  
-                                    <a href="#!" class="btn btn-phoenix-danger btn-icon me-1 fs-10 text-body px-0 advance-delete" data-id="${item.employeeAdvanceID}"title="Delete">
-                                        <i class="fa-regular fa-trash-can text-black"></i>
+                                       title="Add">
+                                       <i class="fa-solid fa-eye"></i>
                                     </a>
                                 </div>
                             </td>
