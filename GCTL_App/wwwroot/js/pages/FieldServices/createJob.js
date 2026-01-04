@@ -19,7 +19,7 @@ function initCreateJobModal() {
     //#region Init Date 
     flatpickr(".dbDatetimepicker", {
         enableTime: true,
-        dateFormat: "Y-m-d H:i",
+        dateFormat: "d-m-Y H:i",
         time_24hr: true,                 // Bangla
         altInput: true,
         altFormat: "d F Y, h:i K",
@@ -58,6 +58,49 @@ function initCreateJobModal() {
         },
         width: '100%'
     });
+    debugger
+    //#region customer serach field
+    $('#BranchId').select2({
+        placeholder: 'Select Customer',
+        width: '100%',
+        dropdownParent: $('#CustomerID').closest('.modal').length ? $('#CustomerID').closest('.modal') : null,
+        ajax: {
+            url: '/Customers/GetBranches',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    customerID: $("#CustomerID").val() ?? 0,
+                    search: params.term || '',
+                    page: params.page || 1
+                };  
+            },
+            processResults: function (data, params) {
+
+                debugger;
+                params.page = params.page || 1;
+
+                return {
+
+                    results: data.results,
+                    pagination: {
+                        more: data.pagination.more
+                    }
+                };
+            },
+            cache: true
+        },
+        language: {
+            noResults: function () {
+                return $(
+                    `<span>Data not found. Create a <a id="createCustomer" href="#">Customer</a></span>`
+                );
+            }
+        },
+
+        width: '100%'
+    });
+    //#endregion
 
     //#region DivisionId
     $('#DivisionId').select2({
@@ -388,6 +431,36 @@ function initCreateJobModal() {
         rebindScroll();
     });
     //#endregion
+    //event
+    $('#CustomerID').on('change', function () {
+        var customerId = $(this).val();
+        setCustomerDetails(customerId);
+    });
+    // fired function
+    function setCustomerDetails(customerId) {
+        $.ajax({
+            url: '/Customers/GetCustomerInfo', // replace with your endpoint
+            type: 'POST',
+            data: { id: customerId },
+            dataType: 'json',
+            success: function (response) {
+                debugger
+                //showDev(response)
+                if (!response.isIndividual) {
+                    $("#BranchId").val(null).trigger('change');
+                    $('#branchContainer').show();
+                }
+                else
+                    $('#branchContainer').hide();
+
+
+                // do something with response
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    }
 
 
     //#region initialize file field

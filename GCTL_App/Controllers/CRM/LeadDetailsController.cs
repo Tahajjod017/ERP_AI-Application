@@ -94,6 +94,12 @@ namespace GCTL_App.Controllers.CRM
                                              Value = x.ServiceID.ToString(),
                                              Text = x.Service.ServiceName,
                                          }).ToList(),
+                                         ServiceNames = string.Join(", ",
+                                                lead.LeadServices
+                                                    .AsEnumerable()
+                                                    .Where(s => s.ServiceID.HasValue)
+                                                    .Select(x => x.Service.ServiceName)
+                                            )
                                      }).FirstOrDefaultAsync();
             if (customerObj != null)
             {
@@ -167,7 +173,7 @@ namespace GCTL_App.Controllers.CRM
             // Fetch filtered and paginated data using LIKE
             var list = await _leadDetailsRepository
           .AllActive().Where(u => u.LeadID == id &&
-                     u.ActivityDateTime >= DateTime.UtcNow.AddSeconds(11)
+                     u.ActivityDateTime >= DateTime.UtcNow.AddSeconds(11) && u.IsDone == null
           )
           .OrderByDescending(e => e.ActivityDateTime)   // ORDER FIRST!
           .Skip(skip)                            // THEN skip
@@ -324,17 +330,31 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region Complete Activity
-        public async Task<IActionResult> Complete(LeadDetailsVM model)
-        {
-            try
-            {
-                var result = await _leadDetailsService.CompleteAsync(model);
-                return Json(new { success = true, message = "" });
-            } catch (Exception e)
-            {
-                return Json(new { success = false, message = "Something went to wrong!" });
-            }
-        }
+        //public async Task<IActionResult> Complete(CRMStateModal model)
+        //{
+        //    try
+        //    {
+        //        var result = await _leadDetailsService.CompleteAsync(model);
+        //        return Json(new { success = true, message = "" });
+        //    } catch (Exception e)
+        //    {
+        //        return Json(new { success = false, message = "Something went to wrong!" });
+        //    }
+        //}
+        #endregion
+        #region No Response Status Add
+        //public async Task<IActionResult> NoResponse(CRMStateModal model)
+        //{
+        //    try
+        //    {
+        //        var result = await _leadDetailsService.NoResponseAsync(model);
+        //        return Json(new { success = true, message = "" });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return Json(new { success = false, message = "Something went to wrong!" });
+        //    }
+        //}
         #endregion
 
         #region Get Activity Info

@@ -67,6 +67,8 @@ public partial class Statuses
 
     public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
 
+    public virtual ICollection<LeadDetails> LeadDetails { get; set; } = new List<LeadDetails>();
+
     public virtual ICollection<LeaveApplications> LeaveApplications { get; set; } = new List<LeaveApplications>();
 
     public virtual ICollection<LeaveBaseApprovalHistory> LeaveBaseApprovalHistory { get; set; } = new List<LeaveBaseApprovalHistory>();
