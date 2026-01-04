@@ -359,9 +359,17 @@
             method: 'GET',
             data: { salesOrderId: soId },
             success: function (response) {
+
+               
                 if (response.success) {
                     $('#vatPercent').val(response.vatPercent);
                     $('#invoiceNote').val(response.note);
+
+                    response.items.forEach(e => {
+                        showDev(e)
+                        addItemRow(e, e.quantity)
+                    });
+
                 }
             },
             error: function () {
@@ -471,52 +479,52 @@
         const aitAmount = (basePrice * aitPercent) / 100;
 
         const row = $(`
-    <div class="row align-items-center mb-2 item-row" data-index="${newIndex}" draggable="true" style="cursor:move;">
-        <div class="col-1 fs-8 align-middle d-flex align-items-center justify-content-center text-center">
-            <i class="fas fa-grip-vertical text-muted"></i>
-            <span class="row-number ms-2 d-block">${newIndex + 1}</span>
-        </div>
-        <div class="col-3 col-md-2">
-            <input name="Items[${newIndex}].ProductId" type="hidden" value="${product.id}" />
-            <div class="product-name-display">${product.name}</div>
-        </div>
-        <div class="col-2 col-md-1">
-            <input name="Items[${newIndex}].Quantity" class="form-control text-center calc quantity" type="number" step="any" value="${existingQuantity}" />
-        </div>
-        <div class="col itemserial-cell" style="display: none;">
-            <input name="Items[${newIndex}].ItemSerial" class="form-control item-serial" type="text" value="${existingItemSerial}" placeholder="Serial" />
-        </div>
-        <div class="col text-end product-price-cell">
-            <input name="Items[${newIndex}].UnitPrice" type="hidden" class="unit-price" value="${displayPrice}" data-base-price="${basePrice}" />
-            <input type="hidden" name="Items[${newIndex}].VatPercent" class="item-vat-percent" value="${product.vatPercent || 15}" />
-            <input type="hidden" name="Items[${newIndex}].AitPercent" class="item-ait-percent" value="${aitPercent}" />
-            <span class="price-display">${displayPrice.toFixed(2)}</span>
-            <span class="ait-display" style="display: ${showAit ? 'inline' : 'none'};">+${aitAmount.toFixed(2)} AIT</span>
-            <span class="vat-percent-badge badge badge-phoenix badge-phoenix-warning clickable-vat ms-1" style="cursor:pointer; display: none;">
-                ${(product.vatPercent || 15).toFixed(2)}%
-            </span>
-        </div>
-        <div class="col text-end vat-cell" style="display: none;">
-            <span class="vat-amount">0.00</span>
-        </div>
-        <div class="col text-end amount">${(displayPrice * existingQuantity).toFixed(2)}</div>
-        <div class="col-1 text-center">
-
-             <div class="btn-reveal-trigger position-static g-3">
-                    <a href="#" class="nav-item me-2 edit-item " title="Edit">
-                        <i class="fas fa-edit text-black"></i>
-                    </a>
-                               
-                    <a href="#" class="nav-item me-2 delete-item" title="Delete">
-                        <i class="far fa-trash-alt text-black "></i>
-                    </a>
-
-
+            <div class="row align-items-center mb-2 item-row" data-index="${newIndex}" draggable="true" style="cursor:move;">
+                <div class="col-1 fs-8 align-middle d-flex align-items-center justify-content-center text-center">
+                    <i class="fas fa-grip-vertical text-muted"></i>
+                    <span class="row-number ms-2 d-block">${newIndex + 1}</span>
                 </div>
+                <div class="col-3 col-md-2">
+                    <input name="Items[${newIndex}].ProductId" type="hidden" value="${product.id}" />
+                    <div class="product-name-display">${product.name}</div>
+                </div>
+                <div class="col-2 col-md-1">
+                    <input name="Items[${newIndex}].Quantity" class="form-control text-center calc quantity" type="number" step="any" value="${existingQuantity}" />
+                </div>
+                <div class="col itemserial-cell" style="display: none;">
+                    <input name="Items[${newIndex}].ItemSerial" class="form-control item-serial" type="text" value="${existingItemSerial}" placeholder="Serial" />
+                </div>
+                <div class="col text-end product-price-cell">
+                    <input name="Items[${newIndex}].UnitPrice" type="hidden" class="unit-price" value="${displayPrice}" data-base-price="${basePrice}" />
+                    <input type="hidden" name="Items[${newIndex}].VatPercent" class="item-vat-percent" value="${product.vatPercent || 15}" />
+                    <input type="hidden" name="Items[${newIndex}].AitPercent" class="item-ait-percent" value="${aitPercent}" />
+                    <span class="price-display">${displayPrice.toFixed(2)}</span>
+                    <span class="ait-display" style="display: ${showAit ? 'inline' : 'none'};">+${aitAmount.toFixed(2)} AIT</span>
+                    <span class="vat-percent-badge badge badge-phoenix badge-phoenix-warning clickable-vat ms-1" style="cursor:pointer; display: none;">
+                        ${(product.vatPercent || 15).toFixed(2)}%
+                    </span>
+                </div>
+                <div class="col text-end vat-cell" style="display: none;">
+                    <span class="vat-amount">0.00</span>
+                </div>
+                <div class="col text-end amount">${(displayPrice * existingQuantity).toFixed(2)}</div>
+                <div class="col-1 text-center">
+
+                     <div class="btn-reveal-trigger position-static g-3">
+                            <a href="#" class="nav-item me-2 edit-item " title="Edit">
+                                <i class="fas fa-edit text-black"></i>
+                            </a>
+                               
+                            <a href="#" class="nav-item me-2 delete-item" title="Delete">
+                                <i class="far fa-trash-alt text-black "></i>
+                            </a>
+
+
+                        </div>
 
             
-        </div>
-    </div>
+                </div>
+            </div>
     `);
 
     //<button type="button" class="btn btn-sm btn-outline-primary edit-item me-1" title="Edit">

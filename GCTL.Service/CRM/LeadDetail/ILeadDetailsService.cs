@@ -11,7 +11,7 @@ namespace GCTL.Service.CRM.LeadDetail
     public interface ILeadDetailsService
     {
         Task<bool> CreateLeadActivateTypes();
-        Task<ReturnView> CompleteAsync(LeadDetailsVM model);
+        //Task<ReturnView> CompleteAsync(LeadDetailsVM model);
         Task<ReturnView> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation);
         Task<ReturnView> AddIsWon(IsWonVM isWonVM);
         Task<ReturnView> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM);
