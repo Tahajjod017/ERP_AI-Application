@@ -21,7 +21,10 @@
 
             <div class="col-md">
                 <label class="form-label" asp-for="DayDate">@Html.SmartLocalize("Select Date")<span style="color:red;">&nbsp;*</span></label>
-                <input class="form-control" asp-for="DayDate" type="text" placeholder="DD/MM/YYYY" disabled />
+                <div class="position-relative">
+                    <input class="form-control" asp-for="DayDate" type="text" placeholder="DD/MM/YYYY" disabled />
+                    <i class="fa-solid fa-calendar-days date-icon"></i>
+                </div>
                 <span id="DayDateError" class="text-danger" style="display:none;"></span>
             </div>
 
@@ -90,7 +93,10 @@
 
             <div class="col-md d-none" id="ExchangeDateDiv">
                 <label class="form-label" asp-for="ExchangeDate">@Html.SmartLocalize("Select Exchange Date")<span style="color:red;">&nbsp;*</span></label>
-                <input class="form-control" asp-for="ExchangeDate" type="text" placeholder="DD/MM/YYYY" />
+                <div class="position-relative">
+                    <input class="form-control" asp-for="ExchangeDate" type="text" placeholder="DD/MM/YYYY" />
+                    <i class="fa-solid fa-calendar-days date-icon"></i>
+                </div>
                 <span id="ExchangeDateError" class="text-danger" style="display:none;"></span>
             </div>
         </div>

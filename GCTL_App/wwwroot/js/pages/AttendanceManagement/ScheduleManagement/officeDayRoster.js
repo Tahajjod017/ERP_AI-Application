@@ -259,18 +259,19 @@
                 if (organizationDD) {
                     organizationDD.destroy();
                 }
+                selectSingleOrg();
+                initOrganizationDD();
 
                 if (shiftDD) {
                     shiftDD.destroy();
                 }
+                initShiftDD();
 
                 ['OrganizationID', 'ShiftID', 'StartDate', 'EndDate'].forEach(function (fieldId) {
                     $('#' + fieldId).removeClass('is-valid is-invalid');
                     $('#' + fieldId + 'Error').hide().text('');
                     $('#' + fieldId).val('');
                 });
-                initOrganizationDD();
-                initShiftDD();
             }
             // #endregion
 
@@ -285,6 +286,20 @@
             }
             initOrganizationDD();
 
+            function selectSingleOrg() {
+                var $select = $('#OrganizationID');
+
+                // Count the number of options excluding the placeholder (empty value)
+                var $realOptions = $select.find('option').filter(function () {
+                    return $(this).val() !== '';
+                });
+
+                if ($realOptions.length === 1) {
+                    $realOptions.prop('selected', true);
+                    $select.trigger('change');
+                }
+            }
+
             function initShiftDD() {
                 shiftDD = new Choices('#ShiftID', {
                     removeItemButton: true,
@@ -292,7 +307,6 @@
                     placeholderValue: 'Select Shift...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initShiftDD);
             initShiftDD();
 
             

@@ -255,10 +255,13 @@
                 if (organizationDD) {
                     organizationDD.destroy();
                 }
+                selectSingleOrg();
+                initOrganizationDD();
 
                 if (spiralPatternTypeDD) {
                     spiralPatternTypeDD.destroy();
                 }
+                initSpiralPatternTypeDD();
 
                 ["OrganizationID", "SpiralPatternTypeID", "SpiralPatternName"].forEach(function (fieldId) {
                     $('#' + fieldId).removeClass('is-valid is-invalid');
@@ -266,8 +269,6 @@
                     $('#' + fieldId).val('');
                 });
 
-                initOrganizationDD();
-                initSpiralPatternTypeDD();
 
                 spiralPatternTypeDD.setChoiceByValue('1');
                 $('#Weekly').removeClass('d-none');
@@ -288,8 +289,22 @@
                     placeholderValue: 'Select Organization...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initOrganizationDD);
             initOrganizationDD();
+
+
+            function selectSingleOrg() {
+                var $select = $('#OrganizationID');
+
+                // Count the number of options excluding the placeholder (empty value)
+                var $realOptions = $select.find('option').filter(function () {
+                    return $(this).val() !== '';
+                });
+
+                if ($realOptions.length === 1) {
+                    $realOptions.prop('selected', true);
+                    $select.trigger('change');
+                }
+            }
 
 
             function initSpiralPatternTypeDD() {
@@ -299,7 +314,6 @@
                     placeholderValue: 'Select Pattern Type...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initSpiralPatternTypeDD);
             initSpiralPatternTypeDD();
             // #endregion
 
