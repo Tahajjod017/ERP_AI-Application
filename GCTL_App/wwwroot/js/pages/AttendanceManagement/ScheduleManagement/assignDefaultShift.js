@@ -25,8 +25,47 @@
 
 
             // #region Save
+            //$(settings.saveBtn).on('click', function (e) {
+            //    e.preventDefault();
+            //    $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+
+            //    const token = $('#assignDefaultShift-addForm input[name="__RequestVerificationToken"]').val();
+
+            //    const formData = {
+            //        __RequestVerificationToken: token,
+            //        DefaultShiftID: $('#DefaultShiftID').val(),
+            //        OrganizationID: $('#OrganizationID').val(),
+            //        DepartmentIDs: $('#DepartmentIDs').val(),
+            //        EmployeeIDs: $('#EmployeeIDs').val(),
+            //        ShiftID: $('#ShiftID').val()
+            //    };
+
+            //    const id = $('#DefaultShiftID').val();
+            //    const isEdit = id > 0;
+            //    const url = isEdit ? updateEmpShift : createUrl;
+
+            //    $.ajax({
+            //        url: checkConflictsUrl,
+            //        type: 'POST',
+            //        data: formData,
+            //        success: function (response) {
+            //            if (response.hasConflicts) {
+            //                populateConflictModal(response.conflicts);
+            //                $('#assignDefaultShift-confirm-modal').modal('show');
+            //            } else {
+            //                postDefaultShift(url, formData);
+            //            }
+            //        },
+            //        error: function (err) {
+            //            console.error('Conflict check failed:', err);
+            //        }
+            //    });
+            //}).always(function () {
+            //    $(settings.saveBtn).prop('disabled', false).html('Save');
+            //});
             $(settings.saveBtn).on('click', function (e) {
                 e.preventDefault();
+
                 $(settings.saveBtn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
 
                 const token = $('#assignDefaultShift-addForm input[name="__RequestVerificationToken"]').val();
@@ -47,21 +86,22 @@
                 $.ajax({
                     url: checkConflictsUrl,
                     type: 'POST',
-                    data: formData,
-                    success: function (response) {
+                    data: formData
+                })
+                    .done(function (response) {
                         if (response.hasConflicts) {
                             populateConflictModal(response.conflicts);
                             $('#assignDefaultShift-confirm-modal').modal('show');
                         } else {
                             postDefaultShift(url, formData);
                         }
-                    },
-                    error: function (err) {
+                    })
+                    .fail(function (err) {
                         console.error('Conflict check failed:', err);
-                    }
-                });
-            }).always(function () {
-                $(settings.saveBtn).prop('disabled', false).html('Save');
+                    })
+                    .always(function () {
+                        $(settings.saveBtn).prop('disabled', false).html('Save');
+                    });
             });
             // #endregion
 
@@ -551,7 +591,6 @@
                     placeholderValue: 'Select Organization...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initOrganizationDD);
             initOrganizationDD();
 
 
@@ -562,7 +601,6 @@
                     placeholderValue: 'Select Shift...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initChoices);
             initChoices();
 
 

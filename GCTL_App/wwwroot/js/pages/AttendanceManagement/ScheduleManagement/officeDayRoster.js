@@ -269,13 +269,22 @@
                     $('#' + fieldId + 'Error').hide().text('');
                     $('#' + fieldId).val('');
                 });
-                //initOrganizationDD();
+                initOrganizationDD();
                 initShiftDD();
             }
             // #endregion
 
 
             // #region Dropdown
+            function initOrganizationDD() {
+                organizationDD = new Choices('#OrganizationID', {
+                    removeItemButton: true,
+                    shouldSort: false,
+                    placeholderValue: 'Select Organization...'
+                });
+            }
+            initOrganizationDD();
+
             function initShiftDD() {
                 shiftDD = new Choices('#ShiftID', {
                     removeItemButton: true,
@@ -776,92 +785,92 @@
 
 
             // #region Choice with Pagination + Infinite Scroll (server-side search only)
-            const selectEl = document.getElementById('OrganizationID');
-            let debounceTimer;
-            let loading = false;
-            let currentPage = 1;
-            let lastSearch = '';
-            let hasMore = true;
+            //const selectEl = document.getElementById('OrganizationID');
+            //let debounceTimer;
+            //let loading = false;
+            //let currentPage = 1;
+            //let lastSearch = '';
+            //let hasMore = true;
 
-            const choices = new Choices(selectEl, {
-                searchEnabled: true,
-                placeholder: true,
-                placeholderValue: 'Select Organization...',
-                searchPlaceholderValue: 'Type to search...',
-                noChoicesText: 'Type 3 or more characters...',
-                searchResultLimit: -1, // disable local limiting
-                shouldSort: false,
-                duplicateItemsAllowed: false,
-                itemSelectText: '',
-                removeItemButton: true,
+            //const choices = new Choices(selectEl, {
+            //    searchEnabled: true,
+            //    placeholder: true,
+            //    placeholderValue: 'Select Organization...',
+            //    searchPlaceholderValue: 'Type to search...',
+            //    noChoicesText: 'Type 3 or more characters...',
+            //    searchResultLimit: -1, // disable local limiting
+            //    shouldSort: false,
+            //    duplicateItemsAllowed: false,
+            //    itemSelectText: '',
+            //    removeItemButton: true,
 
-                // 🚨 disable client-side filtering (server handles search)
-                searchChoices: false,
-                fuseOptions: false,
-                searchFn: () => true
-            });
+            //    // 🚨 disable client-side filtering (server handles search)
+            //    searchChoices: false,
+            //    fuseOptions: false,
+            //    searchFn: () => true
+            //});
 
-            // Fetch data from server
-            async function fetchOptions(search, page = 1, pageSize = 50) {
-                loading = true;
-                try {
-                    const res = await fetch(`/OfficeDayRoster/SearchOrganizations?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
-                    const data = await res.json();
-                    hasMore = data.hasMore;
-                    return data;
-                } catch (error) {
-                    console.error("Error fetching organizations:", error);
-                    return { items: [], hasMore: false };
-                } finally {
-                    loading = false;
-                }
-            }
+            //// Fetch data from server
+            //async function fetchOptions(search, page = 1, pageSize = 50) {
+            //    loading = true;
+            //    try {
+            //        const res = await fetch(`/OfficeDayRoster/SearchOrganizations?search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`);
+            //        const data = await res.json();
+            //        hasMore = data.hasMore;
+            //        return data;
+            //    } catch (error) {
+            //        console.error("Error fetching organizations:", error);
+            //        return { items: [], hasMore: false };
+            //    } finally {
+            //        loading = false;
+            //    }
+            //}
 
-            // Handle debounce on search
-            selectEl.addEventListener('search', function (e) {
-                const searchTerm = e.detail.value;
-                clearTimeout(debounceTimer);
+            //// Handle debounce on search
+            //selectEl.addEventListener('search', function (e) {
+            //    const searchTerm = e.detail.value;
+            //    clearTimeout(debounceTimer);
 
-                if (searchTerm.length < 3) {
-                    choices.clearChoices();
-                    return;
-                }
+            //    if (searchTerm.length < 3) {
+            //        choices.clearChoices();
+            //        return;
+            //    }
 
-                debounceTimer = setTimeout(async () => {
-                    currentPage = 1;
-                    lastSearch = searchTerm;
-                    const data = await fetchOptions(searchTerm, currentPage);
+            //    debounceTimer = setTimeout(async () => {
+            //        currentPage = 1;
+            //        lastSearch = searchTerm;
+            //        const data = await fetchOptions(searchTerm, currentPage);
 
-                    choices.clearChoices();
-                    if (data.items.length > 0) {
-                        // replace with new results
-                        choices.setChoices(data.items, 'value', 'label', true);
-                    }
-                }, 500); // debounce delay
-            });
+            //        choices.clearChoices();
+            //        if (data.items.length > 0) {
+            //            // replace with new results
+            //            choices.setChoices(data.items, 'value', 'label', true);
+            //        }
+            //    }, 500); // debounce delay
+            //});
 
-            // Scroll handler
-            async function handleScroll(e) {
-                const dropdownList = e.target;
-                if (!loading && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
-                    currentPage++;
-                    const data = await fetchOptions(lastSearch, currentPage);
+            //// Scroll handler
+            //async function handleScroll(e) {
+            //    const dropdownList = e.target;
+            //    if (!loading && hasMore && dropdownList.scrollTop + dropdownList.clientHeight >= dropdownList.scrollHeight - 10) {
+            //        currentPage++;
+            //        const data = await fetchOptions(lastSearch, currentPage);
 
-                    if (data.items.length > 0) {
-                        // append results, keep existing
-                        choices.setChoices(data.items, 'value', 'label', false);
-                    }
-                }
-            }
+            //        if (data.items.length > 0) {
+            //            // append results, keep existing
+            //            choices.setChoices(data.items, 'value', 'label', false);
+            //        }
+            //    }
+            //}
 
-            // Reattach scroll listener when dropdown opens
-            choices.passedElement.element.addEventListener('showDropdown', () => {
-                const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
-                if (dropdownList) {
-                    dropdownList.removeEventListener('scroll', handleScroll);
-                    dropdownList.addEventListener('scroll', handleScroll);
-                }
-            });
+            //// Reattach scroll listener when dropdown opens
+            //choices.passedElement.element.addEventListener('showDropdown', () => {
+            //    const dropdownList = document.querySelector('.choices__list--dropdown .choices__list[role="listbox"]');
+            //    if (dropdownList) {
+            //        dropdownList.removeEventListener('scroll', handleScroll);
+            //        dropdownList.addEventListener('scroll', handleScroll);
+            //    }
+            //});
             // #endregion
         });
 
