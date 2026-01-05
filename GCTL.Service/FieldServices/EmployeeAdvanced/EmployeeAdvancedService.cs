@@ -724,6 +724,11 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 throw new Exception("An error occurred while deleting the Add Sub Account.", ex);
             }
         }
+
+        public Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainAccId = null)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }
