@@ -651,6 +651,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[Lead].[LeadActivityComments]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[Lead].[LeadActivityTypes]",
          "ObjectType": 0
       },

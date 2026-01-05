@@ -43,13 +43,13 @@ public partial class LeadDetails
 
     public int? StatusID { get; set; }
 
-    public string Comment { get; set; }
-
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Leads Lead { get; set; }
+
+    public virtual ICollection<LeadActivityComments> LeadActivityComments { get; set; } = new List<LeadActivityComments>();
 
     public virtual LeadActivityTypes LeadActivityType { get; set; }
 

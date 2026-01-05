@@ -55,6 +55,10 @@ public partial class Jobs
 
     public int? Progress { get; set; }
 
+    public int? BranchID { get; set; }
+
+    public virtual CompanyBranches Branch { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Customers Customer { get; set; }
