@@ -227,20 +227,21 @@
                 if (organizationDD) {
                     organizationDD.destroy();
                 }
+                selectSingleOrg();
+                initOrganizationDD();
 
                 if (spiralPatternTypeDD) {
                     spiralPatternTypeDD.destroy();
                 }
+                initSpiralPatternTypeDD();
 
                 if (spiralPatternDD) {
                     spiralPatternDD.destroy();
                 }
+                initSpiralPatternDD();
 
                 resetValidation(['OrganizationID', 'SpiralPatternTypeID', 'SpiralPatternID', 'StartDate', 'EndDate']);
 
-                initOrganizationDD();
-                initSpiralPatternTypeDD();
-                initSpiralPatternDD();
                 toggleBulkActions();
                 $('#assignSpiralPattern-check-all').prop('checked', false).prop('indeterminate', false);
                 loadTableData();
@@ -453,8 +454,22 @@
                     placeholderValue: 'Select Organization...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initOrganizationDD);
             initOrganizationDD();
+
+
+            function selectSingleOrg() {
+                var $select = $('#OrganizationID');
+
+                // Count the number of options excluding the placeholder (empty value)
+                var $realOptions = $select.find('option').filter(function () {
+                    return $(this).val() !== '';
+                });
+
+                if ($realOptions.length === 1) {
+                    $realOptions.prop('selected', true);
+                    $select.trigger('change');
+                }
+            }
 
 
             function initSpiralPatternTypeDD() {
@@ -464,7 +479,6 @@
                     placeholderValue: 'Select Pattern Type...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initSpiralPatternTypeDD);
             initSpiralPatternTypeDD();
 
             
@@ -475,7 +489,6 @@
                     placeholderValue: 'Select Spiral Pattern...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initSpiralPatternDD);
             initSpiralPatternDD();
 
 

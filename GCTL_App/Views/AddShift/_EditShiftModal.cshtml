@@ -32,14 +32,20 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" asp-for="UpdateStartTime">@Html.SmartLocalize("Start Time")</label>
-                                <input class="form-control timepicker-12hr" asp-for="UpdateStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
+                                <div class="position-relative">
+                                    <input class="form-control timepicker-12hr" asp-for="UpdateStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
+                                    <i class="fa-regular fa-clock time-icon"></i>
+                                </div>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" asp-for="UpdateEndTime">@Html.SmartLocalize("End Time")</label>
-                                <input class="form-control timepicker-12hr" asp-for="UpdateEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
+                                <div class="position-relative">
+                                    <input class="form-control timepicker-12hr" asp-for="UpdateEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
+                                    <i class="fa-regular fa-clock time-icon"></i>
+                                </div>
                             </div>
                         </div>
 
@@ -174,14 +180,20 @@
                                     <div class="col-md-3 me-4">
                                         <div class="mb-3">
                                             <label class="form-label" asp-for="UpdateMealBreakStartTime">@Html.SmartLocalize("Start Time")</label>
-                                            <input class="form-control timepicker-12hr" asp-for="UpdateMealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
+                                            <div class="position-relative">
+                                                <input class="form-control timepicker-12hr" asp-for="UpdateMealBreakStartTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
+                                                <i class="fa-regular fa-clock time-icon"></i>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div class="col-md-3">
                                         <div class="">
                                             <label class="form-label" asp-for="UpdateMealBreakEndTime">@Html.SmartLocalize("End Time")</label>
-                                            <input class="form-control timepicker-12hr" asp-for="UpdateMealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
+                                            <div class="position-relative">
+                                                <input class="form-control timepicker-12hr" asp-for="UpdateMealBreakEndTime" type="text" placeholder="@Html.SmartLocalize("hour : minute")">
+                                                <i class="fa-regular fa-clock time-icon"></i>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
