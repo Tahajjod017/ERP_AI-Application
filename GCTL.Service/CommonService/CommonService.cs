@@ -2,7 +2,6 @@
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Data.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Index.HPRtree;
 using QuestPDF.Helpers;
@@ -123,6 +122,27 @@ namespace GCTL.Service.CommonService
         #region For ViewBag / Dropdown
 
         #region GetOrganizations
+        public async Task<List<CommonSelectVM>> GetOrganizations()
+        {
+            try
+            {
+                var result = await _organization.AllActive().AsNoTracking().Select(x => new CommonSelectVM
+                {
+                    Id = x.OrganizationID,
+                    Name = x.OrganizationName ?? "-"
+                }).ToListAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        #endregion
+
+
+        #region GetOrganizations with Pagination
         public async Task<PaginatedResult<CommonSelectVM>> GetOrganizations(string search, int page = 1, int pageSize = 50)
         {
             try

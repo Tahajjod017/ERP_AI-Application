@@ -4,6 +4,19 @@
     ViewData["Title"] = @Html.SmartLocalize("Add Shift");
 }
 
+@section Styles{
+    <style>
+        .time-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            pointer-events: none;
+        }
+    </style>
+}
+
 <partial name="_Form" model="Model.Setup" />
 
 <partial name="_Table" />

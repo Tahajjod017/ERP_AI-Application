@@ -773,6 +773,12 @@ public partial class Employees
 
     public virtual ICollection<Journals> JournalsUpdatedByNavigation { get; set; } = new List<Journals>();
 
+    public virtual ICollection<LeadActivityComments> LeadActivityCommentsCreatedByNavigation { get; set; } = new List<LeadActivityComments>();
+
+    public virtual ICollection<LeadActivityComments> LeadActivityCommentsDeletedByNavigation { get; set; } = new List<LeadActivityComments>();
+
+    public virtual ICollection<LeadActivityComments> LeadActivityCommentsUpdatedByNavigation { get; set; } = new List<LeadActivityComments>();
+
     public virtual ICollection<LeadActivityTypes> LeadActivityTypesCreatedByNavigation { get; set; } = new List<LeadActivityTypes>();
 
     public virtual ICollection<LeadActivityTypes> LeadActivityTypesDeletedByNavigation { get; set; } = new List<LeadActivityTypes>();

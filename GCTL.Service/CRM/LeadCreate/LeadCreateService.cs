@@ -608,8 +608,7 @@ namespace GCTL.Service.CRM.LeadCreate
         #endregion
 
         #region GetContactPersonEmailAsync
-        public async Task<ReturnDataView<CommonSelectVM>> GetContactPersonEmailAsync(
-    int leadId, string search, int page, int pageSize, int organizationID)
+        public async Task<ReturnDataView<CommonSelectVM>> GetContactPersonEmailAsync(  int leadId, string search, int page, int pageSize, int organizationID)
         {
             try
             {
@@ -714,11 +713,6 @@ namespace GCTL.Service.CRM.LeadCreate
                 };
             }
         }
-
-
-
-
-
         #endregion
 
         #region Capitalize function

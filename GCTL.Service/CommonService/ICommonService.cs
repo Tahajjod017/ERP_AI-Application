@@ -12,6 +12,8 @@ namespace GCTL.Service.CommonService
     public interface ICommonService
     {
         #region Load All
+        Task<List<CommonSelectVM>> GetOrganizations();
+
         Task<List<CommonSelectVM>> GetBranches();
 
         Task<List<CommonSelectVM>> GetDepartments();

@@ -122,30 +122,31 @@
                 if (organizationDD) {
                     organizationDD.destroy();
                 }
+                selectSingleOrg();
+                initOrganizationDD();
 
                 if (shiftDD) {
                     shiftDD.destroy();
                 }
+                initShiftDD();
 
                 if (compensationDD) {
                     compensationDD.destroy();
                 }
+                initCompensationDD();
 
                 ['OrganizationID', 'DayDate', 'ShiftID', 'CompensationTypeID'].forEach(function (fieldId) {
                     $('#' + fieldId).removeClass('is-valid is-invalid');
                     $('#' + fieldId + 'Error').hide().text('');
                     $('#' + fieldId).val('');
                 });
-                dayDatePicker.clear();
-                exchangeDatePicker.clear();
+                //dayDatePicker.clear();
+                //exchangeDatePicker.clear();
                 $('#DayDate').prop('disabled', true);
                 flatpickr("#DayDate").destroy();
 
                 $('#ExchangeDateDiv').addClass('d-none');
 
-                initOrganizationDD();
-                initShiftDD();
-                initCompensationDD();
                 toggleCompensationSelect();
             }
             // #endregion
@@ -158,9 +159,24 @@
                     shouldSort: false,
                     placeholderValue: 'Select Organization...'
                 });
+                selectSingleOrg();
             }
-            document.addEventListener('DOMContentLoaded', initOrganizationDD);
-            initOrganizationDD();
+            function selectSingleOrg() {
+                var $select = $('#OrganizationID');
+
+                // Count the number of options excluding the placeholder (empty value)
+                var $realOptions = $select.find('option').filter(function () {
+                    return $(this).val() != '';
+                });
+
+                if ($realOptions.length == 1) {
+                    $realOptions.prop('selected', true);
+                    $select.trigger('change');
+                }
+            }
+            $(document).ready(function () {
+                initOrganizationDD();
+            });
 
 
             function initShiftDD() {
@@ -170,7 +186,6 @@
                     placeholderValue: 'Select Shift...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initShiftDD);
             initShiftDD();
 
 
@@ -181,7 +196,6 @@
                     placeholderValue: 'Select Compensation...'
                 });
             }
-            document.addEventListener('DOMContentLoaded', initCompensationDD);
             initCompensationDD();
             // #endregion
 
