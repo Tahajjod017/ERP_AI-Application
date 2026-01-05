@@ -1,23 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GCTL.Core.Helpers;
 using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
 using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.FieldServices;
-using GCTL.Core.ViewModels.Finance.AddSubAccountVM;
 using GCTL.Data.Models;
 using GCTL.Service.ActionLogAudit;
 using GCTL.Service.Pagination;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using NetTopologySuite.Precision;
 using Newtonsoft.Json;
 
 namespace GCTL.Service.FieldServices.EmployeeAdvanced
@@ -34,7 +25,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         public readonly IGenericRepository<GroupEmployee> _groupEmployeeRepository;
         private readonly IUserInfoService _userInfoService;
 
-        //
+        // 
         private readonly IGenericRepository<Organization> _organizationRepository;
         private readonly IGenericRepository<Departments> _departmentRepository;
         private readonly IGenericRepository<ApprovalSettings> approvalSettingsRepository;
@@ -42,7 +33,7 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
         private readonly AppDbContext appDb;
         private readonly IGenericRepository<EmployeeOfficeInfo> empoffi;
         private readonly IGenericRepository<ApprovalDesignation> approvaldesignation;
-        //
+        // 
 
         public EmployeeAdvancedService(IGenericRepository<EmployeeAdvances> genericRepository, IGenericRepository<Data.Models.Employees> employees, IGenericRepository<JobTypes> jobtyperepository, IGenericRepository<EmployeeAdvanceFor> employeeAdvanceForRepository, IGenericRepository<Customers> customer, IGenericRepository<Jobs> job, IGenericRepository<GroupEmployee> groupEmployeeRepository, IUserInfoService userInfoService, IGenericRepository<Organization> organizationRepository, IGenericRepository<Departments> departmentRepository, IGenericRepository<ApprovalSettings> approvalSettingsRepository, IGenericRepository<ApprovalTypes> approvalTypesRepository, AppDbContext appDb, IGenericRepository<EmployeeOfficeInfo> empoffi, IGenericRepository<ApprovalDesignation> approvaldesignation) : base(genericRepository)
         {
@@ -723,6 +714,11 @@ namespace GCTL.Service.FieldServices.EmployeeAdvanced
                 await _genericRepository.RollbackTransactionAsync();
                 throw new Exception("An error occurred while deleting the Add Sub Account.", ex);
             }
+        }
+
+        public Task<PaginationService<EmployeeAdvances, EmployeeAdvancedVM>.PaginationResult<EmployeeAdvancedVM>> GetAllAsync(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainAccId = null)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

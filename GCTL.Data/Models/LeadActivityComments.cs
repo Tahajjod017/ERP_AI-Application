@@ -5,11 +5,13 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class CompanyBranches
+public partial class LeadActivityComments
 {
-    public int BranchID { get; set; }
+    public int LeadActivityCommentID { get; set; }
 
-    public string BranchName { get; set; }
+    public int LeadDetailID { get; set; }
+
+    public string Comment { get; set; }
 
     public string LIP { get; set; }
 
@@ -27,23 +29,11 @@ public partial class CompanyBranches
 
     public int? DeletedBy { get; set; }
 
-    public int? CustomerID { get; set; }
-
-    public int? OrganizationTypeID { get; set; }
-
-    public virtual ICollection<CompanyBranchAddresses> CompanyBranchAddresses { get; set; } = new List<CompanyBranchAddresses>();
-
     public virtual Employees CreatedByNavigation { get; set; }
-
-    public virtual Customers Customer { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<Jobs> Jobs { get; set; } = new List<Jobs>();
-
-    public virtual ICollection<Leads> Leads { get; set; } = new List<Leads>();
-
-    public virtual OrganizationTypes OrganizationType { get; set; }
+    public virtual LeadDetails LeadDetail { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

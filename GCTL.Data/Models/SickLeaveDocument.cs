@@ -15,7 +15,7 @@ public partial class SickLeaveDocument
 
     public DateTime CreatedAt { get; set; }
 
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public virtual LeaveApplications LeaveApplication { get; set; }
 }
