@@ -241,6 +241,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<LanguageMainTables> LanguageMainTables { get; set; }
 
+    public virtual DbSet<LeadActivityComments> LeadActivityComments { get; set; }
+
     public virtual DbSet<LeadActivityTypes> LeadActivityTypes { get; set; }
 
     public virtual DbSet<LeadDetails> LeadDetails { get; set; }
@@ -492,7 +494,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<ActionLogs>(entity =>
         {
             entity.HasKey(e => e.ActionLogID).HasName("PK__ActionLo__428D61A216155AEE");
@@ -826,6 +827,7 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .HasForeignKey(r => r.TenantInfoId)
         .IsRequired(false)
         .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
+
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -4367,6 +4369,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.StartDateTime).HasColumnType("datetime");
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
+            entity.HasOne(d => d.Branch).WithMany(p => p.Jobs)
+                .HasForeignKey(d => d.BranchID)
+                .HasConstraintName("FK__Jobs__BranchID__6E022284");
+
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.JobsCreatedByNavigation)
                 .HasForeignKey(d => d.CreatedBy)
                 .HasConstraintName("FK__Jobs__CreatedBy__1FA39FB9");
@@ -4610,6 +4616,41 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.TextCode).IsRequired();
         });
 
+        modelBuilder.Entity<LeadActivityComments>(entity =>
+        {
+            entity.HasKey(e => e.LeadActivityCommentID).HasName("PK__LeadActi__270AF56CA572F6E4");
+
+            entity.ToTable("LeadActivityComments", "Lead");
+
+            entity.Property(e => e.Comment)
+                .IsRequired()
+                .HasMaxLength(255);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadActivityCommentsCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__LeadActiv__Creat__6A3191A0");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeadActivityCommentsDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__LeadActiv__Delet__6D0DFE4B");
+
+            entity.HasOne(d => d.LeadDetail).WithMany(p => p.LeadActivityComments)
+                .HasForeignKey(d => d.LeadDetailID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__LeadActiv__LeadD__693D6D67");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeadActivityCommentsUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__LeadActiv__Updat__6B25B5D9");
+        });
+
         modelBuilder.Entity<LeadActivityTypes>(entity =>
         {
             entity.HasKey(e => e.LeadActivityTypeID).HasName("PK__LeadActi__128CE8DC82DBD3D2");
@@ -4651,7 +4692,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.ToTable("LeadDetails", "Lead");
 
             entity.Property(e => e.ActivityDateTime).HasColumnType("datetime");
-            entity.Property(e => e.Comment).HasMaxLength(255);
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
