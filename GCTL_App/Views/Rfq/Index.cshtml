@@ -1,0 +1,927 @@
+﻿@using GCTL.Core.ViewModels.POS.Purchase.Rfq
+@model RfqViewModel
+@{
+    ViewData["Title"] = Html.SmartLocalize("Request for Quotation");
+}
+
+<style>
+    .rfq-container {
+        background: #f8f9fa;
+        min-height: calc(100vh - 120px);
+        padding: 20px;
+    }
+
+    .status-bar {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin: 20px 0;
+    }
+
+    .status-btn {
+        padding: 6px 20px;
+        border: 1px solid #dee2e6;
+        background: #fff;
+        color: #666;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+        .status-btn.active {
+            background: #875a7b;
+            color: white;
+            border-color: #875a7b;
+        }
+
+    .form-card {
+        background: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    .form-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .star {
+        color: #f0ad4e;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px 30px;
+        margin-bottom: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+        .form-group label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 500;
+            display: block;
+        }
+
+        .form-group.with-icon {
+            position: relative;
+        }
+
+            .form-group.with-icon .search-icon {
+                position: absolute;
+                right: 10px;
+                top: 32px;
+                color: #875a7b;
+                cursor: pointer;
+                background: none;
+                border: none;
+                padding: 5px;
+            }
+
+    .tabs {
+        display: flex;
+        gap: 5px;
+        border-bottom: 2px solid #e9ecef;
+        margin: 25px 0;
+    }
+
+    .tab {
+        padding: 10px 25px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+    }
+
+        .tab:hover {
+            color: #333;
+        }
+
+        .tab.active {
+            color: #875a7b;
+            border-bottom-color: #875a7b;
+            font-weight: 500;
+        }
+
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background: white;
+    }
+
+        .product-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 13px;
+            color: #666;
+            border-bottom: 2px solid #dee2e6;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .product-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        .product-table tr:hover {
+            background: #f8f9fa;
+        }
+
+    .drag-handle {
+        cursor: move;
+        color: #999;
+        text-align: center;
+        width: 30px;
+    }
+
+    .add-line-btns {
+        display: flex;
+        gap: 20px;
+        margin: 20px 0;
+        padding-left: 10px;
+    }
+
+    .add-line-btn {
+        color: #875a7b;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        padding: 8px 0;
+    }
+
+        .add-line-btn:hover {
+            text-decoration: underline;
+        }
+
+    .totals-section {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .totals {
+        min-width: 300px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        font-size: 14px;
+    }
+
+    .grand-total {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+        border-top: 2px solid #dee2e6;
+        padding-top: 12px;
+        margin-top: 8px;
+    }
+
+    .alternative-rfq-section {
+        margin-top: 30px;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+    }
+
+    .alternative-rfq-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .rfq-item {
+        background: white;
+        padding: 15px 20px;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .rfq-item-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .icon-btn {
+        background: none;
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+        cursor: pointer;
+        color: #666;
+        padding: 5px 10px;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+        .icon-btn:hover {
+            background: #f8f9fa;
+            color: #333;
+        }
+
+    .comparison-btn {
+        background: #875a7b;
+        color: white;
+        padding: 10px 25px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 13px;
+        margin-top: 20px;
+        display: block;
+        margin-left: auto;
+    }
+
+        .comparison-btn:hover {
+            background: #6e4d63;
+        }
+
+    /* Modal Styles matching your project */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+    .modal {
+        background: white;
+        border-radius: 6px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+        width: 90%;
+        max-width: 800px;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+
+    .modal-large {
+        max-width: 1200px;
+    }
+
+    .modal-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8f9fa;
+        border-radius: 6px 6px 0 0;
+    }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+            margin: 0;
+        }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #666;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        line-height: 1;
+    }
+
+    .modal-body {
+        padding: 25px;
+    }
+
+    .modal-footer {
+        padding: 20px 25px;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        background: #f8f9fa;
+        border-radius: 0 0 6px 6px;
+    }
+
+    /* Email Modal Specific */
+    .email-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .email-form textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ced4da;
+        border-radius: 3px;
+        font-size: 14px;
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .attachments {
+        margin-top: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 3px;
+        border: 1px dashed #ced4da;
+    }
+
+    /* Comparison Table */
+    .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+        .comparison-table th {
+            background: #875a7b;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+            border-right: 1px solid #6e4d63;
+        }
+
+            .comparison-table th:first-child {
+                text-align: left;
+                background: #f8f9fa;
+                color: #333;
+                border-right: 1px solid #dee2e6;
+            }
+
+        .comparison-table td {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+            .comparison-table td:first-child {
+                text-align: left;
+                font-weight: 500;
+                background: #f8f9fa;
+            }
+
+    .offer-cell {
+        padding: 15px;
+        text-align: center;
+    }
+
+    .offer-price {
+        font-size: 16px;
+        font-weight: bold;
+        color: #00a09d;
+        margin-bottom: 5px;
+    }
+
+    .offer-details {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .best-offer {
+        background: #f0fff0 !important;
+        border: 2px solid #28a745 !important;
+    }
+</style>
+
+<div class="rfq-container">
+    <form asp-action="Save" method="post" id="rfqForm">
+        <input asp-for="Id" type="hidden" />
+
+        <!-- Action Buttons -->
+        <div class="action-bar mb-4">
+            <button type="button" class="btn btn-phoenix-primary" onclick="saveRFQ()">
+                <i class="fas fa-save me-2"></i>SAVE
+            </button>
+            <button type="button" class="btn btn-phoenix-secondary" onclick="discardRFQ()">
+                DISCARD
+            </button>
+            <button type="button" class="btn btn-phoenix-warning" id="sendEmailBtn">
+                <i class="fas fa-envelope me-2"></i>SEND BY EMAIL
+            </button>
+            <button type="button" class="btn btn-phoenix-info" onclick="printRFQ()">
+                <i class="fas fa-print me-2"></i>PRINT RFQ
+            </button>
+            <button type="button" class="btn btn-phoenix-success" onclick="confirmOrder()">
+                <i class="fas fa-check-circle me-2"></i>CONFIRM ORDER
+            </button>
+            <button type="button" class="btn btn-phoenix-danger" onclick="cancelRFQ()">
+                <i class="fas fa-times-circle me-2"></i>CANCEL
+            </button>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <button type="button" class="status-btn @(Model.Status == "RFQ" ? "active" : "")" onclick="changeStatus('RFQ')">RFQ</button>
+            <button type="button" class="status-btn @(Model.Status == "RFQ_SENT" ? "active" : "")" onclick="changeStatus('RFQ_SENT')">RFQ SENT</button>
+            <button type="button" class="status-btn @(Model.Status == "PURCHASE_ORDER" ? "active" : "")" onclick="changeStatus('PURCHASE_ORDER')">PURCHASE ORDER</button>
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+            <div class="form-header">
+                <span class="star" onclick="toggleStar()">☆</span>
+                <h2>@Html.SmartLocalize("New Request for Quotation")</h2>
+            </div>
+
+            <!-- Form Fields -->
+            <div class="form-grid">
+                <!-- Vendor Selection -->
+                <div class="form-group with-icon">
+                    <label>@Html.SmartLocalize("Vendor")</label>
+                    <select asp-for="SelectedVendorId"
+                            asp-items="ViewBag.Vendors as SelectList"
+                            class="form-select searchableSelect"
+                            onchange="onVendorChange()">
+                        <option value="">@Html.SmartLocalize("-- Select Vendor --")</option>
+                    </select>
+                    <button type="button" class="search-icon" onclick="openVendorSearchModal()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <!-- Order Deadline -->
+                <div class="form-group">
+                    <label>@Html.SmartLocalize("Order Deadline")</label>
+                    <input asp-for="OrderDeadline" type="datetime-local" class="form-control" />
+                </div>
+
+                <!-- Vendor Reference -->
+                <div class="form-group">
+                    <label>@Html.SmartLocalize("Vendor Reference")</label>
+                    <input asp-for="VendorReference" class="form-control" placeholder="Vendor's reference number" />
+                </div>
+
+                <!-- Expected Arrival -->
+                <div class="form-group">
+                    <label>@Html.SmartLocalize("Expected Arrival")</label>
+                    <input asp-for="ExpectedArrival" type="datetime-local" class="form-control" />
+                </div>
+
+                <!-- Purchase Agreement -->
+                <div class="form-group">
+                    <label>@Html.SmartLocalize("Purchase Agreement")</label>
+                    <select asp-for="PurchaseAgreement"
+                            asp-items="ViewBag.PurchaseAgreements as SelectList"
+                            class="form-select">
+                        <option value="">@Html.SmartLocalize("-- Select --")</option>
+                    </select>
+                </div>
+
+                <!-- Ask Confirmation -->
+                <div class="form-group">
+                    <div class="form-check">
+                        <input asp-for="AskConfirmation" class="form-check-input" type="checkbox" />
+                        <label class="form-check-label" for="AskConfirmation">
+                            @Html.SmartLocalize("Ask confirmation 1 day(s) before")
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Currency -->
+                <div class="form-group with-icon">
+                    <label>@Html.SmartLocalize("Currency")</label>
+                    <select asp-for="Currency" class="form-select">
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                        <option value="BDT">BDT</option>
+                    </select>
+                    <button type="button" class="search-icon" onclick="openCurrencySearchModal()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <!-- RFQ Number & Date -->
+                <div class="form-group">
+                    <label>@Html.SmartLocalize("RFQ Number")</label>
+                    <input asp-for="RfqNumber" class="form-control" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>@Html.SmartLocalize("RFQ Date")</label>
+                    <input asp-for="RfqDate" type="datetime-local" class="form-control" />
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button type="button" class="tab active" onclick="showTab('products')">@Html.SmartLocalize("Products")</button>
+                <button type="button" class="tab" onclick="showTab('alternatives')">@Html.SmartLocalize("Alternatives")</button>
+            </div>
+
+            <!-- Products Tab -->
+            <div id="products-tab" class="tab-content" style="display: block;">
+                <!-- Products Table -->
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%"></th>
+                            <th style="width: 25%">@Html.SmartLocalize("Product")</th>
+                            <th style="width: 25%">@Html.SmartLocalize("Description")</th>
+                            <th style="width: 10%">@Html.SmartLocalize("Quantity")</th>
+                            <th style="width: 10%">@Html.SmartLocalize("UoM")</th>
+                            <th style="width: 12%">@Html.SmartLocalize("Unit Price")</th>
+                            <th style="width: 10%">@Html.SmartLocalize("Taxes")</th>
+                            <th style="width: 12%">@Html.SmartLocalize("Subtotal")</th>
+                            <th style="width: 3%"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                        @for (int i = 0; i < Model.Items.Count; i++)
+                        {
+                            var item = Model.Items[i];
+                            <tr class="item-row" draggable="true">
+                                <td class="drag-handle">
+                                    <i class="fas fa-grip-vertical"></i>
+                                </td>
+                                <td>
+                                    @if (!item.IsSection && !item.IsNote)
+                                    {
+                                        <input type="hidden" name="Items[@i].ProductId" value="@item.ProductId" />
+                                        <div class="product-name-display">@item.ProductName</div>
+                                    }
+                                    else if (item.IsSection)
+                                    {
+                                        <input type="text" name="Items[@i].SectionTitle" class="form-control" value="@item.SectionTitle" placeholder="Section title..." />
+                                    }
+                                </td>
+                                <td>
+                                    @if (!item.IsSection && !item.IsNote)
+                                    {
+                                        <input type="text" name="Items[@i].Description" class="form-control" value="@item.Description" />
+                                    }
+                                    else if (item.IsNote)
+                                    {
+                                        <textarea name="Items[@i].NoteText" class="form-control" rows="2" placeholder="Note...">@item.NoteText</textarea>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!item.IsSection && !item.IsNote)
+                                    {
+                                        <input type="number" name="Items[@i].Quantity" class="form-control text-center calc quantity" value="@item.Quantity" step="0.01" />
+                                    }
+                                </td>
+                                <td>
+                                    @if (!item.IsSection && !item.IsNote)
+                                    {
+                                        <select name="Items[@i].Uom" class="form-select">
+                                            <option value="Units" selected="@(item.Uom == "Units")">Units</option>
+                                            <option value="kg" selected="@(item.Uom == "kg")">kg</option>
+                                            <option value="Dozens" selected="@(item.Uom == "Dozens")">Dozens</option>
+                                            <option value="Hours" selected="@(item.Uom == "Hours")">Hours</option>
+                                        </select>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!item.IsSection && !item.IsNote)
+                                    {
+                                        <input type="number" name="Items[@i].UnitPrice" class="form-control text-end calc unit-price" value="@item.UnitPrice" step="0.01" />
+                                    }
+                                </td>
+                                <td>
+                                    @if (!item.IsSection && !item.IsNote)
+                                    {
+                                        <select name="Items[@i].TaxRate" class="form-select calc tax-select">
+                                            <option value="0.15" selected="@(item.TaxRate == 0.15m)">Purchase Tax 15%</option>
+                                            <option value="0" selected="@(item.TaxRate == 0)">No Tax</option>
+                                        </select>
+                                    }
+                                </td>
+                                <td class="text-end subtotal">
+                                    @if (!item.IsSection && !item.IsNote)
+                                    {
+                                        <span>@item.Subtotal.ToString("C2")</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteRow(this)">
+                                        <i class="far fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Add Line Buttons -->
+                <div class="add-line-btns">
+                    <button type="button" class="add-line-btn" onclick="addProductLine()">
+                        <i class="fas fa-plus-circle me-2"></i>@Html.SmartLocalize("Add a product")
+                    </button>
+                    <button type="button" class="add-line-btn" onclick="addSection()">
+                        <i class="fas fa-minus me-2"></i>@Html.SmartLocalize("Add a section")
+                    </button>
+                    <button type="button" class="add-line-btn" onclick="addNote()">
+                        <i class="fas fa-sticky-note me-2"></i>@Html.SmartLocalize("Add a note")
+                    </button>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="terms-section mt-4">
+                    <label>@Html.SmartLocalize("Terms and Conditions")</label>
+                    <textarea asp-for="TermsAndConditions" class="form-control" rows="4" placeholder="Define your terms and conditions..."></textarea>
+                </div>
+
+                <!-- Totals -->
+                <div class="totals-section">
+                    <div class="totals">
+                        <div class="total-row">
+                            <span>@Html.SmartLocalize("Untaxed Amount"):</span>
+                            <span id="untaxedAmount">@Model.UntaxedAmount.ToString("C2")</span>
+                        </div>
+                        <div class="total-row">
+                            <span>@Html.SmartLocalize("Tax"):</span>
+                            <span id="taxAmount">@Model.TaxAmount.ToString("C2")</span>
+                        </div>
+                        <div class="total-row grand-total">
+                            <span>@Html.SmartLocalize("Total"):</span>
+                            <span id="grandTotal">@Model.TotalAmount.ToString("C2")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alternatives Tab -->
+            <div id="alternatives-tab" class="tab-content" style="display: none;">
+                <div class="alternative-rfq-section">
+                    <div class="alternative-rfq-header">
+                        <h3>@Html.SmartLocalize("Alternative Requests for Quotation")</h3>
+                        <button type="button" class="btn btn-phoenix-primary" id="createAlternativeBtn">
+                            <i class="fas fa-plus me-2"></i>@Html.SmartLocalize("Create Alternative")
+                        </button>
+                    </div>
+
+                    <div class="alternative-rfq-list" id="alternativeRFQList">
+                        @foreach (var alt in Model.AlternativeRfqs)
+                        {
+                            <div class="rfq-item" data-id="@alt.Id">
+                                <div class="rfq-item-info">
+                                    <h4>@alt.Reference - @alt.VendorName</h4>
+                                    <p>Date: @alt.Date.ToString("dd MMM yyyy") | Total: @alt.TotalAmount.ToString("C2") | Status: @alt.Status</p>
+                                </div>
+                                <div class="rfq-item-actions">
+                                    <button type="button" class="icon-btn" onclick="viewAlternativeRfq(@alt.Id)" title="View">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button type="button" class="icon-btn" onclick="editAlternativeRfq(@alt.Id)" title="Edit">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button type="button" class="icon-btn" onclick="deleteAlternativeRfq(@alt.Id)" title="Delete">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <button type="button" class="comparison-btn" id="compareBtn" onclick="openComparisonView()">
+                        <i class="fas fa-balance-scale me-2"></i>@Html.SmartLocalize("Compare Product Lines")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Create Alternative RFQ Modal -->
+<div class="modal-overlay" id="createAlternativeModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>@Html.SmartLocalize("Create Alternative RFQ")</h3>
+            <button type="button" class="modal-close" onclick="closeCreateAlternativeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>@Html.SmartLocalize("Select Vendor")</label>
+                <select id="alternativeVendor" class="form-select" asp-items="ViewBag.Vendors as SelectList">
+                    
+                        <option value="">select</option>
+                    
+                </select>
+            </div>
+            <div class="form-group">
+                <label>@Html.SmartLocalize("Alternative Reference")</label>
+                <input type="text" id="alternativeReference" class="form-control" value="ALT001" readonly />
+            </div>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                @Html.SmartLocalize("This alternative RFQ will contain all products from the main RFQ. You can edit prices and quantities after creation.")
+            </div>
+            <div class="product-preview">
+                <h5>@Html.SmartLocalize("Products to include:")</h5>
+                <ul id="productPreviewList">
+                    <!-- Products will be populated by JavaScript -->
+                </ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-phoenix-secondary" onclick="closeCreateAlternativeModal()">@Html.SmartLocalize("Cancel")</button>
+            <button type="button" class="btn btn-phoenix-primary" onclick="createAlternativeRfq()">@Html.SmartLocalize("Create Alternative RFQ")</button>
+        </div>
+    </div>
+</div>
+
+<!-- View Alternative RFQ Modal -->
+<div class="modal-overlay" id="viewAlternativeModal">
+    <div class="modal modal-large">
+        <div class="modal-header">
+            <h3>@Html.SmartLocalize("View Alternative RFQ") - <span id="viewAltReference"></span></h3>
+            <button type="button" class="modal-close" onclick="closeViewAlternativeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>@Html.SmartLocalize("Vendor"):</strong> <span id="viewAltVendor"></span></p>
+                    <p><strong>@Html.SmartLocalize("Date"):</strong> <span id="viewAltDate"></span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>@Html.SmartLocalize("Status"):</strong> <span id="viewAltStatus"></span></p>
+                    <p><strong>@Html.SmartLocalize("Total Amount"):</strong> <span id="viewAltTotal"></span></p>
+                </div>
+            </div>
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>@Html.SmartLocalize("Product")</th>
+                        <th>@Html.SmartLocalize("Quantity")</th>
+                        <th>@Html.SmartLocalize("Unit Price")</th>
+                        <th>@Html.SmartLocalize("Tax")</th>
+                        <th>@Html.SmartLocalize("Subtotal")</th>
+                    </tr>
+                </thead>
+                <tbody id="viewAltProductsTable">
+                    <!-- Products will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-phoenix-secondary" onclick="closeViewAlternativeModal()">@Html.SmartLocalize("Close")</button>
+            <button type="button" class="btn btn-phoenix-primary" onclick="useThisAlternative()">@Html.SmartLocalize("Use This Alternative")</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Alternative RFQ Modal -->
+<div class="modal-overlay" id="editAlternativeModal">
+    <div class="modal modal-large">
+        <div class="modal-header">
+            <h3>@Html.SmartLocalize("Edit Alternative RFQ") - <span id="editAltReference"></span></h3>
+            <button type="button" class="modal-close" onclick="closeEditAlternativeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group mb-3">
+                <label>@Html.SmartLocalize("Vendor")</label>
+               @*   <select id="editAltVendor" class="form-select">
+                     @foreach (var vendor in ViewBag.Vendors as SelectList)
+                     {
+                         <option value="@vendor.Value">@vendor.Text</option>
+                     }
+                 </select> *@
+
+                <select id="editAltVendor" class="form-select" asp-items="ViewBag.Vendors as SelectList">
+
+                    <option value="">select</option>
+
+                </select>
+
+            </div>
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>@Html.SmartLocalize("Product")</th>
+                        <th>@Html.SmartLocalize("Quantity")</th>
+                        <th>@Html.SmartLocalize("Unit Price")</th>
+                        <th>@Html.SmartLocalize("Tax")</th>
+                        <th>@Html.SmartLocalize("Subtotal")</th>
+                        <th>@Html.SmartLocalize("Actions")</th>
+                    </tr>
+                </thead>
+                <tbody id="editAltProductsTable">
+                    <!-- Products will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-phoenix-secondary" onclick="closeEditAlternativeModal()">@Html.SmartLocalize("Cancel")</button>
+            <button type="button" class="btn btn-phoenix-primary" onclick="saveAlternativeRfq()">@Html.SmartLocalize("Save Changes")</button>
+        </div>
+    </div>
+</div>
+
+<!-- Comparison View Modal -->
+<div class="modal-overlay" id="comparisonModal">
+    <div class="modal modal-large">
+        <div class="modal-header">
+            <h3>@Html.SmartLocalize("Compare Product Lines - Alternative RFQs")</h3>
+            <button type="button" class="modal-close" onclick="closeComparisonModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="comparisonTableContainer">
+                <!-- Comparison table will be generated here -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-phoenix-secondary" onclick="closeComparisonModal()">@Html.SmartLocalize("Close")</button>
+            <button type="button" class="btn btn-phoenix-primary" onclick="selectBestOffers()">@Html.SmartLocalize("Select Best Offers")</button>
+        </div>
+    </div>
+</div>
+
+<!-- Email Modal -->
+<div class="modal-overlay" id="emailModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>@Html.SmartLocalize("Compose Email")</h3>
+            <button type="button" class="modal-close" onclick="closeEmailModal()">×</button>
+        </div>
+        <div class="modal-body email-form">
+            <div class="form-group">
+                <label>@Html.SmartLocalize("Recipients")</label>
+                <select id="emailRecipients" class="form-select">
+                    <option>@Html.SmartLocalize("Vendor")</option>
+                    <option>@Html.SmartLocalize("Multiple Recipients")</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>@Html.SmartLocalize("Subject")</label>
+                <input type="text" id="emailSubject" class="form-control" value="Request for Quotation (Ref: @Model.RfqNumber)" />
+            </div>
+            <div class="form-group">
+                <label>@Html.SmartLocalize("Message")</label>
+                <textarea id="emailBody" class="form-control" rows="8">
+Dear Vendor,
+
+Here is in attachment a request for quotation @Model.RfqNumber from our company.
+
+Please provide your best quotation for the items listed below. We expect your response by @Model.OrderDeadline.ToString("dd MMM yyyy").
+
+If you have any questions, please do not hesitate to contact us.
+
+Best regards,
+My Company
+                </textarea>
+            </div>
+            <div class="attachments">
+                <i class="fas fa-paperclip me-2"></i>
+                <span>RFQ_@(Model.RfqNumber).pdf</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-phoenix-primary" id="sendEmail">@Html.SmartLocalize("SEND EMAIL")</button>
+            <button type="button" class="btn btn-phoenix-secondary" onclick="closeEmailModal()">@Html.SmartLocalize("CANCEL")</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+   
+    
+    <script src="~/js/pages/pos/rfq/rfq.js"></script>
+    <script>
+        
+    </script>
+}
