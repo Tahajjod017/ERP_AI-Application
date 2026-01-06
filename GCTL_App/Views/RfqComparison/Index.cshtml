@@ -1,0 +1,465 @@
+﻿<style>
+    /* Minimal custom CSS */
+    .lowest-price {
+        background-color: #d4edda !important;
+        color: #155724 !important;
+    }
+
+    .comparison-container {
+        display: flex;
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .fixed-column {
+        position: sticky;
+        left: 0;
+        background: white;
+        z-index: 10;
+        box-shadow: 3px 0 5px rgba(0,0,0,0.1);
+        width: 250px;
+        flex-shrink: 0;
+    }
+
+    .vendor-column {
+        width: 450px;
+        flex-shrink: 0;
+    }
+
+    .vendor-table {
+        height: 100%;
+    }
+
+    .item-code-section {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        position: sticky;
+        top: 0;
+    }
+
+    .negotiate-column {
+        background-color: #fff3cd !important;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    /* Ensure all tables have same row height */
+    .fixed-column .table tbody tr,
+    .vendor-column .card .table tbody tr {
+        height: 60px;
+    }
+
+    .fixed-column .table td,
+    .vendor-column .card .table td {
+        vertical-align: middle;
+        padding: 12px 8px;
+    }
+
+    .fixed-column .table th,
+    .vendor-column .card .table th {
+        vertical-align: middle;
+        padding: 12px 8px;
+    }
+</style>
+
+    <div class="container-fluid mt-3">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3">Total Vendors: 4</h1>
+            <button id="negotiateBtn" class="btn btn-warning">
+                <i class="bi bi-currency-exchange"></i> Negotiate
+            </button>
+        </div>
+
+        <!-- Item Codes Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="item-code-section">
+                    <h5 class="mb-3">Item Codes</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-primary p-2">E-COM07</span>
+                        <span class="badge bg-primary p-2">E-COM08</span>
+                        <span class="badge bg-primary p-2">E-COM09</span>
+                        <span class="badge bg-primary p-2">E-COM12</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Table Container -->
+        <div class="comparison-container">
+            <!-- Fixed Left Column -->
+            <div class="fixed-column">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                        <th colspan="2" class="text-center bg-light" style=" padding: 35px;">Items</th>
+                        </tr>
+                        <tr>
+                            <th style="width: 50%; padding: 20px;">Item Code</th>
+                            <th style="width: 50%;">Item Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>E-COM07</td>
+                            <td>Large Cabinet</td>
+                        </tr>
+                        <tr>
+                            <td>E-COM08</td>
+                            <td>Storage Box</td>
+                        </tr>
+                        <tr>
+                            <td>E-COM09</td>
+                            <td>Large Desk</td>
+                        </tr>
+                        <tr>
+                            <td>E-COM12</td>
+                            <td>Conference Chair (Steel)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Scrollable Vendor Columns -->
+            <!-- Gemini Furniture -->
+            <div class="vendor-column">
+                <div class="card vendor-table">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Gemini Furniture</h6>
+                        <small class="text-muted">P00022</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Price</th>
+                                    <th style="width: 15%;">Qty</th>
+                                    <th style="width: 25%;">Total</th>
+                                    <th class="negotiate-column d-none" style="width: 17.5%;">Nego Price</th>
+                                    <th class="negotiate-column d-none" style="width: 17.5%;">Nego Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="lowest-price">
+                                    <td>$800.00</td>
+                                    <td>10</td>
+                                    <td>$8000.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="800.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="8000.00" readonly>
+                                    </td>
+                                </tr>
+                                <tr class="lowest-price">
+                                    <td>$13.00</td>
+                                    <td>5</td>
+                                    <td>$65.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="13.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="65.00" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>$1399.00</td>
+                                    <td>2</td>
+                                    <td>$2798.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="1399.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="2798.00" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>$28.00</td>
+                                    <td>10</td>
+                                    <td>$280.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="28.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="280.00" readonly>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div><strong>Sub-Total:</strong> $11143.00</div>
+                        <div><strong>Taxes:</strong> $1206.50</div>
+                        <div class="fw-bold">Total: $12349.50</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deco Added -->
+            <div class="vendor-column">
+                <div class="card vendor-table">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Deco Added</h6>
+                        <small class="text-muted">P00021</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Price</th>
+                                    <th style="width: 15%;">Qty</th>
+                                    <th style="width: 25%;">Total</th>
+                                    <th class="negotiate-column d-none" style="width: 17.5%;">Nego Price</th>
+                                    <th class="negotiate-column d-none" style="width: 17.5%;">Nego Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>$850.00</td>
+                                    <td>10</td>
+                                    <td>$8500.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="850.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="8500.00" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>$15.00</td>
+                                    <td>5</td>
+                                    <td>$75.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="15.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="75.00" readonly>
+                                    </td>
+                                </tr>
+                                <tr class="lowest-price">
+                                    <td>$1350.00</td>
+                                    <td>2</td>
+                                    <td>$2700.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="1350.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="2700.00" readonly>
+                                    </td>
+                                </tr>
+                                <tr class="lowest-price">
+                                    <td>$26.00</td>
+                                    <td>10</td>
+                                    <td>$260.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="26.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="260.00" readonly>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div><strong>Sub-Total:</strong> $11535.00</div>
+                        <div><strong>Taxes:</strong> $1240.50</div>
+                        <div class="fw-bold">Total: $12775.50</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Azure Interior -->
+            <div class="vendor-column">
+                <div class="card vendor-table">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Azure Interior</h6>
+                        <small class="text-muted">P00020</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Price</th>
+                                    <th style="width: 15%;">Qty</th>
+                                    <th style="width: 25%;">Total</th>
+                                    <th class="negotiate-column d-none" style="width: 17.5%;">Nego Price</th>
+                                    <th class="negotiate-column d-none" style="width: 17.5%;">Nego Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>$820.00</td>
+                                    <td>10</td>
+                                    <td>$8200.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="820.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="8200.00" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>$14.00</td>
+                                    <td>5</td>
+                                    <td>$70.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="14.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="70.00" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>$1400.00</td>
+                                    <td>2</td>
+                                    <td>$2800.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="1400.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="2800.00" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>$30.00</td>
+                                    <td>10</td>
+                                    <td>$300.00</td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="30.00">
+                                    </td>
+                                    <td class="negotiate-column d-none">
+                                        <input type="number" class="form-control form-control-sm" value="300.00" readonly>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div><strong>Sub-Total:</strong> $11370.00</div>
+                        <div><strong>Taxes:</strong> $1220.50</div>
+                        <div class="fw-bold">Total: $12590.50</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Footer -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="text-end">
+                    <strong>Date:</strong> 2025-08-01
+                </div>
+            </div>
+        </div>
+    </div>
+
+ 
+  
+    <script>
+        // Negotiate Button Functionality
+        document.getElementById('negotiateBtn').addEventListener('click', function () {
+            const negotiateColumns = document.querySelectorAll('.negotiate-column');
+            const isHidden = negotiateColumns[0].classList.contains('d-none');
+
+            if (isHidden) {
+                // Show negotiate columns
+                negotiateColumns.forEach(col => col.classList.remove('d-none'));
+                this.innerHTML = '<i class="bi bi-check-circle"></i> Negotiate (On)';
+                this.classList.remove('btn-warning');
+                this.classList.add('btn-success');
+
+                // Adjust column widths
+                document.querySelectorAll('.vendor-column .table th:nth-child(1), .vendor-column .table td:nth-child(1)').forEach(el => {
+                    el.style.width = '20%';
+                });
+                document.querySelectorAll('.vendor-column .table th:nth-child(2), .vendor-column .table td:nth-child(2)').forEach(el => {
+                    el.style.width = '15%';
+                });
+            } else {
+                // Hide negotiate columns
+                negotiateColumns.forEach(col => col.classList.add('d-none'));
+                this.innerHTML = '<i class="bi bi-currency-exchange"></i> Negotiate';
+                this.classList.remove('btn-success');
+                this.classList.add('btn-warning');
+
+                // Reset column widths
+                document.querySelectorAll('.vendor-column .table th:nth-child(1), .vendor-column .table td:nth-child(1)').forEach(el => {
+                    el.style.width = '25%';
+                });
+                document.querySelectorAll('.vendor-column .table th:nth-child(2), .vendor-column .table td:nth-child(2)').forEach(el => {
+                    el.style.width = '15%';
+                });
+            }
+        });
+
+        // Auto-calculate negotiate totals
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', function () {
+                const row = this.closest('tr');
+                const priceInput = row.querySelectorAll('input[type="number"]')[0];
+                const totalInput = row.querySelectorAll('input[type="number"]')[1];
+                const qtyCell = row.querySelector('td:nth-child(2)');
+
+                if (qtyCell && this === priceInput && totalInput) {
+                    const qty = parseInt(qtyCell.textContent);
+                    const price = parseFloat(this.value) || 0;
+                    totalInput.value = (price * qty).toFixed(2);
+                }
+            });
+        });
+
+        // Update lowest prices automatically
+        function updateLowestPrices() {
+            // Clear all lowest price highlights
+            document.querySelectorAll('.lowest-price').forEach(row => {
+                row.classList.remove('lowest-price');
+            });
+
+            // For each product row (assuming same order in all tables)
+            const vendorTables = document.querySelectorAll('.vendor-column');
+            const productCount = 4; // We have 4 products
+
+            for (let i = 0; i < productCount; i++) {
+                let lowestPrice = Infinity;
+                let lowestVendorIndex = -1;
+
+                // Find lowest price for this product across vendors
+                vendorTables.forEach((vendorColumn, vendorIndex) => {
+                    const rows = vendorColumn.querySelectorAll('tbody tr');
+                    if (rows[i]) {
+                        const priceCell = rows[i].querySelector('td:nth-child(1)');
+                        if (priceCell) {
+                            const priceText = priceCell.textContent.trim();
+                            const price = parseFloat(priceText.replace('$', '').replace(',', '').trim());
+                            if (!isNaN(price) && price < lowestPrice) {
+                                lowestPrice = price;
+                                lowestVendorIndex = vendorIndex;
+                            }
+                        }
+                    }
+                });
+
+                // Highlight lowest price row
+                if (lowestVendorIndex !== -1) {
+                    const lowestTable = vendorTables[lowestVendorIndex];
+                    const rows = lowestTable.querySelectorAll('tbody tr');
+                    if (rows[i]) {
+                        rows[i].classList.add('lowest-price');
+                    }
+                }
+            }
+        }
+
+        // Initial highlight of lowest prices
+        updateLowestPrices();
+    </script>
