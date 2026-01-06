@@ -272,11 +272,13 @@ $('#createAlternativeBtn').on('click', function () {
         }
     });
 
-    $('#createAlternativeModal').addClass('active');
+    //$('#createAlternativeModal').addClass('active');
+    $('#createAlternativeModal').show();
 });
 
 function closeCreateAlternativeModal() {
-    $('#createAlternativeModal').removeClass('active');
+    //$('#createAlternativeModal').removeClass('active');
+    $('#createAlternativeModal').hide();
 }
 
 function createAlternativeRfq() {
@@ -335,14 +337,18 @@ function viewAlternativeRfq(id) {
                                     `);
                 });
 
-                $('#viewAlternativeModal').addClass('active');
+                //$('#viewAlternativeModal').addClass('active');
+                showModal1('viewAlternativeModal');
             }
         }
     });
 }
 
+hideModal
+
 function closeViewAlternativeModal() {
-    $('#viewAlternativeModal').removeClass('active');
+    //$('#viewAlternativeModal').removeClass('active');
+    showModal1('viewAlternativeModal');
 }
 
 function editAlternativeRfq(id) {
@@ -506,11 +512,26 @@ $('#sendEmailBtn').on('click', function () {
         toastr.error('@Html.SmartLocalize("Please select a vendor first")');
         return;
     }
-    $('#emailModal').addClass('active');
+    //$('#emailModal').addClass('active');
+    showModal1('emailModal');
 });
 
+function showModal1(id) {
+    const modalEl = document.getElementById(id);
+    if (!modalEl) return;
+
+    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
+
+    modalInstance.show();
+}
+
 function closeEmailModal() {
-    $('#emailModal').removeClass('active');
+    // $('#emailModal').hide();
+
+    hideModal('emailModal');
 }
 
 $('#sendEmail').on('click', function () {
