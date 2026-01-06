@@ -163,36 +163,40 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region GetUpcomingActivityList
-
         [HttpGet]
         public async Task<IActionResult> GetUpcomingActivityList(int id, int page)
         {
-
             const int pageSize = 10;
             int skip = (page - 1) * pageSize;
-            // Fetch filtered and paginated data using LIKE
+
+            // Fetch filtered and paginated data with Status
             var list = await _leadDetailsRepository
-          .AllActive().Where(u => u.LeadID == id &&
-                     u.ActivityDateTime >= DateTime.UtcNow.AddSeconds(11) && u.IsDone == null
-          )
-          .OrderByDescending(e => e.ActivityDateTime)   // ORDER FIRST!
-          .Skip(skip)                            // THEN skip
-          .Take(pageSize)                        // THEN take
-          .Select(e => new
-          {
-              e.LeadDetailID,
-              e.ActivityDateTime,
-              e.PhoneNumber,
-              e.EmailAddress,
-              e.ActivityNote,
-              e.FileLink,
-              e.LeadActivityType.LeadActivityName,
-              e.LeadActivityType.LeadActivityIcon,
-              CreatedByName = e.CreatedByNavigation != null
-                              ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}"
-                              : null
-          })
-          .ToListAsync();
+                .AllActive()
+                .Include(e => e.Status) // Include Status
+                .Where(u => u.LeadID == id &&
+                           u.ActivityDateTime >= DateTime.UtcNow.AddSeconds(11) &&
+                           u.IsDone == null)
+                .OrderByDescending(e => e.ActivityDateTime)
+                .Skip(skip)
+                .Take(pageSize)
+                .Select(e => new
+                {
+                    e.LeadDetailID,
+                    e.ActivityDateTime,
+                    e.PhoneNumber,
+                    e.EmailAddress,
+                    e.ActivityNote,
+                    e.FileLink,
+                    e.IsDone,
+                    e.LeadActivityType.LeadActivityName,
+                    e.LeadActivityType.LeadActivityIcon,
+                    CreatedByName = e.CreatedByNavigation != null
+                        ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}"
+                        : null,
+                    StatusID = e.StatusID,
+                    StatusName = e.Status != null ? e.Status.StatusName : null
+                })
+                .ToListAsync();
 
             return Ok(list);
         }
@@ -368,6 +372,38 @@ namespace GCTL_App.Controllers.CRM
                 success = result.success,
                 data = result.data
             });
+        }
+        #endregion
+
+        #region Add Comment
+        [HttpPost]
+        public async Task<IActionResult> AddComment([FromBody] LeadActivityCommentVM commentVM)
+        {
+            try
+            {
+                var result = await _leadDetailsService.AddCommentAsync(commentVM);
+                return Json(new { success = result.Success, message = result.Message });
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, message = "Something went wrong!" });
+            }
+        }
+        #endregion
+
+        #region Get Comments
+        [HttpGet]
+        public async Task<IActionResult> GetComments(int leadDetailID)
+        {
+            try
+            {
+                var result = await _leadDetailsService.GetCommentsAsync(leadDetailID);
+                return Json(new { success = result.success, data = result.data });
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, message = "Something went wrong!" });
+            }
         }
         #endregion
     }
