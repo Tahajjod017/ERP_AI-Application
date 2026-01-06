@@ -258,7 +258,7 @@ namespace GCTL_App.Controllers.CRM
                 ? await StorePhoto(leadDetailsVM.File)
                 : null;
 
-                var result2 = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM, fileLocation);
+                var result2 = await _leadDetailsService.SaveLeadDetailAsync(leadDetailsVM, fileLocation);
 
                 return Ok(result2);
             }
@@ -330,31 +330,32 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region Complete Activity
-        //public async Task<IActionResult> Complete(CRMStateModal model)
-        //{
-        //    try
-        //    {
-        //        var result = await _leadDetailsService.CompleteAsync(model);
-        //        return Json(new { success = true, message = "" });
-        //    } catch (Exception e)
-        //    {
-        //        return Json(new { success = false, message = "Something went to wrong!" });
-        //    }
-        //}
+        public async Task<IActionResult> Complete(CRMStateModal model)
+        {
+            try
+            {
+                var result = await _leadDetailsService.CompleteAsync(model);
+                return Json(new { success = true, message = result.Message });
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, message = "Something went to wrong!" });
+            }
+        }
         #endregion
         #region No Response Status Add
-        //public async Task<IActionResult> NoResponse(CRMStateModal model)
-        //{
-        //    try
-        //    {
-        //        var result = await _leadDetailsService.NoResponseAsync(model);
-        //        return Json(new { success = true, message = "" });
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return Json(new { success = false, message = "Something went to wrong!" });
-        //    }
-        //}
+        public async Task<IActionResult> NoResponse(CRMStateModal model)
+        {
+            try
+            {
+                var result = await _leadDetailsService.NoResponseAsync(model);
+                return Json(new { success = true, message = "" });
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, message = "Something went to wrong!" });
+            }
+        }
         #endregion
 
         #region Get Activity Info

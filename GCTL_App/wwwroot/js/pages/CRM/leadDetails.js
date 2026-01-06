@@ -1,5 +1,6 @@
 $(function () {
     const ids = {
+        leadDetailID: "#leadDetailID",
         note: "#aNote",
         date: '#aDate',
         file: '#aFile',
@@ -9,8 +10,8 @@ $(function () {
         addActiveBtn: '#addLActivity',
         wonConfirmDiv: '#won-fonfirm-div',
         restoreBtn: '#restoreBtn2',
-        wonBtn: '.special-btn:first',   // first .special-btn
-        lostBtn: '.special-btn:last',   // last .special-btn
+        wonBtn: '.special-btn:first',   
+        lostBtn: '.special-btn:last',  
         cSpecialBtn: '.special-btn',
         closingDateDiv: '#closingDateDiv',
         closingDateResult: '#closingDateResult',
@@ -215,6 +216,7 @@ $(function () {
 
         const buttonID = $(".option-btn.active").data('id');
         const leadID = $(ids.leadID).val();
+        const leadDetailID = $(ids.leadDetailID).val();
         const note = $(ids.note).val();
         const date = $(ids.date).val();
         const contactNumber = $(ids.contactNumber).val();
@@ -227,6 +229,7 @@ $(function () {
 
         const formData = new FormData();
         formData.append("LeadID", parseInt(leadID));
+        formData.append("LeadDetailID", parseInt(leadDetailID));
         formData.append("LeadActivityTypeID", parseInt(buttonID));
         formData.append("ActivityNote", note || "");
         formData.append("ActivityTypeName", buttonName);
@@ -248,6 +251,15 @@ $(function () {
             processData: false,
             success: async function (response) {
                 if (response.success) {
+
+                    $(ids.leadDetailID).val(0);
+                    $('#addLActivity')
+                        .html(`<span class="fa-solid fa-plus me-2"></span>Add Activity`)
+                        .removeClass('btn-success')
+                        .addClass('btn-primary')
+                        .data('edit-mode', false);
+
+
                     toastr.success(response.message);
                     await updateActivate();
                     resetAndReload();
@@ -1210,9 +1222,12 @@ $(function () {
                     return;
                 }
 
+
+
                 let d = res.data[0];
 
                 const activityName = d.leadActivityName?.trim();
+                const leadDetailID = d.leadDetailID || 0;
                 const activityNote = d.activityNote || "";
                 const emailAddress = d.emailAddress || "";
                 const phoneNumber = d.phoneNumber || "";
@@ -1225,11 +1240,13 @@ $(function () {
                     toastr.error("Activity type not supported for editing.");
                     return;
                 }
+
                 $targetBtn.trigger('click');
 
                 // Step 2: Fill simple fields
-              
+                debugger
                 $(ids.note).val(activityNote);
+                $(ids.leadDetailID).val(leadDetailID);
 
                 // date time load
                 if (date && date.trim() !== "") {
@@ -1339,7 +1356,7 @@ $(function () {
 
                 // Scroll to form
                 $('html, body').animate({
-                    //scrollTop: $("#activity-form-section").offset().top - 100
+                    scrollTop: $("#activity-form-section").offset().top - 100
                 }, 500);
             },
             error: function (err) {
@@ -1357,13 +1374,174 @@ $(function () {
         $.ajax({
             url: '/LeadDetails/NoResponse',
             type: 'GET',
-            data: { detailsId: activityId },
-            success: function (res) {
-                
+            data: { LeadDetailID: activityId },
+            success: async function (res) {
+                const confirmed = await customToaster.confirm("Status added No Response. Do you want to reschedule it?");
+                if (confirmed) {
+                    $.ajax({
+                        url: '/LeadDetails/GetActivityInfo',
+                        type: 'GET',
+                        data: { detailsId: activityId },
+                        success: function (res) {
+                            console.log(res);
+                            debugger;
+                            if (!res.success || !res.data || res.data.length === 0) {
+                                toastr.error("No activity data found.");
+                                return;
+                            }
+
+                            $("#ContectPersonId").prop("disabled", true);
+                            $("#ContectPersonEmailId").prop("disabled", true);
+
+                            let d = res.data[0];
+
+                            const activityName = d.leadActivityName?.trim();
+                            const activityNote = d.activityNote || "";
+                            const emailAddress = d.emailAddress || "";
+                            const phoneNumber = d.phoneNumber || "";
+                            const fileLink = d.fileLink || null;
+                            const date = d.activityDateTime || "";
+
+                            // Step 1: Activate the correct activity type button
+                            const $targetBtn = $(`.option-btn[data-usefor="${activityName}"]`);
+                            if ($targetBtn.length === 0) {
+                                toastr.error("Activity type not supported for editing.");
+                                return;
+                            }
+
+                            $targetBtn.trigger('click');
+
+                            // Step 2: Fill simple fields
+                            debugger
+                            $(ids.note).val(activityNote);
+
+                            // date time load
+                            if (date && date.trim() !== "") {
+                                const backendDate = new Date(date);
+
+                                if (!isNaN(backendDate.getTime())) {
+                                    // Format as DD/MM/YYYY HH:MM (AM/PM) – matches most Flatpickr setups
+                                    const day = String(backendDate.getDate()).padStart(2, '0');
+                                    const month = String(backendDate.getMonth() + 1).padStart(2, '0');
+                                    const year = backendDate.getFullYear();
+                                    const hours = backendDate.getHours();
+                                    const mins = String(backendDate.getMinutes()).padStart(2, '0');
+                                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                                    const displayHours = hours % 12 || 12;
+
+                                    const formattedDate = `${day}/${month}/${year} ${displayHours}:${mins} ${ampm}`;
+
+                                    $(ids.date).val(formattedDate);
+
+                                    // Important: If using Flatpickr, force update
+                                    const fpInstance = $(ids.date)[0]._flatpickr;
+                                    if (fpInstance) {
+                                        fpInstance.setDate(formattedDate, true);
+                                    }
+                                } else {
+                                    console.warn("Invalid date from backend:", date);
+                                }
+                            }
+
+                    //        // Handle file preview
+                    //        if (fileLink) {
+                    //            const fileName = fileLink.split('/').pop().split('?')[0];
+                    //            const filePreviewHtml = `
+                    //<div class="mt-2 p-2 border rounded bg-light existing-file-preview">
+                    //    <small>Current file: 
+                    //        <a href="${fileLink}" target="_blank">${fileName}</a>
+                    //    </small><br>
+                    //    <small class="text-muted">Upload new file to replace</small>
+                    //</div>`;
+                    //            $('#file-field .existing-file-preview').remove(); // clear old
+                    //            $('#file-field').append(filePreviewHtml);
+                    //            $('#file-field').data('existing-file', fileLink);
+                    //        } else {
+                    //            $('#file-field .existing-file-preview').remove();
+                    //            $('#file-field').removeData('existing-file');
+                    //        }
+
+                            //// Step 3: Handle Select2 AJAX fields (Contact Phone - multiple)
+                            //const phoneSelect = $('#ContectPersonId');
+                            //const emailSelect = $('#ContectPersonEmailId');
+
+                            //// Clear previous selections
+                            //phoneSelect.val(null).trigger('change');
+                            //emailSelect.val(null).trigger('change');
+
+                            if (phoneNumber) {
+                                const phoneIds = phoneNumber.split(',').map(p => p.trim()).filter(Boolean);
+
+                                let html = phoneIds.map(p =>
+                                    `<span class="badge bg-secondary me-1">${p}</span>`
+                                ).join("");
+
+                                $("#contactPhoneList").html(html);
+                            //    // For each ID, we need to fetch its text/label via the same AJAX endpoint
+                            //    let phoneLoaded = 0;
+                            //    phoneIds.forEach(id => {
+                            //        $.ajax({
+                            //            url: "/LeadDetails/GetContactNumberList",
+                            //            data: { leadId: $(ids.leadID).val(), search: id }, // search by exact ID to get single
+                            //            dataType: 'json',
+                            //            success: function (data) {
+                            //                console.log(data);
+                            //                if (data.items && data.items.length > 0) {
+                            //                    const item = data.items[0];
+                            //                    const option = new Option(item.label, item.value, true, true);
+                            //                    phoneSelect.append(option).trigger('change');
+                            //                }
+                            //                phoneLoaded++;
+                            //                if (phoneLoaded === phoneIds.length) {
+                            //                    phoneSelect.trigger('change'); // final refresh
+                            //                }
+                            //            }
+                            //        });
+                            //    });
+                            }
+
+                            //// Step 4: Handle Email (seems single select from your code)
+                            //if (emailAddress) {
+                            //    $.ajax({
+                            //        url: "/LeadDetails/GetContactEmailList",
+                            //        data: { leadId: $(ids.leadID).val(), search: emailAddress },
+                            //        dataType: 'json',
+                            //        success: function (data) {
+                            //            if (data.items && data.items.length > 0) {
+                            //                const item = data.items[0];
+                            //                const option = new Option(item.label, item.value, true, true);
+                            //                emailSelect.append(option).trigger('change');
+                            //            }
+                            //        }
+                            //    });
+                            //}
+
+                            // Step 5: Switch button to Update mode
+                            $('#addLActivity')
+                                .text('Reschedule Activity')
+                                .removeClass('btn-primary btn-success')
+                                .addClass('btn-info')
+                                .data('edit-mode', true)
+                                .data('edit-activity-id', activityId);
+
+                            toastr.success("Activity loaded for reschedule. Modify and click 'Reschedule Activity'.");
+
+                            // Scroll to form
+                            $('html, body').animate({
+                                scrollTop: $("#activity-form-section").offset().top - 100
+                            }, 500);
+                        },
+                        error: function (err) {
+                            console.error(err);
+                            toastr.error("Failed to load activity for editing.");
+                        }
+                    });
+                }
+                else customToaster.error("Cancelled!");
             },
             error: function (err) {
                 console.error(err);
-                toastr.error("Failed to load activity for editing.");
+               
             }
         });
     }
@@ -1418,27 +1596,34 @@ $(function () {
         toastr.info('View functionality - ID: ' + activityId);
     }
 
-    function completeActivity(activityId) {
-        $.ajax({
-            url: '/LeadDetails/Complete',
-            method: 'POST',
-            data: { LeadDetailID: activityId },
-            success: function (response) {
-                debugger
-                if (response.success) {
-                    customToaster.success(response.message);
+    async function completeActivity(activityId) {
+        const confirmed = await customToaster.confirm("Did you successfully complete this task?");
+        if (confirmed) {
+            $.ajax({
+                url: '/LeadDetails/Complete',
+                method: 'POST',
+                data: { LeadDetailID: activityId },
+                success: function (response) {
+                    if (response.success) {
+                        
 
-                    resetAndReload();
-                    resetAndReloadUpcoming();
+                        debugger
+                        customToaster.success(response.message);
 
-                } else {
-                    toastr.error(response.message || "Failed to complete activity");
+                        resetAndReload();
+                        resetAndReloadUpcoming();
+
+                    } else {
+                        toastr.error(response.message || "Failed to complete activity");
+                    }
+                },
+                error: function () {
+                    toastr.error("An error occurred while completing the activity");
                 }
-            },
-            error: function () {
-                toastr.error("An error occurred while completing the activity");
-            }
-        });
+            });
+        }
+        else customToaster.error("Cancelled!");
+        
     }
     
 
