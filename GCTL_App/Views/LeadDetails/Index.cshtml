@@ -945,6 +945,173 @@
         position: relative;
         overflow: visible;
     }
+    
+
+    /* //extend */
+    .timeline-status-expired {
+        background: rgba(239, 68, 68, 0.15);
+        color: #991b1b;
+    }
+
+    /* Comment Modal */
+    /* ====== Comment Count Badge ====== */
+    .comment-count-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        margin-left: 4px;
+        background: #e5e7eb;
+        color: #6b7280;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+
+        .comment-count-badge.has-comments {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+    /* ====== Comment Section Styles ====== */
+    .activity-comment-section {
+        margin-top: 1rem;
+        animation: slideDown 0.3s ease;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
+        }
+
+        to {
+            opacity: 1;
+            max-height: 500px;
+        }
+    }
+
+    .comment-section-divider {
+        height: 1px;
+        background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+        margin-bottom: 1rem;
+    }
+
+    .comments-list {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+    }
+
+        .comments-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .comments-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .comments-list::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 2px;
+        }
+
+    .comment-item {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        border-left: 3px solid #667eea;
+        transition: all 0.2s ease;
+    }
+
+        .comment-item:hover {
+            background: #f3f4f6;
+            transform: translateX(2px);
+        }
+
+        .comment-item:last-child {
+            margin-bottom: 0;
+        }
+
+    .comment-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .comment-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+    }
+
+    .comment-author {
+        font-size: 0.875rem;
+        color: #111827;
+    }
+
+    .comment-date {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    .comment-text {
+        font-size: 0.875rem;
+        color: #4b5563;
+        margin: 0;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+
+    .add-comment-form {
+        padding-top: 0.75rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+        .add-comment-form textarea {
+            font-size: 0.875rem;
+            border-color: #e5e7eb;
+        }
+
+            .add-comment-form textarea:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+
+        .add-comment-form button {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+        }
+
+            .add-comment-form button:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(102, 126, 234, 0.25);
+            }
+
+    /* Expired Status */
+    .timeline-status-expired {
+        background: rgba(239, 68, 68, 0.15);
+        color: #991b1b;
+    }
+    /* No Response Status */
+    .timeline-status-no-response {
+        background: rgba(245, 158, 11, 0.15);
+        color: #92400e;
+    }
+
+    .timeline-status-pending {
+        background: rgba(107, 114, 128, 0.15);
+        color: #4b5563;
+    }
 </style>
 
 <div class="pb-4">
