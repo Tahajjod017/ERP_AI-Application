@@ -640,40 +640,28 @@
     <script src="~/js/pages/adminsettings/organizationsettings/approvalsettingsEdit.js"></script>
 
     <script>
-        // Keep all your existing JavaScript code, only replace the self-approval logic
-        function handleSelfApprovalDisplay() {
-            const enableSelfApproval = $('#enableSelfApproval').is(':checked');
-            const selfSelect = $('#selSelfApproval');
-            const selfWrapper = selfSelect.closest('.mt-3');
-            if (enableSelfApproval) {
-                selfWrapper.hide();
-               // selfSelect.prop('disabled', true);
-                choiceManager.disableChoice('selSelfApproval')
-                selfSelect.removeAttr('required');
-            } else {
-                selfWrapper.show();
-               // selfSelect.prop('disabled', false);
-                choiceManager.enableChoice('selSelfApproval');
-                selfSelect.attr('required', 'required');
+        // Self-Approval Radio Button Handler for Create Form
+        $(document).ready(function () {
+            function handleSelfApprovalDisplay() {
+                const enableSelfApproval = $('#enableSelfApproval').is(':checked');
+                const selfSelect = $('#selSelfApproval');
+
+                if (enableSelfApproval) {
+                    choiceManager.disableChoice('selSelfApproval');
+                    selfSelect.removeAttr('required');
+                } else {
+                    choiceManager.enableChoice('selSelfApproval');
+                    selfSelect.attr('required', 'required');
+                }
             }
-        }
 
-        // Replace the self-approval event listener
-        $('input[name="AllowSelfApproval"]').on('change', function () {
+            // Self-approval radio button change event
+            $('input[name="AllowSelfApproval"]').on('change', function () {
+                handleSelfApprovalDisplay();
+            });
+
+            // Initialize on page load
             handleSelfApprovalDisplay();
         });
-
-        const orgId = $('#OrganizationID').val();
-        populateOptions($('#selSelfApproval'), designationsUrl, orgId, [], function () {
-            handleSelfApprovalDisplay();
-        });
-
-        // Safe cleanup before form submit to avoid focus errors
-        $('#aprovalSettingsForm').on('submit', function () {
-            $(':input:disabled').removeAttr('required');
-        });
-        // Rest of your existing JavaScript code remains unchanged
     </script>
-
-
 }
