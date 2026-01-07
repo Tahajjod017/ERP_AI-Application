@@ -21,5 +21,7 @@ namespace GCTL.Service.CRM.LeadDetail
         Task<LeadActivityResultVM> ActivityList(int id, string query, int page, string type);
         Task<ReturnView> RestoreLead(int id);
         Task<ReturnDataView<LeadActivityVM>> GetLeadDetailsInfoAsync(int activityId);
+        Task<ReturnView> AddCommentAsync(LeadActivityCommentVM commentVM);
+        Task<ReturnDataView<LeadActivityCommentVM>> GetCommentsAsync(int leadDetailID);
     }
 }
