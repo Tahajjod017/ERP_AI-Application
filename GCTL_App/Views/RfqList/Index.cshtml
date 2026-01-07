@@ -520,8 +520,9 @@
                                         <th>@Html.SmartLocalize("Vendor")</th>
                                         <th>@Html.SmartLocalize("Date")</th>
                                         <th>@Html.SmartLocalize("Total Amount")</th>
-                                        <th>@Html.SmartLocalize("Savings")</th>
-                                        <th>@Html.SmartLocalize("Status")</th>
+                                        @*<th>@Html.SmartLocalize("Savings")</th>*@
+                                        <th>@Html.SmartLocalize("Receive Status")</th>
+                                        <th>@Html.SmartLocalize("Work Order Status")</th>
                                         <th>@Html.SmartLocalize("Notes")</th>
                                         <th>@Html.SmartLocalize("Actions")</th>
                                     </tr>
@@ -549,7 +550,7 @@
                                             <td>
                                                 <strong>@sub.TotalAmount.ToString("C2")</strong>
                                             </td>
-                                            <td class="savings-cell @(sub.Savings >= 0 ? "savings-positive" : "savings-negative")">
+                                            @*<td class="savings-cell @(sub.Savings >= 0 ? "savings-positive" : "savings-negative")">
                                                 @if (sub.Savings >= 0)
                                                 {
                                                     <i class="fas fa-arrow-down me-1"></i>
@@ -559,6 +560,11 @@
                                                     <i class="fas fa-arrow-up me-1"></i>
                                                 }
                                                 @Math.Abs(sub.Savings).ToString("C2")
+                                            </td>*@
+                                            <td>
+                                                <span class="status-badge status-@sub.Status.ToLower()">
+                                                    @sub.Status
+                                                </span>
                                             </td>
                                             <td>
                                                 <span class="status-badge status-@sub.Status.ToLower()">
