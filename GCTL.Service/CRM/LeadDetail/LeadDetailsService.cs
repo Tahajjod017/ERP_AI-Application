@@ -23,10 +23,16 @@ namespace GCTL.Service.CRM.LeadDetail
         private readonly IGenericRepository<Statuses> _statusesRepository;
         private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
         private readonly IUserInfoService _userInfoService;
-        #endregion
+        private readonly IGenericRepository<LeadActivityComments> _leadActivityCommentsRepository;
 
-        #region Constructor
-        public LeadDetailsService(IGenericRepository<GCTL.Data.Models.LeadDetails> leadDetailsGenericRepository, IGenericRepository<LeadActivityTypes> leadActivityTypesGenericRepository, IGenericRepository<Leads> leadsRepository, IGenericRepository<LeadDetails> leadDetailsRepository, IUserInfoService userInfoService, IGenericRepository<Statuses> statusesRepository)
+        public LeadDetailsService(
+            IGenericRepository<GCTL.Data.Models.LeadDetails> leadDetailsGenericRepository,
+            IGenericRepository<LeadActivityTypes> leadActivityTypesGenericRepository,
+            IGenericRepository<Leads> leadsRepository,
+            IGenericRepository<LeadDetails> leadDetailsRepository,
+            IUserInfoService userInfoService,
+            IGenericRepository<Statuses> statusesRepository,
+            IGenericRepository<LeadActivityComments> leadActivityCommentsRepository)
         {
             _leadActivityTypesGenericRepository = leadActivityTypesGenericRepository;
             _leadDetailsGenericRepository = leadDetailsGenericRepository;
@@ -34,6 +40,7 @@ namespace GCTL.Service.CRM.LeadDetail
             _leadDetailsRepository = leadDetailsRepository;
             _userInfoService = userInfoService;
             _statusesRepository = statusesRepository;
+            _leadActivityCommentsRepository = leadActivityCommentsRepository;
         }
         #endregion
 
@@ -278,9 +285,10 @@ namespace GCTL.Service.CRM.LeadDetail
             var lostPercentage = (int)Math.Round(lostCount * 100m / totalLeads);
             var cancelPercentage = (int)Math.Round(cancelCount * 100m / totalLeads);
 
-            // 🔹 Query lead details
+            // 🔹 Query lead details WITH STATUS
             var list = await _leadDetailsGenericRepository
                 .AllActive()
+                .Include(e => e.Status) // Include Status navigation
                 .Where(u => u.LeadID == id &&
                            (leadDetailsTypeID == 0 || u.LeadActivityTypeID == leadDetailsTypeID) &&
                            (string.IsNullOrEmpty(query)
@@ -304,6 +312,8 @@ namespace GCTL.Service.CRM.LeadDetail
                     CreatedByName = e.CreatedByNavigation != null
                         ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}"
                         : null,
+                    StatusID = e.StatusID,
+                    StatusName = e.Status != null ? e.Status.StatusName : null
                 })
                 .ToListAsync();
 
@@ -311,7 +321,6 @@ namespace GCTL.Service.CRM.LeadDetail
             {
                 IsWon = leadObj.IsOwn,
                 Activities = list,
-                // ✅ Use precomputed stats
                 SuccessPercentage = successPercentage,
                 LostPercentage = lostPercentage,
                 CancelPercentage = cancelPercentage,
@@ -765,6 +774,89 @@ namespace GCTL.Service.CRM.LeadDetail
                     success = false,
                     message = ex.Message,
                     data = new List<LeadActivityVM>()
+                };
+            }
+        }
+        #endregion
+
+        #region Add Comment
+        public async Task<ReturnView> AddCommentAsync(LeadActivityCommentVM commentVM)
+        {
+            try
+            {
+                var leadDetail = await _leadDetailsRepository.GetByIdAsync(commentVM.LeadDetailID);
+                if (leadDetail == null)
+                {
+                    return new ReturnView
+                    {
+                        Success = false,
+                        Message = "Activity not found"
+                    };
+                }
+
+                var comment = new LeadActivityComments
+                {
+                    LeadDetailID = commentVM.LeadDetailID,
+                    Comment = commentVM.Comment,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = commentVM.CreatedBy,
+                    LIP = commentVM.LIP,
+                    LMAC = commentVM.LMAC
+                };
+
+                await _leadActivityCommentsRepository.AddAsync(comment);
+
+                return new ReturnView
+                {
+                    Success = true,
+                    Message = "Comment added successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ReturnView
+                {
+                    Success = false,
+                    Message = "Error adding comment: " + ex.Message
+                };
+            }
+        }
+        #endregion
+
+        #region Get Comments
+        public async Task<ReturnDataView<LeadActivityCommentVM>> GetCommentsAsync(int leadDetailID)
+        {
+            try
+            {
+                var comments = await _leadActivityCommentsRepository
+                    .AllActive()
+                    .Where(x => x.LeadDetailID == leadDetailID)
+                    .OrderByDescending(x => x.CreatedAt)
+                    .Select(x => new LeadActivityCommentVM
+                    {
+                        LeadActivityCommentID = x.LeadActivityCommentID,
+                        LeadDetailID = x.LeadDetailID,
+                        Comment = x.Comment,
+                        CreatedAt = x.CreatedAt,
+                        CreatedByName = x.CreatedByNavigation != null
+                            ? $"{x.CreatedByNavigation.FirstName} {x.CreatedByNavigation.LastName}"
+                            : "Unknown"
+                    })
+                    .ToListAsync();
+
+                return new ReturnDataView<LeadActivityCommentVM>
+                {
+                    success = true,
+                    data = comments
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ReturnDataView<LeadActivityCommentVM>
+                {
+                    success = false,
+                    message = ex.Message,
+                    data = new List<LeadActivityCommentVM>()
                 };
             }
         }
