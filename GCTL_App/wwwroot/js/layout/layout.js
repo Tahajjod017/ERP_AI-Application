@@ -83,6 +83,8 @@ function showDeleteModal(deleteCallback) {
 
 
 //#region HideModal
+
+//hideModal('editModal');
 function hideModal(id) {
 
     const modalEl = document.getElementById(id);
@@ -94,6 +96,22 @@ function hideModal(id) {
     }
 
     modalInstance.hide();
+}
+//#endregion
+
+//#region ShowModal
+
+// showModal('editModal');
+function showModal(id) {
+    const modalEl = document.getElementById(id);
+    if (!modalEl) return;
+
+    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
+
+    modalInstance.show();
 }
 //#endregion
 

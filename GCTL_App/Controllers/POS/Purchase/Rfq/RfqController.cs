@@ -25,10 +25,17 @@ namespace GCTL_App.Controllers.POS.Purchase.Rfq
             model.TaxAmount = 81.00m;
             model.TotalAmount = 621.00m;
 
-            // Static data for dropdowns
-            ViewBag.Vendors = GetVendors1();
-            ViewBag.Products = GetProducts1();
-            ViewBag.PurchaseAgreements = GetPurchaseAgreements();
+            var vendor  = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "1", Text = "Azure Interior" },
+                new SelectListItem { Value = "2", Text = "Deco Addict" },
+                new SelectListItem { Value = "3", Text = "Ready Mat" },
+                new SelectListItem { Value = "4", Text = "Office Supplies Co." }
+            };
+
+            ViewBag.Vendors = new SelectList(vendor, "Value" , "Text");
+            ViewBag.Products = new SelectList( GetProducts1(), "Value", "Text");
+            ViewBag.PurchaseAgreements = new SelectList( GetPurchaseAgreements() , "Value", "Text");
 
             return View(model);
         }
