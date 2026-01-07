@@ -53,6 +53,10 @@ public partial class LeadDetails
 
     public virtual LeadActivityTypes LeadActivityType { get; set; }
 
+    public virtual ICollection<LeadDetailEmail> LeadDetailEmail { get; set; } = new List<LeadDetailEmail>();
+
+    public virtual ICollection<LeadDetailPhone> LeadDetailPhone { get; set; } = new List<LeadDetailPhone>();
+
     public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }

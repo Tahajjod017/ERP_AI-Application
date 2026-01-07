@@ -5,23 +5,17 @@ using System.Collections.Generic;
 
 namespace GCTL.Data.Models;
 
-public partial class OtherContacts
+public partial class LeadDetailEmail
 {
-    public int OtherContactID { get; set; }
+    public int LeadDetailEmailID { get; set; }
+
+    public int? LeadDetailID { get; set; }
 
     public int? AddressID { get; set; }
 
-    public string FirstName { get; set; }
+    public int? OtherContactID { get; set; }
 
-    public string LastName { get; set; }
-
-    public string Designation { get; set; }
-
-    public string Phone1 { get; set; }
-
-    public string Phone2 { get; set; }
-
-    public string Email { get; set; }
+    public string EmailSnapshot { get; set; }
 
     public string LIP { get; set; }
 
@@ -45,9 +39,9 @@ public partial class OtherContacts
 
     public virtual Employees DeletedByNavigation { get; set; }
 
-    public virtual ICollection<LeadDetailEmail> LeadDetailEmail { get; set; } = new List<LeadDetailEmail>();
+    public virtual LeadDetails LeadDetail { get; set; }
 
-    public virtual ICollection<LeadDetailPhone> LeadDetailPhone { get; set; } = new List<LeadDetailPhone>();
+    public virtual OtherContacts OtherContact { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

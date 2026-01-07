@@ -36,7 +36,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public virtual DbSet<ApplicationRole> ApplicationRoles { get; set; }
-
     public virtual DbSet<Attendance> Attendance { get; set; }
 
     public virtual DbSet<AttendanceLog> AttendanceLog { get; set; }
@@ -245,6 +244,10 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public virtual DbSet<LeadActivityTypes> LeadActivityTypes { get; set; }
 
+    public virtual DbSet<LeadDetailEmail> LeadDetailEmail { get; set; }
+
+    public virtual DbSet<LeadDetailPhone> LeadDetailPhone { get; set; }
+
     public virtual DbSet<LeadDetails> LeadDetails { get; set; }
 
     public virtual DbSet<LeadProjectTeamMembers> LeadProjectTeamMembers { get; set; }
@@ -426,6 +429,8 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<SalesOrders> SalesOrders { get; set; }
 
     public virtual DbSet<SalesOrdersVersions> SalesOrdersVersions { get; set; }
+
+    public virtual DbSet<ScheduledTaskHistory> ScheduledTaskHistory { get; set; }
 
     public virtual DbSet<ServiceView> ServiceView { get; set; }
 
@@ -827,7 +832,6 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         .HasForeignKey(r => r.TenantInfoId)
         .IsRequired(false)
         .HasConstraintName("FK_TenantInfo_TenantInfoId_AspNetRoles");
-
 
         modelBuilder.Entity<Attendance>(entity =>
         {
@@ -4685,6 +4689,86 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
                 .HasConstraintName("FK__LeadActiv__Updat__2E90DD8E");
         });
 
+        modelBuilder.Entity<LeadDetailEmail>(entity =>
+        {
+            entity.HasKey(e => e.LeadDetailEmailID).HasName("PK__LeadDeta__AB0E78D1CD0098E3");
+
+            entity.ToTable("LeadDetailEmail", "Lead");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.EmailSnapshot).HasMaxLength(255);
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Address).WithMany(p => p.LeadDetailEmail)
+                .HasForeignKey(d => d.AddressID)
+                .HasConstraintName("FK__LeadDetai__Addre__05D9AC15");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadDetailEmailCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__LeadDetai__Creat__07C1F487");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeadDetailEmailDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__LeadDetai__Delet__0A9E6132");
+
+            entity.HasOne(d => d.LeadDetail).WithMany(p => p.LeadDetailEmail)
+                .HasForeignKey(d => d.LeadDetailID)
+                .HasConstraintName("FK__LeadDetai__LeadD__04E587DC");
+
+            entity.HasOne(d => d.OtherContact).WithMany(p => p.LeadDetailEmail)
+                .HasForeignKey(d => d.OtherContactID)
+                .HasConstraintName("FK__LeadDetai__Other__06CDD04E");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeadDetailEmailUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__LeadDetai__Updat__08B618C0");
+        });
+
+        modelBuilder.Entity<LeadDetailPhone>(entity =>
+        {
+            entity.HasKey(e => e.LeadDetailPhoneID).HasName("PK__LeadDeta__934BE3E57CA7A534");
+
+            entity.ToTable("LeadDetailPhone", "Lead");
+
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+            entity.Property(e => e.LIP).HasMaxLength(20);
+            entity.Property(e => e.LMAC).HasMaxLength(30);
+            entity.Property(e => e.PhoneSnapshot).HasMaxLength(255);
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Address).WithMany(p => p.LeadDetailPhone)
+                .HasForeignKey(d => d.AddressID)
+                .HasConstraintName("FK__LeadDetai__Addre__7D446614");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.LeadDetailPhoneCreatedByNavigation)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK__LeadDetai__Creat__7F2CAE86");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany(p => p.LeadDetailPhoneDeletedByNavigation)
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK__LeadDetai__Delet__02091B31");
+
+            entity.HasOne(d => d.LeadDetail).WithMany(p => p.LeadDetailPhone)
+                .HasForeignKey(d => d.LeadDetailID)
+                .HasConstraintName("FK__LeadDetai__LeadD__7C5041DB");
+
+            entity.HasOne(d => d.OtherContact).WithMany(p => p.LeadDetailPhone)
+                .HasForeignKey(d => d.OtherContactID)
+                .HasConstraintName("FK__LeadDetai__Other__7E388A4D");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.LeadDetailPhoneUpdatedByNavigation)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("FK__LeadDetai__Updat__0020D2BF");
+        });
+
         modelBuilder.Entity<LeadDetails>(entity =>
         {
             entity.HasKey(e => e.LeadDetailID).HasName("PK__LeadDeta__BA29ED27A2D5265B");
@@ -8019,6 +8103,14 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.SalesOrdersVersionsUpdatedByNavigation)
                 .HasForeignKey(d => d.UpdatedBy)
                 .HasConstraintName("FK__SalesOrde__Updat__67D447E2");
+        });
+
+        modelBuilder.Entity<ScheduledTaskHistory>(entity =>
+        {
+            entity.HasKey(e => e.TaskName).HasName("PK__Schedule__1E0558880F1FB738");
+
+            entity.Property(e => e.TaskName).HasMaxLength(100);
+            entity.Property(e => e.LastStatus).HasMaxLength(20);
         });
 
         modelBuilder.Entity<ServiceView>(entity =>

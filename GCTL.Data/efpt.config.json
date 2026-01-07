@@ -503,6 +503,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[ScheduledTaskHistory]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Services]",
          "ObjectType": 0
       },
@@ -656,6 +660,14 @@
       },
       {
          "Name": "[Lead].[LeadActivityTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadDetailEmail]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[Lead].[LeadDetailPhone]",
          "ObjectType": 0
       },
       {
