@@ -299,7 +299,7 @@ namespace GCTL_App.Controllers.CRM
             {
                 items = result.data.Select(c => new
                 {
-                    value = c.Name ?? "",
+                    value = c.Id ,
                     label = $"{c.Name ?? ""}",
                     group = ""
                 }),
@@ -322,7 +322,7 @@ namespace GCTL_App.Controllers.CRM
             {
                 items = result.data.Select(c => new
                 {
-                    value = c.Name ?? "",
+                    value = c.Id,
                     label = $"{c.Name ?? ""}",
                     group = ""
                 }),
@@ -347,6 +347,7 @@ namespace GCTL_App.Controllers.CRM
             }
         }
         #endregion
+
         #region No Response Status Add
         public async Task<IActionResult> NoResponse(CRMStateModal model)
         {

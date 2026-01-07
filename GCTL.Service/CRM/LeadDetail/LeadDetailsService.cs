@@ -2,6 +2,7 @@
 using GCTL.Core.Helpers;
 using GCTL.Core.Helpers.Jsonserialize;
 using GCTL.Core.Repository;
+using GCTL.Core.ViewModels;
 using GCTL.Core.ViewModels.CRM;
 using GCTL.Core.ViewModels.MasterSetup.Genders;
 using GCTL.Data.Models;
@@ -22,6 +23,8 @@ namespace GCTL.Service.CRM.LeadDetail
         private readonly IGenericRepository<Leads> _leadsRepository;
         private readonly IGenericRepository<Statuses> _statusesRepository;
         private readonly IGenericRepository<LeadDetails> _leadDetailsRepository;
+        private readonly IGenericRepository<LeadDetailEmail> _leadDetailEmailRepository;
+        private readonly IGenericRepository<LeadDetailPhone> _leadDetailPhoneRepository;
         private readonly IUserInfoService _userInfoService;
         private readonly IGenericRepository<LeadActivityComments> _leadActivityCommentsRepository;
 
@@ -32,7 +35,9 @@ namespace GCTL.Service.CRM.LeadDetail
             IGenericRepository<LeadDetails> leadDetailsRepository,
             IUserInfoService userInfoService,
             IGenericRepository<Statuses> statusesRepository,
-            IGenericRepository<LeadActivityComments> leadActivityCommentsRepository)
+            IGenericRepository<LeadActivityComments> leadActivityCommentsRepository,
+            IGenericRepository<LeadDetailEmail> leadDetailEmailRepository,
+            IGenericRepository<LeadDetailPhone> leadDetailPhoneRepository)
         {
             _leadActivityTypesGenericRepository = leadActivityTypesGenericRepository;
             _leadDetailsGenericRepository = leadDetailsGenericRepository;
@@ -41,6 +46,8 @@ namespace GCTL.Service.CRM.LeadDetail
             _userInfoService = userInfoService;
             _statusesRepository = statusesRepository;
             _leadActivityCommentsRepository = leadActivityCommentsRepository;
+            _leadDetailEmailRepository = leadDetailEmailRepository;
+            _leadDetailPhoneRepository = leadDetailPhoneRepository;
         }
         #endregion
 
@@ -156,6 +163,8 @@ namespace GCTL.Service.CRM.LeadDetail
                     leadDetailsVM.LeadDetailID.HasValue &&
                     leadDetailsVM.LeadDetailID.Value > 0;
 
+                int leadDetailsId = 0;
+
                 if (isUpdate)
                 {
                     // ---------- UPDATE ----------
@@ -189,6 +198,7 @@ namespace GCTL.Service.CRM.LeadDetail
                     leadDetailsObj.LMAC = leadDetailsVM.LMAC;
 
                     await _leadDetailsGenericRepository.UpdateAsync(leadDetailsObj);
+
                 }
                 else
                 {
@@ -199,8 +209,8 @@ namespace GCTL.Service.CRM.LeadDetail
                         ActivityDateTime = utcDateTime,
                         LeadActivityTypeID = leadTypeObj.LeadActivityTypeID,
                         ActivityNote = leadDetailsVM.ActivityNote,
-                        PhoneNumber = leadDetailsVM.ContactNumber,
-                        EmailAddress = leadDetailsVM.ContactEmail,
+                        //PhoneNumber = leadDetailsVM.ContactNumber,
+                        //EmailAddress = leadDetailsVM.ContactEmail,
                         FileLink = isAttachment && fileLocation != null ? fileLocation : null,
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = leadDetailsVM.CreatedBy,
@@ -209,9 +219,74 @@ namespace GCTL.Service.CRM.LeadDetail
                     };
 
                     await _leadDetailsGenericRepository.AddAsync(leadDetailsObj);
+   
+
+
                 }
 
-                await _leadDetailsGenericRepository.CommitTransactionAsync();
+                if (leadDetailsVM.ContactEmails != null && leadDetailsVM.ContactEmails.Any())
+                {
+                    foreach (var item in leadDetailsVM.ContactEmails)
+                    {
+                        if (!string.IsNullOrEmpty(item.Id))
+                        {
+                            // Split into parts
+                            var parts = item.Id.Split('_');
+
+                            // Optional: check if split is valid
+                            if (parts.Length == 2)
+                            {
+                                string firstPart = parts[0];   // "0"
+                                string secondPart = parts[1];  // "5013"
+                                LeadDetailEmail newObj = new LeadDetailEmail
+                                {
+                                    LeadDetailID = leadDetailsObj.LeadDetailID,
+                                    AddressID = firstPart == "c" ? int.Parse(secondPart) : null,
+                                    OtherContactID = firstPart != "c" ? int.Parse(secondPart) : null,
+                                    EmailSnapshot = item.Name,
+                                };
+
+                                await _leadDetailEmailRepository.AddAsync(newObj);
+
+                            }
+                        }
+
+                    }
+                }
+
+                if (leadDetailsVM.ContactNumbers != null &&  leadDetailsVM.ContactNumbers.Any())
+                {
+                    foreach (var item in leadDetailsVM.ContactNumbers)
+                    {
+                        if (!string.IsNullOrEmpty(item.Id))
+                        {
+                            // Split into parts
+                            var parts = item.Id.Split('_');
+
+                            // Optional: check if split is valid
+                            if (parts.Length == 3)
+                            {
+                                string firstPart = parts[0];   // "0"
+                                string secondPart = parts[1];  // "1/2"
+                                string thirdPart = parts[2];  // "5013"
+                                LeadDetailPhone newObj = new LeadDetailPhone
+                                {
+                                    LeadDetailID = leadDetailsObj.LeadDetailID,
+                                    AddressID = firstPart == "c" ? int.Parse(thirdPart) : null,
+                                    IsOtherPhone = secondPart == "2" ? true : false,
+                                    OtherContactID = firstPart != "c" ? int.Parse(thirdPart) : null,
+                                    PhoneSnapshot = item.Name,
+                                };
+                                await _leadDetailPhoneRepository.AddAsync(newObj);
+
+
+                            }
+                        }
+
+                    }
+                }
+
+                 await _leadDetailsGenericRepository.CommitTransactionAsync();
 
                 return new ReturnView
                 {
@@ -304,8 +379,8 @@ namespace GCTL.Service.CRM.LeadDetail
                     ActivityDateTime = e.ActivityDateTime,
                     ActivityNote = e.ActivityNote,
                     FileLink = e.FileLink,
-                    PhoneNumber = e.PhoneNumber,
-                    EmailAddress = e.EmailAddress,
+                    //PhoneNumber = e.PhoneNumber,
+                    //EmailAddress = e.EmailAddress,
                     IsDone = e.IsDone,
                     LeadActivityName = e.LeadActivityType.LeadActivityName,
                     LeadActivityIcon = e.LeadActivityType.LeadActivityIcon,
@@ -718,7 +793,7 @@ namespace GCTL.Service.CRM.LeadDetail
         }
         #endregion
 
-
+        #region GetStatusId
         private async Task<int> GetStatusId (string statusName)
         {
             int statudId = await _statusesRepository.AllActive().AsNoTracking().Where(x => x.StatusName == statusName).Select(x => x.StatusID).FirstOrDefaultAsync();
@@ -736,6 +811,7 @@ namespace GCTL.Service.CRM.LeadDetail
 
             return statudId;
         }
+        #endregion
 
         #region GetLeadDetailsInfoAsync
         public async Task<ReturnDataView<LeadActivityVM>> GetLeadDetailsInfoAsync(int activityId)
@@ -745,15 +821,59 @@ namespace GCTL.Service.CRM.LeadDetail
                 var result = await _leadDetailsGenericRepository
                     .AllActive()
                     .AsNoTracking()
+
                     .Include(x => x.LeadActivityType)
+
+                    // -------- EMAIL INCLUDES --------
+                    .Include(x => x.LeadDetailEmail)
+                        .ThenInclude(x => x.Address)
+                    .Include(x => x.LeadDetailEmail)
+                        .ThenInclude(x => x.OtherContact)
+
+                    // -------- PHONE INCLUDES --------
+                    .Include(x => x.LeadDetailPhone)
+                        .ThenInclude(x => x.Address)
+                    .Include(x => x.LeadDetailPhone)
+                        .ThenInclude(x => x.OtherContact)
+
                     .Where(x => x.LeadDetailID == activityId)
                     .Select(x => new LeadActivityVM
                     {
                         LeadDetailID = x.LeadDetailID,
                         LeadActivityName = x.LeadActivityType.LeadActivityName ?? string.Empty,
                         ActivityNote = x.ActivityNote,
-                        EmailAddress = x.EmailAddress,
-                        PhoneNumber = x.PhoneNumber,
+
+                        // ================= EMAIL =================
+                        EmailAddresses = x.LeadDetailEmail
+                            .Select(e => new CommonSelectVM2
+                            {
+                                Id = e.AddressID != null
+                                        ? $"c_{e.AddressID}"
+                                        : $"o_{e.OtherContactID}",
+
+                                Name = e.AddressID != null
+                                        ? $"{e.Address.FirstName ?? ""} {e.Address.LastName ?? ""}: {e.Address.Email}"
+                                        : $"{e.OtherContact.FirstName ?? ""} {e.OtherContact.LastName ?? ""}: {e.OtherContact.Email}",
+
+                                GroupName = e.AddressID != null ? "Customer" : "Other Contact"
+                            })
+                            .ToList(),
+
+                        // ================= PHONE =================
+                        PhoneNumbers = x.LeadDetailPhone
+                            .Select(p => new CommonSelectVM2
+                            {
+                                // Format: c_1_5013 OR o_2_7021
+                                Id = p.AddressID != null
+                                        ? $"c_{(p.IsOtherPhone == true ? 2 : 1)}_{p.AddressID}"
+                                        : $"o_{(p.IsOtherPhone == true ? 2 : 1)}_{p.OtherContactID}",
+
+                                Name = p.PhoneSnapshot,
+
+                                GroupName = p.AddressID != null ? "Customer" : "Other Contact"
+                            })
+                            .ToList(),
+
                         FileLink = x.FileLink,
                         ActivityDateTime = x.ActivityDateTime
                     })
@@ -777,6 +897,7 @@ namespace GCTL.Service.CRM.LeadDetail
                 };
             }
         }
+
         #endregion
 
         #region Add Comment

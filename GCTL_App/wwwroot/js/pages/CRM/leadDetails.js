@@ -233,8 +233,24 @@ $(function () {
         formData.append("LeadActivityTypeID", parseInt(buttonID));
         formData.append("ActivityNote", note || "");
         formData.append("ActivityTypeName", buttonName);
-        formData.append("ContactEmail", contactEmail);
-        formData.append("ContactNumber", contactNumber);
+        // email
+        var selectedEmails = $("#ContectPersonEmailId").select2("data");
+
+        selectedEmails.forEach((item, index) => {
+            formData.append(`ContactEmails[${index}].Id`, item.id);
+            formData.append(`ContactEmails[${index}].Name`, item.text);
+        });
+
+        // phone
+        var selectedPhones = $("#ContectPersonId").select2("data");
+
+        selectedPhones.forEach((item, index) => {
+            debugger
+            formData.append(`ContactNumbers[${index}].Id`, item.id);
+            formData.append(`ContactNumbers[${index}].Name`, item.text);
+
+        });
+
 
         if (buttonName !== "Won" && buttonName !== "Lost") {
             const convertedDate = convertToISODateTime(date);
@@ -757,18 +773,12 @@ $(function () {
                 <button class="timeline-action-btn" onclick="toggleCommentSection(${value.leadDetailID}, false)">
                     <i class="fa fa-comments"></i> Comments <span class="comment-count-badge" id="comment-count-${value.leadDetailID}">0</span>
                 </button>
-                <button class="timeline-action-btn" onclick="viewActivity(${value.leadDetailID})">
-                    <i class="fa fa-eye"></i> View
-                </button>
             `;
             }
         } else {
             actionButtonsHtml = `
             <button class="timeline-action-btn" onclick="toggleCommentSection(${value.leadDetailID}, false)">
                 <i class="fa fa-comments"></i> Comments <span class="comment-count-badge" id="comment-count-${value.leadDetailID}">0</span>
-            </button>
-            <button class="timeline-action-btn" onclick="viewActivity(${value.leadDetailID})">
-                <i class="fa fa-eye"></i> View
             </button>
         `;
         }
@@ -781,7 +791,6 @@ $(function () {
             <div class="timeline-activity-content">
                 <div class="timeline-activity-header">
                     <h5 class="timeline-activity-title">${escapeHtml(activityType)}</h5>
-                    <span class="timeline-activity-badge ${badgeClass}">${activityType}</span>
                 </div>
                 <div class="timeline-activity-meta">
                     <span class="timeline-meta-item">
@@ -920,7 +929,7 @@ $(function () {
             const comments = response.data || [];
 
             if (comments.length === 0) {
-                commentsList.innerHTML = '<p class="text-muted text-center small py-2">No comments yet. Be the first to comment!</p>';
+                commentsList.innerHTML = '<p class="text-muted text-center small py-2">No comments yet!</p>';
                 return;
             }
 

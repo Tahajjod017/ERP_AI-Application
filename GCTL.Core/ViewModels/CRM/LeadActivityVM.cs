@@ -6,8 +6,8 @@
         public DateTime? ActivityDateTime { get; set; }
         public string ActivityNote { get; set; }
         public string FileLink { get; set; }
-        public string PhoneNumber { get; set; }
-        public string EmailAddress { get; set; }
+        public List<CommonSelectVM2>? PhoneNumbers { get; set; }
+        public List<CommonSelectVM2>? EmailAddresses { get; set; }
         public bool? IsDone { get; set; }
         public string LeadActivityName { get; set; }
         public string LeadActivityIcon { get; set; }
