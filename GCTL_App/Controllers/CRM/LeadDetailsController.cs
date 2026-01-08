@@ -168,13 +168,13 @@ namespace GCTL_App.Controllers.CRM
         {
             const int pageSize = 10;
             int skip = (page - 1) * pageSize;
-
+                
             // Fetch filtered and paginated data with Status
             var list = await _leadDetailsRepository
                 .AllActive()
                 .Include(e => e.Status) // Include Status
                 .Where(u => u.LeadID == id &&
-                           u.ActivityDateTime >= DateTime.UtcNow.AddSeconds(11) &&
+                           u.ActivityDateTime >= DateTime.Now.AddSeconds(2) &&
                            u.IsDone == null)
                 .OrderByDescending(e => e.ActivityDateTime)
                 .Skip(skip)
@@ -183,8 +183,8 @@ namespace GCTL_App.Controllers.CRM
                 {
                     e.LeadDetailID,
                     e.ActivityDateTime,
-                    e.PhoneNumber,
-                    e.EmailAddress,
+                    Emails = string.Join(",", e.LeadDetailEmail.Where( c => c.DeletedAt == null).Select(d => d.EmailSnapshot)),
+                    PhoneNumberList = string.Join(",", e.LeadDetailPhone.Where(p => p.DeletedAt == null).Select(c => c.PhoneSnapshot)),
                     e.ActivityNote,
                     e.FileLink,
                     e.IsDone,
@@ -206,7 +206,7 @@ namespace GCTL_App.Controllers.CRM
         [HttpGet]
         public async Task<IActionResult> getUpcommingList(int id, int page)
         {
-            var currentDate = DateTime.UtcNow;
+            var currentDate = DateTime.Now;
 
             const int pageSize = 10; 
             int skip = (page - 1) * pageSize; 

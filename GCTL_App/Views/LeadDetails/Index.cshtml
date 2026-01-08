@@ -1112,6 +1112,78 @@
         background: rgba(107, 114, 128, 0.15);
         color: #4b5563;
     }
+
+    /* // expend column contact and email0*/
+    .timeline-contact-group {
+        margin-top: 4px;
+    }
+
+    .timeline-meta-item.d-block {
+        display: block !important;
+        margin-bottom: 2px;
+    }
+
+    .timeline-show-more-contact-btn {
+        background: none;
+        border: none;
+        color: #6c757d;
+        font-size: 0.875rem;
+        cursor: pointer;
+        padding: 0;
+        text-decoration: underline;
+        transition: color 0.2s ease;
+    }
+
+        .timeline-show-more-contact-btn:hover {
+            color: #007bff;
+        }
+
+    .timeline-hide-btn {
+        background: none;
+        border: none;
+        color: #007bff;
+        font-size: 0.875rem;
+        cursor: pointer;
+        padding: 2px 0;
+    }
+
+    .hidden-contacts-list {
+        margin-top: 4px;
+        padding-top: 4px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    /* Chrome, Edge, Safari */
+    #probabilityPercentage::-webkit-slider-thumb {
+        -webkit-appearance: none; /* remove default style */
+        appearance: none;
+        width: 21px; /* 🔼 width of thumb */
+        height: 21px; /* 🔼 height of thumb */
+        background: #0d6efd; /* bootstrap primary */
+        border-radius: 50%; /* circle */
+        cursor: pointer;
+        margin-top: -8px; /* align with track */
+    }
+
+    /* Firefox */
+    #probabilityPercentage::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        background: #0d6efd;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    /* Optional: track height */
+    #probabilityPercentage::-webkit-slider-runnable-track {
+        height: 8px;
+    }
+
+    #probabilityPercentage::-moz-range-track {
+        height: 8px;
+    }
+
+
 </style>
 
 <div class="pb-4">

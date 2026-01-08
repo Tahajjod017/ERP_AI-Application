@@ -29,6 +29,19 @@ $(function () {
     // ==============================
     // Active option buttons
     // ==============================
+    flatpickr("#aDate", {
+        enableTime: true,
+        dateFormat: "d/m/Y h:i K", // 12-hour format with AM/PM
+        time_24hr: false,          // use 12-hour
+        disableMobile: true,
+        onChange: function (selectedDates, dateStr) {
+            // dateStr is like "08/01/2026 07:30 PM"
+            console.log("User picked:", dateStr);
+            // The input value is automatically dateStr (string)
+        }
+    });
+
+
     $(".option-btn").on('click', function () {
         $(".option-btn").removeClass('active');
         $(this).addClass('active');
@@ -129,7 +142,7 @@ $(function () {
         language: {
             noResults: function () {
                 return $(
-                    `<span>Data not found. Add a <a id="createCustomer" href="#">Contact</a></span>`
+                    `<span>Data not found. Add a <a id="addContact" href="#">Contact</a></span>`
                 );
             }
         },
@@ -162,7 +175,7 @@ $(function () {
         language: {
             noResults: function () {
                 return $(
-                    `<span>Data not found. Add a <a id="createCustomer" href="#">Email</a></span>`
+                    `<span>Data not found. Add a <a id="addEmail" href="#">Email</a></span>`
                 );
             }
         },
@@ -178,6 +191,12 @@ $(function () {
         $(ids.wonConfirmDiv).addClass('d-none');
     });
 
+
+    // open customer modal
+    $(document).on("click", "#addContact, #addEmail", function (e) {
+        e.preventDefault();
+        openCustomerModal();
+    });
     // ==============================
     // Config & State
     // ==============================
@@ -233,6 +252,7 @@ $(function () {
         formData.append("LeadActivityTypeID", parseInt(buttonID));
         formData.append("ActivityNote", note || "");
         formData.append("ActivityTypeName", buttonName);
+        formData.append("ActivityDateTime2", date);
         // email
         var selectedEmails = $("#ContectPersonEmailId").select2("data");
 
@@ -254,11 +274,13 @@ $(function () {
 
         if (buttonName !== "Won" && buttonName !== "Lost") {
             const convertedDate = convertToISODateTime(date);
-            formData.append("ActivityDateTime", convertedDate);
+            formData.append("ActivityDateTime", date);
             if (file) formData.append("File", file);
         }
         let isWonOrLostBtnSelected = $('.special-btn').hasClass('active');
+        const dataObj = Object.fromEntries(formData.entries());
 
+        console.log(dataObj);
         $.ajax({
             url: '/LeadDetails/SaveLeadActivity',
             method: 'POST',
@@ -592,6 +614,7 @@ $(function () {
             contentType: 'application/json',
             data: { id, page },
             success: function (response) {
+                showDev(response);
                 if (!response || response.length === 0 && loadedIds2.size == 0) {
                     $("#upcomming-div").addClass("d-none");
                     return;
@@ -624,6 +647,31 @@ $(function () {
         });
     }
 
+    window.toggleContactList = function (activityId, contactType) {
+        const hiddenList = document.getElementById(`hidden-${contactType}s-${activityId}`);
+        if (!hiddenList) return;
+
+        const showMoreBtn = hiddenList.previousElementSibling;
+
+        if (!showMoreBtn || !showMoreBtn.classList.contains('timeline-show-more-contact-btn')) return;
+
+        if (hiddenList.style.display === 'none' || hiddenList.style.display === '') {
+            hiddenList.style.display = 'block';
+            showMoreBtn.innerHTML = `
+            <span>Show less</span>
+            <i class="fa fa-chevron-up ms-1"></i>
+        `;
+        } else {
+            hiddenList.style.display = 'none';
+            const hiddenItems = hiddenList.querySelectorAll('.timeline-meta-item');
+            const hiddenCount = hiddenItems.length;
+            showMoreBtn.innerHTML = `
+            <span>Show ${hiddenCount} more</span>
+            <i class="fa fa-chevron-down ms-1"></i>
+        `;
+        }
+    }
+
     // ==============================
     // Render Activity - PHOENIX DESIGN
     // ==============================
@@ -633,26 +681,21 @@ $(function () {
     function renderActivity(value, activityDate, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
-
         const isUpcoming = containerId === 'upcoming-activity';
         const activityType = value.leadActivityName || 'Note';
         const iconClass = getTimelineIconClass(activityType);
         const badgeClass = getTimelineBadgeClass(activityType);
         const pulseClass = isUpcoming ? 'timeline-icon-pulse' : '';
-
         // Determine status from DATABASE
         let statusClass = '';
         let statusIcon = '';
         let statusText = '';
-
         const activityDateTime = new Date(value.activityDateTime);
         const now = new Date();
         const isPast = activityDateTime < now;
-
         // Use database status if available
         if (value.statusName) {
             statusText = value.statusName;
-
             switch (value.statusName.toLowerCase()) {
                 case 'completed':
                     statusClass = 'timeline-status-completed';
@@ -694,36 +737,88 @@ $(function () {
                 } else {
                     statusClass = 'timeline-status-incompleted';
                     statusIcon = 'fa-times-circle';
-                    statusText = 'Incomplete';
+                    statusText = 'Expired';
                 }
             }
         }
 
-        // Build phone numbers HTML
+        // Build phone numbers HTML - NEW LINE with max 3 + show more
         let phoneHtml = '';
-        if (value.phoneNumber && value.phoneNumber.trim() !== "") {
-            const phones = value.phoneNumber.split(',').map(p => p.trim()).filter(Boolean);
+        if (value.phoneNumberList && value.phoneNumberList.trim() !== "") {
+            const phones = value.phoneNumberList.split(',').map(p => p.trim()).filter(Boolean);
             if (phones.length > 0) {
-                phoneHtml = phones.map(phone =>
-                    `<span class="timeline-meta-item">
-                    <i class="fa fa-phone"></i>
-                    <span>${phone}</span>
-                </span>`
-                ).join('');
+                const visiblePhones = phones.slice(0, 3);
+                const hiddenPhones = phones.slice(3);
+                phoneHtml = `
+                <div class="timeline-contact-group">
+                    <div class="timeline-contact-list" data-activity-id="${value.leadDetailID}" data-contact-type="phone">
+                        ${visiblePhones.map(phone =>
+                    `<span class="timeline-meta-item d-block">
+                                <i class="fa fa-phone"></i>
+                                <span>${escapeHtml(phone)}</span>
+                            </span>`
+                ).join('')}
+                        ${hiddenPhones.length > 0 ? `
+                            <button class="timeline-show-more-contact-btn mt-1" 
+                                    onclick="toggleContactList('${value.leadDetailID}', 'phone')">
+                                <span>Show ${hiddenPhones.length} more</span>
+                                <i class="fa fa-chevron-down ms-1"></i>
+                            </button>
+                            <div class="hidden-contacts-list" id="hidden-phones-${value.leadDetailID}" style="display: none;">
+                                ${hiddenPhones.map(phone =>
+                    `<span class="timeline-meta-item d-block">
+                                        <i class="fa fa-phone"></i>
+                                        <span>${escapeHtml(phone)}</span>
+                                    </span>`
+                ).join('')}
+                                <button class="timeline-hide-btn mt-1" onclick="toggleContactList('${value.leadDetailID}', 'phone')">
+                                    <i class="fa fa-chevron-up"></i> Show less
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
             }
         }
 
-        // Build email HTML
+        // Build email HTML - NEW LINE with max 3 + show more
         let emailHtml = '';
-        if (value.emailAddress && value.emailAddress.trim() !== "") {
-            const emails = value.emailAddress.split(',').map(e => e.trim()).filter(Boolean);
+        if (value.emails && value.emails.trim() !== "") {
+            const emails = value.emails.split(',').map(e => e.trim()).filter(Boolean);
             if (emails.length > 0) {
-                emailHtml = emails.map(email =>
-                    `<span class="timeline-meta-item">
-                    <i class="fa fa-envelope"></i>
-                    <span>${email}</span>
-                </span>`
-                ).join('');
+                const visibleEmails = emails.slice(0, 3);
+                const hiddenEmails = emails.slice(3);
+                emailHtml = `
+                <div class="timeline-contact-group">
+                    <div class="timeline-contact-list" data-activity-id="${value.leadDetailID}" data-contact-type="email">
+                        ${visibleEmails.map(email =>
+                    `<span class="timeline-meta-item d-block">
+                                <i class="fa fa-envelope"></i>
+                                <span>${escapeHtml(email)}</span>
+                            </span>`
+                ).join('')}
+                        ${hiddenEmails.length > 0 ? `
+                            <button class="timeline-show-more-contact-btn mt-1" 
+                                    onclick="toggleContactList('${value.leadDetailID}', 'email')">
+                                <span>Show ${hiddenEmails.length} more</span>
+                                <i class="fa fa-chevron-down ms-1"></i>
+                            </button>
+                            <div class="hidden-contacts-list" id="hidden-emails-${value.leadDetailID}" style="display: none;">
+                                ${hiddenEmails.map(email =>
+                    `<span class="timeline-meta-item d-block">
+                                        <i class="fa fa-envelope"></i>
+                                        <span>${escapeHtml(email)}</span>
+                                    </span>`
+                ).join('')}
+                                <button class="timeline-hide-btn mt-1" onclick="toggleContactList('${value.leadDetailID}', 'email')">
+                                    <i class="fa fa-chevron-up"></i> Show less
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
             }
         }
 
@@ -732,22 +827,21 @@ $(function () {
         if (value.activityNote && value.activityNote.trim() !== "") {
             const noteLength = value.activityNote.length;
             const shouldCollapse = noteLength > 150;
-
             descriptionHtml = `
-            <div class="timeline-activity-description">
-                <div class="timeline-description-text ${shouldCollapse ? 'collapsed' : ''}" 
-                     data-activity-id="${value.leadDetailID}">
-                    <p>${escapeHtml(value.activityNote)}</p>
-                </div>
-                ${shouldCollapse ? `
-                    <button class="timeline-show-more-btn" 
-                            onclick="toggleActivityDescription(${value.leadDetailID})">
-                        <span>Read More</span>
-                        <i class="fa fa-chevron-down"></i>
-                    </button>
-                ` : ''}
+        <div class="timeline-activity-description">
+            <div class="timeline-description-text ${shouldCollapse ? 'collapsed' : ''}"
+                 data-activity-id="${value.leadDetailID}">
+                <p>${escapeHtml(value.activityNote)}</p>
             </div>
-        `;
+            ${shouldCollapse ? `
+                <button class="timeline-show-more-btn"
+                        onclick="toggleActivityDescription(${value.leadDetailID})">
+                    <span>Read More</span>
+                    <i class="fa fa-chevron-down"></i>
+                </button>
+            ` : ''}
+        </div>
+    `;
         }
 
         // Build action buttons based on status
@@ -755,109 +849,110 @@ $(function () {
         if (isUpcoming) {
             if (value.isDone !== true) {
                 actionButtonsHtml = `
-                <button class="timeline-action-btn" onclick="toggleCommentSection(${value.leadDetailID}, true)">
-                    <i class="fa fa-comments"></i> Comments <span class="comment-count-badge" id="comment-count-${value.leadDetailID}">0</span>
-                </button>
-                <button class="timeline-action-btn" onclick="noResponseActivity(${value.leadDetailID})">
-                    <i class="fa fa-ban"></i> No Response
-                </button>
-                <button class="timeline-action-btn" onclick="editActivity(${value.leadDetailID})">
-                    <i class="fa fa-pencil"></i> Edit
-                </button>
-                <button class="timeline-action-btn" onclick="completeActivity(${value.leadDetailID})">
-                    <i class="fa fa-check"></i> Complete
-                </button>
-            `;
+            <button class="timeline-action-btn" onclick="toggleCommentSection(${value.leadDetailID}, true)">
+                <i class="fa fa-comments"></i> Comments <span class="comment-count-badge" id="comment-count-${value.leadDetailID}">0</span>
+            </button>
+            <button class="timeline-action-btn" onclick="noResponseActivity(${value.leadDetailID})">
+                <i class="fa fa-ban"></i> No Response
+            </button>
+            <button class="timeline-action-btn" onclick="editActivity(${value.leadDetailID})">
+                <i class="fa fa-pencil"></i> Edit
+            </button>
+            <button class="timeline-action-btn" onclick="completeActivity(${value.leadDetailID})">
+                <i class="fa fa-check"></i> Complete
+            </button>
+        `;
             } else {
                 actionButtonsHtml = `
-                <button class="timeline-action-btn" onclick="toggleCommentSection(${value.leadDetailID}, false)">
-                    <i class="fa fa-comments"></i> Comments <span class="comment-count-badge" id="comment-count-${value.leadDetailID}">0</span>
-                </button>
-            `;
-            }
-        } else {
-            actionButtonsHtml = `
             <button class="timeline-action-btn" onclick="toggleCommentSection(${value.leadDetailID}, false)">
                 <i class="fa fa-comments"></i> Comments <span class="comment-count-badge" id="comment-count-${value.leadDetailID}">0</span>
             </button>
         `;
+            }
+        } else {
+            actionButtonsHtml = `
+        <button class="timeline-action-btn" onclick="toggleCommentSection(${value.leadDetailID}, false)">
+            <i class="fa fa-comments"></i> Comments <span class="comment-count-badge" id="comment-count-${value.leadDetailID}">0</span>
+        </button>
+    `;
         }
 
         const activityHtml = `
-        <div class="timeline-activity-item" data-activity-id="${value.leadDetailID}">
-            <div class="timeline-activity-icon ${iconClass} ${pulseClass}">
-                <i class="fa ${getActivityIcon(activityType)}"></i>
+    <div class="timeline-activity-item" data-activity-id="${value.leadDetailID}">
+        <div class="timeline-activity-icon ${iconClass} ${pulseClass}">
+            <i class="fa ${getActivityIcon(activityType)}"></i>
+        </div>
+        <div class="timeline-activity-content">
+            <div class="timeline-activity-header">
+                <h5 class="timeline-activity-title">${escapeHtml(activityType)}</h5>
             </div>
-            <div class="timeline-activity-content">
-                <div class="timeline-activity-header">
-                    <h5 class="timeline-activity-title">${escapeHtml(activityType)}</h5>
+            <div class="timeline-activity-meta">
+                <span class="timeline-meta-item">
+                    <i class="fa fa-calendar"></i>
+                    <span>${activityDate}</span>
+                </span>
+                <span class="timeline-meta-item">
+                    <i class="fa fa-user"></i>
+                    <span>${escapeHtml(value.createdByName || 'Unknown')}</span>
+                </span>
+                ${phoneHtml}
+                ${emailHtml}
+            </div>
+            ${descriptionHtml}
+            <div class="timeline-activity-footer">
+                <span class="timeline-activity-status ${statusClass}">
+                    <i class="fa ${statusIcon}"></i>
+                    ${statusText}
+                </span>
+                <div class="timeline-activity-actions">
+                    ${actionButtonsHtml}
                 </div>
-                <div class="timeline-activity-meta">
-                    <span class="timeline-meta-item">
-                        <i class="fa fa-calendar"></i>
-                        <span>${activityDate}</span>
-                    </span>
-                    <span class="timeline-meta-item">
-                        <i class="fa fa-user"></i>
-                        <span>${escapeHtml(value.createdByName || 'Unknown')}</span>
-                    </span>
-                    ${phoneHtml}
-                    ${emailHtml}
-                </div>
-                ${descriptionHtml}
-                <div class="timeline-activity-footer">
-                    <span class="timeline-activity-status ${statusClass}">
-                        <i class="fa ${statusIcon}"></i>
-                        ${statusText}
-                    </span>
-                    <div class="timeline-activity-actions">
-                        ${actionButtonsHtml}
+            </div>
+           
+            <!-- Comment Section (Hidden by default) -->
+            <div class="activity-comment-section" id="comment-section-${value.leadDetailID}" style="display: none;" data-can-add="${isUpcoming && value.isDone !== true}">
+                <div class="comment-section-divider"></div>
+               
+                <!-- Comments List -->
+                <div class="comments-list" id="comments-list-${value.leadDetailID}">
+                    <div class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted small mb-0 mt-2">Loading comments...</p>
                     </div>
                 </div>
-                
-                <!-- Comment Section (Hidden by default) -->
-                <div class="activity-comment-section" id="comment-section-${value.leadDetailID}" style="display: none;" data-can-add="${isUpcoming && value.isDone !== true}">
-                    <div class="comment-section-divider"></div>
-                    
-                    <!-- Comments List -->
-                    <div class="comments-list" id="comments-list-${value.leadDetailID}">
-                        <div class="text-center py-3">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <p class="text-muted small mb-0 mt-2">Loading comments...</p>
+               
+                <!-- Add Comment Form (Only for upcoming activities) -->
+                ${isUpcoming && value.isDone !== true ? `
+                    <div class="add-comment-form">
+                        <div class="d-flex gap-2 align-items-start">
+                            <textarea
+                                class="form-control form-control-sm"
+                                id="new-comment-${value.leadDetailID}"
+                                rows="2"
+                                placeholder="Add a comment..."
+                                style="resize: none;"></textarea>
+                            <button
+                                class="btn btn-primary btn-sm"
+                                onclick="submitComment(${value.leadDetailID})"
+                                style="white-space: nowrap;">
+                                <i class="fa fa-paper-plane"></i>
+                            </button>
                         </div>
                     </div>
-                    
-                    <!-- Add Comment Form (Only for upcoming activities) -->
-                    ${isUpcoming && value.isDone !== true ? `
-                        <div class="add-comment-form">
-                            <div class="d-flex gap-2 align-items-start">
-                                <textarea 
-                                    class="form-control form-control-sm" 
-                                    id="new-comment-${value.leadDetailID}" 
-                                    rows="2" 
-                                    placeholder="Add a comment..."
-                                    style="resize: none;"></textarea>
-                                <button 
-                                    class="btn btn-primary btn-sm" 
-                                    onclick="submitComment(${value.leadDetailID})"
-                                    style="white-space: nowrap;">
-                                    <i class="fa fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
+                ` : ''}
             </div>
         </div>
-    `;
-
+    </div>
+`;
         container.insertAdjacentHTML('beforeend', activityHtml);
-
         // Load comment count after rendering
         loadCommentCount(value.leadDetailID);
     }
+
+    // Toggle contact list visibility
+    
 
     // ==============================
     // Load Comment Count
@@ -938,7 +1033,7 @@ $(function () {
             const hasMore = comments.length > 3;
 
             let commentsHtml = displayComments.map(c => {
-                const commentDate = new Date(c.createdAt).toLocaleString('en-GB', {
+                const commentDate = new Date(c.createdTime).toLocaleString('en-GB', {
                     day: '2-digit',
                     month: 'short',
                     year: 'numeric',
@@ -1527,6 +1622,11 @@ $(function () {
     //#region Modal Edit Customer Button
     $(document).on("click", "#editCustomerBtn2", function (e) {
         e.preventDefault();
+        openCustomerModal();
+    });
+    //#endregion
+
+    function openCustomerModal() {
         $("#customerModalActionName").text("Edit")
 
         $.get('/Customers/IndexModal', function (html) {
@@ -1550,8 +1650,7 @@ $(function () {
 
             secondModal.show();
         });
-    });
-    //#endregion
+    }
 
     // ==============================
     // Make Functions Globally Accessible
@@ -1566,7 +1665,7 @@ $(function () {
     // ==============================
     // Activity Action Functions (Add your logic)
     // ==============================
-    function editActivity(activityId) {
+    function editActivity(activityId, actionType) {
         $.ajax({
             url: '/LeadDetails/GetActivityInfo',
             type: 'GET',
@@ -1580,6 +1679,12 @@ $(function () {
                 }
 
 
+                // Clear previous selections
+                const phoneSelect = $('#ContectPersonId');
+                const emailSelect = $('#ContectPersonEmailId');
+
+                phoneSelect.val(null).trigger('change');
+                emailSelect.val(null).trigger('change');
 
                 let d = res.data[0];
 
@@ -1603,7 +1708,39 @@ $(function () {
                 // Step 2: Fill simple fields
                 debugger
                 $(ids.note).val(activityNote);
-                $(ids.leadDetailID).val(leadDetailID);
+                
+
+                // phone
+                if (d.phoneNumbers && d.phoneNumbers.length > 0) {
+                    debugger
+                    var $contectSelect = $("#ContectPersonId");
+
+                    $contectSelect.empty();
+
+                    $.each(d.phoneNumbers, function (index, item) {
+                        var option = new Option(item.name, item.id, true, true);
+                        $contectSelect.append(option);
+                    });
+
+                    // refresh select2
+                    $contectSelect.trigger("change");
+                }
+
+                // email
+                if (d.emailAddresses && d.emailAddresses.length > 0) {
+                    debugger
+                    var $emailSelect = $("#ContectPersonEmailId");
+
+                    $emailSelect.empty();
+
+                    $.each(d.emailAddresses, function (index, item) {
+                        var option = new Option(item.name, item.id, true, true);
+                        $emailSelect.append(option);
+                    });
+
+                    // refresh select2
+                    $emailSelect.trigger("change");
+                }
 
                 // date time load
                 if (date && date.trim() !== "") {
@@ -1651,63 +1788,25 @@ $(function () {
                     $('#file-field').removeData('existing-file');
                 }
 
-                // Step 3: Handle Select2 AJAX fields (Contact Phone - multiple)
-                const phoneSelect = $('#ContectPersonId');
-                const emailSelect = $('#ContectPersonEmailId');
-
-                // Clear previous selections
-                phoneSelect.val(null).trigger('change');
-                emailSelect.val(null).trigger('change');
-
-                if (phoneNumber) {
-                    const phoneIds = phoneNumber.split(',').map(p => p.trim()).filter(Boolean);
-
-                    // For each ID, we need to fetch its text/label via the same AJAX endpoint
-                    let phoneLoaded = 0;
-                    phoneIds.forEach(id => {
-                        $.ajax({
-                            url: "/LeadDetails/GetContactNumberList",
-                            data: { leadId: $(ids.leadID).val(), search: id }, // search by exact ID to get single
-                            dataType: 'json',
-                            success: function (data) {
-                                console.log(data);
-                                if (data.items && data.items.length > 0) {
-                                    const item = data.items[0];
-                                    const option = new Option(item.label, item.value, true, true);
-                                    phoneSelect.append(option).trigger('change');
-                                }
-                                phoneLoaded++;
-                                if (phoneLoaded === phoneIds.length) {
-                                    phoneSelect.trigger('change'); // final refresh
-                                }
-                            }
-                        });
-                    });
-                }
-
-                // Step 4: Handle Email (seems single select from your code)
-                if (emailAddress) {
-                    $.ajax({
-                        url: "/LeadDetails/GetContactEmailList",
-                        data: { leadId: $(ids.leadID).val(), search: emailAddress },
-                        dataType: 'json',
-                        success: function (data) {
-                            if (data.items && data.items.length > 0) {
-                                const item = data.items[0];
-                                const option = new Option(item.label, item.value, true, true);
-                                emailSelect.append(option).trigger('change');
-                            }
-                        }
-                    });
-                }
-
                 // Step 5: Switch button to Update mode
-                $('#addLActivity')
-                    .text('Update Activity')
-                    .removeClass('btn-primary')
-                    .addClass('btn-success')
-                    .data('edit-mode', true)
-                    .data('edit-activity-id', activityId);
+                if (actionType === "reschedule") {
+                    $('#addLActivity')
+                        .text('Reschedule')
+                        .removeClass('btn-primary')
+                        .addClass('btn-info')
+                        .data('edit-mode', true)
+                        .data('edit-activity-id', 0);
+                    $(ids.leadDetailID).val(0);
+                } else {
+                    $('#addLActivity')
+                        .text('Update Activity')
+                        .removeClass('btn-primary')
+                        .addClass('btn-success')
+                        .data('edit-mode', true)
+                        .data('edit-activity-id', activityId);
+                    $(ids.leadDetailID).val(leadDetailID);
+                }
+                
 
                 toastr.success("Activity loaded for editing. Modify and click 'Update Activity'.");
 
@@ -1737,13 +1836,14 @@ $(function () {
                 if (res.success) {
                     customToaster.success("Marked as No Response");
 
+                    resetAndReload();
+                    resetAndReloadUpcoming();
+
                     const reschedule = await customToaster.confirm("Do you want to reschedule this activity?");
                     if (reschedule) {
-                        editActivity(activityId); // Reuse edit function for rescheduling
-                    } else {
-                        resetAndReload();
-                        resetAndReloadUpcoming();
-                    }
+                        await editActivity(activityId, "reschedule"); // Reuse edit function for rescheduling
+                        $(ids.leadDetailID).val(0);
+                    } 
                 } else {
                     toastr.error(res.message || "Failed to update status");
                 }
@@ -1841,7 +1941,8 @@ $(function () {
 
 // Close Window Function
 window.closeWindow = function () {
-    const modalEl = document.getElementById('customerModal');
+    debugger
+    const modalEl = document.getElementById('openCustomerModalToggle');
     const modal = bootstrap.Modal.getInstance(modalEl);
     if (modal) modal.hide();
 };

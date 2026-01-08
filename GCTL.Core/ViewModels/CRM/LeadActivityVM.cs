@@ -5,6 +5,8 @@
         public int LeadDetailID { get; set; }
         public DateTime? ActivityDateTime { get; set; }
         public string ActivityNote { get; set; }
+        public string? PhoneNumberList { get; set; }
+        public string? Emails { get; set; }
         public string FileLink { get; set; }
         public List<CommonSelectVM2>? PhoneNumbers { get; set; }
         public List<CommonSelectVM2>? EmailAddresses { get; set; }
