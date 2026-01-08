@@ -1443,10 +1443,12 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
             var employeeId = await appDb.Users.Where(u => u.Id == userId).Select(e => e.EmployeeId).FirstOrDefaultAsync();
 
             if (employeeId == null)
-                return new List<LeaveBalancesDisplayVM>(); // or throw exception if required
+                return new List<LeaveBalancesDisplayVM>(); 
             var today = DateOnly.FromDateTime(DateTime.Today);
             int leaveAppliedYear = GetLeaveApplicableYear(today, policy);
-            // Get the role of the user
+
+
+            
             var roleName = await (
                 from user in appDb.Users
                 join userRole in appDb.UserRoles on user.Id equals userRole.UserId
@@ -1484,30 +1486,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveApprovalDeclin
 
         }
 
-    //    private int GetLeaveApplicableYear(
-    //DateOnly referenceDate,
-    //LeavePolicyConfiguration policy)
-    //    {
-    //        if (!policy.EnableLeaveBalanceResetDate ||
-    //            policy.LeaveBalanceResetDate == null)
-    //        {
-    //            return referenceDate.Year; // fallback
-    //        }
-
-    //        int resetDay = policy.LeaveBalanceResetDate.Value.Day;
-    //        int resetMonth = policy.LeaveBalanceResetDate.Value.Month;
-
-    //        var resetDateThisYear = new DateOnly(
-    //            referenceDate.Year,
-    //            resetMonth,
-    //            resetDay
-    //        );
-
-    //        return referenceDate < resetDateThisYear
-    //            ? referenceDate.Year - 1
-    //            : referenceDate.Year;
-    //    }
-
+  
 
         private int GetLeaveApplicableYear(DateOnly referenceDate, LeavePolicyConfiguration policy)
         {
