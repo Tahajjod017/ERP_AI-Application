@@ -1,5 +1,7 @@
 ﻿
 
+
+
 // #region loadTableData
 var currentPage = 1;
 var pageSize = 5;
@@ -115,10 +117,13 @@ function loadTableData(sortColumn, sortOrder) {
                                 <div class="d-flex btn-reveal-trigger position-static">
                                     <a href="#!"
                                        class="btn btn-phoenix-danger btn-icon me-1 fs-10 text-body px-0 employeeAdvance-editBtn"
+                                       data-bs-toggle="modal" data-bs-target="#editModal"
                                        data-id="${item.employeeAdvanceID}"
-                                       title="Add">
+                                       title="Add"
+                                       >
                                        <i class="fa-solid fa-eye"></i>
                                     </a>
+
                                 </div>
                             </td>
                         </tr>
@@ -144,6 +149,13 @@ function loadTableData(sortColumn, sortOrder) {
         }
     });
 }
+
+//Modal Show
+document.querySelector('.employeeAdvance-editBtn').addEventListener('click', function (e) {
+    e.preventDefault();
+    const modal = new bootstrap.Modal(document.getElementById('editModal'));
+    modal.show();
+});
 
 function updatePagination(pageNumbers, currentPage, totalPages) {
     const paginationLinks = $("#empAdvanced-paginationLinks");

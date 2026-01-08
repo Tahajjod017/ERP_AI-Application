@@ -1,4 +1,7 @@
-﻿@model GCTL.Core.ViewModels.FieldServices.ApprovalGetALLVM
+﻿
+
+
+@model GCTL.Core.ViewModels.FieldServices.ApprovalGetALLVM
 <h3>Advanced Approval</h3>
 
 <div class="card my-4">
@@ -157,10 +160,35 @@
 
 </div>
 
+<!--Modal-->
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editCenteredModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCenteredModalLabel">Advanced Approval</h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-body-tertiary text-success lh-lg mb-0 text-center fs-8">Transfer to Approval?</p>
+            </div>
+            <div class="d-flex  justify-content-center mt-3">
+                <button class="btn btn-primary justify-content-center ps-4"type="button"data-bs-dismiss="modal">Approved</button>
+                <div>
+                    <button class="btn btn-secondary justify-content-center ps-4" type="button" data-bs-dismiss="modal">Decline</button>
+                </div>
+              
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-	<script src="~/js/pages/fieldservices/advancedapproval.js"></script>
+	<script src="~/js/pages/fieldservices/advancedapproval.js">
+    </script>
+
+
 }
