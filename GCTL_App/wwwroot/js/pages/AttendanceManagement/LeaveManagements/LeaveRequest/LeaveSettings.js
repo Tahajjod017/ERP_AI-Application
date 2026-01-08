@@ -14,7 +14,7 @@
             EffectiveFrom: $('#EffectiveFrom').val(),
             EffectiveFromMonthYear: $('#EffectiveFromMonthYear').val(),
             EffectiveAfter: $('#EffectiveAfter').val(),
-            
+            IsAllowPastDate: $('input[name="IsAllowPastDate"]:checked').val() === 'true',
         };
 
         $.ajax({
@@ -25,6 +25,10 @@
                 console.log("Response:", response);
                 if (response.success) {
                     toastr.success(response.message);
+                   
+                    var modalEl = document.getElementById('add_new_leave');
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
                     loadLeaveTypeCard();
                     resetForm();
                 } else {
@@ -48,22 +52,32 @@
         });
     });
 
-    function resetForm()
-    {
-        $('#LeaveTypeName, #LeaveDays, #Code, #EffectiveFrom').val('');
-        $('#IsPaidYes').prop('checked', true);    
-        $('#IsActiveYes').prop('checked', true);
+    function resetForm() {
 
-        // Reset dropdowns
-        $('#OrganizationID').val([]).trigger('change');
-        $('#EffectiveFromMonthYear').val('Months').trigger('change');
+        // ---------- Text & Number Inputs ----------
+        $('#LeaveTypeName').val('');
+        $('#LeaveDays').val('');
+        $('#Code').val('');
+        $('#EffectiveFrom').val('');
         $('#EffectiveAfter').val('After Joining Date');
 
-        // Clear validation styles and messages
+        // ---------- Radio Buttons ----------
+        $('input[name="IsPaid"]').prop('checked', false);
+        $('#IsPaidYes').prop('checked', true);
+
+        $('input[name="IsActive"]').prop('checked', false);
+        $('#IsActiveYes').prop('checked', true);
+
+        // ---------- Checkbox ----------
+        $('#IsAllowPastDate').prop('checked', false);
+        // ---------- Validation Reset ----------
         $('.is-invalid').removeClass('is-invalid');
         $('.text-danger').remove();
 
+        choiceManager.resetAllChoices();
+
     }
+
 
     $('#resetBtn').on('click', function () {
         resetForm();
@@ -251,7 +265,7 @@
                     $('#maxEncash').val(response.maximumDaysAllowedEncashement);
                     // Checkbox example
                     $('input[name="IsPaidEdit"][value="' + response.isPaid + '"]').prop('checked', true);
-
+                    $('input[name="IsAllowPastDateEdit"][value="' + response.isAllowPastDate + '"]').prop('checked', true);
                     
 
                     if (response.leaveTypeName === "Annual Leave") {
@@ -299,6 +313,7 @@
             LeaveTypeName: $('#LeaveTypeNameEdit').val(),
             IsPaid: $('input[name="IsPaidEdit"]:checked').val() === 'true',
             IsActive: $('input[name="IsActiveEdit"]:checked').val() === 'true',
+            IsAllowPastDate: $('input[name="IsAllowPastDateEdit"]:checked').val() === 'true',
             LeaveDays: $('#LeaveDaysEdit').val(),
             Code: $('#CodeEdit').val(),
             EffectiveFrom: $('#EffectiveFromEdit').val(),
@@ -385,6 +400,7 @@
         $('#EffectiveFromEdit').val('');
         $('#EffectiveAfterEdit').val('After Joining Date');
         $('input[name="IsPaidEdit"]').prop('checked', true);
+        $('input[name="IsAllowPastDateEdit"]').prop('checked', false);
         $('input[name="IsActiveEdit"]').prop('checked', true);
         $('#encashmentSection').show();
         $('#toggleEncashementCheckbox').prop('checked', false);
@@ -393,11 +409,7 @@
         $('#maxEncash').val('');
         $('#SickLeaveDocumentWithinDays').val('');
         $('#IsSickLeaveDocumentRequired').prop('checked', false);
-
-        //choiceManager.resetAll();
-
-        choiceManager.setChoiceValue('EffectiveFromMonthYearEdit', 'Months');
-       
+        choiceManager.resetAllChoices();
         $('.is-invalid').removeClass('is-invalid');
         $('.text-danger').remove();
     }

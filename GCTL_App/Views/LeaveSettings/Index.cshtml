@@ -36,7 +36,7 @@
             </div>
             <form id="LeaveUpdateForm">
                 <div class="tab-content px-3">
-                    <div class="modal-body">
+                    
                         <div class="modal-body pb-0">
                             <div class="row">
                                 <input type="hidden" class="form-control" id="LeaveTypeIDEdit" />
@@ -106,6 +106,21 @@
                                         <input type="text" id="LeaveDaysEdit" class="form-control" />
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="mb-1">
+                                        <label class="form-label">Allow Past Date</label>
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="IsAllowPastDateEdit"
+                                                   name="IsAllowPastDateEdit"
+                                                   value="true">
+                                            <label class="form-check-label" for="IsAllowPastDateEdit">
+                                                Yes
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                                 <!-- Sick Leave Document Requirement -->
                                
 
@@ -155,12 +170,11 @@
                             </div> <!-- end row -->
                         </div> <!-- end modal-body inner -->
 
-                        <div class="modal-footer">
+                        <div class="modal-footer no-border border-0">
                             <button type="button" class="btn btn-phoenix-primary" id="resetBtnUpdated">Reset</button>
-                            @*  <button type="button" class="btn btn-outline-light border me-2" id="resetBtnUpdated">Cancel</button> *@
                             <button type="submit" class="btn btn-primary" id="updateLeaveBtn">Save</button>
                         </div>
-                    </div>
+                    
                 </div>
             </form>
 
@@ -316,6 +330,7 @@
                                                     <label class="form-check-label me-2" for="IsMaximumGapDaysBetweenAplications">Maximum gap (in days) between two applications</label>
                                                     <input type="text" class="form-control" id="MaxGapBetweenApplications" name="MaxGapBetweenApplications" style="width: 3rem; height: 28px" />
                                                 </div>
+
                                                 <div class="form-check mb-2">
                                                     <input class="form-check-input" id="IsEmailSendEnabled" name="IsEmailSendEnabled" type="checkbox" value="true" />
                                                     <label class="form-check-label" for="IsEmailSendEnabled">Enable Email Sending</label>
@@ -347,6 +362,12 @@
                                                         </div>
 
                                                     </div>
+                                                </div>
+
+                                                <div class="form-check d-flex align-items-center">
+                                                    
+                                                    <label class="form-check-label me-2" for="AbsentMultiplier">Absent Multiplier</label>
+                                                    <input type="text" class="form-control" id="AbsentMultiplier" name="AbsentMultiplier" style="width: 17rem; height: 28px" />
                                                 </div>
                                             </form>
 
