@@ -4,6 +4,7 @@
     ViewData["Title"] = Html.SmartLocalize("Request for Quotation");
 }
 
+<link href="~/css/other/multidd.css" rel="stylesheet" />
 
 <style>
 
@@ -270,80 +271,7 @@
             background: #6e4d63;
         }
 
-    /* Modal Styles matching your project */
-    /* .modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1050;
-        align-items: center;
-        justify-content: center;
-    }
 
-        .modal-overlay.active {
-            display: flex;
-        }
-
-    .modal {
-        background: white;
-        border-radius: 6px;
-        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
-        width: 90%;
-        max-width: 800px;
-        max-height: 85vh;
-        overflow-y: auto;
-    }
-
-    .modal-large {
-        max-width: 1200px;
-    }
-
-    .modal-header {
-        padding: 20px 25px;
-        border-bottom: 1px solid #e9ecef;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #f8f9fa;
-        border-radius: 6px 6px 0 0;
-    }
-
-        .modal-header h3 {
-            font-size: 18px;
-            font-weight: 500;
-            color: #333;
-            margin: 0;
-        }
-
-    .modal-close {
-        background: none;
-        border: none;
-        font-size: 24px;
-        color: #666;
-        cursor: pointer;
-        padding: 0;
-        width: 30px;
-        height: 30px;
-        line-height: 1;
-    }
-
-    .modal-body {
-        padding: 25px;
-    }
-
-    .modal-footer {
-        padding: 20px 25px;
-        border-top: 1px solid #e9ecef;
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        background: #f8f9fa;
-        border-radius: 0 0 6px 6px;
-    } */
 
     /* Email Modal Specific */
     .email-form .form-group {
@@ -426,9 +354,6 @@
         background: #f0fff0 !important;
         border: 2px solid #28a745 !important;
     }
-
-
-
 </style>
 
 <div class="rfq-container">
@@ -436,43 +361,45 @@
         <input asp-for="Id" type="hidden" />
 
         <!-- Action Buttons -->
-        <div class="action-bar mb-3">
-            <button type="button" class="status-btn active" onclick="saveRFQ()">
-                <i class="fas fa-save me-2"></i>SAVE
-            </button>
-            <button type="button" class="status-btn active" onclick="discardRFQ()">
-                DISCARD
-            </button>
-        </div>
+       
 
         <div class="d-flex justify-content-between align-items-center">
 
+            <div class="action-bar mb-3">
+                <button type="button" class="status-btn active" onclick="saveRFQ()">
+                    <i class="fas fa-save me-2"></i>SAVE
+                </button>
+                <button type="button" class="status-btn " onclick="discardRFQ()">
+                    DISCARD
+                </button>
+            </div>
+
             <div class="action-bar ">
-                <button type="button" class="status-btn active" id="sendEmailBtn">
+                <button type="button" class="status-btn " id="sendEmailBtn">
                     <i class="fas fa-envelope me-2"></i>SEND BY EMAIL
                 </button>
-                <button type="button" class="status-btn active" onclick="printRFQ()">
+                <button type="button" class="status-btn " onclick="printRFQ()">
                     <i class="fas fa-print me-2"></i>PRINT RFQ
                 </button>
-                <button type="button" class="status-btn active" onclick="confirmOrder()">
+                <button type="button" class="status-btn " onclick="confirmOrder()">
                     <i class="fas fa-check-circle me-2"></i>CONFIRM ORDER
                 </button>
-                <button type="button" class="status-btn active" onclick="cancelRFQ()">
+                <button type="button" class="status-btn " onclick="cancelRFQ()">
                     <i class="fas fa-times-circle me-2"></i>CANCEL
                 </button>
             </div>
 
-          
+
             @*<div class="status-bar">
-                <button type="button" class="status-btn @(Model.Status == "RFQ" ? "active" : "")" onclick="changeStatus('RFQ')">RFQ</button>
-                <button type="button" class="status-btn @(Model.Status == "RFQ_SENT" ? "active" : "")" onclick="changeStatus('RFQ_SENT')">RFQ SENT</button>
-                <button type="button" class="status-btn @(Model.Status == "PURCHASE_ORDER" ? "active" : "")" onclick="changeStatus('PURCHASE_ORDER')">PURCHASE ORDER</button>
-            </div>*@
+            <button type="button" class="status-btn @(Model.Status == "RFQ" ? "active" : "")" onclick="changeStatus('RFQ')">RFQ</button>
+            <button type="button" class="status-btn @(Model.Status == "RFQ_SENT" ? "active" : "")" onclick="changeStatus('RFQ_SENT')">RFQ SENT</button>
+            <button type="button" class="status-btn @(Model.Status == "PURCHASE_ORDER" ? "active" : "")" onclick="changeStatus('PURCHASE_ORDER')">PURCHASE ORDER</button>
+        </div>*@
 
         </div>
 
 
-        
+
 
         <!-- Form Card -->
         <div class="form-card">
@@ -481,61 +408,112 @@
                 <h2>@Html.SmartLocalize("New Request for Quotation")</h2>
             </div>
 
-            <!-- Form Fields -->
-            <div class="form-grid">
-                <!-- Vendor Selection -->
-                <div class="form-group with-icon">
-                    <label>@Html.SmartLocalize("Vendor")</label>
+
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <label class="form-label">@Html.SmartLocalize("Vendor")</label>
                     <select asp-for="SelectedVendorId"
                             asp-items="ViewBag.Vendors as SelectList"
-                            class="form-select searchableSelect"
-                            onchange="onVendorChange()">
-                        <option value="">@Html.SmartLocalize("-- Select Vendor --")</option>
-                    </select>
-                    @*<button type="button" class="search-icon" onclick="openVendorSearchModal()">
-                        <i class="fas fa-search"></i>
-                    </button>*@
+                            class="form-select multiDD" multiple></select>
                 </div>
 
-                <!-- Order Deadline -->
+                <div class="col-md-4">
+                    <label class="form-label">@Html.SmartLocalize("Order Deadline")</label>
+                    <input asp-for="OrderDeadline" type="datetime-local" class="form-control datetimepicker caiCon" />
+                </div>
+
+
+                <div class="col-md-4">
+                    <label class="form-label">@Html.SmartLocalize("Expected Arrival")</label>
+                    <input asp-for="ExpectedArrival" type="datetime-local" class="form-control datetimepicker caiCon" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">@Html.SmartLocalize("Vendor Reference")</label>
+                    <input asp-for="VendorReference" class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">@Html.SmartLocalize("Currency")</label>
+                    <select asp-for="Currency" class="form-select">
+                        <option>USD</option>
+                        <option>EUR</option>
+                        <option>GBP</option>
+                        <option>BDT</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 d-flex align-items-center">
+                    <input asp-for="AskConfirmation" class="form-check-input me-2" type="checkbox" />
+                    <label class="form-check-label me-2 mb-0 fs-8" for="AskConfirmation">
+                        @Html.SmartLocalize("Ask confirmation")
+                    </label>
+                    <input asp-for="ConfirmationDays" class="form-control border-0 border-bottom d-inline-block "
+                           type="text" min="1" value="1" style="width:80px;" />
+                    <span class="ms-2">@Html.SmartLocalize("day(s) before")</span>
+                </div>
+
+
+                <div class="col-md-4">
+                    <label class="form-label">@Html.SmartLocalize("Currency")</label>
+                    <select asp-for="Currency" class="form-select">
+                        <option>USD</option>
+                        <option>EUR</option>
+                        <option>GBP</option>
+                        <option>BDT</option>
+                    </select>
+                </div>
+
+            </div>
+
+
+
+
+
+            <!-- Form Fields -->
+            @*<div class="form-grid">
+               
+                <div class="form-group with-icon">
+                    <label>@Html.SmartLocalize("Vendor")</label>
+                    <select asp-for="SelectedVendorId" asp-items="ViewBag.Vendors as SelectList" class="form-select multiDD" onchange="onVendorChange()" multiple>
+                    </select>
+                    <button type="button" class="search-icon" onclick="openVendorSearchModal()">
+                    <i class="fas fa-search"></i>
+                </button>
+                </div>
+
+               
                 <div class="form-group">
                     <label>@Html.SmartLocalize("Order Deadline")</label>
                     <input asp-for="OrderDeadline" type="datetime-local" class="form-control datetimepicker caiCon" />
                 </div>
 
-                <!-- Vendor Reference -->
+             
                 <div class="form-group">
                     <label>@Html.SmartLocalize("Vendor Reference")</label>
                     <input asp-for="VendorReference" class="form-control" placeholder="Vendor's reference number" />
                 </div>
 
-                <!-- Expected Arrival -->
                 <div class="form-group">
                     <label>@Html.SmartLocalize("Expected Arrival")</label>
                     <input asp-for="ExpectedArrival" type="datetime-local" class="form-control datetimepicker caiCon" />
                 </div>
 
-                <!-- Purchase Agreement -->
-               @*   <div class="form-group">
-                     <label>@Html.SmartLocalize("Purchase Agreement")</label>
-                     <select asp-for="PurchaseAgreement"
-                             asp-items="ViewBag.PurchaseAgreements as SelectList"
-                             class="form-select">
-                         <option value="">@Html.SmartLocalize("-- Select --")</option>
-                     </select>
-                 </div> *@
+              
 
-                <!-- Ask Confirmation -->
-                <div class="form-group">
-                    <div class="form-check">
-                        <input asp-for="AskConfirmation" class="form-check-input" type="checkbox" />
-                        <label class="form-check-label" for="AskConfirmation">
-                            @Html.SmartLocalize("Ask confirmation 1 day(s) before")
-                        </label>
-                    </div>
+                <div class="form-group d-flex align-items-center">
+                    <input asp-for="AskConfirmation" class="form-check-input me-2" type="checkbox" />
+                    <label class="form-check-label me-2 mb-0 fs-8" for="AskConfirmation">
+                        @Html.SmartLocalize("Ask confirmation")
+                    </label>
+                    <input asp-for="ConfirmationDays" class="form-control border-0 border-bottom d-inline-block "
+                           type="text" min="1" value="1" style="width:80px;" />
+                    <span class="ms-2">@Html.SmartLocalize("day(s) before")</span>
                 </div>
 
-                <!-- Currency -->
+               
                 <div class="form-group with-icon">
                     <label>@Html.SmartLocalize("Currency")</label>
                     <select asp-for="Currency" class="form-select">
@@ -549,17 +527,8 @@
                     </button>
                 </div>
 
-                <!-- RFQ Number & Date -->
-               @*   <div class="form-group">
-                     <label>@Html.SmartLocalize("RFQ Number")</label>
-                     <input asp-for="RfqNumber" class="form-control" readonly />
-                 </div>
-
-                 <div class="form-group">
-                     <label>@Html.SmartLocalize("RFQ Date")</label>
-                     <input asp-for="RfqDate" type="datetime-local" class="form-control datetimepicker caiCon" />
-                 </div> *@
-            </div>
+               
+            </div>*@
 
             <!-- Tabs -->
             <div class="tabs">
@@ -579,7 +548,7 @@
                             <th style="width: 10%">@Html.SmartLocalize("Quantity")</th>
                             <th style="width: 10%">@Html.SmartLocalize("UoM")</th>
                             <th style="width: 12%">@Html.SmartLocalize("Unit Price")</th>
-                           @*   <th style="width: 10%">@Html.SmartLocalize("Taxes")</th> *@
+                            @*   <th style="width: 10%">@Html.SmartLocalize("Taxes")</th> *@
                             <th style="width: 12%">@Html.SmartLocalize("Subtotal")</th>
                             <th style="width: 3%"></th>
                         </tr>
@@ -636,15 +605,15 @@
                                         <input type="number" name="Items[@i].UnitPrice" class="form-control text-end calc unit-price" value="@item.UnitPrice" step="0.01" />
                                     }
                                 </td>
-                               @*  <td>
-                                    @if (!item.IsSection && !item.IsNote)
-                                    {
-                                        <select name="Items[@i].TaxRate" class="form-select calc tax-select">
-                                            <option value="0.15" selected="@(item.TaxRate == 0.15m)">Purchase Tax 15%</option>
-                                            <option value="0" selected="@(item.TaxRate == 0)">No Tax</option>
-                                        </select>
-                                    }
-                                </td> *@
+                                @*  <td>
+                                @if (!item.IsSection && !item.IsNote)
+                                {
+                                    <select name="Items[@i].TaxRate" class="form-select calc tax-select">
+                                        <option value="0.15" selected="@(item.TaxRate == 0.15m)">Purchase Tax 15%</option>
+                                        <option value="0" selected="@(item.TaxRate == 0)">No Tax</option>
+                                    </select>
+                                }
+                            </td> *@
                                 <td class="text-end subtotal">
                                     @if (!item.IsSection && !item.IsNote)
                                     {
@@ -738,226 +707,196 @@
                 </div>
             </div>
         </div>
+
+
     </form>
 </div>
 
+<!-- All your existing modals – REPLACED with pure Bootstrap 5 structure (minimal, no custom classes needed) -->
 <!-- Create Alternative RFQ Modal -->
-<div class="modal fade" id="createAlternativeModal" tabindex="-1" aria-labelledby="modelForCreateAlternativeModalLabel" aria-hidden="true">
-    <div class="modal modal-large">
+<div class="modal fade" id="createAlternativeModal" tabindex="-1" aria-labelledby="createAlternativeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-        <div class="modal-header">
-            <h3>@Html.SmartLocalize("Create Alternative RFQ")</h3>
-            <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close" onclick="closeCreateAlternativeModal()"></button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label>@Html.SmartLocalize("Select Vendor")</label>
-                <select id="alternativeVendor" class="form-select" asp-items="ViewBag.Vendors as SelectList">
-                    
-                        <option value="">select</option>
-                    
-                </select>
+            <div class="modal-header">
+                <h5 class="modal-title" id="createAlternativeModalLabel">Create Alternative RFQ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="form-group">
-                <label>@Html.SmartLocalize("Alternative Reference")</label>
-                <input type="text" id="alternativeReference" class="form-control" value="ALT001" readonly />
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label>Select Vendor</label>
+                    <select id="alternativeVendor" class="form-select" asp-items="ViewBag.Vendors as SelectList">
+                        <option value="">-- Select Vendor --</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label>Alternative Reference</label>
+                    <input type="text" id="alternativeReference" class="form-control" value="ALT001" readonly />
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This alternative RFQ will contain all products from the main RFQ. You can edit prices and quantities after creation.
+                </div>
+                <div class="mt-3">
+                    <h6>Products to include:</h6>
+                    <ul id="productPreviewList" class="list-unstyled"></ul>
+                </div>
             </div>
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>
-                @Html.SmartLocalize("This alternative RFQ will contain all products from the main RFQ. You can edit prices and quantities after creation.")
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="createAlternativeRfq()">Create Alternative RFQ</button>
             </div>
-            <div class="product-preview">
-                <h5>@Html.SmartLocalize("Products to include:")</h5>
-                <ul id="productPreviewList">
-                    <!-- Products will be populated by JavaScript -->
-                </ul>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-phoenix-secondary" onclick="closeCreateAlternativeModal()">@Html.SmartLocalize("Cancel")</button>
-            <button type="button" class="btn btn-phoenix-primary" onclick="createAlternativeRfq()">@Html.SmartLocalize("Create Alternative RFQ")</button>
         </div>
     </div>
-</div>
 </div>
 
 <!-- View Alternative RFQ Modal -->
-<div class="modal fade" id="viewAlternativeModal" tabindex="-1" aria-labelledby="modelForViewAlternativeModalLabel" aria-hidden="true">
-    <div class="modal modal-large">
-
+<div class="modal fade" id="viewAlternativeModal" tabindex="-1" aria-labelledby="viewAlternativeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-
-        <div class="modal-header">
-            <h3>@Html.SmartLocalize("View Alternative RFQ") - <span id="viewAltReference"></span></h3>
-                <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close" onclick="closeViewAlternativeModal()"></button>
-        </div>
-        <div class="modal-body">
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <p><strong>@Html.SmartLocalize("Vendor"):</strong> <span id="viewAltVendor"></span></p>
-                    <p><strong>@Html.SmartLocalize("Date"):</strong> <span id="viewAltDate"></span></p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>@Html.SmartLocalize("Status"):</strong> <span id="viewAltStatus"></span></p>
-                    <p><strong>@Html.SmartLocalize("Total Amount"):</strong> <span id="viewAltTotal"></span></p>
-                </div>
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewAlternativeModalLabel">View Alternative RFQ - <span id="viewAltReference"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <table class="product-table">
-                <thead>
-                    <tr>
-                        <th>@Html.SmartLocalize("Product")</th>
-                        <th>@Html.SmartLocalize("Quantity")</th>
-                        <th>@Html.SmartLocalize("Unit Price")</th>
-                        <th>@Html.SmartLocalize("Tax")</th>
-                        <th>@Html.SmartLocalize("Subtotal")</th>
-                    </tr>
-                </thead>
-                <tbody id="viewAltProductsTable">
-                    <!-- Products will be populated by JavaScript -->
-                </tbody>
-            </table>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-phoenix-secondary" onclick="closeViewAlternativeModal()">@Html.SmartLocalize("Close")</button>
-            <button type="button" class="btn btn-phoenix-primary" onclick="useThisAlternative()">@Html.SmartLocalize("Use This Alternative")</button>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong>Vendor:</strong> <span id="viewAltVendor"></span></p>
+                        <p><strong>Date:</strong> <span id="viewAltDate"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> <span id="viewAltStatus"></span></p>
+                        <p><strong>Total Amount:</strong> <span id="viewAltTotal"></span></p>
+                    </div>
+                </div>
+                <table class="table table-bordered product-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Tax</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="viewAltProductsTable"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="useThisAlternative()">Use This Alternative</button>
+            </div>
         </div>
     </div>
-</div>
 </div>
 
 <!-- Edit Alternative RFQ Modal -->
-<div class="modal fade" id="editAlternativeModal" tabindex="-1" aria-labelledby="modelForEditAlternativeModalLabel" aria-hidden="true">
-    <div class="modal modal-large">
+<div class="modal fade" id="editAlternativeModal" tabindex="-1" aria-labelledby="editAlternativeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-        <div class="modal-header">
-            <h3>@Html.SmartLocalize("Edit Alternative RFQ") - <span id="editAltReference"></span></h3>
-            <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close" onclick="closeEditAlternativeModal()"></button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group mb-3">
-                <label>@Html.SmartLocalize("Vendor")</label>
-               @*   <select id="editAltVendor" class="form-select">
-                     @foreach (var vendor in ViewBag.Vendors as SelectList)
-                     {
-                         <option value="@vendor.Value">@vendor.Text</option>
-                     }
-                 </select> *@
-
-                <select id="editAltVendor" class="form-select" asp-items="ViewBag.Vendors as SelectList">
-
-                    <option value="">select</option>
-
-                </select>
-
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAlternativeModalLabel">Edit Alternative RFQ - <span id="editAltReference"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <table class="product-table">
-                <thead>
-                    <tr>
-                        <th>@Html.SmartLocalize("Product")</th>
-                        <th>@Html.SmartLocalize("Quantity")</th>
-                        <th>@Html.SmartLocalize("Unit Price")</th>
-                        <th>@Html.SmartLocalize("Tax")</th>
-                        <th>@Html.SmartLocalize("Subtotal")</th>
-                        <th>@Html.SmartLocalize("Actions")</th>
-                    </tr>
-                </thead>
-                <tbody id="editAltProductsTable">
-                    <!-- Products will be populated by JavaScript -->
-                </tbody>
-            </table>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-phoenix-secondary" onclick="closeEditAlternativeModal()">@Html.SmartLocalize("Cancel")</button>
-            <button type="button" class="btn btn-phoenix-primary" onclick="saveAlternativeRfq()">@Html.SmartLocalize("Save Changes")</button>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label>Vendor</label>
+                    <select id="editAltVendor" class="form-select" asp-items="ViewBag.Vendors as SelectList">
+                        <option value="">-- Select Vendor --</option>
+                    </select>
+                </div>
+                <table class="table table-bordered product-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Tax</th>
+                            <th>Subtotal</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="editAltProductsTable"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveAlternativeRfq()">Save Changes</button>
+            </div>
         </div>
     </div>
-</div>
 </div>
 
 <!-- Comparison View Modal -->
-<div class="modal fade" id="comparisonModal" tabindex="-1" aria-labelledby="modelForComparisonModalLabel" aria-hidden="true">
-    <div class="modal modal-large">
+<div class="modal fade" id="comparisonModal" tabindex="-1" aria-labelledby="comparisonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-        <div class="modal-header">
-            <h3>@Html.SmartLocalize("Compare Product Lines - Alternative RFQs")</h3>
-                <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close" onclick="closeComparisonModal()"></button>
-        </div>
-        <div class="modal-body">
-            <div id="comparisonTableContainer">
-                <!-- Comparison table will be generated here -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="comparisonModalLabel">Compare Product Lines - Alternative RFQs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-phoenix-secondary" onclick="closeComparisonModal()">@Html.SmartLocalize("Close")</button>
-            <button type="button" class="btn btn-phoenix-primary" onclick="selectBestOffers()">@Html.SmartLocalize("Select Best Offers")</button>
+            <div class="modal-body">
+                <div id="comparisonTableContainer">
+                    <!-- Table will be injected by JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="selectBestOffers()">Select Best Offers</button>
+            </div>
         </div>
     </div>
 </div>
-</div>
 
-
-
-
-
-
-
-
-<!-- Email Modal -->
-<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="modelForEmailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-
+<!-- Email Modal (already working – kept almost identical but standardized) -->
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-
-        <div class="modal-header">
-            <h3>@Html.SmartLocalize("Compose Email")</h3>
-            <button class="btn btn-close p-1" type="button" data-bs-dismiss="modal" aria-label="Close" onclick="closeEmailModal()"></button>
-        </div>
-        <div class="modal-body ">
-            <div class="form-group">
-                <label>@Html.SmartLocalize("Recipients")</label>
-                <select id="emailRecipients" class="form-select">
-                    <option>@Html.SmartLocalize("Vendor")</option>
-                    <option>@Html.SmartLocalize("Multiple Recipients")</option>
-                </select>
+            <div class="modal-header">
+                <h5 class="modal-title" id="emailModalLabel">Compose Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="form-group">
-                <label>@Html.SmartLocalize("Subject")</label>
-                <input type="text" id="emailSubject" class="form-control" value="Request for Quotation (Ref: @Model.RfqNumber)" />
-            </div>
-            <div class="form-group">
-                <label>@Html.SmartLocalize("Message")</label>
-                <textarea id="emailBody" class="form-control" rows="8">
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Recipients</label>
+                    <select id="emailRecipients" class="form-select">
+                        <option>Vendor</option>
+                        <option>Multiple Recipients</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Subject</label>
+                    <input type="text" id="emailSubject" class="form-control" value="Request for Quotation (Ref: @Model.RfqNumber)" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Message</label>
+                    <textarea id="emailBody" class="form-control" rows="8">
 Dear Vendor,
-
 Here is in attachment a request for quotation @Model.RfqNumber from our company.
-
 Please provide your best quotation for the items listed below. We expect your response by @Model.OrderDeadline.ToString("dd MMM yyyy").
-
 If you have any questions, please do not hesitate to contact us.
-
 Best regards,
 My Company
-                </textarea>
+                    </textarea>
+                </div>
+                <div class="p-3 bg-light border rounded">
+                    <i class="fas fa-paperclip me-2"></i>
+                    <span>RFQ_@(Model.RfqNumber).pdf</span>
+                </div>
             </div>
-            <div class="attachments">
-                <i class="fas fa-paperclip me-2"></i>
-                <span>RFQ_@(Model.RfqNumber).pdf</span>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="sendEmail">SEND EMAIL</button>
             </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-phoenix-primary" id="sendEmail">@Html.SmartLocalize("SEND EMAIL")</button>
-            <button type="button" class="btn btn-phoenix-secondary" onclick="closeEmailModal()">@Html.SmartLocalize("CANCEL")</button>
         </div>
     </div>
-</div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-   
-    
+
+    <script src="~/js/layout/other/multidd.js"></script>
     <script src="~/js/pages/pos/rfq/rfq.js"></script>
     <script>
-        
+
     </script>
 }

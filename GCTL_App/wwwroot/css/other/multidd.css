@@ -1,0 +1,469 @@
+/**
+ * MultiSelect DD Stylesheet
+ * Version: 1.0.0
+ * 
+ * Customizable via CSS variables
+ */
+
+:root {
+    /* Spacing */
+    --multidd-spacing-small: 5px;
+    --multidd-spacing-medium: 7px;
+    --multidd-spacing-large: 12px;
+    /* Typography */
+    --multidd-font-size: 12px;
+    --multidd-font-size-large: 14px;
+    --multidd-font-size-larger: 16px;
+    --multidd-line-height: 16px;
+    --multidd-line-height-larger: 20px;
+    /* Colors */
+    --multidd-primary-color: #40c979;
+    --multidd-text-color-dark: #212529;
+    --multidd-text-color: #585858;
+    --multidd-text-color-light: #65727e;
+    --multidd-border-color: #bebebe;
+    --multidd-border-color-light: #f1f3f5;
+    /* Input */
+    --multidd-input-placeholder: #65727e;
+    --multidd-input-background: #e9e9ed;
+    --multidd-input-border: #dee2e6;
+    --multidd-input-border-active: #c1c9d0;
+    --multidd-input-border-invalid: #e44e4e;
+    --multidd-input-outline-invalid: rgba(219, 138, 138, 0.5);
+    --multidd-input-disabled: #f7f7f7;
+    --multidd-input-min-height: 37px;
+    /* Dropdown */
+    --multidd-options-height: 40dvh;
+    --multidd-option-background: #f3f4f7;
+    --multidd-border-radius: 5px;
+    /* Icons & Checkboxes */
+    --multidd-icon-size: 12px;
+    --multidd-checkbox-size: 16px;
+    --multidd-checkbox-radius: 4px;
+    --multidd-checkbox-border: #ced4da;
+    --multidd-checkbox-background: #fff;
+    --multidd-checkbox-active: #fff;
+    --multidd-checkbox-thickness: 2px;
+}
+
+/* Container */
+.multidd-container {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    user-select: none;
+}
+
+/* Header */
+.multidd-header {
+    display: flex;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+    align-items: center;
+    border: 1px solid var(--multidd-input-border);
+    border-radius: var(--multidd-border-radius);
+    padding: var(--multidd-spacing-small) var(--multidd-spacing-large);
+    padding-right: 35px;
+    overflow: hidden;
+    gap: var(--multidd-spacing-medium);
+    min-height: var(--multidd-input-min-height);
+    cursor: pointer;
+    background: #fff;
+    position: relative;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+    .multidd-header::after {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23949ba3' viewBox='0 0 16 16'%3E%3Cpath d='M8 13.1l-8-8 2.1-2.2 5.9 5.9 5.9-5.9 2.1 2.2z'/%3E%3C/svg%3E");
+        height: var(--multidd-icon-size);
+        width: var(--multidd-icon-size);
+        transition: transform 0.2s ease;
+    }
+
+    .multidd-header:hover {
+        border-color: var(--multidd-input-border-active);
+    }
+
+    .multidd-header.multidd-active {
+        border-color: var(--multidd-input-border-active);
+    }
+
+        .multidd-header.multidd-active::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .multidd-header.multidd-active + .multidd-dropdown {
+            display: flex;
+        }
+
+/* Placeholder */
+.multidd-placeholder {
+    color: var(--multidd-text-color-light);
+    font-size: var(--multidd-font-size-larger);
+}
+
+/* Selected Items Display */
+.multidd-selected-item {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--multidd-option-background);
+    font-size: var(--multidd-font-size-large);
+    padding: 3px 8px;
+    border-radius: var(--multidd-border-radius);
+    line-height: var(--multidd-line-height);
+    gap: 6px;
+    position: relative;
+}
+
+.multidd-item-text {
+    display: inline-block;
+}
+
+.multidd-item-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0);
+    color: var(--multidd-text-color-dark);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+}
+
+    .multidd-item-close:hover {
+        background-color: rgba(0, 0, 0, 0.2);
+        transform: scale(1.1);
+    }
+
+.multidd-count {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--multidd-option-background);
+    font-size: var(--multidd-font-size-large);
+    padding: 3px var(--multidd-spacing-small);
+    border-radius: var(--multidd-border-radius);
+    color: var(--multidd-text-color-dark);
+}
+
+.multidd-max-indicator {
+    margin-left: auto;
+    font-size: var(--multidd-font-size-large);
+    color: var(--multidd-text-color-light);
+}
+
+/* Clear All Button */
+.multidd-clear-all {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgba(220, 53, 70, 0);
+    color: #000000;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+}
+
+    .multidd-clear-all:hover {
+        /* background-color: #dc3545;
+    color: white; */
+        transform: scale(1.1);
+    }
+
+/* Dropdown */
+.multidd-dropdown {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    margin-top: var(--multidd-spacing-small);
+    padding: var(--multidd-spacing-small);
+    background-color: #fff;
+    border-radius: var(--multidd-border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-height: var(--multidd-options-height);
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+    /* Scrollbar styling */
+    .multidd-dropdown::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .multidd-dropdown::-webkit-scrollbar-track {
+        background: #f0f1f3;
+        border-radius: 3px;
+    }
+
+    .multidd-dropdown::-webkit-scrollbar-thumb {
+        background: #cdcfd1;
+        border-radius: 3px;
+    }
+
+        .multidd-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #b2b6b9;
+        }
+
+/* Search Input */
+.multidd-search {
+    padding: var(--multidd-spacing-medium) var(--multidd-spacing-large);
+    border: 1px solid var(--multidd-input-border);
+    border-radius: var(--multidd-border-radius);
+    margin: 10px 10px 5px 10px;
+    width: calc(100% - 20px);
+    outline: none;
+    font-size: var(--multidd-font-size-larger);
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+    .multidd-search:focus {
+        border-color: var(--multidd-input-border-active);
+    }
+
+    .multidd-search::placeholder {
+        color: var(--multidd-text-color-light);
+    }
+
+    .multidd-search:disabled {
+        background-color: var(--multidd-input-disabled);
+        cursor: not-allowed;
+    }
+
+/* Options List */
+.multidd-options-list {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Option Item */
+.multidd-option,
+.multidd-select-all {
+    display: flex;
+    align-items: center;
+    padding: var(--multidd-spacing-large);
+    border-radius: var(--multidd-border-radius);
+    cursor: pointer;
+    font-size: var(--multidd-font-size-larger);
+    color: var(--multidd-text-color-dark);
+    transition: background-color 0.15s ease;
+    box-sizing: border-box;
+}
+
+    .multidd-option:hover,
+    .multidd-select-all:hover {
+        background-color: var(--multidd-option-background);
+    }
+
+/* Checkbox */
+.multidd-checkbox {
+    background: var(--multidd-checkbox-background);
+    margin-right: var(--multidd-spacing-large);
+    height: var(--multidd-checkbox-size);
+    width: var(--multidd-checkbox-size);
+    min-width: var(--multidd-checkbox-size);
+    border: 1px solid var(--multidd-checkbox-border);
+    border-radius: var(--multidd-checkbox-radius);
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.multidd-option.multidd-selected .multidd-checkbox,
+.multidd-select-all.multidd-selected .multidd-checkbox {
+    border-color: var(--multidd-primary-color);
+    background-color: var(--multidd-primary-color);
+}
+
+    .multidd-option.multidd-selected .multidd-checkbox::after,
+    .multidd-select-all.multidd-selected .multidd-checkbox::after {
+        content: "";
+        display: block;
+        position: absolute;
+        width: calc(var(--multidd-checkbox-size) / 4);
+        height: calc(var(--multidd-checkbox-size) / 2);
+        border: solid var(--multidd-checkbox-active);
+        border-width: 0 var(--multidd-checkbox-thickness) var(--multidd-checkbox-thickness) 0;
+        transform: rotate(45deg);
+        top: 2px;
+        left: 5px;
+    }
+
+/* Option Text */
+.multidd-option-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
+    color: inherit;
+    line-height: var(--multidd-line-height);
+}
+
+.multidd-option.multidd-selected .multidd-option-text,
+.multidd-select-all.multidd-selected .multidd-option-text {
+    color: var(--multidd-text-color-dark);
+    font-weight: 500;
+}
+
+/* Select All */
+.multidd-select-all {
+    border-bottom: 1px solid var(--multidd-border-color-light);
+    border-radius: 0;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+/* Loading State */
+.multidd-loading {
+    text-align: center;
+    padding: var(--multidd-spacing-large);
+    color: var(--multidd-text-color-light);
+    font-size: var(--multidd-font-size-large);
+}
+
+/* Disabled State */
+.multidd-container.multidd-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+    .multidd-container.multidd-disabled .multidd-header {
+        background-color: var(--multidd-input-disabled);
+        cursor: not-allowed;
+    }
+
+/* Invalid State */
+.multidd-container.multidd-invalid .multidd-header {
+    border-color: var(--multidd-input-border-invalid);
+    outline: var(--multidd-input-outline-invalid) solid 1px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .multidd-dropdown {
+        max-height: 50dvh;
+    }
+
+    .multidd-option,
+    .multidd-select-all {
+        padding: 10px;
+    }
+}
+
+/* Focus Styles for Accessibility */
+.multidd-header:focus {
+    outline: 2px solid var(--multidd-primary-color);
+    outline-offset: 2px;
+}
+
+.multidd-search:focus {
+    outline: 2px solid var(--multidd-primary-color);
+    outline-offset: -1px;
+}
+
+/* Animation */
+@keyframes multidd-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.multidd-header.multidd-active + .multidd-dropdown {
+    animation: multidd-fade-in 0.2s ease;
+}
+
+
+
+/*Dark mood*/
+
+
+/* ===========================
+   MultiSelect Dark Mode
+   =========================== */
+
+[data-bs-theme="dark"] {
+    --multidd-primary-color: #4da3ff;
+    /* Text */
+    --multidd-text-color-dark: #e5e7eb;
+    --multidd-text-color: #cbd5e1;
+    --multidd-text-color-light: #94a3b8;
+    /* Borders */
+    --multidd-border-color: #374151;
+    --multidd-border-color-light: #1f2933;
+    /* Input */
+    --multidd-input-background: #141824;
+    --multidd-input-border: #373e53;
+    --multidd-input-border-active: #4b5563;
+    --multidd-input-disabled: #1f2937;
+    /* Dropdown */
+    --multidd-option-background: #1e293b;
+    /* Checkbox */
+    --multidd-checkbox-border: #4b5563;
+    --multidd-checkbox-background: #0f172a;
+    --multidd-checkbox-active: #ffffff;
+}
+
+
+
+[data-bs-theme="dark"] .multidd-header {
+    background-color: #141824;
+    border-color: var(--multidd-input-border);
+}
+
+[data-bs-theme="dark"] .multidd-dropdown {
+    background-color: #0f172a;
+    border: 1px solid #373e53;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+}
+
+[data-bs-theme="dark"] .multidd-option:hover,
+[data-bs-theme="dark"] .multidd-select-all:hover {
+    background-color: #1e293b;
+}
+
+[data-bs-theme="dark"] .multidd-selected-item,
+[data-bs-theme="dark"] .multidd-count {
+    background-color: #1e293b;
+    color: var(--multidd-text-color-dark);
+}
+
+[data-bs-theme="dark"] .multidd-search {
+    background-color: #141824;
+    color: var(--multidd-text-color-dark);
+    border-color: var(--multidd-input-border);
+}
+
+    [data-bs-theme="dark"] .multidd-search::placeholder {
+        color: var(--multidd-text-color-light);
+    }
