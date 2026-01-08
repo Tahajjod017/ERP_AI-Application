@@ -82,7 +82,6 @@ namespace GCTL.Service.FieldServices.Advanced_Apporval
                         //    ? query.OrderByDescending(x => x.MainAccount.Class.ClassName)
                         //    : query.OrderBy(x => x.MainAccount.Class.ClassName),
 
-
                         "empName" => sortOrder == "desc"
                         ? query.OrderByDescending(x => x.Job.Customer.FullName)
                         : query.OrderBy(x => x.Job.Customer.FullName),
