@@ -14,8 +14,9 @@ namespace GCTL.Core.ViewModels.POS.Purchase.Rfq
         public DateTime OrderDeadline { get; set; } = DateTime.Now.AddDays(7);
         public DateTime ExpectedArrival { get; set; } = DateTime.Now.AddDays(14);
         public string VendorReference { get; set; }
-        public string SelectedVendorId { get; set; }
+        public List<string> SelectedVendorId { get; set; }
         public string PurchaseAgreement { get; set; }
+        public int ConfirmationDays { get; set; } 
         public bool AskConfirmation { get; set; } = true;
         public string Currency { get; set; } = "USD";
         public List<RfqItemViewModel> Items { get; set; } = new();
