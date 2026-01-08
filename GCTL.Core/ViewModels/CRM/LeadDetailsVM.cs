@@ -15,6 +15,7 @@ namespace GCTL.Core.ViewModels.CRM
         public int? LeadActivityTypeID { get; set; }
 
         public DateTime? ActivityDateTime { get; set; }
+        public string? ActivityDateTime2 { get; set; }
 
         public string ActivityNote { get; set; }
         public IFormFile? File { get; set; }
