@@ -16,6 +16,10 @@ namespace GCTL.Core.ViewModels.POS.Sales.InvoiceF
         public int? SelectedCustomerId { get; set; }
         public int? SelectedSalesOrderId { get; set; }
 
+        public int? Praroity { get; set; }
+
+
+
         // Flags
         public bool IsDraft { get; set; }
         public bool IsVatAfterSubtotal { get; set; }

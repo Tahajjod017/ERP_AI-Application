@@ -773,11 +773,29 @@ public partial class Employees
 
     public virtual ICollection<Journals> JournalsUpdatedByNavigation { get; set; } = new List<Journals>();
 
+    public virtual ICollection<LeadActivityComments> LeadActivityCommentsCreatedByNavigation { get; set; } = new List<LeadActivityComments>();
+
+    public virtual ICollection<LeadActivityComments> LeadActivityCommentsDeletedByNavigation { get; set; } = new List<LeadActivityComments>();
+
+    public virtual ICollection<LeadActivityComments> LeadActivityCommentsUpdatedByNavigation { get; set; } = new List<LeadActivityComments>();
+
     public virtual ICollection<LeadActivityTypes> LeadActivityTypesCreatedByNavigation { get; set; } = new List<LeadActivityTypes>();
 
     public virtual ICollection<LeadActivityTypes> LeadActivityTypesDeletedByNavigation { get; set; } = new List<LeadActivityTypes>();
 
     public virtual ICollection<LeadActivityTypes> LeadActivityTypesUpdatedByNavigation { get; set; } = new List<LeadActivityTypes>();
+
+    public virtual ICollection<LeadDetailEmail> LeadDetailEmailCreatedByNavigation { get; set; } = new List<LeadDetailEmail>();
+
+    public virtual ICollection<LeadDetailEmail> LeadDetailEmailDeletedByNavigation { get; set; } = new List<LeadDetailEmail>();
+
+    public virtual ICollection<LeadDetailEmail> LeadDetailEmailUpdatedByNavigation { get; set; } = new List<LeadDetailEmail>();
+
+    public virtual ICollection<LeadDetailPhone> LeadDetailPhoneCreatedByNavigation { get; set; } = new List<LeadDetailPhone>();
+
+    public virtual ICollection<LeadDetailPhone> LeadDetailPhoneDeletedByNavigation { get; set; } = new List<LeadDetailPhone>();
+
+    public virtual ICollection<LeadDetailPhone> LeadDetailPhoneUpdatedByNavigation { get; set; } = new List<LeadDetailPhone>();
 
     public virtual ICollection<LeadDetails> LeadDetailsCreatedByNavigation { get; set; } = new List<LeadDetails>();
 

@@ -1,5 +1,6 @@
 $(function () {
     const ids = {
+        leadDetailID: "#leadDetailID",
         note: "#aNote",
         date: '#aDate',
         file: '#aFile',
@@ -9,8 +10,8 @@ $(function () {
         addActiveBtn: '#addLActivity',
         wonConfirmDiv: '#won-fonfirm-div',
         restoreBtn: '#restoreBtn2',
-        wonBtn: '.special-btn:first',   // first .special-btn
-        lostBtn: '.special-btn:last',   // last .special-btn
+        wonBtn: '.special-btn:first',
+        lostBtn: '.special-btn:last',
         cSpecialBtn: '.special-btn',
         closingDateDiv: '#closingDateDiv',
         closingDateResult: '#closingDateResult',
@@ -215,6 +216,7 @@ $(function () {
 
         const buttonID = $(".option-btn.active").data('id');
         const leadID = $(ids.leadID).val();
+        const leadDetailID = $(ids.leadDetailID).val();
         const note = $(ids.note).val();
         const date = $(ids.date).val();
         const contactNumber = $(ids.contactNumber).val();
@@ -227,11 +229,28 @@ $(function () {
 
         const formData = new FormData();
         formData.append("LeadID", parseInt(leadID));
+        formData.append("LeadDetailID", parseInt(leadDetailID));
         formData.append("LeadActivityTypeID", parseInt(buttonID));
         formData.append("ActivityNote", note || "");
         formData.append("ActivityTypeName", buttonName);
-        formData.append("ContactEmail", contactEmail);
-        formData.append("ContactNumber", contactNumber);
+        // email
+        var selectedEmails = $("#ContectPersonEmailId").select2("data");
+
+        selectedEmails.forEach((item, index) => {
+            formData.append(`ContactEmails[${index}].Id`, item.id);
+            formData.append(`ContactEmails[${index}].Name`, item.text);
+        });
+
+        // phone
+        var selectedPhones = $("#ContectPersonId").select2("data");
+
+        selectedPhones.forEach((item, index) => {
+            debugger
+            formData.append(`ContactNumbers[${index}].Id`, item.id);
+            formData.append(`ContactNumbers[${index}].Name`, item.text);
+
+        });
+
 
         if (buttonName !== "Won" && buttonName !== "Lost") {
             const convertedDate = convertToISODateTime(date);
@@ -248,6 +267,15 @@ $(function () {
             processData: false,
             success: async function (response) {
                 if (response.success) {
+
+                    $(ids.leadDetailID).val(0);
+                    $('#addLActivity')
+                        .html(`<span class="fa-solid fa-plus me-2"></span>Add Activity`)
+                        .removeClass('btn-success')
+                        .addClass('btn-primary')
+                        .data('edit-mode', false);
+
+
                     toastr.success(response.message);
                     await updateActivate();
                     resetAndReload();
@@ -599,6 +627,9 @@ $(function () {
     // ==============================
     // Render Activity - PHOENIX DESIGN
     // ==============================
+    // ==============================
+    // Render Activity - WITH DATABASE STATUS
+    // ==============================
     function renderActivity(value, activityDate, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -609,6 +640,65 @@ $(function () {
         const badgeClass = getTimelineBadgeClass(activityType);
         const pulseClass = isUpcoming ? 'timeline-icon-pulse' : '';
 
+        // Determine status from DATABASE
+        let statusClass = '';
+        let statusIcon = '';
+        let statusText = '';
+
+        const activityDateTime = new Date(value.activityDateTime);
+        const now = new Date();
+        const isPast = activityDateTime < now;
+
+        // Use database status if available
+        if (value.statusName) {
+            statusText = value.statusName;
+
+            switch (value.statusName.toLowerCase()) {
+                case 'completed':
+                    statusClass = 'timeline-status-completed';
+                    statusIcon = 'fa-check-circle';
+                    break;
+                case 'no response':
+                    statusClass = 'timeline-status-no-response';
+                    statusIcon = 'fa-ban';
+                    break;
+                case 'expired':
+                    statusClass = 'timeline-status-expired';
+                    statusIcon = 'fa-clock-o';
+                    break;
+                default:
+                    statusClass = 'timeline-status-pending';
+                    statusIcon = 'fa-clock-o';
+            }
+        } else {
+            // Fallback logic if no status in database
+            if (isUpcoming) {
+                if (value.isDone === true) {
+                    statusClass = 'timeline-status-completed';
+                    statusIcon = 'fa-check-circle';
+                    statusText = 'Completed';
+                } else if (isPast) {
+                    statusClass = 'timeline-status-expired';
+                    statusIcon = 'fa-clock-o';
+                    statusText = 'Expired';
+                } else {
+                    statusClass = 'timeline-status-upcoming';
+                    statusIcon = 'fa-regular fa-clock';
+                    statusText = 'Upcoming';
+                }
+            } else {
+                if (value.isDone === true) {
+                    statusClass = 'timeline-status-completed';
+                    statusIcon = 'fa-check-circle';
+                    statusText = 'Completed';
+                } else {
+                    statusClass = 'timeline-status-incompleted';
+                    statusIcon = 'fa-times-circle';
+                    statusText = 'Incomplete';
+                }
+            }
+        }
+
         // Build phone numbers HTML
         let phoneHtml = '';
         if (value.phoneNumber && value.phoneNumber.trim() !== "") {
@@ -616,9 +706,9 @@ $(function () {
             if (phones.length > 0) {
                 phoneHtml = phones.map(phone =>
                     `<span class="timeline-meta-item">
-                        <i class="fa fa-phone"></i>
-                        <span>${phone}</span>
-                    </span>`
+                    <i class="fa fa-phone"></i>
+                    <span>${phone}</span>
+                </span>`
                 ).join('');
             }
         }
@@ -630,13 +720,13 @@ $(function () {
             if (emails.length > 0) {
                 emailHtml = emails.map(email =>
                     `<span class="timeline-meta-item">
-                        <i class="fa fa-envelope"></i>
-                        <span>${email}</span>
-                    </span>`
+                    <i class="fa fa-envelope"></i>
+                    <span>${email}</span>
+                </span>`
                 ).join('');
             }
         }
-        let taskStatus = value.isDone === true ? "Completed" : "Incomplete";
+
         // Build description with show more/less
         let descriptionHtml = '';
         if (value.activityNote && value.activityNote.trim() !== "") {
@@ -644,71 +734,356 @@ $(function () {
             const shouldCollapse = noteLength > 150;
 
             descriptionHtml = `
-                <div class="timeline-activity-description">
-                    <div class="timeline-description-text ${shouldCollapse ? 'collapsed' : ''}" 
-                         data-activity-id="${value.leadDetailID}">
-                        <p>${escapeHtml(value.activityNote)}</p>
-                    </div>
-                    ${shouldCollapse ? `
-                        <button class="timeline-show-more-btn" 
-                                onclick="toggleActivityDescription(${value.leadDetailID})">
-                            <span>Read More</span>
-                            <i class="fa fa-chevron-down"></i>
-                        </button>
-                    ` : ''}
+            <div class="timeline-activity-description">
+                <div class="timeline-description-text ${shouldCollapse ? 'collapsed' : ''}" 
+                     data-activity-id="${value.leadDetailID}">
+                    <p>${escapeHtml(value.activityNote)}</p>
                 </div>
+                ${shouldCollapse ? `
+                    <button class="timeline-show-more-btn" 
+                            onclick="toggleActivityDescription(${value.leadDetailID})">
+                        <span>Read More</span>
+                        <i class="fa fa-chevron-down"></i>
+                    </button>
+                ` : ''}
+            </div>
+        `;
+        }
+
+        // Build action buttons based on status
+        let actionButtonsHtml = '';
+        if (isUpcoming) {
+            if (value.isDone !== true) {
+                actionButtonsHtml = `
+                <button class="timeline-action-btn" onclick="toggleCommentSection(${value.leadDetailID}, true)">
+                    <i class="fa fa-comments"></i> Comments <span class="comment-count-badge" id="comment-count-${value.leadDetailID}">0</span>
+                </button>
+                <button class="timeline-action-btn" onclick="noResponseActivity(${value.leadDetailID})">
+                    <i class="fa fa-ban"></i> No Response
+                </button>
+                <button class="timeline-action-btn" onclick="editActivity(${value.leadDetailID})">
+                    <i class="fa fa-pencil"></i> Edit
+                </button>
+                <button class="timeline-action-btn" onclick="completeActivity(${value.leadDetailID})">
+                    <i class="fa fa-check"></i> Complete
+                </button>
             `;
+            } else {
+                actionButtonsHtml = `
+                <button class="timeline-action-btn" onclick="toggleCommentSection(${value.leadDetailID}, false)">
+                    <i class="fa fa-comments"></i> Comments <span class="comment-count-badge" id="comment-count-${value.leadDetailID}">0</span>
+                </button>
+            `;
+            }
+        } else {
+            actionButtonsHtml = `
+            <button class="timeline-action-btn" onclick="toggleCommentSection(${value.leadDetailID}, false)">
+                <i class="fa fa-comments"></i> Comments <span class="comment-count-badge" id="comment-count-${value.leadDetailID}">0</span>
+            </button>
+        `;
         }
 
         const activityHtml = `
-            <div class="timeline-activity-item" data-activity-id="${value.leadDetailID}">
-                <div class="timeline-activity-icon ${iconClass} ${pulseClass}">
-                    <i class="fa ${getActivityIcon(activityType)}"></i>
+        <div class="timeline-activity-item" data-activity-id="${value.leadDetailID}">
+            <div class="timeline-activity-icon ${iconClass} ${pulseClass}">
+                <i class="fa ${getActivityIcon(activityType)}"></i>
+            </div>
+            <div class="timeline-activity-content">
+                <div class="timeline-activity-header">
+                    <h5 class="timeline-activity-title">${escapeHtml(activityType)}</h5>
                 </div>
-                <div class="timeline-activity-content">
-                    <div class="timeline-activity-header">
-                        <h5 class="timeline-activity-title">${escapeHtml(activityType)}</h5>
-                        <span class="timeline-activity-badge ${badgeClass}">${activityType}</span>
+                <div class="timeline-activity-meta">
+                    <span class="timeline-meta-item">
+                        <i class="fa fa-calendar"></i>
+                        <span>${activityDate}</span>
+                    </span>
+                    <span class="timeline-meta-item">
+                        <i class="fa fa-user"></i>
+                        <span>${escapeHtml(value.createdByName || 'Unknown')}</span>
+                    </span>
+                    ${phoneHtml}
+                    ${emailHtml}
+                </div>
+                ${descriptionHtml}
+                <div class="timeline-activity-footer">
+                    <span class="timeline-activity-status ${statusClass}">
+                        <i class="fa ${statusIcon}"></i>
+                        ${statusText}
+                    </span>
+                    <div class="timeline-activity-actions">
+                        ${actionButtonsHtml}
                     </div>
-                    <div class="timeline-activity-meta">
-                        <span class="timeline-meta-item">
-                            <i class="fa fa-calendar"></i>
-                            <span>${activityDate}</span>
-                        </span>
-                        <span class="timeline-meta-item">
+                </div>
+                
+                <!-- Comment Section (Hidden by default) -->
+                <div class="activity-comment-section" id="comment-section-${value.leadDetailID}" style="display: none;" data-can-add="${isUpcoming && value.isDone !== true}">
+                    <div class="comment-section-divider"></div>
+                    
+                    <!-- Comments List -->
+                    <div class="comments-list" id="comments-list-${value.leadDetailID}">
+                        <div class="text-center py-3">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-muted small mb-0 mt-2">Loading comments...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Comment Form (Only for upcoming activities) -->
+                    ${isUpcoming && value.isDone !== true ? `
+                        <div class="add-comment-form">
+                            <div class="d-flex gap-2 align-items-start">
+                                <textarea 
+                                    class="form-control form-control-sm" 
+                                    id="new-comment-${value.leadDetailID}" 
+                                    rows="2" 
+                                    placeholder="Add a comment..."
+                                    style="resize: none;"></textarea>
+                                <button 
+                                    class="btn btn-primary btn-sm" 
+                                    onclick="submitComment(${value.leadDetailID})"
+                                    style="white-space: nowrap;">
+                                    <i class="fa fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+
+        container.insertAdjacentHTML('beforeend', activityHtml);
+
+        // Load comment count after rendering
+        loadCommentCount(value.leadDetailID);
+    }
+
+    // ==============================
+    // Load Comment Count
+    // ==============================
+    async function loadCommentCount(activityId) {
+        try {
+            const response = await $.ajax({
+                url: '/LeadDetails/GetComments',
+                method: 'GET',
+                data: { leadDetailID: activityId }
+            });
+
+            if (response.success && response.data) {
+                const count = response.data.length;
+                const countBadge = document.getElementById(`comment-count-${activityId}`);
+                if (countBadge) {
+                    countBadge.textContent = count;
+                    if (count > 0) {
+                        countBadge.classList.add('has-comments');
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error loading comment count:', error);
+        }
+    }
+
+
+
+    // ==============================
+    // Toggle Comment Section
+    // ==============================
+    async function toggleCommentSection(activityId, canAdd = false) {
+        const commentSection = document.getElementById(`comment-section-${activityId}`);
+
+        if (!commentSection) return;
+
+        // Toggle visibility
+        if (commentSection.style.display === 'none') {
+            commentSection.style.display = 'block';
+
+            // Load comments if not already loaded
+            if (!commentSection.dataset.loaded) {
+                await loadComments(activityId);
+                commentSection.dataset.loaded = 'true';
+            }
+        } else {
+            commentSection.style.display = 'none';
+        }
+    }
+
+    // Load Comments
+    // ==============================
+    async function loadComments(activityId) {
+        const commentsList = document.getElementById(`comments-list-${activityId}`);
+
+        try {
+            const response = await $.ajax({
+                url: '/LeadDetails/GetComments',
+                method: 'GET',
+                data: { leadDetailID: activityId }
+            });
+
+            if (!response.success) {
+                commentsList.innerHTML = '<p class="text-muted text-center small py-2">Failed to load comments</p>';
+                return;
+            }
+
+            const comments = response.data || [];
+
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<p class="text-muted text-center small py-2">No comments yet!</p>';
+                return;
+            }
+
+            // Show only first 3 comments
+            const displayComments = comments.slice(0, 3);
+            const hasMore = comments.length > 3;
+
+            let commentsHtml = displayComments.map(c => {
+                const commentDate = new Date(c.createdAt).toLocaleString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+                return `
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="comment-avatar">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <div>
+                                <strong class="comment-author">${escapeHtml(c.createdByName)}</strong>
+                                <small class="comment-date text-muted d-block">${commentDate}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="comment-text">${escapeHtml(c.comment)}</p>
+                </div>
+            `;
+            }).join('');
+
+            // Add "View All" button if more than 3 comments
+            if (hasMore) {
+                commentsHtml += `
+                <div class="text-center py-2">
+                    <button class="btn btn-link btn-sm text-primary" onclick="loadAllComments(${activityId})">
+                        <i class="fa fa-angle-down me-1"></i>
+                        View all ${comments.length} comments
+                    </button>
+                </div>
+            `;
+            }
+
+            commentsList.innerHTML = commentsHtml;
+
+            // Store all comments in data attribute for "View All"
+            commentsList.dataset.allComments = JSON.stringify(comments);
+
+        } catch (error) {
+            console.error('Error loading comments:', error);
+            commentsList.innerHTML = '<p class="text-danger text-center small py-2">Error loading comments</p>';
+        }
+    }
+
+    // ==============================
+    // Load All Comments
+    // ==============================
+    function loadAllComments(activityId) {
+        const commentsList = document.getElementById(`comments-list-${activityId}`);
+        const allComments = JSON.parse(commentsList.dataset.allComments || '[]');
+
+        let commentsHtml = allComments.map(c => {
+            const commentDate = new Date(c.createdAt).toLocaleString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            return `
+            <div class="comment-item">
+                <div class="comment-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="comment-avatar">
                             <i class="fa fa-user"></i>
-                            <span>${escapeHtml(value.createdByName || 'Unknown')}</span>
-                        </span>
-                        ${phoneHtml}
-                        ${emailHtml}
-                    </div>
-                    ${descriptionHtml}
-                    <div class="timeline-activity-footer">
-                        <span class="timeline-activity-status ${isUpcoming ? 'timeline-status-upcoming' : value.isDone ? 'timeline-status-completed' : 'timeline-status-incompleted'}">
-                            <i class="fa ${isUpcoming ? 'fa-regular fa-clock' : 'fa-check-circle'}"></i>
-                            ${isUpcoming ? 'Upcoming' : taskStatus}
-                        </span>
-                        <div class="timeline-activity-actions">
-                            ${isUpcoming ? `
-                                <button class="timeline-action-btn" onclick="editActivity(${value.leadDetailID})">
-                                    <i class="fa fa-pencil"></i> Edit
-                                </button>
-                                <button class="timeline-action-btn" onclick="completeActivity(${value.leadDetailID})">
-                                    <i class="fa fa-check"></i> Complete
-                                </button>
-                            ` : `
-                                <button class="timeline-action-btn" onclick="viewActivity(${value.leadDetailID})">
-                                    <i class="fa fa-eye"></i> View
-                                </button>
-                            `}
+                        </div>
+                        <div>
+                            <strong class="comment-author">${escapeHtml(c.createdByName)}</strong>
+                            <small class="comment-date text-muted d-block">${commentDate}</small>
                         </div>
                     </div>
                 </div>
+                <p class="comment-text">${escapeHtml(c.comment)}</p>
             </div>
         `;
+        }).join('');
 
-        container.insertAdjacentHTML('beforeend', activityHtml);
+        commentsHtml += `
+        <div class="text-center py-2">
+            <button class="btn btn-link btn-sm text-secondary" onclick="loadComments(${activityId})">
+                <i class="fa fa-angle-up me-1"></i>
+                Show less
+            </button>
+        </div>
+    `;
+
+        commentsList.innerHTML = commentsHtml;
     }
+    // ==============================
+    // Submit Comment
+    // ==============================
+    async function submitComment(activityId) {
+        const commentTextarea = document.getElementById(`new-comment-${activityId}`);
+        const commentText = commentTextarea.value.trim();
+
+        if (!commentText) {
+            toastr.warning("Please enter a comment");
+            return;
+        }
+
+        try {
+            const response = await $.ajax({
+                url: '/LeadDetails/AddComment',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    LeadDetailID: activityId,
+                    Comment: commentText
+                })
+            });
+
+            if (response.success) {
+                toastr.success("Comment added successfully");
+                commentTextarea.value = '';
+
+                // Reload comments
+                const commentSection = document.getElementById(`comment-section-${activityId}`);
+                commentSection.dataset.loaded = 'false';
+                await loadComments(activityId);
+
+                // Update comment count
+                await loadCommentCount(activityId);
+            } else {
+                toastr.error(response.message || "Failed to add comment");
+            }
+        } catch (error) {
+            console.error('Error adding comment:', error);
+            toastr.error("Error adding comment");
+        }
+    }
+
+    // Update global window functions
+    window.toggleCommentSection = toggleCommentSection;
+    window.loadComments = loadComments;
+    window.loadAllComments = loadAllComments;
+    window.submitComment = submitComment;
+    window.loadCommentCount = loadCommentCount;
+
 
     // ==============================
     // Helper Functions for Timeline
@@ -1184,6 +1559,7 @@ $(function () {
     window.toggleActivityDescription = toggleActivityDescription;
     window.previewFile = previewFile;
     window.editActivity = editActivity;
+    window.noResponseActivity = noResponseActivity;
     window.completeActivity = completeActivity;
     window.viewActivity = viewActivity;
 
@@ -1203,9 +1579,12 @@ $(function () {
                     return;
                 }
 
+
+
                 let d = res.data[0];
 
                 const activityName = d.leadActivityName?.trim();
+                const leadDetailID = d.leadDetailID || 0;
                 const activityNote = d.activityNote || "";
                 const emailAddress = d.emailAddress || "";
                 const phoneNumber = d.phoneNumber || "";
@@ -1218,18 +1597,20 @@ $(function () {
                     toastr.error("Activity type not supported for editing.");
                     return;
                 }
+
                 $targetBtn.trigger('click');
 
                 // Step 2: Fill simple fields
-              
+                debugger
                 $(ids.note).val(activityNote);
+                $(ids.leadDetailID).val(leadDetailID);
 
                 // date time load
                 if (date && date.trim() !== "") {
                     const backendDate = new Date(date);
 
                     if (!isNaN(backendDate.getTime())) {
-                        // Format as DD/MM/YYYY HH:MM (AM/PM) – matches most Flatpickr setups
+                        // Format as DD/MM/YYYY HH:MM (AM/PM)  matches most Flatpickr setups
                         const day = String(backendDate.getDate()).padStart(2, '0');
                         const month = String(backendDate.getMonth() + 1).padStart(2, '0');
                         const year = backendDate.getFullYear();
@@ -1332,7 +1713,7 @@ $(function () {
 
                 // Scroll to form
                 $('html, body').animate({
-                    //scrollTop: $("#activity-form-section").offset().top - 100
+                    scrollTop: $("#activity-form-section").offset().top - 100
                 }, 500);
             },
             error: function (err) {
@@ -1341,6 +1722,39 @@ $(function () {
             }
         });
     }
+    async function noResponseActivity(activityId) {
+        const confirmed = await customToaster.confirm("Mark this activity as 'No Response'?");
+        if (!confirmed) {
+            customToaster.error("Cancelled!");
+            return;
+        }
+
+        $.ajax({
+            url: '/LeadDetails/NoResponse',
+            type: 'POST',
+            data: { LeadDetailID: activityId },
+            success: async function (res) {
+                if (res.success) {
+                    customToaster.success("Marked as No Response");
+
+                    const reschedule = await customToaster.confirm("Do you want to reschedule this activity?");
+                    if (reschedule) {
+                        editActivity(activityId); // Reuse edit function for rescheduling
+                    } else {
+                        resetAndReload();
+                        resetAndReloadUpcoming();
+                    }
+                } else {
+                    toastr.error(res.message || "Failed to update status");
+                }
+            },
+            error: function (err) {
+                toastr.error("Something went wrong!");
+            }
+        });
+    }
+
+
     //function editActivity(activityId) {
     //    console.log('Edit activity:', activityId);
     //    // Add your edit logic here
@@ -1392,6 +1806,37 @@ $(function () {
         toastr.info('View functionality - ID: ' + activityId);
     }
 
+    async function completeActivity(activityId) {
+        const confirmed = await customToaster.confirm("Did you successfully complete this task?");
+        if (confirmed) {
+            $.ajax({
+                url: '/LeadDetails/Complete',
+                method: 'POST',
+                data: { LeadDetailID: activityId },
+                success: function (response) {
+                    if (response.success) {
+
+
+                        debugger
+                        customToaster.success(response.message);
+
+                        resetAndReload();
+                        resetAndReloadUpcoming();
+
+                    } else {
+                        toastr.error(response.message || "Failed to complete activity");
+                    }
+                },
+                error: function () {
+                    toastr.error("An error occurred while completing the activity");
+                }
+            });
+        }
+        else customToaster.error("Cancelled!");
+
+    }
+
+
 });
 
 // Close Window Function
@@ -1401,23 +1846,6 @@ window.closeWindow = function () {
     if (modal) modal.hide();
 };
 
-function completeActivity(activityId) {
-    $.ajax({
-        url: '/LeadDetails/Complete',
-        method: 'POST',
-        data: { LeadDetailID: activityId },
-        success: function (response) {
-            if (response.success) {
-                customToaster.success(response.message);
-                resetAndReloadUpcoming();
-                resetAndReload();
-                makeEnableState();
-            } else {
-                toastr.error(response.message);
-            }
-        },
-        error: function (xhr) {
-            toastr.error("Error restoring lead");
-        }
-    });
+function rescheduleModal(taksName) {
+
 }

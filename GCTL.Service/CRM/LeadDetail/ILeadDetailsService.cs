@@ -11,12 +11,17 @@ namespace GCTL.Service.CRM.LeadDetail
     public interface ILeadDetailsService
     {
         Task<bool> CreateLeadActivateTypes();
-        Task<ReturnView> CompleteAsync(LeadDetailsVM model);
-        Task<ReturnView> CreateLeadDeatil(LeadDetailsVM leadDetailsVM, string? fileLocation);
+        Task<ReturnView> CompleteAsync(CRMStateModal model);
+        Task<ReturnView> NoResponseAsync(CRMStateModal model);
+        Task<ReturnView> SaveLeadDetailAsync(
+      LeadDetailsVM leadDetailsVM,
+      string? fileLocation);
         Task<ReturnView> AddIsWon(IsWonVM isWonVM);
         Task<ReturnView> UpdateLeadFieldValue(DetailsLeadUpdateVM detailsLeadUpdateVM);
         Task<LeadActivityResultVM> ActivityList(int id, string query, int page, string type);
         Task<ReturnView> RestoreLead(int id);
         Task<ReturnDataView<LeadActivityVM>> GetLeadDetailsInfoAsync(int activityId);
+        Task<ReturnView> AddCommentAsync(LeadActivityCommentVM commentVM);
+        Task<ReturnDataView<LeadActivityCommentVM>> GetCommentsAsync(int leadDetailID);
     }
 }

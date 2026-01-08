@@ -1,0 +1,679 @@
+﻿@using GCTL.Core.ViewModels.POS.Purchase.Rfq
+@model RfqListViewModel
+@{
+    ViewData["Title"] = Html.SmartLocalize("RFQ List");
+}
+
+<style>
+
+    
+.rfq-list-container {
+    background: #f8f9fa;
+    min-height: calc(100vh - 120px);
+    padding: 20px;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+    .list-header h1 {
+        font-size: 24px;
+        font-weight: 500;
+        color: #333;
+        margin: 0;
+    }
+
+.filter-section {
+    background: white;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Parent RFQ Card */
+.parent-rfq-card {
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-left: 4px solid #875a7b;
+    overflow: hidden;
+}
+
+.parent-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid transparent;
+}
+
+    .parent-header:hover {
+        background: #f8f9fa;
+    }
+
+    .parent-header.expanded {
+        background: #f0f7ff;
+        border-bottom-color: #dee2e6;
+    }
+
+.expand-icon {
+    margin-right: 15px;
+    color: #875a7b;
+    font-size: 18px;
+    transition: transform 0.3s;
+    width: 24px;
+    text-align: center;
+}
+
+.parent-checkbox {
+    margin-right: 15px;
+}
+
+.parent-info {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 15px;
+    align-items: center;
+}
+
+.parent-info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.parent-info-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+.parent-info-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.reference {
+    color: #875a7b;
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+    text-transform: uppercase;
+}
+
+.status-rfq {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-sent {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.status-confirmed {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.status-po {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.status-cancelled {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.parent-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: 20px;
+}
+
+/* Sub-RFQ Table */
+.sub-rfq-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+    .sub-rfq-table th {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        text-align: left;
+        font-weight: 500;
+        font-size: 13px;
+        color: #666;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .sub-rfq-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e9ecef;
+        vertical-align: middle;
+    }
+
+    .sub-rfq-table tr:hover {
+        background: #f8f9fa;
+    }
+
+.sub-rfq-checkbox {
+    text-align: center;
+    width: 40px;
+}
+
+.savings-cell {
+    font-weight: 500;
+}
+
+.savings-positive {
+    color: #28a745;
+}
+
+.savings-negative {
+    color: #dc3545;
+}
+
+.best-offer-badge {
+    background: #28a745;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-left: 5px;
+}
+
+/* Comparison Bar */
+.comparison-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #875a7b;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+    .comparison-bar.active {
+        transform: translateY(0);
+    }
+
+.selected-count {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.selected-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 20px;
+    flex: 1;
+}
+
+.selected-item {
+    background: rgba(255,255,255,0.2);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.remove-selected {
+    background: none;
+    border: none;
+    color: white;
+    padding: 0;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+    .empty-state i {
+        font-size: 48px;
+        color: #dee2e6;
+        margin-bottom: 15px;
+    }
+
+/* Bulk Actions */
+.bulk-actions {
+    background: white;
+    border-radius: 6px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+    .bulk-actions.active {
+        display: flex;
+    }
+
+.selected-count-badge {
+    background: #875a7b;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.bulk-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Action Buttons */
+.action-btn {
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 4px;
+    color: #666;
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+    .action-btn:hover {
+        background: #f8f9fa;
+        color: #333;
+    }
+
+    .action-btn.primary {
+        background: #875a7b;
+        color: white;
+        border-color: #875a7b;
+    }
+
+        .action-btn.primary:hover {
+            background: #6e4d63;
+        }
+
+/* Responsive */
+@@media (max-width: 1200px) {
+    .parent-info {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+}
+
+@@media (max-width: 768px) {
+    .parent-info {
+        grid-template-columns: 1fr;
+    }
+
+    .parent-header {
+        flex-wrap: wrap;
+    }
+
+    .parent-actions {
+        margin-top: 10px;
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+
+
+</style>
+
+
+<div class="rfq-list-container">
+    <!-- Header -->
+    <div class="list-header">
+        <h1>@Html.SmartLocalize("Requests for Quotation")</h1>
+        <button type="button" class="btn btn-phoenix-primary" onclick="location.href='/Rfq/Index'">
+            <i class="fas fa-plus me-2"></i>@Html.SmartLocalize("New RFQ")
+        </button>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label>@Html.SmartLocalize("Search")</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search by reference, vendor..." 
+                           id="searchTerm" value="@Model.SearchTerm">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>@Html.SmartLocalize("Status")</label>
+                <select class="form-select" id="statusFilter">
+                    <option value="">@Html.SmartLocalize("All Status")</option>
+                    <option value="RFQ" selected="@(Model.StatusFilter == "RFQ")">@Html.SmartLocalize("RFQ")</option>
+                    <option value="RFQ_SENT" selected="@(Model.StatusFilter == "RFQ_SENT")">@Html.SmartLocalize("RFQ Sent")</option>
+                    <option value="PURCHASE_ORDER" selected="@(Model.StatusFilter == "PURCHASE_ORDER")">@Html.SmartLocalize("Purchase Order")</option>
+                    <option value="CANCELLED" selected="@(Model.StatusFilter == "CANCELLED")">@Html.SmartLocalize("Cancelled")</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>@Html.SmartLocalize("From Date")</label>
+                <input type="date" class="form-control" id="fromDate" 
+                       value="@(Model.FromDate?.ToString("yyyy-MM-dd"))">
+            </div>
+
+            <div class="form-group">
+                <label>@Html.SmartLocalize("To Date")</label>
+                <input type="date" class="form-control" id="toDate" 
+                       value="@(Model.ToDate?.ToString("yyyy-MM-dd"))">
+            </div>
+        </div>
+
+        <div class="filter-actions">
+            <button type="button" class="btn btn-phoenix-secondary" onclick="clearFilters()">
+                @Html.SmartLocalize("Clear")
+            </button>
+            <button type="button" class="btn btn-phoenix-primary" onclick="applyFilters()">
+                @Html.SmartLocalize("Apply Filters")
+            </button>
+        </div>
+    </div>
+
+    <!-- Bulk Actions Bar (hidden by default) -->
+    <div class="bulk-actions" id="bulkActions">
+        <div>
+            <span class="selected-count-badge" id="bulkSelectedCount">0 selected</span>
+            <span style="margin-left: 10px; font-size: 13px; color: #666;">
+                @Html.SmartLocalize("items selected from multiple RFQs")
+            </span>
+        </div>
+        <div class="bulk-buttons">
+            <button type="button" class="action-btn" onclick="bulkDelete()">
+                <i class="far fa-trash-alt"></i> @Html.SmartLocalize("Delete")
+            </button>
+            <button type="button" class="action-btn" onclick="bulkExport()">
+                <i class="fas fa-download"></i> @Html.SmartLocalize("Export")
+            </button>
+        </div>
+    </div>
+
+    <!-- RFQ List -->
+    <div id="rfqList">
+        @if (Model.ParentRfqs.Any())
+        {
+            foreach (var parent in Model.ParentRfqs)
+            {
+                <div class="parent-rfq-card" data-parent-id="@parent.Id">
+                    <!-- Parent Header -->
+                    <div class="parent-header @(parent.IsExpanded ? "expanded" : "")" 
+                         onclick="toggleParent(@parent.Id)">
+                        <div class="expand-icon">
+                            <i class="fas fa-chevron-@(parent.IsExpanded ? "down" : "right")"></i>
+                        </div>
+                        
+                        <div class="parent-checkbox">
+                            <input type="checkbox" class="form-check-input parent-checkbox-input" 
+                                   data-parent-id="@parent.Id"
+                                   onchange="onParentCheckboxChange(@parent.Id, this.checked)" 
+                                   @(parent.IsSelected ? "checked" : "") />
+                        </div>
+
+                        <div class="parent-info">
+                            <div class="parent-info-item">
+                                <span class="parent-info-label">@Html.SmartLocalize("Reference")</span>
+                                <span class="parent-info-value reference">@parent.Reference</span>
+                            </div>
+                            <div class="parent-info-item">
+                                <span class="parent-info-label">@Html.SmartLocalize("Vendor")</span>
+                                <span class="parent-info-value">@parent.VendorName</span>
+                            </div>
+                            <div class="parent-info-item">
+                                <span class="parent-info-label">@Html.SmartLocalize("Date")</span>
+                                <span class="parent-info-value">@parent.Date.ToString("dd MMM yyyy")</span>
+                            </div>
+                            <div class="parent-info-item">
+                                <span class="parent-info-label">@Html.SmartLocalize("Total")</span>
+                                <span class="parent-info-value">@parent.TotalAmount.ToString("C2")</span>
+                            </div>
+                        </div>
+
+                        <div class="parent-actions">
+                            <span class="status-badge status-@parent.Status.ToLower().Replace("_", "-")">
+                                @parent.Status.Replace("_", " ")
+                            </span>
+                            <button type="button" class="action-btn" onclick="viewRFQ(@parent.Id, event)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button type="button" class="action-btn" onclick="editRFQ(@parent.Id, event)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="action-btn" onclick="createAlternative(@parent.Id, event)">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sub-RFQ Table (Collapsible) -->
+                    <div class="sub-rfq-container" style="display: @(parent.IsExpanded ? "block" : "none")">
+                        @if (parent.SubRfqs.Any())
+                        {
+                            <table class="sub-rfq-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sub-rfq-checkbox">
+                                            <input type="checkbox" class="form-check-input select-all-sub" 
+                                                   data-parent-id="@parent.Id"
+                                                   onchange="toggleAllSubRfqs(@parent.Id, this.checked)" 
+                                                   @(parent.SubRfqs.All(s => s.IsSelected) ? "checked" : "") />
+                                        </th>
+                                        <th>@Html.SmartLocalize("Alternative Reference")</th>
+                                        <th>@Html.SmartLocalize("Vendor")</th>
+                                        <th>@Html.SmartLocalize("Date")</th>
+                                        <th>@Html.SmartLocalize("Total Amount")</th>
+                                        @*<th>@Html.SmartLocalize("Savings")</th>*@
+                                        <th>@Html.SmartLocalize("Receive Status")</th>
+                                        <th>@Html.SmartLocalize("Work Order Status")</th>
+                                        <th>@Html.SmartLocalize("Notes")</th>
+                                        <th>@Html.SmartLocalize("Actions")</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var sub in parent.SubRfqs)
+                                    {
+                                        <tr data-sub-id="@sub.Id" data-parent-id="@parent.Id">
+                                            <td class="sub-rfq-checkbox">
+                                                <input type="checkbox" class="form-check-input sub-rfq-checkbox-input" 
+                                                       data-sub-id="@sub.Id"
+                                                       data-parent-id="@parent.Id"
+                                                       onchange="onSubRfqCheckboxChange(@sub.Id, @parent.Id, this.checked)"
+                                                       @(sub.IsSelected ? "checked" : "") />
+                                            </td>
+                                            <td>
+                                                <strong class="reference">@sub.Reference</strong>
+                                                @if (sub.IsBestOffer)
+                                                {
+                                                    <span class="best-offer-badge">@Html.SmartLocalize("Best")</span>
+                                                }
+                                            </td>
+                                            <td>@sub.VendorName</td>
+                                            <td>@sub.Date.ToString("dd MMM yyyy")</td>
+                                            <td>
+                                                <strong>@sub.TotalAmount.ToString("C2")</strong>
+                                            </td>
+                                            @*<td class="savings-cell @(sub.Savings >= 0 ? "savings-positive" : "savings-negative")">
+                                                @if (sub.Savings >= 0)
+                                                {
+                                                    <i class="fas fa-arrow-down me-1"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-arrow-up me-1"></i>
+                                                }
+                                                @Math.Abs(sub.Savings).ToString("C2")
+                                            </td>*@
+                                            <td>
+                                                <span class="status-badge status-@sub.Status.ToLower()">
+                                                    @sub.Status
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="status-badge status-@sub.Status.ToLower()">
+                                                    @sub.Status
+                                                </span>
+                                            </td>
+                                            <td style="max-width: 200px;">
+                                                <span class="text-truncate" title="@sub.Notes">
+                                                    @sub.Notes
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="action-btn" 
+                                                            onclick="viewSubRFQ(@sub.Id, event)" 
+                                                            title="@Html.SmartLocalize("View")">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button type="button" class="action-btn" 
+                                                            onclick="editSubRFQ(@sub.Id, event)" 
+                                                            title="@Html.SmartLocalize("Edit")">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="action-btn" 
+                                                            onclick="useAsMain(@sub.Id, event)" 
+                                                            title="@Html.SmartLocalize("Use as Main")">
+                                                        <i class="fas fa-exchange-alt"></i>
+                                                    </button>
+                                                    <button type="button" class="action-btn" 
+                                                            onclick="deleteSubRFQ(@sub.Id, event)" 
+                                                            title="@Html.SmartLocalize("Delete")">
+                                                        <i class="far fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <!-- Parent-level Compare Button (shows when multiple sub-RFQs selected from same parent) -->
+                            <div class="parent-compare-section" id="compareSection-@parent.Id" 
+                                 style="display: none; padding: 15px 20px; border-top: 1px solid #dee2e6; background: #f8f9fa;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span id="selectedCount-@parent.Id" style="font-size: 13px; color: #666;">
+                                        0 @Html.SmartLocalize("sub-RFQs selected")
+                                    </span>
+                                    <button type="button" class="btn btn-phoenix-primary compare-btn" 
+                                            data-parent-id="@parent.Id"
+                                            onclick="compareSelectedSubRfqs(@parent.Id)">
+                                        <i class="fas fa-balance-scale-left me-2"></i>
+                                        @Html.SmartLocalize("Compare Selected")
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>@Html.SmartLocalize("No alternative RFQs found")</p>
+                                <button type="button" class="btn btn-phoenix-secondary" 
+                                        onclick="createAlternative(@parent.Id)">
+                                    <i class="fas fa-plus me-2"></i>
+                                    @Html.SmartLocalize("Create First Alternative")
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-file-contract"></i>
+                <h3>@Html.SmartLocalize("No RFQs Found")</h3>
+                <p>@Html.SmartLocalize("You haven't created any Requests for Quotation yet.")</p>
+                <button type="button" class="btn btn-phoenix-primary" onclick="location.href='/Rfq/Index'">
+                    <i class="fas fa-plus me-2"></i>@Html.SmartLocalize("Create Your First RFQ")
+                </button>
+            </div>
+        }
+    </div>
+
+    <!-- Comparison Bar (fixed at bottom) -->
+    <div class="comparison-bar" id="comparisonBar">
+        <div class="selected-count">
+            <span id="comparisonCount">0</span> @Html.SmartLocalize("selected for comparison")
+        </div>
+        <div class="selected-items" id="selectedItemsList">
+            <!-- Selected items will appear here -->
+        </div>
+        <div>
+            <button type="button" class="btn btn-phoenix-secondary" onclick="clearSelection()">
+                @Html.SmartLocalize("Clear All")
+            </button>
+            <button type="button" class="btn btn-phoenix-success" id="compareButton" 
+                    onclick="goToComparisonPage()" disabled>
+                <i class="fas fa-balance-scale-left me-2"></i>
+                @Html.SmartLocalize("Compare Now")
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="~/js/pages/pos/rfq/rfqlist.js"></script>
+   
+}

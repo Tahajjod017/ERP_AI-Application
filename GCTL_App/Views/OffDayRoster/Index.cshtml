@@ -23,6 +23,15 @@
         .shift-block:hover .edit-shift-btn {
             display: inline-block; /* Show on hover */
         }
+
+        .date-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            pointer-events: none;
+        }
     </style>
 }
 
@@ -31,10 +40,10 @@
         <div class="card-body">
             <ul class="nav nav-underline fs-9" id="myTab">
                 <li class="nav-item">
-                    <a class="nav-link" href="/OfficeDayRoster/Index">Assign roster in office day</a>
+                    <a class="nav-link" href="/OfficeDayRoster/Index">@Html.SmartLocalize("Assign roster in office day")</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/OffDayRoster/Index">Assign roster in Offday</a>
+                    <a class="nav-link active" href="/OffDayRoster/Index">@Html.SmartLocalize("Assign roster in Offday")</a>
                 </li>
             </ul>
 
@@ -55,8 +64,6 @@
 <partial name="_DayExchangeModal" />
 <partial name="_DeleteModal" />
 <partial name="_EditShiftModal" model="Model.Edit" />
-@* <partial name="_EmployeeBulkShiftModal" /> *@
-@* <partial name="_ShiftModal" /> *@
 @* <script>
     flatpickr("#datepickerf", {
       mode: "multiple", // allow multiple selections

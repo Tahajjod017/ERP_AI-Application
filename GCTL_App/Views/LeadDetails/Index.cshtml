@@ -945,6 +945,173 @@
         position: relative;
         overflow: visible;
     }
+    
+
+    /* //extend */
+    .timeline-status-expired {
+        background: rgba(239, 68, 68, 0.15);
+        color: #991b1b;
+    }
+
+    /* Comment Modal */
+    /* ====== Comment Count Badge ====== */
+    .comment-count-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        margin-left: 4px;
+        background: #e5e7eb;
+        color: #6b7280;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+
+        .comment-count-badge.has-comments {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+    /* ====== Comment Section Styles ====== */
+    .activity-comment-section {
+        margin-top: 1rem;
+        animation: slideDown 0.3s ease;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            max-height: 0;
+        }
+
+        to {
+            opacity: 1;
+            max-height: 500px;
+        }
+    }
+
+    .comment-section-divider {
+        height: 1px;
+        background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+        margin-bottom: 1rem;
+    }
+
+    .comments-list {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+    }
+
+        .comments-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .comments-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .comments-list::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 2px;
+        }
+
+    .comment-item {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        border-left: 3px solid #667eea;
+        transition: all 0.2s ease;
+    }
+
+        .comment-item:hover {
+            background: #f3f4f6;
+            transform: translateX(2px);
+        }
+
+        .comment-item:last-child {
+            margin-bottom: 0;
+        }
+
+    .comment-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .comment-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+    }
+
+    .comment-author {
+        font-size: 0.875rem;
+        color: #111827;
+    }
+
+    .comment-date {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+
+    .comment-text {
+        font-size: 0.875rem;
+        color: #4b5563;
+        margin: 0;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+
+    .add-comment-form {
+        padding-top: 0.75rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+        .add-comment-form textarea {
+            font-size: 0.875rem;
+            border-color: #e5e7eb;
+        }
+
+            .add-comment-form textarea:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+
+        .add-comment-form button {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+        }
+
+            .add-comment-form button:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(102, 126, 234, 0.25);
+            }
+
+    /* Expired Status */
+    .timeline-status-expired {
+        background: rgba(239, 68, 68, 0.15);
+        color: #991b1b;
+    }
+    /* No Response Status */
+    .timeline-status-no-response {
+        background: rgba(245, 158, 11, 0.15);
+        color: #92400e;
+    }
+
+    .timeline-status-pending {
+        background: rgba(107, 114, 128, 0.15);
+        color: #4b5563;
+    }
 </style>
 
 <div class="pb-4">
@@ -1184,7 +1351,7 @@
             <input type="number" id="leadID2" value="@Model.LeadID" hidden />
 
             <!-- Activity Management Card -->
-            <div class="card mb-4">
+            <div class="card mb-4" id="activity-form-section">
                 <div class="card-body">
                     <!-- Activity Type Buttons -->
                     <div class="mb-4" id="optionBtnDiv">
@@ -1202,82 +1369,7 @@
                         </div>
                     </div>
 
-                    <!-- Date and Time Field -->
-                    <div class="mb-3" id="dateField">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Set Date and Time</label>
-                                <div class="input-group">
-                                    <input class="form-control datetimepicker"
-                                           id="aDate"
-                                           type="text"
-                                           placeholder="dd/mm/yyyy hour : minute"
-                                           data-options='{"enableTime":true,"dateFormat":"d/m/Y h:i K","disableMobile":true}' />
-                                    <span class="input-group-text">
-                                        <span class="fa-solid fa-calendar"></span>
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6" id="contact-field" style="display:none;">
-                                <label class="form-label fw-semibold">Contact Person Phone</label>
-                                <select id="ContectPersonId" class="select2" multiple="multiple">
-                                    <option></option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6" id="email-field" style="display:none;">
-                                <label class="form-label fw-semibold">Contact Person Email</label>
-                                <select id="ContectPersonEmailId" class="select2" multiple="multiple">
-                                    <option></option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6" id="file-field" style="display:none;">
-                                <label class="form-label fw-semibold">Attach File</label>
-                                <input class="form-control" type="file" id="aFile">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Note Field -->
-                    <div class="mb-3" id="note-Field">
-                        <label class="form-label fw-semibold">Note</label>
-                        <textarea class="form-control" id="aNote" rows="3" placeholder="Add your notes here..."></textarea>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <div>
-                            <button type="submit" id="addLActivity" class="btn btn-primary px-4">
-                                <span class="fa-solid fa-plus me-2"></span>Add Activity
-                            </button>
-                            <div class="d-flex align-items-center d-none gap-2" id="won-fonfirm-div">
-                                <span class="fw-semibold">Transfer To Field Service</span>
-                                <div class="btn-group">
-                                    <button class="btn btn-success btn-xs" id="wonYes">Yes</button>
-                                    <button class="btn btn-warning btn-xs" id="wonNo">No</button>
-                                    <button class="btn btn-danger btn-xs" id="won-btn-cancel">Cancel</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center flex-wrap gap-2" id="activity-btn-div">
-                            @foreach (var item in ViewBag.LeadActivityTypes2)
-                            {
-                                <button class="btn btn-phoenix-secondary rounded-pill special-btn option-btn"
-                                        type="button"
-                                        data-id="@item.LeadActivityTypeID"
-                                        data-usefor="@item.UseFor">
-                                    <span class="fa-solid @item.LeadActivityIcon me-2"></span>
-                                    @item.LeadActivityName
-                                </button>
-                            }
-                            <button class="btn btn-outline-danger rounded-pill border-danger d-none" id="restoreBtn2">
-                                <span class="fa-solid fa-rotate-right me-2"></span>Restart
-                            </button>
-                        </div>
-                    </div>
+                    <partial name="_partial_form_modal"/>
                 </div>
             </div>
 
@@ -1460,7 +1552,22 @@
     </div>
 </div>
 
+<!-- Create Job Modal MODAL -->
+<div class="modal fade" id="recheduleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="rechedule-modal-body">
+                <partial name="_partial_form_modal" />
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    <script src="~/js/pages/CRM/customeToaster.js"></script>
+    <script src="~/js/pages/CRM/Customer/CustomeToaster.js"></script>
     <script src="~/js/pages/CRM/LeadDetails.js"></script>
 }

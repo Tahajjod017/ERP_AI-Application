@@ -62,7 +62,14 @@
             overflow-y: auto;
         }
 
-
+        .date-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            pointer-events: none;
+        }
     </style>
 }
 
@@ -91,23 +98,9 @@
 </div>
 
 <partial name="_AddShiftModal" model="Model.ModalAdd" />
-@* <partial name="_DayExchangeModal" /> *@
 <partial name="_DeleteModal" />
 <partial name="_EditShiftModal" model="Model.Edit" />
-@* <partial name="_EmployeeBulkShift" /> *@
-@* <partial name="_ShiftModal" /> *@
-@* <script>
-    flatpickr("#datepickerf", {
-      mode: "multiple", // allow multiple selections
-      dateFormat: "Y-m-d",
-      enable: [
-        function(date) {
-          // Enable only Fridays (Friday = 5)
-          return date.getDay() === 5;
-        }
-      ]
-    });
-</script> *@
+
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
     <script src="~/js/pages/attendancemanagement/schedulemanagement/officedayroster.js"></script>

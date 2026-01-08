@@ -1,0 +1,389 @@
+﻿<style>
+    .lowest-price {
+        background-color: #d4edda !important;
+        color: #155724 !important;
+    }
+
+    .comparison-container {
+        display: flex;
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .fixed-column {
+        position: sticky;
+        left: 0;
+        background: white;
+        z-index: 10;
+        box-shadow: 3px 0 5px rgba(0,0,0,0.1);
+        width: 400px;
+        flex-shrink: 0;
+    }
+
+    .vendor-column {
+        width: 500px;
+        flex-shrink: 0;
+    }
+
+    .table th {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 5;
+    }
+
+    .negotiate-column, .nego-footer {
+        background-color: #fff3cd !important;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .fixed-column .table tbody tr,
+    .vendor-column .card .table tbody tr {
+        height: 60px;
+    }
+
+    .fixed-column .table td,
+    .vendor-column .card .table td {
+        vertical-align: middle;
+        padding: 12px 8px;
+    }
+
+    .status-btn {
+        padding: 6px 20px;
+        border: 1px solid #dee2e6;
+        background: #fff;
+        color: #666;
+        border-radius: 3px;
+        font-size: 13px;
+    }
+
+        .status-btn.active {
+            background: #875a7b;
+            color: white;
+            border-color: #875a7b;
+        }
+
+    .original-footer {
+        font-size: 14px;
+    }
+
+    .nego-footer {
+        font-size: 15px;
+/*        font-weight: bold;
+        border-top: 2px solid #ffc107;
+        padding-top: 8px;
+        margin-top: 8px;*/
+    }
+</style>
+
+    <div class="container-fluid mt-3">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center">
+                <h1 class="h3 me-4">Total Vendors: <span id="totalVendors">0</span></h1>
+                <div class="vr mx-4"></div>
+                <h1 class="h3">Total Products: <span id="totalProducts">0</span></h1>
+            </div>
+            <div id="actionButtons">
+                <button id="negotiateBtn" class="btn btn-warning me-2">
+                    <i class="bi bi-currency-exchange"></i> Negotiate
+                </button>
+                <button id="createSeparatePOBtn" class="btn btn-primary">
+                    Create Separate PO
+                </button>
+            </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="comparison-container">
+            <!-- Fixed Items Column -->
+            <div class="fixed-column">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="my-2 text-center">Items</h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-bordered mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Item Code</th>
+                                    <th>Item Name</th>
+                                    <th>Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer"><br><br><br></div>
+                </div>
+            </div>
+
+            <!-- Vendor Columns -->
+            <div id="vendorColumns" class="d-flex"></div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12 text-end">
+                <strong>Date:</strong> 2026-01-07
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // ==================== DATA FROM JS ARRAY ====================
+        const data = {
+            items: [
+                { code: "E-COM07", name: "Large Cabinet", qty: 10 },
+                { code: "E-COM08", name: "Storage Box", qty: 5 },
+                { code: "E-COM09", name: "Large Desk", qty: 2 },
+                { code: "E-COM12", name: "Conference Chair (Steel)", qty: 10 }
+            ],
+            vendors: [
+                { name: "Gemini Furniture", code: "P00022", prices: [800.00, 13.00, 1399.00, 28.00], subTotal: 11143.00, taxes: 1206.50, total: 12349.50 },
+                { name: "Deco Added", code: "P00021", prices: [850.00, 15.00, 1350.00, 26.00], subTotal: 11535.00, taxes: 1240.50, total: 12775.50 },
+                { name: "Azure Interior", code: "P00020", prices: [820.00, 14.00, 1400.00, 30.00], subTotal: 11370.00, taxes: 1220.50, total: 12590.50 }
+            ]
+        };
+
+        let originalTotals = [];
+        let negotiateActive = false;
+        let poModeActive = false;
+
+        // Populate counts
+        $('#totalVendors').text(data.vendors.length);
+        $('#totalProducts').text(data.items.length);
+
+        // Populate items
+        let itemsHtml = '';
+        data.items.forEach(item => {
+            itemsHtml += `<tr><td>${item.code}</td><td>${item.name}</td><td>${item.qty}</td></tr>`;
+        });
+        $('#itemsTbody').html(itemsHtml);
+
+        // Generate vendor columns
+        let vendorColumnsHtml = '';
+        data.vendors.forEach((vendor, vIndex) => {
+            let rowsHtml = '';
+            let calcSubTotal = 0;
+
+            data.items.forEach((item, i) => {
+                const price = vendor.prices[i];
+                const total = price * item.qty;
+                calcSubTotal += total;
+
+                rowsHtml += `
+                <tr>
+                    <td>$${price.toFixed(2)}</td>
+                    <td  class="d-none">${item.qty}</td>
+                    <td>$${total.toFixed(2)}</td>
+                    <td class="negotiate-column d-none">
+                        <input type="number" class="form-control form-control-sm nego-price" value="${price.toFixed(2)}" data-vendor="${vIndex}" data-row="${i}">
+                    </td>
+                    <td class="negotiate-column d-none">
+                        <input type="number" class="form-control form-control-sm nego-total" value="${total.toFixed(2)}" readonly>
+                    </td>
+                </tr>`;
+            });
+
+            originalTotals[vIndex] = {
+                subTotal: calcSubTotal,
+                taxes: vendor.taxes,
+                total: vendor.total
+            };
+
+            vendorColumnsHtml += `
+            <div class="vendor-column">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">${vendor.name}</h6>
+                            <small class="text-muted">${vendor.code}</small>
+                        </div>
+                        <button type="button" class="status-btn active">
+                            <i class="fas fa-check-circle me-2"></i>CONFIRM ORDER
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-bordered vendor-table">
+                            <thead>
+                                <tr>
+                                    <th>Price</th>
+                                    <th class="d-none">Qty</th>
+                                    <th>Total</th>
+                                    <th class="negotiate-column d-none">Nego Price</th>
+                                    <th class="negotiate-column d-none">Nego Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rowsHtml}</tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center" data-vendor="${vIndex}">
+                        <!-- Original Totals (Always Visible) -->
+                        <div class="original-footer">
+                            <div><strong>Original Sub-Total:</strong> $${calcSubTotal.toFixed(2)}</div>
+                            <div><strong>Original Taxes:</strong> $${vendor.taxes.toFixed(2)}</div>
+                            <div class="fw-bold">Original Total: $${vendor.total.toFixed(2)}</div>
+                        </div>
+                        <!-- Negotiated Totals (Shown only in Negotiate mode) -->
+                        <div class="nego-footer d-none">
+                            <div><strong>Negotiated Sub-Total:</strong> <span class="nego-sub">$${calcSubTotal.toFixed(2)}</span></div>
+                            <div><strong>Negotiated Taxes:</strong> <span class="nego-tax">$${vendor.taxes.toFixed(2)}</span></div>
+                            <div class="fw-bold text-success">Negotiated Total: <span class="nego-grand">$${vendor.total.toFixed(2)}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        });
+        $('#vendorColumns').html(vendorColumnsHtml);
+
+        // Update negotiated footer
+        function updateNegotiatedFooter() {
+            $('.vendor-column').each(function (vIndex) {
+                let newSubTotal = 0;
+                $(this).find('.nego-total').each(function () {
+                    newSubTotal += parseFloat($(this).val()) || 0;
+                });
+
+                const orig = originalTotals[vIndex];
+                const taxRatio = orig.subTotal > 0 ? orig.taxes / orig.subTotal : 0;
+                const newTax = newSubTotal * taxRatio;
+                const newGrand = newSubTotal + newTax;
+
+                const footer = $(this).find('.nego-footer');
+                footer.find('.nego-sub').text('$' + newSubTotal.toFixed(2));
+                footer.find('.nego-tax').text('$' + newTax.toFixed(2));
+                footer.find('.nego-grand').text('$' + newGrand.toFixed(2));
+            });
+        }
+
+        // Toggle Negotiate
+        $('#negotiateBtn').on('click', function () {
+            $('.negotiate-column, .nego-footer').toggleClass('d-none');
+
+            if (!negotiateActive) {
+                $(this).html('<i class="bi bi-check-circle"></i> Negotiate (On)').removeClass('btn-warning').addClass('btn-success');
+                negotiateActive = true;
+                updateNegotiatedFooter();
+                updateLowestPrices();
+            } else {
+                $(this).html('<i class="bi bi-currency-exchange"></i> Negotiate').removeClass('btn-success').addClass('btn-warning');
+                negotiateActive = false;
+                updateLowestPrices();
+            }
+        });
+
+        // Auto update on nego price change
+        $(document).on('input', '.nego-price', function () {
+            const row = $(this).closest('tr');
+            const price = parseFloat($(this).val()) || 0;
+            console.log(price)
+            const qty = parseInt(row.find('td:nth-child(2)').text());
+            console.log(qty)
+            row.find('.nego-total').val((price * qty).toFixed(2));
+
+            if (negotiateActive) {
+                updateNegotiatedFooter();
+                updateLowestPrices();
+            }
+        });
+
+        // Lowest price highlight
+        function updateLowestPrices() {
+            $('.lowest-price').removeClass('lowest-price');
+            data.items.forEach((_, rowIndex) => {
+                let minPrice = Infinity;
+                let minVendor = -1;
+                $('.nego-price').each(function () {
+                    if ($(this).data('row') === rowIndex) {
+                        const price = negotiateActive ? parseFloat($(this).val()) || Infinity : data.vendors[$(this).data('vendor')].prices[rowIndex];
+                        const vendor = $(this).data('vendor');
+                        if (price < minPrice) {
+                            minPrice = price;
+                            minVendor = vendor;
+                        }
+                    }
+                });
+                if (minVendor !== -1) {
+                    $(`.nego-price[data-vendor="${minVendor}"][data-row="${rowIndex}"]`).closest('tr').addClass('lowest-price');
+                }
+            });
+        }
+        updateLowestPrices();
+
+        // Create Separate PO (unchanged from previous version)
+        $('#createSeparatePOBtn').on('click', function () {
+            if (poModeActive) return;
+            poModeActive = true;
+
+            $('#actionButtons').append(`
+            <button id="confirmPOBtn" class="btn btn-success ms-2"><i class="bi bi-check"></i> Confirm PO</button>
+            <button id="cancelPOBtn" class="btn btn-secondary ms-2">Cancel</button>
+            <button id="selectLowestBtn" class="btn btn-info ms-2">Select Only Lowest</button>
+        `);
+
+            $('.status-btn').hide();
+
+            $('.vendor-table').each(function (vIndex) {
+                $(this).find('thead tr').prepend('<th style="width: 5%;"><input type="checkbox" class="form-check-input select-all-header"></th>');
+                $(this).find('tbody tr').each(function (rowIndex) {
+                    $(this).prepend(`<td><input type="checkbox" class="form-check-input row-checkbox" data-row="${rowIndex}" data-vendor="${vIndex}"></td>`);
+                });
+            });
+
+            $(document).on('change', '.row-checkbox', function () {
+                if (this.checked) {
+                    const row = $(this).data('row');
+                    $('.row-checkbox[data-row="' + row + '"]').not(this).prop('checked', false);
+                }
+                $('.select-all-header').each(function () {
+                    const table = $(this).closest('table');
+                    const total = table.find('.row-checkbox').length;
+                    const checked = table.find('.row-checkbox:checked').length;
+                    $(this).prop('checked', checked === total);
+                    $(this).prop('indeterminate', checked > 0 && checked < total);
+                });
+            });
+
+            $(document).on('change', '.select-all-header', function () {
+                const table = $(this).closest('table');
+                const checked = this.checked;
+                table.find('.row-checkbox').each(function () {
+                    const row = $(this).data('row');
+                    if (checked) $('.row-checkbox[data-row="' + row + '"]').not(this).prop('checked', false);
+                    $(this).prop('checked', checked);
+                });
+            });
+
+            $('#selectLowestBtn').on('click', function () {
+                $('.row-checkbox').prop('checked', false);
+                data.items.forEach((_, rowIndex) => {
+                    let minPrice = Infinity;
+                    let minVendor = -1;
+                    $('.nego-price').each(function () {
+                        if ($(this).data('row') === rowIndex) {
+                            const price = negotiateActive ? parseFloat($(this).val()) || Infinity : data.vendors[$(this).data('vendor')].prices[rowIndex];
+                            if (price < minPrice) {
+                                minPrice = price;
+                                minVendor = $(this).data('vendor');
+                            }
+                        }
+                    });
+                    if (minVendor !== -1) {
+                        $(`.row-checkbox[data-row="${rowIndex}"][data-vendor="${minVendor}"]`).prop('checked', true);
+                    }
+                });
+            });
+
+            $('#cancelPOBtn').on('click', function () {
+                poModeActive = false;
+                $('.select-all-header').closest('th').remove();
+                $('.row-checkbox').closest('td').remove();
+                $('.status-btn').show();
+                $('#confirmPOBtn, #cancelPOBtn, #selectLowestBtn').remove();
+            });
+        });
+    </script>

@@ -45,5 +45,9 @@ public partial class OtherContacts
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<LeadDetailEmail> LeadDetailEmail { get; set; } = new List<LeadDetailEmail>();
+
+    public virtual ICollection<LeadDetailPhone> LeadDetailPhone { get; set; } = new List<LeadDetailPhone>();
+
     public virtual Employees UpdatedByNavigation { get; set; }
 }

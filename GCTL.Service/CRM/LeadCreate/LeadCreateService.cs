@@ -475,16 +475,16 @@ namespace GCTL.Service.CRM.LeadCreate
         #endregion
 
         #region GetContactPersonNumberAsync
-        public async Task<ReturnDataView<CommonSelectVM>> GetContactPersonNumberAsync(
+        public async Task<ReturnDataView<CommonSelectVM2>> GetContactPersonNumberAsync(
     int leadId, string search, int page, int pageSize, int organizationID)
         {
             try
             {
-                var leadObj = await _leadsRepository.GetByIdAsync(leadId);
-                var items = new List<CommonSelectVM>();
+                var leadObj = await _leadsRepository.AllActive().AsNoTracking().Include(x => x.Customer).Where(x => x.LeadID == leadId).FirstOrDefaultAsync();
+                var items = new List<CommonSelectVM2>();
 
                 if (leadObj == null)
-                    return new ReturnDataView<CommonSelectVM>
+                    return new ReturnDataView<CommonSelectVM2>
                     {
                         data = items,
                         totalItem = 0,
@@ -522,17 +522,17 @@ namespace GCTL.Service.CRM.LeadCreate
                 {
                     if (!string.IsNullOrEmpty(oc.Phone1))
                     {
-                        items.Add(new CommonSelectVM
+                        items.Add(new CommonSelectVM2
                         {
-                            Id = oc.OtherContactID,
+                            Id = $"o_1_{oc.OtherContactID}",
                             Name = $"{oc.FirstName ?? ""} {oc.LastName ?? ""} Phone1: {oc.Phone1}"
                         });
                     }
                     if (!string.IsNullOrEmpty(oc.Phone2))
                     {
-                        items.Add(new CommonSelectVM
+                        items.Add(new CommonSelectVM2
                         {
-                            Id = oc.OtherContactID,
+                            Id = $"o_2_{oc.OtherContactID}",
                             Name = $"{oc.FirstName ?? ""} {oc.LastName ?? ""} Phone2: {oc.Phone2}"
                         });
                     }
@@ -553,6 +553,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 var customerAddresses = await customerAddressesQuery
                     .Select(a => new
                     {
+                        Id = a.AddressID,
                         Phone1 = a.Address.Phone,
                         Phone2 = a.Address.OtherPhone,
                         AddressTypeName = a.AddressType != null ? a.AddressType.AddressTypeName : null
@@ -565,18 +566,18 @@ namespace GCTL.Service.CRM.LeadCreate
                 {
                     if (!string.IsNullOrEmpty(addr.Phone1))
                     {
-                        items.Add(new CommonSelectVM
+                        items.Add(new CommonSelectVM2
                         {
-                            Id = 0,
+                            Id = $"c_1_{addr.Id}",
                             Name = $"{customerName} - Address Phone: {addr.Phone1}" +
                                    (string.IsNullOrEmpty(addr.AddressTypeName) ? "" : $" ({addr.AddressTypeName})")
                         });
                     }
                     if (!string.IsNullOrEmpty(addr.Phone2))
                     {
-                        items.Add(new CommonSelectVM
+                        items.Add(new CommonSelectVM2
                         {
-                            Id = 0,
+                            Id = $"c_2_{addr.Id}",
                             Name = $"{customerName} - Address Other Phone: {addr.Phone2}" +
                                    (string.IsNullOrEmpty(addr.AddressTypeName) ? "" : $" ({addr.AddressTypeName})")
                         });
@@ -585,7 +586,7 @@ namespace GCTL.Service.CRM.LeadCreate
 
                 var totalCount = totalOtherContacts + customerAddresses.Count;
 
-                return new ReturnDataView<CommonSelectVM>
+                return new ReturnDataView<CommonSelectVM2>
                 {
                     data = items,
                     totalItem = totalCount,
@@ -594,9 +595,9 @@ namespace GCTL.Service.CRM.LeadCreate
             }
             catch (Exception ex)
             {
-                return new ReturnDataView<CommonSelectVM>
+                return new ReturnDataView<CommonSelectVM2>
                 {
-                    data = new List<CommonSelectVM>(),
+                    data = new List<CommonSelectVM2>(),
                     totalItem = 0,
                     message = $"Error: {ex.Message}"
                 };
@@ -608,16 +609,15 @@ namespace GCTL.Service.CRM.LeadCreate
         #endregion
 
         #region GetContactPersonEmailAsync
-        public async Task<ReturnDataView<CommonSelectVM>> GetContactPersonEmailAsync(
-    int leadId, string search, int page, int pageSize, int organizationID)
+        public async Task<ReturnDataView<CommonSelectVM2>> GetContactPersonEmailAsync(  int leadId, string search, int page, int pageSize, int organizationID)
         {
             try
             {
-                var leadObj = await _leadsRepository.GetByIdAsync(leadId);
-                var items = new List<CommonSelectVM>();
+                var leadObj = await _leadsRepository.AllActive().AsNoTracking().Include(x=> x.Customer).Where(x=> x.LeadID == leadId).FirstOrDefaultAsync();
+                var items = new List<CommonSelectVM2>();
 
                 if (leadObj == null)
-                    return new ReturnDataView<CommonSelectVM>
+                    return new ReturnDataView<CommonSelectVM2>
                     {
                         data = items,
                         totalItem = 0,
@@ -653,9 +653,9 @@ namespace GCTL.Service.CRM.LeadCreate
                 {
                     if (!string.IsNullOrEmpty(oc.Email))
                     {
-                        items.Add(new CommonSelectVM
+                        items.Add(new CommonSelectVM2
                         {
-                            Id = oc.OtherContactID,
+                            Id = $"o_{oc.OtherContactID}",
                             Name = $"{oc.FirstName ?? ""} {oc.LastName ?? ""}: {oc.Email}"
                         });
                     }
@@ -677,6 +677,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 var customerAddresses = await customerAddressesQuery
                     .Select(a => new
                     {
+                        Id = a.AddressID,
                         Email = a.Address.Email,
                         AddressTypeName = a.AddressType != null ? a.AddressType.AddressTypeName : null
                     })
@@ -686,9 +687,9 @@ namespace GCTL.Service.CRM.LeadCreate
 
                 foreach (var addr in customerAddresses)
                 {
-                    items.Add(new CommonSelectVM
+                    items.Add(new CommonSelectVM2
                     {
-                        Id = 0, // Not tied to OtherContact
+                        Id = $"c_{addr.Id}",
                         Name = $"{customerName}: {addr.Email}" +
                                (string.IsNullOrEmpty(addr.AddressTypeName) ? "" : $" ({addr.AddressTypeName})")
                     });
@@ -697,7 +698,7 @@ namespace GCTL.Service.CRM.LeadCreate
                 // totalItem: include OtherContacts + Address emails count
                 var totalCount = totalOtherContacts + customerAddresses.Count;
 
-                return new ReturnDataView<CommonSelectVM>
+                return new ReturnDataView<CommonSelectVM2>
                 {
                     data = items,
                     totalItem = totalCount,
@@ -706,19 +707,14 @@ namespace GCTL.Service.CRM.LeadCreate
             }
             catch (Exception ex)
             {
-                return new ReturnDataView<CommonSelectVM>
+                return new ReturnDataView<CommonSelectVM2>
                 {
-                    data = new List<CommonSelectVM>(),
+                    data = new List<CommonSelectVM2>(),
                     totalItem = 0,
                     message = $"Error: {ex.Message}"
                 };
             }
         }
-
-
-
-
-
         #endregion
 
         #region Capitalize function

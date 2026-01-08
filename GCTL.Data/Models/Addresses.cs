@@ -67,6 +67,10 @@ public partial class Addresses
 
     public virtual Employees DeletedByNavigation { get; set; }
 
+    public virtual ICollection<LeadDetailEmail> LeadDetailEmail { get; set; } = new List<LeadDetailEmail>();
+
+    public virtual ICollection<LeadDetailPhone> LeadDetailPhone { get; set; } = new List<LeadDetailPhone>();
+
     public virtual ICollection<OtherContacts> OtherContacts { get; set; } = new List<OtherContacts>();
 
     public virtual Employees UpdatedByNavigation { get; set; }

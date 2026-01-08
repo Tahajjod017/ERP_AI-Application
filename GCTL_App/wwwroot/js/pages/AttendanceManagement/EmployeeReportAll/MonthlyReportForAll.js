@@ -21,16 +21,16 @@
 }
 
 const employees = [
-    {
-        name: 'Faruk Hasan',
-        role: 'Finance Executive',
-        attendance: ['P', 'P', 'A', 'W', 'P', 'P', 'P', 'P', 'P', 'P', 'M', 'W', 'P', 'H', 'P', 'A', 'P', 'P', 'W', 'P', 'A', 'P', 'P', 'P', 'C', 'W', 'P', 'P', 'P', 'P', 'P']
-    },
-    {
-        name: 'Faruk Alam',
-        role: 'IT Executive',
-        attendance: ['P', 'P', 'W', 'P', 'P', 'A', 'P', 'A', 'P', 'P', 'M', 'W', 'P', 'H', 'P', 'P', 'P', 'W', 'P', 'P', 'A', 'P', 'P', 'W', 'P', 'P', 'C', 'P', 'P', 'P', 'P']
-    },
+    //{
+    //    name: 'Faruk Hasan',
+    //    role: 'Finance Executive',
+    //    attendance: ['P', 'P', 'A', 'W', 'P', 'P', 'P', 'P', 'P', 'P', 'M', 'W', 'P', 'H', 'P', 'A', 'P', 'P', 'W', 'P', 'A', 'P', 'P', 'P', 'C', 'W', 'P', 'P', 'P', 'P', 'P']
+    //},
+    //{
+    //    name: 'Faruk Alam',
+    //    role: 'IT Executive',
+    //    attendance: ['P', 'P', 'W', 'P', 'P', 'A', 'P', 'A', 'P', 'P', 'M', 'W', 'P', 'H', 'P', 'P', 'P', 'W', 'P', 'P', 'A', 'P', 'P', 'W', 'P', 'P', 'C', 'P', 'P', 'P', 'P']
+    //},
     // Add more employee data as needed
 ];
 

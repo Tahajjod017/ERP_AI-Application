@@ -41,13 +41,23 @@ public partial class LeadDetails
 
     public bool? IsDone { get; set; }
 
+    public int? StatusID { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }
 
     public virtual Leads Lead { get; set; }
 
+    public virtual ICollection<LeadActivityComments> LeadActivityComments { get; set; } = new List<LeadActivityComments>();
+
     public virtual LeadActivityTypes LeadActivityType { get; set; }
+
+    public virtual ICollection<LeadDetailEmail> LeadDetailEmail { get; set; } = new List<LeadDetailEmail>();
+
+    public virtual ICollection<LeadDetailPhone> LeadDetailPhone { get; set; } = new List<LeadDetailPhone>();
+
+    public virtual Statuses Status { get; set; }
 
     public virtual Employees UpdatedByNavigation { get; set; }
 }

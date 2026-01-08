@@ -94,6 +94,12 @@ namespace GCTL_App.Controllers.CRM
                                              Value = x.ServiceID.ToString(),
                                              Text = x.Service.ServiceName,
                                          }).ToList(),
+                                         ServiceNames = string.Join(", ",
+                                                lead.LeadServices
+                                                    .AsEnumerable()
+                                                    .Where(s => s.ServiceID.HasValue)
+                                                    .Select(x => x.Service.ServiceName)
+                                            )
                                      }).FirstOrDefaultAsync();
             if (customerObj != null)
             {
@@ -157,36 +163,40 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region GetUpcomingActivityList
-
         [HttpGet]
         public async Task<IActionResult> GetUpcomingActivityList(int id, int page)
         {
-
             const int pageSize = 10;
             int skip = (page - 1) * pageSize;
-            // Fetch filtered and paginated data using LIKE
+
+            // Fetch filtered and paginated data with Status
             var list = await _leadDetailsRepository
-          .AllActive().Where(u => u.LeadID == id &&
-                     u.ActivityDateTime >= DateTime.UtcNow.AddSeconds(11)
-          )
-          .OrderByDescending(e => e.ActivityDateTime)   // ORDER FIRST!
-          .Skip(skip)                            // THEN skip
-          .Take(pageSize)                        // THEN take
-          .Select(e => new
-          {
-              e.LeadDetailID,
-              e.ActivityDateTime,
-              e.PhoneNumber,
-              e.EmailAddress,
-              e.ActivityNote,
-              e.FileLink,
-              e.LeadActivityType.LeadActivityName,
-              e.LeadActivityType.LeadActivityIcon,
-              CreatedByName = e.CreatedByNavigation != null
-                              ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}"
-                              : null
-          })
-          .ToListAsync();
+                .AllActive()
+                .Include(e => e.Status) // Include Status
+                .Where(u => u.LeadID == id &&
+                           u.ActivityDateTime >= DateTime.UtcNow.AddSeconds(11) &&
+                           u.IsDone == null)
+                .OrderByDescending(e => e.ActivityDateTime)
+                .Skip(skip)
+                .Take(pageSize)
+                .Select(e => new
+                {
+                    e.LeadDetailID,
+                    e.ActivityDateTime,
+                    e.PhoneNumber,
+                    e.EmailAddress,
+                    e.ActivityNote,
+                    e.FileLink,
+                    e.IsDone,
+                    e.LeadActivityType.LeadActivityName,
+                    e.LeadActivityType.LeadActivityIcon,
+                    CreatedByName = e.CreatedByNavigation != null
+                        ? $"{e.CreatedByNavigation.FirstName} {e.CreatedByNavigation.LastName}"
+                        : null,
+                    StatusID = e.StatusID,
+                    StatusName = e.Status != null ? e.Status.StatusName : null
+                })
+                .ToListAsync();
 
             return Ok(list);
         }
@@ -252,7 +262,7 @@ namespace GCTL_App.Controllers.CRM
                 ? await StorePhoto(leadDetailsVM.File)
                 : null;
 
-                var result2 = await _leadDetailsService.CreateLeadDeatil(leadDetailsVM, fileLocation);
+                var result2 = await _leadDetailsService.SaveLeadDetailAsync(leadDetailsVM, fileLocation);
 
                 return Ok(result2);
             }
@@ -289,7 +299,7 @@ namespace GCTL_App.Controllers.CRM
             {
                 items = result.data.Select(c => new
                 {
-                    value = c.Name ?? "",
+                    value = c.Id ,
                     label = $"{c.Name ?? ""}",
                     group = ""
                 }),
@@ -312,7 +322,7 @@ namespace GCTL_App.Controllers.CRM
             {
                 items = result.data.Select(c => new
                 {
-                    value = c.Name ?? "",
+                    value = c.Id,
                     label = $"{c.Name ?? ""}",
                     group = ""
                 }),
@@ -324,13 +334,29 @@ namespace GCTL_App.Controllers.CRM
         #endregion
 
         #region Complete Activity
-        public async Task<IActionResult> Complete(LeadDetailsVM model)
+        public async Task<IActionResult> Complete(CRMStateModal model)
         {
             try
             {
                 var result = await _leadDetailsService.CompleteAsync(model);
+                return Json(new { success = true, message = result.Message });
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, message = "Something went to wrong!" });
+            }
+        }
+        #endregion
+
+        #region No Response Status Add
+        public async Task<IActionResult> NoResponse(CRMStateModal model)
+        {
+            try
+            {
+                var result = await _leadDetailsService.NoResponseAsync(model);
                 return Json(new { success = true, message = "" });
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 return Json(new { success = false, message = "Something went to wrong!" });
             }
@@ -347,6 +373,38 @@ namespace GCTL_App.Controllers.CRM
                 success = result.success,
                 data = result.data
             });
+        }
+        #endregion
+
+        #region Add Comment
+        [HttpPost]
+        public async Task<IActionResult> AddComment([FromBody] LeadActivityCommentVM commentVM)
+        {
+            try
+            {
+                var result = await _leadDetailsService.AddCommentAsync(commentVM);
+                return Json(new { success = result.Success, message = result.Message });
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, message = "Something went wrong!" });
+            }
+        }
+        #endregion
+
+        #region Get Comments
+        [HttpGet]
+        public async Task<IActionResult> GetComments(int leadDetailID)
+        {
+            try
+            {
+                var result = await _leadDetailsService.GetCommentsAsync(leadDetailID);
+                return Json(new { success = result.success, data = result.data });
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, message = "Something went wrong!" });
+            }
         }
         #endregion
     }

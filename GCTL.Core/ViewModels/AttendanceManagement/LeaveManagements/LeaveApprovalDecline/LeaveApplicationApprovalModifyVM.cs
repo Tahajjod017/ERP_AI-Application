@@ -33,5 +33,6 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveApprov
         public string? SecrectCode { get; set; }
         public DateTime? SecrectCodeDateTime { get; set; }
         public decimal Taken { get; set; }
+        public int? LeaveApplicableYear { get; set; }
     }
 }

@@ -301,7 +301,7 @@ $(document).ready(function () {
 
                     initializeDatepickerDMY2("FromDate,ToDate", minDateStr, maxDateStr);
                     initializeDatepickerDMY2("FromDateEdit,ToDateEdit", minDateStr, maxDateStr);
-
+                    initializeDatepickerDMY2("ToDateFromDateCombined  ", minDateStr, maxDateStr);
                     window.__minDateStr = minDateStr;
                     window.__maxDateStr = maxDateStr;
                     //
@@ -416,7 +416,7 @@ $(document).ready(function () {
     /*initializeDatepickerDMY("FromDate, ToDate,ToDateFromDateCombined");*/
 
     // OnlyTOday  Selected
-    initializeDatepickerDMYOnlyToday("ToDateFromDateCombined");
+    //initializeDatepickerDMYOnlyToday("ToDateFromDateCombined");
     $("#ToDate").prop("disabled", true);
     $(document).on('change', "#FromDate", function () {
         const fromDate = $(this).val();
@@ -913,7 +913,7 @@ $(document).ready(function () {
                         $('#SubsequentHolydayDays').val("0");
                     }
                 }
-                initializeDatepickerDMYOnlyToday("ToDateFromDateCombinedEdit");
+                //initializeDatepickerDMYOnlyToday("ToDateFromDateCombinedEdit");
             },
 
             error: function () {

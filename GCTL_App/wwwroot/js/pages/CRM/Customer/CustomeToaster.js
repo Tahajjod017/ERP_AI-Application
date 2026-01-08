@@ -170,3 +170,17 @@
     // Expose globally
     window.customToaster = customToaster;
 })();
+
+
+///* ====== Demo Buttons ====== */
+//document.getElementById("btnSuccess").addEventListener("click", () => customToaster.success("Operation completed successfully!"));
+//document.getElementById("btnError").addEventListener("click", () => customToaster.error("Something went wrong!"));
+//document.getElementById("btnLoading").addEventListener("click", () => customToaster.loading("Loading data...", 5000));
+//document.getElementById("btnInfo").addEventListener("click", () => customToaster.info("This is an info message."));
+//document.getElementById("btnWarning").addEventListener("click", () => customToaster.warning("This is a warning!"));
+//document.getElementById("btnAlert").addEventListener("click", () => customToaster.alert("This is an alert!"));
+//document.getElementById("btnConfirm").addEventListener("click", async () => {
+//    const confirmed = await customToaster.confirm("Do you want to continue?");
+//    if (confirmed) customToaster.success("Confirmed! Next process...");
+//    else customToaster.error("Cancelled!");
+//});
