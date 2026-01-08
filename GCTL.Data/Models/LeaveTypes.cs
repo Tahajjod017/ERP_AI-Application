@@ -55,6 +55,8 @@ public partial class LeaveTypes
 
     public int? SickLeaveDocumentWithinDays { get; set; }
 
+    public bool IsAllowPastDate { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

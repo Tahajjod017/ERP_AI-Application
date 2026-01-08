@@ -47,7 +47,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     MinimumDaysRequiredEncashement = data.MinimumDaysRequiredEncashement.HasValue ? data.MinimumDaysRequiredEncashement : 0,
                     MaximumDaysAllowedEncashement = data.MaximumDaysAllowedEncashement.HasValue ? data.MaximumDaysAllowedEncashement : 0,
                     IsSickLeaveDocumentRequired = data.IsSickLeaveDocumentRequired,
-                    SickLeaveDocumentWithinDays = data.SickLeaveDocumentWithinDays.HasValue ? data.SickLeaveDocumentWithinDays : 0
+                    SickLeaveDocumentWithinDays = data.SickLeaveDocumentWithinDays.HasValue ? data.SickLeaveDocumentWithinDays : 0,
+                    IsAllowPastDate=data.IsAllowPastDate,
                 };
 
                 return dataVM;
@@ -110,7 +111,8 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     EffectiveAfter = entityVM.EffectiveAfter,
                     ApplicableYear=DateTime.Now.Year,
                     IsSickLeaveDocumentRequired = false,
-                    SickLeaveDocumentWithinDays = 0
+                    SickLeaveDocumentWithinDays = 0,
+                    IsAllowPastDate = entityVM.IsAllowPastDate
 
 
                 };
@@ -185,6 +187,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     existingLeave.IsSickLeaveDocumentRequired = false;
                     existingLeave.SickLeaveDocumentWithinDays = 0;
                 }
+                existingLeave.IsAllowPastDate = entityVM.IsAllowPastDate;
                 existingLeave.LIP = entityVM.LIP;
                 existingLeave.LMAC = entityVM.LMAC;
                 existingLeave.UpdatedAt = DateTime.Now;
@@ -343,6 +346,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                      WorkingHour=entityVM.WorkingHour,
                      ShortLeaveMaxInADay=entityVM.ShortLeaveMaxInADay,
                      IsEmailSendEnabled = entityVM.IsEmailSendEnabled,
+                     AbsentMultiplier=entityVM.AbsentMultiplier,
 
                     LIP = entityVM.LIP,
                     LMAC = entityVM.LMAC,
@@ -414,6 +418,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                 existingPolicy.WorkingHour = entityVM.WorkingHour;
                 existingPolicy.ShortLeaveMaxInADay = entityVM.ShortLeaveMaxInADay;
                 existingPolicy.IsEmailSendEnabled = entityVM.IsEmailSendEnabled;
+                existingPolicy.AbsentMultiplier= entityVM.AbsentMultiplier;
 
                 existingPolicy.LIP = entityVM.LIP;
                 existingPolicy.LMAC = entityVM.LMAC;
@@ -471,6 +476,7 @@ namespace GCTL.Service.AttendanceManagement.LeaveManagements.LeaveSettings
                     WorkingHour=x.WorkingHour,
                     ShortLeaveMaxInADay=x.ShortLeaveMaxInADay,
                     IsEmailSendEnabled = x.IsEmailSendEnabled,
+                    AbsentMultiplier=x.AbsentMultiplier,
 
 
                 }).ToList();

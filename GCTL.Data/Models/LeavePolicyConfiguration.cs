@@ -61,6 +61,8 @@ public partial class LeavePolicyConfiguration
 
     public bool IsEmailSendEnabled { get; set; }
 
+    public decimal? AbsentMultiplier { get; set; }
+
     public virtual Employees CreatedByNavigation { get; set; }
 
     public virtual Employees DeletedByNavigation { get; set; }

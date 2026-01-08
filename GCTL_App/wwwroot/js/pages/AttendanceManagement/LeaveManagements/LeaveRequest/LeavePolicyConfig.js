@@ -23,7 +23,7 @@
         $('#LeaveBalanceResetDate').val('').trigger('change');
         $('input[type=radio][name=IsAllowCrossLeave][value=true]').prop('checked', true);
         $('#IsEmailSendEnabled').prop('checked', false);
-
+        $('#AbsentMultiplier').prop('checked', true);
         initializeDatepickerDMY("LeaveBalanceResetDate");
     }
 
@@ -58,8 +58,8 @@
             IsRoundOffHour: $('#IsRoundOffHour').is(':checked'),
             RoundOffHour: $('#IsRoundOffHour').is(':checked') ? $('#RoundOffHour').val() : null,
             LeavePolicyConfigurationID: parseInt($('#LeavePolicyConfigurationID').val()) || 0,
+            AbsentMultiplier: parseFloat($('#AbsentMultiplier').val()) || 0,
 
-            
             //
             IsAllowRequestForFutureDays: $('#IsAllowRequestForFutureDays').is(':checked'),
             // *Always* read the user's input (default to null if blank/invalid)
@@ -154,7 +154,7 @@
                     $('#AllowRequestForFutureDays').val(config.allowRequestForFutureDays);
                     $('#MaxLeavePerApplication').val(config.maximumleaveDaysPerAplication);
                     $('#MaxGapBetweenApplications').val(config.maximumGapDaysBetweenAplications);
-
+                    $('#AbsentMultiplier').val(config.absentMultiplier);
                     // Dropdown
                     $('#LeavePolicyConfigurationID').val(config.leavePolicyConfigurationID);
                     choiceManager.setChoiceValue('RoundOffHour', config.roundOffHour);

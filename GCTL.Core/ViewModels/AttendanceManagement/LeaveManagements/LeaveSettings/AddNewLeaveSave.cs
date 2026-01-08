@@ -11,7 +11,7 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
     {
       
         public string? LeaveTypeName { get; set; }
-        public int? OrganizationID { get; set; }
+       public int? OrganizationID { get; set; }
 
         public bool IsPaid { get; set; }
         public bool IsActive { get; set; }
@@ -23,9 +23,9 @@ namespace GCTL.Core.ViewModels.AttendanceManagement.LeaveManagements.LeaveSettin
 
         public string? EffectiveAfter { get; set; }
 
-        public bool IsSickLeaveDocumentRequired { get; set; }
+       
 
-        public int? SickLeaveDocumentWithinDays { get; set; }
+        public bool IsAllowPastDate { get; set; }
 
     }
 }
