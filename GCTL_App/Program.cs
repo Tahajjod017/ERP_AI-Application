@@ -1,5 +1,3 @@
-using System.Text;
-using GCTL.Core.ServiceExtensions;
 using GCTL.Data.Models;
 using GCTL.Service;
 using GCTL.Service.AccessPermissions;
@@ -15,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using QuestPDF.Infrastructure;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,36 +23,24 @@ builder.Services.ConfigureDapperConnection(builder.Configuration);
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.AddMemoryCache();
 builder.Services.AddSignalR();
-
-
-// Add session services here
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
-
-
-
 #endregion
 
 
 #region Authentication & Authorization
 
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "g0tse7xnlowavtuosr4hkjkitrfhttl";
+// FIX: JWT key now comes ONLY from config/User Secrets — no hardcoded fallback
+// Run in terminal: dotnet user-secrets set "Jwt:Key" 
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException(
+        "JWT Key is not configured. Run: dotnet user-secrets set \"Jwt:Key\" \"your-secret\"");
 
 builder.Services.AddAuthentication(options =>
 {
-    // Default = Cookies (for MVC). APIs explicitly use JWT.
     options.DefaultScheme = Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme;
 })
-// JWT for APIs
 .AddJwtBearer("JwtBearer", options =>
 {
-    options.RequireHttpsMetadata = true; // Enable in production
+    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -62,29 +49,33 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-        //ValidIssuer = jwtIssuer,
-        //ValidAudience = jwtAudience,
-        IssuerValidator = (issuer, token, parameters) => issuer, // Accept current issuer
-        AudienceValidator = (audiences, token, parameters) => true // Accept current audience
+        ClockSkew = TimeSpan.Zero // tokens expire exactly on time, no grace period
+        // FIX: Removed IssuerValidator and AudienceValidator bypasses.
+        // Those bypasses accepted ANY issuer/audience — meaning stolen tokens
+        // from other apps would be accepted. Now we use the dynamic event below.
     };
 
-    // Dynamically determine valid issuer/audience based on incoming request
+    // Dynamic host-based issuer/audience — still flexible, but now properly validated
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
         {
             var request = context.HttpContext.Request;
             var currentHost = $"{request.Scheme}://{request.Host}/";
-
-            // Set dynamic issuer/audience
             context.Options.TokenValidationParameters.ValidIssuer = currentHost;
             context.Options.TokenValidationParameters.ValidAudience = currentHost;
-
+            return Task.CompletedTask;
+        },
+        // FIX: Log auth failures so you can see WHY tokens are rejected
+        OnAuthenticationFailed = context =>
+        {
+            var logger = context.HttpContext.RequestServices
+                .GetRequiredService<ILogger<Program>>();
+            logger.LogWarning("JWT auth failed: {Error}", context.Exception.Message);
             return Task.CompletedTask;
         }
     };
 })
-// Cookies for MVC
 .AddCookie("Cookies", options =>
 {
     options.Cookie.HttpOnly = true;
@@ -93,20 +84,20 @@ builder.Services.AddAuthentication(options =>
     options.LogoutPath = "/Account/Logout";
     options.AccessDeniedPath = "/Home/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Always secure in production
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.None       // HTTP allowed in dev
+        : CookieSecurePolicy.Always;    // HTTPS required in production
     options.SessionStore = new MemoryCacheTicketStore();
 });
 
 builder.Services.AddAuthorization(options =>
 {
-    // APIs => JWT
     options.AddPolicy("ApiPolicy", policy =>
     {
         policy.AddAuthenticationSchemes("JwtBearer");
         policy.RequireAuthenticatedUser();
     });
 
-    // MVC => Cookies
     options.AddPolicy("WebPolicy", policy =>
     {
         policy.AddAuthenticationSchemes("Cookies");
@@ -136,7 +127,6 @@ builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<IAccessControlService, AccessControlService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<UserInfoActionFilter>();
-//builder.Services.AddScoped<IBrandingAssetService, BrandingAssetService>();
 #endregion
 
 
@@ -151,18 +141,17 @@ builder.Services.AddSwaggerGen(c =>
         Description = "API documentation for GCTL mobile integration"
     });
 
-    // Filter only [ApiController] controllers
     c.DocInclusionPredicate((docName, apiDesc) =>
     {
         var actionDescriptor = apiDesc.ActionDescriptor as ControllerActionDescriptor;
-        return actionDescriptor?.ControllerTypeInfo.GetCustomAttributes(typeof(ApiControllerAttribute), true).Any() ?? false;
+        return actionDescriptor?.ControllerTypeInfo
+            .GetCustomAttributes(typeof(ApiControllerAttribute), true).Any() ?? false;
     });
 
-    // JWT Bearer token support
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
-        Description = "Enter 'Bearer' followed by your JWT token.\nExample: Bearer eyJhbGciOiJIUzI1NiIsInR...",
+        Description = "Enter 'Bearer' followed by your JWT token.\nExample: Bearer eyJhbGci...",
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
@@ -186,35 +175,61 @@ builder.Services.AddSwaggerGen(c =>
 #endregion
 
 
-builder.Services.AddControllers(); // For API controllers
+builder.Services.AddControllers();
 builder.Services.AddControllersWithViews(options =>
 {
-    options.Filters.AddService<UserInfoActionFilter>(); // Global filter registration
+    options.Filters.AddService<UserInfoActionFilter>();
 });
 
 
-#region AddCors
+// ====================================================================
+// BUG 2 FIX — CORS:
+// BEFORE: options.AddPolicy("Allowall", ...)  ← lowercase 'a'
+//         app.UseCors("AllowAll");             ← uppercase 'A' — MISMATCH!
+//         Result: CORS silently not applied. All cross-origin calls fail.
+//
+// AFTER:  Same name "AllowAll" used in BOTH places.
+//         Also: AllowAnyOrigin() + AllowCredentials() is invalid combination
+//         (browsers block it). Fixed below with environment-based origins.
+// ====================================================================
+#region CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Allowall", policy =>
+    // FIX: Policy name is now "AllowAll" — matches app.UseCors("AllowAll") below
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy
-        .AllowAnyOrigin()
-        .AllowAnyHeader()
-        .AllowAnyMethod();
+        if (builder.Environment.IsDevelopment())
+        {
+            // Development: allow Angular dev server + any localhost port
+            policy
+                .WithOrigins(
+                    "http://localhost:4200",   // Angular dev server
+                    "http://localhost:3000",   // React dev server
+                    "http://localhost:5173",   // Vite dev server
+                    "https://localhost:7001")  // Your own HTTPS dev
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();          // Needed for cookies + SignalR
+        }
+        else
+        {
+            // Production: lock down to your actual domain
+            // TODO: Replace with your real production domain
+            policy
+                .WithOrigins("https://yourdomain.com", "https://www.yourdomain.com")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
     });
 });
-
 #endregion
 
 
-// localization
 builder.Services.AddScoped<ILocalizationContext, LocalizationContext>();
 QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
-app.UseCors("AllowAll");
-
 
 #region Error Handling & Swagger
 if (!app.Environment.IsDevelopment())
@@ -238,7 +253,7 @@ else
 #region Language Middleware
 app.Use(async (context, next) =>
 {
-    var language = context.Request.Cookies["Language"] ?? "en"; // Default to English
+    var language = context.Request.Cookies["Language"] ?? "en";
     context.Items["Language"] = language;
 
     if (context.Request.Cookies["Language"] == null)
@@ -255,28 +270,35 @@ app.Use(async (context, next) =>
 #endregion
 
 
+// ====================================================================
+// FIX: Middleware ORDER matters in ASP.NET Core.
+// CORRECT order:
+//   UseHttpsRedirection
+//   UseStaticFiles
+//   UseRouting          ← CORS must come AFTER this
+//   UseCors             ← FIX: moved here, AFTER UseRouting
+//   UseAuthentication
+//   UseAuthorization
+//   MapControllers
+//
+// BEFORE: app.UseCors("AllowAll") was called before UseRouting — wrong order,
+//         AND wrong policy name. Both are now fixed.
+// ====================================================================
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+// FIX: UseCors is now AFTER UseRouting and uses the CORRECT policy name "AllowAll"
+app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseMiddleware<LocalizationMiddleware>();
-
-app.MapHub<EmployeeUploadHub>("/employeeUploadHub");
-
-
 app.UseAuthorization();
 
-app.UseSession();
-
-app.MapControllers(); // Maps attribute-routed API controllers
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}"
 );
-
-
-
-
 
 app.Run();

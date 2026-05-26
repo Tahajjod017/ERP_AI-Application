@@ -21,5 +21,7 @@ namespace GCTL.Service.FieldServices.Advanced_Apporval
         Task<CommonReturnViewModel> ApproveAsync(int employeeAdvanceID, string approvedBy);
 
         Task<CommonReturnViewModel> DeclineAsync(int employeeAdvanceID, string declinedBy);
+
+        Task<ApprovalGetALLVM> GetByIdAsync(int employeeAdvanceID);
     }
 }
