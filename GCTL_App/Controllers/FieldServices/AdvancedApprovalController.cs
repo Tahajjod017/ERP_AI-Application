@@ -21,8 +21,8 @@ namespace GCTL_App.Controllers.FieldServices
         {
             return View();
         }
-
-        #region GetAll Employee Advance with Pagination
+        //API Pagination
+        # region GetAll Employee Advance with Pagination
         [HttpGet("AdvancedApproval/GetAll")]
         public async Task<IActionResult> GetAll(int pageNumber = 1, int pageSize = 5, string searchTerm = "", string sortColumn = "EmployeeAdvanceID", string sortOrder = "desc", int? mainempId = null)
         {

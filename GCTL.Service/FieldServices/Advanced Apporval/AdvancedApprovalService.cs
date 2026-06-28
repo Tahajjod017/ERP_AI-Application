@@ -55,6 +55,7 @@ namespace GCTL.Service.FieldServices.Advanced_Apporval
 
         public Task<CommonReturnViewModel> DeclineAsync(int employeeAdvanceID, string declinedBy)
         {
+            
             throw new NotImplementedException();
         }
 
@@ -72,7 +73,7 @@ namespace GCTL.Service.FieldServices.Advanced_Apporval
         // AFTER: async Task<...> + await on both database calls
         // ====================================================================
 
-        #region GetAllAsync
+        #region  GetAllAsync 
         public async Task<PaginationService<EmployeeAdvances, ApprovalGetALLVM>.PaginationResult<ApprovalGetALLVM>> GetAllAsync1(
             int pageNumber = 1,
             int pageSize = 5,

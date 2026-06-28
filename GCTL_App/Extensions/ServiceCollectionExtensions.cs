@@ -1,4 +1,6 @@
 ﻿#region References
+using GCTL.Core.AI;
+using GCTL.Service.AI;
 using System;
 using System.Data;
 using GCTL.Core.Configurations;
@@ -333,6 +335,8 @@ namespace GCTL_App.Extensions
             #region Tahajjod 
             services.AddScoped<IEmployeeAdvanced,EmployeeAdvancedService>();
             services.AddScoped<IAdvancedApprovalService,AdvancedApprovalService>();
+            services.AddScoped<IAIService, OpenAIService>();
+
             #endregion
 
             #region Language Services
